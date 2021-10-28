@@ -1,0 +1,12 @@
+{
+  "name": "directus-extension-display-pack-price",
+  "version": "1.0.0",
+  "private": true,
+  "directus:extension": {
+    "type": "display",
+    "path": "index.js",
+    "source": "src/index.ts",
+    "host": "9.0.0-rc.99",
+    "hidden": false
+  }
+}

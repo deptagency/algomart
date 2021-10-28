@@ -1,0 +1,10 @@
+.root {
+  @apply text-center;
+}
+.gridContainer {
+  @apply grid grid-cols-3 gap-5 mx-20 my-10;
+}
+
+.heading {
+  @apply font-bold mb-10 mt-5 mx-20 text-center text-base-gray-text;
+}

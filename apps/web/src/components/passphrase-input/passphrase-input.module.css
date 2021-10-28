@@ -1,0 +1,42 @@
+.labelContainer {
+  @apply relative flex flex-wrap content-between w-full font-bold text-base-gray-dark;
+}
+
+.label {
+  @apply block w-1/2 mb-2;
+}
+
+.helpText {
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-gray-medium;
+}
+
+.errorText {
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-errorRed;
+}
+
+/* These styles override the plugin classes... */
+.passphraseInput {
+  width: 100% !important;
+}
+
+.passphraseInput > div {
+  @apply flex justify-between;
+}
+
+.passphraseInput input {
+  border-right: unset;
+  border-left: unset;
+  border: 1px solid #dadcdf !important;
+  border-radius: 4px !important;
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system !important;
+  height: 50px !important;
+  width: 40px !important;
+}
+
+.passphraseInput input:focus {
+  caret-color: unset !important;
+}
+
+.passphraseInputError input {
+  border: 1px solid rgba(185, 28, 28, 1) !important;
+}

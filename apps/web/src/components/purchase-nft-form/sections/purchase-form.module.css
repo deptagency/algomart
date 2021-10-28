@@ -1,0 +1,72 @@
+.form {
+  @apply w-full;
+}
+
+.form h2 {
+  @apply pb-4 mb-8 font-bold border-b border-base-gray-border;
+}
+
+.form input,
+.form [data-input='select'] {
+  @apply mb-6;
+}
+
+.form label {
+  @apply text-sm font-bold;
+}
+
+.formSection {
+  @apply mt-8 mb-16;
+}
+
+.formSectionNoMargin {
+  @apply mb-0;
+}
+
+.formMultiRow {
+  @apply flex items-center space-x-5;
+}
+
+.formSingleRow {
+  @apply w-full;
+}
+
+.defaultCardRow {
+  @apply mt-5;
+}
+
+.formSingleRow label {
+  @apply justify-start;
+}
+
+.differentCardLink {
+  @apply text-sm underline text-base-gray-medium;
+}
+
+.priceContainer {
+  @apply flex items-center justify-between w-full p-5 mb-6 rounded-sm bg-base-gray-bg;
+}
+
+.priceLabel {
+  @apply text-base text-base-gray-medium;
+}
+
+.priceValue {
+  @apply text-lg font-bold text-green-600;
+}
+
+.hiddenField {
+  @apply hidden;
+}
+
+.bid {
+  @apply shadow-medium;
+}
+
+.notice {
+  @apply px-8 py-5 mb-8 text-center rounded bg-base-gray-notice text-base-gray-text;
+}
+
+.notification {
+  @apply mb-5;
+}

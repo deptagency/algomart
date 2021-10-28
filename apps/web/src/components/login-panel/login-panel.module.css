@@ -1,0 +1,40 @@
+.root {
+  /* Base */
+  @apply mx-auto relative;
+  /* Tablet + */
+  @apply md:max-w-520 md:overflow-hidden md:rounded-xl;
+}
+
+.buttonContainer {
+  /* Base */
+  @apply bg-base-teal flex flex-col px-8 py-12 space-y-8;
+  /* Mobile + */
+  @apply sm:px-24 sm:py-16;
+}
+
+.button {
+  @apply flex items-center justify-center;
+}
+
+.button img {
+  @apply w-5 h-5;
+}
+
+.buttonImageText {
+  @apply ml-4;
+}
+
+.featuredWrapper {
+  @apply flex flex-col bg-black;
+}
+
+.featuredBottom {
+  /* Base */
+  @apply mx-auto px-8 py-12 relative;
+  /* Mobile + */
+  @apply sm:px-24;
+}
+
+.featuredBottomText {
+  @apply mt-8 text-center text-lg text-white;
+}

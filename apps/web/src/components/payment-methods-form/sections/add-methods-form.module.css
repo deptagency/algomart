@@ -1,0 +1,24 @@
+.form h2 {
+  @apply border-b border-base-gray-border font-bold mb-8 pb-4;
+}
+
+.form input,
+.form [data-input='select'] {
+  @apply mb-6;
+}
+
+.form label {
+  @apply font-bold text-sm;
+}
+
+.submitButton {
+  @apply mt-5;
+}
+
+.buttonWrapper {
+  @apply flex justify-end m-auto;
+}
+
+.notification {
+  @apply mb-5;
+}

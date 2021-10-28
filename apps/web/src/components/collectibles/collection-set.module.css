@@ -1,0 +1,51 @@
+.root {
+  @apply mb-12;
+}
+
+.setInfo {
+  @apply flex items-center justify-between pb-1 mb-3 border-b border-base-gray-border;
+}
+
+.setName {
+  @apply text-lg;
+}
+
+.setText {
+  @apply text-sm text-base-gray-medium;
+}
+
+.setNumberCollected {
+  /* Base */
+  @apply hidden;
+  /* Mobile + */
+  @apply sm:block;
+}
+
+.setGrid {
+  /* Base */
+  @apply grid grid-cols-5 gap-4;
+  /* Mobile + */
+  @apply sm:grid-cols-8;
+}
+
+/* Show only first eight children by default */
+.setGrid > div:nth-of-type(1n + 9) {
+  @apply hidden;
+}
+/* Show only first five children in mobile */
+@media only screen and (max-width: 600px) {
+  .setGrid > div:nth-of-type(1n + 6) {
+    @apply hidden;
+  }
+}
+
+.setGrid div {
+  @apply rounded-sm;
+}
+
+.setGridEmpty {
+  /* Base */
+  @apply border bg-base-gray-bg border-base-gray-border;
+  /* Mobile + */
+  @apply sm:block;
+}

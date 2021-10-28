@@ -1,0 +1,39 @@
+{
+  "sorting": {
+    "Brand": "Brand",
+    "Name": "Name",
+    "Newest": "Newest",
+    "Oldest": "Oldest"
+  },
+  "tabs": {
+    "NFTs": "NFTs",
+    "Collections": "Collections",
+    "Showcase": "Showcase"
+  },
+  "collectionPage": {
+    "A collection by": "<0>A collection by <1>{{brand}}</1></0>",
+    "Number of Total Collected": "{{number}} of {{total}} Collected",
+    "Other Collectibles": "Other Collectibles",
+    "Part of Collection": "<0>Part of <1>{{name}}</1></0>"
+  },
+  "viewer": {
+    "exclusiveText": "{{name}} Employee Exclusive",
+    "of": "of",
+    "ownedByText": "Owned by @{{name}} (that's you!)",
+    "ownedBy": "Owned by",
+    "thatsYou": "(that's you!)",
+    "Collectible_one": "Collectible",
+    "Collectible_0": "Collectibles",
+    "Collectible_other": "Collectibles",
+    "collected": "Collected",
+    "selectCollectibles": "Select the collectibles to include in your showcase",
+    "maxCollectibles": "You can only showcase up to 8 collectibles.",
+    "noCollectibles": "You haven't collected anything yet.",
+    "Your collection": "Your collection",
+    "Publish Showcase": "Publish Showcase",
+    "Find Something Cool": "Find Something Cool",
+    "startCollection": "Start your collection today.",
+    "emptyState": "Showcase is a publicly available gallery of your best collectibles. Add your favorites to share them with the world!",
+    "showcaseTitle": "@{{username}}'s showcase"
+  }
+}

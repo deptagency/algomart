@@ -1,0 +1,81 @@
+/* Common auth input styles */
+.formField {
+  @apply mb-6;
+}
+
+.labelContainer {
+  @apply relative flex flex-wrap content-between w-full font-bold text-base-gray-dark;
+}
+
+.label {
+  @apply w-1/2;
+}
+
+.helpText {
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-gray-medium;
+}
+
+.helpLink {
+  @apply block mt-2 text-xs text-right;
+}
+
+.errorText {
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-errorRed;
+}
+
+/* Profile Image Input */
+.profileImageContainer {
+  @apply flex items-center justify-between p-6 mt-2 rounded-md bg-base-gray-bg;
+}
+
+.avatarContainer {
+  @apply block overflow-hidden bg-white rounded-full shadow-medium text-base-gray-medium;
+  height: 50px;
+  width: 50px;
+}
+
+.avatarWithImage {
+  @apply object-cover w-full h-full;
+}
+
+.avatarWithoutImage {
+  @apply w-full p-3;
+}
+
+.profileImageActions {
+  @apply flex items-center;
+}
+
+.profileImageChange {
+  @apply flex items-center;
+}
+
+.profileImageRemove {
+  @apply pr-0 mb-0 underline text-base-gray-medium;
+}
+
+/* Passphrase Input */
+.passphraseInputWrapper {
+  @apply w-full mt-2 overflow-hidden rounded-md bg-base-gray-bg;
+}
+
+.passphraseInputFields {
+  @apply p-6;
+}
+
+.passphraseInputWarning {
+  @apply flex items-center justify-center p-6 font-bold bg-base-green;
+}
+
+.passphraseInputShield {
+  @apply mr-2;
+  width: 30px;
+}
+
+.passphraseInputDescription {
+  @apply px-6 font-light text-center text-base-gray-text;
+}
+
+.passphraseInputDescription p:first-child {
+  @apply my-4;
+}

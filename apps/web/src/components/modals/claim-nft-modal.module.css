@@ -1,0 +1,77 @@
+.container {
+  @apply px-4 pt-4 pb-20;
+}
+
+.dialog {
+  @apply bg-white relative w-full max-w-lg my-8 overflow-visible sm:w-full;
+}
+
+.root {
+  @apply flex flex-col items-center justify-start h-full px-8 text-center sm:px-16;
+}
+
+.imageWrapper {
+  @apply relative flex self-center p-2 -mb-4 rounded-md -top-8 bg-base-teal;
+}
+
+.form {
+  @apply mt-10 mb-10;
+}
+
+.form label {
+  @apply font-bold text-center;
+}
+
+.form label span {
+  @apply block w-full text-base;
+}
+
+.image {
+  @apply w-full h-full;
+}
+
+.closeButton {
+  @apply absolute top-0 right-0 z-50 text-sm border-none rounded-sm bg-none;
+}
+
+.passphrase {
+  @apply space-y-2;
+}
+
+.passphraseHeader {
+  @apply pb-4;
+}
+
+.instructionText {
+  @apply pt-5 pb-10 text-sm text-base-gray-text;
+}
+
+.loadingWrapper {
+  @apply block my-6;
+}
+
+.statusWrapper {
+  @apply my-6;
+}
+
+.statusHeading {
+  @apply my-2 text-lg font-bold text-base-gray-text;
+}
+
+.statusMessage {
+  @apply text-sm text-base-gray-text;
+}
+
+.errorIcon {
+  @apply relative mx-auto text-base-errorRed;
+  width: 48px;
+}
+
+.successIcon {
+  @apply mx-auto text-green-600;
+  width: 48px;
+}
+
+.button {
+  @apply w-full mt-8;
+}

@@ -1,0 +1,26 @@
+.container {
+  @apply fixed inset-0;
+}
+
+.content {
+  @apply w-full text-white bg-black max-w-none max-h-screen overflow-auto;
+}
+
+.overlay {
+  @apply bg-opacity-100;
+}
+
+.closeButton {
+  @apply w-8 h-auto p-0 right-8 text-black bg-white rounded-full hover:bg-base-green focus:bg-base-green;
+}
+
+.root {
+  /* Base */
+  @apply absolute top-0 left-8 right-8 flex items-center justify-between;
+  /* Tablet + */
+  @apply md:top-5;
+}
+
+.browserWrapper {
+  @apply mt-8;
+}

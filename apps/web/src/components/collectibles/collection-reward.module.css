@@ -1,0 +1,24 @@
+.root {
+  @apply mt-12 mb-24 overflow-hidden shadow-large rounded-lg text-center;
+}
+
+.contentWrapper {
+  @apply pt-4 px-12 py-10;
+}
+
+.contentWrapper p {
+  @apply mb-4;
+}
+
+.progressOuter {
+  @apply h-3 mb-8 overflow-hidden relative rounded-full;
+  background: linear-gradient(180deg, #e6e6e6 0%, #f7f7f7 100%);
+}
+
+.progressInner {
+  @apply absolute bg-base-green h-full rounded-full;
+}
+
+.button {
+  @apply mt-4;
+}

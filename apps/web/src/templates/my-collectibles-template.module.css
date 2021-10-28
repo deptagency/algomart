@@ -1,0 +1,12 @@
+.selectWrapper {
+  @apply relative z-10 mb-12 transform -translate-y-1/2 border-b border-base-gray-border;
+}
+
+.selectWrapper label {
+  @apply mx-auto transform translate-y-1/2 shadow-large;
+  max-width: 175px;
+}
+
+.paginationWrapper {
+  @apply mt-12;
+}

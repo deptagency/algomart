@@ -1,0 +1,27 @@
+.root {
+  @apply max-w-xs text-center w-full;
+}
+
+.icon {
+  @apply mb-5 mx-auto text-green-600;
+}
+
+.successHeading {
+  @apply font-bold mb-16 text-base-gray-text text-2xl;
+}
+
+.bidPlacedHeading {
+  @apply font-bold text-base-gray-text text-2xl;
+}
+
+.button {
+  @apply w-full;
+}
+
+.bidPlacedNotice {
+  @apply text-center pt-6 pb-9;
+}
+
+.bidPlacedNoticeText {
+  @apply m-auto w-3/4;
+}

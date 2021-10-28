@@ -1,0 +1,15 @@
+# don't ever lint node_modules and lock files
+node_modules
+package-lock.json
+
+# don't lint build output (make sure it's set to your correct build folder name)
+dist
+out
+next-env.d.ts
+.next
+
+# don't lint compiled directus extensions
+apps/cms/extensions/**/index.js
+
+# don't lint nyc coverage output
+coverage

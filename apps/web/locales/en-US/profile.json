@@ -1,0 +1,14 @@
+{
+  "Algorand Wallet Address": "Algorand Wallet Address",
+  "Confirm new email address": "Confirm new email address",
+  "Email Address": "Email Address",
+  "googleSecurity": "<0>Your profile is authenticated through <1>your Google account</1>.</0>",
+  "My Profile": "My Profile",
+  "Payment Methods": "Payment Methods",
+  "resetEmailPrompt": "<0>If you would like to change the email address associated with your account, please confirm your new email address below. <1>Note: this action cannot be undone.</1></0>",
+  "resetPasswordConfirmation": "Check your email!",
+  "resetPasswordPrompt": "If you would like to reset your password, click the button below and check the email address associated with your account.",
+  "resetProfilePicConfirmation": "Your profile image has been updated!",
+  "resetUsernameConfirmation": "Your username has been updated!",
+  "Security": "Security"
+}

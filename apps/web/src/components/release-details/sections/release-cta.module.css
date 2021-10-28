@@ -1,0 +1,15 @@
+.root {
+  @apply p-8 bg-white border-t border-base-gray-border;
+}
+
+.root button {
+  @apply relative max-w-xs mx-auto;
+}
+
+.limit1PerCustomer {
+  @apply text-center text-base-errorRed;
+}
+
+.tealButton {
+  @apply bg-base-teal;
+}

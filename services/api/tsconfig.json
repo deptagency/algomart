@@ -1,0 +1,28 @@
+{
+  "extends": "@tsconfig/node14/tsconfig.json",
+  "include": ["src/**/*", "test/**/*"],
+  "compilerOptions": {
+    "lib": [
+      "ES2020",
+      "ES2020.BigInt",
+      "ES2020.Promise",
+      "ES2020.String",
+      "ES2020.Symbol.WellKnown"
+    ],
+    "module": "CommonJS",
+    "outDir": "dist",
+    "rootDirs": ["src", "test"],
+    "baseUrl": ".",
+    "target": "ES2020",
+    "moduleResolution": "Node",
+    "isolatedModules": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  }
+}

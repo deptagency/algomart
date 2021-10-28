@@ -1,0 +1,3 @@
+.link {
+  @apply outline-none focus:ring-offset-2 focus:ring-white;
+}

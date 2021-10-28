@@ -1,0 +1,13 @@
+.root {
+  @apply bg-base-teal block border-none font-bold opacity-100 px-10 py-5 rounded-sm  text-base-gray-dark text-xl;
+  box-shadow: 0px 0px 8px rgba(18, 220, 197, 0.5);
+  transition: box-shadow 300ms ease-in-out 0ms, opacity 500ms ease-in-out 500ms;
+  width: 300px;
+}
+.root:hover {
+  box-shadow: 0px 0px 16px rgba(255, 255, 255, 0.5);
+}
+
+.root.invisible {
+  opacity: 0;
+}

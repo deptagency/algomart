@@ -1,0 +1,9 @@
+.emojiWrapper {
+  @apply flex items-center justify-center overflow-hidden transition duration-300 bg-white rounded-full outline-none text-base-gray-text shadow-medium;
+  height: 36px;
+  width: 36px;
+}
+
+.emoji {
+  @apply p-2;
+}

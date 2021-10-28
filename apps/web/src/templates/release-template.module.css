@@ -1,0 +1,19 @@
+.root {
+  @apply max-w-700 mr-auto ml-auto;
+}
+
+.notification {
+  @apply mb-5;
+}
+
+.content {
+  @apply shadow-large;
+}
+
+.alert p {
+  @apply font-bold;
+}
+
+.alert button {
+  @apply bg-base-teal;
+}

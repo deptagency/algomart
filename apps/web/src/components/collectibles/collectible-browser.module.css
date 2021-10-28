@@ -1,0 +1,56 @@
+.root {
+  @apply px-4 mx-auto max-w-520;
+  @apply md:max-w-700 md:px-0;
+}
+
+.title {
+  @apply text-center text-white;
+}
+
+.navButton {
+  @apply absolute top-1/2 hover:text-base-green focus:text-base-green;
+  transform: translateY(-50%);
+}
+
+.navButtonLeft {
+  @apply -left-8;
+}
+
+.navButtonRight {
+  @apply -right-8;
+}
+
+.imageWrapper {
+  @apply relative my-5;
+}
+
+.detail {
+  @apply my-5 text-sm text-center;
+  @apply md:text-left md:grid md:grid-cols-3 md:flex-row;
+}
+
+.detailCenter {
+  @apply uppercase;
+  @apply md:text-center;
+}
+
+.detailRight {
+  @apply md:text-right;
+}
+
+.gallery {
+  @apply grid grid-cols-4 gap-5;
+  @apply md:grid-cols-8;
+}
+
+.galleryButton {
+  @apply col-span-1 p-0 m-0 transition-opacity bg-transparent border-none;
+}
+
+.galleryButtonUnselected {
+  @apply opacity-50 hover:opacity-100;
+}
+
+.bold {
+  @apply font-bold;
+}

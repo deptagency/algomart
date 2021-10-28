@@ -1,0 +1,54 @@
+.innerInput {
+  @apply inline-block w-4 h-4 transform bg-white rounded-full shadow-lg;
+}
+
+.innerInputEnabled {
+  @apply translate-x-6;
+}
+
+.innerInputNotEnabled {
+  @apply translate-x-1;
+}
+
+.input {
+  @apply relative inline-flex items-center h-6 rounded-full w-11;
+}
+
+.labelContainer {
+  /* Base */
+  @apply relative flex flex-wrap items-center content-between justify-center w-full;
+  /* Tablet + */
+  @apply md:justify-end;
+}
+
+.label {
+  @apply flex-initial ml-3 text-sm font-light;
+}
+
+.helpText {
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-gray-medium;
+}
+
+.errorText {
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-errorRed;
+}
+
+.toggleEnabled.toggleDark {
+  @apply bg-base-teal;
+}
+
+.toggleNotEnabled.toggleDark {
+  @apply bg-gray-200;
+}
+
+.toggleEnabled.toggleLight {
+  @apply bg-gray-500;
+}
+
+.toggleNotEnabled.toggleLight {
+  @apply bg-gray-200;
+}
+
+.inputDisabled {
+  @apply opacity-50;
+}

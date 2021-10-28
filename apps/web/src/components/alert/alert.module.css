@@ -1,0 +1,35 @@
+.alertWrapper {
+  @apply bg-white h-20 text-base-gray-text rounded-t-md;
+}
+
+.alertWrapper span {
+  @apply flex-none;
+}
+
+.flexCenter {
+  @apply flex items-center justify-between;
+}
+
+.content {
+  @apply pr-1;
+}
+
+.bold {
+  @apply font-bold;
+}
+
+.endDate {
+  @apply lowercase pr-1;
+}
+
+.contentWrapper {
+  @apply flex-initial inline-flex ml-5 w-full;
+}
+
+.centerContent {
+  @apply justify-center;
+}
+
+.callToAction {
+  @apply flex-none bg-black font-normal mr-5 px-10 py-2.5 rounded-md text-sm text-white;
+}

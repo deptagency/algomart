@@ -1,0 +1,23 @@
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.loaderContainer {
+  @apply bg-transparent border border-base-teal overflow-hidden rounded-full relative;
+  height: 8px;
+  width: 300px;
+}
+
+.loaderProgress {
+  @apply absolute bg-base-teal h-full left-0;
+  width: 0;
+}
+
+.loaderContainer.invisible {
+  animation: fadeOut 1s normal forwards ease-in-out;
+}

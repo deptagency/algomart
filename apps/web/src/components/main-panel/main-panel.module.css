@@ -1,0 +1,28 @@
+.rootPanel {
+  /* Base */
+  @apply py-8 mx-auto mb-8 bg-white max-w-700;
+  /* Tablet + */
+  @apply md:mt-6 md:py-16 md:rounded-lg;
+}
+
+.rootNoPanel {
+  /* Base */
+  @apply mx-auto mb-16 max-w-wrapper;
+  /* Tablet + */
+  @apply md:mt-16;
+}
+
+.withPadding {
+  /* Base */
+  @apply px-8;
+  /* Tablet + */
+  @apply md:px-20;
+}
+
+.largeWidth {
+  @apply max-w-880;
+}
+
+.fullWidth {
+  @apply max-w-wrapper;
+}

@@ -1,0 +1,7 @@
+.inputsWrapper {
+  @apply mt-8;
+}
+
+.inputsWrapper > label {
+  @apply mb-6;
+}

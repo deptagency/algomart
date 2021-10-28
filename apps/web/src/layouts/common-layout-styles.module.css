@@ -1,0 +1,14 @@
+.backgroundGradient {
+  @apply flex flex-col flex-grow bg-gradient-to-b from-base-gray-bg;
+}
+
+.pageTitle {
+  @apply mb-6 text-center;
+}
+
+.hideInMobile {
+  /* Base */
+  @apply hidden;
+  /* Tablet + */
+  @apply md:block;
+}

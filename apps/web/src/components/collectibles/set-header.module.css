@@ -1,0 +1,11 @@
+.root {
+  @apply my-12 text-center;
+}
+
+.heading {
+  @apply mb-2 text-3xl font-normal;
+}
+
+.subHeading {
+  @apply text-base-gray-medium;
+}

@@ -1,0 +1,64 @@
+.root {
+  @apply p-5 text-sm;
+}
+
+.rootTransparent {
+  @apply bg-transparent;
+}
+
+.rootFilled {
+  @apply text-white bg-base-gray-dark;
+}
+
+.container {
+  @apply grid w-full grid-cols-2 gap-6 mx-auto;
+  max-width: 200px;
+}
+
+.maxWidth1 {
+  @apply sm:grid-cols-1;
+  max-width: 200px;
+}
+
+.maxWidth2 {
+  @apply sm:grid-cols-2;
+  max-width: 400px;
+}
+
+.maxWidth3 {
+  @apply sm:grid-cols-3;
+  max-width: 600px;
+}
+
+.maxWidth4 {
+  @apply sm:grid-cols-4;
+  max-width: 800px;
+}
+
+.toolbar {
+  /* Base */
+  @apply flex items-center justify-between gap-2 border-t border-gray-800;
+  /* Tablet + */
+  @apply md:pt-5 md:mt-5;
+}
+
+.emptyState {
+  /* Base */
+  @apply px-5 py-10 m-5 text-center border border-gray-800 rounded-lg;
+  /* Tablet + */
+  @apply md:px-14 md:py-16 md:m-24;
+}
+
+.linkWrapper {
+  /* Base */
+  @apply border-b border-gray-800 py-5 text-center;
+  /* Tablet + */
+  @apply md:text-left md:py-0 md:border-none;
+}
+
+.toggleWrapper {
+  /* Base */
+  @apply pt-2;
+  /* Tablet + */
+  @apply md:pt-0;
+}

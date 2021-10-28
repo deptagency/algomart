@@ -1,0 +1,58 @@
+.root {
+  @apply absolute bg-white duration-300 border-base-gray-border border opacity-100 p-0 rounded-md shadow-medium h-full w-full;
+}
+
+.column {
+  @apply w-full;
+}
+
+.placeholder {
+  @apply inline-flex m-auto justify-center w-full;
+}
+
+.imageWrapper {
+  /* Base + */
+  @apply flex flex-col max-h-40 h-1/2 bg-black;
+  /* Tablet + */
+  @apply md:max-h-60 md:h-full;
+}
+
+.image {
+  @apply object-contain;
+}
+
+.callout {
+  @apply underline uppercase;
+}
+
+.calloutWrapper {
+  @apply line-clamp-2 p-2 text-center text-white text-xs w-full;
+}
+
+.informationWrapper {
+  @apply bg-white h-1/2 text-center rounded-b-sm;
+}
+
+.information {
+  /* Base + */
+  @apply bg-white px-2.5 flex flex-col items-center justify-center;
+}
+
+.title {
+  /* Base + */
+  @apply text-base-gray-text pt-1 line-clamp-2 font-bold text-sm;
+  /* Tablet + */
+  @apply md:text-base md:pt-3;
+}
+
+.label {
+  @apply text-white text-xs bg-base-gray-border rounded-full px-4 py-2 mt-3 uppercase;
+}
+
+.icon {
+  @apply w-8 h-8;
+}
+
+.defaultColor {
+  @apply bg-base-gray-border;
+}

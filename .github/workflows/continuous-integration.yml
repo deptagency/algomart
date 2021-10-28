@@ -1,0 +1,148 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Configure Node.js version
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+          cache: npm
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: |
+          npm install --global npm
+          npm ci
+
+  type_check:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Configure Node.js version
+        uses: actions/setup-node@v2
+        id: setup-node
+        with:
+          node-version: 14.x
+          cache: npm
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: |
+          npm install --global npm
+          npm install
+
+      - name: Check TypeScript types
+        run: npm run type-check
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Configure Node.js version
+        uses: actions/setup-node@v2
+        id: setup-node
+        with:
+          node-version: 14.x
+          cache: npm
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: |
+          npm install --global npm
+          npm install
+
+      - name: Lint code
+        run: npm run lint
+
+  test:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Configure Node.js version
+        uses: actions/setup-node@v2
+        id: setup-node
+        with:
+          node-version: 14.x
+          cache: npm
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: |
+          npm install --global npm
+          npm install
+
+      - name: Run tests
+        run: npm test
+
+  build:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Configure Node.js version
+        uses: actions/setup-node@v2
+        id: setup-node
+        with:
+          node-version: 14.x
+          cache: npm
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: |
+          npm install --global npm
+          npm install
+
+      - name: Run build
+        run: npm run build

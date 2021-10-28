@@ -1,0 +1,21 @@
+.root {
+  @apply relative w-full text-center text-white;
+  top: -2rem;
+}
+
+.heading {
+  @apply mb-6 text-2xl font-bold;
+}
+
+.inputWrapper {
+  @apply flex items-center justify-between;
+}
+
+.inputWrapper input {
+  @apply font-bold text-center bg-black border-2 border-base-gray-border;
+  color: #fff !important;
+}
+
+.noCodeLink {
+  @apply block mt-12 text-sm text-base-gray-medium hover:text-base-gray-text;
+}

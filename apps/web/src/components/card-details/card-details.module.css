@@ -1,0 +1,15 @@
+.formSection {
+  @apply mt-8 mb-16;
+}
+
+.formSectionNoMargin {
+  @apply mb-0;
+}
+
+.formMultiRow {
+  @apply flex items-center space-x-5;
+}
+
+.formMultiRow > * {
+  @apply w-full;
+}

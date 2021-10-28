@@ -1,0 +1,12 @@
+{
+  "Asset Name": "Asset Name",
+  "createFail": "Failed to create assets.",
+  "createSuccess": "Success! Created asset(s).",
+  "Description": "Description",
+  "Editions": "Editions",
+  "editionsDescription": "1 unique item or an edition of items",
+  "Release Description": "Release Description",
+  "Release Slug": "Release Slug",
+  "Release Title": "Release Title",
+  "Unit Name": "Unit Name"
+}

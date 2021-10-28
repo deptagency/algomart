@@ -1,0 +1,25 @@
+.listItem {
+  @apply border-gray-200 border-b flex items-center py-5 w-full;
+}
+
+.firstColumn {
+  @apply overflow-hidden transition duration-300 bg-white rounded-full outline-none text-base-gray-text shadow-medium;
+  height: 36px;
+  width: 36px;
+}
+
+.secondColumn {
+  @apply flex-auto ml-5;
+}
+
+.heading {
+  @apply font-bold;
+}
+
+.date {
+  @apply text-sm text-base-gray-text;
+}
+
+.amount {
+  @apply font-bold flex-none;
+}

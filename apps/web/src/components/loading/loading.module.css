@@ -1,0 +1,36 @@
+.root {
+  @apply relative mx-auto text-center;
+}
+
+.loadingWrapper {
+  @apply inline-block;
+}
+
+.svg {
+  @apply h-auto;
+  width: 100px;
+}
+
+.svgCorner:first-child,
+.svgCircle:first-child {
+  @apply stroke-current text-base-teal;
+}
+
+.svgCorner:last-child,
+.svgCircle:last-child {
+  @apply stroke-current text-base-gray-border;
+}
+
+.svgCircle {
+}
+
+.loadingText {
+  @apply mt-4 text-base-gray-medium text-center;
+}
+
+.primaryLoadingText {
+}
+
+.secondaryLoadingText {
+  @apply font-bold;
+}

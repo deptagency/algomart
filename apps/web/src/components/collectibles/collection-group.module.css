@@ -1,0 +1,16 @@
+.imageWrapper {
+  @apply overflow-hidden rounded-xl shadow-large;
+}
+
+.image {
+  @apply bg-base-gray-border;
+  min-height: 320px;
+}
+
+.textTitle {
+  @apply mt-4 text-center text-xl;
+}
+
+.textBrand {
+  @apply text-center text-base-gray-medium text-sm;
+}

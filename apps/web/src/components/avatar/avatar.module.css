@@ -1,0 +1,23 @@
+.root {
+  @apply flex-shrink-0 block group;
+}
+
+.container {
+  @apply flex items-center;
+}
+
+.imageContainer {
+  @apply inline-block overflow-hidden rounded-full h-9 w-9;
+}
+
+.imageContainer img {
+  @apply object-cover;
+}
+
+.textContent {
+  @apply ml-3 text-sm;
+}
+
+.username {
+  @apply font-bold;
+}

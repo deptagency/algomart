@@ -1,0 +1,27 @@
+.ownedCollectiblesWrapper {
+  @apply px-0 pb-4 md:px-24;
+}
+
+.ownedCollectiblesHeading {
+  @apply pb-2 mt-8 mb-6 text-center border-b border-base-gray-border md:mt-14;
+}
+
+.notification {
+  @apply mb-8;
+}
+
+.noCollectiblesWrapper {
+  @apply flex flex-col items-center;
+}
+
+.noCollectiblesPlaceholder {
+  @apply w-40 h-40 mb-10;
+}
+
+.noCollectiblesHeading {
+  @apply mb-5 font-bold text-base-gray-text;
+}
+
+.bottomCtaWrapper {
+  @apply text-center bg-white;
+}

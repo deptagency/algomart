@@ -1,0 +1,31 @@
+.metadata {
+  @apply bg-white text-center;
+}
+
+.metadataGrid {
+  @apply grid grid-cols-3;
+}
+
+.column {
+  @apply p-6 border-r border-base-gray-border;
+}
+
+.column:last-child {
+  border-right: none;
+}
+
+.metadataLabel {
+  @apply capitalize text-base-gray-text text-sm;
+}
+
+.metadataValue {
+  @apply font-bold text-xl;
+}
+
+.active {
+  @apply text-base-gray-dark;
+}
+
+.completeSuccess {
+  @apply text-green-600;
+}

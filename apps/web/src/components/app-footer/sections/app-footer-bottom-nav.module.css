@@ -1,0 +1,34 @@
+.bottomNav {
+  @apply pb-8;
+}
+
+.bottomNavWrapper {
+  /* Base */
+  @apply px-4 mx-auto text-center max-w-wrapper;
+  /* Tablet + */
+  @apply md:flex md:items-center md:justify-between md:text-center;
+}
+
+.bottomNavLeft {
+  /* Tablet + */
+  @apply md:flex md:items-center md:space-x-14;
+}
+
+.bottomNavLeftImage {
+  /* Base */
+  @apply relative mx-auto mb-8;
+  /* Tablet + */
+  @apply md:m-0 md:relative;
+}
+
+.bottomNavSpace {
+  /* Tablet + */
+  @apply md:space-x-4;
+}
+
+.bottomNavLinks {
+  /* Base */
+  @apply block mb-4 text-sm transition duration-300 outline-none text-base-gray-medium focus:text-black hover:text-black;
+  /* Tablet + */
+  @apply md:inline md:mb-0;
+}

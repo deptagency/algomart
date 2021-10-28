@@ -1,0 +1,43 @@
+.root {
+  @apply rounded-sm shadow-large;
+}
+
+.root + .root {
+  @apply mt-4;
+}
+
+.filterRow {
+  @apply p-5;
+}
+
+.filterRow {
+  @apply border-t border-t-base-gray-border;
+}
+
+.filterRow:first-child {
+  @apply border-t-0;
+}
+
+.filterHeader {
+  @apply flex items-center justify-between font-bold;
+}
+
+.filterHeader h2 {
+  @apply mb-0 text-base;
+}
+
+.filterHeader .badge {
+  @apply p-1 text-xs text-white rounded-sm bg-base-teal;
+}
+
+.filterItem {
+  @apply mb-5;
+}
+
+.filterItem:last-child {
+  @apply mb-0;
+}
+
+.filterItem > label {
+  @apply justify-start;
+}

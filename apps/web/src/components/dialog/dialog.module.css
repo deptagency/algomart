@@ -1,0 +1,22 @@
+.root {
+  @apply fixed inset-0 z-50 overflow-y-auto;
+}
+
+.container {
+  @apply flex items-end justify-center min-h-screen text-center sm:block;
+}
+
+.overlay {
+  @apply fixed inset-0 transition-opacity bg-black bg-opacity-50;
+}
+
+.forceCenter {
+  @apply hidden sm:inline-block sm:align-middle sm:h-screen;
+}
+
+.content {
+  /* Base */
+  @apply inline-block w-full h-full px-4 pt-5 pb-4 text-left align-middle transition-all transform rounded-lg shadow-xl;
+  /* Tablet + */
+  @apply md:my-0;
+}

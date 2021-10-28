@@ -1,0 +1,24 @@
+.sectionTitle {
+  /* Base */
+  @apply mt-8 mb-5 text-center underline;
+  /* Tablet */
+  @apply sm:mt-16 sm:mb-6;
+}
+
+.upcomingPacks {
+  /* Base */
+  @apply px-5;
+  /* Tablet */
+  @apply sm:px-0;
+}
+
+.notableCollectibles {
+  /* Base */
+  @apply px-5;
+  /* Tablet */
+  @apply sm:px-0;
+}
+
+.upcomingPacks a {
+  @apply no-underline;
+}

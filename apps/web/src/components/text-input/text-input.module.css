@@ -1,0 +1,52 @@
+.input {
+  @apply border border-solid font-light mt-1.5  rounded-md  text-base-gray-dark w-full;
+}
+
+.inputMedium {
+  @apply p-3 shadow-medium;
+}
+
+.inputSmall {
+  @apply text-sm;
+  padding: 10px;
+}
+
+.inputDisabled {
+  @apply border-base-gray-bg;
+}
+
+.inputError {
+  @apply border-base-errorRed;
+}
+
+.inputValid {
+  @apply border-base-gray-border;
+}
+
+.labelContainer {
+  @apply content-between flex flex-wrap font-bold relative text-base-gray-dark w-full;
+}
+
+.label {
+  @apply w-1/2;
+}
+
+.labelSmall {
+  @apply text-sm;
+}
+
+.helpText {
+  @apply font-light text-base-gray-medium text-right text-sm mt-1 w-1/2;
+}
+
+.helpTextSmall {
+  @apply text-xs;
+}
+
+.errorText {
+  @apply font-light text-base-errorRed text-right text-sm mt-1 w-1/2;
+}
+
+.errorTextSmall {
+  @apply text-xs;
+}

@@ -1,0 +1,27 @@
+.listWrapper {
+  @apply w-full;
+}
+
+.listItem {
+  @apply grid items-center grid-cols-5 p-5 mb-5 border rounded-md border-base-gray-border;
+}
+
+.imageColumn {
+  @apply col-span-1;
+}
+
+.thumbnail {
+  @apply object-cover w-full rounded-sm;
+}
+
+.contentColumn {
+  @apply col-span-4 pl-5 text-sm justify-self-start;
+}
+
+.contentColumn p {
+  @apply pb-1 text-base-gray-medium;
+}
+
+.itemTitle {
+  @apply pb-1 text-sm font-bold;
+}

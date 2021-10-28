@@ -1,0 +1,38 @@
+.section {
+  @apply mb-10;
+}
+
+.section:last-child {
+  @apply border-0;
+}
+
+.sectionHeader {
+  @apply flex items-center justify-between;
+}
+
+.sectionHeading {
+  /* Base */
+  @apply mb-1 text-lg font-bold text-base-gray-dark;
+  /* Tablet + */
+  @apply md:text-xl;
+}
+
+.confirmation {
+  @apply mb-2 text-sm font-light text-right text-base-teal;
+}
+
+.error {
+  @apply mb-2 text-sm font-light text-right text-base-errorRed;
+}
+
+.sectionContent {
+  @apply p-6 rounded-md border-1 border-base-gray-border;
+}
+
+.sectionContentLarge {
+  @apply p-12 rounded-md border-1 border-base-gray-border;
+}
+
+.sectionText {
+  @apply mb-4 text-base-gray-dark;
+}

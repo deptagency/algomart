@@ -1,0 +1,61 @@
+.root {
+  @apply absolute bg-cover bg-pack-texture overflow-hidden h-full p-5 relative text-center;
+  background-size: 200%;
+}
+
+.backgroundPosition-0 {
+  background-position: center center;
+}
+.backgroundPosition-1 {
+  background-position: top left;
+}
+.backgroundPosition-2 {
+  background-position: bottom right;
+}
+.backgroundPosition-3 {
+  background-position: bottom left;
+}
+.backgroundPosition-4 {
+  background-position: top center;
+}
+.backgroundPosition-5 {
+  background-position: bottom left;
+}
+
+.questionMark {
+  /* Base + */
+  @apply font-bold h-40 pb-5 text-white;
+  font-size: 120px;
+  /* Tablet + */
+  @apply md:h-60;
+}
+
+.packName {
+  @apply bg-white font-bold mb-1 p-3 rounded-sm text-sm;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  mix-blend-mode: screen;
+}
+
+.infoWrapper {
+  @apply flex font-bold justify-between items-center text-xs;
+}
+
+.infoWrapperColumn {
+  @apply bg-white py-2 rounded-sm w-1/2;
+  mix-blend-mode: screen;
+}
+
+.infoWrapperLeft {
+  @apply mr-1;
+  border-bottom-right-radius: 0px;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+
+.infoWrapperRight {
+  border-bottom-left-radius: 0px;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  mix-blend-mode: screen;
+}

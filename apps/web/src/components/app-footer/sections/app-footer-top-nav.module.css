@@ -1,0 +1,25 @@
+.topNav {
+  @apply md:bg-white;
+}
+
+.topNavWrapper {
+  /* Base */
+  @apply mx-auto mb-6 border-b max-w-wrapper border-base-gray-border;
+  /* Tablet + */
+  @apply md:space-x-20 md:px-4 md:py-12;
+}
+
+.topNavLink {
+  /* Base */
+  @apply block py-5 text-lg font-bold text-center no-underline transition duration-300 border-t focus:outline-none text-base-gray-text focus:text-base-teal hover:text-base-teal;
+  /* Tablet + */
+  @apply md:border-t-0 md:inline md:text-left md:py-0 md:text-base;
+}
+
+.topNavLink:first-child {
+  border-top: none;
+}
+
+.topNavLinkActive {
+  @apply border-t-base-gray-border text-base-teal;
+}

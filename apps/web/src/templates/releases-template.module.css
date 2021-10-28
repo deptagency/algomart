@@ -1,0 +1,57 @@
+.root {
+  /* Base */
+  @apply px-5;
+}
+
+.selectWrapper {
+  /* Base */
+  @apply relative z-10 mx-auto mb-8 transform -translate-y-1/2 border-b border-base-gray-border max-w-520;
+  /* Tablet + */
+  @apply md:mb-12;
+}
+
+.selectWrapper label {
+  @apply mx-auto transform translate-y-1/2 shadow-large;
+  max-width: 175px;
+}
+
+.columns {
+  /* Base */
+  @apply block;
+  /* Tablet + */
+  @apply md:flex md:justify-between;
+}
+
+.filterColumn {
+  /* Base */
+  @apply w-full mb-5;
+  /* Tablet + */
+  @apply md:w-250;
+}
+
+.gridColumn {
+  /* Base */
+  @apply flex-grow pl-0;
+  /* Tablet + */
+  @apply md:pl-5;
+}
+
+.gridItem {
+  @apply no-underline;
+}
+
+.paginationWrapper {
+  @apply mt-8;
+}
+
+.loadingWrapper {
+  @apply mx-auto mt-24;
+}
+
+.notificationWrapper {
+  @apply flex-grow pl-5;
+}
+
+.notification {
+  @apply w-full;
+}

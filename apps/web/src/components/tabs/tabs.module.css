@@ -1,0 +1,28 @@
+.root {
+  /* Base */
+  @apply flex items-center justify-center mx-auto mb-5;
+  /* Tablet + */
+  @apply md:mb-12;
+}
+
+.tabsContainer {
+  /* Base */
+  @apply relative flex w-full mx-5 overflow-hidden bg-white rounded-lg shadow-large;
+  /* Tablet + */
+  @apply md:w-auto;
+}
+
+.tab {
+  /* Base */
+  @apply w-full px-4 py-4 font-bold text-center no-underline transition duration-300 border-none text-base-gray-dark;
+  /* Base: Focus and Hover */
+  @apply focus:outline-none focus:text-opacity-70 hover:text-opacity-70;
+  /* Base: First and Last */
+  @apply first:rounded-l-lg last:rounded-r-lg;
+  /* Tablet + */
+  @apply md:px-0 md:w-40;
+}
+
+.tabActive {
+  @apply bg-base-teal;
+}

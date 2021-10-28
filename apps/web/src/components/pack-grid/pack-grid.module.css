@@ -1,0 +1,44 @@
+.toggleButton {
+  @apply relative mx-auto my-8 text-center;
+}
+
+.gridWrapper {
+  /* Base */
+  @apply grid grid-cols-2 gap-6 px-8 mt-8 justify-items-center;
+  /* Tablet + */
+  @apply md:gap-4 md:grid-cols-3 md:my-0 md:mx-auto md:max-w-4xl;
+}
+
+.gridItem {
+  @apply relative w-full h-72;
+  /* Tablet + */
+  @apply md:h-96 md:w-60;
+}
+
+.gridItemEmpty {
+  /* Base */
+  @apply hidden;
+  /* Tablet + */
+  @apply md:block;
+}
+
+/* The fadeable action happens using react spring */
+.fadeable {
+  opacity: 1;
+  transition: opacity 500ms ease-in-out 1000ms;
+}
+
+/* The clickable action happens with state upon interaction */
+.clickable {
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 300ms ease-in-out;
+  transform-style: preserve-3d;
+}
+.clickable.fadedOut {
+  opacity: 0;
+}
+
+.placeholderWrapper {
+  @apply h-full opacity-100;
+}

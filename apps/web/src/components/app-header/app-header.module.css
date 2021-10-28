@@ -1,0 +1,109 @@
+.root {
+  /* Base */
+  @apply fixed top-0 z-20 w-full bg-white shadow-medium;
+  /* Tablet + */
+  @apply md:bg-transparent md:pt-4 md:relative md:shadow-none;
+}
+
+.rootMobileVisible {
+  /* Base */
+  @apply h-full;
+  /* Tablet + */
+  @apply md:h-auto;
+}
+
+.wrapper {
+  /* Base */
+  @apply flex flex-row items-center justify-between p-4 mx-auto flex-nowrap max-w-wrapper;
+}
+
+.hamburgerWrapper {
+  /* Tablet */
+  @apply md:hidden;
+  width: 36px;
+}
+
+.hamburger {
+  /* Base */
+  @apply block text-base-gray-medium;
+  width: 24px;
+}
+
+.logo {
+  /* Base */
+  @apply flex flex-row items-center self-center justify-center flex-1 w-8 h-8;
+  /* Tablet + */
+  @apply w-10 h-10 md:text-left md:flex-none md:justify-start;
+}
+
+.logoLink {
+  /* Base */
+  @apply inline-block w-8 h-8;
+  /* Tablet + */
+  @apply md:w-10 md:h-10;
+}
+
+.mainNav {
+  /* Base */
+  @apply absolute left-0 w-full h-full px-10 pt-6 bg-white border-base-gray-bg border-t-1;
+  top: 68px;
+  /* Tablet + */
+  @apply md:bg-white md:border-0 md:col-span-2 md:grid md:grid-cols-2 md:h-auto md:justify-center md:overflow-hidden md:p-0 md:relative md:rounded-md md:shadow-large md:text-center md:top-0 md:w-auto;
+}
+
+.mainNavHidden {
+  /* Base */
+  @apply hidden;
+  /* Tablet + */
+  @apply md:grid;
+}
+
+.mainNavLink {
+  /* Base */
+  @apply block py-5 text-3xl font-bold transition duration-300 border-t focus:outline-none border-t-base-gray-border text-base-gray-text hover:text-base-gray-dark;
+  /* Tablet + */
+  @apply md:border-b-6 md:border-base-teal md:border-opacity-0 md:border-t-0 md:inline md:no-underline md:p-6 md:text-base md:focus:border-opacity-50 md:hover:border-opacity-50 md:hover:text-base-gray-text;
+}
+
+.mainNavLink:first-child {
+  border-top: none;
+}
+
+.mainNavLink.mainNavLinkActive {
+  /* Base */
+  @apply text-base-teal;
+  /* Tablet + */
+  @apply md:border-opacity-100 md:text-base-gray-text;
+}
+
+.utilityNav {
+  @apply self-center justify-self-end;
+  @apply md:flex md:flex-1 md:justify-end;
+}
+
+.utilityNavLink {
+  /* Base */
+  @apply block overflow-hidden transition duration-300 bg-white rounded-full outline-none text-base-gray-text focus:ring-2 focus:ring-base-teal focus:ring-offset-2 focus:ring-opacity-50 hover:bg-base-teal hover:bg-opacity-50;
+  /* Tablet + */
+  @apply md:shadow-medium;
+  height: 36px;
+  width: 36px;
+}
+
+.utilityNavLink img {
+  @apply object-cover;
+}
+
+.avatarGeneric {
+  @apply w-full p-2;
+}
+
+/* To keep nav centered, set logo and utility nav link to be same width */
+@screen md {
+  .logo {
+    width: 106px;
+  }
+  .utilityNav {
+    max-width: 106px;
+  }
+}

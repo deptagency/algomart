@@ -1,0 +1,9 @@
+.env*
+.github
+.husky
+.next
+.postgres
+.vercel
+cypress
+node_modules
+Dockerfile*

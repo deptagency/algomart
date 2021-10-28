@@ -1,0 +1,20 @@
+.root {
+  @apply text-center w-full;
+}
+
+.icon {
+  @apply mb-5 mx-auto text-green-600;
+}
+
+.heading {
+  @apply font-bold mb-16 text-base-gray-text text-2xl;
+}
+
+.button {
+  @apply mt-4 max-w-xs w-full;
+}
+
+.successButtonWrapper {
+  @apply grid grid-cols-2 gap-5 m-auto;
+  max-width: 90%;
+}

@@ -1,0 +1,12 @@
+.root {
+  /* Tablet + */
+  @apply md:border;
+}
+
+.header {
+  @apply bg-white border-b border-base-gray-border;
+}
+
+.title {
+  @apply font-bold p-6 text-2xl text-center;
+}

@@ -1,0 +1,41 @@
+{
+  "auctionComplete": {
+    "subject": "You're the winning bidder!",
+    "body": [
+      "<strong>You are currently the highest bidder for “{{packTitle}}”!</strong>",
+      "You had the winning bid of ${{amount}}! Sign in now to complete your purchase and claim your winnings!",
+      "<a href=\"{{ctaUrl}}\"><strong>Complete your purchase</strong></a>"
+    ],
+    "expirationWarning": "<em>Note: You have 72 hours before your winning bid expires and goes to the next highest bidder.</em>"
+  },
+  "bidExpired": {
+    "subject": "Your bid for \"{{packTitle}}\" has expired.",
+    "body": [
+      "We're writing to let you know that your bid for “{{packTitle}}” has expired since no payment has been received."
+    ]
+  },
+  "transferSuccess": {
+    "subject": "You have new collectibles!",
+    "body": [
+      "<strong>Congratulations!</strong>",
+      "You are the proud new owner of “{{packTitle}}”. The assets are being transferred to your Algorand wallet and are now available for viewing in your collection.",
+      "<a href=\"{{ctaUrl}}\"><strong>View your collection</strong></a>"
+    ]
+  },
+  "userHighBid": {
+    "subject": "You're the high bidder!",
+    "body": [
+      "<strong>Congratulations!</strong>",
+      "You are currently the high bidder for “{{packTitle}}”. Keep an eye on the listing using the link below.",
+      "<a href=\"{{ctaUrl}}\"><strong>View listing</strong></a>"
+    ]
+  },
+  "userOutbid": {
+    "subject": "You've been outbid!",
+    "body": [
+      "You are no longer the highest bidder for “{{packTitle}}”",
+      "Don't worry, there's still time! If you'd like to submit a new high bid, please do so using the link below.",
+      "<a href=\"{{ctaUrl}}\"><strong>View listing</strong></a>"
+    ]
+  }
+}

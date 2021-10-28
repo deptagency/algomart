@@ -1,0 +1,24 @@
+.root {
+  @apply flex flex-col col-span-1;
+}
+
+.iconWrapper {
+  @apply relative flex-1 border rounded-md shadow-lg border-base-gray-border aspect-w-1 aspect-h-1 text-base-gray-border;
+}
+
+.noBorder {
+  @apply border-none;
+}
+
+.icon {
+  @apply absolute w-8 h-8 top-1/2 left-1/2;
+  transform: translate(-50%, -50%);
+}
+
+.labelWrapper {
+  @apply flex items-center justify-center;
+}
+
+.label {
+  @apply text-4xl font-black text-gray-700 text-opacity-50;
+}

@@ -1,0 +1,40 @@
+.root {
+  @apply relative bg-white shadow-large;
+  margin-top: 72px;
+}
+
+.root.isInline {
+  @apply shadow-none border-1 border-base-gray-border;
+}
+
+@screen md {
+  .root {
+    margin-top: 0px;
+  }
+}
+.wrapper {
+  @apply px-5 py-5 mx-auto text-center max-w-wrapper;
+  @apply md:flex md:items-center;
+}
+
+.isInline .wrapper {
+  @apply block;
+}
+
+.isInline .wrapper p:first-child {
+  @apply mb-5;
+}
+
+.wrapper p {
+  @apply text-sm;
+}
+
+.wrapper p:first-child {
+  @apply mb-2;
+  @apply md:mb-0 md:mr-5;
+}
+
+.emailVerificationControls {
+  @apply flex flex-row items-center justify-center gap-2 mt-4;
+  @apply md:mt-0;
+}

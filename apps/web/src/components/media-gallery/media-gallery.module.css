@@ -1,0 +1,67 @@
+.mediaGalleryWrapper {
+  @apply w-full;
+}
+
+.selectedImageWrapper {
+  @apply relative;
+}
+
+.iconWrapper {
+  @apply hidden md:block;
+}
+
+.iconStyle {
+  @apply absolute inset-y-0 z-10 block w-16 transition duration-300 transform outline-none cursor-pointer text-base-gray-medium;
+}
+
+.leftIcon {
+  @apply left-0 -translate-x-20;
+}
+
+.rightIcon {
+  @apply right-0 translate-x-20;
+}
+
+.flexCenter {
+  @apply flex justify-center;
+}
+
+.selectedMediaWrapper {
+  @apply relative bg-base-gray-border;
+}
+
+.aspect {
+  @apply aspect-h-1 aspect-w-1;
+}
+
+.contain {
+  @apply object-contain;
+}
+
+.cover {
+  @apply object-cover;
+}
+
+.fullWidth {
+  @apply w-full;
+}
+
+.overflowHidden {
+  @apply overflow-hidden;
+}
+
+.mediaHyperlinkedWrapper {
+  @apply duration-300 opacity-50 focus:outline-none focus:opacity-80 hover:opacity-80;
+}
+
+.opaque {
+  @apply opacity-100;
+}
+
+.rounded {
+  @apply rounded-sm;
+}
+
+.mediaListGrid {
+  @apply grid grid-cols-4 gap-4 mt-4;
+}

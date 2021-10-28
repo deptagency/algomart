@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  pg:
+    image: 'postgres:latest'
+    ports:
+      - '5432:5432'
+    environment:
+      # The postgres image will actually use these variables to set up the
+      # database instance and user
+      - POSTGRES_DB=api
+      - POSTGRES_USER=treasurer
+      - POSTGRES_PASSWORD=password
+
+  server:
+    build: .
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3001
+      - DATABASE_URL=postgres://treasurer:password@pg:5432/api
+    ports:
+      - '3001:3001'
+    command: npm run api
+
+  confirmer:
+    build: .
+    environment:
+      - DATABASE_URL=postgres://treasurer:password@pg:5432/api
+    command: npm run confirmer

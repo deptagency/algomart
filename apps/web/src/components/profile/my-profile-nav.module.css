@@ -1,0 +1,42 @@
+.isMobile .desktopWrapper {
+  @apply hidden;
+}
+
+.isDesktop .desktopWrapper,
+.isDesktop .mobileWrapper {
+  @apply hidden;
+}
+
+@screen md {
+  .isMobile .mobileWrapper {
+    @apply hidden;
+  }
+  .isDesktop .desktopWrapper {
+    @apply block;
+  }
+}
+
+.mobileWrapper {
+  @apply relative z-10 mx-5 transform -translate-y-1/2 border-b border-base-gray-border;
+}
+
+.mobileWrapper label {
+  @apply mx-auto transform translate-y-1/2 shadow-large;
+  max-width: 200px;
+}
+
+.listWrapper {
+  @apply mb-5 bg-white rounded-sm shadow-large;
+}
+
+.listItem {
+  @apply border-b border-b-base-gray-border;
+}
+
+.listItem a {
+  @apply block p-5 text-base no-underline hover:underline;
+}
+
+.listItemActive a {
+  @apply text-base font-bold text-base-teal;
+}

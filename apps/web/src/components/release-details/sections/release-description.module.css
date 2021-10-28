@@ -1,0 +1,30 @@
+.root {
+  @apply p-6 bg-white border-t border-base-gray-border relative;
+}
+
+.collapseContainer {
+  @apply overflow-hidden transition-all;
+  max-height: 999px;
+}
+
+.collapseContainer.collapsed {
+  max-height: 100px;
+}
+
+.root p {
+  @apply text-base-gray-text mb-4;
+}
+
+.root p:last-child {
+  @apply mb-0;
+}
+
+.readMore {
+  @apply block font-bold mx-auto relative text-base-teal text-center underline;
+}
+
+.mask {
+  @apply absolute bg-gradient-to-t from-white to-transparent left-0 w-full;
+  bottom: 50px;
+  height: 75px;
+}

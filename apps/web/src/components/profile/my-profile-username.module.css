@@ -1,0 +1,31 @@
+.inputWrapper {
+  @apply relative flex items-center justify-between;
+}
+
+.inputWrapper > * + * {
+  @apply h-full py-3 ml-2;
+}
+
+.inputWrapper button {
+  @apply mb-0;
+}
+
+.inputWrapper input {
+  @apply mt-0;
+}
+
+.inputWrapper input[disabled] {
+  @apply shadow-none bg-base-gray-bg;
+}
+
+.editButton {
+  @apply absolute right-0 underline text-base-gray-nav;
+}
+
+.cancelButton {
+  @apply px-0 underline text-base-gray-text;
+}
+
+.saveButton {
+  @apply mx-4;
+}

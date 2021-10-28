@@ -1,0 +1,124 @@
+{
+  "errors": {
+    "accountAlreadyConfigured": "Account is already configured",
+    "cardExpiration": "Your card has expired.",
+    "emailAlreadyInUse": "Email already in use",
+    "emailValid": "Must be a valid email address",
+    "emailsDoNotMatch": "Email addresses do not match",
+    "invalidCVV": "Invalid CVV",
+    "exactCharacters": "Must be {exact} characters",
+    "invalidCredentials": "Invalid credentials",
+    "invalidCreditCard": "Invalid credit card number",
+    "invalidCountry": "Invalid country code",
+    "invalidName": "Invalid first and last name",
+    "invalidPassphrase": "Invalid Passphrase",
+    "invalidPassword": "Invalid password",
+    "invalidState": "Invalid province/state code",
+    "failedPayment": "Invalid payment details. Check your credit card and/or billing address details.",
+    "minimumBid": "Your bid must be at least {{amount}}",
+    "bidLessThanHighestBid": "Your bid was lower than the current high bid.",
+    "maxCharacters": "Must be less than {max} characters",
+    "minCharacters": "Must be at least {min} characters",
+    "maxItems": "Must pick at most {max} items",
+    "minImageFileSize": "Image must be {{fileSize}} or smaller",
+    "onlyLetters": "Must contain only letters",
+    "onlyLettersAndNumbers": "Must contain only letters and numbers",
+    "onlyNumbers": "Must contain only numbers",
+    "onlyLowercaseLettersAndNumbers": "Only lowercase characters and numbers allowed",
+    "required": "This field is required",
+    "usernameTaken": "Username already in use",
+    "invalidDuration": "Invalid Duration",
+    "invalidRedemptionCode": "Invalid Redemption Code",
+    "invalidStatus": "Invalid Status",
+    "invalidZipCode": "Invalid ZIP Code"
+  },
+  "fields": {
+    "address1": {
+      "label": "Street Address"
+    },
+    "bid": {
+      "label": "Your Bid",
+      "helpTextCurrentBid": "Current bid is {{amount}}",
+      "description": "Your card will be charged immediately on auction close if you place the winning bid.",
+      "success": "You're the current high bidder for {{title}}"
+    },
+    "ccNumber": {
+      "label": "Credit Card Number"
+    },
+    "city": {
+      "label": "City"
+    },
+    "country": {
+      "label": "Country Code",
+      "values": {
+        "CA": "Canada",
+        "US": "United States"
+      }
+    },
+    "defaultCard": {
+      "label": "Default",
+      "helpText": "Make card my default for purchases"
+    },
+    "differentCardLink": {
+      "label": "Use a different card"
+    },
+    "email": {
+      "label": "Email"
+    },
+    "emailConfirm": {
+      "label": "Confirm Email"
+    },
+    "expirationDate": {
+      "label": "Expiration Date"
+    },
+    "fullName": {
+      "label": "Full Name",
+      "helpText": "As it appears on your card"
+    },
+    "password": {
+      "label": "Password"
+    },
+    "passphrase": {
+      "description": {
+        "1": "Your passphrase is used to approve every transaction.",
+        "2": "It cannot be reset if lost."
+      },
+      "label": "Passphrase",
+      "helpText": "For approving transactions",
+      "warning": "Write down your passphrase!"
+    },
+    "price": {
+      "label": "Price"
+    },
+    "profileImage": {
+      "label": "Profile Image"
+    },
+    "redemptionCode": {
+      "label": "Redemption Code"
+    },
+    "saveCard": {
+      "label": "Save my card for future purchases"
+    },
+    "savedCard": {
+      "label": "Saved Card",
+      "placeholder": "Select a Card"
+    },
+    "securityCode": {
+      "label": "CVV"
+    },
+    "state": {
+      "label": "State/Province"
+    },
+    "username": {
+      "helpText": "How you'll appear to others",
+      "label": "Username"
+    },
+    "zipCode": {
+      "label": "Postal Code"
+    }
+  },
+  "sections": {
+    "Billing Address": "Billing Address",
+    "Credit Card": "Credit Card"
+  }
+}

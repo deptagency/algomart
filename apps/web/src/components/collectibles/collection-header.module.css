@@ -1,0 +1,24 @@
+.root {
+  @apply my-12 text-center;
+}
+
+.heading {
+  @apply font-normal mb-2 text-3xl;
+}
+
+.subHeading {
+  @apply text-base-gray-medium;
+}
+
+.subHeading a {
+  @apply underline;
+}
+
+.imageContainer {
+  @apply mx-auto my-8 overflow-hidden rounded-xl shadow-large;
+  max-width: 240px;
+}
+
+.description {
+  @apply text-base-gray-text text-lg;
+}

@@ -1,0 +1,26 @@
+.navigation {
+}
+
+.wrapper {
+  @apply flex justify-center;
+}
+
+.pageNumbersList {
+  @apply flex items-center m-0 p-0;
+}
+
+.listItem {
+  @apply list-none pr-2.5;
+}
+
+.pageNumber {
+  @apply h-10 w-10;
+}
+
+.currentPageNumber {
+  @apply bg-base-teal text-white;
+}
+
+.otherPageNumbers {
+  @apply text-base-gray-text underline;
+}
