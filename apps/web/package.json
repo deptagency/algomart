@@ -35,7 +35,7 @@
     "dinero.js": "2.0.0-alpha.8",
     "firebase": "9.2.0",
     "firebase-admin": "10.0.0",
-    "formidable": "1.2.2",
+    "formidable": "2.0.1",
     "http-errors": "1.8.0",
     "js-cookie": "3.0.1",
     "ky": "0.28.6",
