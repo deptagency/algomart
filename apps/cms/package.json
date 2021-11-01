@@ -23,7 +23,7 @@
     "canvas": "2.8.0",
     "dinero.js": "2.0.0-alpha.8",
     "directus": "9.0.0-rc.99",
-    "env-var": "7.0.1",
+    "env-var": "7.1.1",
     "pg": "8.7.1"
   },
   "devDependencies": {
