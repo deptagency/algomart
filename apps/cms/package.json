@@ -22,12 +22,12 @@
   "dependencies": {
     "canvas": "2.8.0",
     "dinero.js": "2.0.0-alpha.8",
-    "directus": "9.0.0-rc.99",
+    "directus": "9.0.0-rc.100",
     "env-var": "7.1.1",
     "pg": "8.7.1"
   },
   "devDependencies": {
-    "@directus/extensions-sdk": "9.0.0-rc.99",
+    "@directus/extensions-sdk": "9.0.0-rc.100",
     "axios": "0.24.0",
     "form-data": "4.0.0",
     "rosie": "2.1.0",

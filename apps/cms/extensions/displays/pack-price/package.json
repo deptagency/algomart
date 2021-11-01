@@ -6,7 +6,7 @@
     "type": "display",
     "path": "index.js",
     "source": "src/index.ts",
-    "host": "9.0.0-rc.99",
+    "host": "9.0.0-rc.100",
     "hidden": false
   }
 }
