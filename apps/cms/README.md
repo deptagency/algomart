@@ -6,7 +6,9 @@ The purpose of the CMS is to provide content authors the ability to create and m
 
 ## Initial setup
 
-Once the environment variables have been added to the `.env` file, you'll want to create an admin user, which will allow you to login and administer the CMS:
+Once the environment variables have been added to the `.env` file, you'll want to create a new Postgres database named `algo-cms`.
+
+Then you'll want to create an admin user, which will allow you to login and administer the CMS:
 
 ```bash
 cp config.example.json config.local.json
@@ -40,13 +42,13 @@ After bootstrapping and running the seed script locally, there's additional conf
 
 When you first spin up the app, you'll see only text rendered in place of images. There's an extra step needed in order to make these files available.
 
-a. In the local CMS, go to Settings (the cog wheel)
-b. Go to Roles & Permissions
-c. Click on the Public category
-d. At the bottom of the table, click on System Collections, which will expand the table
-e. Navigate to Directus Files
-f. Click on the second icon (the Read column), which will open a dropdown
-g. Select All Access
+1. In the local CMS, go to Settings (the cog wheel)
+1. Go to Roles & Permissions
+1. Click on the Public category
+1. At the bottom of the table, click on System Collections, which will expand the table
+1. Navigate to Directus Files
+1. Click on the second icon (the Read column), which will open a dropdown
+1. Select All Access
 
 Then go back and refresh, and you should see images!
 
@@ -54,9 +56,9 @@ Then go back and refresh, and you should see images!
 
 In order for the API to connect to the CMS, the Directus key needs to be inputted into the CMS:
 
-a. Go to your profile (the icon at the very bottom left)
-b. Scroll all the way down to Token, under Admin Options
-c. Paste in the desired API key (has to match `CMS_API_KEY` in web)
+1. Go to your profile (the icon at the very bottom left)
+1. Scroll all the way down to Token, under Admin Options
+1. Paste in the desired API key (has to match `CMS_ACCESS_TOKEN` in web)
 
 ## Data Model Overview
 Once bootstrapped, the Directus CMS will be populated with configurable entities (Directus refers to these as "collections"). There are a handful of these collections that can be administered to create and configure NFTs. Here is an explanation of each collection:
