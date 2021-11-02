@@ -20,7 +20,15 @@ Install all dependencies from the root of the monorepo:
 npm install
 ```
 
-In the `api` service, you'll want to ensure that you've configured your `.env` file and setup a database. Create a Postgres database named `algo-api` then apply migrations:
+In the `api` service, you'll want to ensure that you've configured your `.env` file and set up a database. Make sure you've created a Postgres databases that matches what's set in the `DATABASE_URL` key in your `.env` file.
+
+If you're not using the default `DATABASE_SCHEMA=public` in your `.env` file, then you'll need to make sure to create the schema you choose:
+
+```bash
+CREATE SCHEMA <name>
+```
+
+Finally, apply migrations:
 
 ```bash
 npm run db:latest
@@ -32,7 +40,7 @@ Per the `.env`, you'll also need to be connected to an Algorand node, whether in
 For local development, the [Algorand Sandbox](https://github.com/algorand/sandbox) is handy docker instance that makes interfacing with the blockchain simple from your local machine. It will also create an account that can be funded with fake Algos using the [Testnet Dispenser](https://dispenser.testnet.aws.algodev.network/).
 
 To create an account:
-* Download the [Alogrand Sandbox] and start up the docker instance:
+* Download the [Algorand Sandbox](https://github.com/algorand/sandbox) and start up the docker instance:
 ```bash
 ./sandbox up
 ```

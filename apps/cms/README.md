@@ -6,7 +6,7 @@ The purpose of the CMS is to provide content authors the ability to create and m
 
 ## Initial setup
 
-Once the environment variables have been added to the `.env` file, you'll want to create a new Postgres database named `algo-cms`.
+Once the environment variables have been added to the `.env` file, you'll want to create a new Postgres database with the name specified in the `DB_CONNECTION_STRING` in the `.env` file.
 
 Then you'll want to create an admin user, which will allow you to login and administer the CMS:
 
