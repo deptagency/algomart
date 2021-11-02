@@ -106,7 +106,7 @@ export default function MyCollectiblesPage() {
           assets={collectibles}
           currentPage={currentPage}
           handlePageChange={handlePageChange}
-          handleRedirectBrands={() => router.push('/brands')}
+          handleRedirectBrands={() => router.push(urls.releases)}
           handleSortChange={handleSortChange}
           isViewerActive={isViewerActive}
           selectedOption={selectedOption}

@@ -102,7 +102,7 @@ export default function MyShowcasePage() {
           addCollectible={addCollectible}
           collectibles={collectibles}
           collectiblesTotal={total}
-          handleRedirectBrands={() => router.push('/brands')}
+          handleRedirectBrands={() => router.push(urls.releases)}
           page={activePage}
           pageSize={PAGE_SIZE}
           showcaseCollectibles={showcaseCollectibles}
