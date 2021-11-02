@@ -50,6 +50,6 @@
 }
 
 .inputDisabled {
-  @apply opacity-30;
+  @apply opacity-50;
   pointer-events: none;
 }
