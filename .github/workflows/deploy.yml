@@ -46,14 +46,15 @@ jobs:
         run: docker buildx use algo-builder || docker buildx create --name algo-builder --use
 
       - name: Set tag
-        run: echo "image_name=gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ matrix.app }}" >> $GITHUB_ENV
+        # Artifact Registry Docker repo image names look like...
+        # <repository-region>-docker.pkg.dev/<project-id>/<repository-name>/<image>:<tag>
+        run: echo "image_name=${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/${{ matrix.app }}" >> $GITHUB_ENV
 
       - name: Build docker image
         # Note: Because of how `>` works in YML, lines have to all have the same indentation to be folded with spaces instead of newlines
         run: >
           docker buildx build
           -t ${{ env.image_name }}:${{ needs.tag.outputs.value }}
-          -t ${{ env.image_name }}:latest
           -f ./docker/deploy/${{ matrix.app }}/Dockerfile
           --cache-from "type=local,src=/tmp/.buildx-cache-${{ matrix.app }}"
           --cache-to "type=local,dest=/tmp/.buildx-cache-${{ matrix.app }}-new"
@@ -73,7 +74,7 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Auth docker for gcloud
-        run: gcloud auth configure-docker
+        run: gcloud auth configure-docker ${{ secrets.GCP_DOCKER_REGISTRY }}
 
       - name: Push image
         run: docker push ${{ env.image_name }} --all-tags
@@ -127,7 +128,7 @@ jobs:
           TF_VAR_api_database_user_password: ${{ secrets.TF_VAR_api_database_user_password }}
           TF_VAR_api_domain_mapping: ${{ secrets.TF_VAR_api_domain_mapping }}
           TF_VAR_api_funding_mnemonic: ${{ secrets.TF_VAR_api_funding_mnemonic }}
-          TF_VAR_api_image: "gcr.io/${{ secrets.GCP_PROJECT_ID }}/api:${{ needs.tag.outputs.value }}"
+          TF_VAR_api_image: "${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/api:${{ needs.tag.outputs.value }}"
           TF_VAR_api_key: ${{ secrets.TF_VAR_api_key }}
           TF_VAR_api_secret: ${{ secrets.TF_VAR_api_secret }}
 
@@ -139,7 +140,7 @@ jobs:
           TF_VAR_cms_database_user_name: ${{ secrets.TF_VAR_cms_database_user_name }}
           TF_VAR_cms_database_user_password: ${{ secrets.TF_VAR_cms_database_user_password }}
           TF_VAR_cms_domain_mapping: ${{ secrets.TF_VAR_cms_domain_mapping }}
-          TF_VAR_cms_image: "gcr.io/${{ secrets.GCP_PROJECT_ID }}/cms:${{ needs.tag.outputs.value }}"
+          TF_VAR_cms_image: "${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/cms:${{ needs.tag.outputs.value }}"
           TF_VAR_cms_key: ${{ secrets.TF_VAR_cms_key }}
           TF_VAR_cms_secret: ${{ secrets.TF_VAR_cms_secret }}
           TF_VAR_cms_storage_bucket: ${{ secrets.TF_VAR_cms_storage_bucket }}
@@ -149,7 +150,7 @@ jobs:
 
           TF_VAR_web_domain_mapping: ${{ secrets.TF_VAR_web_domain_mapping }}
           TF_VAR_web_firebase_service_account: ${{ secrets.TF_VAR_web_firebase_service_account }}
-          TF_VAR_web_image: "gcr.io/${{ secrets.GCP_PROJECT_ID }}/web:${{ needs.tag.outputs.value }}"
+          TF_VAR_web_image: "${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/web:${{ needs.tag.outputs.value }}"
           TF_VAR_web_next_public_firebase_config: ${{ secrets.TF_VAR_web_next_public_firebase_config }}
 
           # Optional
