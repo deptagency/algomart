@@ -8,4 +8,8 @@ import { Configuration } from '../configuration'
 export const logger = pino({
   level: Configuration.logLevel,
   prettyPrint: Configuration.env !== 'production',
+  // Use this with pino v7
+  // ...(Configuration.env !== 'production' && {
+  //   transport: { target: 'pino-pretty' },
+  // }),
 })
