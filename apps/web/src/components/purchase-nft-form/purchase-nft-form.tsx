@@ -15,14 +15,14 @@ import { usePaymentProvider } from '@/contexts/payment-context'
 import { isAfterNow } from '@/utils/date-time'
 
 export interface PurchaseNFTFormProps {
+  auctionPackId: string | null
   currentBid: number | null
-  packId: string | null
   release: PublishedPack
 }
 
 export default function PurchaseNFTForm({
+  auctionPackId,
   currentBid,
-  packId,
   release,
 }: PurchaseNFTFormProps) {
   const [passphraseError, setPassphraseError] = useState<string>('')
@@ -34,10 +34,11 @@ export default function PurchaseNFTForm({
     handleSubmitPassphrase: onSubmitPassphrase,
     handleSubmitPurchase: onSubmitPurchase,
     loadingText,
+    packId,
     setStatus,
     status,
   } = usePaymentProvider({
-    auctionPackId: packId,
+    auctionPackId,
     currentBid,
     release,
   })

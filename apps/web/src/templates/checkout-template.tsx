@@ -5,14 +5,14 @@ import PurchaseNFTForm from '@/components/purchase-nft-form/purchase-nft-form'
 import { useAuth } from '@/contexts/auth-context'
 
 export interface CheckoutTemplateProps {
+  auctionPackId: string | null
   currentBid: number | null
-  packId: string | null
   release: PublishedPack
 }
 
 export default function CheckoutTemplate({
+  auctionPackId,
   currentBid,
-  packId,
   release,
 }: CheckoutTemplateProps) {
   const { user } = useAuth()
@@ -21,8 +21,8 @@ export default function CheckoutTemplate({
   }
   return (
     <PurchaseNFTForm
+      auctionPackId={auctionPackId}
       currentBid={currentBid}
-      packId={packId}
       release={release}
     />
   )
