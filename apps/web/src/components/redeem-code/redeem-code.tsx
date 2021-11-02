@@ -29,7 +29,6 @@ export default function RedeemCode({
           error={error}
           fields={12}
           handleChange={handleChange}
-          type="text"
           value={redeemCode}
         />
       </div>

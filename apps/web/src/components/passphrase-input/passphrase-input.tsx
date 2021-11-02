@@ -25,6 +25,7 @@ export default function PassphraseInput({
   label,
   loading = false,
   value = '',
+  type = 'text',
   ...props
 }: PassphraseInputProps) {
   const [inputValue, setInputValue] = useState<string>(value)
@@ -41,6 +42,7 @@ export default function PassphraseInput({
           handleChange && handleChange(value_)
         }}
         values={value ? [...value] : []}
+        type={type}
         {...props}
       />
       {/* Used to capture value of passphrase input */}
