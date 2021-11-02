@@ -14,6 +14,7 @@ import { ExtractError } from 'validator-fns'
 import { ApiClient } from '@/clients/api-client'
 import { Analytics } from '@/clients/firebase-analytics'
 import { useAuth } from '@/contexts/auth-context'
+import { usePaymentProvider } from '@/contexts/payment-context'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
@@ -58,6 +59,7 @@ export default function Checkout({
 }: CheckoutPageProps) {
   const { user } = useAuth()
   const { t } = useTranslation()
+  const {} = usePaymentProvider()
 
   const [packId, setPackId] = useState<string | null>(auctionPackId)
   const [passphrase, setPassphrase] = useState<string>('')
@@ -534,16 +536,9 @@ export default function Checkout({
       panelPadding
     >
       <CheckoutTemplate
-        handleSubmitBid={handleSubmitBid}
-        handleSubmitPurchase={handleSubmitPurchase}
-        handleSubmitPassphrase={handleSubmitPassphrase}
-        formErrors={formErrors}
-        loadingText={loadingText}
         currentBid={currentBid}
         packId={packId}
         release={release}
-        setStatus={setStatus}
-        status={status}
       />
     </DefaultLayout>
   )

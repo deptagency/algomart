@@ -9,6 +9,8 @@ import { createContext, ReactNode, useCallback, useContext, useMemo, useState } 
 import { ExtractError } from 'validator-fns'
 
 import { Analytics } from '@/clients/firebase-analytics'
+import { useAuth } from '@/contexts/auth-context'
+import authService from '@/services/auth-service'
 import bidService from '@/services/bid-service'
 import checkoutService, { CreateCardRequest } from '@/services/checkout-service'
 import collectibleService from '@/services/collectible-service'
@@ -28,7 +30,6 @@ import {
 interface PaymentProviderProps {
   auctionPackId: string | null
   currentBid: number | null
-  data: FormData,
   release: PublishedPack
 }
 
@@ -40,9 +41,12 @@ interface PaymentContextProps {
       | typeof validateExpirationDate
     >
   >
-  handleSubmitBid(): void
-  handleSubmitPurchase(): void
+  handleSubmitBid(data: FormData): void
+  handleSubmitPassphrase(passphrase: string): Promise<boolean>
+  handleSubmitPurchase(data: FormData): void
   loadingText: string
+  packId: string | null
+  setStatus: (status: CheckoutStatus) => void
   status: CheckoutStatus
 }
 
@@ -66,6 +70,7 @@ export function usePaymentProvider({
   currentBid,
   release,
 }: PaymentProviderProps) {
+  const { user } = useAuth()
   const { t } = useTranslation()
 
   const [packId, setPackId] = useState<string | null>(auctionPackId)
@@ -507,19 +512,44 @@ export function usePaymentProvider({
     ]
   )
 
+  const handleSubmitPassphrase = useCallback(
+    async (passphrase: string) => {
+      setLoadingText(t('common:statuses.Verifying Passphrase'))
+      setStatus('loading')
+      setPassphrase(passphrase)
+      const isValidPassphrase = await authService.verifyPassphrase(
+        user?.uid as string,
+        passphrase
+      )
+      if (isValidPassphrase) {
+        setStatus('purchase')
+      } else {
+        setStatus('passphrase')
+      }
+      return isValidPassphrase
+    },
+    [t, user?.uid]
+  )
+
   const value = useMemo(
     () => ({
       formErrors,
       handleSubmitBid,
+      handleSubmitPassphrase,
       handleSubmitPurchase,
       loadingText,
+      packId,
+      setStatus,
       status,
     }),
     [
       formErrors,
       handleSubmitBid,
+      handleSubmitPassphrase,
       handleSubmitPurchase,
       loadingText,
+      packId,
+      setStatus,
       status,
     ]
   )
@@ -528,12 +558,17 @@ export function usePaymentProvider({
 
 export function PaymentProvider({
   children,
-  data,
+  auctionPackId,
+  currentBid,
+  release,
 }: {
   children: ReactNode
-  data: FormData
-}) {
-  const value = usePaymentProvider(data)
+} & PaymentProviderProps) {
+  const value = usePaymentProvider({
+    auctionPackId,
+    currentBid,
+    release,
+  })
   return (
     <PaymentContext.Provider value={value}>
       {children}
