@@ -42,6 +42,8 @@ After bootstrapping and running the seed script locally, there's additional conf
 
 When you first spin up the app, you'll see only text rendered in place of images. There's an extra step needed in order to make these files available.
 
+1. Navigate to the local CMS, which defaults to http://localhost:8055
+1. Log in using the username and password you specified in `config.local.json`.
 1. In the local CMS, go to Settings (the cog wheel)
 1. Go to Roles & Permissions
 1. Click on the Public category
