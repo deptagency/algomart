@@ -33,7 +33,7 @@ This software is in a pre-release state. This means while we strive to keep it s
 
 ## ✅ Requirements
 
-- Node.js v14, npm v7 (manage version via [nvm][nvm])
+- Node.js v16, npm v7 (manage version via [nvm][nvm])
 - PostgreSQL ([Postgres.app][postgres app] is recommended on macOS, or run via `docker-compose up db`)
 - Algod (Algorand node, use [algorand/sandbox][algorand sandbox] to start)
 - [Circle][circle] account for taking payments
