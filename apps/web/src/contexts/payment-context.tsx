@@ -118,25 +118,16 @@ export function usePaymentProvider({
     (code: string | number) => {
       setFormErrors({})
 
-      switch (code) {
-        case 1094:
-          return setFormErrors({
-            fullName: t('forms:errors.invalidName'),
-          })
-        case 1032:
-          return setFormErrors({
-            ccNumber: t('forms:errors.invalidCreditCard'),
-          })
-        case 2:
-          return setFormErrors({
-            securityCode: t('forms:errors.invalidCVV'),
-          })
-        case 1106:
-          return setFormErrors({ state: t('forms:errors.invalidState') })
-        case 1101:
-          return setFormErrors({
-            country: t('forms:errors.invalidCountry'),
-          })
+      const errors = {
+        1094: { fullName: t('forms:errors.invalidName') },
+        1032: { ccNumber: t('forms:errors.invalidCreditCard') },
+        2: { securityCode: t('forms:errors.invalidCVV') },
+        1106: { state: t('forms:errors.invalidState') },
+        1101: { country: t('forms:errors.invalidCountry') },
+      }[code]
+
+      if (errors) {
+        return setFormErrors(errors)
       }
     },
     [t]
