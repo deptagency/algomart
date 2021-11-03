@@ -153,7 +153,7 @@ export function usePaymentProvider({
         throw new Error('No price provided')
       }
 
-      // Throw error is no card is provided
+      // Throw error if no card is provided
       if (!cardId) {
         throw new Error('No card selected')
       }
