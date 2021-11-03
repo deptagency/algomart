@@ -24,13 +24,6 @@ export interface CheckoutPageProps {
   release: PublishedPack
 }
 
-export type CheckoutStatus =
-  | 'passphrase'
-  | 'purchase'
-  | 'loading'
-  | 'success'
-  | 'error'
-
 export default function Checkout({
   auctionPackId,
   currentBid,

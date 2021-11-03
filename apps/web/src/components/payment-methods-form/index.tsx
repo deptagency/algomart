@@ -1,3 +1,4 @@
+import { CheckoutStatus } from '@algomart/schemas'
 import { FormEvent, useCallback } from 'react'
 import { ExtractError } from 'validator-fns'
 
@@ -6,7 +7,6 @@ import AddMethodsForm from './sections/add-methods-form'
 import AddMethodsSuccess from './sections/add-methods-success'
 
 import Loading from '@/components/loading/loading'
-import { CreateStatus } from '@/pages/my/profile/payment-methods/add'
 import {
   validateExpirationDate,
   validatePurchaseForm,
@@ -18,8 +18,8 @@ export interface MyProfilePaymentMethodsAddProps {
   >
   loadingText: string
   onSubmit(event: FormEvent<HTMLFormElement>): void
-  status?: CreateStatus
-  setStatus: (status: CreateStatus) => void
+  status?: CheckoutStatus
+  setStatus: (status: CheckoutStatus) => void
 }
 
 export default function MyProfilePaymentMethodsAddTemplate({

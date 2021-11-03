@@ -59,23 +59,28 @@ b. Scroll all the way down to Token, under Admin Options
 c. Paste in the desired API key (has to match `CMS_API_KEY` in web)
 
 ## Data Model Overview
+
 Once bootstrapped, the Directus CMS will be populated with configurable entities (Directus refers to these as "collections"). There are a handful of these collections that can be administered to create and configure NFTs. Here is an explanation of each collection:
 
 ### Application
+
 The Application collection is really just one setting for the app's currency. Set this to the currency your app will be selling in (e.g. `USD`).
 
 ### Languages
+
 The entire platform supports multiple languages based on an end-user's locale. You can support as many languages as you like and provide the appropriate translations wherever readable content is edited. For each supported language, provide its name and its [ISO language code](http://www.lingoes.net/en/translator/langcode.htm).
 
 ### Rarities
+
 If you want NFTs to have different rarities, these can be configured under the Rarities collection. These different types of rarities can be assigned to NFT templates (more on this below). Provide a unique numeric code, the name of the rarity (e.g. "Rare", "Epic", etc.) that you want to associate with the collectible, and a color for the rarity. The name and the color can be shown by the UI.
 
-### NFT Templates 
+### NFT Templates
+
 NFT templates represent an NFT that will be minted by the API. Note that once an NFT Template record is published, many of its fields cannot be edited. This is to maintain integrity of the asset. An NFT Template has a number of configurable fields:
 
 - Status: Set to "Published" once you are sure all other fields have been configured in a satisfactory manner. Otherwise, keep it as a "Draft".
 - Total Editions: The number of instances of this NFT that should be minted.
-- Unique Code: A unique identifier that will appear on the blockchain transaction. Note, due to blockchain constraints, this field is limited to 8 bytes. Therefore, it should be kept to 8 or less alpha-numeric characters. 
+- Unique Code: A unique identifier that will appear on the blockchain transaction. Note, due to blockchain constraints, this field is limited to 8 bytes. Therefore, it should be kept to 8 or less alpha-numeric characters.
 - Preview Image: A preview image of the NFT collectible that can be shown in the UI.
 - Preview Video: A preview video of the NFT collectible that can be embedded in the UI.
 - Preview Audio: A preview audio file of the NFT collectible that can be embedded in the UI.
@@ -88,14 +93,15 @@ NFT templates represent an NFT that will be minted by the API. Note that once an
 - Subtitle: If desired, a subtitle to display when viewing the NFT in the UI.
 - Description: A more in-depth description to display when viewing the NFT in the UI.
 
-### Pack Templates 
-A Pack Templates is what an end-user acquires. If you want to distribute a single NFT, a single NFT can be added to a Pack Template. Otherwise, a Pack Template is also able to contain multiple NFTs. 
+### Pack Templates
+
+A Pack Templates is what an end-user acquires. If you want to distribute a single NFT, a single NFT can be added to a Pack Template. Otherwise, a Pack Template is also able to contain multiple NFTs.
 
 Note that once a Pack Template record is published, many of its fields cannot be edited. This is to maintain integrity of the storefront.A Pack Template has a number of configurable fields:
 
 - Status: Set to "Published" once you are sure all other fields have been configured in a satisfactory manner. Otherwise, keep it as a "Draft".
 - Slug: A URL-safe slug that can be referenced in the UI.
-- Released At: The date at which a Pack can be viewed or acquired. 
+- Released At: The date at which a Pack can be viewed or acquired.
 - Price: The price of the Pack.
 - Type: There are four different types of Packs:
   - Free: The Pack can be be claimed for free by any registered end-user.
@@ -113,11 +119,11 @@ Note that once a Pack Template record is published, many of its fields cannot be
 - NFT Templates: The NFTs that belong in this Pack.
 - Additional Images: If you would like to show additional images (e.g. in media gallery) when a Pack is shown in the UI, they can be provided here.
 - Allow Bid Expiration: If the "Type" field is set to "Auction", setting this to option will award the auction to the next highest bidder if the original winning bidder doesn't complete the auction payment within a given timeframe. This will continually cascade down the highest bidders until there are no bidders left. It will only cascade down to unique bidders (in other words, subsequent bidders will not be awarded the auction if they've already neglected to pay a higher bid).
-- One Pack Per Customer: Setting this option to true will allow a user to only acquire one version of the Pack. 
-
+- One Pack Per Customer: Setting this option to true will allow a user to only acquire one version of the Pack.
 
 ## Sets
-Sets are an optional mechanism to group NFTs in a way that can incentivize an end-user to collect all of the NFTs assigned to a a Set. For example, let's imagine we are distributing football card NFTs. A Set might be all of the NFTs for a player on a given team in the 2022 season. 
+
+Sets are an optional mechanism to group NFTs in a way that can incentivize an end-user to collect all of the NFTs assigned to a a Set. For example, let's imagine we are distributing football card NFTs. A Set might be all of the NFTs for a player on a given team in the 2022 season.
 
 Note that once Set record is published, many of its fields cannot be edited. This is to maintain integrity of the acquisition incentive. A Set has a number of configurable fields:
 
@@ -128,9 +134,10 @@ Note that once Set record is published, many of its fields cannot be edited. Thi
 - Name: The name of the Set to display when viewing the Set in the UI.
 
 ## Collections
-Not to be confused with Directus' "Collection" nomenclature. Within this platform, Collections are an optional mechanism to group Sets and/or individual NFTs in a way that can incentivize an end-user to collect all of the NFTs assigned to a a Collection, or all of the NFTs in the Sets assigned to the Collection. For example, let's revisit the football card NFTs scenario described above. A Collection might represent all of the football teams in a league for the 2022 season. Each Set (again, representing a team), would contain NFTs for each player on a given team in the 2022 season. So in essence, a user who has collected all NFTs in every Set of a Collection has effectively collected all of the NFTs for each player in the 2022 football league. 
 
-Collections don't have to contain Sets. They can also just contain individual NFTs. They also contain Sets AND individual NFTs. 
+Not to be confused with Directus' "Collection" nomenclature. Within this platform, Collections are an optional mechanism to group Sets and/or individual NFTs in a way that can incentivize an end-user to collect all of the NFTs assigned to a a Collection, or all of the NFTs in the Sets assigned to the Collection. For example, let's revisit the football card NFTs scenario described above. A Collection might represent all of the football teams in a league for the 2022 season. Each Set (again, representing a team), would contain NFTs for each player on a given team in the 2022 season. So in essence, a user who has collected all NFTs in every Set of a Collection has effectively collected all of the NFTs for each player in the 2022 football league.
+
+Collections don't have to contain Sets. They can also just contain individual NFTs. They also contain Sets AND individual NFTs.
 
 Note that once Set record is published, many of its fields cannot be edited. This is to maintain integrity of the acquisition incentive.
 
@@ -146,8 +153,8 @@ Note that once Set record is published, many of its fields cannot be edited. Thi
 - Sets: The Sets of NFTs that belong in this Collection.
 - NFT Templates: The NFTs that belong in this Set.
 
-
 Example of "Metadata" field value:
+
 ```json
 {
   "size": {
@@ -162,6 +169,7 @@ Example of "Metadata" field value:
 ```
 
 ## Homepage
+
 The homepage of the provided UI depicts a featured Pack, which takes prominence at the top of the page, followed by a grid of other packs, then followed by a number of notable collectibles. This is purely aesthetic to create an interest homepage when an end-user visits the storefront. Depending on the needs of your UI, this can be omitted, extended, or just used as is.
 
 ## Updating the data model

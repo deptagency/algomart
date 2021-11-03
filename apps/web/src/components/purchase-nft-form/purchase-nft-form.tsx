@@ -32,7 +32,7 @@ export default function PurchaseNFTForm({
     formErrors,
     handleSubmitBid: onSubmitBid,
     handleSubmitPassphrase: onSubmitPassphrase,
-    handleSubmitPurchase: onSubmitPurchase,
+    handleSubmitPurchaseCard,
     loadingText,
     packId,
     setStatus,
@@ -59,13 +59,15 @@ export default function PurchaseNFTForm({
       event.preventDefault()
       const data = new FormData(event.currentTarget)
       await (release.type === PackType.Auction &&
-        isAfterNow(new Date(release.auctionUntil as string)) ? onSubmitBid(data) : onSubmitPurchase(data));
+      isAfterNow(new Date(release.auctionUntil as string))
+        ? onSubmitBid(data)
+        : handleSubmitPurchaseCard(data, true))
     },
-    [release.auctionUntil, release.type, onSubmitBid, onSubmitPurchase]
+    [handleSubmitPurchaseCard, release.auctionUntil, release.type, onSubmitBid]
   )
 
   const handleRetry = useCallback(() => {
-    setStatus('purchase')
+    setStatus('form')
   }, [setStatus])
 
   return (
@@ -79,7 +81,7 @@ export default function PurchaseNFTForm({
         />
       )}
 
-      <div className={status === 'purchase' ? 'w-full' : 'hidden'}>
+      <div className={status === 'form' ? 'w-full' : 'hidden'}>
         <PurchaseForm
           formErrors={formErrors}
           currentBid={currentBid}
