@@ -6,7 +6,7 @@ on:
 
     # Or trigger via tag creation instead
     #tags:
-      #- '*'
+    #- '*'
 
 jobs:
   tag:
@@ -127,7 +127,7 @@ jobs:
           TF_VAR_api_database_user_password: ${{ secrets.TF_VAR_api_database_user_password }}
           TF_VAR_api_domain_mapping: ${{ secrets.TF_VAR_api_domain_mapping }}
           TF_VAR_api_funding_mnemonic: ${{ secrets.TF_VAR_api_funding_mnemonic }}
-          TF_VAR_api_image: "gcr.io/${{ secrets.GCP_PROJECT_ID }}/api:${{ needs.tag.outputs.value }}"
+          TF_VAR_api_image: 'gcr.io/${{ secrets.GCP_PROJECT_ID }}/api:${{ needs.tag.outputs.value }}'
           TF_VAR_api_key: ${{ secrets.TF_VAR_api_key }}
           TF_VAR_api_secret: ${{ secrets.TF_VAR_api_secret }}
 
@@ -139,7 +139,7 @@ jobs:
           TF_VAR_cms_database_user_name: ${{ secrets.TF_VAR_cms_database_user_name }}
           TF_VAR_cms_database_user_password: ${{ secrets.TF_VAR_cms_database_user_password }}
           TF_VAR_cms_domain_mapping: ${{ secrets.TF_VAR_cms_domain_mapping }}
-          TF_VAR_cms_image: "gcr.io/${{ secrets.GCP_PROJECT_ID }}/cms:${{ needs.tag.outputs.value }}"
+          TF_VAR_cms_image: 'gcr.io/${{ secrets.GCP_PROJECT_ID }}/cms:${{ needs.tag.outputs.value }}'
           TF_VAR_cms_key: ${{ secrets.TF_VAR_cms_key }}
           TF_VAR_cms_secret: ${{ secrets.TF_VAR_cms_secret }}
           TF_VAR_cms_storage_bucket: ${{ secrets.TF_VAR_cms_storage_bucket }}
@@ -149,7 +149,7 @@ jobs:
 
           TF_VAR_web_domain_mapping: ${{ secrets.TF_VAR_web_domain_mapping }}
           TF_VAR_web_firebase_service_account: ${{ secrets.TF_VAR_web_firebase_service_account }}
-          TF_VAR_web_image: "gcr.io/${{ secrets.GCP_PROJECT_ID }}/web:${{ needs.tag.outputs.value }}"
+          TF_VAR_web_image: 'gcr.io/${{ secrets.GCP_PROJECT_ID }}/web:${{ needs.tag.outputs.value }}'
           TF_VAR_web_next_public_firebase_config: ${{ secrets.TF_VAR_web_next_public_firebase_config }}
 
           # Optional
