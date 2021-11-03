@@ -128,7 +128,7 @@ jobs:
           TF_VAR_api_database_user_password: ${{ secrets.API_DATABASE_USER_PASSWORD }}
           TF_VAR_api_domain_mapping: ${{ secrets.API_DOMAIN_MAPPING }}
           TF_VAR_api_funding_mnemonic: ${{ secrets.API_FUNDING_MNEMONIC }}
-          TF_VAR_api_image: "${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/api:${{ needs.tag.outputs.value }}"
+          TF_VAR_api_image: '${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/api:${{ needs.tag.outputs.value }}'
           TF_VAR_api_key: ${{ secrets.API_KEY }}
           TF_VAR_api_secret: ${{ secrets.API_SECRET }}
 
@@ -140,7 +140,7 @@ jobs:
           TF_VAR_cms_database_user_name: ${{ secrets.CMS_DATABASE_USER_NAME }}
           TF_VAR_cms_database_user_password: ${{ secrets.CMS_DATABASE_USER_PASSWORD }}
           TF_VAR_cms_domain_mapping: ${{ secrets.CMS_DOMAIN_MAPPING }}
-          TF_VAR_cms_image: "${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/cms:${{ needs.tag.outputs.value }}"
+          TF_VAR_cms_image: '${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/cms:${{ needs.tag.outputs.value }}'
           TF_VAR_cms_key: ${{ secrets.CMS_KEY }}
           TF_VAR_cms_secret: ${{ secrets.CMS_SECRET }}
           TF_VAR_cms_storage_bucket: ${{ secrets.CMS_STORAGE_BUCKET }}
@@ -150,7 +150,7 @@ jobs:
 
           TF_VAR_web_domain_mapping: ${{ secrets.WEB_DOMAIN_MAPPING }}
           TF_VAR_web_firebase_service_account: ${{ secrets.WEB_FIREBASE_SERVICE_ACCOUNT }}
-          TF_VAR_web_image: "${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/web:${{ needs.tag.outputs.value }}"
+          TF_VAR_web_image: '${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/web:${{ needs.tag.outputs.value }}'
           TF_VAR_web_next_public_firebase_config: ${{ secrets.WEB_NEXT_PUBLIC_FIREBASE_CONFIG }}
 
           # Optional
