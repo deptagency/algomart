@@ -19,7 +19,7 @@ need to exist prior to running `terraform apply`.
 - A Google Cloud project to house all resources
 - A GCS bucket for storing terraform state (terraform cannot create this)
 - A service account with appropriate IAM roles for terraform to use<sup>1</sup>
-- GCR to be enabled in the project
+- An Artifact Registry docker repository for storing docker images
 - CNAME records with our DN registrar (this can be done either before or after the first deploy)
 
 The project, bucket, and service account do not need to be new;
@@ -139,12 +139,11 @@ For custom load balancers, you'll need to use their IP addresses instead.
 
 For instance, assuming we want the services mapped to the following host names...
 
-| Service | Host name |
-| --- | --: |
-| API | `api.nfty.example.com` |
-| CMS | `cms.nfty.example.com` |
-| Web | `nfty.example.com` |
-
+| Service |              Host name |
+| ------- | ---------------------: |
+| API     | `api.nfty.example.com` |
+| CMS     | `cms.nfty.example.com` |
+| Web     |     `nfty.example.com` |
 
 ... then we'll want CNAME records for all three of those host names mapped to `ghs.googlehosted.com.` (note the trailing period).
 
@@ -158,23 +157,86 @@ to associate the services with their respectiving mappings.
 > but the custom domain resources in Cloud Run will not work until the records
 > are created.
 
-### Enable GCR
+### Create an Artifact Registry docker repository
 
 In your GCP project, open the services menu.
 
 > ![open menu](./docs/new-service-account-01.png)
 
-Scroll down to the "CI/CD" section and click "Container Registry".
+Scroll down to the "CI/CD" section and click "Artifact Registry".
 
-> ![00](./docs/enable-gcr-00-menu.png)
+> ![00](./docs/enable-ar-01-menu.png)
 
-If this is a new project (or GCR has never been used) you will need to click "ENABLE".
+If this is a new project (or Artifact Registry has never been used) you will need to click "Enable".
 
-> ![01](./docs/enable-gcr-01-enable.png)
+> ![01](./docs/enable-ar-02-enable.png)
 
-It will take a little time to provision, but when done you should see a screen like the following.
+Now click "Create repository".
 
-> ![02](./docs/enable-gcr-02-created.png)
+> ![click create](./docs/enable-ar-03-click-create.png)
+
+Here, give the repository a name, make sure "Docker" is selected,
+and assign a region. (Most likely same as project region.).
+Then click "Create".
+
+> ![fill in form](./docs/enable-ar-04-create.png)
+
+Once created, click the repository name in the table
+to go to the repository details.
+
+> ![select the repository](./docs/enable-ar-05-select.png)
+
+Find the **registry name** - it will look something like `<region>-docker.pkg.dev`.
+
+> ![record the registry](./docs/enable-ar-06-regions.png)
+
+## Build docker images
+
+Whether building and deploying locally or via CI/CD,
+the docker images built for the different services should be pushed
+to the Artifact Registry docker repository created above.
+
+You will first need to authenticate `glcoud` using the service account
+credentials for the project.
+
+```bash
+$ gcloud auth activate-service-account --key-file=<service-account.json>
+```
+
+Next, `docker` needs to be configured to authenticate with `gcloud`
+for the given registry. For instance, if the repository was created
+in the `us-east4` region, the registry will be `us-east4-docker.pkg.dev`.
+
+```bash
+$ gcloud auth configure-docker us-east4-docker.pkg.dev
+```
+
+Now we can build the docker images, naming them with a prefix specifying:
+
+- The regional registry
+- The GCP project
+- The AR repository name
+
+Again, assuming `us-east4` region, a GCP project id of "my-project",
+and an Artifact Registry repository named "storefront", building and
+pushing the API service image would look like:
+
+```bash
+
+$ docker build \
+    -f <project-root>/docker/deploy/api/Dockerfile \
+    -t us-east4-docker.pkg.dev/my-project/storefront/api:latest \
+    .
+
+$ docker push us-east4-docker.pkg.dev/my-project/storefront/api:latest
+```
+
+When deploying via Terraform, save the `us-east4-docker.pkg.dev/my-project/storefront/api:latest`
+image name in the `api_image` variable.
+
+> **Note:** You will want to **avoid the `latest` tag**,
+> as Terraform will not be able to detect that the images have been changed
+> and will not issue new Cloud Run revisions.
 
 ---
 
@@ -256,65 +318,63 @@ and you are free to override any variables that do.
 
 #### **Required**
 
-| Variable | Description |
-| --- | --- |
-| `algod_host` | Host name or IP address of the Algod server |
-| `algod_key` | Access token for the Algod server |
-| `algod_port` | Access port for the Algod server |
-| `api_creator_passphrase` | The passphrase to use for encrypting new Algorand account mnemonics |
-| `api_database_user_name` | The API application's database role |
-| `api_database_user_password` | The API application's database password |
-| `api_domain_mapping` | The domain name for the API server |
-| `api_funding_mnemonic` | The secret mnemonic for the Algorand account used to fund all asset creation and transactions |
-| `api_image` | The repository-qualified name and tag for the API docker image |
-| `api_key` | The access token for the API |
-| `api_revision_name` | The unique name for the API's latest Cloud Run revision<sup>2</sup>
-| `api_secret` | The secret used during encryption |
-| `circle_key` | The access token for Circle |
-| `circle_url` | The API URL for Circle |
-| `cms_admin_email` | The email for the initial CMS admin user |
-| `cms_admin_password` | The password for the initial CMS admin user |
-| `cms_database_user_name` | The CMS application's database role |
-| `cms_database_user_password` | The CMS application's database password |
-| `cms_domain_mapping` | The domain name for the CMS server |
-| `cms_image` | The repository-qualified name and tag for the CMS docker image |
-| `cms_key` | The access token for the CMS |
-| `cms_revision_name` | The unique name for the CMS's latest Cloud Run revision<sup>2</sup>
-| `cms_secret` | TODO |
-| `cms_storage_bucket` | The GCS bucket name in which to store assets such as images |
-| `credentials` | The JSON credentials (newline-delimited) for the service account that Terraform will use to manage state and all resources. |
-| `project` | The id (not project number) of the GCP project that will own all resources |
-| `sendgrid_key` | The access token for Sendgrid |
-| `sendgrid_from_email` | The sender email for Sendgrid |
-| `web_domain_mapping` | The domain name for the front-end web server |
-| `web_firebase_service_account` | The private service account JSON credentials for Firebase authentication |
-| `web_image` | The repository-qualified name and tag for the front-end server docker image |
-| `web_next_public_firebase_config` | The publicly-viewable Firebase JSON configuration for authentication |
-| `web_revision_name` | The unique name for the web front-end's latest Cloud Run revision<sup>2</sup>
+| Variable                          | Description                                                                                                                 |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `algod_host`                      | Host name or IP address of the Algod server                                                                                 |
+| `algod_key`                       | Access token for the Algod server                                                                                           |
+| `algod_port`                      | Access port for the Algod server                                                                                            |
+| `api_creator_passphrase`          | The passphrase to use for encrypting new Algorand account mnemonics                                                         |
+| `api_database_user_name`          | The API application's database role                                                                                         |
+| `api_database_user_password`      | The API application's database password                                                                                     |
+| `api_domain_mapping`              | The domain name for the API server                                                                                          |
+| `api_funding_mnemonic`            | The secret mnemonic for the Algorand account used to fund all asset creation and transactions                               |
+| `api_image`                       | The repository-qualified name and tag for the API docker image                                                              |
+| `api_key`                         | The access token for the API                                                                                                |
+| `api_revision_name`               | The unique name for the API's latest Cloud Run revision<sup>2</sup>                                                         |
+| `api_secret`                      | The secret used during encryption                                                                                           |
+| `circle_key`                      | The access token for Circle                                                                                                 |
+| `circle_url`                      | The API URL for Circle                                                                                                      |
+| `cms_admin_email`                 | The email for the initial CMS admin user                                                                                    |
+| `cms_admin_password`              | The password for the initial CMS admin user                                                                                 |
+| `cms_database_user_name`          | The CMS application's database role                                                                                         |
+| `cms_database_user_password`      | The CMS application's database password                                                                                     |
+| `cms_domain_mapping`              | The domain name for the CMS server                                                                                          |
+| `cms_image`                       | The repository-qualified name and tag for the CMS docker image                                                              |
+| `cms_key`                         | The access token for the CMS                                                                                                |
+| `cms_revision_name`               | The unique name for the CMS's latest Cloud Run revision<sup>2</sup>                                                         |
+| `cms_secret`                      | TODO                                                                                                                        |
+| `cms_storage_bucket`              | The GCS bucket name in which to store assets such as images                                                                 |
+| `credentials`                     | The JSON credentials (newline-delimited) for the service account that Terraform will use to manage state and all resources. |
+| `project`                         | The id (not project number) of the GCP project that will own all resources                                                  |
+| `sendgrid_key`                    | The access token for Sendgrid                                                                                               |
+| `sendgrid_from_email`             | The sender email for Sendgrid                                                                                               |
+| `web_domain_mapping`              | The domain name for the front-end web server                                                                                |
+| `web_firebase_service_account`    | The private service account JSON credentials for Firebase authentication                                                    |
+| `web_image`                       | The repository-qualified name and tag for the front-end server docker image                                                 |
+| `web_next_public_firebase_config` | The publicly-viewable Firebase JSON configuration for authentication                                                        |
+| `web_revision_name`               | The unique name for the web front-end's latest Cloud Run revision<sup>2</sup>                                               |
 
 #### **Optional**
 
-
-| Variable | Description |
-| --- | --- |
-| `api_database_name` | Name of the API-specific database within the database server |
-| `api_database_schema` | The database schema for the API tables |
-| `api_service_name` | Name of the Cloud Run API service<sup>1</sup> |
-| `bucket_location` | [Geographic location](https://cloud.google.com/storage/docs/locations#available-locations) of the bucket, which determines latency and availability (and whether it's multi- or single- region) |
-| `cms_database_name` | Name of the CMS-specific database within the database server |
-| `api_database_schema` | The database schema for the CMS tables |
-| `cms_service_name` | Name of the Cloud Run CMS service<sup>1</sup> |
-| `database_max_connections` | Maximum number of database connections to allow, if more than [the default limit](https://cloud.google.com/sql/docs/postgres/quotas#cloud-sql-for-postgresql-connection-limits) is needed (especially for smaller tiers). A minimum of 50 is recommended, based on the number of connections made across the CMS server, the API server, and the API background tasks. |
-| `database_server_name` | Name of the Cloud SQL database server instance<sup>1</sup> |
-| `database_server_tier` | Size of the PostgreSQL database [shared-CPU](https://cloud.google.com/sql/pricing#instance-pricing) instance. If a dedicated CPU instance is required, the Terraform configuration will likely need to be updated. |
-| `disable_apis_on_destroy` | Whether or not to disable the GCP APIs (like Cloud Run, etc) when the project is destroyed; helpful if creating resources in a project that has other resources managed through other processes. |
-| `private_ip_name` | Name of the Global Address private IP assigned to the database server for private connections from Cloud Run<sup>1</sup> |
-| `region` | The GCP region for the project and services |
-| `vpc_access_connector_name` | Name of the VPC Access Connector used by Cloud Run to connect to database server<sup>1</sup> |
-| `vpc_name` | Name of the VPC used by Cloud Run to connect to database server<sup>1</sup> |
-| `web_next_public_3js_debug` | TODO |
-| `web_service_name` | Name of the Cloud Run front-end web service<sup>1</sup> |
-
+| Variable                    | Description                                                                                                                                                                                                                                                                                                                                                            |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api_database_name`         | Name of the API-specific database within the database server                                                                                                                                                                                                                                                                                                           |
+| `api_database_schema`       | The database schema for the API tables                                                                                                                                                                                                                                                                                                                                 |
+| `api_service_name`          | Name of the Cloud Run API service<sup>1</sup>                                                                                                                                                                                                                                                                                                                          |
+| `bucket_location`           | [Geographic location](https://cloud.google.com/storage/docs/locations#available-locations) of the bucket, which determines latency and availability (and whether it's multi- or single- region)                                                                                                                                                                        |
+| `cms_database_name`         | Name of the CMS-specific database within the database server                                                                                                                                                                                                                                                                                                           |
+| `api_database_schema`       | The database schema for the CMS tables                                                                                                                                                                                                                                                                                                                                 |
+| `cms_service_name`          | Name of the Cloud Run CMS service<sup>1</sup>                                                                                                                                                                                                                                                                                                                          |
+| `database_max_connections`  | Maximum number of database connections to allow, if more than [the default limit](https://cloud.google.com/sql/docs/postgres/quotas#cloud-sql-for-postgresql-connection-limits) is needed (especially for smaller tiers). A minimum of 50 is recommended, based on the number of connections made across the CMS server, the API server, and the API background tasks. |
+| `database_server_name`      | Name of the Cloud SQL database server instance<sup>1</sup>                                                                                                                                                                                                                                                                                                             |
+| `database_server_tier`      | Size of the PostgreSQL database [shared-CPU](https://cloud.google.com/sql/pricing#instance-pricing) instance. If a dedicated CPU instance is required, the Terraform configuration will likely need to be updated.                                                                                                                                                     |
+| `disable_apis_on_destroy`   | Whether or not to disable the GCP APIs (like Cloud Run, etc) when the project is destroyed; helpful if creating resources in a project that has other resources managed through other processes.                                                                                                                                                                       |
+| `private_ip_name`           | Name of the Global Address private IP assigned to the database server for private connections from Cloud Run<sup>1</sup>                                                                                                                                                                                                                                               |
+| `region`                    | The GCP region for the project and services                                                                                                                                                                                                                                                                                                                            |
+| `vpc_access_connector_name` | Name of the VPC Access Connector used by Cloud Run to connect to database server<sup>1</sup>                                                                                                                                                                                                                                                                           |
+| `vpc_name`                  | Name of the VPC used by Cloud Run to connect to database server<sup>1</sup>                                                                                                                                                                                                                                                                                            |
+| `web_next_public_3js_debug` | TODO                                                                                                                                                                                                                                                                                                                                                                   |
+| `web_service_name`          | Name of the Cloud Run front-end web service<sup>1</sup>                                                                                                                                                                                                                                                                                                                |
 
 > <sup>1</sup> Resource names are primarily only really useful to override if there
 > are existing resources with competing names, since they need to be unique.
@@ -368,7 +428,7 @@ to run, meaning we cannot create assets on the blockchain.
 
 ## Likely infrastructural changes
 
-The default infrastructure *should* be a good starting point for any new project,
+The default infrastructure _should_ be a good starting point for any new project,
 but it can also serve as a base for a more tailored environment.
 
 A few examples of some potential desired changes are below.
@@ -380,7 +440,7 @@ within the server - one for the CMS and one for the API - and two different data
 
 Possible changes might include:
 
-- Housing the CMS and API databases in *separate servers*
+- Housing the CMS and API databases in _separate servers_
 - Using a single user for both applications
 - Using a single database for the CMS and API schemas
 - Using a dedicated CPU instance rather than shared
@@ -402,4 +462,4 @@ Currently, API and CMS migrations are bundled with their respective docker image
 executed in an entrypoint script.
 
 This actually causes the migration tools to run not only when the Cloud Run services are
-*created or updated*, but also when the containers are *spun back up* after being idled for a time.
+_created or updated_, but also when the containers are _spun back up_ after being idled for a time.

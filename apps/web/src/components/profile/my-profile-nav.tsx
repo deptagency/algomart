@@ -40,7 +40,7 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
   const signOut = useCallback(async () => {
     await auth.signOut()
     setRedeemable(null)
-    push('/')
+    push(urls.home)
   }, [auth, push, setRedeemable])
 
   const navItems = [

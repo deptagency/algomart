@@ -39,57 +39,58 @@ export default function ReleaseFilterType() {
           />
         </div>
       </div>
-      <div className={clsx(css.filterRow, css.filterHeader)}>
-        <Heading level={2}>{t('release:filters.Auction Status')}</Heading>
-      </div>
-      <div className={css.filterRow}>
-        <div className={css.filterItem}>
-          <Toggle
-            checked={state.showAuctionUpcoming}
-            disabled={!state.showAuction}
-            label={t('release:filters.Starting soon')}
-            onChange={(checked) => {
-              dispatch(packFilterActions.setShowAuctionUpcoming(checked))
-            }}
-            styleMode="dark"
-          />
-        </div>
-        <div className={css.filterItem}>
-          <Toggle
-            checked={state.showAuctionActive}
-            disabled={!state.showAuction}
-            label={t('release:filters.Auction is live')}
-            onChange={(checked) => {
-              dispatch(packFilterActions.setShowAuctionActive(checked))
-            }}
-            styleMode="dark"
-          />
-        </div>
-        <div className={css.filterItem}>
-          <Toggle
-            checked={state.showAuctionExpired}
-            disabled={!state.showAuction}
-            label={t('release:filters.Has ended')}
-            onChange={(checked) => {
-              dispatch(packFilterActions.setShowAuctionExpired(checked))
-            }}
-            styleMode="dark"
-          />
-        </div>
-      </div>
-      <div className={css.filterRow}>
-        <div className={css.filterItem}>
-          <Toggle
-            checked={state.showAuctionReserveMet}
-            disabled={!state.showAuction}
-            label={t('release:filters.Reserve met')}
-            onChange={(checked) => {
-              dispatch(packFilterActions.setShowAuctionReserveMet(checked))
-            }}
-            styleMode="dark"
-          />
-        </div>
-      </div>
+
+      {state.showAuction && (
+        <>
+          <div className={clsx(css.filterRow, css.filterHeader)}>
+            <Heading level={2}>{t('release:filters.Auction Status')}</Heading>
+          </div>
+          <div className={css.filterRow}>
+            <div className={css.filterItem}>
+              <Toggle
+                checked={state.showAuctionUpcoming}
+                label={t('release:filters.Starting soon')}
+                onChange={(checked) => {
+                  dispatch(packFilterActions.setShowAuctionUpcoming(checked))
+                }}
+                styleMode="dark"
+              />
+            </div>
+            <div className={css.filterItem}>
+              <Toggle
+                checked={state.showAuctionActive}
+                label={t('release:filters.Auction is live')}
+                onChange={(checked) => {
+                  dispatch(packFilterActions.setShowAuctionActive(checked))
+                }}
+                styleMode="dark"
+              />
+            </div>
+            <div className={css.filterItem}>
+              <Toggle
+                checked={state.showAuctionExpired}
+                label={t('release:filters.Has ended')}
+                onChange={(checked) => {
+                  dispatch(packFilterActions.setShowAuctionExpired(checked))
+                }}
+                styleMode="dark"
+              />
+            </div>
+          </div>
+          <div className={css.filterRow}>
+            <div className={css.filterItem}>
+              <Toggle
+                checked={state.showAuctionReserveMet}
+                label={t('release:filters.Reserve met')}
+                onChange={(checked) => {
+                  dispatch(packFilterActions.setShowAuctionReserveMet(checked))
+                }}
+                styleMode="dark"
+              />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

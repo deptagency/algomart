@@ -18,7 +18,7 @@ module.exports = {
         'nfts_per_pack',
         'nft_templates',
         'one_pack_per_customer',
-        'allow_bid_expiration'
+        'allow_bid_expiration',
       ])
       .update({
         conditions: JSON.stringify([
@@ -121,7 +121,7 @@ module.exports = {
         'nfts_per_pack',
         'nft_templates',
         'one_pack_per_customer',
-        'allow_bid_expiration'
+        'allow_bid_expiration',
       ])
       .update({ conditions: null })
 
