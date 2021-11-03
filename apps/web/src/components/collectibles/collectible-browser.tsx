@@ -23,6 +23,7 @@ export default function CollectibleBrowser({
   initialCollectible = 0,
 }: CollectibleBrowserProps) {
   const [current, setCurrent] = useState(initialCollectible)
+  const [showVideoCoverImage, setShowVideoCoverImage] = useState(false)
   const router = useRouter()
   const { t } = useTranslation()
 
@@ -70,6 +71,11 @@ export default function CollectibleBrowser({
   return (
     <div className={css.root}>
       <Heading className={css.title}>{collectible.title}</Heading>
+      { collectible.previewVideo && 
+        <button onClick={() => setShowVideoCoverImage(!showVideoCoverImage)} className={css.flipButton}>
+          { showVideoCoverImage ? 'show video' : 'show cover'}
+        </button>
+      }
       <div className={css.imageWrapper}>
         { !collectible.previewVideo && 
           <Image
@@ -82,10 +88,28 @@ export default function CollectibleBrowser({
           />
         }
         { collectible.previewVideo && 
-          <video width={700} controls>
-            <source src={collectible.previewVideo} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+          <div className={clsx(css.flipBox, {
+            [css.flip]: showVideoCoverImage
+          })}>
+            <div className={css.flipBoxInner}>
+              <div className={css.flipBoxFront}>
+                <video width="100%" controls>
+                  <source src={collectible.previewVideo} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <div className={css.flipBoxBack}>
+                <Image
+                  src={collectible.image}
+                  loader={cmsImageLoader}
+                  width={700}
+                  height={700}
+                  layout="responsive"
+                  objectFit="contain"
+                />
+              </div>
+            </div>
+          </div>
         }
         <button
           className={clsx(css.navButton, css.navButtonLeft)}
