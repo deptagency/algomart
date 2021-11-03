@@ -285,7 +285,7 @@ export function usePaymentProvider({
           .catch(async (error) => {
             const response = await error.response.json()
             mapCircleErrors(response.code)
-            setFormErrors({}) // @TODO: Work with purchase?
+            setFormErrors({})
             setStatus('form')
             return
           })
