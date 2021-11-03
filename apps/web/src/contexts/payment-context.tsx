@@ -206,7 +206,7 @@ export function usePaymentProvider({
   )
 
   const handleAddCard = useCallback(
-    async (data: FormData, publicKeyRecord: PublicKey) => {
+    async (data: FormData, publicKeyRecord: PublicKey, saveCard: boolean) => {
       // Convert form data to JSON
       const body = toJSON<
         CreateCardRequest & {
@@ -218,7 +218,6 @@ export function usePaymentProvider({
       const {
         ccNumber,
         securityCode,
-        saveCard,
         cardId: submittedCardId,
         address1,
         address2,
@@ -263,7 +262,6 @@ export function usePaymentProvider({
           publicKeyRecord
         )
 
-        // @TODO: Save card always for add page
         if (saveCard) {
           setLoadingText(t('common:statuses.Saving Payment Information'))
         }
@@ -363,7 +361,7 @@ export function usePaymentProvider({
           return
         }
 
-        const cardId = await handleAddCard(data, publicKeyRecord)
+        const cardId = await handleAddCard(data, publicKeyRecord, true)
 
         if (!cardId) {
           throw new Error('No card selected')
@@ -415,6 +413,7 @@ export function usePaymentProvider({
           }
         >(data)
         const { securityCode, cardId: submittedCardId } = body
+        const saveCard = !isPurchase ? true : body.saveCard
 
         const validation = submittedCardId
           ? await validateFormForPurchaseWithSavedCard(body)
@@ -426,7 +425,7 @@ export function usePaymentProvider({
           return
         }
 
-        const cardId = await handleAddCard(data, publicKeyRecord)
+        const cardId = await handleAddCard(data, publicKeyRecord, saveCard)
 
         if (!cardId) {
           throw new Error('No card selected')
