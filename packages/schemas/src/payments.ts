@@ -428,6 +428,12 @@ export const UpdatePaymentCardSchema = Type.Object({
 // Types
 
 export type CardId = Simplify<Static<typeof CardIdSchema>>
+export type CheckoutStatus =
+  | 'passphrase'
+  | 'form'
+  | 'loading'
+  | 'success'
+  | 'error'
 export type CircleCard = Simplify<Static<typeof CircleCardSchema>>
 export type CircleCardVerification = Simplify<
   Static<typeof CircleCardVerificationSchema>

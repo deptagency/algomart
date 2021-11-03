@@ -182,7 +182,6 @@ export const validatePurchase = (t: Translate) =>
     cardId: identifier(t),
     verificationEncryptedData: encryptedData(t),
     packTemplateId: identifier(t),
-    saveCard: boolean(),
   })
 
 export const validateUpdateCard = (t: Translate) =>

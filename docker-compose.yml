@@ -10,7 +10,7 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_DB=algomart
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "algomart", "-U", "postgres"]
+      test: ['CMD', 'pg_isready', '-q', '-d', 'algomart', '-U', 'postgres']
       timeout: 10s
       interval: 10s
       retries: 10
