@@ -71,14 +71,22 @@ export default function CollectibleBrowser({
     <div className={css.root}>
       <Heading className={css.title}>{collectible.title}</Heading>
       <div className={css.imageWrapper}>
-        <Image
-          src={collectible.image}
-          loader={cmsImageLoader}
-          width={700}
-          height={700}
-          layout="responsive"
-          objectFit="contain"
-        />
+        { !collectible.previewVideo && 
+          <Image
+            src={collectible.image}
+            loader={cmsImageLoader}
+            width={700}
+            height={700}
+            layout="responsive"
+            objectFit="contain"
+          />
+        }
+        { collectible.previewVideo && 
+          <video width={700} controls>
+            <source src={collectible.previewVideo} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        }
         <button
           className={clsx(css.navButton, css.navButtonLeft)}
           onClick={goBack}
