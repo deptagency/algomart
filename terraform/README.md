@@ -19,7 +19,7 @@ need to exist prior to running `terraform apply`.
 - A Google Cloud project to house all resources
 - A GCS bucket for storing terraform state (terraform cannot create this)
 - A service account with appropriate IAM roles for terraform to use<sup>1</sup>
-- GCR to be enabled in the project
+- An Artifact Registry docker repository for storing docker images
 - CNAME records with our DN registrar (this can be done either before or after the first deploy)
 
 The project, bucket, and service account do not need to be new;
@@ -157,23 +157,86 @@ to associate the services with their respectiving mappings.
 > but the custom domain resources in Cloud Run will not work until the records
 > are created.
 
-### Enable GCR
+### Create an Artifact Registry docker repository
 
 In your GCP project, open the services menu.
 
 > ![open menu](./docs/new-service-account-01.png)
 
-Scroll down to the "CI/CD" section and click "Container Registry".
+Scroll down to the "CI/CD" section and click "Artifact Registry".
 
-> ![00](./docs/enable-gcr-00-menu.png)
+> ![00](./docs/enable-ar-01-menu.png)
 
-If this is a new project (or GCR has never been used) you will need to click "ENABLE".
+If this is a new project (or Artifact Registry has never been used) you will need to click "Enable".
 
-> ![01](./docs/enable-gcr-01-enable.png)
+> ![01](./docs/enable-ar-02-enable.png)
 
-It will take a little time to provision, but when done you should see a screen like the following.
+Now click "Create repository".
 
-> ![02](./docs/enable-gcr-02-created.png)
+> ![click create](./docs/enable-ar-03-click-create.png)
+
+Here, give the repository a name, make sure "Docker" is selected,
+and assign a region. (Most likely same as project region.).
+Then click "Create".
+
+> ![fill in form](./docs/enable-ar-04-create.png)
+
+Once created, click the repository name in the table
+to go to the repository details.
+
+> ![select the repository](./docs/enable-ar-05-select.png)
+
+Find the **registry name** - it will look something like `<region>-docker.pkg.dev`.
+
+> ![record the registry](./docs/enable-ar-06-regions.png)
+
+## Build docker images
+
+Whether building and deploying locally or via CI/CD,
+the docker images built for the different services should be pushed
+to the Artifact Registry docker repository created above.
+
+You will first need to authenticate `glcoud` using the service account
+credentials for the project.
+
+```bash
+$ gcloud auth activate-service-account --key-file=<service-account.json>
+```
+
+Next, `docker` needs to be configured to authenticate with `gcloud`
+for the given registry. For instance, if the repository was created
+in the `us-east4` region, the registry will be `us-east4-docker.pkg.dev`.
+
+```bash
+$ gcloud auth configure-docker us-east4-docker.pkg.dev
+```
+
+Now we can build the docker images, naming them with a prefix specifying:
+
+- The regional registry
+- The GCP project
+- The AR repository name
+
+Again, assuming `us-east4` region, a GCP project id of "my-project",
+and an Artifact Registry repository named "storefront", building and
+pushing the API service image would look like:
+
+```bash
+
+$ docker build \
+    -f <project-root>/docker/deploy/api/Dockerfile \
+    -t us-east4-docker.pkg.dev/my-project/storefront/api:latest \
+    .
+
+$ docker push us-east4-docker.pkg.dev/my-project/storefront/api:latest
+```
+
+When deploying via Terraform, save the `us-east4-docker.pkg.dev/my-project/storefront/api:latest`
+image name in the `api_image` variable.
+
+> **Note:** You will want to **avoid the `latest` tag**,
+> as Terraform will not be able to detect that the images have been changed
+> and will not issue new Cloud Run revisions.
 
 ---
 
