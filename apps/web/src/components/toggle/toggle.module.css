@@ -53,3 +53,7 @@
   @apply opacity-50;
   pointer-events: none;
 }
+
+.inputDisabled + input + .label {
+  @apply text-base-gray-light;
+}
