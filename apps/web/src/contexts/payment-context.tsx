@@ -461,6 +461,8 @@ export function usePaymentProvider({
           } else {
             setStatus('error')
           }
+        } else {
+          setStatus('success')
         }
       } catch {
         setStatus('error')
