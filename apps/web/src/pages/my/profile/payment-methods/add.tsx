@@ -7,22 +7,17 @@ import MyProfilePaymentMethodsAddTemplate from '@/templates/my-profile-payment-m
 
 export default function MyProfilePaymentMethodsAddPage() {
   const { t } = useTranslation()
-  const {
-    formErrors,
-    handleSubmitPurchaseCard,
-    loadingText,
-    setStatus,
-    status,
-  } = usePaymentProvider({})
+  const { formErrors, handleSubmitPurchase, loadingText, setStatus, status } =
+    usePaymentProvider({})
 
   const handleAddCard = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
       const data = new FormData(event.currentTarget)
       const isPurchase = false
-      handleSubmitPurchaseCard(data, isPurchase)
+      handleSubmitPurchase(data, isPurchase)
     },
-    [handleSubmitPurchaseCard]
+    [handleSubmitPurchase]
   )
 
   return (

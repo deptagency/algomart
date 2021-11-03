@@ -1,4 +1,4 @@
-import { CheckoutStatus } from '@algomart/schemas'
+import { CheckoutStatus, PublicKey } from '@algomart/schemas'
 import {
   GetPaymentCardStatus,
   PackType,
@@ -51,7 +51,7 @@ interface PaymentContextProps {
   >
   handleSubmitBid(data: FormData): void
   handleSubmitPassphrase(passphrase: string): Promise<boolean>
-  handleSubmitPurchaseCard(data: FormData, isPurchase: boolean): void
+  handleSubmitPurchase(data: FormData, isPurchase: boolean): void
   loadingText: string
   packId: string | null
   setStatus: (status: CheckoutStatus) => void
@@ -142,6 +142,187 @@ export function usePaymentProvider({
     [t]
   )
 
+  const handlePurchase = useCallback(
+    async (
+      securityCode: string,
+      cardId: string,
+      publicKeyRecord: PublicKey
+    ) => {
+      // Throw error if no price
+      if (!release || !release.price) {
+        throw new Error('No price provided')
+      }
+
+      // Throw error is no card is provided
+      if (!cardId) {
+        throw new Error('No card selected')
+      }
+
+      Analytics.instance.addPaymentInfo({
+        itemName: release.title,
+        value: release.price,
+      })
+
+      const encryptedCVV = await encryptCardDetails(
+        { cvv: securityCode as string },
+        publicKeyRecord
+      )
+
+      const verificationEncryptedData = encryptedCVV
+      const verificationKeyId = publicKeyRecord.keyId
+
+      // Send request to create
+      setLoadingText(t('common:statuses.Submitting Payment'))
+      const payment = await checkoutService.createPayment({
+        cardId,
+        description: `Purchase of ${release.title} release`,
+        packTemplateId: release.templateId,
+        verificationEncryptedData,
+        verificationKeyId,
+      })
+
+      // Throw error if failed request
+      if (!payment || !payment.id) {
+        throw new Error('Payment not created')
+      }
+
+      // Poll for payment status to confirm avs check is complete
+      const completeWhenNotPendingForPayments = (payment: Payment | null) =>
+        !(payment?.status !== 'pending')
+      const paymentResponse = await poll<Payment | null>(
+        async () => await checkoutService.getPayment(payment.id as string),
+        completeWhenNotPendingForPayments,
+        1000
+      )
+
+      // Throw error if there was a failure code
+      if (!paymentResponse || paymentResponse.status === 'failed') {
+        throw new Error('Payment failed')
+      }
+
+      return payment
+    },
+    [release, t]
+  )
+
+  const handleAddCard = useCallback(
+    async (data: FormData, publicKeyRecord: PublicKey) => {
+      // Convert form data to JSON
+      const body = toJSON<
+        CreateCardRequest & {
+          ccNumber: string
+          securityCode: string
+          cardId: string
+        }
+      >(data)
+      const {
+        ccNumber,
+        securityCode,
+        saveCard,
+        cardId: submittedCardId,
+        address1,
+        address2,
+        city,
+        country,
+        expMonth,
+        expYear,
+        fullName,
+        state,
+        zipCode,
+        default: defaultCard,
+      } = body
+
+      let cardId: string | undefined
+
+      // If existing card provided, use as card ID
+      if (submittedCardId) {
+        cardId = submittedCardId
+      }
+
+      // Validate expiration date
+      if (!submittedCardId) {
+        const expirationDate = getExpirationDate(expMonth, expYear)
+        const expValidation = await validateFormExpirationDate({
+          expirationDate,
+        })
+
+        if (!expValidation.isValid) {
+          setFormErrors(expValidation.errors)
+          setStatus('form')
+          return
+        }
+      }
+
+      if (ccNumber && securityCode) {
+        // Encrypt sensitive details
+        const encryptedCard = await encryptCardDetails(
+          {
+            number: ccNumber as string,
+            cvv: securityCode as string,
+          },
+          publicKeyRecord
+        )
+
+        // @TODO: Save card always for add page
+        if (saveCard) {
+          setLoadingText(t('common:statuses.Saving Payment Information'))
+        }
+
+        const card = await checkoutService
+          .createCard({
+            address1,
+            address2,
+            city,
+            country,
+            expMonth,
+            expYear,
+            fullName,
+            keyId: publicKeyRecord.keyId,
+            encryptedData: encryptedCard,
+            saveCard: !!saveCard,
+            state,
+            zipCode,
+            default: saveCard ? !!defaultCard : false,
+          })
+          .catch(async (error) => {
+            const response = await error.response.json()
+            mapCircleErrors(response.code)
+            setFormErrors({}) // @TODO: Work with purchase?
+            setStatus('form')
+            return
+          })
+
+        // Poll for card status to confirm avs check is complete
+        const cardIdentifier = card && 'id' in card ? card.id : card?.externalId
+
+        // Throw error if failed request
+        if (!cardIdentifier) {
+          throw new Error('Card not found')
+        }
+
+        const completeWhenNotPendingForCards = (
+          card: GetPaymentCardStatus | null
+        ) => !(card?.status !== 'pending')
+        const cardResponse = await poll<GetPaymentCardStatus | null>(
+          async () => await checkoutService.getCardStatus(cardIdentifier),
+          completeWhenNotPendingForCards,
+          1000
+        )
+
+        // Throw error if there was a failure code
+        if (!cardResponse || cardResponse.status === 'failed') {
+          throw new Error('Card failed')
+        }
+
+        // Define card ID as new card
+        cardId = cardIdentifier
+      }
+
+      return cardId
+    },
+    [mapCircleErrors, t, validateFormExpirationDate]
+  )
+
   const handleSubmitBid = useCallback(
     async (data: FormData) => {
       setStatus('loading')
@@ -168,23 +349,7 @@ export function usePaymentProvider({
             bid: number
           }
         >(data)
-        const {
-          ccNumber,
-          securityCode,
-          saveCard,
-          cardId: submittedCardId,
-          address1,
-          address2,
-          city,
-          country,
-          expMonth,
-          expYear,
-          fullName,
-          state,
-          zipCode,
-          bid: floatBid,
-          default: defaultCard,
-        } = body
+        const { cardId: submittedCardId, bid: floatBid } = body
 
         const bid = formatFloatToInt(floatBid)
 
@@ -198,73 +363,7 @@ export function usePaymentProvider({
           return
         }
 
-        let cardId: string | undefined
-
-        // If existing card provided, use as card ID
-        if (submittedCardId) {
-          cardId = submittedCardId
-        }
-
-        // Validate expiration date
-        if (!submittedCardId) {
-          const expirationDate = getExpirationDate(expMonth, expYear)
-          const expValidation = await validateFormExpirationDate({
-            expirationDate,
-          })
-
-          if (!expValidation.isValid) {
-            setFormErrors(expValidation.errors)
-            setStatus('form')
-            return
-          }
-        }
-
-        if (ccNumber && securityCode) {
-          // Encrypt sensitive details
-          const encryptedCard = await encryptCardDetails(
-            {
-              number: ccNumber as string,
-              cvv: securityCode as string,
-            },
-            publicKeyRecord
-          )
-          if (saveCard) {
-            setLoadingText(t('common:statuses.Saving Payment Information'))
-          }
-          const card = await checkoutService
-            .createCard({
-              address1,
-              address2,
-              city,
-              country,
-              expMonth,
-              expYear,
-              fullName,
-              keyId: publicKeyRecord.keyId,
-              encryptedData: encryptedCard,
-              saveCard: !!saveCard,
-              state,
-              zipCode,
-              default: saveCard ? !!defaultCard : false,
-            })
-            .catch(async (error) => {
-              const response = await error.response.json()
-              mapCircleErrors(response.code)
-              setStatus('form')
-              return
-            })
-
-          const cardIdentifier =
-            card && 'id' in card ? card.id : card?.externalId
-
-          // Throw error if failed request
-          if (!cardIdentifier) {
-            throw new Error('Card not found')
-          }
-
-          // Define card ID as new card
-          cardId = cardIdentifier
-        }
+        const cardId = await handleAddCard(data, publicKeyRecord)
 
         if (!cardId) {
           throw new Error('No card selected')
@@ -287,107 +386,14 @@ export function usePaymentProvider({
     },
     [
       auctionPackId,
-      mapCircleErrors,
+      handleAddCard,
       validateFormForBids,
       validateFormForBidsWithSavedCard,
-      validateFormExpirationDate,
       t,
     ]
   )
 
-  const handlePurchase = useCallback(
-    async (securityCode: string, cardId: string) => {
-      try {
-        // Throw error if no price
-        if (!release || !release.price) {
-          throw new Error('No price provided')
-        }
-
-        if (!cardId) {
-          throw new Error('No card selected')
-        }
-
-        Analytics.instance.addPaymentInfo({
-          itemName: release.title,
-          value: release.price,
-        })
-
-        // Get the public key
-        const publicKeyRecord = await checkoutService.getPublicKey()
-
-        // Throw error if no public key
-        if (!publicKeyRecord) {
-          throw new Error('Failed to encrypt payment details')
-        }
-
-        const encryptedCVV = await encryptCardDetails(
-          { cvv: securityCode as string },
-          publicKeyRecord
-        )
-
-        const verificationEncryptedData = encryptedCVV
-        const verificationKeyId = publicKeyRecord.keyId
-
-        // Send request to create
-        setLoadingText(t('common:statuses.Submitting Payment'))
-        const payment = await checkoutService.createPayment({
-          cardId,
-          description: `Purchase of ${release.title} release`,
-          packTemplateId: release.templateId,
-          verificationEncryptedData,
-          verificationKeyId,
-        })
-
-        // Throw error if failed request
-        if (!payment || !payment.id) {
-          throw new Error('Payment not created')
-        }
-
-        // Poll for payment status to confirm avs check is complete
-        const completeWhenNotPendingForPayments = (payment: Payment | null) =>
-          !(payment?.status !== 'pending')
-        const paymentResponse = await poll<Payment | null>(
-          async () => await checkoutService.getPayment(payment.id as string),
-          completeWhenNotPendingForPayments,
-          1000
-        )
-
-        // Throw error if there was a failure code
-        if (!paymentResponse || paymentResponse.status === 'failed') {
-          throw new Error('Payment failed')
-        }
-
-        // Transfer asset
-        setLoadingText(t('common:statuses.Transferring Asset'))
-        // Throw error if failed request
-        if (!payment.packId) throw new Error('Pack not available')
-        const transferIsOK = await collectibleService.transfer(
-          payment.packId,
-          passphrase
-        )
-
-        if (transferIsOK) {
-          setPackId(payment.packId)
-          setStatus('success')
-          Analytics.instance.purchase({
-            itemName: release.title,
-            value: release.price,
-            paymentId: payment.id,
-          })
-        } else {
-          setStatus('error')
-        }
-      } catch {
-        // Error
-        setStatus('error')
-      }
-
-      setLoadingText('')
-    },
-    [passphrase, release, t]
-  )
-
-  const handleSubmitPurchaseCard = useCallback(
+  const handleSubmitPurchase = useCallback(
     async (data: FormData, isPurchase: boolean) => {
       setStatus('loading')
       setLoadingText(t('common:statuses.Validating Payment Information'))
@@ -408,29 +414,7 @@ export function usePaymentProvider({
             cardId: string
           }
         >(data)
-        const {
-          ccNumber,
-          securityCode,
-          saveCard,
-          cardId: submittedCardId,
-          address1,
-          address2,
-          city,
-          country,
-          expMonth,
-          expYear,
-          fullName,
-          state,
-          zipCode,
-          default: defaultCard,
-        } = body
-
-        let cardId: string | undefined
-
-        // If existing card provided, use as card ID
-        if (submittedCardId) {
-          cardId = submittedCardId
-        }
+        const { securityCode, cardId: submittedCardId } = body
 
         const validation = submittedCardId
           ? await validateFormForPurchaseWithSavedCard(body)
@@ -442,106 +426,56 @@ export function usePaymentProvider({
           return
         }
 
-        // Validate expiration date
-        if (!submittedCardId) {
-          const expirationDate = getExpirationDate(expMonth, expYear)
-          const expValidation = await validateFormExpirationDate({
-            expirationDate,
-          })
-
-          if (!expValidation.isValid) {
-            setFormErrors(expValidation.errors)
-            setStatus('form')
-            return
-          }
-        }
-
-        if (ccNumber && securityCode) {
-          // Encrypt sensitive details
-          const encryptedCard = await encryptCardDetails(
-            {
-              number: ccNumber as string,
-              cvv: securityCode as string,
-            },
-            publicKeyRecord
-          )
-
-          // @TODO: Save card always for add page
-          if (saveCard) {
-            setLoadingText(t('common:statuses.Saving Payment Information'))
-          }
-
-          const card = await checkoutService
-            .createCard({
-              address1,
-              address2,
-              city,
-              country,
-              expMonth,
-              expYear,
-              fullName,
-              keyId: publicKeyRecord.keyId,
-              encryptedData: encryptedCard,
-              saveCard: !!saveCard,
-              state,
-              zipCode,
-              default: saveCard ? !!defaultCard : false,
-            })
-            .catch(async (error) => {
-              const response = await error.response.json()
-              mapCircleErrors(response.code)
-              setFormErrors({}) // @TODO: Work with purchase?
-              setStatus('form')
-              return
-            })
-
-          // Poll for card status to confirm avs check is complete
-          const cardIdentifier =
-            card && 'id' in card ? card.id : card?.externalId
-
-          // Throw error if failed request
-          if (!cardIdentifier) {
-            throw new Error('Card not found')
-          }
-
-          const completeWhenNotPendingForCards = (
-            card: GetPaymentCardStatus | null
-          ) => !(card?.status !== 'pending')
-          const cardResponse = await poll<GetPaymentCardStatus | null>(
-            async () => await checkoutService.getCardStatus(cardIdentifier),
-            completeWhenNotPendingForCards,
-            1000
-          )
-
-          // Throw error if there was a failure code
-          if (!cardResponse || cardResponse.status === 'failed') {
-            throw new Error('Card failed')
-          }
-
-          // Define card ID as new card
-          cardId = cardIdentifier
-        }
+        const cardId = await handleAddCard(data, publicKeyRecord)
 
         if (!cardId) {
           throw new Error('No card selected')
         }
 
         if (isPurchase) {
-          await handlePurchase(securityCode, cardId)
+          const payment = await handlePurchase(
+            securityCode,
+            cardId,
+            publicKeyRecord
+          )
+
+          // Throw error if failed request
+          if (!payment.packId) throw new Error('Pack not available')
+
+          // Transfer asset
+          setLoadingText(t('common:statuses.Transferring Asset'))
+          const transferIsOK = await collectibleService.transfer(
+            payment.packId,
+            passphrase
+          )
+
+          if (transferIsOK) {
+            setPackId(payment.packId)
+            setStatus('success')
+            if (release) {
+              Analytics.instance.purchase({
+                itemName: release.title,
+                value: release.price,
+                paymentId: payment.id,
+              })
+            }
+          } else {
+            setStatus('error')
+          }
         }
       } catch {
-        // Error
         setStatus('error')
       }
 
       setLoadingText('')
     },
     [
+      handleAddCard,
       handlePurchase,
-      mapCircleErrors,
+      passphrase,
+      release,
       t,
       validateFormForPurchase,
-      validateFormExpirationDate,
       validateFormForPurchaseWithSavedCard,
     ]
   )
@@ -570,7 +504,7 @@ export function usePaymentProvider({
       formErrors,
       handleSubmitBid,
       handleSubmitPassphrase,
-      handleSubmitPurchaseCard,
+      handleSubmitPurchase,
       loadingText,
       packId,
       setStatus,
@@ -580,7 +514,7 @@ export function usePaymentProvider({
       formErrors,
       handleSubmitBid,
       handleSubmitPassphrase,
-      handleSubmitPurchaseCard,
+      handleSubmitPurchase,
       loadingText,
       packId,
       setStatus,
