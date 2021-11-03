@@ -80,7 +80,7 @@ export function usePaymentProvider({
     (release && release.type === PackType.Purchase) ||
       (release &&
         release.type == PackType.Auction &&
-        isAfterNow(new Date(release.auctionUntil as string)))
+        !isAfterNow(new Date(release.auctionUntil as string)))
       ? 'passphrase'
       : 'form'
   )
@@ -347,7 +347,7 @@ export function usePaymentProvider({
             bid: number
           }
         >(data)
-        const { cardId: submittedCardId, bid: floatBid } = body
+        const { cardId: submittedCardId, bid: floatBid, saveCard } = body
 
         const bid = formatFloatToInt(floatBid)
 
@@ -361,7 +361,7 @@ export function usePaymentProvider({
           return
         }
 
-        const cardId = await handleAddCard(data, publicKeyRecord, true)
+        const cardId = await handleAddCard(data, publicKeyRecord, saveCard)
 
         if (!cardId) {
           throw new Error('No card selected')
