@@ -152,7 +152,7 @@ npm run test:api -- --watch
 [directus]: https://directus.io
 [firebase]: https://firebase.google.com/
 [gcp]: https://cloud.google.com
-[issue tracker]: https://github.com/rocketinsights/algorand-marketplace/issues
+[issue tracker]: https://github.com/deptagency/algomart/issues
 [nvm]: https://github.com/nvm-sh/nvm
 [postgres app]: https://postgresapp.com
 [schemas]: packages/schemas
