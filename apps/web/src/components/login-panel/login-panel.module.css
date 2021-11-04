@@ -1,15 +1,15 @@
 .root {
   /* Base */
-  @apply mx-auto relative;
+  @apply relative mx-auto;
   /* Tablet + */
   @apply md:max-w-520 md:overflow-hidden md:rounded-xl;
 }
 
 .buttonContainer {
   /* Base */
-  @apply bg-base-teal flex flex-col px-8 py-12 space-y-8;
+  @apply flex flex-col px-8 py-12 space-y-8 bg-base-teal;
   /* Mobile + */
-  @apply sm:px-24 sm:py-16;
+  @apply sm:p-16;
 }
 
 .button {
@@ -30,11 +30,11 @@
 
 .featuredBottom {
   /* Base */
-  @apply mx-auto px-8 py-12 relative;
+  @apply relative px-8 py-12 mx-auto;
   /* Mobile + */
   @apply sm:px-24;
 }
 
 .featuredBottomText {
-  @apply mt-8 text-center text-lg text-white;
+  @apply mt-8 text-lg text-center text-white;
 }

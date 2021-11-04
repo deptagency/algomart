@@ -118,9 +118,6 @@ export default function ReleasePage({
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const user = await getAuthenticatedUser(context)
-  if (!user) {
-    return handleUnauthenticatedRedirect(context.resolvedUrl)
-  }
 
   const { packs: packTemplates } = await ApiClient.instance.getPublishedPacks({
     locale: context.locale || DEFAULT_LOCALE,
