@@ -16,7 +16,6 @@ import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
   getProfileImageForUser,
-  handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
 import authService from '@/services/auth-service'
 import collectibleService from '@/services/collectible-service'
