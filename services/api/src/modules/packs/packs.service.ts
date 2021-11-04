@@ -338,11 +338,12 @@ export default class PacksService {
       templateIdsForOwner = packsIdsByOwnerId.filter((id) =>
         templateIds.includes(id)
       )
-    }
-    if (templateIds.length > 0 && templateIdsForOwner.length === 0) {
-      return {
-        packs: [],
-        total: 0,
+
+      if (templateIdsForOwner.length === 0) {
+        return {
+          packs: [],
+          total: 0,
+        }
       }
     }
 
