@@ -9,14 +9,14 @@ variable "project" {
 }
 
 variable "region" {
-  default = "us-east4"
+  default   = "us-east4"
   sensitive = true
 }
 
 variable "bucket_location" {
   # This specifies multi-region but could be single eg. "US-EAST4".
   # Once created it cannot be changed.
-  default = "US"
+  default   = "US"
   sensitive = true
 }
 
@@ -26,7 +26,7 @@ variable "credentials" {
 }
 
 variable "disable_apis_on_destroy" {
-  default = false
+  default   = false
   sensitive = true
 }
 
@@ -38,38 +38,38 @@ variable "disable_apis_on_destroy" {
 ##
 
 variable "api_service_name" {
-  default = "algomart-api"
+  default   = "algomart-api"
   sensitive = true
 }
 
 variable "cms_service_name" {
-  default = "algomart-cms"
+  default   = "algomart-cms"
   sensitive = true
 }
 
 variable "database_server_name" {
-  default = "algomart"
+  default   = "algomart"
   sensitive = true
 }
 
 variable "private_ip_name" {
-  default = "algomart-private-ip"
+  default   = "algomart-private-ip"
   sensitive = true
 }
 
 variable "vpc_name" {
-  default = "algomart-vpc"
+  default   = "algomart-vpc"
   sensitive = true
 }
 
 variable "vpc_access_connector_name" {
   # Limited to <= 24 characters
-  default = "algomart-access-conn"
+  default   = "algomart-access-conn"
   sensitive = true
 }
 
 variable "web_service_name" {
-  default = "algomart-web"
+  default   = "algomart-web"
   sensitive = true
 }
 
@@ -77,7 +77,7 @@ variable "web_service_name" {
 ## Database
 ##
 variable "database_server_tier" {
-  default = "db-f1-micro"
+  default   = "db-f1-micro"
   sensitive = true
 }
 
@@ -89,7 +89,7 @@ variable "database_max_connections" {
   # and the CMS can have 4+ connections and the API 14+ at a time, which
   # leaves very little room for the fluctuating connections with background
   # API tasks.
-  default = 50
+  default   = 50
   sensitive = true
 }
 
@@ -114,12 +114,12 @@ variable "api_creator_passphrase" {
 }
 
 variable "api_database_name" {
-  default = "algorand_marketplace_api"
+  default   = "algorand_marketplace_api"
   sensitive = true
 }
 
 variable "api_database_schema" {
-  default = "public"
+  default   = "public"
   sensitive = true
 }
 
@@ -148,7 +148,7 @@ variable "api_key" {
 }
 
 variable "api_node_env" {
-  default = "production"
+  default   = "production"
   sensitive = true
 }
 
@@ -190,7 +190,7 @@ variable "cms_admin_password" {
 }
 
 variable "cms_database_name" {
-  default = "algorand_marketplace_cms"
+  default   = "algorand_marketplace_cms"
   sensitive = true
 }
 
@@ -215,7 +215,7 @@ variable "cms_key" {
 }
 
 variable "cms_node_env" {
-  default = "production"
+  default   = "production"
   sensitive = true
 }
 
@@ -248,7 +248,7 @@ variable "web_image" {
 }
 
 variable "web_next_public_3js_debug" {
-  default = ""
+  default   = ""
   sensitive = true
 }
 
@@ -257,7 +257,7 @@ variable "web_next_public_firebase_config" {
 }
 
 variable "web_node_env" {
-  default = "production"
+  default   = "production"
   sensitive = true
 }
 

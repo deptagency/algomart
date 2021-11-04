@@ -115,7 +115,7 @@ resource "google_cloud_run_service" "api" {
         }
 
         env {
-          name = "NODE_ENV"
+          name  = "NODE_ENV"
           value = var.api_node_env
         }
 

@@ -44,7 +44,7 @@ resource "google_cloud_run_service" "web" {
         }
 
         env {
-          name = "NODE_ENV"
+          name  = "NODE_ENV"
           value = var.web_node_env
         }
       }
