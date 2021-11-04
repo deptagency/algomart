@@ -4,7 +4,7 @@ import clsx from 'clsx'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import css from './collectible-browser.module.css'
 
@@ -24,6 +24,7 @@ export default function CollectibleBrowser({
   const [showVideoCoverImage, setShowVideoCoverImage] = useState(false)
   const collectible = collectibles[current]
 
+  const videoReference = useRef<HTMLVideoElement>(null)
   const router = useRouter()
   const { t } = useTranslation()
 
@@ -72,7 +73,14 @@ export default function CollectibleBrowser({
       <Heading className={css.title}>{collectible.title}</Heading>
       {collectible.previewVideo && (
         <button
-          onClick={() => setShowVideoCoverImage(!showVideoCoverImage)}
+          onClick={() => {
+            setShowVideoCoverImage(!showVideoCoverImage)
+            if (!showVideoCoverImage) {
+              videoReference.current?.pause()
+            } else {
+              videoReference.current?.play()
+            }
+          }}
           className={css.flipButton}
         >
           {showVideoCoverImage ? 'show video' : 'show cover'}
@@ -101,6 +109,7 @@ export default function CollectibleBrowser({
                 https://stackoverflow.com/questions/29291688/video-displayed-in-reactjs-component-not-updating 
                 */}
                 <video
+                  ref={videoReference}
                   width="100%"
                   controls
                   muted
