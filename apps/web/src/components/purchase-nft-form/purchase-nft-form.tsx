@@ -70,7 +70,9 @@ export default function PurchaseNFTForm({
       event.preventDefault()
       const data = new FormData(event.currentTarget)
       await (release.type === PackType.Auction &&
-        isAfterNow(new Date(release.auctionUntil as string)) ? onSubmitBid(data) : onSubmitPurchase(data));
+      isAfterNow(new Date(release.auctionUntil as string))
+        ? onSubmitBid(data)
+        : onSubmitPurchase(data))
     },
     [release.auctionUntil, release.type, onSubmitBid, onSubmitPurchase]
   )

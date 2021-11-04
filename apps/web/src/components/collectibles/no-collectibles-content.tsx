@@ -17,7 +17,7 @@ export default function NoCollectiblesContent({
   return (
     <div className={css.root}>
       <div className={css.gridContainer}>
-        {Array.from({length: 3})
+        {Array.from({ length: 3 })
           .fill('x')
           .map((_, index) => (
             <CollectiblePlaceholder key={String(index)} />

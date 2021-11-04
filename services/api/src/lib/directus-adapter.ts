@@ -405,7 +405,9 @@ export function toCollectibleBase(
     subtitle: translation.subtitle ?? undefined,
     title: translation.title,
     image: getFileURL(template.preview_image),
-    previewVideo: template.preview_video ? getFileURL(template.preview_video) : undefined,
+    previewVideo: template.preview_video
+      ? getFileURL(template.preview_video)
+      : undefined,
     collectionId,
     setId,
     templateId: template.id,

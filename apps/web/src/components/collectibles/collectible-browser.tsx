@@ -71,13 +71,16 @@ export default function CollectibleBrowser({
   return (
     <div className={css.root}>
       <Heading className={css.title}>{collectible.title}</Heading>
-      { collectible.previewVideo && 
-        <button onClick={() => setShowVideoCoverImage(!showVideoCoverImage)} className={css.flipButton}>
-          { showVideoCoverImage ? 'show video' : 'show cover'}
+      {collectible.previewVideo && (
+        <button
+          onClick={() => setShowVideoCoverImage(!showVideoCoverImage)}
+          className={css.flipButton}
+        >
+          {showVideoCoverImage ? 'show video' : 'show cover'}
         </button>
-      }
+      )}
       <div className={css.imageWrapper}>
-        { !collectible.previewVideo && 
+        {!collectible.previewVideo && (
           <Image
             src={collectible.image}
             loader={cmsImageLoader}
@@ -86,11 +89,13 @@ export default function CollectibleBrowser({
             layout="responsive"
             objectFit="contain"
           />
-        }
-        { collectible.previewVideo && 
-          <div className={clsx(css.flipBox, {
-            [css.flip]: showVideoCoverImage
-          })}>
+        )}
+        {collectible.previewVideo && (
+          <div
+            className={clsx(css.flipBox, {
+              [css.flip]: showVideoCoverImage,
+            })}
+          >
             <div className={css.flipBoxInner}>
               <div className={css.flipBoxFront}>
                 <video width="100%" controls muted autoPlay loop>
@@ -110,7 +115,7 @@ export default function CollectibleBrowser({
               </div>
             </div>
           </div>
-        }
+        )}
         <button
           className={clsx(css.navButton, css.navButtonLeft)}
           onClick={goBack}

@@ -73,11 +73,13 @@
   transform-style: preserve-3d;
 }
 
-.flipBox.flip .flipBoxInner, .flipBoxBack {
+.flipBox.flip .flipBoxInner,
+.flipBoxBack {
   transform: rotateX(180deg);
 }
 
-.flipBoxFront, .flipBoxBack {
+.flipBoxFront,
+.flipBoxBack {
   @apply absolute;
   @apply w-full h-full;
   backface-visibility: hidden;
