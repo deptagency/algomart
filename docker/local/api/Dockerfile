@@ -1,6 +1,4 @@
-FROM node:14-bullseye-slim
-
-RUN npm install -g npm@7
+FROM node:16-bullseye-slim
 
 WORKDIR /app
 

@@ -16,7 +16,7 @@ jobs:
       - name: Configure Node.js version
         uses: actions/setup-node@v2
         with:
-          node-version: 14.x
+          node-version: 16.x
           cache: npm
 
       - uses: actions/cache@v2
@@ -27,9 +27,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: |
-          npm install --global npm
-          npm ci
+        run: npm ci
 
   type_check:
     runs-on: ubuntu-latest
@@ -42,7 +40,7 @@ jobs:
         uses: actions/setup-node@v2
         id: setup-node
         with:
-          node-version: 14.x
+          node-version: 16.x
           cache: npm
 
       - uses: actions/cache@v2
@@ -53,9 +51,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: |
-          npm install --global npm
-          npm install
+        run: npm install
 
       - name: Check TypeScript types
         run: npm run type-check
@@ -71,7 +67,7 @@ jobs:
         uses: actions/setup-node@v2
         id: setup-node
         with:
-          node-version: 14.x
+          node-version: 16.x
           cache: npm
 
       - uses: actions/cache@v2
@@ -82,9 +78,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: |
-          npm install --global npm
-          npm install
+        run: npm install
 
       - name: Lint code
         run: npm run lint
@@ -100,7 +94,7 @@ jobs:
         uses: actions/setup-node@v2
         id: setup-node
         with:
-          node-version: 14.x
+          node-version: 16.x
           cache: npm
 
       - uses: actions/cache@v2
@@ -111,9 +105,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: |
-          npm install --global npm
-          npm install
+        run: npm install
 
       - name: Run tests
         run: npm test
@@ -129,7 +121,7 @@ jobs:
         uses: actions/setup-node@v2
         id: setup-node
         with:
-          node-version: 14.x
+          node-version: 16.x
           cache: npm
 
       - uses: actions/cache@v2
@@ -140,9 +132,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: |
-          npm install --global npm
-          npm install
+        run: npm install
 
       - name: Run build
         run: npm run build
