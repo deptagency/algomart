@@ -48,6 +48,15 @@ export default function CollectibleBrowser({
     })
   }, [collectibles])
 
+  const handleFlip = useCallback(() => {
+    setShowVideoCoverImage(!showVideoCoverImage)
+    if (!showVideoCoverImage) {
+      videoReference.current?.pause()
+    } else {
+      videoReference.current?.play()
+    }
+  }, [showVideoCoverImage])
+
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       switch (event.key) {
@@ -72,17 +81,7 @@ export default function CollectibleBrowser({
     <div className={css.root}>
       <Heading className={css.title}>{collectible.title}</Heading>
       {collectible.previewVideo && (
-        <button
-          onClick={() => {
-            setShowVideoCoverImage(!showVideoCoverImage)
-            if (!showVideoCoverImage) {
-              videoReference.current?.pause()
-            } else {
-              videoReference.current?.play()
-            }
-          }}
-          className={css.flipButton}
-        >
+        <button onClick={handleFlip} className={css.flipButton}>
           {showVideoCoverImage ? 'show video' : 'show cover'}
         </button>
       )}
