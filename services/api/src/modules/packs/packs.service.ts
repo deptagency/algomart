@@ -339,7 +339,7 @@ export default class PacksService {
         templateIds.includes(id)
       )
     }
-    if (templateIdsForOwner.length === 0) {
+    if (templateIds.length > 0 && templateIdsForOwner.length === 0) {
       return {
         packs: [],
         total: 0,
