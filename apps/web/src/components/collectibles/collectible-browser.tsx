@@ -4,7 +4,7 @@ import clsx from 'clsx'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useState, useCallback, useEffect } from 'react'
+import { useCallback, useEffect,useState } from 'react'
 
 import css from './collectible-browser.module.css'
 
