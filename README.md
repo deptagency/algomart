@@ -148,7 +148,7 @@ npm run test:api -- --watch
 [api]: services/api
 [circle]: https://www.circle.com
 [cms]: apps/cms
-[code of conduct]: code_of_conduct.md
+[code of conduct]: CODE_OF_CONDUCT.md
 [directus]: https://directus.io
 [firebase]: https://firebase.google.com/
 [gcp]: https://cloud.google.com
