@@ -37,23 +37,31 @@ npm run db:latest
 Per the `.env`, you'll also need to be connected to an Algorand node, whether in development or production.
 
 ### Creating a local Algorand Sandbox account
+
 For local development, the [Algorand Sandbox](https://github.com/algorand/sandbox) is handy docker instance that makes interfacing with the blockchain simple from your local machine. It will also create an account that can be funded with fake Algos using the [Testnet Dispenser](https://dispenser.testnet.aws.algodev.network/).
 
 To create an account:
-* Download the [Algorand Sandbox](https://github.com/algorand/sandbox) and start up the docker instance:
+
+- Download the [Algorand Sandbox](https://github.com/algorand/sandbox) and start up the docker instance:
+
 ```bash
 ./sandbox up
 ```
-* Then create an account:
+
+- Then create an account:
+
 ```bash
 ./sandbox goal account new
 ```
-* This will output `Created new account with address <ADDRESS>`
-* Take that `<ADDRESS>` and input
+
+- This will output `Created new account with address <ADDRESS>`
+- Take that `<ADDRESS>` and input
+
 ```bash
 ./sandbox goal account export -a <ADDRESS>
 ```
-* Use the outputted mnemonic within the `.env` file within this project.
+
+- Use the outputted mnemonic within the `.env` file within this project.
 
 Once everything is configured, you can start everything in development/watch mode:
 

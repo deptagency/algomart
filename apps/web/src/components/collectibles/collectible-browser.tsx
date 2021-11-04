@@ -66,7 +66,7 @@ export default function CollectibleBrowser({
       document.removeEventListener('keydown', handler)
     }
   }, [goBack, goForward])
-  
+
   return (
     <div className={css.root}>
       <Heading className={css.title}>{collectible.title}</Heading>
@@ -100,9 +100,16 @@ export default function CollectibleBrowser({
                 {/* Yes, this video tag does need a key attribute 
                 https://stackoverflow.com/questions/29291688/video-displayed-in-reactjs-component-not-updating 
                 */}
-                <video width="100%" controls muted autoPlay loop key={collectible.previewVideo}>
+                <video
+                  width="100%"
+                  controls
+                  muted
+                  autoPlay
+                  loop
+                  key={collectible.previewVideo}
+                >
                   <source src={collectible.previewVideo} type="video/mp4" />
-                  { t('common:statuses.noVideoSupport') }
+                  {t('common:statuses.noVideoSupport')}
                 </video>
               </div>
               <div className={css.flipBoxBack}>
