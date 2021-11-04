@@ -4,9 +4,7 @@ import clsx from 'clsx'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useState } from 'react'
-import { useCallback } from 'react'
-import { useEffect } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 import css from './collectible-browser.module.css'
 
@@ -24,6 +22,8 @@ export default function CollectibleBrowser({
 }: CollectibleBrowserProps) {
   const [current, setCurrent] = useState(initialCollectible)
   const [showVideoCoverImage, setShowVideoCoverImage] = useState(false)
+  const collectible = collectibles[current]
+
   const router = useRouter()
   const { t } = useTranslation()
 
@@ -66,8 +66,7 @@ export default function CollectibleBrowser({
       document.removeEventListener('keydown', handler)
     }
   }, [goBack, goForward])
-
-  const collectible = collectibles[current]
+  
   return (
     <div className={css.root}>
       <Heading className={css.title}>{collectible.title}</Heading>
@@ -98,7 +97,10 @@ export default function CollectibleBrowser({
           >
             <div className={css.flipBoxInner}>
               <div className={css.flipBoxFront}>
-                <video width="100%" controls muted autoPlay loop>
+                {/* Yes, this video tag does need a key attribute 
+                https://stackoverflow.com/questions/29291688/video-displayed-in-reactjs-component-not-updating 
+                */}
+                <video width="100%" controls muted autoPlay loop key={collectible.previewVideo}>
                   <source src={collectible.previewVideo} type="video/mp4" />
                   { t('common:statuses.noVideoSupport') }
                 </video>
