@@ -339,6 +339,7 @@ export default class PacksService {
         templateIds.includes(id)
       )
 
+      // User doesn't own any of the packs in provided template IDs
       if (templateIdsForOwner.length === 0) {
         return {
           packs: [],
