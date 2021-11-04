@@ -4,9 +4,7 @@ import clsx from 'clsx'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useState } from 'react'
-import { useCallback } from 'react'
-import { useEffect } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 import css from './collectible-browser.module.css'
 
@@ -23,6 +21,9 @@ export default function CollectibleBrowser({
   initialCollectible = 0,
 }: CollectibleBrowserProps) {
   const [current, setCurrent] = useState(initialCollectible)
+  const [showVideoCoverImage, setShowVideoCoverImage] = useState(false)
+  const collectible = collectibles[current]
+
   const router = useRouter()
   const { t } = useTranslation()
 
@@ -66,19 +67,64 @@ export default function CollectibleBrowser({
     }
   }, [goBack, goForward])
 
-  const collectible = collectibles[current]
   return (
     <div className={css.root}>
       <Heading className={css.title}>{collectible.title}</Heading>
+      {collectible.previewVideo && (
+        <button
+          onClick={() => setShowVideoCoverImage(!showVideoCoverImage)}
+          className={css.flipButton}
+        >
+          {showVideoCoverImage ? 'show video' : 'show cover'}
+        </button>
+      )}
       <div className={css.imageWrapper}>
-        <Image
-          src={collectible.image}
-          loader={cmsImageLoader}
-          width={700}
-          height={700}
-          layout="responsive"
-          objectFit="contain"
-        />
+        {!collectible.previewVideo && (
+          <Image
+            src={collectible.image}
+            loader={cmsImageLoader}
+            width={700}
+            height={700}
+            layout="responsive"
+            objectFit="contain"
+          />
+        )}
+        {collectible.previewVideo && (
+          <div
+            className={clsx(css.flipBox, {
+              [css.flip]: showVideoCoverImage,
+            })}
+          >
+            <div className={css.flipBoxInner}>
+              <div className={css.flipBoxFront}>
+                {/* Yes, this video tag does need a key attribute 
+                https://stackoverflow.com/questions/29291688/video-displayed-in-reactjs-component-not-updating 
+                */}
+                <video
+                  width="100%"
+                  controls
+                  muted
+                  autoPlay
+                  loop
+                  key={collectible.previewVideo}
+                >
+                  <source src={collectible.previewVideo} type="video/mp4" />
+                  {t('common:statuses.noVideoSupport')}
+                </video>
+              </div>
+              <div className={css.flipBoxBack}>
+                <Image
+                  src={collectible.image}
+                  loader={cmsImageLoader}
+                  width={700}
+                  height={700}
+                  layout="responsive"
+                  objectFit="contain"
+                />
+              </div>
+            </div>
+          </div>
+        )}
         <button
           className={clsx(css.navButton, css.navButtonLeft)}
           onClick={goBack}

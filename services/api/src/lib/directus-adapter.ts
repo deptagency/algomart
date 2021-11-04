@@ -115,6 +115,7 @@ export interface DirectusCollectibleTemplate {
   status: DirectusStatus
   total_editions: number
   preview_image: string | DirectusFile
+  preview_video: string | DirectusFile
   rarity: string | DirectusRarity | null
   unique_code: string
   pack_template: string | DirectusPackTemplate
@@ -404,6 +405,9 @@ export function toCollectibleBase(
     subtitle: translation.subtitle ?? undefined,
     title: translation.title,
     image: getFileURL(template.preview_image),
+    previewVideo: template.preview_video
+      ? getFileURL(template.preview_video)
+      : undefined,
     collectionId,
     setId,
     templateId: template.id,
@@ -656,6 +660,7 @@ export default class DirectusAdapter {
         'total_editions',
         'unique_code',
         'preview_image.*',
+        'preview_video.*',
         'translations.*',
         'rarity.code',
         'rarity.color',

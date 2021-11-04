@@ -155,6 +155,7 @@
     "Transferring Asset": "Transferring Asset",
     "Uncollected": "Uncollected",
     "Validating Payment Information": "Validating Payment Information",
-    "Verifying Passphrase": "Verifying Passphrase"
+    "Verifying Passphrase": "Verifying Passphrase",
+    "noVideoSupport": "Your browser does not support the video tag."
   }
 }

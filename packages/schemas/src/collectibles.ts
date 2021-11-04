@@ -38,6 +38,7 @@ export const CollectibleRaritySchema = Type.Object({
 export const CollectibleBaseSchema = Type.Object({
   templateId: Type.String({ format: 'uuid' }),
   image: Type.String({ format: 'uri' }),
+  previewVideo: Type.Optional(Type.String({ format: 'uri' })),
   totalEditions: Type.Number(),
   title: Type.String(),
   subtitle: Type.Optional(Type.String()),

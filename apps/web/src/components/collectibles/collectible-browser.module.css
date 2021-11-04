@@ -54,3 +54,38 @@
 .bold {
   @apply font-bold;
 }
+
+.flipButton {
+  @apply block mx-auto;
+  @apply text-sm underline text-gray-400 hover:text-base-green;
+}
+
+.flipBox {
+  @apply w-full;
+  aspect-ratio: 1;
+  perspective: 1000px;
+}
+
+.flipBoxInner {
+  @apply relative;
+  @apply w-full h-full;
+  @apply transition-transform duration-700 origin-center;
+  transform-style: preserve-3d;
+}
+
+.flipBox.flip .flipBoxInner,
+.flipBoxBack {
+  transform: rotateX(180deg);
+}
+
+.flipBoxFront,
+.flipBoxBack {
+  @apply absolute;
+  @apply w-full h-full;
+  backface-visibility: hidden;
+}
+
+.flipBoxFront {
+  @apply flex text-center;
+  @apply bg-opacity-50 bg-black;
+}
