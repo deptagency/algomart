@@ -332,15 +332,27 @@ export default class PacksService {
       }
     }
 
-    // If template IDs are provided, create intersection of IDs. Otherwise use owner's pack IDs.
+    // If template IDs are provided, create intersection of IDs.
+    let templateIdsForOwner: string[] = []
     if (templateIds.length > 0) {
-      const templateIdsForOwner = packsIdsByOwnerId.filter((id) =>
+      templateIdsForOwner = packsIdsByOwnerId.filter((id) =>
         templateIds.includes(id)
       )
-      filter.id = { _in: templateIdsForOwner }
-    } else {
-      filter.id = { _in: packsIdsByOwnerId }
+
+      // User doesn't own any of the packs in provided template IDs
+      if (templateIdsForOwner.length === 0) {
+        return {
+          packs: [],
+          total: 0,
+        }
+      }
     }
+
+    // If templateIdsForOwner has matches use the intersecting ids. Otherwise use owner's pack IDs.
+    filter.id =
+      templateIdsForOwner.length > 0
+        ? { _in: templateIdsForOwner }
+        : { _in: packsIdsByOwnerId }
 
     // Find templates for the packs owned by user
     const { packs: templates } = await this.cms.findAllPacks({
