@@ -85,7 +85,7 @@ resource "google_cloud_run_service" "cms" {
         }
 
         env {
-          name = "NODE_ENV"
+          name  = "NODE_ENV"
           value = var.cms_node_env
         }
 
