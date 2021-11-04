@@ -16,7 +16,7 @@ To accomplish these challenges, **templates** are used within the CMS.
 
 NFT Templates represent an NFT that will be minted (any number of specified times). It includes key information such as title, description, rarity, and other important configurable metadata that will be consumed by the API.
 
-NFT Templates are grouped within Pack Templates. Packs can contain one or more NFT Templates and also have a number of configurable settings. Most notably, they can be set to be purchasable, to be auctioned, to be claimed via an auto-generated redemption code, or to be given away free. For a full overview of the CMS model, see the [CMS README](apps/cms/README).
+NFT Templates are grouped within Pack Templates. Packs can contain one or more NFT Templates and also have a number of configurable settings. Most notably, they can be set to be purchasable, to be auctioned, to be claimed via an auto-generated redemption code, or to be given away free. For a full overview of the CMS model, see the [CMS README](apps/cms/README.md).
 
 Meanwhile, the API continually polls the CMS for new NFT Templates and Pack Templates. So once the templates are configured in the CMS, the API will find them, mint the NFTs, and then group them into Packs based on the Pack template's configuration.
 
