@@ -93,7 +93,7 @@ export default function CollectibleBrowser({
           })}>
             <div className={css.flipBoxInner}>
               <div className={css.flipBoxFront}>
-                <video width="100%" controls>
+                <video width="100%" controls muted>
                   <source src={collectible.previewVideo} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
