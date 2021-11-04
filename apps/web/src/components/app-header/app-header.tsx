@@ -20,6 +20,8 @@ export default function AppHeader() {
   const navItems = getMainNavItems(t)
   const { pathname } = useRouter()
 
+  const isAuthenticated = auth.status === 'authenticated'
+
   return (
     <header
       className={clsx(css.root, {
@@ -73,10 +75,18 @@ export default function AppHeader() {
         {/* Utility Nav */}
         <div className={css.utilityNav}>
           <AppLink
-            aria-label={t('common:nav.utility.Log In')}
+            aria-label={
+              isAuthenticated
+                ? t('common:pageTitles.My Profile')
+                : t('common:nav.utility.Log In')
+            }
             className={css.utilityNavLink}
-            href={auth.status === 'authenticated' ? urls.myProfile : urls.login}
-            title={t('common:nav.utility.Log In')}
+            href={isAuthenticated ? urls.myProfile : urls.login}
+            title={
+              isAuthenticated
+                ? t('common:pageTitles.My Profile')
+                : t('common:nav.utility.Log In')
+            }
           >
             {auth.user?.photo ? (
               <Image

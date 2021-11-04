@@ -16,7 +16,6 @@ import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
   getProfileImageForUser,
-  handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
 import authService from '@/services/auth-service'
 import collectibleService from '@/services/collectible-service'
@@ -118,9 +117,6 @@ export default function ReleasePage({
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const user = await getAuthenticatedUser(context)
-  if (!user) {
-    return handleUnauthenticatedRedirect(context.resolvedUrl)
-  }
 
   const { packs: packTemplates } = await ApiClient.instance.getPublishedPacks({
     locale: context.locale || DEFAULT_LOCALE,

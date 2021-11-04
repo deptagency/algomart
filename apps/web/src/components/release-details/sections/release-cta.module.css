@@ -6,7 +6,11 @@
   @apply relative max-w-xs mx-auto;
 }
 
-.limit1PerCustomer {
+.loginPrompt {
+  @apply text-center;
+}
+
+.actionNotAllowed {
   @apply text-center text-base-errorRed;
 }
 

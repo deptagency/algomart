@@ -15,6 +15,7 @@ import MediaGallery from '@/components/media-gallery/media-gallery'
 import ClaimNFTModal from '@/components/modals/claim-nft-modal'
 import Notification from '@/components/notification/notification'
 import ReleaseDetails from '@/components/release-details/release-details'
+import { useAuth } from '@/contexts/auth-context'
 import { isAfterNow } from '@/utils/date-time'
 
 export interface ReleaseTemplateProps {
@@ -43,6 +44,7 @@ export default function ReleaseTemplate({
   packAuction,
   packTemplate,
 }: ReleaseTemplateProps) {
+  const { user } = useAuth()
   const { push } = useRouter()
   const { t } = useTranslation()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
@@ -59,8 +61,9 @@ export default function ReleaseTemplate({
     !isEnded
   const isInFuture = startDateTime && isAfterNow(new Date(startDateTime))
   const isAlertDisplayed =
-    (packType === PackType.Purchase && isActive) ||
-    (packType === PackType.Auction && !isOwner)
+    user &&
+    ((packType === PackType.Purchase && isActive) ||
+      (packType === PackType.Auction && !isOwner))
 
   const handleClaimNFTFlow = () => {
     packType === PackType.Purchase || packType === PackType.Auction

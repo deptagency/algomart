@@ -27,6 +27,7 @@
   "listedByAuctions": "Listed by {{username}}, auction begins {{date}}",
   "Live auction ends in": "Live auction ⏰ ends in",
   "Live auction starts in": "Live auction ⏰ starts in",
+  "loginPrompt": "<0>Login or create an account</0> to begin collecting!",
   "Met": "Met",
   "Mint Cost": "Mint Cost",
   "N of N editions available": "{{available}} of {{total}} editions available",
