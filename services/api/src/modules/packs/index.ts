@@ -4,6 +4,7 @@ import {
   ClaimRedeemPackSchema,
   LocaleSchema,
   MintPackSchema,
+  MintPackStatusResponseSchema,
   OwnerExternalIdSchema,
   PackAuctionSchema,
   PackIdSchema,
@@ -31,6 +32,7 @@ import {
   getPublishedPacks,
   getRedeemablePack,
   mintPack,
+  mintPackStatus,
   transferPack,
 } from './packs.routes'
 
@@ -202,6 +204,22 @@ export async function packsRoutes(app: FastifyInstance) {
       },
     },
     mintPack
+  )
+
+  app.get(
+    '/mint',
+    {
+      schema: {
+        tags,
+        security,
+        description: 'Get the minting status of a pack.',
+        querystring: MintPackSchema,
+        response: {
+          200: MintPackStatusResponseSchema,
+        },
+      },
+    },
+    mintPackStatus
   )
 
   app.post(

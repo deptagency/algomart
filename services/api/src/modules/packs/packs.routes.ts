@@ -134,6 +134,17 @@ export async function mintPack(
   reply.status(204).send()
 }
 
+export async function mintPackStatus(
+  request: FastifyRequest<{ Querystring: MintPack }>,
+  reply: FastifyReply
+) {
+  const service = request.getContainer().get<PacksService>(PacksService.name)
+  const status = await service.getPackMintingStatus(request.query)
+  reply.send({
+    status,
+  })
+}
+
 export async function transferPack(
   request: FastifyRequest<{ Body: TransferPack }>,
   reply: FastifyReply

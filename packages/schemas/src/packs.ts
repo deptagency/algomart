@@ -44,6 +44,11 @@ export enum PackSortByOwnerField {
   ClaimedAt = 'claimedAt',
 }
 
+export enum MintPackStatus {
+  Minted = 'minted',
+  Pending = 'pending',
+}
+
 // Base32 https://www.crockford.com/base32.html
 // This gives us 12^32 possibilities
 export const REDEMPTION_CODE_CHARACTERS = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'
@@ -212,6 +217,10 @@ export const MintPackSchema = Type.Object({
   packId: IdSchema,
 })
 
+export const MintPackStatusResponseSchema = Type.Object({
+  status: Type.Enum(MintPackStatus),
+})
+
 export const TransferPackSchema = Type.Object({
   externalId: Type.String(),
   packId: IdSchema,
@@ -249,3 +258,6 @@ export type PublishedPacks = Simplify<Static<typeof PublishedPacksSchema>>
 export type RedeemCode = Simplify<Static<typeof RedeemCodeSchema>>
 export type TransferPack = Simplify<Static<typeof TransferPackSchema>>
 export type MintPack = Simplify<Static<typeof MintPackSchema>>
+export type MintPackStatusResponse = Simplify<
+  Static<typeof MintPackStatusResponseSchema>
+>

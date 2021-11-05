@@ -1,4 +1,8 @@
-import { PackWithId } from '@algomart/schemas'
+import {
+  MintPackStatus,
+  MintPackStatusResponse,
+  PackWithId,
+} from '@algomart/schemas'
 import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
@@ -15,6 +19,8 @@ export interface CollectibleAPI {
   claim(packTemplateId: string): Promise<{ packId?: string }>
   redeem(code: string): Promise<{ packId?: string }>
   removeCollectibleShowcase(id: string): Promise<boolean>
+  mint(packId: string): Promise<boolean>
+  mintStatus(packId: string): Promise<MintPackStatus>
   transfer(packId: string, passphrase: string): Promise<boolean>
   shareProfile(shareProfile: boolean): Promise<boolean>
 }
@@ -62,6 +68,26 @@ export class CollectibleService implements CollectibleAPI {
       .json<{ pack: PackWithId }>()
 
     return { packId: pack.id }
+  }
+
+  async mint(packId: string): Promise<boolean> {
+    const response = await this.http.post(urls.api.v1.assetMint, {
+      json: { packId },
+    })
+
+    return response.ok
+  }
+
+  async mintStatus(packId: string): Promise<MintPackStatus> {
+    const response = await this.http
+      .get(urls.api.v1.assetMint, {
+        searchParams: { packId },
+      })
+      .json<MintPackStatusResponse>()
+
+    console.log('mintStatus', packId, response.status)
+
+    return response.status
   }
 
   async transfer(packId: string, passphrase: string): Promise<boolean> {

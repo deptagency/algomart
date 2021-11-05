@@ -30,6 +30,7 @@ export const urls = {
       asset: '/api/v1/asset',
       assetClaim: '/api/v1/asset/claim',
       assetRedeem: '/api/v1/asset/redeem',
+      assetMint: '/api/v1/asset/mint',
       assetTransfer: '/api/v1/asset/transfer',
       createBidForPack: 'api/v1/bid/add-to-pack',
       createCard: '/api/v1/payments/create-card',

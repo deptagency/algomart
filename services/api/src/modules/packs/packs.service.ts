@@ -8,6 +8,7 @@ import {
   EventAction,
   EventEntityType,
   MintPack,
+  MintPackStatus,
   NotificationType,
   OwnerExternalId,
   PackAuction,
@@ -590,11 +591,12 @@ export default class PacksService {
     // Pick a random pack
     const pack = packs[randomInteger(0, packs.length - 1)]
 
-    userInvariant(
-      pack.collectibles?.every((c) => c.address !== null),
-      'collectibles not yet minted for this pack',
-      404
-    )
+    // TODO remove this once JIT minting is implemented
+    // userInvariant(
+    //   pack.collectibles?.every((c) => c.address !== null),
+    //   'collectibles not yet minted for this pack',
+    //   404
+    // )
 
     const packDetails = {
       ...template,
@@ -603,6 +605,29 @@ export default class PacksService {
     pack.activeBidId &&
       Object.assign(packDetails, { activeBidId: pack.activeBidId })
     return packDetails
+  }
+
+  async getPackMintingStatus(request: MintPack): Promise<MintPackStatus> {
+    const user = await UserAccountModel.query()
+      .where('externalId', request.externalId)
+      .first()
+      .select('id')
+
+    userInvariant(user, 'user not found', 404)
+
+    const pack = await PackModel.query()
+      .where('id', request.packId)
+      .where('ownerId', user.id)
+      .select('id')
+      .withGraphFetched('collectibles')
+      .first()
+
+    userInvariant(pack, 'pack not found', 404)
+
+    return pack.collectibles &&
+      pack.collectibles?.every((c) => typeof c.address === 'number')
+      ? MintPackStatus.Minted
+      : MintPackStatus.Pending
   }
 
   async mintPack(request: MintPack, trx?: Transaction) {
