@@ -80,12 +80,10 @@
 
 .flipBoxFront,
 .flipBoxBack {
-  @apply absolute;
-  @apply w-full h-full;
+  @apply absolute w-full h-full bg-black;
   backface-visibility: hidden;
 }
 
 .flipBoxFront {
   @apply flex text-center;
-  @apply bg-opacity-50 bg-black;
 }
