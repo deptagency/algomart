@@ -37,7 +37,7 @@ async function main(args) {
   console.log('Bootstrapping Directus...')
   await execCommandAndGetOutput('npx directus bootstrap --skipAdminInit')
   const usersCount = await execCommandAndGetOutput(
-    'npx directus count directus_users'
+    'LOG_LEVEL=warn npx directus count directus_users'
   )
   if (Number.parseInt(usersCount, 10) < 1) {
     console.log('Creating initial admin user...')
