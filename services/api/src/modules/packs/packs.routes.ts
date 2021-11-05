@@ -3,6 +3,7 @@ import {
   ClaimPack,
   ClaimRedeemPack,
   Locale,
+  MintPack,
   OwnerExternalId,
   PackId,
   PacksByOwnerQuery,
@@ -122,6 +123,15 @@ export async function claimPack(
     return
   }
   reply.send({ pack: result })
+}
+
+export async function mintPack(
+  request: FastifyRequest<{ Body: MintPack }>,
+  reply: FastifyReply
+) {
+  const service = request.getContainer().get<PacksService>(PacksService.name)
+  await service.mintPack(request.body, request.transaction)
+  reply.status(204).send()
 }
 
 export async function transferPack(

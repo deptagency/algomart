@@ -7,6 +7,7 @@ import {
   DEFAULT_LOCALE,
   EventAction,
   EventEntityType,
+  MintPack,
   NotificationType,
   OwnerExternalId,
   PackAuction,
@@ -602,6 +603,37 @@ export default class PacksService {
     pack.activeBidId &&
       Object.assign(packDetails, { activeBidId: pack.activeBidId })
     return packDetails
+  }
+
+  async mintPack(request: MintPack, trx?: Transaction) {
+    const user = await UserAccountModel.query(trx)
+      .where('externalId', request.externalId)
+      .first()
+      .select('id')
+
+    userInvariant(user, 'user not found', 404)
+
+    const pack = await PackModel.query(trx)
+      .where('id', request.packId)
+      .where('ownerId', user.id)
+      .select('id')
+      .withGraphFetched('collectibles')
+      .modifyGraph('collectibles', (builder) => {
+        builder.select('id')
+      })
+      .first()
+
+    userInvariant(pack, 'pack not found', 404)
+
+    this.logger.info({ pack }, 'pack to be transferred')
+
+    const collectibleIds = pack.collectibles?.map((c) => c.id) || []
+
+    await Promise.all(
+      collectibleIds.map(async (id) => {
+        await this.collectibles.mintCollectible(id, trx)
+      })
+    )
   }
 
   async transferPack(request: TransferPack, trx?: Transaction) {

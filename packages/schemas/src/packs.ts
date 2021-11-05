@@ -207,6 +207,11 @@ export const RedeemCodeSchema = Type.Object({
   }),
 })
 
+export const MintPackSchema = Type.Object({
+  externalId: Type.String(),
+  packId: IdSchema,
+})
+
 export const TransferPackSchema = Type.Object({
   externalId: Type.String(),
   packId: IdSchema,
@@ -243,3 +248,4 @@ export type PublishedPack = Simplify<Static<typeof PublishedPackSchema>>
 export type PublishedPacks = Simplify<Static<typeof PublishedPacksSchema>>
 export type RedeemCode = Simplify<Static<typeof RedeemCodeSchema>>
 export type TransferPack = Simplify<Static<typeof TransferPackSchema>>
+export type MintPack = Simplify<Static<typeof MintPackSchema>>
