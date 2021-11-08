@@ -591,13 +591,6 @@ export default class PacksService {
     // Pick a random pack
     const pack = packs[randomInteger(0, packs.length - 1)]
 
-    // TODO remove this once JIT minting is implemented
-    // userInvariant(
-    //   pack.collectibles?.every((c) => c.address !== null),
-    //   'collectibles not yet minted for this pack',
-    //   404
-    // )
-
     const packDetails = {
       ...template,
       id: pack.id,

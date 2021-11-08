@@ -44,18 +44,6 @@ export function configureTasks(app: FastifyInstance) {
       )
     )
   )
-
-  // Disable this for now (remove once JIT mint is working)
-  // app.scheduler.addSimpleIntervalJob(
-  //   new SimpleIntervalJob(
-  //     { minutes: 1 },
-  //     new AsyncTask(
-  //       'generate-algorand-assets',
-  //       async () => await mintCollectiblesTask(app.container),
-  //       (error) => app.log.error(error)
-  //     )
-  //   )
-  // )
   //#endregion
 
   //#region Notifications

@@ -85,8 +85,6 @@ export class CollectibleService implements CollectibleAPI {
       })
       .json<MintPackStatusResponse>()
 
-    console.log('mintStatus', packId, response.status)
-
     return response.status
   }
 

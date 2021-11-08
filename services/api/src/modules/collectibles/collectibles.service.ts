@@ -103,7 +103,6 @@ export default class CollectiblesService {
     invariant(template, 'template not found')
 
     // TODO load creator account from pool or always create a new one...?
-
     // Hard-coded to be true until 1000 asset limit is removed
     const useCreatorAccount = true
 
@@ -186,112 +185,6 @@ export default class CollectiblesService {
     ])
 
     return collectible.id
-  }
-
-  async mintCollectibles(limit = 16, trx?: Transaction) {
-    const collectibles = await CollectibleModel.query(trx)
-      .whereNull('creationTransactionId')
-      .limit(limit)
-
-    if (collectibles.length === 0) {
-      this.logger.info('no collectibles to mint')
-      return 0
-    }
-
-    // Get distinct template ids
-    const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
-
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      undefined,
-      {
-        id: {
-          _in: templateIds,
-        },
-      }
-    )
-
-    // Hard-coded to be true until 1000 asset limit is removed
-    const useCreatorAccount = true
-
-    const { signedTransactions, transactionIds, creator } =
-      await this.algorand.generateCreateAssetTransactions(
-        collectibles,
-        templates,
-        useCreatorAccount
-      )
-
-    this.logger.info('Using creator account %s', creator?.address || '-')
-
-    try {
-      await this.algorand.submitTransaction(signedTransactions)
-    } catch (error) {
-      if (creator) {
-        this.logger.info('Closing creator account %s', creator.address)
-        await this.algorand.closeCreatorAccount(creator)
-      }
-      throw error
-    }
-
-    if (creator) {
-      const transactions = await AlgorandTransactionModel.query(trx).insert([
-        {
-          // funding transaction
-          address: creator.transactionIds[0],
-          // Creator must already be confirmed for us to get here
-          status: AlgorandTransactionStatus.Confirmed,
-        },
-        {
-          // non-participation transaction
-          address: creator.transactionIds[1],
-          status: AlgorandTransactionStatus.Pending,
-        },
-      ])
-
-      const creatorAccount = await AlgorandAccountModel.query(trx).insertGraph(
-        {
-          address: creator.address,
-          encryptedKey: creator.encryptedMnemonic,
-          creationTransactionId: transactions[0].id,
-        },
-        { relate: true }
-      )
-
-      await EventModel.query(trx).insert({
-        action: EventAction.Create,
-        entityType: EventEntityType.AlgorandAccount,
-        entityId: creatorAccount.id,
-      })
-    }
-
-    await CollectibleModel.query(trx).upsertGraph(
-      collectibles.map((c, index) => ({
-        id: c.id,
-        creationTransaction: {
-          address: transactionIds[index],
-          status: AlgorandTransactionStatus.Pending,
-        },
-      })),
-      { relate: true }
-    )
-
-    const createdTransactions = await AlgorandTransactionModel.query(trx)
-      .whereIn('address', transactionIds)
-      .select('id')
-
-    await EventModel.query(trx).insert([
-      ...collectibles.map((c) => ({
-        action: EventAction.Update,
-        entityType: EventEntityType.Collectible,
-        entityId: c.id,
-      })),
-      ...createdTransactions.map((t) => ({
-        action: EventAction.Create,
-        entityType: EventEntityType.AlgorandTransaction,
-        entityId: t.id,
-      })),
-    ])
-
-    return collectibles.length
   }
 
   async transferToUserFromCreator(
