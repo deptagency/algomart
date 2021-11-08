@@ -1,3 +1,0 @@
-# Configuring Firebase
-
-TODO
