@@ -1,58 +1,120 @@
-    - Google Webmaster Central property ownership
-      - CNAME record setup
-      - Adding the service account as an owner
-      - CNAME records for each subdomain
+# Registering domains for domain-mapping
 
----
+Cloud Run domain-mapping (a beta service
+[not available](https://cloud.google.com/run/docs/mapping-custom-domains#limitations)
+in many regions)
+offers a convenient alternative to
+[setting up load balancers](https://cloud.google.com/load-balancing/docs/https/setting-up-https-serverless)
+and SSL certs manually, which will not be covered here.
 
-While domain mapping is a simple and clean way to assign custom domain names
-to each Cloud Run service, complete with SSL certs, etc,
-it is still a beta offering and
-[is not available](https://cloud.google.com/run/docs/mapping-custom-domains#limitations)
-in most regions.
+With just a few steps, we can assign custom domains to our Cloud Run
+services.
 
-If you want to set up a project in an unsupported region (or you want more control
-over the proxy), you will need to
-[set up load balancers](https://cloud.google.com/load-balancing/docs/https/setting-up-https-serverless)
-manually.
+We essentially just need to register the service account that Terraform
+will use as a **verified owner** of the domain in Google Webmaster,
+set up the relevant DNS records for each subdomain we want,
+and then let Terraform and Cloud Run do the rest.
 
----
+For this walkthrough, we will assume that we want our services mapped
+to the following domains, with the front-end hosted on the highest subdomain.
 
-This setup assumes
-[domain mapping](https://cloud.google.com/run/docs/mapping-custom-domains)
-will be used to assign custom host names to the Cloud Run services.
-If load balancers [need to be](#explicit-load-balancers) set up, then the DNS setup will differ.
+| Service |             Host name |
+| ------- | --------------------: |
+| API     | `api.dev.example.com` |
+| CMS     | `cms.dev.example.com` |
+| Web     |     `dev.example.com` |
 
-No matter what registrar was used to register your custom domain,
-the service account that Terraform uses needs to be a **verified owner**
-of the domain via Google Webmaster.
+This setup involves created 4 CNAME records; one for each service, and
+another to act as the verification for Google.
+If the API and/or CMS are intended to be hosted on different domains
+than the front-end, then all of the highest (sub)domains will need their
+own verification records.
 
-[verified owner of the domain](https://cloud.google.com/run/docs/mapping-custom-domains#adding_verified_domain_owners_to_other_users_or_service_accounts)
+## Table of Contents
 
-using the email address generated during service account creation.
-This email can be found in either the "IAM -> Service Accounts" dashboard or
-under the `client_email` property of the service account JSON key.
+- [Add domain to Webmaster properties](#add-domain-as-a-property)
+- [Create DNS records](#create-dns-records)
+- [Verify ownership](#verify-ownership)
+- [Registering service account as an owner](#add-service-account-as-an-owner)
 
-We need to create 3 different CNAME records.
-With Cloud Run domain mapping, they'll all point to the same location.
-For custom load balancers, you'll need to use their IP addresses instead.
+## Add domain as a property
 
-For instance, assuming we want the services mapped to the following host names...
+Once you are signed into Google, visit the
+[Google Webmaster](https://www.google.com/webmasters/verification/home)
+page and click "Add a property".
 
-| Service |              Host name |
-| ------- | ---------------------: |
-| API     | `api.nfty.example.com` |
-| CMS     | `cms.nfty.example.com` |
-| Web     |     `nfty.example.com` |
+> ![add property](./images/01-add-property.png)
 
-... then we'll want CNAME records for all three of those host names mapped to `ghs.googlehosted.com.` (note the trailing period).
+Now fill in the highest-level subdomain that we need to verify ownership for
+(again, with the example subdomains above, that would be dev.example.com)
+and then click "Continue".
 
-> ![CNAME records](./docs/cname-records.png)
+> ![choose domain](./images/02-domain.png)
 
-The Cloud Run domain mapping resource templates will do the rest of the work
-to associate the services with their respectiving mappings.
+From here, select "Alternate methods" and then "Domain name provider".
 
-> Note: The CNAME records can be created either before or after the Cloud Run services
-> are set up. Domain mapping via terraform will be 'successful' in either case,
-> but the custom domain resources in Cloud Run will not work until the records
-> are created.
+> ![choose alternate method](./images/03-alternate-methods.png)
+
+In the highlighted dropdown, select either your chosen registrar or "Other"
+(setup will likely be the same in either case).
+
+> ![choose select provider](./images/04-select-provider.png)
+
+We do not want to use the TXT record method, since this precludes us
+from also setting up any CNAME records.
+Instead, we want to select "Add a CNAME record".
+
+> ![copy cname verification](./images/05-add-cname.png)
+
+This gives us a "CNAME host" and a "CNAME target" for use in
+creating a CNAME record in the next step.
+
+**Important: Do not click "Verify"**
+
+> ![add cname record](./images/06-cname-details.png)
+
+## Create DNS Records
+
+In a **new tab**, visit your DNS provider and add a CNAME record matching
+the above host and target.
+
+Additionally, add 3 other CNAME records - one for each subdomain -
+with each pointing to ghs.googlehosted.com.
+
+They should look something like...
+
+> ![cname records](./images/07-dns-records.png)
+
+Take note of the TTL - we will want to wait until the
+DNS records are likely to have been propagated before
+proceeding.
+
+## Verify ownership
+
+Once we are sure that the DNS records are set,
+we want to go back to the other tab and click "Verify".
+
+> ![add cname record](./images/08-verify.png)
+
+If all goes according to plan, you should see a success message.
+Click through to view the new property.
+
+## Add service account as an owner
+
+At this point, you should see that your Google account is registered
+as a verified user.
+
+Now, we need to click "Add an owner".
+
+> ![add owner](./images/09-add-owner.png)
+
+In the dialog box, paste in the service account email obtained
+when [creating a service account](../configure-gcp/README.md#create-a-service-account) and select "Continue".
+
+> ![add service account email](./images/10-service-account.png)
+
+You should now see that the Terraform service account is also
+registered as a verified owner, which gives it the necessary
+permissions to assign domain mappings.
+
+> ![owner added](./images/11-owner-added.png)
