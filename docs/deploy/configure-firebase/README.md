@@ -23,6 +23,7 @@ For this tutorial, we assume that we want to offer users several strategies for 
 - [Set up authentication](#set-up-authentication)
 - [Enable storage](#enable-storage)
 - [Configure the web app](#configure-the-web-app)
+- [Create a service account](#create-a-service-account)
 
 ## Initializing Firebase
 
@@ -154,6 +155,8 @@ and save somewhere - we will need this later when configuring Github Secrets.
 After saving the configuration details, select "Continue to console".
 
 > ![copy config](./images/20-config.png)
+
+## Create a service account
 
 Once more, go into "Project settings", select the
 "Service accounts" tab, and then click

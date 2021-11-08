@@ -14,5 +14,5 @@ are ready to deploy.
 - [Register custom domains](./registering-domains/README.md)
 - [Configure Firebase](./configure-firebase/README.md)
 - [Assign Github Secrets](./assign-secrets/README.md)
-- [Deploy with Terraform](./terraform-deploy/README.md)
+- [Running the deploy workflow](../../.github/workflows/deploy.yml)
 - [Post-deploy steps](./post-deploy/README.md)
