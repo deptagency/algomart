@@ -1,4 +1,4 @@
-# Configuring a new GCP project
+# Configuring a New GCP Project
 
 This section will detail the creation and configuration of a new
 GCP project to houes all of the Terraform-managed resources

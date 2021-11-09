@@ -1,4 +1,4 @@
-# Registering domains for domain-mapping
+# Registering Domains for Domain-Mapping
 
 Cloud Run domain-mapping (a beta service
 [not available](https://cloud.google.com/run/docs/mapping-custom-domains#limitations)

@@ -1,4 +1,4 @@
-# The deploy workflow
+# The Deploy Workflow
 
 There is [a Github Workflow](../../../.github/workflows/deploy.yml) that,
 on every commit into `main`, will...
