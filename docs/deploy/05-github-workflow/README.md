@@ -3,19 +3,24 @@
 There is [a Github Workflow](../../../.github/workflows/deploy.yml) that,
 on every commit into `main`, will...
 
-- Build and tag Docker images
+- Build Docker images and tag with short Git commit hash
 - Push images to Artifact Registry
 - Create (or update) all necessary infrastructure via Terraform
 
-## Default behavior
+If these defaults (explained in more depth below),
+you can skip ahead to
+[completing the post-deploy steps](../06-post-deploy-steps/README.md).
 
-Commits into the `main` branch will trigger the workflow:
+## Default Behavior
+
+Commits into the `main` branch will trigger the workflow,
+but this can be changed at any point:
 
 ```yaml
 on:
   push:
     branches:
-      - main
+      - main # Or change for your preferred release branch
 ```
 
 The workflow then uses the Git commit short hash as the image tag,
