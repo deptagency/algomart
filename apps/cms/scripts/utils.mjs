@@ -4,7 +4,8 @@ import 'dotenv/config'
 
 import axios from 'axios'
 import { exec } from 'child_process'
-import { readFile } from 'fs'
+import parse from 'csv-parse'
+import { createReadStream, readdirSync, readFile, statSync } from 'fs'
 import { createInterface } from 'readline'
 
 // Group flat array into a multi-dimensional array of N items.
@@ -41,6 +42,39 @@ export async function updateEntityRecord(entity, id, body, token) {
       body
     )
     return res.data.data
+  } catch (error) {
+    console.log(error.response.data.errors)
+    process.exit(1)
+  }
+}
+
+export async function importDataFile(formData, collection, token) {
+  try {
+    const response = await axios.post(
+      `${process.env.PUBLIC_URL}/utils/import/${collection}?access_token=${token}`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          ...formData.getHeaders(),
+        },
+      }
+    )
+    return response.data.data
+  } catch (error) {
+    console.log(error.response.data.errors)
+    process.exit(1)
+  }
+}
+
+export async function exportFieldsForCollection(collection, token) {
+  try {
+    const response = await axios.get(
+      `${process.env.PUBLIC_URL}/fields/${collection}?access_token=${token}&export=json`,
+    )
+    const data = response.data
+    const fields = data.map((item) => item.field)
+    return fields
   } catch (error) {
     console.log(error.response.data.errors)
     process.exit(1)
@@ -131,4 +165,75 @@ export function readlineAsync(prompt) {
       resolve(answer)
     })
   })
+}
+
+// Loop through directory and group files by extension.
+export function groupFilesFromDirectoryByExtension(directory, extension) {
+  return new Promise((resolve) => {
+    const data = []
+    const files = readdirSync(directory).map(f => f)
+    for (const file of files) {
+      const filePath = `${directory}/${file}`
+      if (statSync(filePath).isFile()) {
+        const fileExtension = filePath.split('.').pop()
+        if (fileExtension === extension) {
+          data.push(file)
+        }
+      }
+    }
+    resolve(data)
+  })
+}
+
+// Read and update CSV file before CMS import.
+export async function checkAndUpdateCsvAsync(file, collection, imageFields, token) {
+  try {
+    // Retrieve field schema for collection
+    const fields = await exportFieldsForCollection(collection, token)
+    // Parse provided file
+    const data = []
+    const parser = createReadStream(file)
+      .pipe(parse({
+        columns: true,
+        skip_empty_lines: false,
+      }));
+    for await (const record of parser) {
+      data.push(record)
+    }
+    // Check keys for first record against field schema
+    const firstRecordKeys = Object.keys(data[0])
+    const doArraysMatch = fields.every((field) => {
+      return firstRecordKeys.includes(field)
+    })
+    if (!doArraysMatch) {
+      console.log(`File for ${collection} does not match schema`)
+      process.exit(1)
+    }
+    const updatedData = []
+    // Loop through all rows of data
+    for (const item in data) {
+      const newItem = item
+      for (const key in item) {
+        if (imageFields.includes(key)) {
+          // Check if provided value is a UUID. If NOT, continue.
+          const isUuid = item[key].match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+          if (!isUuid) {
+            // Create image in database
+            const formData = new FormData()
+            formData.append('file', createReadStream(formData))
+            const newImage = await createAssetRecords(formData, token)
+            // Assign image ID to record
+            item[key] = newImage
+          }
+        } else if (key === 'status' && !item[key]) {
+          item[key] = 'draft'
+        }
+      }
+      updatedData.push(newItem)
+    }
+    return updatedData
+  } catch (error) {
+    console.log(error)
+    process.exit(1)
+  }
 }
