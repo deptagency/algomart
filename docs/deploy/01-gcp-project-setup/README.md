@@ -4,11 +4,6 @@ This section will detail the creation and configuration of a new
 GCP project to houes all of the Terraform-managed resources
 for the storefront.
 
-The primary reason that the storefront relies on having its own
-dedicated project is that it relies on Firebase for authentication,
-which must be configured at the project-level (as GCP does not allow
-multiple Firebase instances in the same project).
-
 ## Table of Contents
 
 1. [Create the project](#1-create-the-project)

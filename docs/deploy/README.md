@@ -17,3 +17,15 @@ and some that are necessary after the applications are up and running.
 4. [Assign Github Secrets](./04-github-secrets/README.md)
 5. [Finalize the Github workflow](./05-github-workflow/README.md)
 6. [Post-deploy steps](./06-post-deploy-steps/README.md)
+
+## Notes
+
+_Any given storefront environment **requires its own GCP project**._
+
+While it would be possible to deploy multiple sets of
+Terraform-managed services to a single project, we can
+only configure a single Firebase instance per GCP project,
+meaning each environment would then share a user pool.
+
+Using multiple GCP projects ensures that each environment
+has its own user pool.
