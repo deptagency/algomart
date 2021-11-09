@@ -5,6 +5,7 @@ import 'dotenv/config'
 import axios from 'axios'
 import { exec } from 'child_process'
 import parse from 'csv-parse'
+import FormData from 'form-data'
 import { createReadStream, readdirSync, readFile, statSync } from 'fs'
 import { createInterface } from 'readline'
 
@@ -30,7 +31,7 @@ export async function createAssetRecords(formData, token) {
     )
     return res.data.data
   } catch (error) {
-    console.log(error.response.data.errors)
+    console.log(error.response?.data?.errors)
     process.exit(1)
   }
 }
@@ -211,22 +212,24 @@ export async function checkAndUpdateCsvAsync(file, collection, imageFields, toke
     }
     const updatedData = []
     // Loop through all rows of data
-    for (const item in data) {
+    for (const item of data) {
       const newItem = item
-      for (const key in item) {
+      for (const [key, value] of Object.entries(item)) {
         if (imageFields.includes(key)) {
           // Check if provided value is a UUID. If NOT, continue.
-          const isUuid = item[key].match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+          const isUuid = value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
           if (!isUuid) {
             // Create image in database
+            const basePath = file.slice(0, file.indexOf(file.split('/').pop()))
+            const imagePath = createReadStream(`${basePath}images/${value}`)
             const formData = new FormData()
-            formData.append('file', createReadStream(formData))
+            formData.append('file', imagePath)
             const newImage = await createAssetRecords(formData, token)
             // Assign image ID to record
-            item[key] = newImage
+            newItem[key] = newImage.id
           }
-        } else if (key === 'status' && !item[key]) {
-          item[key] = 'draft'
+        } else if (key === 'status' && !value) {
+          newItem[key] = 'draft'
         }
       }
       updatedData.push(newItem)

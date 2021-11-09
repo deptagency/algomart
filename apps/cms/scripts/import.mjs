@@ -82,7 +82,8 @@ async function main(args) {
     const collection = file.split('.').shift()
     console.log(`Checking file data for ${collection}...`)
     // Check validaity and add images in CSV file.
-    const data = await checkAndUpdateCsvAsync(csvFile, collection, ['preview_image'], token)
+    const selectImages = ['preview_image']
+    const data = await checkAndUpdateCsvAsync(csvFile, collection, selectImages, token)
     const formData = new FormData()
     const jsonFile = `${collection}.json`
     // Create JSON file
