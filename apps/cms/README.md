@@ -181,3 +181,16 @@ The homepage of the provided UI depicts a featured Pack, which takes prominence 
 To update the data model you can start by locally using the Directus UI. But to ensure other developers can apply those changes you will need to write a migration file based on [knex](https://knexjs.org/). See the existing migration files for examples.
 
 Running `npm run bootstrap` will apply new migrations. Additionally, the `package.json` contains other migration scripts (up, down, rollback, and latest) in case they're needed.
+
+### Importing data
+
+To import new data into the CMS, follow the steps below. This will not override existing data in the CMS.
+
+1. Create CSV file for collection(s) with data to import.
+   There must be a column for every field associated with the collection. Only required fields must have data, but otherwise it can be blank. If the status is not provided, it will have the draft status.
+
+For any images, you can either specify a UUID for an existing photo in the CMS OR specify a filename (name + extension). The filename would reference a file added to the `scripts/import-data/images` folder.
+
+2. Place new CSV file inside the `scripts/import-data` folder. The filename must follow the structure: `[collection].csv`.
+
+3. Run `npm run import` to start the import process.

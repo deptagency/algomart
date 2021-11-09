@@ -6,7 +6,7 @@ import axios from 'axios'
 import { exec } from 'child_process'
 import parse from 'csv-parse'
 import FormData from 'form-data'
-import { createReadStream, readdirSync, readFile, statSync } from 'fs'
+import { createReadStream, readdirSync, readFile, statSync, unlink } from 'fs'
 import { createInterface } from 'readline'
 
 // Group flat array into a multi-dimensional array of N items.
@@ -63,7 +63,8 @@ export async function importDataFile(formData, collection, token) {
     )
     return response.data.data
   } catch (error) {
-    console.log(error.response.data.errors)
+    console.log(error)
+    console.log(error.response?.data?.errors)
     process.exit(1)
   }
 }
@@ -230,6 +231,8 @@ export async function checkAndUpdateCsvAsync(file, collection, imageFields, toke
           }
         } else if (key === 'status' && !value) {
           newItem[key] = 'draft'
+        } else if (!value) {
+          newItem[key] = null
         }
       }
       updatedData.push(newItem)
@@ -239,4 +242,17 @@ export async function checkAndUpdateCsvAsync(file, collection, imageFields, toke
     console.log(error)
     process.exit(1)
   }
+}
+
+// Remove file
+export function removeFile(file) {
+  return new Promise((resolve) => {
+    unlink(file, (error) => {
+      if (error) {
+        console.log(error)
+        process.exit(1)
+      }
+      resolve()
+    })
+  })
 }

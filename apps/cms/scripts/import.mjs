@@ -16,6 +16,7 @@ import {
   groupFilesFromDirectoryByExtension,
   importDataFile,
   readFileAsync,
+  removeFile,
 } from './utils.mjs'
 
 const knex = Knex({
@@ -85,13 +86,16 @@ async function main(args) {
     const selectImages = ['preview_image']
     const data = await checkAndUpdateCsvAsync(csvFile, collection, selectImages, token)
     const formData = new FormData()
-    const jsonFile = `${collection}.json`
+    const jsonFile = `${basePath}/${collection}.json`
     // Create JSON file
     writeFileSync(jsonFile, JSON.stringify(data))
-    formData.append('file', createReadStream(`${basePath}/${jsonFile}`, { filename: collection }))
+    console.log('json:', jsonFile)
+    formData.append('file', createReadStream(jsonFile))
     // Import data to CMS
     console.log(`Importing file for ${collection}...`)
     await importDataFile(formData, collection, token)
+    // Remove newly created JSON file
+    await removeFile(jsonFile)
   }
 
   console.log('Done!')
