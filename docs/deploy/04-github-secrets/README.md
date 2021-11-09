@@ -102,7 +102,22 @@ like the database or storage bucket, etc.
 
 ## Optional
 
-TODO Describe the optional pass-through variables to affect Terraform deploy.
+Terraform has a number of
+[default variables](../../../terraform/variables.tf)
+that can be overridden at deploy time.
+See the
+[complete list](../../../terraform/README.md#input-variables)
+of all input variables and descriptions,
+including which are optional, for further information.
+You may note that some of the required variables did not need corresponding
+Secrets; those are specified programmatically in the deploy workflow.
+
+To override any variable, simply add a Github Secret with an
+all-caps version of the name. Eg. to set `bucket_location` to
+a non-default value, create a `BUCKET_LOCATION` secret with your desired value.
+
+You can see where these are mapped to their corresponding Terraform
+environment variables [here](../../../.github/workflows/deploy.yml#L159).
 
 ---
 
