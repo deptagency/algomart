@@ -29,11 +29,54 @@ We will need this later when configuring Github Secrets.
 
 ## 2. Assign a billing account
 
-TODO
+If there is not already a billing acount set up for your organization,
+[create one now](https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account).
+
+Once a billing account is available, select "Billing" in the sidebar menu.
+
+> ![select billing](./images/billing/01-select-billing.png)
+
+Then select "Link a billing account".
+
+> ![link billing account](./images/billing/02-link-billing.png)
+
+Select your billing account in the dropdown menu
+and then click "Set account".
+
+> ![set billing account](./images/billing/03-select-account.png)
 
 ## 3. Create a bucket
 
-TODO
+Now that we have a billing account assigned to the project,
+we can create additional resources,
+including a new Cloud Storage bucket in which Terraform can store its state file.
+
+In the sidebar menu, select "Cloud Storage".
+
+> ![select cloud storage](./images/terraform-bucket/01-select-storage.png)
+
+Select "Create bucket".
+
+> ![create bucket](./images/terraform-bucket/02-create-bucket.png)
+
+Give the bucket a unique name and then click "Continue" (**not "Create"**).
+
+> ![supply name](./images/terraform-bucket/03-name-bucket.png)
+
+After choosing a region and the "Standard" storage class,
+selecting "Continue" on each screen,
+we now want to make sure to select "Enforce public access prevention on this bucket".
+
+Terraform's state file is not encrypted, and it will contain
+any secret variable we supply it.
+Therefore, we need to be doubly certain that the state file can
+only be accessed by those who have permission via IAM, etc.
+
+You can configure the "Access control" or "Choose how to protect object data"
+however you'd like,
+and once done select "Create".
+
+> ![enforce access prevention](./images/terraform-bucket/04-access-prevention.png)
 
 ## 4. Create a docker repository
 
