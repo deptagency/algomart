@@ -63,7 +63,6 @@ export async function importDataFile(formData, collection, token) {
     )
     return response.data.data
   } catch (error) {
-    console.log(error)
     console.log(error.response?.data?.errors)
     process.exit(1)
   }
