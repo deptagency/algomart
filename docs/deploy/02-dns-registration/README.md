@@ -32,12 +32,12 @@ own verification records.
 
 ## Table of Contents
 
-- [Add domain to Webmaster properties](#add-domain-as-a-property)
-- [Create DNS records](#create-dns-records)
-- [Verify ownership](#verify-ownership)
-- [Registering service account as an owner](#add-service-account-as-an-owner)
+1. [Add domain to Webmaster properties](#1-add-domain-as-a-property)
+2. [Create DNS records](#2-create-dns-records)
+3. [Verify ownership](#3-verify-ownership)
+4. [Registering service account as an owner](#4-add-service-account-as-an-owner)
 
-## Add domain as a property
+## 1. Add domain as a property
 
 Once you are signed into Google, visit the
 [Google Webmaster](https://www.google.com/webmasters/verification/home)
@@ -73,7 +73,7 @@ creating a CNAME record in the next step.
 
 > ![add cname record](./images/06-cname-details.png)
 
-## Create DNS Records
+## 2. Create DNS Records
 
 In a **new tab**, visit your DNS provider and add a CNAME record matching
 the above host and target.
@@ -89,7 +89,7 @@ Take note of the TTL - we will want to wait until the
 DNS records are likely to have been propagated before
 proceeding.
 
-## Verify ownership
+## 3. Verify ownership
 
 Once we are sure that the DNS records are set,
 we want to go back to the other tab and click "Verify".
@@ -99,7 +99,7 @@ we want to go back to the other tab and click "Verify".
 If all goes according to plan, you should see a success message.
 Click through to view the new property.
 
-## Add service account as an owner
+## 4. Add service account as an owner
 
 At this point, you should see that your Google account is registered
 as a verified user.
@@ -109,7 +109,7 @@ Now, we need to click "Add an owner".
 > ![add owner](./images/09-add-owner.png)
 
 In the dialog box, paste in the service account email obtained
-when [creating a service account](../configure-gcp/README.md#create-a-service-account) and select "Continue".
+when [creating a service account](../01-gcp-project-setup/README.md#5-create-a-service-account) and select "Continue".
 
 > ![add service account email](./images/10-service-account.png)
 
@@ -118,3 +118,9 @@ registered as a verified owner, which gives it the necessary
 permissions to assign domain mappings.
 
 > ![owner added](./images/11-owner-added.png)
+
+---
+
+## Next Up
+
+[Configuring Firebase](../03-firebase-configuration/README.md)

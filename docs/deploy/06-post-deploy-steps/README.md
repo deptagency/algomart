@@ -1,3 +1,5 @@
+TODO verify funding account, etc.
+
 The API was deployed with a `CMS_ACCESS_TOKEN` environment variable,
 and the CMS should have an initial admin user created from the
 `ADMIN_EMAIL` and `ADMIN_PASSWORD` variables during the initial deploy.
@@ -16,3 +18,10 @@ Assigning the token to this user allows the API to make authenticated and author
 requests against the CMS.
 Without this step, API background tasks that look for pack templates, etc. will fail
 to run, meaning we cannot create assets on the blockchain.
+
+---
+
+## Next Up
+
+Congratulations! You should now be ready to log into the CMS
+and start creating some NFTs and packs. 🎉🥳🎉

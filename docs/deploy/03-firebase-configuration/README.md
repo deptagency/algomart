@@ -19,13 +19,13 @@ For this tutorial, we assume that we want to offer users several strategies for 
 
 ## Table of Contents
 
-- [Initialize Firebase](#initializing-firebase)
-- [Set up authentication](#set-up-authentication)
-- [Enable storage](#enable-storage)
-- [Configure the web app](#configure-the-web-app)
-- [Create a service account](#create-a-service-account)
+1. [Initialize Firebase](#1-initializing-firebase)
+2. [Set up authentication](#2-set-up-authentication)
+3. [Enable storage](#3-enable-storage)
+4. [Configure the web app](#4-configure-the-web-app)
+5. [Create a service account](#5-create-a-service-account)
 
-## Initializing Firebase
+## 1. Initializing Firebase
 
 Visit console.firebase.google.com to get started.
 We will want to select "Add project".
@@ -33,7 +33,7 @@ We will want to select "Add project".
 > ![new instance](./images/01-add-project.png)
 
 Next, search for and select the name of the GCP project we
-[previously created](../configure-gcp/README.md#create-the-project)
+[previously created](../01-gcp-project-setup/README.md#1-create-the-project)
 and click "Continue".
 
 > ![find project](./images/02-select.png)
@@ -52,7 +52,7 @@ and click "Continue".
 
 > ![enable analytics](./images/05-analytics.png)
 
-## Set up authentication
+## 2. Set up authentication
 
 From the project overview, select "Authentication" from the
 sidebar menu.
@@ -80,7 +80,7 @@ select "Add new provider" and follow the instructions.
 
 When you are done configuring log-in options,
 now add the same domain used for the web front-end
-when [configuring DNS for domain-mapping(../registering-domains/README.md)
+when [configuring DNS for domain-mapping](../02-dns-registration/README.md)
 as an authorized domain.
 
 Following the previous tutorial, we would click "Add domain",
@@ -88,7 +88,7 @@ fill in dev.example.com, and click "Add".
 
 > ![add authorized domain](./images/11-auth-domain.png)
 
-## Enable storage
+## 3. Enable storage
 
 Next we need to configure storage rules.
 In the sidebar menu, select "Storage" and then
@@ -134,7 +134,7 @@ service firebase.storage {
 
 > ![publish rules](./images/16-storage-rules.png)
 
-## Configure the web app
+## 4. Configure the web app
 
 In the sidebar menu, select "Project settings".
 
@@ -156,7 +156,7 @@ After saving the configuration details, select "Continue to console".
 
 > ![copy config](./images/20-config.png)
 
-## Create a service account
+## 5. Create a service account
 
 Once more, go into "Project settings", select the
 "Service accounts" tab, and then click
@@ -174,3 +174,9 @@ to "IAM & Admin -> Service Accounts" you should see a new
 service account linked to Firebase.
 
 > ![firebase service account](./images/23-service-accounts.png)
+
+---
+
+## Next Up
+
+[Assigning Github Secrets](../04-github-secrets/README.md)

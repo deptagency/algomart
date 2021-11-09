@@ -7,20 +7,20 @@ we need to configure a variety of environment variables.
 
 ### Project
 
-These resources were created while [configuring the GCP project](../configure-gcp/README.md).
+These resources were created while [configuring the GCP project](../01-gcp-project-setup/README.md).
 
-| Variable                   | Description                                                                                                                        |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `GCP_DOCKER_REGISTRY`      | The [Artifact Registry](../configure-gcp/README.md#create-a-docker-repository) host name                                           |
-| `GCP_DOCKER_REPOSITORY`    | The [Artifact Registry](../configure-gcp/README.md#create-a-docker-repository) docker repository name                              |
-| `GCP_PROJECT_ID`           | The id of [the new project](../configure-gcp/README.md#create-the-project)                                                         |
-| `GCP_SERVICE_ACCOUNT_KEY`  | The full, **pretty-printed** [service account JSON](../configure-gcp/README.md#create-a-service-account) created for **Terraform** |
-| `TERRAFORM_BACKEND_BUCKET` | The name of the bucket created [to store Terraform state](../configure-gcp/README.md#create-a-bucket)                              |
+| Variable                   | Description                                                                                                                                 |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GCP_DOCKER_REGISTRY`      | The [Artifact Registry](../01-gcp-project-setup/README.md#4-create-a-docker-repository) host name                                           |
+| `GCP_DOCKER_REPOSITORY`    | The [Artifact Registry](../01-gcp-project-setup/README.md#4-create-a-docker-repository) docker repository name                              |
+| `GCP_PROJECT_ID`           | The id of [the new project](../01-gcp-project-setup/README.md#create-the-project)                                                           |
+| `GCP_SERVICE_ACCOUNT_KEY`  | The full, **pretty-printed** [service account JSON](../01-gcp-project-setup/README.md#5-create-a-service-account) created for **Terraform** |
+| `TERRAFORM_BACKEND_BUCKET` | The name of the bucket created [to store Terraform state](../01-gcp-project-setup/README.md#3-create-a-bucket)                              |
 
 ### Domain-mapping
 
 These were the host names we used when
-[configuring DNS records](../registering-domains/README.md)
+[configuring DNS records](../02-dns-registration/README.md)
 for domain-mapping.
 
 | Variable             | Example             |
@@ -31,10 +31,13 @@ for domain-mapping.
 
 ### Firebase
 
-| Variable                          | Description                                                                                                        |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `WEB_FIREBASE_SERVICE_ACCOUNT`    | The full [service account JSON](../configure-firebase/README.md#create-a-service-account) created for **Firebase** |
-| `WEB_NEXT_PUBLIC_FIREBASE_CONFIG` | The Firebase [web-app config](../configure-firebase/README.md#configure-the-web-app) **converted to JSON**         |
+These variables contain JSON values generated when
+[configuring Firebase](../03-firebase-configuration/README.md).
+
+| Variable                          | Description                                                                                                                 |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `WEB_FIREBASE_SERVICE_ACCOUNT`    | The full [service account JSON](../03-firebase-configuration/README.md#5-create-a-service-account) created for **Firebase** |
+| `WEB_NEXT_PUBLIC_FIREBASE_CONFIG` | The Firebase [web-app config](../03-firebase-configuration/README.md#4-configure-the-web-app) **converted to JSON**         |
 
 ### Algorand
 
@@ -100,3 +103,9 @@ like the database or storage bucket, etc.
 ## Optional
 
 TODO Describe the optional pass-through variables to affect Terraform deploy.
+
+---
+
+## Next Up
+
+[Finalizing the Github Workflow](../05-github-workflow/README.md)

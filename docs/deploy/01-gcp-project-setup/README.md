@@ -11,13 +11,13 @@ multiple Firebase instances in the same project).
 
 ## Table of Contents
 
-- [Create the project](#create-the-project)
-- [Assign a billing account](#assign-a-billing-account)
-- [Create a storage bucket for Terraform](#create-a-bucket)
-- [Create an Artifact Registry docker repository](#create-a-docker-repository)
-- [Create a service account for Terraform](#create-a-service-account)
+1. [Create the project](#1-create-the-project)
+2. [Assign a billing account](#2-assign-a-billing-account)
+3. [Create a storage bucket for Terraform](#3-create-a-bucket)
+4. [Create an Artifact Registry docker repository](#4-create-a-docker-repository)
+5. [Create a service account for Terraform](#5-create-a-service-account)
 
-## Create the project
+## 1. Create the project
 
 Create a new GCP project by following the
 [official instructions](https://cloud.google.com/resource-manager/docs/creating-managing-projects).
@@ -27,15 +27,15 @@ We will need this later when configuring Github Secrets.
 
 > ![project id](./images/new-project.png)
 
-## Assign a billing account
+## 2. Assign a billing account
 
 TODO
 
-## Create a bucket
+## 3. Create a bucket
 
 TODO
 
-## Create a docker repository
+## 4. Create a docker repository
 
 In your GCP project, open the services menu.
 
@@ -68,7 +68,7 @@ Find the **registry name** - it will look something like `<region>-docker.pkg.de
 
 > ![record the registry](./images/artifact-registry/enable-ar-06-regions.png)
 
-## Create a service account
+## 5. Create a service account
 
 The service account is an identity that Terraform can use to perform
 GCP API operations.
@@ -150,3 +150,9 @@ even in an environment variable, even if we base-64 encode it.
 
 Without newlines, **terraform cannot authenticate**.
 For whatever reason, Google tools require them.
+
+---
+
+## Next Up
+
+[Registering custom domains](../02-dns-registration/README.md)
