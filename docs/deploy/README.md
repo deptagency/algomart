@@ -5,7 +5,8 @@ The default Google Cloud Platform (GCP) infrastructural resources are managed wi
 which can be automated via a
 [Github Actions workflow](../../.github/workflows/deploy.yml).
 
-There are some manual steps that we must complete prior to running Terraform,
+There are some manual steps that we must complete **in order**
+prior to running Terraform,
 and some that are necessary after the applications are up and running.
 
 ## Table of Contents
