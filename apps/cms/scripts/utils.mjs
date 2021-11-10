@@ -280,6 +280,7 @@ export async function checkCsvAsync(data, collection, token) {
 export async function updateCsvAsync(data, basePath, token) {
   try {
     const updatedData = []
+    // @TODO: Get multi prompt working
     const imageFields = await readlineMultipleAsync(
       '> Provide image fields for document (i.e., preview_image): ',
       '> Would you like to provide other fields?'

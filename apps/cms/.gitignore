@@ -3,5 +3,6 @@ config.*.json
 uploads/
 
 scripts/import-data/*.csv
+scripts/import-data/*.json
 scripts/import-data/images/*
 scripts/import-data/starters/*
