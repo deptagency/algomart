@@ -4,10 +4,6 @@ on:
     branches:
       - main
 
-    # Or trigger via tag creation instead
-    #tags:
-    #- '*'
-
 jobs:
   tag:
     runs-on: ubuntu-latest
@@ -18,10 +14,6 @@ jobs:
 
       - id: docker-image-tag
         run: echo "::set-output name=value::$( git rev-parse --short HEAD )"
-
-        # Or extract the tag from the github reference
-        # https://github.community/t/how-to-get-just-the-tag-name/16241/32
-        #run: echo "TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
   build:
     runs-on: ubuntu-latest

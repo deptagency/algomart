@@ -2,7 +2,14 @@
 
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)][code of conduct]
 
-This project is developed to be a foundational starter for creating your own NFT storefront on the Algorand blockchain. It is a monorepo that includes a Fastify API, a headless CMS (Directus), a front-end sample implementation (NextJS), and a shared schemas package to share Typescript interfaces and enums across the monorepo.
+This project is developed to be a foundational starter for creating your own NFT storefront on the Algorand blockchain. It is a monorepo that includes:
+
+- A [headless CMS](./apps/cms) (Directus)
+- A [back-end API](./services/api) (Fastify)
+- A [front-end](./apps/web) sample implementation (NextJS)
+- Shared Typescript [interfaces and enums](./packages/schemas)
+- [Terraform templates](./terraform) for setting up infrastructure on Google Cloud Platform
+- [Github Workflows](./.github/workflows) for linting, type-checking, building, dockerizing, and deploying
 
 ## 📚 General Project Overview
 
@@ -97,13 +104,15 @@ This will load the various `.env` files for Algorand, Circle, etc. credentials -
 most other environment variables will be overridden in favor of those specified
 in the `docker-compose.yml` file.
 
-Next, the CMS key needs to be added to the admin user created by Directus.
+### Adding the CMS key to the admin user
+
+The CMS key needs to be added to the admin user created by Directus.
 Otherwise, the API cannot authenticate even though its CMS key matches.
 
 - Visit http://localhost:3001
-- Authenticate with the CMS [admin email & password](docker-compose.yml#L77)
+- Authenticate with the CMS admin email & password
 - Go to the [user directory](http://localhost:3001/admin/users)
-- Click the admin user and enter the [CMS key](docker-compose.yml#L70) into the "Token" field
+- Click the admin user and enter the CMS key into the "Token" field
 - Click the green check mark in the upper right corner
 
 This allows all API background tasks to run properly.
@@ -158,3 +167,11 @@ npm run test:api -- --watch
 [schemas]: packages/schemas
 [sendgrid]: https://sendgrid.com
 [web]: apps/web
+
+## 🚢 Deployment
+
+Please see the detailed
+[step-by-step guide](./docs/deploy/README.md)
+for instructions on how to use the included Terraform templates
+and Github Workflow to create a complete storefront environment
+on Google Cloud Platform.
