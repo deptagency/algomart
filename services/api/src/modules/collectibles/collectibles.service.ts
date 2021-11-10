@@ -84,35 +84,32 @@ export default class CollectiblesService {
     return await CollectibleModel.query(trx).where('packId', packId)
   }
 
-  async mintCollectibles(limit = 16, trx?: Transaction) {
-    const collectibles = await CollectibleModel.query(trx)
-      .whereNull('creationTransactionId')
-      .limit(limit)
-
-    if (collectibles.length === 0) {
-      this.logger.info('no collectibles to mint')
-      return 0
-    }
-
-    // Get distinct template ids
-    const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
-
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      undefined,
-      {
-        id: {
-          _in: templateIds,
-        },
-      }
+  async mintCollectible(collectibleId: string, trx?: Transaction) {
+    const collectible = await CollectibleModel.query(trx).findById(
+      collectibleId
     )
 
+    // No collectible matched the ID or it's already minted
+    if (!collectible || collectible.address) return null
+
+    const {
+      collectibles: [template],
+    } = await this.cms.findAllCollectibles(undefined, {
+      id: {
+        _eq: collectible.templateId,
+      },
+    })
+
+    invariant(template, 'template not found')
+
+    // TODO load creator account from pool or always create a new one...?
     // Hard-coded to be true until 1000 asset limit is removed
     const useCreatorAccount = true
 
     const { signedTransactions, transactionIds, creator } =
       await this.algorand.generateCreateAssetTransactions(
-        collectibles,
-        templates,
+        [collectible],
+        [template],
         useCreatorAccount
       )
 
@@ -160,13 +157,13 @@ export default class CollectiblesService {
     }
 
     await CollectibleModel.query(trx).upsertGraph(
-      collectibles.map((c, index) => ({
-        id: c.id,
+      {
+        id: collectible.id,
         creationTransaction: {
-          address: transactionIds[index],
+          address: transactionIds[0],
           status: AlgorandTransactionStatus.Pending,
         },
-      })),
+      },
       { relate: true }
     )
 
@@ -175,11 +172,11 @@ export default class CollectiblesService {
       .select('id')
 
     await EventModel.query(trx).insert([
-      ...collectibles.map((c) => ({
+      {
         action: EventAction.Update,
         entityType: EventEntityType.Collectible,
-        entityId: c.id,
-      })),
+        entityId: collectible.id,
+      },
       ...createdTransactions.map((t) => ({
         action: EventAction.Create,
         entityType: EventEntityType.AlgorandTransaction,
@@ -187,7 +184,7 @@ export default class CollectiblesService {
       })),
     ])
 
-    return collectibles.length
+    return collectible.id
   }
 
   async transferToUserFromCreator(

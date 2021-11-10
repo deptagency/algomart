@@ -1,5 +1,6 @@
 import {
   DEFAULT_LOCALE,
+  MintPackStatus,
   PackAuction,
   PackType,
   PublishedPack,
@@ -21,6 +22,7 @@ import authService from '@/services/auth-service'
 import collectibleService from '@/services/collectible-service'
 import ReleaseTemplate from '@/templates/release-template'
 import { isAfterNow } from '@/utils/date-time'
+import { poll } from '@/utils/poll'
 
 interface ReleasePageProps {
   avatars: { [key: string]: string | null }
@@ -80,15 +82,32 @@ export default function ReleasePage({
       return t('forms:errors.invalidRedemptionCode')
     }
 
+    // Mint asset
+    const isMintOK = await collectibleService.mint(packId)
+
+    if (!isMintOK) {
+      return t('common:statuses.An Error has Occurred')
+    }
+
+    const isMinted = await poll(
+      async () => await collectibleService.mintStatus(packId),
+      (result) => result !== MintPackStatus.Minted,
+      1000
+    )
+
+    if (!isMinted) {
+      return t('common:statuses.An Error has Occurred')
+    }
+
     // Transfer asset
-    const isOK = await collectibleService.transfer(packId, passphrase)
+    const isTransferOK = await collectibleService.transfer(packId, passphrase)
 
     // Clear redemption data
     if (packTemplate.type === PackType.Redeem) {
       setRedeemable(null)
     }
 
-    if (!isOK) {
+    if (!isTransferOK) {
       return t('common:statuses.An Error has Occurred')
     }
 

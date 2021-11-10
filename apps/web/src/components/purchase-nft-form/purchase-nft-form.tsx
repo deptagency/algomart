@@ -12,6 +12,7 @@ import css from './purchase-nft-form.module.css'
 
 import Loading from '@/components/loading/loading'
 import { usePaymentProvider } from '@/contexts/payment-context'
+import { useWarningOnExit } from '@/hooks/useWarningOnExit'
 import { isAfterNow } from '@/utils/date-time'
 
 export interface PurchaseNFTFormProps {
@@ -27,6 +28,9 @@ export default function PurchaseNFTForm({
 }: PurchaseNFTFormProps) {
   const [passphraseError, setPassphraseError] = useState<string>('')
   const { t } = useTranslation()
+  const [promptLeaving, setPromptLeaving] = useState(false)
+
+  useWarningOnExit(promptLeaving, t('common:statuses.processingPayment'))
 
   const {
     formErrors,
@@ -46,10 +50,12 @@ export default function PurchaseNFTForm({
   const handleSubmitPassphrase = useCallback(
     async (passphrase: string) => {
       setPassphraseError('')
+      setPromptLeaving(true)
       const isValidPassphrase = await onSubmitPassphrase(passphrase)
       if (!isValidPassphrase) {
         setPassphraseError(t('forms:errors.invalidPassphrase'))
       }
+      setPromptLeaving(false)
     },
     [onSubmitPassphrase, setPassphraseError, t]
   )
@@ -57,11 +63,13 @@ export default function PurchaseNFTForm({
   const handleSubmitPurchase = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
+      setPromptLeaving(true)
       const data = new FormData(event.currentTarget)
       await (release.type === PackType.Auction &&
       isAfterNow(new Date(release.auctionUntil as string))
         ? onSubmitBid(data)
         : onSubmitPurchase(data, true))
+      setPromptLeaving(false)
     },
     [release.auctionUntil, release.type, onSubmitBid, onSubmitPurchase]
   )
