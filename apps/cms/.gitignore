@@ -4,3 +4,4 @@ uploads/
 
 scripts/import-data/*.csv
 scripts/import-data/images/*
+scripts/import-data/starters/*

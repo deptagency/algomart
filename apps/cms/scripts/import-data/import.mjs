@@ -7,14 +7,17 @@ import { createReadStream, writeFileSync } from 'fs'
 import { resolve as _resolve } from 'path'
 
 import {
-  checkAndUpdateCsvAsync,
+  checkCsvAsync,
+  createXlsFile,
   getCMSAuthToken,
   getConfigFromStdin,
   groupFilesFromDirectoryByExtension,
   importDataFile,
+  parseCsvData,
   readFileAsync,
   removeFile,
-} from './utils.mjs'
+  updateCsvAsync,
+} from '../utils.mjs'
 
 async function main(args) {
   /**
@@ -33,7 +36,7 @@ async function main(args) {
   /**
    * Begin importing data.
    */
-
+  console.log('Starting import...')
   const basePath = './scripts/import-data'
   const files = await groupFilesFromDirectoryByExtension(basePath, 'csv')
   // Loop through the import data
@@ -41,14 +44,15 @@ async function main(args) {
     const csvFile = _resolve(`${basePath}/${file}`)
     const collection = file.split('.').shift()
     console.log(`Checking file data for ${collection}...`)
-    // Check validaity and add images in CSV file.
-    const selectImages = ['preview_image']
-    const data = await checkAndUpdateCsvAsync(csvFile, collection, selectImages, token)
+    // Parse CSV and check values.
+    const csvData = await parseCsvData(csvFile)
+    await checkCsvAsync(csvData, collection, token)
+    // Create images and update file.
+    const data = await updateCsvAsync(csvData, basePath, token)
     const formData = new FormData()
     const jsonFile = `${basePath}/${collection}.json`
-    // Create JSON file
+    // Create JSON file.
     writeFileSync(jsonFile, JSON.stringify(data))
-    console.log('json:', jsonFile)
     formData.append('file', createReadStream(jsonFile))
     // Import data to CMS
     console.log(`Importing file for ${collection}...`)
@@ -61,7 +65,7 @@ async function main(args) {
 }
 
 main(process.argv)
-  .catch((err) => {
-    console.error(err)
+  .catch((error) => {
+    console.error(error)
     process.exit(1)
   })

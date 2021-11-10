@@ -187,10 +187,15 @@ Running `npm run bootstrap` will apply new migrations. Additionally, the `packag
 To import new data into the CMS, follow the steps below. This will not override existing data in the CMS.
 
 1. Create CSV file for collection(s) with data to import.
-   There must be a column for every field associated with the collection. The first row must be the headers, and the headers need to be keys for each field (i.e., `preview_image`). Only required fields must have data, but otherwise it can be blank. If the status is not provided, it will have the draft status.
+   Run `npm run import-create-starters` to output documents for each collection inside the `scripts/import-data/starters/` folder. These XLS documents will include all fields for the collection as headers (the field ID i.e., `preview_image`). There must be a column for every field associated with the collection, but only required fields must have data, otherwise it can be left empty.
+
+Open these documents in the editor of your choosing. Fill out information for each of the items you'd like to import per collection.
 
 For any images, you can either specify a UUID for an existing photo in the CMS OR specify a filename (name + extension). The filename would reference a file added to the `scripts/import-data/images` folder.
 
-2. Place new CSV file inside the `scripts/import-data` folder. The filename must follow the structure: `[collection].csv`.
+If the status is not provided, it will have the draft status.
+
+2. Place new CSV file inside the `scripts/import-data` folder.
+   After filling out the document(s) with any items you'd like to import, export the file as a CSV into the `scripts/import-data` folder. The filename must follow the structure: `collection].csv`.
 
 3. Run `npm run import` to start the import process.
