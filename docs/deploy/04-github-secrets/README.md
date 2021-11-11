@@ -23,6 +23,8 @@ These were the host names we used when
 [configuring DNS records](../02-dns-registration/README.md)
 for domain-mapping.
 
+These **MUST NOT** include `https://` prefix.
+
 | Variable             | Example             |
 | -------------------- | ------------------- |
 | `API_DOMAIN_MAPPING` | api.dev.example.com |
@@ -46,12 +48,12 @@ to both an `algod` node (on MainNet or TestNet, depending on environment)
 and a "funding account" that can issue transactions to create
 new accounts, fund asset creation, etc.
 
-| Variable               | Description                                                                       |
-| ---------------------- | --------------------------------------------------------------------------------- |
-| `ALGOD_HOST`           | The host name of the `algod` server **with protocol** (ie. "https://{host-name}") |
-| `ALGOD_KEY`            | The access token for the `algod` server                                           |
-| `ALGOD_PORT`           | The port for the `algod` server                                                   |
-| `API_FUNDING_MNEMONIC` | The 25-word mnemonic for the master funding account                               |
+| Variable               | Description                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| `ALGOD_HOST`           | The host name of the `algod` server - this **MUST** include `https://` prefix. |
+| `ALGOD_KEY`            | The access token for the `algod` server                                        |
+| `ALGOD_PORT`           | The port for the `algod` server                                                |
+| `API_FUNDING_MNEMONIC` | The 25-word mnemonic for the master funding account                            |
 
 **Important:** The funding account used **must have funds** before
 the app can be used. Without funds, admins cannot create NFTs,
@@ -61,10 +63,10 @@ users cannot create accounts, etc.
 
 Circle is used for processing payments.
 
-| Variable     | Description                                                         |
-| ------------ | ------------------------------------------------------------------- |
-| `CIRCLE_KEY` | The private API key                                                 |
-| `CIRCLE_URL` | The environment-specific URL for the API, ie. sandbox or production |
+| Variable     | Description                                                                                                    |
+| ------------ | -------------------------------------------------------------------------------------------------------------- |
+| `CIRCLE_KEY` | The private API key                                                                                            |
+| `CIRCLE_URL` | The environment-specific URL for the API, ie. sandbox or production - this **MUST** include `https://` prefix. |
 
 ### Sendgrid
 
@@ -85,20 +87,20 @@ storefront from decrypting necessary values,
 or it might cause Terraform to try to destroy stateful resources
 like the database or storage bucket, etc.
 
-| Variable                     | Description                                                                                                 | Changeable                                                                                                      |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `API_CREATOR_PASSPHRASE`     | The secret used to encrypt new Algorand account mnemonics so they can be (reasonably) safely stored at rest | **NO** - Will prevent application from decrypting the mnemonics for the API-generated asset creator accounts    |
-| `API_DATABASE_USER_NAME`     | The name for the API application's database user                                                            | TODO                                                                                                            |
-| `API_DATABASE_USER_PASSWORD` | The password for the API application's database user                                                        | TODO                                                                                                            |
-| `API_KEY`                    | For authentication with the API                                                                             | TODO                                                                                                            |
-| `API_SECRET`                 | Private secret used in encryption                                                                           | **NO**                                                                                                          |
-| `CMS_ADMIN_EMAIL`            | The email address for the initial admin user created by Directus                                            | **NO** - Changing has no effect, since Directus only bootstraps the user on first run                           |
-| `CMS_ADMIN_PASSWORD`         | The password for the initial admin user created by Directus                                                 | **NO** - Changing has no effect, since Directus only bootstraps the user on first run                           |
-| `CMS_DATABASE_USER_NAME`     | The name for the CMS application's database user                                                            | TODO                                                                                                            |
-| `CMS_DATABASE_USER_PASSWORD` | The password for the CMS application's database user                                                        | TODO                                                                                                            |
-| `CMS_KEY`                    | The private token with which to make authenticated requests against the CMS                                 | **YES** - If changed, the admin user needs their token updated so the API can continue to authenticate          |
-| `CMS_SECRET`                 | Private secret used in encryption                                                                           | **NO**                                                                                                          |
-| `CMS_STORAGE_BUCKET`         | The name of the bucket for Terraform to create to store CMS assets - must not already be in use             | **NO** - Changing this will cause Terraform to attempt to destroy the old bucket and remove all existing assets |
+| Variable                     | Description                                                                                                 | Changeable                                                                                                |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `API_CREATOR_PASSPHRASE`     | The secret used to encrypt new Algorand account mnemonics so they can be (reasonably) safely stored at rest | ❌ Will prevent application from decrypting the mnemonics for the API-generated asset creator accounts    |
+| `API_DATABASE_USER_NAME`     | The name for the API application's database user                                                            | ❌ User must remain constant, since database tables are owned by (and only visible to) the original user  |
+| `API_DATABASE_USER_PASSWORD` | The password for the API application's database user                                                        | ✔️                                                                                                        |
+| `API_KEY`                    | For authentication with the API                                                                             | ✔️                                                                                                        |
+| `API_SECRET`                 | Private secret used in encryption                                                                           | ❌ Changing this will prevent the API from decrypting previously-encrypted data                           |
+| `CMS_ADMIN_EMAIL`            | The email address for the initial admin user created by Directus                                            | ❌ Changing has no effect, since Directus only bootstraps the user on first run                           |
+| `CMS_ADMIN_PASSWORD`         | The password for the initial admin user created by Directus                                                 | ❌ Changing has no effect, since Directus only bootstraps the user on first run                           |
+| `CMS_DATABASE_USER_NAME`     | The name for the CMS application's database user                                                            | ❌ User must remain constant, since database tables are owned by (and only visible to) the original user  |
+| `CMS_DATABASE_USER_PASSWORD` | The password for the CMS application's database user                                                        | ✔️                                                                                                        |
+| `CMS_KEY`                    | The private token with which to make authenticated requests against the CMS                                 | ✔️ If changed, the admin user needs their token updated so the API can continue to authenticate           |
+| `CMS_SECRET`                 | Private secret used in encryption                                                                           | ❌ Changing this will prevent the CMS from decrypting previously-encrypted data                           |
+| `CMS_STORAGE_BUCKET`         | The name of the bucket for Terraform to create to store CMS assets - must not already be in use             | ❌ Changing this will cause Terraform to attempt to destroy the old bucket and remove all existing assets |
 
 ## Optional
 

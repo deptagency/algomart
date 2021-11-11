@@ -5,7 +5,7 @@
 #
 # Otherwise, this file can be copied to `terraform.tfvars` & populated with values,
 # and terraform will load it automatically.
-algod_host                 = "algo.nfty.example.com"
+algod_host                 = "https://algo.nfty.example.com" # The `https://` protocol is necessary
 algod_key                  = "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4"
 algod_port                 = "443"
 api_creator_passphrase     = "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4"
@@ -33,46 +33,43 @@ sendgrid_from_email        = "admin@nfty.example.com"
 web_domain_mapping         = "nfty.example.com"
 web_image                  = "gcr.io/<gcp-project-id>/web:a1b2c3d4"
 
-# The GCP service account JSON needs to actually be read from the file;
-# this cannot just be the filename, and all properties MUST BE NEWLINE-DELIMITED.
+# Since Terraform disallows using `file(..)` in a .tfvars file,
+# it is easiest to store these in environment variables, eg:
+#
+#   export TF_VAR_credentials=$( cat <google-credentials>.json )
+#   export TF_VAR_web_firebase_service_account=$( cat <firebase-credentials>.json )
+#   export TF_VAR_web_next_public_firebase_config=$( cat <firebase-config>.json )
+#   terraform plan
+#
+# Additionally, the JSON from the Terraform-specific service account
+# (stored in `credentials`) **MUST BE** pretty-printed;
+# otherwise terraform cannot authenticate with gcloud
 
-# Example:
-#
-#   {
-#     "type": "service_account",
-#     "project_id": "<gcp-project-id>",
-#     "private_key_id": "ac4..snip...8ac",
-#     "private_key": "-----BEGIN PRIVATE KEY-----\nABC ... snip ... XYZ\n-----END PRIVATE KEY-----\n",
-#     "client_email": "<user>@<gcp-project-id>.iam.gserviceaccount.com",
-#     "client_id": "123... snip ...789",
-#     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-#     "token_uri": "https://oauth2.googleapis.com/token",
-#     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-#     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/<user>%40<gcp-project-id>.iam.gserviceaccount.com"
-#   }
-credentials = file("gcp-service-account.json")
+credentials = '{
+  "type": "service_account",
+  "project_id": "<gcp-project-id>",
+  "private_key_id": "ac4..snip...8ac",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nABC ... snip ... XYZ\n-----END PRIVATE KEY-----\n",
+  "client_email": "<user>@<gcp-project-id>.iam.gserviceaccount.com",
+  "client_id": "123... snip ...789",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/<user>%40<gcp-project-id>.iam.gserviceaccount.com"
+}'
 
-# These Firebase JSON values can be inlined or read from a file, and unlike the GCP
-# service account the properties DO NOT need to be newline-delimited.
-#
-# Example:
-#
-#   {
-#     "clientEmail": "<user>@<project>.iam.gserviceaccount.com",
-#     "privateKey": "-----BEGIN PRIVATE KEY-----\nABC... snip ...XYZ\n-----END PRIVATE KEY-----\n",
-#     "projectId": ""
-#   }
-web-firebase-service-account = file("firebase-service-account.json")
+web_firebase_service_account = '{
+  "clientEmail": "<user>@<project>.iam.gserviceaccount.com",
+  "privateKey": "-----BEGIN PRIVATE KEY-----\nABC... snip ...XYZ\n-----END PRIVATE KEY-----\n",
+  "projectId": ""
+}'
 
-# Example:
-#
-#   {
-#     "apiKey": "abc... snip ...xyz"
-#     "appId": "123... snip ...789",
-#     "authDomain": "auth.nfty.example.com",
-#     "measurementId": "A-ASDFQWERZX",
-#     "messagingSenderId": "1234567890",
-#     "projectId": "<project-id>",
-#     "storageBucket": "<bucket-name>"
-#   }
-web_next_public_firebase_config = file("firebase-config.json")
+web_next_public_firebase_config = '{
+  "apiKey": "abc... snip ...xyz"
+  "appId": "123... snip ...789",
+  "authDomain": "auth.nfty.example.com",
+  "measurementId": "A-ASDFQWERZX",
+  "messagingSenderId": "1234567890",
+  "projectId": "<project-id>",
+  "storageBucket": "<bucket-name>"
+}'
