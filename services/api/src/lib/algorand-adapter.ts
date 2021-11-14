@@ -33,7 +33,7 @@ export default class AlgorandAdapter {
       // { 'X-Algo-API-Token': options.algodToken },
       '',
       options.algodServer,
-      options.algodPort
+      ''
     )
 
     this.fundingAccount = algosdk.mnemonicToSecretKey(options.fundingMnemonic)
