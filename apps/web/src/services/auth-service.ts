@@ -39,7 +39,7 @@ export class AuthService implements AuthAPI {
       .post(urls.api.v1.verifyUsername, {
         json: { username },
       })
-      .json()
+      .json<{ isAvailable: boolean }>()
     return isAvailable
   }
 
@@ -62,7 +62,7 @@ export class AuthService implements AuthAPI {
       .post(urls.api.v1.verifyPassphrase, {
         json: { externalId, passphrase },
       })
-      .json()
+      .json<{ isValid: boolean }>()
 
     return isValid
   }

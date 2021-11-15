@@ -1,11 +1,12 @@
-import { EventAction, EventEntityType } from '@algomart/schemas'
+import {
+  AlgorandTransactionStatus,
+  EventAction,
+  EventEntityType,
+} from '@algomart/schemas'
 import { Transaction } from 'objection'
 
 import AlgorandAdapter from '@/lib/algorand-adapter'
-import {
-  AlgorandTransactionModel,
-  AlgorandTransactionStatus,
-} from '@/models/algorand-transaction.model'
+import { AlgorandTransactionModel } from '@/models/algorand-transaction.model'
 import { CollectibleModel } from '@/models/collectible.model'
 import { EventModel } from '@/models/event.model'
 import { logger } from '@/utils/logger'
