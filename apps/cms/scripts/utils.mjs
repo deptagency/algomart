@@ -261,7 +261,7 @@ export async function updateCsvAsync(data, basePath, token) {
     const updatedData = []
     const imageFields = new Set()
     const answers = await readlineAsync(
-      '> Provide all image field keys in document (i.e., preview_image), comma-separated. '
+      '> List all image field IDs in document (i.e., preview_image), comma-separated. '
     )
     for (const answer of answers.split(',')) imageFields.add(answer.trim())
     // Loop through all rows of data
