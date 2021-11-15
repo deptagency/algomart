@@ -65,7 +65,7 @@ export class ApiClient {
   constructor(
     readonly prefixUrl: string,
     readonly apiKey: string,
-    readonly defaultTimeout = 10_000
+    readonly defaultTimeout = 30_000
   ) {
     this.logger = logger.child({ context: 'ApiClient' })
     this.http = ky.create({
