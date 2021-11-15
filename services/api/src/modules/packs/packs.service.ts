@@ -791,12 +791,12 @@ export default class PacksService {
   }
 
   async generatePacks(trx?: Transaction) {
-    this.logger.info('in generatePacks', trx)
+    this.logger.info(`in generatePacks ${trx}`)
     const existingTemplates = await PackModel.query(trx)
       .groupBy('templateId')
       .select('templateId')
 
-    this.logger.info('existingTemplates', existingTemplates)
+    this.logger.info(`existingTemplates ${existingTemplates}`)
 
     const filter: ItemFilter = {}
 
@@ -807,7 +807,7 @@ export default class PacksService {
     }
 
     const template = await this.cms.findPack(filter)
-    this.logger.info('template', template)
+    this.logger.info(`template ${template}`, template)
 
     if (!template) {
       return 0
