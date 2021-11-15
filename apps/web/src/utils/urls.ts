@@ -24,6 +24,11 @@ export const urls = {
   profileShowcase: '/profile/:username',
   resetPassword: '/reset-password',
 
+  // Legal
+  communityGuidelines: '#',
+  privacyPolicy: '#',
+  termsOfUse: '#',
+
   api: {
     v1: {
       addToShowcase: '/api/v1/collection/add-showcase',
