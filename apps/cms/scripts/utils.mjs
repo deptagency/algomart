@@ -6,7 +6,7 @@ import axios from 'axios'
 import { exec } from 'child_process'
 import parse from 'csv-parse'
 import FormData from 'form-data'
-import { appendFile, createReadStream, createWriteStream, readdirSync, readFile, statSync, unlink } from 'fs'
+import { appendFile, createReadStream, existsSync, readdirSync, readFile, statSync, unlink } from 'fs'
 import { createInterface } from 'readline'
 
 // Group flat array into a multi-dimensional array of N items.
@@ -187,27 +187,6 @@ export function readlineAsync(prompt) {
   })
 }
 
-// Prompt individual CLI user input.
-export function readlineMultipleAsync(prompt, nextPrompt) {
-  return new Promise((resolve) => {
-    const rl = createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    })
-    const answers = []
-    const askQuestion = () => rl.question(prompt, async (answer) => {
-      answers.push(answer)
-      if ((await readlineAsync(`${nextPrompt} y/N: `)) !== 'y') {
-        rl.close()
-        resolve(answers)
-      } else {
-        askQuestion()
-      }
-    })
-    askQuestion()
-  })
-}
-
 // Parse CSV data and return JSON data.
 export async function parseCsvData(file) {
   try {
@@ -280,23 +259,25 @@ export async function checkCsvAsync(data, collection, token) {
 export async function updateCsvAsync(data, basePath, token) {
   try {
     const updatedData = []
-    // @TODO: Get multi prompt working
-    const imageFields = await readlineMultipleAsync(
-      '> Provide image fields for document (i.e., preview_image): ',
-      '> Would you like to provide other fields?'
+    const imageFields = new Set()
+    const answers = await readlineAsync(
+      '> Provide all image field keys in document (i.e., preview_image), comma-separated. '
     )
+    for (const answer of answers.split(',')) imageFields.add(answer.trim())
     // Loop through all rows of data
     for (const item of data) {
       const newItem = item
       for (const [key, value] of Object.entries(item)) {
-        if (imageFields.includes(key)) {
+        if (imageFields.has(key)) {
           // Check if provided value is a UUID. If NOT, continue.
           const isUuid = value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
           if (!isUuid) {
             // Create image in database
-            const imagePath = createReadStream(`${basePath}/images/${value}`)
+            const imagePath = `${basePath}/images/${value}`
+            if (!existsSync(imagePath)) throw new Error('Provided image does not exist.')
+            const image = createReadStream(imagePath)
             const formData = new FormData()
-            formData.append('file', imagePath)
+            formData.append('file', image)
             const newImage = await createAssetRecords(formData, token)
             // Assign image ID to record
             newItem[key] = newImage.id
