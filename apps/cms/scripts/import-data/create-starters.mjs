@@ -30,7 +30,7 @@ async function main(args) {
    * Begin creating starter files.
    */
   const token = await getCMSAuthToken(config)
-  console.log('Starting import...')
+  console.log('Beginning process to create starter files...')
   const collections = await getCollections(token)
   const basePath = './scripts/import-data/starters/'
   // Loop through all collections and create file.
