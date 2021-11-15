@@ -191,7 +191,7 @@ To import new data into the CMS, follow the steps below. This will not override 
 
 Open these documents in the editor of your choosing. Fill out information for each of the items you'd like to import per collection.
 
-For any images, you can either specify a UUID for an existing photo in the CMS OR specify a filename (name + extension). The filename would reference a file added to the `scripts/import-data/images` folder.
+For any images, you can either specify a UUID for an existing photo in the CMS OR specify a filename (name + extension). The filename would reference a file added to the `scripts/import-data/images` folder. You will be prompted to provide the column keys for each of the image fields, so that it will check for any filenames to upload.
 
 If the status is not provided, it will have the draft status.
 
