@@ -7,8 +7,6 @@ import { Model } from 'objection'
 import { AlgorandTransactionGroupModel } from './algorand-transaction-group.model'
 import { BaseModel } from './base.model'
 
-export { AlgorandTransactionStatus }
-
 export class AlgorandTransactionModel extends BaseModel {
   static tableName = 'AlgorandTransaction'
   static jsonSchema = AlgorandTransactionGroupSchema

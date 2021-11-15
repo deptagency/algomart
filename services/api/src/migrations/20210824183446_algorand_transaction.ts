@@ -1,6 +1,5 @@
+import { AlgorandTransactionStatus } from '@algomart/schemas'
 import { Knex } from 'knex'
-
-import { AlgorandTransactionStatus } from '@/models/algorand-transaction.model'
 
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('AlgorandTransaction', (table) => {
