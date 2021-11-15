@@ -17,6 +17,8 @@ import {
   GetPaymentCardStatus,
   Homepage,
   Locale,
+  MintPack,
+  MintPackStatusResponse,
   OwnerExternalId,
   PackAuction,
   PackId,
@@ -269,6 +271,16 @@ export class ApiClient {
     return await this.http
       .post('packs/claim/redeem', { json })
       .json<{ pack: PackWithId }>()
+  }
+
+  async mintPack(json: MintPack) {
+    return await this.http.post('packs/mint', { json })
+  }
+
+  async mintPackStatus(params: MintPack) {
+    return await this.http
+      .get('packs/mint', { searchParams: params })
+      .json<MintPackStatusResponse>()
   }
 
   async transferPack(json: TransferPack) {

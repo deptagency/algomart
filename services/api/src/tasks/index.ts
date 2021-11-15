@@ -7,7 +7,6 @@ import generateCollectiblesTask from './generate-collectibles.task'
 import generatePacksTask from './generate-packs.task'
 import handlePackAuctionCompletionTask from './handle-pack-auction-completion.task'
 import handlePackAuctionExpirationTask from './handle-pack-auction-expiration.task'
-import mintCollectiblesTask from './mint-collectibles.task'
 import { updatePaymentCardStatusesTask } from './update-payment-card-statuses.task'
 import { updatePaymentStatusesTask } from './update-payment-statuses.task'
 
@@ -41,17 +40,6 @@ export function configureTasks(app: FastifyInstance) {
       new AsyncTask(
         'generate-packs',
         async () => await generatePacksTask(app.container),
-        (error) => app.log.error(error)
-      )
-    )
-  )
-
-  app.scheduler.addSimpleIntervalJob(
-    new SimpleIntervalJob(
-      { minutes: 1 },
-      new AsyncTask(
-        'generate-algorand-assets',
-        async () => await mintCollectiblesTask(app.container),
         (error) => app.log.error(error)
       )
     )

@@ -1,4 +1,4 @@
-import { CheckoutStatus, PublicKey } from '@algomart/schemas'
+import { CheckoutStatus, MintPackStatus, PublicKey } from '@algomart/schemas'
 import {
   GetPaymentCardStatus,
   PackType,
@@ -423,34 +423,55 @@ export function usePaymentProvider({
         }
 
         if (isPurchase) {
-          const payment = await handlePurchase(
+          const { id, packId } = await handlePurchase(
             securityCode,
             cardId,
             publicKeyRecord
           )
 
           // Throw error if failed request
-          if (!payment.packId) throw new Error('Pack not available')
+          if (!packId) throw new Error('Pack not available')
+
+          // Mint asset
+          setLoadingText(t('common:statuses.Minting Asset'))
+          const mintIsOK = await collectibleService.mint(packId)
+
+          if (!mintIsOK) {
+            setStatus('error')
+            return
+          }
+
+          const isMinted = await poll(
+            async () => await collectibleService.mintStatus(packId),
+            (result) => result !== MintPackStatus.Minted,
+            1000
+          )
+
+          if (!isMinted) {
+            setStatus('error')
+            return
+          }
 
           // Transfer asset
           setLoadingText(t('common:statuses.Transferring Asset'))
           const transferIsOK = await collectibleService.transfer(
-            payment.packId,
+            packId,
             passphrase
           )
 
-          if (transferIsOK) {
-            setPackId(payment.packId)
-            setStatus('success')
-            if (release) {
-              Analytics.instance.purchase({
-                itemName: release.title,
-                value: release.price,
-                paymentId: payment.id,
-              })
-            }
-          } else {
+          if (!transferIsOK) {
             setStatus('error')
+            return
+          }
+
+          setPackId(packId)
+          setStatus('success')
+          if (release) {
+            Analytics.instance.purchase({
+              itemName: release.title,
+              value: release.price,
+              paymentId: id,
+            })
           }
         } else {
           setStatus('success')
