@@ -791,9 +791,12 @@ export default class PacksService {
   }
 
   async generatePacks(trx?: Transaction) {
+    this.logger.info('in generatePacks', trx)
     const existingTemplates = await PackModel.query(trx)
       .groupBy('templateId')
       .select('templateId')
+
+    this.logger.info('existingTemplates', existingTemplates)
 
     const filter: ItemFilter = {}
 
@@ -804,6 +807,7 @@ export default class PacksService {
     }
 
     const template = await this.cms.findPack(filter)
+    this.logger.info('template', template)
 
     if (!template) {
       return 0
@@ -818,14 +822,20 @@ export default class PacksService {
         },
       })
 
+    this.logger.info('collectibleTemplates', collectibleTemplates)
+
     const totalCollectibles = collectibleTemplates.reduce(
       (sum, t) => sum + t.totalEditions,
       0
     )
 
+    this.logger.info('totalCollectibles', totalCollectibles)
+
     const unassignedCollectibles = await CollectibleModel.query(trx)
       .whereIn('templateId', collectibleTemplateIds)
       .whereNull('packId')
+
+    this.logger.info('unassignedCollectibles', unassignedCollectibles)
 
     if (unassignedCollectibles.length !== totalCollectibles) {
       this.logger.warn(
@@ -947,6 +957,8 @@ export default class PacksService {
     const packs = await PackModel.query(trx)
       .where('templateId', templateId)
       .select('id')
+
+    this.logger.info('packs', packs)
 
     // Create events for pack creation
     await EventModel.query(trx).insert(
