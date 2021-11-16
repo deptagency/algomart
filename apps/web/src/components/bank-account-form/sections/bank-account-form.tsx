@@ -2,7 +2,6 @@ import { DEFAULT_CURRENCY, PackType, PublishedPack } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useState } from 'react'
-import { ExtractError } from 'validator-fns'
 
 import css from './bank-account-form.module.css'
 
@@ -14,27 +13,13 @@ import Heading from '@/components/heading'
 import Notification from '@/components/notification/notification'
 import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
+import { FormValidation } from '@/contexts/payment-context'
 import { useLocale } from '@/hooks/useLocale'
 import { isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
-import {
-  validateBankAccount,
-  validateBidsForm,
-  validateBidsFormForWires,
-  validateExpirationDate,
-  validatePurchaseForm,
-} from '@/utils/purchase-validation'
 
 export interface BankAccountFormProps {
-  formErrors?: ExtractError<
-    ReturnType<
-      | typeof validateBankAccount
-      | typeof validateBidsForm
-      | typeof validateBidsFormForWires
-      | typeof validatePurchaseForm
-      | typeof validateExpirationDate
-    >
-  >
+  formErrors?: FormValidation
   currentBid: number | null
   onSubmit(event: FormEvent<HTMLFormElement>): void
   release: PublishedPack

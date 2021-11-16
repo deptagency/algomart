@@ -50,16 +50,18 @@ interface PaymentProviderProps {
   release?: PublishedPack
 }
 
-interface PaymentContextProps {
-  formErrors?: ExtractError<
-    ReturnType<
-      | typeof validateBidsForm
-      | typeof validatePurchaseForm
-      | typeof validateExpirationDate
-      | typeof validateBankAccount
-      | typeof validateBidsFormForWires
-    >
+export type FormValidation = ExtractError<
+  ReturnType<
+    | typeof validateBidsForm
+    | typeof validatePurchaseForm
+    | typeof validateExpirationDate
+    | typeof validateBankAccount
+    | typeof validateBidsFormForWires
   >
+>
+
+interface PaymentContextProps {
+  formErrors?: FormValidation
   handleSubmitBid(data: FormData): void
   handleSubmitPassphrase(passphrase: string): Promise<boolean>
   handleSubmitPurchase(data: FormData, isPurchase: boolean): void
@@ -121,17 +123,7 @@ export function usePaymentProvider({
     () => validateExpirationDate(t),
     [t]
   )
-  const [formErrors, setFormErrors] =
-    useState<
-      Partial<
-        ExtractError<
-          | typeof validateFormForPurchase
-          | typeof validateFormForBids
-          | typeof validateFormExpirationDate
-          | typeof validateFormForBankAccount
-        >
-      >
-    >()
+  const [formErrors, setFormErrors] = useState<FormValidation>()
 
   const mapCircleErrors = useCallback(
     (code: string | number) => {

@@ -1,28 +1,13 @@
 import { CheckoutStatus } from '@algomart/schemas'
 import { FormEvent } from 'react'
-import { ExtractError } from 'validator-fns'
 
 import common from '@/components/profile/my-profile-common.module.css'
 
 import PaymentMethodsForm from '@/components/payment-methods-form'
-import {
-  validateBankAccount,
-  validateBidsForm,
-  validateBidsFormForWires,
-  validateExpirationDate,
-  validatePurchaseForm,
-} from '@/utils/purchase-validation'
+import { FormValidation } from '@/contexts/payment-context'
 
 export interface MyProfilePaymentMethodsAddProps {
-  formErrors?: ExtractError<
-    ReturnType<
-      | typeof validateBankAccount
-      | typeof validateBidsForm
-      | typeof validateBidsFormForWires
-      | typeof validatePurchaseForm
-      | typeof validateExpirationDate
-    >
-  >
+  formErrors?: FormValidation
   loadingText: string
   onSubmit(event: FormEvent<HTMLFormElement>): void
   status?: CheckoutStatus

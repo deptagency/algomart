@@ -1,6 +1,5 @@
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent } from 'react'
-import { ExtractError } from 'validator-fns'
 
 import css from './add-methods-form.module.css'
 
@@ -9,24 +8,10 @@ import CardDetails from '@/components/card-details'
 import BillingAddress from '@/components/card-details/billing-address'
 import Heading from '@/components/heading'
 import Notification from '@/components/notification/notification'
-import {
-  validateBankAccount,
-  validateBidsForm,
-  validateBidsFormForWires,
-  validateExpirationDate,
-  validatePurchaseForm,
-} from '@/utils/purchase-validation'
+import { FormValidation } from '@/contexts/payment-context'
 
 export interface AddMethodsFormProps {
-  formErrors?: ExtractError<
-    ReturnType<
-      | typeof validateBankAccount
-      | typeof validateBidsForm
-      | typeof validateBidsFormForWires
-      | typeof validatePurchaseForm
-      | typeof validateExpirationDate
-    >
-  >
+  formErrors?: FormValidation
   onSubmit(event: FormEvent<HTMLFormElement>): void
 }
 
