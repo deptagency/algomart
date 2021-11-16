@@ -27,7 +27,7 @@ export const urls = {
   // Legal
   communityGuidelines: '#',
   privacyPolicy: '#',
-  termsOfUse: '#',
+  termsAndConditions: '#',
 
   api: {
     v1: {

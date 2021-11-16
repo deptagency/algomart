@@ -31,7 +31,7 @@ export default function CookieConsent() {
             components={[
               <p key={0} />,
               <p key={1} />,
-              <AppLink key={2} href={urls.termsOfUse} />,
+              <AppLink key={2} href={urls.termsAndConditions} />,
               <AppLink key={3} href={urls.privacyPolicy} />,
             ]}
             i18nKey="common:global.consent"
