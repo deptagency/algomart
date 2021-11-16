@@ -29,8 +29,12 @@ async function main(args) {
 
   // Create "starters" directory in ./scripts/import-data if it doesn't exist
   const startersDir = _resolve('./scripts/import-data/starters')
+  const imagesDir = _resolve('./scripts/import-data/images')
   if (!fs.existsSync(startersDir)) {
     fs.mkdirSync(startersDir)
+  }
+  if (!fs.existsSync(imagesDir)) {
+    fs.mkdirSync(imagesDir)
   }
 
   /**
