@@ -53,7 +53,7 @@ export default function ClaimNFTModal({
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
-      setLoadingText(t('common:statuses.Verifying Passphrase'))
+      setLoadingText(t('common:statuses.Minting Asset'))
       setStatus('loading')
       try {
         const result = await onSubmit(passphrase, redeemCode)
