@@ -97,7 +97,6 @@ export default class PaymentsService {
       bankAccountId
     )
 
-    // If a bank account was found, use the external ID. Otherwise check by passed in ID.
     userInvariant(foundBankAccount, 'bank account is not available', 404)
     const externalId = foundBankAccount.externalId
 
@@ -116,7 +115,6 @@ export default class PaymentsService {
       bankAccountId
     )
 
-    // If a bank account was found, use the external ID. Otherwise check by passed in ID.
     userInvariant(foundBankAccount, 'bank account is not available', 404)
     const externalId = foundBankAccount.externalId
 

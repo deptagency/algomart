@@ -93,7 +93,7 @@ export function usePaymentProvider({
         release.type == PackType.Auction &&
         !isAfterNow(new Date(release.auctionUntil as string)) &&
         currentBid &&
-        isGreaterThanOrEqual(maximumBidForCardPayments, currentBid))
+        isGreaterThanOrEqual(currentBid, maximumBidForCardPayments))
       ? 'passphrase'
       : 'form'
   )
