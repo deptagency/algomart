@@ -6,7 +6,7 @@ import { resolve as _resolve } from 'path'
 import fs from 'fs'
 
 import {
-  createXlsFile,
+  createCsvFile,
   exportFieldsForCollection,
   getCMSAuthToken,
   getCollections,
@@ -49,8 +49,8 @@ async function main(args) {
     console.log(`Creating starter file for ${collection}...`)
     // Retrieve field schema for collection
     const fields = await exportFieldsForCollection(collection, token)
-    // Create XLS file for collection
-    await createXlsFile(basePath, collection, fields)
+    // Create CSV file for collection
+    await createCsvFile(basePath, collection, fields)
   }
 
   console.log('Done!')
