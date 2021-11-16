@@ -198,7 +198,7 @@ If the status is not provided, it will be assigned the 'draft' status.
 
 2. Place new CSV file inside the `scripts/import-data` folder.
 
-After filling out the document(s) with any items you'd like to import, export the file as a CSV into the `scripts/import-data` folder. The filename must follow the structure: `collection].csv`.
+After filling out the document(s) with any items you'd like to import, export the file as a CSV into the `scripts/import-data` folder. The filename must follow the structure: `[collection].csv`.
 
 Make sure any images referenced inside the CSV are added to the `images/` folder.
 
