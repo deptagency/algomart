@@ -25,7 +25,7 @@ NFT Templates represent an NFT that will be minted (any number of specified time
 
 NFT Templates are grouped within Pack Templates. Packs can contain one or more NFT Templates and also have a number of configurable settings. Most notably, they can be set to be purchasable, to be auctioned, to be claimed via an auto-generated redemption code, or to be given away free. For a full overview of the CMS model, see the [CMS README](apps/cms/README.md).
 
-Meanwhile, the API continually polls the CMS for new NFT Templates and Pack Templates. So once the templates are configured in the CMS, the API will find them, mint the NFTs, and then group them into Packs based on the Pack template's configuration.
+Meanwhile, the API continually polls the CMS for new NFT Templates and Pack Templates. So once the templates are configured in the CMS, the API will find them, generate the NFT instances in the API's database, and then group them into Packs based on the Pack template's configuration.
 
 From here on out, the NFT and Pack information can be accessed from the API and displayed to an end-user, who can then purchase, bid on, redeem, or freely claim the Pack (based on the corresponding Pack template's configuration).
 
@@ -35,7 +35,7 @@ The backend API can be accessed via REST endpoints by a frontend. This frontend 
 
 When an end-user registers through the site, a user account record is created via the API and a new Algorand wallet is generated on their behalf. That wallet's mnemonic key is encrypted via a secret PIN code the end-user provides upon sign-up.
 
-An authenticated end-user can then engage in user flows that allow them to acquire Packs (again, containing one or more minted NFTs). In the case of a monetary transaction, an end-user can enter their credit card information. Upon submission, this information will be validated and processed via Circle's Payments API. Upon a valid confirmation, the API then transfers the assets to the user's wallet.
+An authenticated end-user can then engage in user flows that allow them to acquire Packs (again, containing one or more minted NFTs). In the case of a monetary transaction, an end-user can enter their credit card information. Upon submission, this information will be validated and processed via Circle's Payments API. Upon a valid confirmation, the API then mints and transfers the assets to the user's wallet.
 
 ## 🚧 Pre-release
 
