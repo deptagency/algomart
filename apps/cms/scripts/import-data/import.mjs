@@ -8,7 +8,6 @@ import { resolve as _resolve } from 'path'
 
 import {
   checkCsvAsync,
-  createCsvFile,
   getCMSAuthToken,
   getConfigFromStdin,
   groupFilesFromDirectoryByExtension,
