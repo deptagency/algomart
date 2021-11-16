@@ -438,10 +438,7 @@ export function usePaymentProvider({
   const handleSubmitBid = useCallback(
     async (data: FormData) => {
       setStatus('loading')
-      // @TODO: Change loading text
-      setLoadingText(t('common:statuses.Authorizing card'))
       try {
-        console.log('bid auctionPackId:', auctionPackId)
         if (!auctionPackId) {
           throw new Error('Pack not found')
         }
@@ -453,20 +450,22 @@ export function usePaymentProvider({
             securityCode: string
             cardId: string
             bid: number
+            confirmBid: boolean
           }
         >(data)
-        console.log('bid data:', data)
-        const { cardId: submittedCardId, bid: floatBid, saveCard } = body
+        const {
+          cardId: submittedCardId,
+          bid: floatBid,
+          saveCard,
+          confirmBid,
+        } = body
 
         const bid = formatFloatToInt(floatBid)
 
         // If the bid is within the maximum bid range, submit card details
-        console.log('bid:', bid)
-        console.log(
-          'is greater than:',
-          isGreaterThanOrEqual(maximumBidForCardPayments, bid)
-        )
-        if (isGreaterThanOrEqual(maximumBidForCardPayments, bid)) {
+        if (isGreaterThanOrEqual(bid, maximumBidForCardPayments)) {
+          setLoadingText(t('common:statuses.Authorizing card'))
+
           const validation = submittedCardId
             ? await validateFormForBidsWithSavedCard({ ...body, bid })
             : await validateFormForBids({ ...body, bid })
@@ -491,8 +490,11 @@ export function usePaymentProvider({
             throw new Error('No card selected')
           }
         } else {
-          const bidValidation = await validateFormForBidsForWires({ bid })
-          console.log('bidValidation', bidValidation)
+          setLoadingText(t('common:statuses.Validating Bid'))
+          const bidValidation = await validateFormForBidsForWires({
+            bid,
+            confirmBid,
+          })
 
           if (!bidValidation.isValid) {
             setFormErrors(bidValidation.errors)
@@ -500,9 +502,6 @@ export function usePaymentProvider({
             return
           }
         }
-
-        // If bid is greater than the maximum bid, only confirm the checkbox was selected
-        // @TODO: checkbox
 
         // Create bid
         const isBidValid = await bidService.addToPack(bid, auctionPackId)

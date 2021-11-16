@@ -8,6 +8,7 @@ import {
   minDate,
   number,
   object,
+  oneOf,
   required,
   string,
 } from 'validator-fns'
@@ -149,6 +150,10 @@ export const validateBidsForm = (t: Translate, highestBid: number) =>
 export const validateBidsFormForWires = (t: Translate, highestBid: number) =>
   object({
     bid: bid(t, highestBid),
+    confirmBid: boolean(
+      required(t('forms:errors.required') as string),
+      oneOf([true], t('forms:errors.mustConfirmBid') as string)
+    ),
   })
 
 export const validateBidsFormWithSavedCard = (

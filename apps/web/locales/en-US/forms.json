@@ -16,6 +16,7 @@
     "invalidState": "Invalid province/state code",
     "failedPayment": "Invalid payment details. Check your credit card and/or billing address details.",
     "minimumBid": "Your bid must be at least {{amount}}",
+    "mustConfirmBid": "Bid must be confirmed",
     "bidLessThanHighestBid": "Your bid was lower than the current high bid.",
     "maxCharacters": "Must be less than {max} characters",
     "minCharacters": "Must be at least {min} characters",

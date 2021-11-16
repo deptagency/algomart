@@ -24,9 +24,9 @@ export default function CheckoutTemplate({
   }
   const doesRequireWirePayment =
     (currentBid &&
-      isGreaterThanOrEqual(maximumBidForCardPayments, currentBid)) ||
+      isGreaterThanOrEqual(currentBid, maximumBidForCardPayments)) ||
     (release.price &&
-      isGreaterThanOrEqual(maximumBidForCardPayments, release.price))
+      isGreaterThanOrEqual(release.price, maximumBidForCardPayments))
   return (
     <>
       {doesRequireWirePayment ? (
