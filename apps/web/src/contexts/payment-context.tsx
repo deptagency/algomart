@@ -455,7 +455,7 @@ export function usePaymentProvider({
         const bid = formatFloatToInt(floatBid)
 
         // If the bid is within the maximum bid range, submit card details
-        if (isGreaterThanOrEqual(bid, maximumBidForCardPayments)) {
+        if (!isGreaterThanOrEqual(bid, maximumBidForCardPayments)) {
           setLoadingText(t('common:statuses.Authorizing card'))
 
           const validation = submittedCardId
