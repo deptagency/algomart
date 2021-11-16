@@ -313,7 +313,7 @@ export function removeFile(file) {
 export async function createXlsFile(basePath, collection, fields) {
   let data = ''
   for (let index = 0; index < fields.length; index++) {
-    const char = index === fields.length ? '\n' : '\t'
+    const char = index === fields.length - 1 ? '\n' : '\t'
     data += `${fields[index].name}${char}`
   }
   return new Promise((resolve, reject) => {
