@@ -3,6 +3,7 @@
 import 'dotenv/config'
 
 import { resolve as _resolve } from 'path'
+import fs from 'fs'
 
 import {
   createXlsFile,
@@ -24,6 +25,12 @@ async function main(args) {
     config = await getConfigFromStdin()
   } else {
     config = JSON.parse(await readFileAsync(_resolve(args[2])))
+  }
+
+  // Create "starters" directory in ./scripts/import-data if it doesn't exist
+  const startersDir = _resolve('./scripts/import-data/starters')
+  if (!fs.existsSync(startersDir)) {
+    fs.mkdirSync(startersDir)
   }
 
   /**
