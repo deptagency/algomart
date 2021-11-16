@@ -136,7 +136,8 @@ export function configureResolver() {
       new PacksService(
         c.get<DirectusAdapter>(DirectusAdapter.name),
         c.get<CollectiblesService>(CollectiblesService.name),
-        c.get<NotificationsService>(NotificationsService.name)
+        c.get<NotificationsService>(NotificationsService.name),
+        c.get<AccountsService>(AccountsService.name)
       )
   )
   resolver.set(
