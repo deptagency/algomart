@@ -37,7 +37,7 @@ The backend API can be accessed via REST endpoints by a frontend. This frontend 
 
 When an end-user registers through the site, a user account record is created via the API and a new Algorand wallet is generated on their behalf. That wallet's mnemonic key is encrypted via a secret PIN code the end-user provides upon sign-up.
 
-An authenticated end-user can then engage in user flows that allow them to acquire Packs (again, containing one or more minted NFTs). In the case of a monetary transaction, an end-user can enter their credit card information. Upon submission, this information will be validated and processed via Circle's Payments API. Upon a valid confirmation, the API then mints and transfers the assets to the user's wallet.
+An authenticated end-user can then engage in user flows that allow them to acquire Packs (again, containing one or more to-be-minted NFTs). In the case of a monetary transaction, an end-user can enter their credit card information. Upon submission, this information will be validated and processed via Circle's Payments API. Upon a valid confirmation, the API then mints and transfers the assets to the user's wallet.
 
 ## 🚧 Pre-release
 
