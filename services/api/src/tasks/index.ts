@@ -12,6 +12,7 @@ import { updatePaymentStatusesTask } from './update-payment-statuses.task'
 
 export function configureTasks(app: FastifyInstance) {
   //#region Pack & Collectible generation/minting
+  app.scheduler.stop()
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
       { seconds: 10 },
