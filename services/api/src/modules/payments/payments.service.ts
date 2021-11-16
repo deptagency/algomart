@@ -1,5 +1,6 @@
 import {
   CirclePaymentSourceType,
+  CreateBankAccount,
   CreateCard,
   CreatePayment,
   DEFAULT_CURRENCY,
@@ -19,6 +20,7 @@ import CoinbaseAdapter from '@/lib/coinbase-adapter'
 import { BidModel } from '@/models/bid.model'
 import { EventModel } from '@/models/event.model'
 import { PaymentModel } from '@/models/payment.model'
+import { PaymentBankAccountModel } from '@/models/payment-bank-account.model'
 import { PaymentCardModel } from '@/models/payment-card.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import PacksService from '@/modules/packs/packs.service'
@@ -89,6 +91,44 @@ export default class PaymentsService {
     return cards
   }
 
+  async getBankAccountStatus(bankAccountId: string) {
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      bankAccountId
+    )
+
+    // If a bank account was found, use the external ID. Otherwise check by passed in ID.
+    userInvariant(foundBankAccount, 'bank account is not available', 404)
+    const externalId = foundBankAccount.externalId
+
+    // Retrieve record in Circle API
+    const bankAccount = await this.circle.getPaymentBankAccountById(externalId)
+    userInvariant(bankAccount, 'bank account was not found', 404)
+
+    return {
+      status: bankAccount.status,
+    }
+  }
+
+  async getWireTransferInstructions(bankAccountId: string) {
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      bankAccountId
+    )
+
+    // If a bank account was found, use the external ID. Otherwise check by passed in ID.
+    userInvariant(foundBankAccount, 'bank account is not available', 404)
+    const externalId = foundBankAccount.externalId
+
+    // Retrieve record in Circle API
+    const bankAccount = await this.circle.getPaymentBankAccountInstructionsById(
+      externalId
+    )
+    userInvariant(bankAccount, 'bank account instructions were not found', 404)
+
+    return bankAccount
+  }
+
   async createCard(cardDetails: CreateCard, trx?: Transaction) {
     const user = await UserAccountModel.query(trx)
       .where('externalId', cardDetails.ownerExternalId)
@@ -147,6 +187,48 @@ export default class PaymentsService {
 
     // If card was not saved, return the identifier
     return { externalId: card.externalId, status: card.status }
+  }
+
+  async createBankAccount(bankDetails: CreateBankAccount, trx?: Transaction) {
+    const user = await UserAccountModel.query(trx)
+      .where('externalId', bankDetails.ownerExternalId)
+      .first()
+    userInvariant(user, 'no user found', 404)
+
+    // Create bank account using Circle API
+    const bankAccount = await this.circle.createBankAccount({
+      idempotencyKey: bankDetails.idempotencyKey,
+      accountNumber: bankDetails.accountNumber,
+      routingNumber: bankDetails.routingNumber,
+      billingDetails: bankDetails.billingDetails,
+      bankAddress: bankDetails.bankAddress,
+    })
+
+    if (!bankAccount) {
+      return null
+    }
+
+    const newBankAccount = await PaymentBankAccountModel.query(trx)
+      .insert({
+        ...bankAccount,
+        ownerId: user.id,
+      })
+      .onConflict('externalId')
+      .ignore()
+
+    if (!newBankAccount) {
+      return null
+    }
+
+    // Create events for bank account creation
+    await EventModel.query(trx).insert({
+      action: EventAction.Create,
+      entityType: EventEntityType.PaymentBankAccount,
+      entityId: newBankAccount.id,
+      userAccountId: user.id,
+    })
+
+    return { externalId: bankAccount.externalId, status: bankAccount.status }
   }
 
   async updateCard(

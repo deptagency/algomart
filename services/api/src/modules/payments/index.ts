@@ -1,9 +1,14 @@
 import {
+  BankAccountIdSchema,
   CardIdSchema,
+  CreateBankAccountSchema,
   CreateCardSchema,
+  CreatePaymentBankAccountSchema,
   CreatePaymentCardSchema,
   CreatePaymentSchema,
   CurrencySchema,
+  GetPaymentBankAccountInstructionsSchema,
+  GetPaymentBankAccountStatusSchema,
   GetPaymentCardStatusSchema,
   OwnerExternalIdSchema,
   PaymentCardsSchema,
@@ -17,13 +22,16 @@ import { FastifyInstance } from 'fastify'
 import fastifyBearerAuth from 'fastify-bearer-auth'
 
 import {
+  createBankAccount,
   createCard,
   createPayment,
+  getBankAccountStatus,
   getCards,
   getCardStatus,
   getCurrency,
   getPaymentById,
   getPublicKey,
+  getWireTransferInstructions,
   removeCard,
   updateCard,
 } from './payments.routes'
@@ -103,6 +111,49 @@ export async function paymentRoutes(app: FastifyInstance) {
         },
       },
       getCardStatus
+    )
+    .get(
+      '/bank-accounts/:bankAccountId/status',
+      {
+        schema: {
+          tags,
+          security,
+          params: BankAccountIdSchema,
+          response: {
+            200: GetPaymentBankAccountStatusSchema,
+          },
+        },
+      },
+      getBankAccountStatus
+    )
+    .get(
+      '/bank-accounts/:bankAccountId/instructions',
+      {
+        schema: {
+          tags,
+          security,
+          params: BankAccountIdSchema,
+          response: {
+            200: GetPaymentBankAccountInstructionsSchema,
+          },
+        },
+      },
+      getWireTransferInstructions
+    )
+    .post(
+      '/bank-accounts',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: CreateBankAccountSchema,
+          response: {
+            201: CreatePaymentBankAccountSchema,
+          },
+        },
+      },
+      createBankAccount
     )
     .post(
       '/cards',

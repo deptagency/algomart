@@ -20,6 +20,7 @@ export enum EventEntityType {
   Pack = 'pack',
   Payment = 'payment',
   PaymentCard = 'payment-card',
+  PaymentBankAccount = 'payment-bank-account',
   UserAccount = 'user-account',
 }
 
