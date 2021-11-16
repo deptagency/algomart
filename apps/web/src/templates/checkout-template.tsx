@@ -22,10 +22,14 @@ export default function CheckoutTemplate({
   if (!user?.emailVerified) {
     return <EmailVerfication inline />
   }
+  const doesRequireWirePayment =
+    (currentBid &&
+      isGreaterThanOrEqual(maximumBidForCardPayments, currentBid)) ||
+    (release.price &&
+      isGreaterThanOrEqual(maximumBidForCardPayments, release.price))
   return (
     <>
-      {currentBid &&
-      isGreaterThanOrEqual(maximumBidForCardPayments, currentBid) ? (
+      {doesRequireWirePayment ? (
         <BankAccountPurchaseForm
           auctionPackId={auctionPackId}
           currentBid={currentBid}

@@ -21,7 +21,7 @@ export default function BankAccountError({
     <div className={css.root}>
       <ExclamationCircleIcon className={css.icon} />
       <Heading className={css.heading} level={3}>
-        {t('release:failedToClaim')}
+        {t('release:failedToCreateBank')}
       </Heading>
       {error && <p className={css.message}>{error}</p>}
       <Button className={css.button} onClick={handleRetry} size="small">

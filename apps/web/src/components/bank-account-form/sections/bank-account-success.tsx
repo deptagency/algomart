@@ -51,27 +51,84 @@ export default function BankAccountSuccess({
           <div className={css.bidPlacedNotice}>
             {isActiveAuction && (
               <p className={css.bidPlacedNoticeText}>
-                {t('forms:fields.bid.success')}
-                {'🎉'}
+                {t('forms:fields.bid.success', { title: release.title })}
+                {' 🎉'}
               </p>
             )}
           </div>
-          {bankAccountInstructions && (
-            <>
-              <p>{bankAccountInstructions.trackingRef}</p>
-              <p>{bankAccountInstructions.beneficiary.name}</p>
-              <p>{bankAccountInstructions.beneficiary.address1}</p>
-              <p>{bankAccountInstructions.beneficiary.address2}</p>
-              <p>{bankAccountInstructions.beneficiaryBank.name}</p>
-              <p>{bankAccountInstructions.beneficiaryBank.swiftCode}</p>
-              <p>{bankAccountInstructions.beneficiaryBank.routingNumber}</p>
-              <p>{bankAccountInstructions.beneficiaryBank.accountNumber}</p>
-              <p>{bankAccountInstructions.beneficiaryBank.address}</p>
-              <p>{bankAccountInstructions.beneficiaryBank.city}</p>
-              <p>{bankAccountInstructions.beneficiaryBank.postalCode}</p>
-              <p>{bankAccountInstructions.beneficiaryBank.country}</p>
-              <p>{bankAccountInstructions.status}</p>
-            </>
+          {bankAccountInstructions && !isActiveAuction && (
+            <div className={css.bankInstructions}>
+              <Heading className={css.header} level={2}>
+                {t('forms:fields.bankInstructions.label')}
+              </Heading>
+              <p className={css.instructions}>
+                <Heading level={4}>
+                  {t('forms:fields.bankInstructions.trackingRef.label')}:
+                </Heading>
+                <span>{bankAccountInstructions.trackingRef}</span>
+              </p>
+              <Heading className={css.subHeader} level={3}>
+                {t('forms:fields.bankInstructions.beneficiary.label')}
+              </Heading>
+              <p className={css.instructions}>
+                <Heading level={4}>{t('forms:fields.fullName.label')}:</Heading>
+                <span>{bankAccountInstructions.beneficiary.name}</span>
+              </p>
+              <p className={css.instructions}>
+                <Heading level={4}>{t('forms:fields.address1.label')}:</Heading>
+                <span>{bankAccountInstructions.beneficiary.address1}</span>
+                <span>{bankAccountInstructions.beneficiary.address2}</span>
+              </p>
+              <Heading className={css.subHeader} level={3}>
+                {t('forms:fields.bankInstructions.beneficiaryBank.label')}
+              </Heading>
+              <p className={css.instructions}>
+                <Heading level={4}>
+                  {t('forms:fields.bankAddress.bankName.label')}:
+                </Heading>
+                <span>{bankAccountInstructions.beneficiaryBank.name}</span>
+              </p>
+              <p className={css.instructions}>
+                <Heading level={4}>
+                  {t('forms:fields.bankInstructions.swiftCode.label')}:
+                </Heading>
+                <span>{bankAccountInstructions.beneficiaryBank.swiftCode}</span>
+              </p>
+              <p className={css.instructions}>
+                <Heading level={4}>
+                  {t('forms:fields.routingNumber.label')}:
+                </Heading>
+                <span>
+                  {bankAccountInstructions.beneficiaryBank.routingNumber}
+                </span>
+              </p>
+              <p className={css.instructions}>
+                <Heading level={4}>
+                  {t('forms:fields.accountNumber.label')}:
+                </Heading>
+                <span>
+                  {bankAccountInstructions.beneficiaryBank.accountNumber}
+                </span>
+              </p>
+              <p className={css.instructions}>
+                <Heading level={4}>{t('forms:fields.address1.label')}:</Heading>
+                <span>{bankAccountInstructions.beneficiaryBank.address}</span>
+              </p>
+              <p className={css.instructions}>
+                <Heading level={4}>{t('forms:fields.city.label')}:</Heading>
+                <span>{bankAccountInstructions.beneficiaryBank.city}</span>
+              </p>
+              <p className={css.instructions}>
+                <Heading level={4}>{t('forms:fields.zipCode.label')}:</Heading>
+                <span>
+                  {bankAccountInstructions.beneficiaryBank.postalCode}
+                </span>
+              </p>
+              <p className={css.instructions}>
+                <Heading level={4}>{t('forms:fields.country.label')}:</Heading>
+                <span>{bankAccountInstructions.beneficiaryBank.country}</span>
+              </p>
+            </div>
           )}
           <Button
             className={css.button}

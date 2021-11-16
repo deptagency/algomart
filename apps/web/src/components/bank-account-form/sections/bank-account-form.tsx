@@ -20,6 +20,7 @@ import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 import {
   validateBankAccount,
   validateBidsForm,
+  validateBidsFormForWires,
   validateExpirationDate,
   validatePurchaseForm,
 } from '@/utils/purchase-validation'
@@ -29,6 +30,7 @@ export interface BankAccountFormProps {
     ReturnType<
       | typeof validateBankAccount
       | typeof validateBidsForm
+      | typeof validateBidsFormForWires
       | typeof validatePurchaseForm
       | typeof validateExpirationDate
     >

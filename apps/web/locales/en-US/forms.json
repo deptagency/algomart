@@ -50,6 +50,21 @@
         "label": "Bank Address Line 2"
       }
     },
+    "bankInstructions": {
+      "label": "Bank Instructions",
+      "swiftCode": {
+        "label": "Swift Code"
+      },
+      "trackingRef": {
+        "label": "Tracking Reference"
+      },
+      "beneficiary": {
+        "label": "Beneficiary"
+      },
+      "beneficiaryBank": {
+        "label": "Beneficiary Bank"
+      }
+    },
     "bid": {
       "confirmation": "I promise to pay",
       "description": "Your card will be charged immediately on auction close if you place the winning bid.",

@@ -25,3 +25,23 @@
 .bidPlacedNoticeText {
   @apply m-auto w-3/4;
 }
+
+.bankInstructions {
+  @apply mb-10;
+}
+
+.header {
+  @apply font-bold mb-5;
+}
+
+.subHeader {
+  @apply font-bold m-5;
+}
+
+.instructions {
+  @apply flex gap-x-1;
+}
+
+.instructions h4 {
+  @apply font-bold;
+}

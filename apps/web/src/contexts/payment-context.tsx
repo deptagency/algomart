@@ -37,6 +37,7 @@ import {
   maximumBidForCardPayments,
   validateBankAccount,
   validateBidsForm,
+  validateBidsFormForWires,
   validateBidsFormWithSavedCard,
   validateExpirationDate,
   validatePurchaseForm,
@@ -55,6 +56,8 @@ interface PaymentContextProps {
       | typeof validateBidsForm
       | typeof validatePurchaseForm
       | typeof validateExpirationDate
+      | typeof validateBankAccount
+      | typeof validateBidsFormForWires
     >
   >
   handleSubmitBid(data: FormData): void
@@ -104,6 +107,10 @@ export function usePaymentProvider({
   )
   const validateFormForBids = useMemo(
     () => validateBidsForm(t, highestBid),
+    [t, highestBid]
+  )
+  const validateFormForBidsForWires = useMemo(
+    () => validateBidsFormForWires(t, highestBid),
     [t, highestBid]
   )
   const validateFormForBidsWithSavedCard = useMemo(
@@ -434,6 +441,7 @@ export function usePaymentProvider({
       // @TODO: Change loading text
       setLoadingText(t('common:statuses.Authorizing card'))
       try {
+        console.log('bid auctionPackId:', auctionPackId)
         if (!auctionPackId) {
           throw new Error('Pack not found')
         }
@@ -447,11 +455,17 @@ export function usePaymentProvider({
             bid: number
           }
         >(data)
+        console.log('bid data:', data)
         const { cardId: submittedCardId, bid: floatBid, saveCard } = body
 
         const bid = formatFloatToInt(floatBid)
 
         // If the bid is within the maximum bid range, submit card details
+        console.log('bid:', bid)
+        console.log(
+          'is greater than:',
+          isGreaterThanOrEqual(maximumBidForCardPayments, bid)
+        )
         if (isGreaterThanOrEqual(maximumBidForCardPayments, bid)) {
           const validation = submittedCardId
             ? await validateFormForBidsWithSavedCard({ ...body, bid })
@@ -475,6 +489,15 @@ export function usePaymentProvider({
 
           if (!cardId) {
             throw new Error('No card selected')
+          }
+        } else {
+          const bidValidation = await validateFormForBidsForWires({ bid })
+          console.log('bidValidation', bidValidation)
+
+          if (!bidValidation.isValid) {
+            setFormErrors(bidValidation.errors)
+            setStatus('form')
+            return
           }
         }
 
@@ -500,6 +523,7 @@ export function usePaymentProvider({
       auctionPackId,
       handleAddCard,
       validateFormForBids,
+      validateFormForBidsForWires,
       validateFormForBidsWithSavedCard,
       t,
     ]

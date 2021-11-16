@@ -12,6 +12,7 @@ import Notification from '@/components/notification/notification'
 import {
   validateBankAccount,
   validateBidsForm,
+  validateBidsFormForWires,
   validateExpirationDate,
   validatePurchaseForm,
 } from '@/utils/purchase-validation'
@@ -19,10 +20,11 @@ import {
 export interface AddMethodsFormProps {
   formErrors?: ExtractError<
     ReturnType<
+      | typeof validateBankAccount
+      | typeof validateBidsForm
+      | typeof validateBidsFormForWires
       | typeof validatePurchaseForm
       | typeof validateExpirationDate
-      | typeof validateBidsForm
-      | typeof validateBankAccount
     >
   >
   onSubmit(event: FormEvent<HTMLFormElement>): void

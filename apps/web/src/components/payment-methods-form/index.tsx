@@ -10,6 +10,7 @@ import Loading from '@/components/loading/loading'
 import {
   validateBankAccount,
   validateBidsForm,
+  validateBidsFormForWires,
   validateExpirationDate,
   validatePurchaseForm,
 } from '@/utils/purchase-validation'
@@ -17,10 +18,11 @@ import {
 export interface MyProfilePaymentMethodsAddProps {
   formErrors?: ExtractError<
     ReturnType<
+      | typeof validateBankAccount
+      | typeof validateBidsForm
+      | typeof validateBidsFormForWires
       | typeof validatePurchaseForm
       | typeof validateExpirationDate
-      | typeof validateBidsForm
-      | typeof validateBankAccount
     >
   >
   loadingText: string

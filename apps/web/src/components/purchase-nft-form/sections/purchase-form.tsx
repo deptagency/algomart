@@ -20,7 +20,9 @@ import checkoutService from '@/services/checkout-service'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 import {
+  validateBankAccount,
   validateBidsForm,
+  validateBidsFormForWires,
   validateExpirationDate,
   validatePurchaseForm,
 } from '@/utils/purchase-validation'
@@ -29,7 +31,9 @@ import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
 export interface PurchaseFormProps {
   formErrors?: ExtractError<
     ReturnType<
+      | typeof validateBankAccount
       | typeof validateBidsForm
+      | typeof validateBidsFormForWires
       | typeof validatePurchaseForm
       | typeof validateExpirationDate
     >
