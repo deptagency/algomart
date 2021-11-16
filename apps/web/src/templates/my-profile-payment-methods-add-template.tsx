@@ -6,13 +6,20 @@ import common from '@/components/profile/my-profile-common.module.css'
 
 import PaymentMethodsForm from '@/components/payment-methods-form'
 import {
+  validateBankAccount,
+  validateBidsForm,
   validateExpirationDate,
   validatePurchaseForm,
 } from '@/utils/purchase-validation'
 
 export interface MyProfilePaymentMethodsAddProps {
   formErrors?: ExtractError<
-    ReturnType<typeof validatePurchaseForm | typeof validateExpirationDate>
+    ReturnType<
+      | typeof validatePurchaseForm
+      | typeof validateExpirationDate
+      | typeof validateBidsForm
+      | typeof validateBankAccount
+    >
   >
   loadingText: string
   onSubmit(event: FormEvent<HTMLFormElement>): void

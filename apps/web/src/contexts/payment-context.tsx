@@ -1,8 +1,11 @@
-import { CheckoutStatus, MintPackStatus, PublicKey } from '@algomart/schemas'
 import {
+  CheckoutStatus,
+  GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
+  MintPackStatus,
   PackType,
   Payment,
+  PublicKey,
   PublishedPack,
 } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
@@ -20,14 +23,19 @@ import { Analytics } from '@/clients/firebase-analytics'
 import { useAuth } from '@/contexts/auth-context'
 import authService from '@/services/auth-service'
 import bidService from '@/services/bid-service'
-import checkoutService, { CreateCardRequest } from '@/services/checkout-service'
+import checkoutService, {
+  CreateBankAccountRequest,
+  CreateCardRequest,
+} from '@/services/checkout-service'
 import collectibleService from '@/services/collectible-service'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { encryptCardDetails } from '@/utils/encryption'
 import { toJSON } from '@/utils/form-to-json'
-import { formatFloatToInt } from '@/utils/format-currency'
+import { formatFloatToInt, isGreaterThanOrEqual } from '@/utils/format-currency'
 import { poll } from '@/utils/poll'
 import {
+  maximumBidForCardPayments,
+  validateBankAccount,
   validateBidsForm,
   validateBidsFormWithSavedCard,
   validateExpirationDate,
@@ -80,12 +88,15 @@ export function usePaymentProvider({
     (release && release.type === PackType.Purchase) ||
       (release &&
         release.type == PackType.Auction &&
-        !isAfterNow(new Date(release.auctionUntil as string)))
+        !isAfterNow(new Date(release.auctionUntil as string)) &&
+        currentBid &&
+        isGreaterThanOrEqual(maximumBidForCardPayments, currentBid))
       ? 'passphrase'
       : 'form'
   )
   const [loadingText, setLoadingText] = useState<string>('')
   const highestBid = currentBid || 0
+  const validateFormForBankAccount = useMemo(() => validateBankAccount(t), [t])
   const validateFormForPurchase = useMemo(() => validatePurchaseForm(t), [t])
   const validateFormForPurchaseWithSavedCard = useMemo(
     () => validatePurchaseFormWithSavedCard(t),
@@ -110,6 +121,7 @@ export function usePaymentProvider({
           | typeof validateFormForPurchase
           | typeof validateFormForBids
           | typeof validateFormExpirationDate
+          | typeof validateFormForBankAccount
         >
       >
     >()
@@ -312,21 +324,118 @@ export function usePaymentProvider({
     [mapCircleErrors, t, validateFormExpirationDate]
   )
 
+  const handleAddBankAccount = useCallback(
+    async (data: FormData) => {
+      setStatus('loading')
+      setLoadingText(t('common:statuses.Validating Payment Information'))
+      try {
+        // Convert form data to JSON
+        const body = toJSON<CreateBankAccountRequest>(data)
+        const {
+          accountNumber,
+          routingNumber,
+          fullName,
+          address1,
+          address2,
+          city,
+          country,
+          state,
+          zipCode,
+          bankName,
+          bankAddress1,
+          bankAddress2,
+          bankCity,
+          bankCountry,
+          bankDistrict,
+        } = body
+
+        const bankValidation = await validateFormForBankAccount(body)
+
+        if (!bankValidation.isValid) {
+          setFormErrors(bankValidation.errors)
+          setStatus('form')
+          return
+        }
+
+        const bankAccount = await checkoutService
+          .createBankAccount({
+            accountNumber,
+            routingNumber,
+            fullName,
+            address1,
+            address2,
+            city,
+            country,
+            state,
+            zipCode,
+            bankName,
+            bankAddress1,
+            bankAddress2,
+            bankCity,
+            bankCountry,
+            bankDistrict,
+          })
+          .catch(async (error) => {
+            const response = await error.response.json()
+            mapCircleErrors(response.code)
+            setFormErrors({})
+            setStatus('form')
+            return
+          })
+
+        // Poll for bank account status
+        const bankAccountIdentifier = bankAccount?.id
+
+        // Throw error if failed request
+        if (!bankAccountIdentifier) {
+          throw new Error('Bank account not found')
+        }
+
+        const completeWhenNotPendingForAccounts = (
+          bankAccount: GetPaymentBankAccountStatus | null
+        ) => !(bankAccount?.status !== 'pending')
+        const bankAccountResp = await poll<GetPaymentBankAccountStatus | null>(
+          async () =>
+            await checkoutService.getBankAccountStatus(bankAccountIdentifier),
+          completeWhenNotPendingForAccounts,
+          1000
+        )
+
+        // Throw error if there was a failure code
+        if (!bankAccountResp || bankAccountResp.status === 'failed') {
+          throw new Error('Bank account process failed')
+        }
+
+        // Retrieve instructions for new bank account
+        const bankAccountInstructions =
+          await checkoutService.getBankAccountInstructions(
+            bankAccountIdentifier
+          )
+
+        // Throw error if there was a failure code
+        if (!bankAccountInstructions) {
+          throw new Error('Bank account instructions not found')
+        }
+
+        setStatus('success')
+
+        return bankAccountInstructions
+      } catch {
+        setStatus('error')
+      }
+      setLoadingText('')
+    },
+    [mapCircleErrors, t, validateFormForBankAccount]
+  )
+
   const handleSubmitBid = useCallback(
     async (data: FormData) => {
       setStatus('loading')
+      // @TODO: Change loading text
       setLoadingText(t('common:statuses.Authorizing card'))
       try {
         if (!auctionPackId) {
           throw new Error('Pack not found')
-        }
-
-        // Get the public key
-        const publicKeyRecord = await checkoutService.getPublicKey()
-
-        // Throw error if no public key
-        if (!publicKeyRecord) {
-          throw new Error('Failed to encrypt payment details')
         }
 
         // Convert form data to JSON
@@ -342,21 +451,35 @@ export function usePaymentProvider({
 
         const bid = formatFloatToInt(floatBid)
 
-        const validation = submittedCardId
-          ? await validateFormForBidsWithSavedCard({ ...body, bid })
-          : await validateFormForBids({ ...body, bid })
+        // If the bid is within the maximum bid range, submit card details
+        if (isGreaterThanOrEqual(maximumBidForCardPayments, bid)) {
+          const validation = submittedCardId
+            ? await validateFormForBidsWithSavedCard({ ...body, bid })
+            : await validateFormForBids({ ...body, bid })
 
-        if (!validation.isValid) {
-          setFormErrors(validation.errors)
-          setStatus('form')
-          return
+          if (!validation.isValid) {
+            setFormErrors(validation.errors)
+            setStatus('form')
+            return
+          }
+
+          // Get the public key
+          const publicKeyRecord = await checkoutService.getPublicKey()
+
+          // Throw error if no public key
+          if (!publicKeyRecord) {
+            throw new Error('Failed to encrypt payment details')
+          }
+
+          const cardId = await handleAddCard(data, publicKeyRecord, saveCard)
+
+          if (!cardId) {
+            throw new Error('No card selected')
+          }
         }
 
-        const cardId = await handleAddCard(data, publicKeyRecord, saveCard)
-
-        if (!cardId) {
-          throw new Error('No card selected')
-        }
+        // If bid is greater than the maximum bid, only confirm the checkbox was selected
+        // @TODO: checkbox
 
         // Create bid
         const isBidValid = await bidService.addToPack(bid, auctionPackId)
@@ -515,6 +638,7 @@ export function usePaymentProvider({
   const value = useMemo(
     () => ({
       formErrors,
+      handleAddBankAccount,
       handleSubmitBid,
       handleSubmitPassphrase,
       handleSubmitPurchase,
@@ -525,6 +649,7 @@ export function usePaymentProvider({
     }),
     [
       formErrors,
+      handleAddBankAccount,
       handleSubmitBid,
       handleSubmitPassphrase,
       handleSubmitPurchase,

@@ -228,7 +228,7 @@ export default class PaymentsService {
       userAccountId: user.id,
     })
 
-    return { externalId: bankAccount.externalId, status: bankAccount.status }
+    return { id: newBankAccount.id, status: bankAccount.status }
   }
 
   async updateCard(

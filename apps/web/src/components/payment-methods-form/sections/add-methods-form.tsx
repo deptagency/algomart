@@ -10,13 +10,20 @@ import BillingAddress from '@/components/card-details/billing-address'
 import Heading from '@/components/heading'
 import Notification from '@/components/notification/notification'
 import {
+  validateBankAccount,
+  validateBidsForm,
   validateExpirationDate,
   validatePurchaseForm,
 } from '@/utils/purchase-validation'
 
 export interface AddMethodsFormProps {
   formErrors?: ExtractError<
-    ReturnType<typeof validatePurchaseForm | typeof validateExpirationDate>
+    ReturnType<
+      | typeof validatePurchaseForm
+      | typeof validateExpirationDate
+      | typeof validateBidsForm
+      | typeof validateBankAccount
+    >
   >
   onSubmit(event: FormEvent<HTMLFormElement>): void
 }

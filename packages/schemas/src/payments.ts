@@ -175,7 +175,8 @@ const PaymentBaseSchema = Type.Object({
 })
 
 const PaymentBankAccountBaseSchema = Type.Intersect([
-  ToPaymentBankAccountBaseSchema,
+  BaseSchema,
+  Type.Omit(ToPaymentBankAccountBaseSchema, ['externalId']),
 ])
 
 const PaymentCardBaseSchema = Type.Intersect([
@@ -490,10 +491,6 @@ export const CreateBankAccountSchema = Type.Intersect([
   }),
 ])
 
-export const CreatePaymentBankAccountSchema = Type.Union([
-  CreateBankAccountSchema,
-])
-
 export const CreatePaymentCardSchema = Type.Union([
   PaymentCardSchema,
   PaymentCardNoSaveSchema,
@@ -580,6 +577,9 @@ export type GetPaymentCardStatus = Simplify<
 >
 export type Payment = Simplify<Static<typeof PaymentSchema>>
 export type PaymentId = Simplify<Static<typeof PaymentIdSchema>>
+export type PaymentBankAccount = Simplify<
+  Static<typeof PaymentBankAccountSchema>
+>
 export type PaymentCard = Simplify<Static<typeof PaymentCardSchema>>
 export type PaymentCards = Simplify<Static<typeof PaymentCardsSchema>>
 export type PublicKey = Simplify<Static<typeof PublicKeySchema>>

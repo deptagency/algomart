@@ -8,13 +8,20 @@ import AddMethodsSuccess from './sections/add-methods-success'
 
 import Loading from '@/components/loading/loading'
 import {
+  validateBankAccount,
+  validateBidsForm,
   validateExpirationDate,
   validatePurchaseForm,
 } from '@/utils/purchase-validation'
 
 export interface MyProfilePaymentMethodsAddProps {
   formErrors?: ExtractError<
-    ReturnType<typeof validatePurchaseForm | typeof validateExpirationDate>
+    ReturnType<
+      | typeof validatePurchaseForm
+      | typeof validateExpirationDate
+      | typeof validateBidsForm
+      | typeof validateBankAccount
+    >
   >
   loadingText: string
   onSubmit(event: FormEvent<HTMLFormElement>): void

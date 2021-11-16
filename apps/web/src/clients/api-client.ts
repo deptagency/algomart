@@ -8,12 +8,15 @@ import {
   CollectibleListWithTotal,
   CollectibleShowcaseQuerystring,
   CollectionWithSets,
+  CreateBankAccount,
   CreateBidRequest,
   CreateCard,
   CreatePayment,
   CreateUserAccountRequest,
   DEFAULT_LOCALE,
   ExternalId,
+  GetPaymentBankAccountInstructions,
+  GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
   Locale,
@@ -27,6 +30,7 @@ import {
   PackWithCollectibles,
   PackWithId,
   Payment,
+  PaymentBankAccount,
   PaymentCard,
   PaymentCards,
   PublicAccount,
@@ -192,8 +196,26 @@ export class ApiClient {
       .json<PublicKey>()
   }
 
+  async createBankAccount(json: CreateBankAccount) {
+    return await this.http
+      .post('payments/bank-accounts', { json })
+      .json<PaymentBankAccount>()
+  }
+
   async createCard(json: CreateCard) {
     return await this.http.post('payments/cards', { json }).json<PaymentCard>()
+  }
+
+  async getBankAddressInstructions(bankAccountId: string) {
+    return await this.http
+      .get(`payments/bank-accounts/${bankAccountId}/instructions`)
+      .json<GetPaymentBankAccountInstructions>()
+  }
+
+  async getBankAddressStatus(bankAccountId: string) {
+    return await this.http
+      .get(`payments/bank-accounts/${bankAccountId}/status`)
+      .json<GetPaymentBankAccountStatus>()
   }
 
   async getCardStatus(cardId: string) {

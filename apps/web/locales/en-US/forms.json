@@ -33,13 +33,28 @@
     "invalidZipCode": "Invalid ZIP Code"
   },
   "fields": {
+    "accountNumber": {
+      "label": "Account Number"
+    },
     "address1": {
       "label": "Street Address"
     },
+    "bankAddress": {
+      "bankName": {
+        "label": "Bank Name"
+      },
+      "bankAddress1": {
+        "label": "Bank Address Line 1"
+      },
+      "bankAddress2": {
+        "label": "Bank Address Line 2"
+      }
+    },
     "bid": {
+      "confirmation": "I promise to pay",
+      "description": "Your card will be charged immediately on auction close if you place the winning bid.",
       "label": "Your Bid",
       "helpTextCurrentBid": "Current bid is {{amount}}",
-      "description": "Your card will be charged immediately on auction close if you place the winning bid.",
       "success": "You're the current high bidder for {{title}}"
     },
     "ccNumber": {
@@ -96,6 +111,9 @@
     "redemptionCode": {
       "label": "Redemption Code"
     },
+    "routingNumber": {
+      "label": "Routing Number"
+    },
     "saveCard": {
       "label": "Save my card for future purchases"
     },
@@ -118,6 +136,8 @@
     }
   },
   "sections": {
+    "Bank Account": "Bank Account",
+    "Bank Address": "Bank Address",
     "Billing Address": "Billing Address",
     "Credit Card": "Credit Card"
   }
