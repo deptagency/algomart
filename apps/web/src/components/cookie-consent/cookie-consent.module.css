@@ -1,0 +1,22 @@
+.root {
+  @apply fixed bottom-0 z-20 w-full bg-white shadow-large;
+}
+
+.wrapper {
+  @apply px-5 py-5 mx-auto text-center max-w-wrapper;
+  @apply justify-between md:flex md:items-center md:text-left;
+}
+
+.wrapper p {
+  @apply text-sm;
+}
+
+.wrapper p:first-child {
+  @apply mb-3;
+  @apply md:mr-5;
+}
+
+.acceptButton {
+  @apply mt-4;
+  @apply md:mt-0;
+}

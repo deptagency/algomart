@@ -754,15 +754,6 @@ export default class PacksService {
 
     userInvariant(user, 'user not found', 404)
 
-    const collectibles = await this.collectibles.getCollectiblesByPackId(
-      pack.id
-    )
-    userInvariant(
-      collectibles.every((c) => c.address !== null),
-      'collectibles not yet minted for this pack',
-      404
-    )
-
     await PackModel.query(trx)
       .patch({
         claimedAt: new Date().toISOString(),
