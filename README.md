@@ -1,4 +1,4 @@
-<p align="center"><img alt="AlgoMart Logo" src="./AlgoMart-Logo.png"></p>
+<p align="center"><img alt="AlgoMart Logo" src="./AlgoMart-Logo.png" width="400" height="140"></p>
 
 # AlgoMart
 
