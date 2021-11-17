@@ -323,14 +323,3 @@ export function removeFile(file) {
     })
   })
 }
-
-/** 
- * Create a CSV file for the given collection at [basePath]/[collection].csv
- * with the given fields as headers.
- */
-export async function createCsvStarterFile(basePath, collection, fields) {
-  const headers = fields.map(field => field.name).join(',') + '\n'
-  const filename = path.join(basePath, `${collection}.csv`)
-  const handleError = (error) => error && console.error(error)
-  return writeFile(filename, headers, handleError)
-}
