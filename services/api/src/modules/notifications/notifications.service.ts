@@ -285,18 +285,6 @@ export default class NotificationsService {
       html,
     }
 
-    // const message = {
-    //   to: userAccount?.email as string,
-    //   subject: t('wireTransfer.subject'),
-    //   html: (
-    //     t('wireTransfer.body', {
-    //       returnObjects: true,
-    //       ctaUrl: `${Configuration.webUrl}releases/${variables.packSlug}`,
-    //       ...variables,
-    //     }) as string[]
-    //   ).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
-    // }
-
     return message
   }
 
