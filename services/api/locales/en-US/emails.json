@@ -39,9 +39,9 @@
     ]
   },
   "wireTransfer": {
-    "subject": "Congratulations on winning!",
+    "subject": "Congratulations on your purchase of {{packTitle}}!",
     "body": [
-      "Congratulations on winning {{packTitle}}!",
+      "Congratulations on your purchase of {{packTitle}}!",
       "Here's the bank account information for the wire transfer of {{amount}}:",
       "<strong>Beneficiary:</strong>",
       "Name: {{beneficiaryName}}",
