@@ -23,7 +23,6 @@ afterEach(async () => {
 test('POST /accounts OK', async () => {
   // Arrange
   const address = fakeAddressFor('account')
-  const transactionId = fakeAddressFor('transaction')
   const passphrase = '000000'
   const username = 'account'
   const encryptedMnemonic = 'encryptedMnemonic'
@@ -32,21 +31,12 @@ test('POST /accounts OK', async () => {
     username,
   })
 
-  jest.spyOn(AlgorandAdapter.prototype, 'createAccount').mockResolvedValue({
+  jest.spyOn(AlgorandAdapter.prototype, 'generateAccount').mockReturnValue({
     address,
     encryptedMnemonic,
-    signedTransactions: [new Uint8Array(0), new Uint8Array(0)],
-    transactionIds: [transactionId, fakeAddressFor('transaction')],
+    signedTransactions: [],
+    transactionIds: [],
   })
-
-  jest.spyOn(AlgorandAdapter.prototype, 'submitTransaction').mockResolvedValue()
-  jest
-    .spyOn(AlgorandAdapter.prototype, 'waitForConfirmation')
-    .mockResolvedValue({
-      assetIndex: 0,
-      confirmedRound: 1,
-      poolError: '',
-    })
 
   // Act
   const { body, statusCode, headers } = await app.inject({
@@ -61,7 +51,6 @@ test('POST /accounts OK', async () => {
       email: userAccount.email,
       locale: userAccount.locale,
       passphrase,
-      waitForConfirmation: true,
     },
   })
 
@@ -76,7 +65,6 @@ test('POST /accounts OK', async () => {
     showProfile: false,
     email: userAccount.email,
     locale: userAccount.locale,
-    status: AlgorandTransactionStatus.Confirmed,
   })
 })
 

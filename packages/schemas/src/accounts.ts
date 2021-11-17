@@ -41,9 +41,6 @@ const BaseUserAccountSchema = Type.Intersect([
 export const CreateUserAccountRequestSchema = Type.Intersect([
   BaseUserAccountSchema,
   PassphraseSchema,
-  Type.Object({
-    waitForConfirmation: Type.Optional(Type.Boolean()),
-  }),
 ])
 
 export const UpdateUserAccountSchema = Type.Object({
