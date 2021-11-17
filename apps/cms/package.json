@@ -24,17 +24,17 @@
   "dependencies": {
     "canvas": "2.8.0",
     "dinero.js": "2.0.0-alpha.8",
-    "directus": "9.0.0-rc.100",
+    "directus": "9.0.1",
     "env-var": "7.1.1",
     "pg": "8.7.1"
   },
   "devDependencies": {
-    "@directus/extensions-sdk": "9.0.0-rc.100",
+    "@directus/extensions-sdk": "9.0.1",
     "axios": "0.24.0",
     "csv-parse": "^4.16.3",
     "form-data": "4.0.0",
     "rosie": "2.1.0",
     "typescript": "4.4.4",
-    "vue": "3.2.21"
+    "vue": "3.2.22"
   }
 }
