@@ -21,6 +21,7 @@ import { ExtractError } from 'validator-fns'
 
 import { Analytics } from '@/clients/firebase-analytics'
 import { useAuth } from '@/contexts/auth-context'
+import { Environment } from '@/environment'
 import authService from '@/services/auth-service'
 import bidService from '@/services/bid-service'
 import checkoutService, {
@@ -90,8 +91,19 @@ export function usePaymentProvider({
   const [packId, setPackId] = useState<string | null>(auctionPackId || null)
   const [passphrase, setPassphrase] = useState<string>('')
   const [status, setStatus] = useState<CheckoutStatus>(
-    (release && release.type === PackType.Purchase) ||
+    (release &&
+      release.type === PackType.Purchase &&
+      !Environment.isWireEnabled) ||
       (release &&
+        release.type === PackType.Purchase &&
+        Environment.isWireEnabled &&
+        !isGreaterThanOrEqual(release.price, maximumBidForCardPayments)) ||
+      (release &&
+        release.type == PackType.Auction &&
+        !isAfterNow(new Date(release.auctionUntil as string)) &&
+        !Environment.isWireEnabled) ||
+      (Environment.isWireEnabled &&
+        release &&
         release.type == PackType.Auction &&
         !isAfterNow(new Date(release.auctionUntil as string)) &&
         currentBid &&
@@ -419,6 +431,8 @@ export function usePaymentProvider({
           throw new Error('Bank account process failed')
         }
 
+        // @TODO: Handle minting asset
+
         // Retrieve instructions for new bank account
         const bankAccountInstructions =
           await checkoutService.getBankAccountInstructions(
@@ -438,7 +452,15 @@ export function usePaymentProvider({
       }
       setLoadingText('')
     },
-    [mapCircleErrors, t, validateFormForBankAccount]
+    [
+      mapCircleErrors,
+      t,
+      validateFormForBankAccount,
+      auctionPackId,
+      currentBid,
+      release?.price,
+      release?.templateId,
+    ]
   )
 
   const handleSubmitBid = useCallback(
@@ -469,7 +491,11 @@ export function usePaymentProvider({
         const bid = formatFloatToInt(floatBid)
 
         // If the bid is within the maximum bid range, submit card details
-        if (!isGreaterThanOrEqual(bid, maximumBidForCardPayments)) {
+        if (
+          !Environment.isWireEnabled ||
+          (Environment.isWireEnabled &&
+            !isGreaterThanOrEqual(bid, maximumBidForCardPayments))
+        ) {
           setLoadingText(t('common:statuses.Authorizing card'))
 
           const validation = submittedCardId

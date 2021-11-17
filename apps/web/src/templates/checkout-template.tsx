@@ -4,6 +4,7 @@ import BankAccountPurchaseForm from '@/components/bank-account-form/bank-account
 import EmailVerfication from '@/components/profile/email-verification'
 import PurchaseNFTForm from '@/components/purchase-nft-form/purchase-nft-form'
 import { useAuth } from '@/contexts/auth-context'
+import { Environment } from '@/environment'
 import { isGreaterThanOrEqual } from '@/utils/format-currency'
 import { maximumBidForCardPayments } from '@/utils/purchase-validation'
 
@@ -23,10 +24,11 @@ export default function CheckoutTemplate({
     return <EmailVerfication inline />
   }
   const doesRequireWirePayment =
-    (currentBid &&
+    Environment.isWireEnabled &&
+    ((currentBid &&
       isGreaterThanOrEqual(currentBid, maximumBidForCardPayments)) ||
-    (release.price &&
-      isGreaterThanOrEqual(release.price, maximumBidForCardPayments))
+      (release.price &&
+        isGreaterThanOrEqual(release.price, maximumBidForCardPayments)))
   return (
     <>
       {doesRequireWirePayment ? (
