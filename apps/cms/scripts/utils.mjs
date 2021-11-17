@@ -4,10 +4,11 @@ import 'dotenv/config'
 
 import axios from 'axios'
 import { exec } from 'child_process'
-import parse from 'csv-parse'
+import csvParse from 'csv-parse'
 import FormData from 'form-data'
-import { appendFile, createReadStream, existsSync, readdirSync, readFile, statSync, unlink } from 'fs'
+import { createReadStream, existsSync, readdirSync, readFile, statSync, unlink, writeFile } from 'fs'
 import { createInterface } from 'readline'
+import path from 'path'
 
 // Group flat array into a multi-dimensional array of N items.
 export function chunkArray(array, chunkSize) {
@@ -71,7 +72,7 @@ export async function importDataFile(formData, collection, token) {
 }
 
 // Get fields for a collection.
-export async function exportFieldsForCollection(collection, token) {
+export async function getFieldsForCollection(collection, token) {
   try {
     const response = await axios.get(
       `${process.env.PUBLIC_URL}/fields/${collection}?access_token=${token}&export=json`,
@@ -95,6 +96,19 @@ export async function getCollections(token) {
     const filteredData = data.filter((item) => !item.collection.includes('directus_'))
     const collections = filteredData.map((item) => item.collection)
     return collections
+  } catch (error) {
+    console.log(error.response.data.errors)
+    process.exit(1)
+  }
+}
+
+// Get collection data as csv string.
+export async function getCollectionItemsAsCsv(collectionName, token) {
+  try {
+    const response = await axios.get(
+      `${process.env.PUBLIC_URL}/items/${collectionName}?access_token=${token}&export=csv`,
+    )
+    return response.data
   } catch (error) {
     console.log(error.response.data.errors)
     process.exit(1)
@@ -192,7 +206,7 @@ export async function parseCsvData(file) {
   try {
     const data = []
     const parser = createReadStream(file)
-      .pipe(parse({
+      .pipe(csvParse({
         columns: true,
         skip_empty_lines: false,
       }));
@@ -228,7 +242,7 @@ export function groupFilesFromDirectoryByExtension(directory, extension) {
 export async function checkCsvAsync(data, collection, token) {
   try {
     // Retrieve field schema for collection
-    const fields = await exportFieldsForCollection(collection, token)
+    const fields = await getFieldsForCollection(collection, token)
     // Check keys for first record against field schema
     const firstRecordKeys = Object.keys(data[0])
     const doArraysMatch = fields.every((field) => {
@@ -310,18 +324,13 @@ export function removeFile(file) {
   })
 }
 
-export async function createCsvFile(basePath, collection, fields) {
-  let data = ''
-  for (let index = 0; index < fields.length; index++) {
-    const char = index === fields.length - 1 ? '\n' : '\t'
-    data += `${fields[index].name}${char}`
-  }
-  return new Promise((resolve, reject) => {
-    appendFile(`${basePath}${collection}.csv`, data, (error) => {
-      if (error) {
-        reject(error)
-      }
-      resolve()
-    })
-  })
+/** 
+ * Create a CSV file for the given collection at [basePath]/[collection].csv
+ * with the given fields as headers.
+ */
+export async function createCsvStarterFile(basePath, collection, fields) {
+  const headers = fields.map(field => field.name).join(',') + '\n'
+  const filename = path.join(basePath, `${collection}.csv`)
+  const handleError = (error) => error && console.error(error)
+  return writeFile(filename, headers, handleError)
 }
