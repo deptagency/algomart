@@ -6,6 +6,7 @@ import {
   CreatePayment,
   OwnerExternalId,
   PaymentId,
+  SendBankAccountInstructions,
   UpdatePaymentCard,
 } from '@algomart/schemas'
 import { FastifyReply, FastifyRequest } from 'fastify'
@@ -56,6 +57,19 @@ export async function getWireTransferInstructions(
   } else {
     reply.notFound()
   }
+}
+
+export async function sendWireTransferInstructions(
+  request: FastifyRequest<{
+    Querystring: SendBankAccountInstructions
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  await paymentService.sendWireInstructions(request.query)
+  reply.status(204).send()
 }
 
 export async function getBankAccountStatus(

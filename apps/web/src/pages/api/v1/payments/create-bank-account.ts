@@ -52,6 +52,14 @@ handler.post(
       throw new BadRequest('Bank account could not be created')
     }
 
+    // Send email to user with bank address instructions
+    await ApiClient.instance.sendBankAddressInstructions({
+      packTemplateId: body.packTemplateId,
+      amount: body.amount,
+      bankAccountId: bankAccountId,
+      ownerExternalId: request.user.externalId,
+    })
+
     response.status(201).json(bankAccount)
   }
 )

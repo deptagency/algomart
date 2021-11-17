@@ -1,6 +1,6 @@
 import { Static, Type } from '@sinclair/typebox'
 
-import { BaseSchema, Nullable, Simplify } from './shared'
+import { BaseSchema, IdSchema, Nullable, Simplify } from './shared'
 
 // Enums
 
@@ -189,6 +189,13 @@ const PaymentCardBaseSchema = Type.Intersect([
 const PaymentRequiredActionSchema = Type.Object({
   type: Type.String(),
   redirectUrl: Type.String(),
+})
+
+export const SendBankAccountInstructionsSchema = Type.Object({
+  packTemplateId: IdSchema,
+  amount: Type.Number(),
+  bankAccountId: IdSchema,
+  ownerExternalId: Type.String(),
 })
 
 // Circle
@@ -583,6 +590,9 @@ export type PaymentBankAccount = Simplify<
 export type PaymentCard = Simplify<Static<typeof PaymentCardSchema>>
 export type PaymentCards = Simplify<Static<typeof PaymentCardsSchema>>
 export type PublicKey = Simplify<Static<typeof PublicKeySchema>>
+export type SendBankAccountInstructions = Simplify<
+  Static<typeof SendBankAccountInstructionsSchema>
+>
 export type ToPaymentBankAccountBase = Simplify<
   Static<typeof ToPaymentBankAccountBaseSchema>
 >

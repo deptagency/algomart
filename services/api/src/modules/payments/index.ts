@@ -15,6 +15,7 @@ import {
   PaymentIdSchema,
   PaymentSchema,
   PublicKeySchema,
+  SendBankAccountInstructionsSchema,
   UpdatePaymentCardSchema,
 } from '@algomart/schemas'
 import { Type } from '@sinclair/typebox'
@@ -33,6 +34,7 @@ import {
   getPublicKey,
   getWireTransferInstructions,
   removeCard,
+  sendWireTransferInstructions,
   updateCard,
 } from './payments.routes'
 
@@ -125,6 +127,20 @@ export async function paymentRoutes(app: FastifyInstance) {
         },
       },
       getBankAccountStatus
+    )
+    .get(
+      '/bank-accounts/send',
+      {
+        schema: {
+          tags,
+          security,
+          querystring: SendBankAccountInstructionsSchema,
+          response: {
+            204: Type.Null(),
+          },
+        },
+      },
+      sendWireTransferInstructions
     )
     .get(
       '/bank-accounts/:bankAccountId/instructions',

@@ -201,6 +201,8 @@ export const validateBankAccount = (t: Translate) =>
     bankCity: string(),
     bankCountry: country(t),
     bankDistrict: string(),
+    packTemplateId: string(),
+    amount: number(),
   })
 
 export const validateCard = (t: Translate) =>

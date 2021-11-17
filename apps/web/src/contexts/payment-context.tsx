@@ -328,6 +328,14 @@ export function usePaymentProvider({
       setStatus('loading')
       setLoadingText(t('common:statuses.Validating Payment Information'))
       try {
+        const packTemplateId = auctionPackId || release?.templateId
+        const amount = currentBid || release?.price
+
+        if (!packTemplateId || !amount) {
+          setStatus('error')
+          return
+        }
+
         // Convert form data to JSON
         const body = toJSON<CreateBankAccountRequest>(data)
         const {
@@ -348,7 +356,11 @@ export function usePaymentProvider({
           bankDistrict,
         } = body
 
-        const bankValidation = await validateFormForBankAccount(body)
+        const bankValidation = await validateFormForBankAccount({
+          ...body,
+          packTemplateId,
+          amount,
+        })
 
         if (!bankValidation.isValid) {
           setFormErrors(bankValidation.errors)
@@ -373,6 +385,8 @@ export function usePaymentProvider({
             bankCity,
             bankCountry,
             bankDistrict,
+            packTemplateId,
+            amount,
           })
           .catch(async (error) => {
             const response = await error.response.json()

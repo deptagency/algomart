@@ -28,6 +28,7 @@ export default class NotificationsService {
     [NotificationType.TransferSuccess]: this.getTransferSuccessNotification,
     [NotificationType.UserHighBid]: this.getUserHighBidNotification,
     [NotificationType.UserOutbid]: this.getUserOutbididNotification,
+    [NotificationType.WireInstructions]: this.getWireInstructionsNotification,
   }
 
   constructor(private readonly sendgrid: SendgridAdapter) {}
@@ -208,6 +209,94 @@ export default class NotificationsService {
         }) as string[]
       ).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
     }
+    return message
+  }
+
+  getWireInstructionsNotification(n: NotificationModel, t: TFunction) {
+    const { userAccount, variables } = n
+
+    // Validate variables
+    invariant(variables, 'no variables were provided for this notification')
+    invariant(
+      typeof variables.trackingRef === 'string',
+      'trackingRef is required'
+    )
+    invariant(
+      typeof variables.beneficiaryName === 'string',
+      'beneficiaryName is required'
+    )
+    invariant(
+      typeof variables.beneficiaryAddress1 === 'string',
+      'beneficiaryAddress1 is required'
+    )
+    invariant(
+      typeof variables.beneficiaryAddress2 === 'string',
+      'beneficiaryAddress2 is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankName === 'string',
+      'beneficiaryBankName is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankSwiftCode === 'string',
+      'beneficiaryBankSwiftCode is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankRoutingNumber === 'string',
+      'beneficiaryBankRoutingNumber is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankAccountingNumber === 'string',
+      'beneficiaryBankAccountingNumber is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankAddress === 'string',
+      'beneficiaryBankAddress is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankCity === 'string',
+      'beneficiaryBankCity is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankPostalCode === 'string',
+      'beneficiaryBankPostalCode is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankCountry === 'string',
+      'beneficiaryBankCountry is required'
+    )
+
+    // Build notification
+    const body = (
+      t('wireTransfer.body', {
+        returnObjects: true,
+        ctaUrl: `${Configuration.webUrl}checkout?pack=${variables.packSlug}`,
+        ...variables,
+      }) as string[]
+    ).reduce((body: string, p: string) => body + `<p>${p}</p>`, '')
+
+    const html = variables.canExpire
+      ? body + `<p>${t('wireTransfer.expirationWarning')}</p>`
+      : body
+
+    const message = {
+      to: userAccount?.email as string,
+      subject: t('wireTransfer.subject'),
+      html,
+    }
+
+    // const message = {
+    //   to: userAccount?.email as string,
+    //   subject: t('wireTransfer.subject'),
+    //   html: (
+    //     t('wireTransfer.body', {
+    //       returnObjects: true,
+    //       ctaUrl: `${Configuration.webUrl}releases/${variables.packSlug}`,
+    //       ...variables,
+    //     }) as string[]
+    //   ).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
+    // }
+
     return message
   }
 

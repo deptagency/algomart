@@ -6,10 +6,12 @@ import {
   DEFAULT_CURRENCY,
   EventAction,
   EventEntityType,
+  NotificationType,
   OwnerExternalId,
   PackType,
   PaymentCardStatus,
   PaymentStatus,
+  SendBankAccountInstructions,
   UpdatePaymentCard,
 } from '@algomart/schemas'
 import { Transaction } from 'objection'
@@ -23,7 +25,9 @@ import { PaymentModel } from '@/models/payment.model'
 import { PaymentBankAccountModel } from '@/models/payment-bank-account.model'
 import { PaymentCardModel } from '@/models/payment-card.model'
 import { UserAccountModel } from '@/models/user-account.model'
+import NotificationService from '@/modules/notifications/notifications.service'
 import PacksService from '@/modules/packs/packs.service'
+import { formatIntToFloat } from '@/utils/format-currency'
 import {
   convertToUSD,
   currency,
@@ -38,6 +42,7 @@ export default class PaymentsService {
   constructor(
     private readonly circle: CircleAdapter,
     private readonly coinbase: CoinbaseAdapter,
+    private readonly notifications: NotificationService,
     private readonly packs: PacksService
   ) {}
 
@@ -217,6 +222,16 @@ export default class PaymentsService {
     if (!newBankAccount) {
       return null
     }
+
+    const bankAccountInstructions =
+      await this.circle.getPaymentBankAccountInstructionsById(
+        bankAccount.externalId
+      )
+    userInvariant(
+      bankAccountInstructions,
+      'bank account instructions were not found',
+      404
+    )
 
     // Create events for bank account creation
     await EventModel.query(trx).insert({
@@ -416,6 +431,65 @@ export default class PaymentsService {
       entityType: EventEntityType.PaymentCard,
       entityId: cardId,
     })
+  }
+
+  async sendWireInstructions(
+    details: SendBankAccountInstructions,
+    trx?: Transaction
+  ) {
+    const user = await UserAccountModel.query(trx)
+      .where('externalId', details.ownerExternalId)
+      .first()
+    userInvariant(user, 'no user found', 404)
+
+    // Get wire instructions
+    const bankAccountInstructions = await this.getWireTransferInstructions(
+      details.bankAccountId
+    )
+    userInvariant(
+      bankAccountInstructions,
+      'bank account instructions were not found',
+      404
+    )
+
+    // Get pack template details
+    const packTemplate = await this.packs.getPackById(details.packTemplateId)
+    userInvariant(packTemplate, 'pack template was not found', 404)
+
+    // Send bank account instructions to user
+    await this.notifications.createNotification(
+      {
+        type: NotificationType.WireInstructions,
+        userAccountId: user.id,
+        variables: {
+          amount: formatIntToFloat(details.amount),
+          packTitle: packTemplate.title,
+          trackingRef: bankAccountInstructions.trackingRef,
+          beneficiaryName: bankAccountInstructions.beneficiary.name,
+          beneficiaryAddress1: bankAccountInstructions.beneficiary.address1,
+          beneficiaryAddress2: bankAccountInstructions.beneficiary.address2,
+          beneficiaryBankName:
+            bankAccountInstructions.beneficiaryBank.name || '',
+          beneficiaryBankSwiftCode:
+            bankAccountInstructions.beneficiaryBank.swiftCode || '',
+          beneficiaryBankRoutingNumber:
+            bankAccountInstructions.beneficiaryBank.routingNumber,
+          beneficiaryBankAccountingNumber:
+            bankAccountInstructions.beneficiaryBank.accountNumber,
+          beneficiaryBankAddress:
+            bankAccountInstructions.beneficiaryBank.address || '',
+          beneficiaryBankCity:
+            bankAccountInstructions.beneficiaryBank.city || '',
+          beneficiaryBankPostalCode:
+            bankAccountInstructions.beneficiaryBank.postalCode || '',
+          beneficiaryBankCountry:
+            bankAccountInstructions.beneficiaryBank.country || '',
+        },
+      },
+      trx
+    )
+
+    return true
   }
 
   async updatePaymentStatuses(trx?: Transaction) {

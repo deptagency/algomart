@@ -38,6 +38,7 @@ import {
   PublishedPacks,
   PublishedPacksQuery,
   RedeemCode,
+  SendBankAccountInstructions,
   SetWithCollection,
   TransferPack,
   UpdatePaymentCard,
@@ -242,6 +243,20 @@ export class ApiClient {
   async removeCardById(cardId: string) {
     return await this.http
       .delete(`payments/cards/${cardId}`)
+      .then((response) => response.ok)
+  }
+
+  async sendBankAddressInstructions(filters: SendBankAccountInstructions) {
+    const searchParameters = new URLSearchParams()
+    if (filters?.packTemplateId)
+      searchParameters.set('packTemplateId', `${filters.packTemplateId}`)
+    if (filters?.amount) searchParameters.set('amount', `${filters.amount}`)
+    if (filters?.bankAccountId)
+      searchParameters.set('bankAccountId', `${filters.bankAccountId}`)
+    if (filters?.ownerExternalId)
+      searchParameters.set('ownerExternalId', `${filters.ownerExternalId}`)
+    return await this.http
+      .get(`payments/bank-accounts/send`, { searchParams: searchParameters })
       .then((response) => response.ok)
   }
   //#endregion
