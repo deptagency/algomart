@@ -1,8 +1,9 @@
-import { CheckoutStatus, MintPackStatus, PublicKey } from '@algomart/schemas'
 import {
+  CheckoutStatus,
   GetPaymentCardStatus,
   PackType,
   Payment,
+  PublicKey,
   PublishedPack,
 } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
@@ -441,29 +442,6 @@ export function usePaymentProvider({
             return
           }
 
-          const isMinted = await poll(
-            async () => await collectibleService.mintStatus(packId),
-            (result) => result !== MintPackStatus.Minted,
-            1000
-          )
-
-          if (!isMinted) {
-            setStatus('error')
-            return
-          }
-
-          // Transfer asset
-          setLoadingText(t('common:statuses.Transferring Asset'))
-          const transferIsOK = await collectibleService.transfer(
-            packId,
-            passphrase
-          )
-
-          if (!transferIsOK) {
-            setStatus('error')
-            return
-          }
-
           setPackId(packId)
           setStatus('success')
           if (release) {
@@ -485,7 +463,6 @@ export function usePaymentProvider({
     [
       handleAddCard,
       handlePurchase,
-      passphrase,
       release,
       t,
       validateFormForPurchase,
