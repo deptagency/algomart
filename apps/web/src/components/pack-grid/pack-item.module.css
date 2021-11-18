@@ -1,5 +1,5 @@
 .root {
-  @apply absolute w-full h-full p-0 duration-300 bg-white border rounded-md opacity-100 border-base-gray-border shadow-medium;
+  @apply relative w-full h-full p-0 duration-300 bg-white border rounded-md opacity-100 border-base-gray-border shadow-medium;
 }
 
 .column {
@@ -8,13 +8,6 @@
 
 .placeholder {
   @apply inline-flex justify-center w-full m-auto;
-}
-
-.imageWrapper {
-  /* Base + */
-  @apply flex flex-col bg-black max-h-40 h-1/2;
-  /* Tablet + */
-  @apply md:max-h-60 md:h-full;
 }
 
 .image {
@@ -30,23 +23,27 @@
 }
 
 .informationWrapper {
-  @apply text-center bg-white rounded-b-sm h-1/2;
+  @apply text-center bg-white rounded-sm;
 }
 
 .information {
   /* Base + */
-  @apply bg-white px-2.5 flex flex-col items-center justify-center;
+  @apply flex flex-col items-center justify-center pb-5;
+}
+
+.titleWrapper {
+  @apply flex items-center justify-center w-full p-3;
 }
 
 .title {
   /* Base + */
-  @apply pt-1 text-sm font-bold text-base-gray-text line-clamp-2;
+  @apply h-full pt-1 text-sm font-bold text-base-gray-text line-clamp-2;
   /* Tablet + */
   @apply md:text-base md:pt-3;
 }
 
 .label {
-  @apply px-4 py-2 mt-3 text-xs text-white uppercase rounded-full bg-base-gray-border;
+  @apply px-4 py-2 text-xs text-white uppercase rounded-full bg-base-gray-border;
 }
 
 .icon {

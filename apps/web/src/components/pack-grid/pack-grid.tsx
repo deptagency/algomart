@@ -1,6 +1,7 @@
 import { PackWithCollectibles } from '@algomart/schemas'
 import { animated, config, useTrail } from '@react-spring/web'
 import clsx from 'clsx'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useState } from 'react'
 
@@ -9,6 +10,7 @@ import css from './pack-grid.module.css'
 import Button from '@/components/button'
 import PackItem from '@/components/pack-grid/pack-item'
 import PackPlaceholder from '@/components/pack-grid/pack-placeholder'
+import { urls } from '@/utils/urls'
 
 export interface PackGridProps {
   packCards: PackWithCollectibles['collectibles']
@@ -21,18 +23,19 @@ export default function PackGrid({
   packTitle,
   transitionStyle = 'automatic',
 }: PackGridProps) {
+  const { push } = useRouter()
   const { t } = useTranslation()
 
   // Automatic animations
   const animationIn = useTrail(packCards.length, {
     config: config.gentle,
-    delay: 3000,
+    delay: 2500,
     from: { opacity: 0, y: -50 },
     to: { opacity: 1, y: 0 },
   })
   const animationOpacity = useTrail(packCards.length, {
-    config: config.molasses,
-    delay: 1000,
+    config: config.default,
+    delay: 5000,
     from: { opacity: 0 },
     to: { opacity: 1 },
   })
@@ -82,7 +85,7 @@ export default function PackGrid({
                 color={packCards[index]?.rarity?.color}
                 imageSource={packCards[index].image}
                 labelName={packCards[index]?.rarity?.name}
-                title={packCards[index].title}
+                title={`${packCards[index].title}`}
               />
               <animated.div
                 className={clsx(css.placeholderWrapper, {
@@ -102,6 +105,7 @@ export default function PackGrid({
                 }
               >
                 <PackPlaceholder
+                  hideContent={packCards.length < 3}
                   index={index}
                   key={packCards[index].id}
                   collectibleEdition={`#${packCards[index].edition}`}
@@ -114,6 +118,12 @@ export default function PackGrid({
           )
         })}
       </ul>
+      <Button
+        className={css.viewCollectionButton}
+        onClick={() => push(urls.myCollectibles)}
+      >
+        {t('common:actions.View In My Collection')}
+      </Button>
     </>
   )
 }

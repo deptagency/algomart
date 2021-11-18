@@ -17,7 +17,7 @@
     "dev": "tsnd -r tsconfig-paths/register -r dotenv/config --quiet src/index.ts",
     "start": "node -r dotenv/config dist/index.js",
     "test": "jest",
-    "knex": "node --require dotenv/config --require tsconfig-paths/register ../../node_modules/.bin/knex --knexfile ./src/configuration/knex-config.ts",
+    "knex": "ts-node --require dotenv/config --require tsconfig-paths/register ../../node_modules/.bin/knex --knexfile ./src/configuration/knex-config.ts",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
@@ -32,6 +32,7 @@
     "sqlite3": "5.0.2",
     "testdouble": "3.16.3",
     "ts-node-dev": "1.1.8",
+    "ts-node": "10.4.0",
     "tsconfig-paths": "3.11.0",
     "typescript": "4.4.4"
   },

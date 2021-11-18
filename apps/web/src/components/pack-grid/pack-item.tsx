@@ -24,6 +24,7 @@ export default function PackItem({
 }: PackItemProps) {
   const { t } = useTranslation('common')
   const label = labelName || t('common:global.rarityDefault')
+
   return (
     <div className={css.root}>
       <div className={css.column}>

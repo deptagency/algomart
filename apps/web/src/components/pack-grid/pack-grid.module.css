@@ -28,6 +28,7 @@
 .gridItem {
   @apply relative w-full max-w-700;
 }
+
 .gridItemEmpty {
   /* Base */
   @apply hidden;
@@ -53,5 +54,9 @@
 }
 
 .placeholderWrapper {
-  @apply h-full opacity-100;
+  @apply absolute top-0 w-full h-full opacity-100;
+}
+
+.viewCollectionButton {
+  @apply relative block mx-auto my-12;
 }
