@@ -10,7 +10,7 @@ import {
   checkCsvAsync,
   getCMSAuthToken,
   getConfigFromStdin,
-  groupFilesFromDirectoryByExtension,
+  getFilesWithExtension,
   importDataFile,
   parseCsvData,
   readFileAsync,
@@ -37,7 +37,7 @@ async function main(args) {
    */
   console.log('Starting import...')
   const basePath = './scripts/import-data'
-  const files = await groupFilesFromDirectoryByExtension(basePath, 'csv')
+  const files = await getFilesWithExtension(basePath, 'csv')
   // Loop through the import data
   for (const file of files) {
     const csvFile = _resolve(`${basePath}/${file}`)

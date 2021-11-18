@@ -220,8 +220,8 @@ export async function parseCsvData(file) {
   }
 }
 
-// Loop through directory and group files by extension.
-export function groupFilesFromDirectoryByExtension(directory, extension) {
+// Get files with the given extension from the given directory.
+export function getFilesWithExtension(directory, extension) {
   return new Promise((resolve) => {
     const data = []
     const files = readdirSync(directory).map(f => f)
@@ -323,3 +323,5 @@ export function removeFile(file) {
     })
   })
 }
+
+
