@@ -6,6 +6,8 @@ import fs from 'fs'
 import path from 'path'
 
 import {
+  downloadFile,
+  getAllFilesMeta,
   getCMSAuthToken,
   getCollections,
   getCollectionItemsAsCsv,
@@ -48,7 +50,28 @@ async function main(args) {
   if (!fs.existsSync(exportDir)) {
     fs.mkdirSync(exportDir)
   }
+  
+  // create files directory
+  const filesDir = _resolve('./scripts/export-data/export/files')
+  console.log(`Creating export directory at ${filesDir}`)
+  if (!fs.existsSync(filesDir)) {
+    fs.mkdirSync(filesDir)
+  }
 
+  const files = await getAllFilesMeta(token)
+  console.log(`Found ${files.length} files`)
+  console.log(files)
+
+  for(const file of files) {
+    const fileData = await downloadFile(file.id, token)
+    await fs.writeFile(
+      path.join(filesDir,file.filename_disk), 
+      fileData,
+      'binary',
+      handleError,
+    )
+  }
+  
   // Create a file for each collection
   const collections = await getCollections(token)
   await Promise.all(collections.map(collection => exportCollectionToCsv(exportDir, collection, token)))

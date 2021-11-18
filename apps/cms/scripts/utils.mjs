@@ -70,6 +70,30 @@ export async function importDataFile(formData, collection, token) {
   }
 }
 
+/** Download file from directus */
+export async function downloadFile(id, token) {
+  try {
+    const res = await axios.get(`${process.env.PUBLIC_URL}/assets/${id}?download&access_token=${token}`, {
+      responseEncoding: 'binary'
+    })
+    return res.data
+  } catch (error) {
+    console.log(error.response?.data?.errors)
+    process.exit(1)
+  }
+}
+
+/** Get list of files from directus */
+export async function getAllFilesMeta(token) {
+  try {
+    const res = await axios.get(`${process.env.PUBLIC_URL}/files?access_token=${token}`)
+    return res.data.data
+  } catch (error) {
+    console.log(error.response?.data?.errors)
+    process.exit(1)
+  }
+}
+
 /** Get fields for a collection. */
 export async function getFieldsForCollection(collection, token) {
   try {

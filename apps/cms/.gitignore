@@ -8,3 +8,4 @@ scripts/import-data/images/*
 scripts/import-data/starters/*
 
 scripts/export-data/export/*.csv
+scripts/export-data/export/files
