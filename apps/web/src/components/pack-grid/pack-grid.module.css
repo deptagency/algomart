@@ -4,17 +4,30 @@
 
 .gridWrapper {
   /* Base */
-  @apply grid grid-cols-2 gap-6 px-8 mt-8 justify-items-center;
+  @apply grid justify-center grid-cols-1 gap-6 px-8 mt-8 justify-items-center;
+  /* Mobile + */
+  @apply sm:grid-cols-2;
   /* Tablet + */
-  @apply md:gap-4 md:grid-cols-3 md:my-0 md:mx-auto md:max-w-4xl;
+  @apply md:grid-cols-3 md:gap-9 md:my-0 md:mx-auto md:max-w-wrapper;
+}
+
+.gridWrapper.double {
+  /* Mobile + */
+  @apply sm:grid-cols-2;
+  /* Tablet + */
+  @apply md:grid-cols-2;
+}
+
+.gridWrapper.single {
+  /* Mobile + */
+  @apply sm:grid-cols-1 sm:gap-0;
+  /* Tablet + */
+  @apply md:grid-cols-1 md:gap-0;
 }
 
 .gridItem {
-  @apply relative w-full h-72;
-  /* Tablet + */
-  @apply md:h-96 md:w-60;
+  @apply relative w-full max-w-700;
 }
-
 .gridItemEmpty {
   /* Base */
   @apply hidden;

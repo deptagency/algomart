@@ -64,7 +64,12 @@ export default function PackGrid({
           </Button>
         </div>
       )}
-      <ul className={css.gridWrapper}>
+      <ul
+        className={clsx(css.gridWrapper, {
+          [css.single]: packCards.length === 1,
+          [css.double]: packCards.length === 2,
+        })}
+      >
         {animationIn.map((style, index) => {
           return (
             <animated.li

@@ -1,5 +1,5 @@
 .root {
-  @apply absolute bg-white duration-300 border-base-gray-border border opacity-100 p-0 rounded-md shadow-medium h-full w-full;
+  @apply absolute w-full h-full p-0 duration-300 bg-white border rounded-md opacity-100 border-base-gray-border shadow-medium;
 }
 
 .column {
@@ -7,12 +7,12 @@
 }
 
 .placeholder {
-  @apply inline-flex m-auto justify-center w-full;
+  @apply inline-flex justify-center w-full m-auto;
 }
 
 .imageWrapper {
   /* Base + */
-  @apply flex flex-col max-h-40 h-1/2 bg-black;
+  @apply flex flex-col bg-black max-h-40 h-1/2;
   /* Tablet + */
   @apply md:max-h-60 md:h-full;
 }
@@ -26,11 +26,11 @@
 }
 
 .calloutWrapper {
-  @apply line-clamp-2 p-2 text-center text-white text-xs w-full;
+  @apply w-full p-2 text-xs text-center text-white line-clamp-2;
 }
 
 .informationWrapper {
-  @apply bg-white h-1/2 text-center rounded-b-sm;
+  @apply text-center bg-white rounded-b-sm h-1/2;
 }
 
 .information {
@@ -40,13 +40,13 @@
 
 .title {
   /* Base + */
-  @apply text-base-gray-text pt-1 line-clamp-2 font-bold text-sm;
+  @apply pt-1 text-sm font-bold text-base-gray-text line-clamp-2;
   /* Tablet + */
   @apply md:text-base md:pt-3;
 }
 
 .label {
-  @apply text-white text-xs bg-base-gray-border rounded-full px-4 py-2 mt-3 uppercase;
+  @apply px-4 py-2 mt-3 text-xs text-white uppercase rounded-full bg-base-gray-border;
 }
 
 .icon {
