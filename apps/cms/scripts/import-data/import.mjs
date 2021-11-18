@@ -18,27 +18,6 @@ import {
   updateCsvAsync,
 } from '../utils.mjs'
 
-const processFile = async (file, basePath, token) => {
-  const csvFile = _resolve(`${basePath}/${file}`)
-  const collection = file.split('.').shift()
-  console.log(`Checking file data for ${collection}...`)
-  // Parse CSV and check values.
-  const csvData = await parseCsvData(csvFile)
-  await checkCsvAsync(csvData, collection, token)
-  // Create images and update file.
-  const data = await updateCsvAsync(csvData, basePath, token)
-  const formData = new FormData()
-  const jsonFile = `${basePath}/${collection}.json`
-  // Create JSON file.
-  writeFileSync(jsonFile, JSON.stringify(data))
-  formData.append('file', createReadStream(jsonFile))
-  // Import data to CMS
-  console.log(`Importing file for ${collection}...`)
-  await importDataFile(formData, collection, token)
-  // Remove newly created JSON file
-  await removeFile(jsonFile)
-}
-
 async function main(args) {
   /**
    * Read config file if it exists, or ask user to provide it.
@@ -60,11 +39,26 @@ async function main(args) {
   const basePath = './scripts/import-data'
   const files = await groupFilesFromDirectoryByExtension(basePath, 'csv')
   // Loop through the import data
-  const promises = []
   for (const file of files) {
-    promises.push(processFile(file, basePath, token))
+    const csvFile = _resolve(`${basePath}/${file}`)
+    const collection = file.split('.').shift()
+    console.log(`Checking file data for ${collection}...`)
+    // Parse CSV and check values.
+    const csvData = await parseCsvData(csvFile)
+    await checkCsvAsync(csvData, collection, token)
+    // Create images and update file.
+    const data = await updateCsvAsync(csvData, basePath, token)
+    const formData = new FormData()
+    const jsonFile = `${basePath}/${collection}.json`
+    // Create JSON file.
+    writeFileSync(jsonFile, JSON.stringify(data))
+    formData.append('file', createReadStream(jsonFile))
+    // Import data to CMS
+    console.log(`Importing file for ${collection}...`)
+    await importDataFile(formData, collection, token)
+    // Remove newly created JSON file
+    await removeFile(jsonFile)
   }
-  await Promise.all(promises)
 
   console.log('Done!')
 }
