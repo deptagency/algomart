@@ -6,3 +6,5 @@ scripts/import-data/*.csv
 scripts/import-data/*.json
 scripts/import-data/images/*
 scripts/import-data/starters/*
+
+scripts/export-data/export/*.csv

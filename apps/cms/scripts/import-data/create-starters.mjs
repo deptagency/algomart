@@ -2,19 +2,31 @@
 
 import 'dotenv/config'
 
-import { resolve as _resolve } from 'path'
+import path from 'path'
 import fs from 'fs'
 
 import {
-  createCsvFile,
-  exportFieldsForCollection,
+  getFieldsForCollection,
   getCMSAuthToken,
   getCollections,
   getConfigFromStdin,
   readFileAsync,
 } from '../utils.mjs'
 
+/** 
+ * Create a CSV file for the given collection at [basePath]/[collection].csv
+ * with the given fields as headers.
+ */
+ export async function createCsvStarterFile(collection, basePath, token) {
+  const fields = await getFieldsForCollection(collection, token)
+  const headers = fields.map(field => field.name).join(',') + '\n'
+  const filename = path.join(basePath, `${collection}.csv`)
+  const handleError = (error) => error && console.error(error)
+  await fs.writeFile(filename, headers, handleError)
+}
+
 async function main(args) {
+  console.time('Create starter files')
   /**
    * Read config file if it exists, or ask user to provide it.
    * Once credentials are provided, get an auth token from directus.
@@ -24,36 +36,24 @@ async function main(args) {
   if (args.length < 3) {
     config = await getConfigFromStdin()
   } else {
-    config = JSON.parse(await readFileAsync(_resolve(args[2])))
+    config = JSON.parse(await readFileAsync(path.resolve(args[2])))
   }
+  const token = await getCMSAuthToken(config)
 
   // Create "starters" directory in ./scripts/import-data if it doesn't exist
-  const startersDir = _resolve('./scripts/import-data/starters')
-  const imagesDir = _resolve('./scripts/import-data/images')
+  const startersDir = path.resolve('./scripts/import-data/starters')
   if (!fs.existsSync(startersDir)) {
     fs.mkdirSync(startersDir)
   }
+  const imagesDir = path.resolve('./scripts/import-data/images')
   if (!fs.existsSync(imagesDir)) {
     fs.mkdirSync(imagesDir)
   }
 
-  /**
-   * Begin creating starter files.
-   */
-  const token = await getCMSAuthToken(config)
-  console.log('Beginning process to create starter files...')
+  // Create starter files for each collection
   const collections = await getCollections(token)
-  const basePath = './scripts/import-data/starters/'
-  // Loop through all collections and create file.
-  for (const collection of collections) {
-    console.log(`Creating starter file for ${collection}...`)
-    // Retrieve field schema for collection
-    const fields = await exportFieldsForCollection(collection, token)
-    // Create CSV file for collection
-    await createCsvFile(basePath, collection, fields)
-  }
-
-  console.log('Done!')
+  await Promise.all(collections.map(collection => createCsvStarterFile(collection, startersDir, token)))
+  console.timeEnd('Create starter files')
 }
 
 main(process.argv)

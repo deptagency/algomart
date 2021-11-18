@@ -15,6 +15,7 @@
     "db:seed": "./scripts/seed.mjs ./config.local.json",
     "dev": "directus start",
     "import": "./scripts/import-data/import.mjs ./config.local.json",
+    "export": "./scripts/export-data/export.mjs ./config.local.json",
     "import-create-starters": "./scripts/import-data/create-starters.mjs ./config.local.json",
     "start": "directus start",
     "build:price-display": "cd extensions/displays/pack-price && npx directus-extension build",
