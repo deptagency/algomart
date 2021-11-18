@@ -6,18 +6,17 @@ import axios from 'axios'
 import { exec } from 'child_process'
 import csvParse from 'csv-parse'
 import FormData from 'form-data'
-import { createReadStream, existsSync, readdirSync, readFile, statSync, unlink, writeFile } from 'fs'
+import { createReadStream, existsSync, readdirSync, readFile, statSync, unlink } from 'fs'
 import { createInterface } from 'readline'
-import path from 'path'
 
-// Group flat array into a multi-dimensional array of N items.
+/** Group flat array into a multi-dimensional array of N items. */
 export function chunkArray(array, chunkSize) {
   return Array.from(new Array(Math.ceil(array.length / chunkSize)), (_, i) =>
     array.slice(i * chunkSize, i * chunkSize + chunkSize)
   )
 }
 
-// Post CMS assets to CMS DB.
+/** Post CMS assets to CMS DB. */
 export async function createAssetRecords(formData, token) {
   try {
     const res = await axios.post(
@@ -37,7 +36,7 @@ export async function createAssetRecords(formData, token) {
   }
 }
 
-// Update entity in CMS DB.
+/** Update entity in CMS DB. */
 export async function updateEntityRecord(entity, id, body, token) {
   try {
     const res = await axios.patch(
@@ -51,7 +50,7 @@ export async function updateEntityRecord(entity, id, body, token) {
   }
 }
 
-// Import data into CMS. Does not override existing data.
+/** Import data into CMS. Does not override existing data. */
 export async function importDataFile(formData, collection, token) {
   try {
     const response = await axios.post(
@@ -71,7 +70,7 @@ export async function importDataFile(formData, collection, token) {
   }
 }
 
-// Get fields for a collection.
+/** Get fields for a collection. */
 export async function getFieldsForCollection(collection, token) {
   try {
     const response = await axios.get(
@@ -86,7 +85,7 @@ export async function getFieldsForCollection(collection, token) {
   }
 }
 
-// Get all collections
+/** Get all collections */
 export async function getCollections(token) {
   try {
     const response = await axios.get(
@@ -102,7 +101,7 @@ export async function getCollections(token) {
   }
 }
 
-// Get collection data as csv string.
+/** Get collection data as csv string. */
 export async function getCollectionItemsAsCsv(collectionName, token) {
   try {
     const response = await axios.get(
@@ -115,7 +114,7 @@ export async function getCollectionItemsAsCsv(collectionName, token) {
   }
 }
 
-// Post CMS collection record(s) to CMS DB.
+/** Post CMS collection record(s) to CMS DB. */
 export async function createEntityRecords(entity, body, token) {
   try {
     const res = await axios.post(
@@ -129,7 +128,7 @@ export async function createEntityRecords(entity, body, token) {
   }
 }
 
-// Execute a CLI command and get the results of its output.
+/** Execute a CLI command and get the results of its output. */
 export function execCommandAndGetOutput(command) {
   return new Promise((resolve, reject) => {
     exec(
@@ -149,7 +148,7 @@ export function execCommandAndGetOutput(command) {
   })
 }
 
-// Retrieve a temporary auth token from the CMS.
+/** Retrieve a temporary auth token from the CMS. */
 export async function getCMSAuthToken(body) {
   try {
     const tokenResponse = await axios.post(
@@ -163,7 +162,7 @@ export async function getCMSAuthToken(body) {
   }
 }
 
-// Get CLI input from the user.
+/** Get CLI input from the user. */
 export async function getConfigFromStdin() {
   console.log('Enter the CMS configuration.')
   const email = await readlineAsync('> Email address: ')
@@ -174,7 +173,7 @@ export async function getConfigFromStdin() {
   }
 }
 
-// Read CMS configuration file.
+/** Read CMS configuration file. */
 export function readFileAsync(file) {
   return new Promise((resolve, reject) => {
     readFile(file, (err, data) => {
@@ -187,7 +186,7 @@ export function readFileAsync(file) {
   })
 }
 
-// Prompt individual CLI user input.
+/** Prompt individual CLI user input. */
 export function readlineAsync(prompt) {
   return new Promise((resolve) => {
     const rl = createInterface({
@@ -201,7 +200,7 @@ export function readlineAsync(prompt) {
   })
 }
 
-// Parse CSV data and return JSON data.
+/** Parse CSV data and return JSON data. */
 export async function parseCsvData(file) {
   try {
     const data = []
@@ -220,7 +219,7 @@ export async function parseCsvData(file) {
   }
 }
 
-// Get files with the given extension from the given directory.
+/** Get files with the given extension from the given directory. */
 export function getFilesWithExtension(directory, extension) {
   return new Promise((resolve) => {
     const data = []
@@ -238,7 +237,7 @@ export function getFilesWithExtension(directory, extension) {
   })
 }
 
-// Check CSV file before CMS import.
+/** Check CSV file before CMS import. */
 export async function checkCsvAsync(data, collection, token) {
   try {
     // Retrieve field schema for collection
@@ -269,7 +268,7 @@ export async function checkCsvAsync(data, collection, token) {
   }
 }
 
-// Update CSV image fields.
+/** Update CSV image fields. */
 export async function updateCsvAsync(data, basePath, token) {
   try {
     const updatedData = []
