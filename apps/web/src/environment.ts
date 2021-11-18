@@ -66,17 +66,7 @@ export const Environment = {
   },
 
   get isWireEnabled() {
-    const isEnabled = this.config<string>(
-      'NEXT_PUBLIC_WIRE_PAYMENT_ENABLED',
-      'false'
-    )
-    switch (isEnabled) {
-      case 'true':
-        return true
-      case 'false':
-        return false
-      default:
-        return isEnabled
-    }
+    const isEnabled = this.config('NEXT_PUBLIC_WIRE_PAYMENT_ENABLED', '')
+    return isEnabled.toLowerCase() === 'true'
   },
 }
