@@ -1,6 +1,10 @@
 .root {
-  @apply absolute bg-cover bg-pack-texture overflow-hidden h-full p-5 relative text-center;
+  @apply absolute top-0 w-full h-full p-5 overflow-hidden text-center bg-cover bg-pack-texture;
   background-size: 200%;
+}
+
+.root.hideContent {
+  @apply flex items-center justify-center;
 }
 
 .backgroundPosition-0 {
@@ -24,25 +28,25 @@
 
 .questionMark {
   /* Base + */
-  @apply font-bold h-40 pb-5 text-white;
+  @apply h-40 pb-5 font-bold text-white;
   font-size: 120px;
   /* Tablet + */
   @apply md:h-60;
 }
 
 .packName {
-  @apply bg-white font-bold mb-1 p-3 rounded-sm text-sm;
+  @apply p-3 mb-1 text-sm font-bold bg-white rounded-sm;
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
   mix-blend-mode: screen;
 }
 
 .infoWrapper {
-  @apply flex font-bold justify-between items-center text-xs;
+  @apply flex items-center justify-between text-xs font-bold;
 }
 
 .infoWrapperColumn {
-  @apply bg-white py-2 rounded-sm w-1/2;
+  @apply w-1/2 py-2 bg-white rounded-sm;
   mix-blend-mode: screen;
 }
 
