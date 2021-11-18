@@ -13,7 +13,7 @@ export class PaymentBankAccountModel extends BaseModel {
 
   ownerId!: string
   externalId!: string
-  status!: PaymentBankAccountStatus | null
+  status!: PaymentBankAccountStatus
   owner?: UserAccountModel
 
   static relationMappings = () => ({
