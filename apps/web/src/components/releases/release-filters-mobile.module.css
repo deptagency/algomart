@@ -1,10 +1,10 @@
-/* Dialog */
+/* Dialog overrides */
 .dialog {
   @apply md:hidden !important;
 }
 
 .container {
-  @apply fixed inset-0 items-start max-h-screen !important;
+  @apply fixed inset-0 items-start max-h-screen min-h-0 !important;
 }
 
 .content {
@@ -34,6 +34,7 @@
 .mobileFilterButton {
   /* Base */
   @apply fixed bottom-4 z-10 mx-auto p-4 shadow-large rounded-full;
+  box-shadow: 0 0 8px 1px rgba(255, 255, 255, 0.3);
   left: 50%;
   transform: translate(-50%, 0);
   aspect-ratio: 1;
