@@ -24,9 +24,9 @@
 
 .filterColumn {
   /* Base */
-  @apply w-full mb-5;
+  @apply w-full mb-5 hidden;
   /* Tablet + */
-  @apply md:w-250;
+  @apply md:w-250 md:min-w-max md:block;
 }
 
 .gridColumn {

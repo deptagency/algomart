@@ -30,6 +30,7 @@ import {
 } from '@algomart/schemas'
 import { raw, Transaction } from 'objection'
 
+import AccountsService from '../accounts/accounts.service'
 import CollectiblesService from '../collectibles/collectibles.service'
 
 import DirectusAdapter, {
@@ -114,7 +115,8 @@ export default class PacksService {
   constructor(
     private readonly cms: DirectusAdapter,
     private readonly collectibles: CollectiblesService,
-    private readonly notifications: NotificationsService
+    private readonly notifications: NotificationsService,
+    private readonly accounts: AccountsService
   ) {}
 
   // #region Private helpers
@@ -656,9 +658,8 @@ export default class PacksService {
 
   async transferPack(request: TransferPack, trx?: Transaction) {
     const user = await UserAccountModel.query(trx)
-      .where('externalId', request.externalId)
-      .first()
-      .select('id')
+      .findOne('externalId', request.externalId)
+      .withGraphJoined('algorandAccount.creationTransaction')
 
     userInvariant(user, 'user not found', 404)
 
@@ -674,10 +675,14 @@ export default class PacksService {
 
     userInvariant(pack, 'pack not found', 404)
 
-    this.logger.info({ pack }, 'pack to be transferred')
-
     if (!pack) {
       return false
+    }
+
+    this.logger.info({ pack }, 'pack to be transferred')
+
+    if (user.algorandAccount?.creationTransactionId === null) {
+      await this.accounts.initializeAccount(user.id, request.passphrase, trx)
     }
 
     const collectibleIds = pack.collectibles?.map((c) => c.id) || []
