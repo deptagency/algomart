@@ -11,6 +11,7 @@ import Notification from '@/components/notification/notification'
 import Pagination from '@/components/pagination/pagination'
 import ReleaseFilterPrice from '@/components/releases/release-filter-price'
 import ReleaseFilterType from '@/components/releases/release-filter-type'
+import ReleaseFiltersMobile from '@/components/releases/release-filters-mobile'
 import ReleaseItem from '@/components/releases/release-item'
 import Select from '@/components/select/select'
 import { usePackFilterContext } from '@/contexts/pack-filter-context'
@@ -46,6 +47,7 @@ export default function ReleasesTemplate({
       </div>
       <div className={clsx(css.columns)}>
         {/* Filters */}
+        <ReleaseFiltersMobile />
         <section className={css.filterColumn}>
           <ReleaseFilterPrice />
           <ReleaseFilterType />
