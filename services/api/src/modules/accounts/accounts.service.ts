@@ -9,6 +9,7 @@ import { Username } from '@algomart/schemas'
 import { Transaction } from 'objection'
 
 import AlgorandAdapter from '@/lib/algorand-adapter'
+import { AlgorandAccountModel } from '@/models/algorand-account.model'
 import { AlgorandTransactionModel } from '@/models/algorand-transaction.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import { invariant, userInvariant } from '@/utils/invariant'
@@ -29,30 +30,10 @@ export default class AccountsService {
       .first()
     userInvariant(!existing, 'username or externalId already exists', 400)
 
-    // 2. create and fund algorand account (i.e. wallet) with min balance (0.1 ALGO)
-    const result = await this.algorand.createAccount(request.passphrase)
-    await this.algorand.submitTransaction(result.signedTransactions)
-    if (request.waitForConfirmation) {
-      await this.algorand.waitForConfirmation(result.transactionIds[0])
-    }
+    // 2. generate algorand account (i.e. wallet)
+    const result = this.algorand.generateAccount(request.passphrase)
 
-    // 3. create new user account with reference to algorand account
-    // NOTE: cannot use batch insert as SQLite does not support it
-    const transactions = [
-      // funding transaction
-      await AlgorandTransactionModel.query(trx).insert({
-        address: result.transactionIds[0],
-        status: request.waitForConfirmation
-          ? AlgorandTransactionStatus.Confirmed
-          : AlgorandTransactionStatus.Pending,
-      }),
-      // non-participation transaction
-      await AlgorandTransactionModel.query(trx).insert({
-        address: result.transactionIds[1],
-        status: AlgorandTransactionStatus.Pending,
-      }),
-    ]
-
+    // 3. save account with encrypted mnemonic
     await UserAccountModel.query(trx).insertGraph({
       username: request.username,
       email: request.email,
@@ -61,7 +42,6 @@ export default class AccountsService {
       algorandAccount: {
         address: result.address,
         encryptedKey: result.encryptedMnemonic,
-        creationTransactionId: transactions[0].id,
       },
     })
 
@@ -73,6 +53,57 @@ export default class AccountsService {
       .withGraphJoined('algorandAccount.creationTransaction')
 
     return this.mapPublicAccount(userAccount)
+  }
+
+  async initializeAccount(
+    userId: string,
+    passphrase: string,
+    trx?: Transaction
+  ) {
+    const userAccount = await UserAccountModel.query(trx)
+      .findById(userId)
+      .withGraphJoined('algorandAccount')
+
+    userInvariant(userAccount, 'user account not found', 404)
+    invariant(
+      userAccount.algorandAccount,
+      `user account ${userId} missing algorand account`
+    )
+    userInvariant(
+      userAccount.algorandAccount.creationTransactionId === null,
+      `user account ${userId} already initialized`
+    )
+
+    // generate transactions to fund the account and opt-out of staking rewards
+    const { signedTransactions, transactionIds } =
+      await this.algorand.initialFundTransactions(
+        userAccount.algorandAccount.encryptedKey,
+        passphrase
+      )
+
+    // send and wait for transaction to be confirmed
+    await this.algorand.submitTransaction(signedTransactions)
+    await this.algorand.waitForConfirmation(transactionIds[0])
+
+    const transactions = [
+      // funding transaction
+      await AlgorandTransactionModel.query(trx).insert({
+        address: transactionIds[0],
+        status: AlgorandTransactionStatus.Confirmed,
+      }),
+      // non-participation transaction
+      await AlgorandTransactionModel.query(trx).insert({
+        address: transactionIds[1],
+        status: AlgorandTransactionStatus.Pending,
+      }),
+    ]
+
+    // update algorand account, its now funded
+    await AlgorandAccountModel.query(trx)
+      .patch({
+        creationTransactionId: transactions[0].id,
+      })
+      .where({ id: userAccount.algorandAccountId })
   }
 
   async updateAccount(
@@ -100,10 +131,6 @@ export default class AccountsService {
     userInvariant(userAccount, 'user account not found', 404)
 
     invariant(userAccount.algorandAccount, 'algorand account not loaded')
-    invariant(
-      userAccount.algorandAccount.creationTransaction,
-      `algorand account's creation transaction not loaded`
-    )
 
     return {
       address: userAccount.algorandAccount.address,
@@ -111,7 +138,9 @@ export default class AccountsService {
       username: userAccount.username,
       email: userAccount.email,
       locale: userAccount.locale,
-      status: userAccount.algorandAccount.creationTransaction.status,
+      status: userAccount.algorandAccount.creationTransaction
+        ? userAccount.algorandAccount.creationTransaction.status
+        : undefined,
       showProfile: userAccount.showProfile,
     }
   }

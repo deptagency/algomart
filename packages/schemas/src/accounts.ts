@@ -12,7 +12,7 @@ export const AlgorandAccountSchema = Type.Intersect([
       minLength: 58,
       maxLength: 58,
     }),
-    creationTransactionId: Type.String({ format: 'uuid' }),
+    creationTransactionId: Type.Optional(Type.String({ format: 'uuid' })),
     encryptedKey: Type.String(),
   }),
 ])
@@ -41,9 +41,6 @@ const BaseUserAccountSchema = Type.Intersect([
 export const CreateUserAccountRequestSchema = Type.Intersect([
   BaseUserAccountSchema,
   PassphraseSchema,
-  Type.Object({
-    waitForConfirmation: Type.Optional(Type.Boolean()),
-  }),
 ])
 
 export const UpdateUserAccountSchema = Type.Object({
@@ -56,7 +53,7 @@ export const PublicUserAccountSchema = Type.Intersect([
   BaseUserAccountSchema,
   Type.Object({
     address: Type.String(),
-    status: Type.Enum(AlgorandTransactionStatus),
+    status: Type.Optional(Type.Enum(AlgorandTransactionStatus)),
     showProfile: Type.Boolean(),
   }),
 ])

@@ -38,11 +38,49 @@ export default class AlgorandAdapter {
     this.fundingAccount = algosdk.mnemonicToSecretKey(options.fundingMnemonic)
   }
 
+  generateAccount(passphrase: string): PublicAccount {
+    const account = algosdk.generateAccount()
+    const mnemonic = algosdk.secretKeyToMnemonic(account.sk)
+    const encryptedMnemonic = encrypt(mnemonic, passphrase)
+    return {
+      address: account.addr,
+      encryptedMnemonic,
+      signedTransactions: [],
+      transactionIds: [],
+    }
+  }
+
   async createAccount(
     passphrase: string,
     initialBalance = DEFAULT_INITIAL_BALANCE
   ): Promise<PublicAccount> {
     const account = algosdk.generateAccount()
+    const mnemonic = algosdk.secretKeyToMnemonic(account.sk)
+    const encryptedMnemonic = encrypt(mnemonic, passphrase)
+
+    const { signedTransactions, transactionIds } =
+      await this.initialFundTransactions(
+        encryptedMnemonic,
+        passphrase,
+        initialBalance
+      )
+
+    return {
+      address: account.addr,
+      encryptedMnemonic,
+      transactionIds,
+      signedTransactions,
+    }
+  }
+
+  async initialFundTransactions(
+    encryptedMnemonic: string,
+    passphrase: string,
+    initialBalance = DEFAULT_INITIAL_BALANCE
+  ) {
+    const account = algosdk.mnemonicToSecretKey(
+      decrypt(encryptedMnemonic, passphrase)
+    )
 
     const fundingTransaction =
       algosdk.makePaymentTxnWithSuggestedParamsFromObject({
@@ -74,12 +112,7 @@ export default class AlgorandAdapter {
       nonParticipationTransaction.signTxn(account.sk),
     ]
 
-    const mnemonic = algosdk.secretKeyToMnemonic(account.sk)
-    const encryptedMnemonic = encrypt(mnemonic, passphrase)
-
     return {
-      address: account.addr,
-      encryptedMnemonic,
       transactionIds,
       signedTransactions,
     }

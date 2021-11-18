@@ -10,9 +10,9 @@ export class AlgorandAccountModel extends BaseModel {
 
   address!: string
   encryptedKey!: string
-  creationTransactionId!: string
+  creationTransactionId!: string | null
 
-  creationTransaction?: AlgorandTransactionModel
+  creationTransaction?: AlgorandTransactionModel | null
 
   static relationMappings = () => ({
     creationTransaction: {
