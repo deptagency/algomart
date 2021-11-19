@@ -1,5 +1,4 @@
 import {
-  AlgorandTransactionStatus,
   ClaimFreePack,
   ClaimPack,
   ClaimRedeemPack,

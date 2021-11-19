@@ -1,0 +1,27 @@
+.root {
+  @apply w-full max-w-sm overflow-hidden bg-white rounded-lg shadow-lg pointer-events-auto ring-1 ring-black ring-opacity-5;
+}
+
+.transitionEnter {
+  @apply transition duration-300 ease-out transform;
+}
+
+.transitionEnterFrom {
+  @apply translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2;
+}
+
+.transitionEnterTo {
+  @apply translate-y-0 opacity-100 sm:translate-x-0;
+}
+
+.transitionLeave {
+  @apply transition duration-100 ease-in;
+}
+
+.transitionLeaveFrom {
+  @apply opacity-100;
+}
+
+.transitionLeaveTo {
+  @apply opacity-0;
+}

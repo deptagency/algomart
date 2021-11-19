@@ -27,24 +27,34 @@ export function useTransferPack(
         return
       }
 
-      const { status } = await poll(
+      await poll(
         async () => await collectibleService.transferStatus(packId),
-        (result) =>
-          !result.status.every(
-            (x) => x.status === AlgorandTransactionStatus.Confirmed
-          ) ||
-          !result.status.some(
-            (x) => x.status === AlgorandTransactionStatus.Failed
-          ),
+        (result) => {
+          // Something failed
+          if (
+            result.status.some(
+              ({ status }) => status === AlgorandTransactionStatus.Failed
+            )
+          ) {
+            setStatus(TransferPackStatus.Error)
+            return false
+          }
+
+          // All succeeded
+          if (
+            result.status.every(
+              ({ status }) => status === AlgorandTransactionStatus.Confirmed
+            )
+          ) {
+            setStatus(TransferPackStatus.Success)
+            return false
+          }
+
+          // One or more still pending
+          return true
+        },
         1000
       )
-
-      if (status.some((x) => x.status === AlgorandTransactionStatus.Failed)) {
-        setStatus(TransferPackStatus.Error)
-        return
-      }
-
-      setStatus(TransferPackStatus.Success)
     },
     [packId]
   )

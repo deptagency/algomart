@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { ReactNode } from 'react'
 
-import css from './notification.module.css'
+import css from './alert-message.module.css'
 
 interface AlertMessage {
   className?: string

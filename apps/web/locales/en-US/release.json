@@ -19,6 +19,7 @@
   "Ended": "Ended",
   "Ending In": "Ending In",
   "failedToClaim": "We weren’t able to complete your transaction.",
+  "failedToTransfer": "We weren’t able to complete your transaction.",
   "freeWaiting": "Your free {{name}} NFT is waiting",
   "highBidder": "You're the high bidder!",
   "Highest Bid": "Highest Bid",

@@ -1,7 +1,6 @@
 import { PackWithCollectibles } from '@algomart/schemas'
 import { animated, config, useTrail } from '@react-spring/web'
 import clsx from 'clsx'
-import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useState } from 'react'
 
@@ -10,20 +9,20 @@ import css from './pack-grid.module.css'
 import Button from '@/components/button'
 import PackItem from '@/components/pack-grid/pack-item'
 import PackPlaceholder from '@/components/pack-grid/pack-placeholder'
-import { urls } from '@/utils/urls'
 
 export interface PackGridProps {
   packCards: PackWithCollectibles['collectibles']
   packTitle: PackWithCollectibles['title']
   transitionStyle?: 'automatic' | 'interactive'
+  onTransfer?: () => void
 }
 
 export default function PackGrid({
   packCards,
   packTitle,
   transitionStyle = 'automatic',
+  onTransfer,
 }: PackGridProps) {
-  const { push } = useRouter()
   const { t } = useTranslation()
 
   // Automatic animations
@@ -118,12 +117,17 @@ export default function PackGrid({
           )
         })}
       </ul>
-      <Button
-        className={css.viewCollectionButton}
-        onClick={() => push(urls.myCollectibles)}
-      >
-        {t('common:actions.View In My Collection')}
-      </Button>
+      {onTransfer && (
+        <Button
+          className={css.viewCollectionButton}
+          onClick={onTransfer}
+          disabled={packCards.length === 0}
+        >
+          {t('common:actions.Transfer Collectibles', {
+            count: packCards.length,
+          })}
+        </Button>
+      )}
     </>
   )
 }

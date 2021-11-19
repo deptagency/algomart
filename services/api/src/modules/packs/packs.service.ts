@@ -44,6 +44,7 @@ import { EventModel } from '@/models/event.model'
 import { PackModel } from '@/models/pack.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import NotificationsService from '@/modules/notifications/notifications.service'
+import { chunkArray } from '@/utils/arrays'
 import { formatIntToFloat } from '@/utils/format-currency'
 import { invariant, userInvariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
@@ -109,6 +110,8 @@ function mapToPublicBid(bid: BidModel, packId: string): BidPublic {
     username: bid?.userAccount?.username as string,
   }
 }
+
+const MAX_COLLECTIBLES = 16
 
 export default class PacksService {
   logger = logger.child({ context: this.constructor.name })
@@ -646,13 +649,14 @@ export default class PacksService {
 
     userInvariant(pack, 'pack not found', 404)
 
-    this.logger.info({ pack }, 'pack to be transferred')
+    this.logger.info({ pack }, 'pack to be minted')
 
     const collectibleIds = pack.collectibles?.map((c) => c.id) || []
 
+    // Max 16 collectibles can be minted at a time
     await Promise.all(
-      collectibleIds.map(async (id) => {
-        await this.collectibles.mintCollectible(id, trx)
+      chunkArray(collectibleIds, MAX_COLLECTIBLES).map(async (chunk) => {
+        await this.collectibles.mintCollectibles(chunk, trx)
       })
     )
   }
