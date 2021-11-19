@@ -39,7 +39,7 @@
     ]
   },
   "wireTransfer": {
-    "subject": "Congratulations on your purchase of {{packTitle}}!",
+    "subject": "Congratulations on your purchase!",
     "body": [
       "Congratulations on your purchase of {{packTitle}}!",
       "Here's the bank account information for the wire transfer of {{amount}}:",
