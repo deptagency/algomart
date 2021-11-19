@@ -4,13 +4,13 @@ import { useCallback, useState } from 'react'
 
 import css from './my-showcase-template.module.css'
 
+import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
 import CollectibleItem from '@/components/collectibles/collectible-item'
 import CollectiblePlaceholder from '@/components/collectibles/collectible-placeholder'
 import CollectibleShowcase from '@/components/collectibles/collectible-showcase'
 import Grid from '@/components/grid/grid'
 import Heading from '@/components/heading'
-import Notification from '@/components/notification/notification'
 import Pagination from '@/components/pagination/pagination'
 import Tabs from '@/components/tabs/tabs'
 import { useAuth } from '@/contexts/auth-context'
@@ -97,7 +97,7 @@ export default function MyShowcaseTemplate({
           </Heading>
 
           {showNotification && (
-            <Notification
+            <AlertMessage
               className={css.notification}
               content={t('collection:viewer.maxCollectibles')}
               variant="red"

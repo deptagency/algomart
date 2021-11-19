@@ -1,4 +1,5 @@
 import {
+  AlgorandTransactionStatus,
   ClaimFreePack,
   ClaimPack,
   ClaimRedeemPack,
@@ -36,6 +37,7 @@ import {
   RedeemCode,
   SetWithCollection,
   TransferPack,
+  TransferPackStatusList,
   UpdatePaymentCard,
   UpdateUserAccount,
   Username,
@@ -285,6 +287,12 @@ export class ApiClient {
 
   async transferPack(json: TransferPack) {
     return await this.http.post('packs/transfer', { json })
+  }
+
+  async transferPackStatus(packId: string): Promise<TransferPackStatusList> {
+    return await this.http
+      .get(`packs/transfer/${packId}`)
+      .json<TransferPackStatusList>()
   }
   //#endregion
 

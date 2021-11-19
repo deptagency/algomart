@@ -27,6 +27,7 @@ import {
   PublishedPacksQuery,
   SortDirection,
   TransferPack,
+  TransferPackStatusList,
 } from '@algomart/schemas'
 import { raw, Transaction } from 'objection'
 
@@ -654,6 +655,22 @@ export default class PacksService {
         await this.collectibles.mintCollectible(id, trx)
       })
     )
+  }
+
+  async transferPackStatus(packId: string): Promise<TransferPackStatusList> {
+    const pack = await PackModel.query()
+      .findOne('Pack.id', packId)
+      .withGraphJoined('collectibles.latestTransferTransaction')
+
+    userInvariant(pack, 'pack not found', 404)
+    invariant(pack.collectibles, 'pack has no collectibles')
+
+    return {
+      status: pack.collectibles.map((collectible) => ({
+        collectibleId: collectible.id,
+        status: collectible.latestTransferTransaction?.status,
+      })),
+    }
   }
 
   async transferPack(request: TransferPack, trx?: Transaction) {

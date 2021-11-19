@@ -6,16 +6,16 @@ import { ExtractError } from 'validator-fns'
 
 import css from './purchase-form.module.css'
 
+import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
 import CardDetails from '@/components/card-details'
 import BillingAddress from '@/components/card-details/billing-address'
 import CurrencyInput from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
-import Notification from '@/components/notification/notification'
 import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import Toggle from '@/components/toggle/toggle'
-import { useLocale } from '@/hooks/useLocale'
+import { useLocale } from '@/hooks/use-locale'
 import checkoutService from '@/services/checkout-service'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
@@ -111,7 +111,7 @@ export default function PurchaseForm({
   return (
     <form className={css.form} onSubmit={onSubmit}>
       {formErrors && 'bid' in formErrors && (
-        <Notification
+        <AlertMessage
           className={css.notification}
           content={formErrors.bid}
           variant="red"
@@ -119,7 +119,7 @@ export default function PurchaseForm({
       )}
 
       {formErrors && 'expirationDate' in formErrors && (
-        <Notification
+        <AlertMessage
           className={css.notification}
           content={formErrors.expirationDate}
           variant="red"

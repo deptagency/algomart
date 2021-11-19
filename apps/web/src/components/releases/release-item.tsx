@@ -6,7 +6,7 @@ import useTranslation from 'next-translate/useTranslation'
 import css from './release-item.module.css'
 
 import Counter from '@/components/counter/counter'
-import { useLocale } from '@/hooks/useLocale'
+import { useLocale } from '@/hooks/use-locale'
 import { cmsImageLoader } from '@/utils/cms-image-loader'
 import { formatCurrency } from '@/utils/format-currency'
 

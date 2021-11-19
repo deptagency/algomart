@@ -4,11 +4,11 @@ import { ExtractError } from 'validator-fns'
 
 import css from './add-methods-form.module.css'
 
+import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
 import CardDetails from '@/components/card-details'
 import BillingAddress from '@/components/card-details/billing-address'
 import Heading from '@/components/heading'
-import Notification from '@/components/notification/notification'
 import {
   validateExpirationDate,
   validatePurchaseForm,
@@ -29,7 +29,7 @@ export default function AddMethodsForm({
   return (
     <form className={css.form} onSubmit={onSubmit}>
       {formErrors && 'expirationDate' in formErrors && (
-        <Notification
+        <AlertMessage
           className={css.notification}
           content={formErrors.expirationDate}
           variant="red"

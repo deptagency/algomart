@@ -11,9 +11,9 @@ import { useState } from 'react'
 import css from './release-template.module.css'
 
 import Alert from '@/components/alert/alert'
+import AlertMessage from '@/components/alert-message/alert-message'
 import MediaGallery from '@/components/media-gallery/media-gallery'
 import ClaimNFTModal from '@/components/modals/claim-nft-modal'
-import Notification from '@/components/notification/notification'
 import ReleaseDetails from '@/components/release-details/release-details'
 import { useAuth } from '@/contexts/auth-context'
 import { isAfterNow } from '@/utils/date-time'
@@ -126,7 +126,7 @@ export default function ReleaseTemplate({
   return (
     <article className={css.root}>
       {notificationDetails && (
-        <Notification
+        <AlertMessage
           className={css.notification}
           content={notificationDetails.content}
           showBorder

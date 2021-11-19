@@ -153,3 +153,12 @@ export async function transferPack(
   await service.transferPack(request.body, request.transaction)
   reply.status(204).send()
 }
+
+export async function transferPackStatus(
+  request: FastifyRequest<{ Params: PackId }>,
+  reply: FastifyReply
+) {
+  const service = request.getContainer().get<PacksService>(PacksService.name)
+  const result = await service.transferPackStatus(request.params.packId)
+  reply.send(result)
+}

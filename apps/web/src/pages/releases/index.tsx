@@ -5,8 +5,8 @@ import { useEffect, useMemo, useRef } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import { PackFilterProvider } from '@/contexts/pack-filter-context'
-import { useLocale } from '@/hooks/useLocale'
-import { usePackFilter } from '@/hooks/usePackFilter'
+import { useLocale } from '@/hooks/use-locale'
+import { usePackFilter } from '@/hooks/use-pack-filter'
 import DefaultLayout from '@/layouts/default-layout'
 import ReleasesTemplate from '@/templates/releases-template'
 import {

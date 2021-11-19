@@ -1,7 +1,9 @@
 import {
+  AlgorandTransactionStatus,
   MintPackStatus,
   MintPackStatusResponse,
   PackWithId,
+  TransferPackStatusList,
 } from '@algomart/schemas'
 import { getAuth } from 'firebase/auth'
 import ky from 'ky'
@@ -22,6 +24,7 @@ export interface CollectibleAPI {
   mint(packId: string): Promise<boolean>
   mintStatus(packId: string): Promise<MintPackStatus>
   transfer(packId: string, passphrase: string): Promise<boolean>
+  transferStatus(packId: string): Promise<TransferPackStatusList>
   shareProfile(shareProfile: boolean): Promise<boolean>
 }
 
@@ -96,6 +99,16 @@ export class CollectibleService implements CollectibleAPI {
     })
 
     return response.ok
+  }
+
+  async transferStatus(packId: string): Promise<TransferPackStatusList> {
+    const response = await this.http
+      .get(urls.api.v1.assetTransfer, {
+        searchParams: { packId },
+      })
+      .json<TransferPackStatusList>()
+
+    return response
   }
 
   async addCollectibleShowcase(id: string): Promise<boolean> {

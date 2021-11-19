@@ -8,6 +8,7 @@ module.exports = {
     'rgx:/my/profile': ['profile'],
     'rgx:/releases': ['release'],
     '/checkout': ['release'],
+    'rgx:/pack-opening': ['release'],
   },
   // Needed to dynamically load locales within APIs using `getT()`
   // https://github.com/vinissimus/next-translate/issues/484#issuecomment-899593712

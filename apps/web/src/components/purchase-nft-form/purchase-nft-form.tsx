@@ -12,7 +12,7 @@ import css from './purchase-nft-form.module.css'
 
 import Loading from '@/components/loading/loading'
 import { usePaymentProvider } from '@/contexts/payment-context'
-import { useWarningOnExit } from '@/hooks/useWarningOnExit'
+import { useWarningOnExit } from '@/hooks/use-warning-on-exit'
 import { isAfterNow } from '@/utils/date-time'
 
 export interface PurchaseNFTFormProps {

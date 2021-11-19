@@ -17,6 +17,7 @@ import {
   PublishedPacksSchema,
   RedeemCodeSchema,
   TransferPackSchema,
+  TransferPackStatusListSchema,
 } from '@algomart/schemas'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
@@ -34,6 +35,7 @@ import {
   mintPack,
   mintPackStatus,
   transferPack,
+  transferPackStatus,
 } from './packs.routes'
 
 import bearerAuthOptions from '@/configuration/bearer-auth'
@@ -238,5 +240,21 @@ export async function packsRoutes(app: FastifyInstance) {
       },
     },
     transferPack
+  )
+
+  app.get(
+    '/transfer/:packId',
+    {
+      schema: {
+        tags,
+        security,
+        description: 'Get the transfer status of each collectible in the pack.',
+        params: PackIdSchema,
+        response: {
+          200: TransferPackStatusListSchema,
+        },
+      },
+    },
+    transferPackStatus
   )
 }
