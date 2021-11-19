@@ -91,23 +91,20 @@ export function usePaymentProvider({
   const [packId, setPackId] = useState<string | null>(auctionPackId || null)
   const [passphrase, setPassphrase] = useState<string>('')
   const [status, setStatus] = useState<CheckoutStatus>(
-    (release &&
-      release.type === PackType.Purchase &&
-      !Environment.isWireEnabled) ||
-      (release &&
-        release.type === PackType.Purchase &&
-        Environment.isWireEnabled &&
-        !isGreaterThanOrEqual(release.price, maximumBidForCardPayments)) ||
-      (release &&
-        release.type == PackType.Auction &&
-        !isAfterNow(new Date(release.auctionUntil as string)) &&
-        !Environment.isWireEnabled) ||
-      (Environment.isWireEnabled &&
-        release &&
-        release.type == PackType.Auction &&
-        !isAfterNow(new Date(release.auctionUntil as string)) &&
-        currentBid &&
-        !isGreaterThanOrEqual(currentBid, maximumBidForCardPayments))
+    release &&
+      ((release.type === PackType.Purchase &&
+        (!Environment.isWireEnabled ||
+          (Environment.isWireEnabled &&
+            !isGreaterThanOrEqual(
+              release.price,
+              maximumBidForCardPayments
+            )))) ||
+        (release.type === PackType.Auction &&
+          !isAfterNow(new Date(release.auctionUntil as string)) &&
+          (!Environment.isWireEnabled ||
+            (Environment.isWireEnabled &&
+              currentBid &&
+              !isGreaterThanOrEqual(currentBid, maximumBidForCardPayments)))))
       ? 'passphrase'
       : 'form'
   )
