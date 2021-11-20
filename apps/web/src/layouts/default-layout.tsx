@@ -29,7 +29,7 @@ export default function DefaultLayout({
   return (
     <>
       <HeadTag pageDescription={pageDescription} pageTitle={pageTitle} />
-      <div className={common.backgroundGradient}>
+      <div className={common.background}>
         <EmailVerification />
         <UntransferredPacks />
 

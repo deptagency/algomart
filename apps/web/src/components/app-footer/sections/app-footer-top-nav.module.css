@@ -1,5 +1,5 @@
 .topNav {
-  @apply md:bg-white;
+  @apply bg-gray-900;
 }
 
 .topNavWrapper {
