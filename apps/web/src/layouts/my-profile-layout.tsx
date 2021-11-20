@@ -35,7 +35,7 @@ export default function MyProfileLayout({
     <>
       <HeadTag pageDescription={pageDescription} pageTitle={pageTitle} />
 
-      <div className={common.backgroundGradient}>
+      <div className={common.background}>
         <EmailVerfication />
         <section>
           <AppHeader />

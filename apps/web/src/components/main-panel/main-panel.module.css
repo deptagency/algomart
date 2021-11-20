@@ -1,6 +1,6 @@
 .rootPanel {
   /* Base */
-  @apply py-8 mx-auto mb-8 bg-white max-w-700;
+  @apply py-8 mx-auto mb-8 bg-gray-800 max-w-700;
   /* Tablet + */
   @apply md:mt-6 md:py-16 md:rounded-lg;
 }

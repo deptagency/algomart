@@ -6,9 +6,9 @@ import css from './logo.module.css'
 import AppLink from '@/components/app-link/app-link'
 
 // Images
-const ImageBlack = '/images/logos/algorand_logo_mark_black.svg'
-const ImageGrey = '/images/logos/algorand_logo_mark_grey.svg'
-const ImageWhite = '/images/logos/algorand_logo_mark_white.svg'
+const ImageBlack = '/images/logos/og2d-logo.png'
+const ImageGrey = '/images/logos/og2d-logo.png'
+const ImageWhite = '/images/logos/og2d-logo.png'
 
 export interface LogoProps {
   className?: string
@@ -28,11 +28,11 @@ export default function Logo({
   const props = { alt: 'Algorand Storefront', layout, className }
   const image =
     color === 'grey' ? (
-      <Image src={ImageGrey} {...props} width={24} height={24} />
+      <Image src={ImageGrey} {...props} width={84} height={24} />
     ) : color === 'white' ? (
-      <Image src={ImageWhite} {...props} width={24} height={24} />
+      <Image src={ImageWhite} {...props} width={84} height={24} />
     ) : (
-      <Image src={ImageBlack} {...props} width={24} height={24} />
+      <Image src={ImageBlack} {...props} width={84} height={24} />
     )
   return !isLinked ? (
     image

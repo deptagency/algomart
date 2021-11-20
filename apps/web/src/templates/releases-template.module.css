@@ -1,6 +1,7 @@
 .root {
   /* Base */
   @apply px-5;
+  @apply bg-gray-800;
 }
 
 .selectWrapper {

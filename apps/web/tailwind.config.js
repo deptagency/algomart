@@ -3,6 +3,8 @@ const flattenColorPalette =
   require('tailwindcss/lib/util/flattenColorPalette').default
 const plugin = require('tailwindcss/plugin')
 
+const colors = require('tailwindcss/colors')
+
 module.exports = {
   // Keep JIT disabled for now. Enabling it will break the custom font loading.
   // mode: 'jit',
@@ -40,9 +42,9 @@ module.exports = {
           priceGreen: '#33C500',
           teal: '#12DCC5',
           gray: {
-            dark: '#0A111D',
-            text: '#4B4F56',
-            nav: '#808080',
+            dark: colors.gray['500'],
+            text: colors.coolGray['50'],
+            nav: '#e5e5e5',
             notice: '#F9F8F9',
             medium: '#747F8F',
             light: '#B6BECB',

@@ -1,5 +1,5 @@
-.backgroundGradient {
-  @apply flex flex-col flex-grow bg-gradient-to-b from-base-gray-bg;
+.background {
+  @apply flex flex-col flex-grow bg-gray-900;
 }
 
 .pageTitle {
