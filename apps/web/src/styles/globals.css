@@ -17,4 +17,5 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  @apply bg-gray-900;
 }

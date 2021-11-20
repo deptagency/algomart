@@ -25,7 +25,7 @@ export default function Heading({
     {
       className: clsx(
         {
-          'text-base-gray-dark': !inheritColor,
+          'text-base-gray-light': !inheritColor,
           'font-bold text-2xl': size === 1,
           'text-xl': size === 2,
           'text-lg': size === 3,
