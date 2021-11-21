@@ -2,9 +2,7 @@ import clsx from 'clsx'
 import Link, { LinkProps as NextLinkProps } from 'next/link'
 import { AnchorHTMLAttributes, DetailedHTMLProps } from 'react'
 
-import css from './app-link.module.css'
-
-import { useLocale } from '@/hooks/use-locale'
+import { useLocale } from '@/hooks/useLocale'
 
 export type AppLinkProps = NextLinkProps &
   Omit<
@@ -39,7 +37,7 @@ export default function AppLink({
       scroll={scroll}
       shallow={shallow}
     >
-      <a className={clsx(css.root, className)} {...rest}>
+      <a className={clsx(className)} {...rest}>
         {children}
       </a>
     </Link>

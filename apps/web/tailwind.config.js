@@ -25,6 +25,7 @@ module.exports = {
       },
       borderRadius: {
         sm: '4px',
+        '2.5xl': '1.1rem',
       },
       borderWidth: {
         1: '1px',
@@ -41,7 +42,41 @@ module.exports = {
           green: '#02FBC2',
           priceGreen: '#33C500',
           teal: '#12DCC5',
+          brand: {
+            50: '#82dab0',
+            100: '#82dab0',
+            200: '#69d3a0',
+            300: '#50cb90',
+            400: '#C5F1DD',
+            500: '#9FE7C7',
+            600: '#65D9A5',
+            700: '#3ECF8E',
+            800: '#24b47e', // green-500 in dashboard
+            900: '#2c9c6a',
+          },
+          purple: {
+            600: '#9757D7',
+          },
+          indigo: {
+            600: '#3772FF',
+          },
+          blue: {
+            400: '#68D7FF',
+            600: '#00B0F0',
+            800: '#309AC0',
+          },
+          pink: {
+            400: '#309AC0',
+            600: '#EF466F', // Primary Buttons
+          },
           gray: {
+            50: '#FCFCFD', // Icons/Typography
+            100: '#E6E8EC', // Pill Active - Follow Page
+            200: '#B1B5C3', // Typography "Creator"
+            400: '#777E90', // Icons/Typography
+            600: '#353945', // Pill Buttons/Borders
+            800: '#23262F', // Favorite Button
+            900: '#090B16', // Background
             dark: colors.gray['500'],
             text: colors.coolGray['50'],
             nav: '#e5e5e5',
@@ -52,6 +87,42 @@ module.exports = {
             bg: '#ECECEC',
           },
         },
+      },
+      fontFamily: {
+        poppins: [
+          'Poppins',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'Noto Sans',
+          'sans-serif',
+          'Apple Color Emoji',
+          'Segoe UI Emoji',
+          'Segoe UI Symbol',
+          'Noto Color Emoji',
+        ],
+        'dm-sans': [
+          'DM Sans',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'Noto Sans',
+          'sans-serif',
+          'Apple Color Emoji',
+          'Segoe UI Emoji',
+          'Segoe UI Symbol',
+          'Noto Color Emoji',
+        ],
       },
       height: {
         thumb: '100px',
