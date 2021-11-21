@@ -1,4 +1,4 @@
-import { Builder, builder,BuilderComponent } from '@builder.io/react'
+import { Builder, builder, BuilderComponent } from '@builder.io/react'
 import type { GetStaticPropsContext, InferGetStaticPropsType } from 'next'
 import DefaultErrorPage from 'next/error'
 import Head from 'next/head'
