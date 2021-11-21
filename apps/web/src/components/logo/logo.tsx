@@ -28,17 +28,17 @@ export default function Logo({
   const props = { alt: 'AlgoMart', layout, className }
   const image =
     color === 'grey' ? (
-      <Image src={ImageGrey} {...props} width={84} height={24} />
+      <Image src={ImageGrey} {...props} objectFit="cover" layout="fill" />
     ) : color === 'white' ? (
-      <Image src={ImageWhite} {...props} width={84} height={24} />
+      <Image src={ImageWhite} {...props} objectFit="cover" layout="fill" />
     ) : (
-      <Image src={ImageBlack} {...props} width={84} height={24} />
+      <Image src={ImageBlack} {...props} objectFit="cover" layout="fill" />
     )
   return !isLinked ? (
     image
   ) : (
     <AppLink className={clsx(css.link, linkClassName)} href="/">
-      {image}
+      <div className="h-12 w-32 relative">{image}</div>
     </AppLink>
   )
 }
