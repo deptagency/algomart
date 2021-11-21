@@ -73,7 +73,12 @@ export default function HomeTemplate({
           {/* Columns */}
           <div className="sm:flex sm:flex-col sm:items-center rounded-xl relative">
             {/* Image */}
-            <div className={clsx(css.dropshadow, "w-full md:w-4/5 aspect-w-16 aspect-w-9 mt-6")}>
+            <div
+              className={clsx(
+                css.dropshadow,
+                'w-full md:w-4/5 aspect-w-16 aspect-w-9 mt-6'
+              )}
+            >
               <Image
                 src={featuredPack.image}
                 className="rounded-xl"
@@ -86,7 +91,11 @@ export default function HomeTemplate({
 
             {/* Content */}
             <div className="bg-gray-900 bg-opacity-75 rounded-xl md:relative lg:absolute relative md:-bottom-20 lg:-bottom-12 md:w-4/5 py-4 px-8 mx-4">
-              <Heading className="text-blue-800 lg:text-2xl md:text-xl mb-4" level={2} bold>
+              <Heading
+                className="text-blue-800 lg:text-2xl md:text-xl mb-4"
+                level={2}
+                bold
+              >
                 {featuredPack.title}
               </Heading>
 
@@ -229,7 +238,7 @@ export default function HomeTemplate({
                           locale
                         )}
                     </p>
-                    <Button onClick={onClickFeatured} fullWidth size='small'>
+                    <Button onClick={onClickFeatured} fullWidth size="small">
                       {t('common:actions.Buy Now')}
                     </Button>
                   </>
