@@ -13,17 +13,18 @@ export default function NotableCollectible({
   collectible,
 }: NotableCollectibleProps) {
   return (
-    <div className={css.root}>
+    <div className="relative flex flex-col h-full overflow-hidden text-center rounded-md shadow-large">
       <div className={css.imageWrapper}>
-        <Image
-          alt={collectible.title}
-          height={250}
-          layout="responsive"
-          loader={cmsImageLoader}
-          objectFit="contain"
-          src={collectible.image}
-          width={250}
-        />
+        <div className={` w-full relative h-80`}>
+          <Image
+            alt={collectible.title}
+            layout="fill"
+            className="rounded-xl transition-all hover:opacity-80 object-contain lg:object-cover w-full h-full"
+            loader={cmsImageLoader}
+            objectFit="contain"
+            src={collectible.image}
+          />
+        </div>
       </div>
       <div className={css.content}>
         <div className={css.title}>{collectible.title}</div>

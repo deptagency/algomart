@@ -1,5 +1,5 @@
 .root {
-  @apply relative flex flex-col h-full overflow-hidden text-center bg-white rounded-md shadow-large;
+  @apply relative flex flex-col h-full overflow-hidden text-center  rounded-md shadow-large;
 }
 
 .imageWrapper {
@@ -11,5 +11,5 @@
 }
 
 .title {
-  @apply px-4 text-lg font-bold text-base-gray-dark;
+  @apply px-4 text-lg font-bold text-white;
 }
