@@ -15,7 +15,7 @@ export interface ReleaseItemProps {
 }
 
 export default function ReleaseItem({ pack }: ReleaseItemProps) {
-console.log(pack)
+  console.log(pack)
   const locale = useLocale()
   const { t } = useTranslation()
 
@@ -36,9 +36,7 @@ console.log(pack)
             src={pack.image}
           />
         </div>
-        <div className={css.subtitle}>
-          {pack.subtitle}
-        </div>
+        <div className={css.subtitle}>{pack.subtitle}</div>
       </div>
 
       {/* Metadata for active auction pack */}
@@ -118,13 +116,13 @@ console.log(pack)
             </div>
           </div>
           <div className="text-right mt-4 px-4">
-              <span className="font-poppins text-sm text-blue-800">
-                {t('release:N of N', {
-                  available: pack.available,
-                  total: pack.total,
-                })}
-                {t('release:Remaining')}
-              </span>
+            <span className="font-poppins text-sm text-blue-800">
+              {t('release:N of N', {
+                available: pack.available,
+                total: pack.total,
+              })}
+              {t('release:Remaining')}
+            </span>
           </div>
         </div>
       )}
@@ -133,9 +131,7 @@ console.log(pack)
       {pack.type === PackType.Free && (
         <div className={clsx(css.metadata, css.full)}>
           <div className="flex flex-col">
-            <div className={css.metadataLabel}>
-              {pack.title}
-            </div>
+            <div className={css.metadataLabel}>{pack.title}</div>
             <div className={css.metadataValue}>{t('common:statuses.Free')}</div>
           </div>
         </div>
@@ -145,9 +141,7 @@ console.log(pack)
       {pack.type === PackType.Redeem && (
         <div className={clsx(css.metadata, css.full)}>
           <div className="flex flex-col">
-            <div className={css.metadataLabel}>
-              {pack.title}
-            </div>
+            <div className={css.metadataLabel}>{pack.title}</div>
             <div className={css.metadataValue}>
               {t('common:statuses.Redeemable')}
             </div>
