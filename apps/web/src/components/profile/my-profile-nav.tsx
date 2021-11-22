@@ -75,7 +75,7 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
           {navItems.map(({ id, label }) => {
             return (
               <li
-                className={clsx(css.listItem, {
+                className={clsx('text-white', css.listItem, {
                   [css.listItemActive]:
                     id === pathname || `${id}/add` === pathname,
                 })}

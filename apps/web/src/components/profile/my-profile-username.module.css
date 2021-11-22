@@ -15,7 +15,7 @@
 }
 
 .inputWrapper input[disabled] {
-  @apply shadow-none bg-base-gray-bg;
+  @apply shadow-none;
 }
 
 .editButton {
