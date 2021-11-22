@@ -3,7 +3,7 @@
 }
 
 .labelContainer {
-  @apply flex flex-wrap font-bold justify-between relative text-base-gray-dark w-full;
+  @apply flex flex-wrap font-bold justify-between relative text-white w-full;
 }
 
 .label {
@@ -11,7 +11,7 @@
 }
 
 .helpText {
-  @apply font-light text-base-gray-medium text-right text-xs mt-1 w-1/2;
+  @apply font-light text-white text-right text-xs mt-1 w-1/2;
 }
 
 .errorText {
