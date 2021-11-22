@@ -13,6 +13,7 @@ import EmailVerification from '@/components/profile/email-verification'
 import LoadingStatus from '@/components/profile/loading-status'
 import MyProfileNav from '@/components/profile/my-profile-nav'
 import NotAuthenticated from '@/components/profile/not-authenticated'
+import UntransferredPacks from '@/components/profile/untransferred-packs'
 import { useAuth } from '@/contexts/auth-context'
 
 export interface MyProfileLayoutProps {
@@ -37,6 +38,8 @@ export default function MyProfileLayout({
 
       <div className={common.backgroundGradient}>
         <EmailVerification />
+        <UntransferredPacks />
+
         <section>
           <AppHeader />
 
