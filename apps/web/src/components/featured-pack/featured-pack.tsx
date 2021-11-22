@@ -58,8 +58,8 @@ export default function HomeTemplate({
               className={
                 'flex items-center justify-center px-4 py-3 border border-transparent font-semibold text-sm rounded-full shadow-sm text-gray-50 hover:cursor-pointer focus:outline-none bg-gradient-to-r from-green-400 to-blue-500 hover:sha active:shadow-inner font-poppins disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed'
               }
-              href={'/marketplace'}
-              key={'/marketplace'}
+              href={'/releases'}
+              key={'/releases'}
             >
               Start Collecting
             </AppLink>
