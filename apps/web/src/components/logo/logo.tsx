@@ -6,9 +6,9 @@ import css from './logo.module.css'
 import AppLink from '@/components/app-link/app-link'
 
 // Images
-const ImageBlack = '/images/logos/algorand_logo_mark_black.svg'
-const ImageGrey = '/images/logos/algorand_logo_mark_grey.svg'
-const ImageWhite = '/images/logos/algorand_logo_mark_white.svg'
+const ImageBlack = '/images/logos/algomart_logo_black.svg'
+const ImageGrey = '/images/logos/algomart_logo_grey.svg'
+const ImageWhite = '/images/logos/algomart_logo_white.svg'
 
 export interface LogoProps {
   className?: string
@@ -25,7 +25,7 @@ export default function Logo({
   color = 'grey',
   layout = 'responsive',
 }: LogoProps) {
-  const props = { alt: 'Algorand Storefront', layout, className }
+  const props = { alt: 'AlgoMart', layout, className }
   const image =
     color === 'grey' ? (
       <Image src={ImageGrey} {...props} width={24} height={24} />
