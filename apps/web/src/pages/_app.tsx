@@ -7,9 +7,7 @@ import '../styles/globals.css'
 
 import { Analytics } from '@/clients/firebase-analytics'
 import CookieConsent from '@/components/cookie-consent/cookie-consent'
-import NotificationContainer from '@/components/notifications/notification-container'
 import { AuthProvider } from '@/contexts/auth-context'
-import { NotificationProvider } from '@/contexts/notification-context'
 import { RedemptionProvider } from '@/contexts/redemption-context'
 import { fetcher } from '@/utils/swr'
 
@@ -37,11 +35,8 @@ function MyApp({ Component, pageProps }: AppProps) {
     >
       <RedemptionProvider>
         <AuthProvider>
-          <NotificationProvider>
-            <Component {...pageProps} />
-            <NotificationContainer />
-            <CookieConsent />
-          </NotificationProvider>
+          <Component {...pageProps} />
+          <CookieConsent />
         </AuthProvider>
       </RedemptionProvider>
     </SWRConfig>
