@@ -75,7 +75,7 @@ export default function Toggle({
         checked={enabled}
         readOnly
       />
-      <span className={css.label}>{label}</span>
+      <span className={clsx('text-white', css.label)}>{label}</span>
       {error && <span className={css.errorText}>{error}</span>}
       {!error && helpText && <span className={css.helpText}>{helpText}</span>}
     </label>

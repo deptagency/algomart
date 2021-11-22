@@ -43,7 +43,7 @@ export default function MyProfileLayout({
         <section>
           <AppHeader />
 
-          <MainPanel width="large">
+          <MainPanel width="large" className="mx-auto max-w-7xl">
             {isLoading && <LoadingStatus />}
             {!isLoading && !isAuthenticated && <NotAuthenticated />}
             {!isLoading && isAuthenticated && (

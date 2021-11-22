@@ -12,13 +12,13 @@
 
 .sectionHeading {
   /* Base */
-  @apply mb-1 text-lg font-bold text-base-gray-dark;
+  @apply mb-1 text-lg font-bold text-white;
   /* Tablet + */
   @apply md:text-xl;
 }
 
 .confirmation {
-  @apply mb-2 text-sm font-light text-right text-base-teal;
+  @apply mb-2 text-sm font-light text-right text-blue-600;
 }
 
 .error {

@@ -37,7 +37,7 @@ export default function CardDetails({ formErrors }: CardDetailsProps) {
 
       <div className={css.formMultiRow}>
         <div>
-          <label htmlFor="expMonth">
+          <label htmlFor="expMonth" className="text-white">
             {t('forms:fields.expirationDate.label')}
           </label>
           <div className={css.formMultiRow}>

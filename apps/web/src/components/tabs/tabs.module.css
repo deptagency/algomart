@@ -30,5 +30,5 @@
 }
 
 .tabActive {
-  @apply font-bold bg-base-teal;
+  @apply bg-blue-600;
 }

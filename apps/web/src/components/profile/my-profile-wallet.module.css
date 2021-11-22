@@ -1,6 +1,6 @@
 .viewOnChainButton {
   /* Base */
-  @apply px-0 mb-1 text-sm underline text-base-gray-medium;
+  @apply px-0 mb-1 text-sm underline text-white;
   /* Tablet + */
   @apply md:mb-2;
 }

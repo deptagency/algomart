@@ -1,4 +1,5 @@
 import { ExternalLinkIcon } from '@heroicons/react/outline'
+import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useMemo } from 'react'
 
@@ -47,7 +48,7 @@ export default function MyWallet() {
         </Button>
       </div>
       <div className={common.sectionContent}>
-        <div className={css.columns}>
+        <div className={clsx('text-white', css.columns)}>
           <div>{formattedAddress}</div>
           <Button onClick={handleCopy} size="small">
             {t('common:actions.Copy')}

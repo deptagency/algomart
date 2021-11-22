@@ -11,7 +11,7 @@
 
 .topNavLink {
   /* Base */
-  @apply block py-5 text-lg font-bold text-center no-underline transition duration-300 border-t focus:outline-none text-base-gray-text focus:text-base-teal hover:text-base-teal;
+  @apply block py-5 text-lg font-bold text-center no-underline transition duration-300 border-t focus:outline-none text-base-gray-text focus:text-blue-600 hover:text-blue-600;
   /* Tablet + */
   @apply md:border-t-0 md:inline md:text-left md:py-0 md:text-base;
 }
@@ -21,5 +21,5 @@
 }
 
 .topNavLinkActive {
-  @apply border-t-base-gray-border text-base-teal;
+  @apply border-t-base-gray-border text-blue-600;
 }
