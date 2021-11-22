@@ -8,13 +8,13 @@
 }
 
 .loaderContainer {
-  @apply bg-transparent border border-base-teal overflow-hidden rounded-full relative;
+  @apply bg-transparent border border-blue-600 overflow-hidden rounded-full relative;
   height: 8px;
   width: 300px;
 }
 
 .loaderProgress {
-  @apply absolute bg-base-teal h-full left-0;
+  @apply absolute bg-blue-600 h-full left-0;
   width: 0;
 }
 

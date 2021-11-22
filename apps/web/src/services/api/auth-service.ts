@@ -12,7 +12,7 @@ export async function getAuthenticatedUser({
 }: GetServerSidePropsContext) {
   const cookies = new Cookies(req, res)
   const token = cookies.get(TOKEN_COOKIE_NAME)
-
+  console.log('token:', token)
   if (!token) {
     return false
   }
@@ -20,7 +20,7 @@ export async function getAuthenticatedUser({
   const decoded = await configureAdmin()
     .auth()
     .verifyIdToken(token)
-    .catch(() => null)
+    .catch(() => cookies.set(TOKEN_COOKIE_NAME, ''))
 
   if (!decoded) {
     return false

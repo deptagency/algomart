@@ -21,7 +21,11 @@ export default function CheckoutTemplate({
 }: CheckoutTemplateProps) {
   const { user } = useAuth()
   if (!user?.emailVerified) {
-    return <EmailVerification inline />
+    return (
+      <div className="mx-auto max-w-5xl">
+        <EmailVerification inline />
+      </div>
+    )
   }
   const doesRequireWirePayment =
     Environment.isWireEnabled &&

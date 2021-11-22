@@ -44,7 +44,9 @@ export default function MyProfilePaymentMethodsTemplate({
                     })}
                     key={id}
                   >
-                    <span className={css.itemLabel}>{label}</span>
+                    <span className={clsx('text-white', css.itemLabel)}>
+                      {label}
+                    </span>
                     <div className={css.itemActions}>
                       <Toggle
                         checked={defaultCard}

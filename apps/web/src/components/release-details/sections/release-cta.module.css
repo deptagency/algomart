@@ -15,5 +15,5 @@
 }
 
 .tealButton {
-  @apply bg-base-teal;
+  @apply bg-blue-600;
 }

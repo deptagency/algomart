@@ -27,7 +27,7 @@
 }
 
 .filterHeader .badge {
-  @apply p-1 text-xs text-white rounded-sm bg-base-teal;
+  @apply p-1 text-xs text-white rounded-sm bg-blue-600;
 }
 
 .filterItem {
