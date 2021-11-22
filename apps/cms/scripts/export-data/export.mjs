@@ -15,11 +15,27 @@ import {
   readFileAsync,
 } from '../utils.mjs'
 
+const collectionFields = {
+  languages: [],
+  application: [],
+  homepage: [],
+  rarities: ["id","code","color"], // excluded: "user_created","date_created","user_updated","date_updated","translations"
+  rarities_translations: [],
+  pack_templates: ["id","status","sort","slug","type","price","released_at","auction_until","show_nfts","nft_order","nft_distribution","nfts_per_pack","pack_image","allow_bid_expiration","one_pack_per_customer","additional_images"], // excluded: "user_created","date_created","user_updated","date_updated","homepage","translations","nft_templates"
+  pack_templates_translations: [],
+  nft_templates: ["id","status","total_editions","unique_code","preview_image","preview_video","preview_audio","asset_file","pack_template","rarity","set","collection"], // excluded: "user_created","date_created","user_updated","date_updated","homepage","translations""
+  nft_templates_translations: [],
+  collections: ["id","status","sort","slug","collection_image","reward_image"], // excluded: "user_created","date_created","user_updated","date_updated","translations","sets","nft_templates"
+  collections_translations: [],
+  sets: ["id","status","sort","slug","collection"], // excluded: "user_created","date_created","user_updated","date_updated","translations","nft_templates"
+  sets_translations: [],
+}
+
 const handleError = (error) => error && console.error(error)
 
 async function exportCollectionToCsv(exportDir, collection, token) {
   console.time(`Exporting "${collection}"`)
-  const csvData = await getCollectionItemsAsCsv(collection, token)
+  const csvData = await getCollectionItemsAsCsv(collection, collectionFields[collection], token)
   if (csvData) {
     const filename = path.join(exportDir, `${collection}.csv`)
     await fs.writeFile(filename, csvData, handleError)
@@ -59,8 +75,7 @@ async function main(args) {
   }
 
   const files = await getAllFilesMeta(token)
-  console.log(`Found ${files.length} files`)
-  console.log(files)
+  console.log(`Found ${files.length} asset files`)
 
   for(const file of files) {
     const fileData = await downloadFile(file.id, token)

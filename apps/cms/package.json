@@ -32,7 +32,6 @@
   "devDependencies": {
     "@directus/extensions-sdk": "9.0.1",
     "axios": "0.24.0",
-    "csv-parse": "^4.16.3",
     "form-data": "4.0.0",
     "rosie": "2.1.0",
     "typescript": "4.4.4",

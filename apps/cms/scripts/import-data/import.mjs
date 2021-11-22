@@ -3,20 +3,25 @@
 import 'dotenv/config'
 
 import FormData from 'form-data'
-import { createReadStream, writeFileSync } from 'fs'
-import { resolve as _resolve } from 'path'
+import fs from 'fs'
+import path, { resolve as _resolve } from 'path'
+import os from 'os'
 
 import {
-  checkCsvAsync,
+  createAssetRecords,
   getCMSAuthToken,
   getConfigFromStdin,
-  getFilesWithExtension,
-  importDataFile,
-  parseCsvData,
+  importCsvFile,
   readFileAsync,
-  removeFile,
-  updateCsvAsync,
 } from '../utils.mjs'
+
+const orderedCollectionsForImport = [
+  'collections', 'collections_translations',
+  'sets', 'sets_translations',
+  'rarities', 'rarities_translations',
+  'pack_templates', 'pack_templates_translations',
+  'nft_templates', 'nft_templates_translations',
+]
 
 async function main(args) {
   /**
@@ -32,32 +37,47 @@ async function main(args) {
   }
   const token = await getCMSAuthToken(config)
 
-  /**
-   * Begin importing data.
-   */
-  console.log('Starting import...')
-  const basePath = './scripts/import-data'
-  const files = await getFilesWithExtension(basePath, 'csv')
-  // Loop through the import data
-  for (const file of files) {
+  // Upload all asset files
+  console.time('Upload assets')
+  const basePath = './scripts/export-data/export' // TODO: update directory
+  const assetsPath = path.join(basePath, 'files')
+  const assetFiles = fs.readdirSync(assetsPath)
+  // a map from old asset ids to new asset ids
+  const assetMap = {}
+  for (const filename of assetFiles) {
+    if (!filename.startsWith('.')) {
+      const formData = new FormData()
+      formData.append('title', filename)
+      const file = fs.createReadStream(_resolve(assetsPath, filename))
+      formData.append('file', file)
+      const fileMeta = await createAssetRecords(formData, token)
+      const id = path.parse(filename).name
+      assetMap[id] = fileMeta.id
+    }
+  }
+  console.timeEnd('Upload assets')
+  
+  // Import CSVs
+  console.time('Import CSVs')
+  for (const collection of orderedCollectionsForImport) {
+    const file = collection + '.csv'
+    if (!fs.existsSync(path.join(basePath, file))) { 
+      continue
+    }
+
     const csvFile = _resolve(`${basePath}/${file}`)
-    const collection = file.split('.').shift()
-    console.log(`Checking file data for ${collection}...`)
-    // Parse CSV and check values.
-    const csvData = await parseCsvData(csvFile)
-    await checkCsvAsync(csvData, collection, token)
-    // Create images and update file.
-    const data = await updateCsvAsync(csvData, basePath, token)
+    
+    // Replace asset ids with new ones
+    let data = fs.readFileSync(csvFile).toString()
+    Object.keys(assetMap).forEach(id => {
+      data = data.replaceAll(id, assetMap[id])
+    })
+    fs.writeFileSync(path.join(os.tmpdir(), file), data)
+
     const formData = new FormData()
-    const jsonFile = `${basePath}/${collection}.json`
-    // Create JSON file.
-    writeFileSync(jsonFile, JSON.stringify(data))
-    formData.append('file', createReadStream(jsonFile))
-    // Import data to CMS
-    console.log(`Importing file for ${collection}...`)
-    await importDataFile(formData, collection, token)
-    // Remove newly created JSON file
-    await removeFile(jsonFile)
+    formData.append('file', fs.createReadStream(path.join(os.tmpdir(), file)))
+    console.log(`Importing "${collection}"`)
+    await importCsvFile(formData, collection, token)
   }
 
   console.log('Done!')

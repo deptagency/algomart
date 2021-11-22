@@ -4,9 +4,7 @@ import 'dotenv/config'
 
 import axios from 'axios'
 import { exec } from 'child_process'
-import csvParse from 'csv-parse'
-import FormData from 'form-data'
-import { createReadStream, existsSync, readdirSync, readFile, statSync, unlink } from 'fs'
+import { readFile } from 'fs'
 import { createInterface } from 'readline'
 
 /** Group flat array into a multi-dimensional array of N items. */
@@ -50,11 +48,11 @@ export async function updateEntityRecord(entity, id, body, token) {
   }
 }
 
-/** Import data into CMS. Does not override existing data. */
-export async function importDataFile(formData, collection, token) {
+/** Import csv data file into CMS. Does not override existing data. */
+export async function importCsvFile(formData, collection, token) {
   try {
     const response = await axios.post(
-      `${process.env.PUBLIC_URL}/utils/import/${collection}?access_token=${token}`,
+      `${process.env.PUBLIC_URL}/utils/import/${collection}?access_token=${token}&export=csv`,
       formData,
       {
         headers: {
@@ -65,7 +63,7 @@ export async function importDataFile(formData, collection, token) {
     )
     return response.data.data
   } catch (error) {
-    console.log(error.response?.data?.errors)
+    console.error(error.response?.data?.errors)
     process.exit(1)
   }
 }
@@ -126,10 +124,12 @@ export async function getCollections(token) {
 }
 
 /** Get collection data as csv string. */
-export async function getCollectionItemsAsCsv(collectionName, token) {
+export async function getCollectionItemsAsCsv(collectionName, fields, token) {
   try {
+    const fieldsString = fields?.length ? '&fields=' + fields.join(',') : ''
+    console.log(fieldsString)
     const response = await axios.get(
-      `${process.env.PUBLIC_URL}/items/${collectionName}?access_token=${token}&export=csv`,
+      `${process.env.PUBLIC_URL}/items/${collectionName}?access_token=${token}${fieldsString}&export=csv`,
     )
     return response.data
   } catch (error) {
@@ -224,127 +224,7 @@ export function readlineAsync(prompt) {
   })
 }
 
-/** Parse CSV data and return JSON data. */
-export async function parseCsvData(file) {
-  try {
-    const data = []
-    const parser = createReadStream(file)
-      .pipe(csvParse({
-        columns: true,
-        skip_empty_lines: false,
-      }));
-    for await (const record of parser) {
-      data.push(record)
-    }
-    return data
-  } catch (error) {
-    console.log(error)
-    process.exit(1)
-  }
+export const isUuid = (uuid) => {
+  const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+  return regex.test(uuid)
 }
-
-/** Get files with the given extension from the given directory. */
-export function getFilesWithExtension(directory, extension) {
-  return new Promise((resolve) => {
-    const data = []
-    const files = readdirSync(directory).map(f => f)
-    for (const file of files) {
-      const filePath = `${directory}/${file}`
-      if (statSync(filePath).isFile()) {
-        const fileExtension = filePath.split('.').pop()
-        if (fileExtension === extension) {
-          data.push(file)
-        }
-      }
-    }
-    resolve(data)
-  })
-}
-
-/** Check CSV file before CMS import. */
-export async function checkCsvAsync(data, collection, token) {
-  try {
-    // Retrieve field schema for collection
-    const fields = await getFieldsForCollection(collection, token)
-    // Check keys for first record against field schema
-    const firstRecordKeys = Object.keys(data[0])
-    const doArraysMatch = fields.every((field) => {
-      return firstRecordKeys.includes(field.name)
-    })
-    if (!doArraysMatch) {
-      console.log(`File for ${collection} does not match schema`)
-      process.exit(1)
-    }
-    // Check required fields
-    const requiredFields = fields.filter((field) => field.required)
-    for (const item of data) {
-      for (const field of requiredFields) {
-        if (!item[field.name]) {
-          console.log(`Missing required field ${field.name}`)
-          process.exit(1)
-        }
-      }
-    }
-    return true
-  } catch (error) {
-    console.log(error)
-    process.exit(1)
-  }
-}
-
-/** Update CSV image fields. */
-export async function updateCsvAsync(data, basePath, token) {
-  try {
-    const updatedData = []
-    const imageFields = new Set()
-    const answers = await readlineAsync(
-      '> List all image field IDs in document (i.e., preview_image), comma-separated. '
-    )
-    for (const answer of answers.split(',')) imageFields.add(answer.trim())
-    // Loop through all rows of data
-    for (const item of data) {
-      const newItem = item
-      for (const [key, value] of Object.entries(item)) {
-        if (imageFields.has(key)) {
-          // Check if provided value is a UUID. If NOT, continue.
-          const isUuid = value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
-          if (!isUuid) {
-            // Create image in database
-            const imagePath = `${basePath}/images/${value}`
-            if (!existsSync(imagePath)) throw new Error('Provided image does not exist.')
-            const image = createReadStream(imagePath)
-            const formData = new FormData()
-            formData.append('file', image)
-            const newImage = await createAssetRecords(formData, token)
-            // Assign image ID to record
-            newItem[key] = newImage.id
-          }
-        } else if (key === 'status' && !value) {
-          newItem[key] = 'draft'
-        } else if (!value) {
-          newItem[key] = null
-        }
-      }
-      updatedData.push(newItem)
-    }
-    return updatedData
-  } catch (error) {
-    console.log(error)
-    process.exit(1)
-  }
-}
-
-// Remove provided file.
-export function removeFile(file) {
-  return new Promise((resolve) => {
-    unlink(file, (error) => {
-      if (error) {
-        console.log(error)
-        process.exit(1)
-      }
-      resolve()
-    })
-  })
-}
-
-
