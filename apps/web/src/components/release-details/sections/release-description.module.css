@@ -1,5 +1,5 @@
 .root {
-  @apply p-6 bg-white border-t border-base-gray-border relative;
+  @apply p-6 border-t border-base-gray-border relative;
 }
 
 .collapseContainer {

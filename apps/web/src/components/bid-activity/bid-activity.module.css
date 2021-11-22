@@ -1,5 +1,5 @@
 .titleWrapper {
-  @apply bg-gradient-to-b from-gray-200 to-white;
+  @apply bg-gradient-to-b from-gray-800 to-gray-600 text-white;
 }
 
 .title {

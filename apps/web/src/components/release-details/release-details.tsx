@@ -4,6 +4,7 @@ import {
   PackType,
   PublishedPack,
 } from '@algomart/schemas'
+import clsx from 'clsx'
 import { useRouter } from 'next/router'
 
 import ReleaseCTA from './sections/release-cta'
@@ -38,7 +39,7 @@ export default function ReleaseDetails({
   return (
     <section className={css.root}>
       {/* Title */}
-      <div className={css.header}>
+      <div className={clsx('text-white', css.header)}>
         <h1 className={css.title}>{packTemplate.title}</h1>
       </div>
 

@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { ReactNode } from 'react'
 
 import css from './bid-activity-details.module.css'
@@ -19,10 +20,10 @@ export default function BidActivityDetails({
     <li className={css.listItem}>
       <div className={css.firstColumn}>{children}</div>
       <div className={css.secondColumn}>
-        <h2 className={css.heading}>{content}</h2>
+        <h2 className={clsx('text-white', css.heading)}>{content}</h2>
         <p className={css.date}>{date}</p>
       </div>
-      {amount && <p className={css.amount}>{amount}</p>}
+      {amount && <p className={clsx('text-white', css.amount)}>{amount}</p>}
     </li>
   )
 }
