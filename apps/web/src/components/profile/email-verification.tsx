@@ -32,7 +32,7 @@ export default function EmailVerification({ inline }: EmailVerificationProps) {
     window.location.reload()
   }, [])
 
-  // if (!auth.user || auth.user.emailVerified) return null
+  if (!auth.user || auth.user.emailVerified) return null
 
   return (
     <Banner

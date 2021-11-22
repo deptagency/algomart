@@ -7,6 +7,7 @@ import {
   DEFAULT_LOCALE,
   EventAction,
   EventEntityType,
+  LocaleAndExternalId,
   MintPack,
   MintPackStatus,
   NotificationType,
@@ -735,6 +736,57 @@ export default class PacksService {
     }
 
     return true
+  }
+
+  async untransferredPacks({
+    externalId,
+    locale = DEFAULT_LOCALE,
+  }: LocaleAndExternalId) {
+    const packs = await PackModel.query()
+      .joinRelated('[owner, collectibles]')
+      .where('owner.externalId', externalId)
+      .whereNull('collectibles.ownerId')
+
+    if (packs.length === 0) {
+      return {
+        packs: [],
+        total: 0,
+      }
+    }
+
+    const templateIds = [...new Set(packs.map((p) => p.templateId))]
+
+    const filter: ItemFilter = {
+      status: {
+        _eq: DirectusStatus.Published,
+      },
+    }
+    if (templateIds.length > 0) filter.id = { _in: templateIds }
+
+    const { packs: templates } = await this.cms.findAllPacks({
+      locale,
+      pageSize: -1,
+      filter,
+    })
+    const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
+
+    const allPacks: PackByOwner[] = []
+    for (const { claimedAt, templateId } of packs) {
+      const template = templateLookup.get(templateId)
+      if (template && claimedAt) {
+        allPacks.push({
+          ...template,
+          status: template.status,
+          claimedAt,
+          activeBid: undefined,
+        })
+      }
+    }
+
+    return {
+      packs: allPacks,
+      total: allPacks.length,
+    }
   }
 
   async claimRandomFreePack(request: ClaimFreePack, trx?: Transaction) {

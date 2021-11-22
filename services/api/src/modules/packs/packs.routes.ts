@@ -3,6 +3,7 @@ import {
   ClaimPack,
   ClaimRedeemPack,
   Locale,
+  LocaleAndExternalId,
   MintPack,
   OwnerExternalId,
   PackId,
@@ -80,6 +81,15 @@ export async function getRedeemablePack(
     request.query.locale
   )
   reply.send({ pack: result })
+}
+
+export async function untransferredPacks(
+  request: FastifyRequest<{ Querystring: LocaleAndExternalId }>,
+  reply: FastifyReply
+) {
+  const service = request.getContainer().get<PacksService>(PacksService.name)
+  const result = await service.untransferredPacks(request.query)
+  reply.send(result)
 }
 
 export async function claimRandomFreePack(

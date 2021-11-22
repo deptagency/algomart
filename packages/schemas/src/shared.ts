@@ -30,6 +30,11 @@ export const LocaleSchema = Type.Object({
   locale: Type.Optional(Type.String()),
 })
 
+export const LocaleAndExternalIdSchema = Type.Intersect([
+  LocaleSchema,
+  ExternalIdSchema,
+])
+
 export enum SortDirection {
   Ascending = 'asc',
   Descending = 'desc',
@@ -59,3 +64,6 @@ export type OwnerExternalId = Simplify<Static<typeof OwnerExternalIdSchema>>
 export type Pagination = Simplify<Static<typeof PaginationSchema>>
 export type Slug = Simplify<Static<typeof SlugSchema>>
 export type Locale = Simplify<Static<typeof LocaleSchema>>
+export type LocaleAndExternalId = Simplify<
+  Static<typeof LocaleAndExternalIdSchema>
+>
