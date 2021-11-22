@@ -125,9 +125,7 @@ export default function PackGrid({
           onClick={onTransfer}
           disabled={packCards.length === 0 || !enableTransfer}
         >
-          {t('common:actions.Save to My Collection', {
-            count: packCards.length,
-          })}
+          {t('common:actions.Save to My Collection')}
         </Button>
       )}
     </>
