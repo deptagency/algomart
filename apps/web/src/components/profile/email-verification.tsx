@@ -7,11 +7,11 @@ import css from './email-verification.module.css'
 import Button from '@/components/button'
 import { useAuth } from '@/contexts/auth-context'
 
-interface EmailVerficationProps {
+interface EmailVerificationProps {
   inline?: boolean
 }
 
-export default function EmailVerfication({ inline }: EmailVerficationProps) {
+export default function EmailVerification({ inline }: EmailVerificationProps) {
   const auth = useAuth()
   const [sent, setSent] = useState<boolean>(false)
   const { t } = useTranslation()

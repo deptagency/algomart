@@ -9,7 +9,7 @@ import AppHeader from '@/components/app-header/app-header'
 import HeadTag from '@/components/head-tag/head-tag'
 import Heading from '@/components/heading'
 import MainPanel from '@/components/main-panel/main-panel'
-import EmailVerfication from '@/components/profile/email-verification'
+import EmailVerification from '@/components/profile/email-verification'
 import LoadingStatus from '@/components/profile/loading-status'
 import MyProfileNav from '@/components/profile/my-profile-nav'
 import NotAuthenticated from '@/components/profile/not-authenticated'
@@ -36,7 +36,7 @@ export default function MyProfileLayout({
       <HeadTag pageDescription={pageDescription} pageTitle={pageTitle} />
 
       <div className={common.backgroundGradient}>
-        <EmailVerfication />
+        <EmailVerification />
         <section>
           <AppHeader />
 
