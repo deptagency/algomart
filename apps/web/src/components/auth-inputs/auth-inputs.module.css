@@ -25,7 +25,7 @@
 
 /* Profile Image Input */
 .profileImageContainer {
-  @apply flex items-center justify-between p-6 mt-2 rounded-md bg-base-gray-bg;
+  @apply flex items-center justify-between p-6 mt-2 rounded-md;
 }
 
 .avatarContainer {
