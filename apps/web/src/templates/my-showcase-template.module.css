@@ -23,5 +23,5 @@
 }
 
 .bottomCtaWrapper {
-  @apply text-center bg-white;
+  @apply text-center;
 }
