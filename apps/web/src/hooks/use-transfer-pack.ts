@@ -29,13 +29,15 @@ function isConfirmed({ status }: TransferPackStatusList): boolean {
 }
 
 export function useTransferPack(
-  packId: string
+  packId: string | null | false
 ): [(passphrase: string) => Promise<void>, TransferPackStatus, () => void] {
   const [status, setStatus] = useState(TransferPackStatus.Idle)
   const auth = useAuth()
 
   const transfer = useCallback(
     async (passphrase: string) => {
+      if (!packId) return
+
       if (status !== TransferPackStatus.Idle) {
         return
       }
@@ -57,6 +59,8 @@ export function useTransferPack(
   }, [])
 
   const checkStatus = useCallback(async () => {
+    if (!packId) return
+
     const result = await collectibleService.transferStatus(packId)
     if (hasError(result)) {
       // One or more failed

@@ -17,6 +17,7 @@ import {
   GetPaymentCardStatus,
   Homepage,
   Locale,
+  LocaleAndExternalId,
   MintPack,
   MintPackStatusResponse,
   OwnerExternalId,
@@ -292,6 +293,12 @@ export class ApiClient {
     return await this.http
       .get(`packs/transfer/${packId}`)
       .json<TransferPackStatusList>()
+  }
+
+  async untransferredPacks(params: LocaleAndExternalId): Promise<PacksByOwner> {
+    return await this.http
+      .get('packs/untransferred', { searchParams: params })
+      .json<PacksByOwner>()
   }
   //#endregion
 

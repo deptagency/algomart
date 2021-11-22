@@ -388,12 +388,13 @@ export default class PacksService {
 
     // List packs purchased by owner with template details
     const allPacks: PackByOwner[] = []
-    for (const { claimedAt, templateId } of packsByOwnerId) {
+    for (const { id, claimedAt, templateId } of packsByOwnerId) {
       const template = templateLookup.get(templateId)
       if (template && claimedAt) {
         const packWithActiveBid = packWithActiveBidsLookup.get(templateId)
         allPacks.push({
           ...template,
+          id,
           status: template.status,
           claimedAt,
           activeBid:
@@ -743,9 +744,10 @@ export default class PacksService {
     locale = DEFAULT_LOCALE,
   }: LocaleAndExternalId) {
     const packs = await PackModel.query()
-      .joinRelated('[owner, collectibles]')
+      .withGraphJoined('[collectibles, owner]')
       .where('owner.externalId', externalId)
       .whereNull('collectibles.ownerId')
+      .whereNotNull('collectibles.address')
 
     if (packs.length === 0) {
       return {
@@ -771,11 +773,12 @@ export default class PacksService {
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
 
     const allPacks: PackByOwner[] = []
-    for (const { claimedAt, templateId } of packs) {
+    for (const { id, claimedAt, templateId } of packs) {
       const template = templateLookup.get(templateId)
       if (template && claimedAt) {
         allPacks.push({
           ...template,
+          id,
           status: template.status,
           claimedAt,
           activeBid: undefined,

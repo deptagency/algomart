@@ -46,6 +46,7 @@ export const urls = {
       getCardsByOwner: '/api/v1/payments/get-cards-by-owner',
       getPayment: '/api/v1/payments/get-payment',
       getPublishedPacks: '/api/v1/pack/get-published-packs',
+      getUntransferredPacks: '/api/v1/pack/untransferred',
       getRedeemable: '/api/v1/asset/get-redeemable',
       profile: '/api/v1/profile',
       publicKey: '/api/v1/payments/public-key',

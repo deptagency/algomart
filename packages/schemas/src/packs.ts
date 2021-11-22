@@ -120,6 +120,7 @@ export const PublishedPacksSchema = Type.Object({
 export const PackByOwnerSchema = Type.Intersect([
   PackBaseSchema,
   Type.Object({
+    id: IdSchema,
     activeBid: Type.Optional(Type.Number()),
     claimedAt: Type.String({ format: 'date-time' }),
   }),

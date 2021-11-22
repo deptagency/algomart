@@ -7,6 +7,7 @@ import AppHeader from '@/components/app-header/app-header'
 import HeadTag from '@/components/head-tag/head-tag'
 import MainPanel from '@/components/main-panel/main-panel'
 import EmailVerification from '@/components/profile/email-verification'
+import UntransferredPacks from '@/components/profile/untransferred-packs'
 
 export interface DefaultLayoutProps {
   children?: ReactNode
@@ -30,6 +31,7 @@ export default function DefaultLayout({
       <HeadTag pageDescription={pageDescription} pageTitle={pageTitle} />
       <div className={common.backgroundGradient}>
         <EmailVerification />
+        <UntransferredPacks />
 
         <section>
           <AppHeader />
