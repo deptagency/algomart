@@ -64,7 +64,7 @@ export default function HomeTemplate({
             {t('release:Notable Collectibles')}
           </Heading>
 
-          <div className={css.notableCollectibles}>
+          <div className={clsx('mx-auto max-w-7xl', css.notableCollectibles)}>
             <Grid columns={4}>
               {notableCollectibles.map((collectible) => (
                 <NotableCollectible
