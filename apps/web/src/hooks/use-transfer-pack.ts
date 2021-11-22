@@ -1,8 +1,13 @@
-import { AlgorandTransactionStatus } from '@algomart/schemas'
-import { useCallback, useState } from 'react'
+import {
+  AlgorandTransactionStatus,
+  TransferPackStatusList,
+} from '@algomart/schemas'
+import { useCallback, useEffect, useState } from 'react'
 
+import { useInterval } from './use-interval'
+
+import { useAuth } from '@/contexts/auth-context'
 import collectibleService from '@/services/collectible-service'
-import { poll } from '@/utils/poll'
 
 export enum TransferPackStatus {
   Idle = 'idle',
@@ -11,13 +16,30 @@ export enum TransferPackStatus {
   Error = 'error',
 }
 
+function hasError({ status }: TransferPackStatusList): boolean {
+  return status.some(
+    ({ status }) => status === AlgorandTransactionStatus.Failed
+  )
+}
+
+function isConfirmed({ status }: TransferPackStatusList): boolean {
+  return status.every(
+    ({ status }) => status === AlgorandTransactionStatus.Confirmed
+  )
+}
+
 export function useTransferPack(
   packId: string
 ): [(passphrase: string) => Promise<void>, TransferPackStatus, () => void] {
   const [status, setStatus] = useState(TransferPackStatus.Idle)
+  const auth = useAuth()
 
   const transfer = useCallback(
     async (passphrase: string) => {
+      if (status !== TransferPackStatus.Idle) {
+        return
+      }
+
       setStatus(TransferPackStatus.Transferring)
 
       const result = await collectibleService.transfer(packId, passphrase)
@@ -26,42 +48,36 @@ export function useTransferPack(
         setStatus(TransferPackStatus.Error)
         return
       }
-
-      await poll(
-        async () => await collectibleService.transferStatus(packId),
-        (result) => {
-          // Something failed
-          if (
-            result.status.some(
-              ({ status }) => status === AlgorandTransactionStatus.Failed
-            )
-          ) {
-            setStatus(TransferPackStatus.Error)
-            return false
-          }
-
-          // All succeeded
-          if (
-            result.status.every(
-              ({ status }) => status === AlgorandTransactionStatus.Confirmed
-            )
-          ) {
-            setStatus(TransferPackStatus.Success)
-            return false
-          }
-
-          // One or more still pending
-          return true
-        },
-        1000
-      )
     },
-    [packId]
+    [packId, status]
   )
 
   const reset = useCallback(() => {
     setStatus(TransferPackStatus.Idle)
   }, [])
+
+  const checkStatus = useCallback(async () => {
+    const result = await collectibleService.transferStatus(packId)
+    if (hasError(result)) {
+      // One or more failed
+      setStatus(TransferPackStatus.Error)
+    }
+
+    if (isConfirmed(result)) {
+      // All succeeded
+      setStatus(TransferPackStatus.Success)
+    }
+  }, [packId])
+
+  useInterval(
+    checkStatus,
+    status === TransferPackStatus.Transferring ? 1000 : null
+  )
+
+  useEffect(() => {
+    if (!auth.user) return
+    checkStatus()
+  }, [auth.user, checkStatus])
 
   return [transfer, status, reset]
 }

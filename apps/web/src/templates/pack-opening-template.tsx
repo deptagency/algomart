@@ -1,3 +1,4 @@
+import { MintPackStatus } from '@algomart/schemas'
 import { animated, config, useSpring } from '@react-spring/web'
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
@@ -6,6 +7,7 @@ import TransferModal from '@/components/modals/transfer-modal'
 import PackGrid from '@/components/pack-grid/pack-grid'
 import CanvasContainer from '@/components/r3f/canvas-container/canvas-container'
 import { usePackOpening } from '@/contexts/pack-opening-context'
+import { usePackMintStatus } from '@/hooks/use-pack-mint-status'
 import { useTransferPack } from '@/hooks/use-transfer-pack'
 
 // Load on client only, since server can't render canvas
@@ -18,6 +20,7 @@ export default function PackOpeningTemplate() {
   const { packToOpen, sceneComplete, sceneMounted, setSceneMounted } =
     usePackOpening()
   const [showTransfer, setShowTransfer] = useState(false)
+  const mintStatus = usePackMintStatus(packToOpen.id)
   const [transfer, status, reset] = useTransferPack(packToOpen.id)
 
   const { sceneOpacity } = useSpring({
@@ -52,6 +55,7 @@ export default function PackOpeningTemplate() {
           <PackGrid
             packCards={packToOpen.collectibles}
             packTitle={packToOpen.title}
+            enableTransfer={mintStatus === MintPackStatus.Minted}
             onTransfer={() => {
               setShowTransfer(true)
             }}

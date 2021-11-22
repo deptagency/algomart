@@ -14,12 +14,14 @@ export interface PackGridProps {
   packCards: PackWithCollectibles['collectibles']
   packTitle: PackWithCollectibles['title']
   transitionStyle?: 'automatic' | 'interactive'
+  enableTransfer: boolean
   onTransfer?: () => void
 }
 
 export default function PackGrid({
   packCards,
   packTitle,
+  enableTransfer,
   transitionStyle = 'automatic',
   onTransfer,
 }: PackGridProps) {
@@ -121,7 +123,7 @@ export default function PackGrid({
         <Button
           className={css.viewCollectionButton}
           onClick={onTransfer}
-          disabled={packCards.length === 0}
+          disabled={packCards.length === 0 || !enableTransfer}
         >
           {t('common:actions.Transfer Collectibles', {
             count: packCards.length,
