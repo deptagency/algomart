@@ -1,27 +1,4 @@
-.root {
-  @apply relative bg-white shadow-large;
-  margin-top: 72px;
-}
-
-.root.isInline {
-  @apply shadow-none border-1 border-base-gray-border;
-}
-
-@screen md {
-  .root {
-    margin-top: 0px;
-  }
-}
-.wrapper {
-  @apply px-5 py-5 mx-auto text-center max-w-wrapper;
-  @apply md:flex md:items-center;
-}
-
-.isInline .wrapper {
-  @apply block;
-}
-
-.isInline .wrapper p:first-child {
+.isInline p:first-child {
   @apply mb-5;
 }
 

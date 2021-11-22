@@ -2,6 +2,8 @@ import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useState } from 'react'
 
+import Banner from '../banner/banner'
+
 import css from './email-verification.module.css'
 
 import Button from '@/components/button'
@@ -30,26 +32,27 @@ export default function EmailVerification({ inline }: EmailVerificationProps) {
     window.location.reload()
   }, [])
 
+  // if (!auth.user || auth.user.emailVerified) return null
+
   return (
-    <section className={clsx(css.root, { [css.isInline]: inline })}>
-      {auth.user && !auth.user?.emailVerified && (
-        <div className={css.wrapper}>
-          <p>{t('auth:Email address not verified')}</p>
-          <p className={css.emailVerificationControls}>
-            <Button
-              disabled={sent}
-              onClick={handleResend}
-              size="small"
-              variant="primary"
-            >
-              {t('auth:Resend')}
-            </Button>
-            <Button size="small" variant="secondary" onClick={refresh}>
-              {t('auth:Refresh')}
-            </Button>
-          </p>
-        </div>
-      )}
-    </section>
+    <Banner
+      inline={inline}
+      className={clsx(css.wrapper, { [css.isInline]: inline })}
+    >
+      <p>{t('auth:Email address not verified')}</p>
+      <p className={css.emailVerificationControls}>
+        <Button
+          disabled={sent}
+          onClick={handleResend}
+          size="small"
+          variant="primary"
+        >
+          {t('auth:Resend')}
+        </Button>
+        <Button size="small" variant="secondary" onClick={refresh}>
+          {t('auth:Refresh')}
+        </Button>
+      </p>
+    </Banner>
   )
 }
