@@ -47,7 +47,7 @@ export default function MyCollectiblesTemplate({
   const auth = useAuth()
 
   return (
-    <>
+    <div className="mx-auto max-w-7xl">
       {/* Viewer */}
       <CollectibleBrowserDialog
         open={isViewerActive}
@@ -106,6 +106,6 @@ export default function MyCollectiblesTemplate({
       ) : (
         <NoCollectiblesContent handleRedirect={handleRedirectBrands} />
       )}
-    </>
+    </div>
   )
 }

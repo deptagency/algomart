@@ -29,7 +29,7 @@ export default function MyCollectionsTemplate({
   )
 
   return (
-    <>
+    <div className="mx-auto max-w-7xl">
       {/* Tabs */}
       <Tabs activeTab={1} tabs={getCollectionTabs(t)} negativeMargin />
 
@@ -56,6 +56,6 @@ export default function MyCollectionsTemplate({
           <NoCollectiblesContent handleRedirect={handleRedirectBrands} />
         )}
       </section>
-    </>
+    </div>
   )
 }
