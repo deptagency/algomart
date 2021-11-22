@@ -19,14 +19,6 @@
   @apply border-base-errorRed;
 }
 
-.inputValid {
-  @apply border-base-gray-border;
-}
-
-.labelContainer {
-  @apply content-between flex flex-wrap font-bold relative text-white w-full;
-}
-
 .label {
   @apply w-1/2 text-white;
 }

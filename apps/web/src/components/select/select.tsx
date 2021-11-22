@@ -61,10 +61,13 @@ export default function Select({
       <Listbox disabled={disabled} onChange={onChange} value={value}>
         <div className={css.selectContainer}>
           <Listbox.Button
-            className={clsx(css.selectButton, {
-              [css.selectButtonDisabled]: disabled,
-              [css.selectButtonError]: error,
-            })}
+            className={clsx(
+              'mt-1 block w-full pl-3 pr-10 py-2 font-poppins bg-gray-900 border-2 border-gray-600 rounded-lg placeholder-gray-400 text-gray-50 focus:outline-none focus:bg-white focus:border-white focus:ring-white focus:text-gray-900 sm:text-sm rounded-md overflow-hidden',
+              {
+                [css.selectButtonDisabled]: disabled,
+                [css.selectButtonError]: error,
+              }
+            )}
           >
             <span className={css.selectButtonText}>{value.label}</span>
             <span className={css.selectButtonIconContainer}>
