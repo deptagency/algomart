@@ -35,7 +35,7 @@ export default function HomeTemplate({
   const isUpcoming = featuredPack.status === PackStatus.Upcoming
 
   return (
-    <section className="flex relative md:max-h-screen">
+    <section className="flex relative">
       <div className="absolute inset-0 overflow-hidden">
         <img
           src="/images/backgrounds/hero-background.png"
