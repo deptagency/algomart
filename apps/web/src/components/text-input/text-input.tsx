@@ -27,11 +27,11 @@ export default function TextInput({
   const inputField = (
     <input
       className={clsx(
-        css.input,
+        'w-full font-poppins bg-gray-900 border-2 border-gray-600 rounded-lg placeholder-gray-400 text-gray-50 focus:outline-none focus:bg-white focus:border-white focus:ring-white focus:text-gray-900 px-3 py-2',
         {
           [css.inputDisabled]: readOnly || disabled,
           [css.inputError]: error,
-          [css.inputValid]: !error,
+          ['border-gray-600']: !error,
           [css.inputMedium]: variant === 'medium',
           [css.inputSmall]: variant === 'small',
         },
@@ -50,10 +50,10 @@ export default function TextInput({
     />
   )
   return label ? (
-    <label htmlFor={id} className={css.labelContainer}>
+    <label htmlFor={id} className="block text-sm font-medium text-gray-50">
       <span
-        className={clsx(css.label, {
-          [css.labelSmall]: variant === 'small',
+        className={clsx('w-1/2', {
+          ['text-sm']: variant === 'small',
         })}
       >
         {label}
