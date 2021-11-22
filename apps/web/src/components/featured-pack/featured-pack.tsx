@@ -35,7 +35,7 @@ export default function HomeTemplate({
   const isUpcoming = featuredPack.status === PackStatus.Upcoming
 
   return (
-    <section className="flex relative">
+    <section className="flex relative max-h-screen">
       <div className="absolute inset-0 overflow-hidden">
         <img
           src="/images/backgrounds/hero-background.png"
@@ -44,8 +44,8 @@ export default function HomeTemplate({
         />
       </div>
 
-      <div className="grid md:grid-cols-12 z-10 space-x-20 mx-auto max-w-7xl px-4 py-24">
-        <div className="col-span-5 mt-12">
+      <div className="grid grid-cols-1 md:grid-cols-12 z-10 space-y-10 md:space-x-20 mx-auto max-w-7xl px-4 py-24">
+        <div className="col-span-1 md:col-span-5 mt-12">
           <div className="font-extrabold text-4xl text-white tracking-wide leading-tight pr-20">
             We connect passionate fans with 100% authenticated & original NFT
             collectibles.
@@ -65,9 +65,9 @@ export default function HomeTemplate({
             </AppLink>
           </div>
         </div>
-        <div className="col-span-7">
+        <div className="col-span-1 md:col-span-7">
           {/* Top bar */}
-          <div className="p-4 text-sm font-bold text-center text-white uppercase bg-gray-900">
+          <div className="p-4 text-sm font-bold text-center text-white uppercase bg-gray-900 rounded-t-xl">
             {isAuction ? (
               <>
                 {isActive && (
@@ -100,14 +100,16 @@ export default function HomeTemplate({
           </div>
 
           {/* Columns */}
-          <div className="sm:flex sm:flex-row bg-gray-900">
+          <div className="sm:flex sm:flex-col sm:items-center bg-gray-900 rounded-b-xl">
             {/* Image */}
-            <div className={css.featuredImage}>
+            <div className="sm:w-1/2 aspect-w-16 aspect-w-9">
               <Image
                 src={featuredPack.image}
-                width={512}
-                height={512}
+                className="rounded-xl"
+                width={1024}
+                height={1024}
                 layout="responsive"
+                objectFit="cover"
               />
             </div>
 

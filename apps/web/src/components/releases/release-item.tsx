@@ -25,19 +25,16 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
 
   return (
     <div className={css.root}>
-      <div className={css.imageWrapper}>
-        <Image
-          alt={pack.title}
-          height={250}
-          layout="responsive"
-          loader={cmsImageLoader}
-          objectFit="cover"
-          src={pack.image}
-          width={250}
-        />
-      </div>
-      <div className={css.content}>
-        <div className={css.title}>{pack.title}</div>
+      <div className="relative my-4 sm:my-0 cursor-pointer">
+        <div className={` w-full relative h-80`}>
+          <Image
+            alt={pack.title}
+            layout="fill"
+            className="rounded-xl transition-all hover:opacity-80 object-contain lg:object-cover w-full h-full"
+            loader={cmsImageLoader}
+            src={pack.image}
+          />
+        </div>
       </div>
 
       {/* Metadata for active auction pack */}

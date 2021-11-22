@@ -1,4 +1,5 @@
 import { CollectibleBase, PublishedPack } from '@algomart/schemas'
+import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 
 import css from './home-template.module.css'
@@ -41,8 +42,9 @@ export default function HomeTemplate({
             {t('release:Active & Upcoming Drops')}
           </Heading>
 
-          <div className={css.upcomingPacks}>
-            <Grid columns={3}>
+          <div className={clsx('mx-auto max-w-7xl', css.upcomingPacks)}>
+            <div className="grid gap-7 lg:grid-cols-4">
+              {' '}
               {upcomingPacks.map((pack) => (
                 <AppLink
                   key={pack.templateId}
@@ -51,7 +53,7 @@ export default function HomeTemplate({
                   <ReleaseItem pack={pack} />
                 </AppLink>
               ))}
-            </Grid>
+            </div>
           </div>
         </>
       ) : null}
