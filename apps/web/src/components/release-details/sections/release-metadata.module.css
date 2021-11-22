@@ -1,5 +1,5 @@
 .metadata {
-  @apply bg-white text-center;
+  @apply text-center;
 }
 
 .metadataGrid {
@@ -23,7 +23,7 @@
 }
 
 .active {
-  @apply text-base-gray-dark;
+  @apply text-white;
 }
 
 .completeSuccess {
