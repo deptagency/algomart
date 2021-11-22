@@ -69,7 +69,7 @@ export default function ReleasesTemplate({
         ) : (
           <section className={css.gridColumn}>
             <>
-              <Grid columns={3}>
+              <Grid columns={4}>
                 {packs.map((pack) => (
                   <AppLink
                     className={css.gridItem}
