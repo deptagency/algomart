@@ -34,7 +34,7 @@ export default function ReleasesTemplate({
   const { t } = useTranslation()
 
   return (
-    <div className={css.root}>
+    <div className={clsx('mx-auto max-w-7xl', css.root)}>
       {/* Sorting */}
       <div className={css.selectWrapper}>
         <Select
