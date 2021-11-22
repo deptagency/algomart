@@ -6,7 +6,7 @@ import css from './release-filter.module.css'
 import Heading from '@/components/heading'
 import Toggle from '@/components/toggle/toggle'
 import { usePackFilterContext } from '@/contexts/pack-filter-context'
-import { packFilterActions } from '@/hooks/usePackFilter'
+import { packFilterActions } from '@/hooks/use-pack-filter'
 
 export default function ReleaseFilterType() {
   const { t } = useTranslation()

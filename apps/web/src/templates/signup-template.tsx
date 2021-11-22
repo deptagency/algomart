@@ -1,6 +1,7 @@
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent } from 'react'
 
+import AlertMessage from '@/components/alert-message/alert-message'
 import {
   Email,
   Passphrase,
@@ -10,7 +11,6 @@ import {
   Username,
 } from '@/components/auth-inputs/auth-inputs'
 import Heading from '@/components/heading'
-import Notification from '@/components/notification/notification'
 import { AuthState } from '@/types/auth'
 import { FileWithPreview } from '@/types/file'
 
@@ -49,7 +49,7 @@ export default function SignupTemplate({
         onSubmit={handleCreateProfile}
       >
         {status === 'error' && error && (
-          <Notification
+          <AlertMessage
             className="mb-6"
             content={t('forms:errors.emailAlreadyInUse')}
             variant="red"

@@ -2,10 +2,10 @@ import Trans from 'next-translate/Trans'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent } from 'react'
 
+import AlertMessage from '@/components/alert-message/alert-message'
 import AppLink from '@/components/app-link/app-link'
 import { Email, Submit } from '@/components/auth-inputs/auth-inputs'
 import Heading from '@/components/heading'
-import Notification from '@/components/notification/notification'
 import { AuthState } from '@/types/auth'
 import { urls } from '@/utils/urls'
 
@@ -36,7 +36,7 @@ export default function ResetPasswordTemplate({
         onSubmit={handleResetPassword}
       >
         {resetSent && (
-          <Notification
+          <AlertMessage
             className="mb-6"
             content={
               <Trans

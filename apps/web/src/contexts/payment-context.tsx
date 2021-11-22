@@ -1,8 +1,8 @@
-import { CheckoutStatus, MintPackStatus, PublicKey } from '@algomart/schemas'
 import {
+  CheckoutStatus,
   GetPaymentCardStatus,
-  PackType,
   Payment,
+  PublicKey,
   PublishedPack,
 } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
@@ -17,12 +17,10 @@ import {
 import { ExtractError } from 'validator-fns'
 
 import { Analytics } from '@/clients/firebase-analytics'
-import { useAuth } from '@/contexts/auth-context'
-import authService from '@/services/auth-service'
 import bidService from '@/services/bid-service'
 import checkoutService, { CreateCardRequest } from '@/services/checkout-service'
 import collectibleService from '@/services/collectible-service'
-import { getExpirationDate, isAfterNow } from '@/utils/date-time'
+import { getExpirationDate } from '@/utils/date-time'
 import { encryptCardDetails } from '@/utils/encryption'
 import { toJSON } from '@/utils/form-to-json'
 import { formatFloatToInt } from '@/utils/format-currency'
@@ -50,7 +48,6 @@ interface PaymentContextProps {
     >
   >
   handleSubmitBid(data: FormData): void
-  handleSubmitPassphrase(passphrase: string): Promise<boolean>
   handleSubmitPurchase(data: FormData, isPurchase: boolean): void
   loadingText: string
   packId: string | null
@@ -71,19 +68,10 @@ export function usePaymentProvider({
   currentBid,
   release,
 }: PaymentProviderProps) {
-  const { user } = useAuth()
   const { t } = useTranslation()
 
   const [packId, setPackId] = useState<string | null>(auctionPackId || null)
-  const [passphrase, setPassphrase] = useState<string>('')
-  const [status, setStatus] = useState<CheckoutStatus>(
-    (release && release.type === PackType.Purchase) ||
-      (release &&
-        release.type == PackType.Auction &&
-        !isAfterNow(new Date(release.auctionUntil as string)))
-      ? 'passphrase'
-      : 'form'
-  )
+  const [status, setStatus] = useState<CheckoutStatus>('form')
   const [loadingText, setLoadingText] = useState<string>('')
   const highestBid = currentBid || 0
   const validateFormForPurchase = useMemo(() => validatePurchaseForm(t), [t])
@@ -441,29 +429,6 @@ export function usePaymentProvider({
             return
           }
 
-          const isMinted = await poll(
-            async () => await collectibleService.mintStatus(packId),
-            (result) => result !== MintPackStatus.Minted,
-            1000
-          )
-
-          if (!isMinted) {
-            setStatus('error')
-            return
-          }
-
-          // Transfer asset
-          setLoadingText(t('common:statuses.Transferring Asset'))
-          const transferIsOK = await collectibleService.transfer(
-            packId,
-            passphrase
-          )
-
-          if (!transferIsOK) {
-            setStatus('error')
-            return
-          }
-
           setPackId(packId)
           setStatus('success')
           if (release) {
@@ -485,7 +450,6 @@ export function usePaymentProvider({
     [
       handleAddCard,
       handlePurchase,
-      passphrase,
       release,
       t,
       validateFormForPurchase,
@@ -493,30 +457,10 @@ export function usePaymentProvider({
     ]
   )
 
-  const handleSubmitPassphrase = useCallback(
-    async (passphrase: string) => {
-      setLoadingText(t('common:statuses.Verifying Passphrase'))
-      setStatus('loading')
-      setPassphrase(passphrase)
-      const isValidPassphrase = await authService.verifyPassphrase(
-        user?.uid as string,
-        passphrase
-      )
-      if (isValidPassphrase) {
-        setStatus('form')
-      } else {
-        setStatus('passphrase')
-      }
-      return isValidPassphrase
-    },
-    [t, user?.uid]
-  )
-
   const value = useMemo(
     () => ({
       formErrors,
       handleSubmitBid,
-      handleSubmitPassphrase,
       handleSubmitPurchase,
       loadingText,
       packId,
@@ -526,7 +470,6 @@ export function usePaymentProvider({
     [
       formErrors,
       handleSubmitBid,
-      handleSubmitPassphrase,
       handleSubmitPurchase,
       loadingText,
       packId,

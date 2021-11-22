@@ -11,7 +11,6 @@ import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import { Analytics } from '@/clients/firebase-analytics'
-import { useAuth } from '@/contexts/auth-context'
 import { useRedemption } from '@/contexts/redemption-context'
 import DefaultLayout from '@/layouts/default-layout'
 import {
@@ -45,7 +44,6 @@ export default function ReleasePage({
   packAuction,
   packTemplate,
 }: ReleasePageProps) {
-  const { user } = useAuth()
   const { setRedeemable } = useRedemption()
   const { t } = useTranslation()
 
@@ -61,10 +59,7 @@ export default function ReleasePage({
     redeemCode: string
   ): Promise<{ packId: string } | string> => {
     // Verify passphrase
-    const isValidPassphrase = await authService.verifyPassphrase(
-      user?.uid as string,
-      passphrase
-    )
+    const isValidPassphrase = await authService.verifyPassphrase(passphrase)
 
     // Don't transfer if invalid passphrase
     if (!isValidPassphrase) {

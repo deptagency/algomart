@@ -4,10 +4,10 @@ import useTranslation from 'next-translate/useTranslation'
 
 import css from './releases-template.module.css'
 
+import AlertMessage from '@/components/alert-message/alert-message'
 import AppLink from '@/components/app-link/app-link'
 import Grid from '@/components/grid/grid'
 import Loading from '@/components/loading/loading'
-import Notification from '@/components/notification/notification'
 import Pagination from '@/components/pagination/pagination'
 import ReleaseFilterPrice from '@/components/releases/release-filter-price'
 import ReleaseFilterType from '@/components/releases/release-filter-type'
@@ -15,7 +15,7 @@ import ReleaseFiltersMobile from '@/components/releases/release-filters-mobile'
 import ReleaseItem from '@/components/releases/release-item'
 import Select from '@/components/select/select'
 import { usePackFilterContext } from '@/contexts/pack-filter-context'
-import { packFilterActions } from '@/hooks/usePackFilter'
+import { packFilterActions } from '@/hooks/use-pack-filter'
 import { RELEASES_PER_PAGE } from '@/pages/releases'
 import { urls } from '@/utils/urls'
 
@@ -60,7 +60,7 @@ export default function ReleasesTemplate({
           </div>
         ) : packs.length === 0 ? (
           <div className={css.notificationWrapper}>
-            <Notification
+            <AlertMessage
               className={css.notification}
               content={t('release:filters.noReleases')}
               variant="red"

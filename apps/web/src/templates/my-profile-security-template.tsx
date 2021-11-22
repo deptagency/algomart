@@ -1,7 +1,7 @@
 import Trans from 'next-translate/Trans'
 
+import AlertMessage from '@/components/alert-message/alert-message'
 import ExternalLink from '@/components/external-link'
-import Notification from '@/components/notification/notification'
 import MyProfileEmail from '@/components/profile/my-profile-email'
 import MyProfilePassword from '@/components/profile/my-profile-password'
 import { useAuth } from '@/contexts/auth-context'
@@ -10,7 +10,7 @@ export default function MyProfileSecurityTemplate() {
   const { method } = useAuth()
   if (method === 'google') {
     return (
-      <Notification
+      <AlertMessage
         content={
           <Trans
             components={[

@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext } from 'react'
 
-import { PackFilter } from '@/hooks/usePackFilter'
+import { PackFilter } from '@/hooks/use-pack-filter'
 
 export const PackFilterContext = createContext<PackFilter | null>(null)
 

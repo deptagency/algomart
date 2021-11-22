@@ -5,14 +5,13 @@ import { FormEvent, useCallback, useState } from 'react'
 import PurchaseError from './sections/purchase-error'
 import PurchaseForm from './sections/purchase-form'
 import PurchaseHeader from './sections/purchase-header'
-import PurchasePassphrase from './sections/purchase-passphrase'
 import PurchaseSuccess from './sections/purchase-success'
 
 import css from './purchase-nft-form.module.css'
 
 import Loading from '@/components/loading/loading'
 import { usePaymentProvider } from '@/contexts/payment-context'
-import { useWarningOnExit } from '@/hooks/useWarningOnExit'
+import { useWarningOnExit } from '@/hooks/use-warning-on-exit'
 import { isAfterNow } from '@/utils/date-time'
 
 export interface PurchaseNFTFormProps {
@@ -26,7 +25,6 @@ export default function PurchaseNFTForm({
   currentBid,
   release,
 }: PurchaseNFTFormProps) {
-  const [passphraseError, setPassphraseError] = useState<string>('')
   const { t } = useTranslation()
   const [promptLeaving, setPromptLeaving] = useState(false)
 
@@ -35,7 +33,6 @@ export default function PurchaseNFTForm({
   const {
     formErrors,
     handleSubmitBid: onSubmitBid,
-    handleSubmitPassphrase: onSubmitPassphrase,
     handleSubmitPurchase: onSubmitPurchase,
     loadingText,
     packId,
@@ -46,19 +43,6 @@ export default function PurchaseNFTForm({
     currentBid,
     release,
   })
-
-  const handleSubmitPassphrase = useCallback(
-    async (passphrase: string) => {
-      setPassphraseError('')
-      setPromptLeaving(true)
-      const isValidPassphrase = await onSubmitPassphrase(passphrase)
-      if (!isValidPassphrase) {
-        setPassphraseError(t('forms:errors.invalidPassphrase'))
-      }
-      setPromptLeaving(false)
-    },
-    [onSubmitPassphrase, setPassphraseError, t]
-  )
 
   const handleSubmitPurchase = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -81,13 +65,6 @@ export default function PurchaseNFTForm({
   return (
     <section className={css.root}>
       <PurchaseHeader release={release} />
-
-      {status === 'passphrase' && (
-        <PurchasePassphrase
-          error={passphraseError}
-          handleSubmitPassphrase={handleSubmitPassphrase}
-        />
-      )}
 
       <div className={status === 'form' ? 'w-full' : 'hidden'}>
         <PurchaseForm

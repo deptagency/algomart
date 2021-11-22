@@ -10,7 +10,7 @@ import css from './featured-pack.module.css'
 import Button from '@/components/button'
 import Counter from '@/components/counter/counter'
 import Heading from '@/components/heading'
-import { useLocale } from '@/hooks/useLocale'
+import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/format-currency'
 
 export interface FeaturedPackProps {

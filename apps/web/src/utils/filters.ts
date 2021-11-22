@@ -10,7 +10,7 @@ import { Translate } from 'next-translate'
 import { stringify } from 'query-string'
 
 import { PAGE_SIZE } from '@/components/pagination/pagination'
-import { PackFilterState } from '@/hooks/usePackFilter'
+import { PackFilterState } from '@/hooks/use-pack-filter'
 
 /**
  * Build a search parameter string to filter published packs

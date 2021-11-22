@@ -8,16 +8,16 @@ import userMiddleware from '@/middleware/user-middleware'
 import validateBodyMiddleware, {
   ExtractBodyType,
 } from '@/middleware/validate-body-middleware'
-import { validatepPassphrase } from '@/utils/auth-validation'
+import { validatePassphrase } from '@/utils/auth-validation'
 
 const handler = createHandler()
 
 handler.use(authMiddleware()).use(userMiddleware())
 
-type BodyType = ExtractBodyType<typeof validatepPassphrase>
+type BodyType = ExtractBodyType<typeof validatePassphrase>
 
 handler.post(
-  validateBodyMiddleware(validatepPassphrase),
+  validateBodyMiddleware(validatePassphrase),
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
     const body = request.validResult.value as BodyType
 
