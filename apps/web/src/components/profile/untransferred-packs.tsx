@@ -19,7 +19,7 @@ export default function UntransferredPacks() {
   const router = useRouter()
   const { t } = useTranslation()
   const [transfer, status, reset] = useTransferPack(
-    data && data.total > 0 ? data.packs[0].id : null
+    data && data.packs.length > 0 ? data.packs[0].id : null
   )
 
   const onClose = useCallback(() => {
@@ -40,13 +40,14 @@ export default function UntransferredPacks() {
   useEffect(() => {
     if (status === TransferPackStatus.Success && !open) {
       const newPacks = data?.packs.slice(1) || []
+      const newTotal = data ? data.total - 1 : 0
       mutate({
         packs: newPacks,
-        total: newPacks.length,
+        total: newTotal,
       })
       reset()
     }
-  }, [data?.packs, mutate, open, reset, status])
+  }, [data, mutate, open, reset, status])
 
   if (
     !data ||
