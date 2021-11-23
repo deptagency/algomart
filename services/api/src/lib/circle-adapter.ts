@@ -245,14 +245,19 @@ export default class CircleAdapter {
   }
 
   async getTransfersForExternalWallet(
-    sourceWalletId: string
-  ): Promise<CircleTransfer[] | null> {
+    destinationWalletId: string,
+    destinationAddressId: string
+  ): Promise<CircleTransfer | null> {
     const response = await this.http
-      .get('v1/transfers', { searchParams: { sourceWalletId: sourceWalletId } })
+      .get('v1/transfers', { searchParams: { destinationWalletId } })
       .json<CircleResponse<CircleTransfer[]>>()
 
     if (isCircleSuccessResponse(response)) {
-      return response.data
+      const transfer = response.data.find(
+        (transfer) => transfer.destination.address === destinationAddressId
+      )
+      if (transfer) return transfer
+      return null
     }
 
     this.logger.error(
