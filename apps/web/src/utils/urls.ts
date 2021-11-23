@@ -16,6 +16,7 @@ export const urls = {
   redeem: '/redeem',
   releases: '/releases',
   release: '/releases/:packSlug',
+  checkout: '/checkout',
 
   // Auth-related
   login: '/login',

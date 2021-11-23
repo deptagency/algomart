@@ -17,6 +17,7 @@ import ClaimNFTModal from '@/components/modals/claim-nft-modal'
 import ReleaseDetails from '@/components/release-details/release-details'
 import { useAuth } from '@/contexts/auth-context'
 import { isAfterNow } from '@/utils/date-time'
+import { urls } from '@/utils/urls'
 
 export interface ReleaseTemplateProps {
   avatars: { [key: string]: string | null }
@@ -64,7 +65,7 @@ export default function ReleaseTemplate({
 
   const handleClaimNFTFlow = () => {
     packType === PackType.Purchase || packType === PackType.Auction
-      ? push(`/checkout?pack=${packTemplate.slug}`)
+      ? push(`${urls.checkout}?pack=${packTemplate.slug}`)
       : setIsModalOpen(!isModalOpen)
   }
 

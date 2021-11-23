@@ -44,13 +44,15 @@ export default function UntransferredPacks() {
         packs: newPacks,
         total: newPacks.length,
       })
+      reset()
     }
-  }, [data?.packs, mutate, open, status])
+  }, [data?.packs, mutate, open, reset, status])
 
   if (
     !data ||
     data.total === 0 ||
-    router.asPath === urls.packOpening.replace(':packId', data.packs[0].id)
+    router.asPath === urls.packOpening.replace(':packId', data.packs[0].id) ||
+    router.pathname === urls.checkout
   )
     return null
 
