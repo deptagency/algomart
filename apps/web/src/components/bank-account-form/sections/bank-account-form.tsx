@@ -5,16 +5,16 @@ import { FormEvent, useState } from 'react'
 
 import css from './bank-account-form.module.css'
 
+import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
 import BillingAddress from '@/components/card-details/billing-address'
 import Checkbox from '@/components/checkbox'
 import CurrencyInput from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
-import Notification from '@/components/notification/notification'
 import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import { FormValidation } from '@/contexts/payment-context'
-import { useLocale } from '@/hooks/useLocale'
+import { useLocale } from '@/hooks/use-locale'
 import { isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 
@@ -50,7 +50,7 @@ export default function BankAccountForm({
   return (
     <form className={css.form} onSubmit={onSubmit}>
       {formErrors && 'bid' in formErrors && (
-        <Notification
+        <AlertMessage
           className={css.notification}
           content={formErrors.bid}
           variant="red"
