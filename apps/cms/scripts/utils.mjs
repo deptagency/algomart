@@ -92,21 +92,6 @@ export async function getAllFilesMeta(token) {
   }
 }
 
-/** Get fields for a collection. */
-export async function getFieldsForCollection(collection, token) {
-  try {
-    const response = await axios.get(
-      `${process.env.PUBLIC_URL}/fields/${collection}?access_token=${token}&export=json`,
-    )
-    const data = response.data
-    const fields = data.map((item) => ({ name: item.field, required: item.required }))
-    return fields
-  } catch (error) {
-    console.log(error.response.data.errors)
-    process.exit(1)
-  }
-}
-
 /** Get all collections */
 export async function getCollections(token) {
   try {
