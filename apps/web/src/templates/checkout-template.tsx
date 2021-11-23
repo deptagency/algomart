@@ -1,6 +1,6 @@
 import { PublishedPack } from '@algomart/schemas'
 
-import EmailVerfication from '@/components/profile/email-verification'
+import EmailVerification from '@/components/profile/email-verification'
 import PurchaseNFTForm from '@/components/purchase-nft-form/purchase-nft-form'
 import { useAuth } from '@/contexts/auth-context'
 
@@ -17,7 +17,7 @@ export default function CheckoutTemplate({
 }: CheckoutTemplateProps) {
   const { user } = useAuth()
   if (!user?.emailVerified) {
-    return <EmailVerfication inline />
+    return <EmailVerification inline />
   }
   return (
     <PurchaseNFTForm

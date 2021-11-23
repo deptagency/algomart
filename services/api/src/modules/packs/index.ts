@@ -2,6 +2,7 @@ import {
   ClaimFreePackSchema,
   ClaimPackSchema,
   ClaimRedeemPackSchema,
+  LocaleAndExternalIdSchema,
   LocaleSchema,
   MintPackSchema,
   MintPackStatusResponseSchema,
@@ -36,6 +37,7 @@ import {
   mintPackStatus,
   transferPack,
   transferPackStatus,
+  untransferredPacks,
 } from './packs.routes'
 
 import bearerAuthOptions from '@/configuration/bearer-auth'
@@ -256,5 +258,21 @@ export async function packsRoutes(app: FastifyInstance) {
       },
     },
     transferPackStatus
+  )
+
+  app.get(
+    '/untransferred',
+    {
+      schema: {
+        tags,
+        security,
+        description: 'Get all packs that have not been transferred.',
+        querystring: LocaleAndExternalIdSchema,
+        response: {
+          200: PacksByOwnerSchema,
+        },
+      },
+    },
+    untransferredPacks
   )
 }

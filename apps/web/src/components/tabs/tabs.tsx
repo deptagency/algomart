@@ -12,15 +12,18 @@ interface TabProps {
 export interface TabsProps {
   activeTab: number
   tabs: TabProps[]
+  negativeMargin?: boolean
 }
 
-export default function Tabs({ activeTab, tabs }: TabsProps) {
+export default function Tabs({ activeTab, tabs, negativeMargin }: TabsProps) {
   return (
-    <div className={css.root}>
+    <div className={clsx(css.root, { [css.negativeMargin]: negativeMargin })}>
       <div className={css.tabsContainer}>
         {tabs.map(({ href, label }, index) => (
           <AppLink
-            className={clsx(css.tab, { [css.tabActive]: activeTab === index })}
+            className={clsx(css.tab, {
+              [css.tabActive]: activeTab === index,
+            })}
             href={href}
             key={label}
           >

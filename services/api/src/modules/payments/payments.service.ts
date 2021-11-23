@@ -342,6 +342,8 @@ export default class PaymentsService {
     const pendingPayments = await PaymentModel.query(trx)
       // Pending and Confirmed are non-final statuses
       .whereIn('status', [PaymentStatus.Pending, PaymentStatus.Confirmed])
+      // Prioritize pending payments
+      .orderBy('status', 'desc')
       .limit(10)
 
     if (pendingPayments.length === 0) return 0
