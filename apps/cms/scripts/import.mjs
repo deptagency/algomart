@@ -13,7 +13,7 @@ import {
   getConfigFromStdin,
   importCsvFile,
   readFileAsync,
-} from '../utils.mjs'
+} from './utils.mjs'
 
 const orderedCollectionsForImport = [
   'collections',

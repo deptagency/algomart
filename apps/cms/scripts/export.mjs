@@ -13,7 +13,7 @@ import {
   getCollectionItemsAsCsv,
   getConfigFromStdin,
   readFileAsync,
-} from '../utils.mjs'
+} from './utils.mjs'
 
 // fields to export for each collection (empty implies all fields)
 const collectionFields = {

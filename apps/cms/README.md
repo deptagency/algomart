@@ -184,7 +184,7 @@ Running `npm run bootstrap` will apply new migrations. Additionally, the `packag
 
 ## Importing & Exporting Data
 
-Data may be exported from the CMS via `npm run export` and loaded via `npm run import`. This includes Rarities, Packs, NFT Templates, Sets, Collections and asset files (typically images & videos).
+Data may be exported from the CMS via `npm run export` and loaded via `npm run import`. This includes Rarities, Packs, NFT Templates, Sets, Collections and asset files (typically images & videos). MNake sure your CMS server is running before running either script.
 
 `npm run export` — This will export data to `scripts/export/`
 `npm run import` — Import data from `scripts/export/` (this will not overwrite any records)
