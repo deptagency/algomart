@@ -13,16 +13,12 @@ import Button from '@/components/button'
 import Dialog, { DialogProps } from '@/components/dialog/dialog'
 import Heading from '@/components/heading'
 import Loading from '@/components/loading/loading'
-import PassphraseInput from '@/components/passphrase-input/passphrase-input'
 import TextInput from '@/components/text-input/text-input'
 import { useRedemption } from '@/contexts/redemption-context'
 import { urls } from '@/utils/urls'
 
 export interface ClaimNFTModalProps {
-  onSubmit: (
-    passphrase: string,
-    redeemCode: string
-  ) => Promise<{ packId: string } | string>
+  onSubmit: (redeemCode: string) => Promise<{ packId: string } | string>
   packTemplate: PublishedPack
 }
 
@@ -37,7 +33,6 @@ export default function ClaimNFTModal({
   const [error, setError] = useState('')
   const [loadingText, setLoadingText] = useState<string>('')
   const [packId, setPackId] = useState('')
-  const [passphrase, setPassphrase] = useState('')
   const [redeemCode, setRedeemCode] = useState('')
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
@@ -56,7 +51,7 @@ export default function ClaimNFTModal({
       setLoadingText(t('common:statuses.Minting Asset'))
       setStatus('loading')
       try {
-        const result = await onSubmit(passphrase, redeemCode)
+        const result = await onSubmit(redeemCode)
         if (typeof result === 'object' && result.packId) {
           setPackId(result.packId)
           setStatus('success')
@@ -68,7 +63,7 @@ export default function ClaimNFTModal({
         setStatus('error')
       }
     },
-    [onSubmit, passphrase, redeemCode, t]
+    [onSubmit, redeemCode, t]
   )
 
   const handleChangeRedeemCode = (event: ChangeEvent<HTMLInputElement>) => {
@@ -123,17 +118,6 @@ export default function ClaimNFTModal({
 
         {status === 'idle' && (
           <form className={css.form} onSubmit={handleSubmit}>
-            {/* Passphrase */}
-            <div className={css.passphrase}>
-              <PassphraseInput
-                label={t('forms:fields.passphrase.label')}
-                handleChange={setPassphrase}
-              />
-              <p className={css.instructionText}>
-                {t('release:passphraseApprove')}
-              </p>
-            </div>
-
             {/* Redemption Code */}
             {packTemplate.type === PackType.Redeem &&
               redeemable?.pack.templateId !== packTemplate.templateId && (
@@ -151,12 +135,7 @@ export default function ClaimNFTModal({
               )}
 
             {/* Submit */}
-            <Button
-              fullWidth
-              disabled={!passphrase}
-              variant="primary"
-              type="submit"
-            >
+            <Button fullWidth variant="primary" type="submit">
               {t('common:actions.Claim My Edition')}
             </Button>
           </form>

@@ -21,10 +21,7 @@ import { isAfterNow } from '@/utils/date-time'
 export interface ReleaseTemplateProps {
   avatars: { [key: string]: string | null }
   disallowBuyOrClaim: boolean | null
-  handleClaimNFT: (
-    passphrase: string,
-    redeemCode: string
-  ) => Promise<{ packId: string } | string>
+  handleClaimNFT: (redeemCode: string) => Promise<{ packId: string } | string>
   isHighestBidder: boolean | null
   isOutbid: boolean | null
   isOwner: boolean | null

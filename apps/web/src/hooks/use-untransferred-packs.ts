@@ -7,6 +7,7 @@ import { urls } from '@/utils/urls'
 export function useUntransferredPacks() {
   const auth = useAuth()
   return useAuthApi<PacksByOwner>(
-    auth.user ? urls.api.v1.getUntransferredPacks : null
+    auth.user ? urls.api.v1.getUntransferredPacks : null,
+    { refreshInterval: 60_000 }
   )
 }
