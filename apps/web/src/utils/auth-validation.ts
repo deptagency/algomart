@@ -72,7 +72,7 @@ export const validateLogin = (t: Translate) =>
     password: password(t),
   })
 
-export const validatepPassphrase = (t: Translate) =>
+export const validatePassphrase = (t: Translate) =>
   object({
     passphrase: passphrase(t),
   })

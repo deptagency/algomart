@@ -4,7 +4,7 @@ import { AnchorHTMLAttributes, DetailedHTMLProps } from 'react'
 
 import css from './app-link.module.css'
 
-import { useLocale } from '@/hooks/useLocale'
+import { useLocale } from '@/hooks/use-locale'
 
 export type AppLinkProps = NextLinkProps &
   Omit<

@@ -1,6 +1,5 @@
 import {
   DEFAULT_LOCALE,
-  MintPackStatus,
   PackAuction,
   PackType,
   PublishedPack,
@@ -11,18 +10,15 @@ import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import { Analytics } from '@/clients/firebase-analytics'
-import { useAuth } from '@/contexts/auth-context'
 import { useRedemption } from '@/contexts/redemption-context'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
   getProfileImageForUser,
 } from '@/services/api/auth-service'
-import authService from '@/services/auth-service'
 import collectibleService from '@/services/collectible-service'
 import ReleaseTemplate from '@/templates/release-template'
 import { isAfterNow } from '@/utils/date-time'
-import { poll } from '@/utils/poll'
 
 interface ReleasePageProps {
   avatars: { [key: string]: string | null }
@@ -45,7 +41,6 @@ export default function ReleasePage({
   packAuction,
   packTemplate,
 }: ReleasePageProps) {
-  const { user } = useAuth()
   const { setRedeemable } = useRedemption()
   const { t } = useTranslation()
 
@@ -57,27 +52,15 @@ export default function ReleasePage({
   }, [packAuction, packTemplate])
 
   const handleClaimNFT = async (
-    passphrase: string,
     redeemCode: string
   ): Promise<{ packId: string } | string> => {
-    // Verify passphrase
-    const isValidPassphrase = await authService.verifyPassphrase(
-      user?.uid as string,
-      passphrase
-    )
-
-    // Don't transfer if invalid passphrase
-    if (!isValidPassphrase) {
-      return t('forms:errors.invalidPassphrase')
-    }
-
     // Redeem/claim asset
     const { packId } =
       packTemplate.type === PackType.Redeem
         ? await collectibleService.redeem(redeemCode)
         : await collectibleService.claim(packTemplate.templateId)
 
-    // Don't transfer if redemption fails
+    // Don't mint if redemption fails
     if (!packId) {
       return t('forms:errors.invalidRedemptionCode')
     }
@@ -89,26 +72,9 @@ export default function ReleasePage({
       return t('common:statuses.An Error has Occurred')
     }
 
-    const isMinted = await poll(
-      async () => await collectibleService.mintStatus(packId),
-      (result) => result !== MintPackStatus.Minted,
-      1000
-    )
-
-    if (!isMinted) {
-      return t('common:statuses.An Error has Occurred')
-    }
-
-    // Transfer asset
-    const isTransferOK = await collectibleService.transfer(packId, passphrase)
-
     // Clear redemption data
     if (packTemplate.type === PackType.Redeem) {
       setRedeemable(null)
-    }
-
-    if (!isTransferOK) {
-      return t('common:statuses.An Error has Occurred')
     }
 
     return { packId }

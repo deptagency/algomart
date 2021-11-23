@@ -11,6 +11,7 @@ import {
   Simplify,
   SortDirection,
 } from './shared'
+import { AlgorandTransactionStatus } from '.'
 
 export enum PackType {
   Auction = 'auction',
@@ -119,6 +120,7 @@ export const PublishedPacksSchema = Type.Object({
 export const PackByOwnerSchema = Type.Intersect([
   PackBaseSchema,
   Type.Object({
+    id: IdSchema,
     activeBid: Type.Optional(Type.Number()),
     claimedAt: Type.String({ format: 'date-time' }),
   }),
@@ -227,6 +229,15 @@ export const TransferPackSchema = Type.Object({
   passphrase: Type.String(),
 })
 
+export const TransferPackStatusSchema = Type.Object({
+  collectibleId: IdSchema,
+  status: Type.Optional(Type.Enum(AlgorandTransactionStatus)),
+})
+
+export const TransferPackStatusListSchema = Type.Object({
+  status: Type.Array(TransferPackStatusSchema),
+})
+
 export const PackWithCollectiblesSchema = Type.Intersect([
   PackWithIdSchema,
   Type.Object({
@@ -260,4 +271,10 @@ export type TransferPack = Simplify<Static<typeof TransferPackSchema>>
 export type MintPack = Simplify<Static<typeof MintPackSchema>>
 export type MintPackStatusResponse = Simplify<
   Static<typeof MintPackStatusResponseSchema>
+>
+export type TransferPackStatus = Simplify<
+  Static<typeof TransferPackStatusSchema>
+>
+export type TransferPackStatusList = Simplify<
+  Static<typeof TransferPackStatusListSchema>
 >

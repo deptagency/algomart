@@ -20,6 +20,7 @@ import {
   GetPaymentCardStatus,
   Homepage,
   Locale,
+  LocaleAndExternalId,
   MintPack,
   MintPackStatusResponse,
   OwnerExternalId,
@@ -41,6 +42,7 @@ import {
   SendBankAccountInstructions,
   SetWithCollection,
   TransferPack,
+  TransferPackStatusList,
   UpdatePaymentCard,
   UpdateUserAccount,
   Username,
@@ -322,6 +324,18 @@ export class ApiClient {
 
   async transferPack(json: TransferPack) {
     return await this.http.post('packs/transfer', { json })
+  }
+
+  async transferPackStatus(packId: string): Promise<TransferPackStatusList> {
+    return await this.http
+      .get(`packs/transfer/${packId}`)
+      .json<TransferPackStatusList>()
+  }
+
+  async untransferredPacks(params: LocaleAndExternalId): Promise<PacksByOwner> {
+    return await this.http
+      .get('packs/untransferred', { searchParams: params })
+      .json<PacksByOwner>()
   }
   //#endregion
 

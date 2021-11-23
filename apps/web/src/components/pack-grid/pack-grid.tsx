@@ -14,25 +14,29 @@ export interface PackGridProps {
   packCards: PackWithCollectibles['collectibles']
   packTitle: PackWithCollectibles['title']
   transitionStyle?: 'automatic' | 'interactive'
+  enableTransfer: boolean
+  onTransfer?: () => void
 }
 
 export default function PackGrid({
   packCards,
   packTitle,
+  enableTransfer,
   transitionStyle = 'automatic',
+  onTransfer,
 }: PackGridProps) {
   const { t } = useTranslation()
 
   // Automatic animations
   const animationIn = useTrail(packCards.length, {
     config: config.gentle,
-    delay: 3000,
+    delay: 2500,
     from: { opacity: 0, y: -50 },
     to: { opacity: 1, y: 0 },
   })
   const animationOpacity = useTrail(packCards.length, {
-    config: config.molasses,
-    delay: 1000,
+    config: config.default,
+    delay: 5000,
     from: { opacity: 0 },
     to: { opacity: 1 },
   })
@@ -64,7 +68,12 @@ export default function PackGrid({
           </Button>
         </div>
       )}
-      <ul className={css.gridWrapper}>
+      <ul
+        className={clsx(css.gridWrapper, {
+          [css.single]: packCards.length === 1,
+          [css.double]: packCards.length === 2,
+        })}
+      >
         {animationIn.map((style, index) => {
           return (
             <animated.li
@@ -77,7 +86,7 @@ export default function PackGrid({
                 color={packCards[index]?.rarity?.color}
                 imageSource={packCards[index].image}
                 labelName={packCards[index]?.rarity?.name}
-                title={packCards[index].title}
+                title={`${packCards[index].title}`}
               />
               <animated.div
                 className={clsx(css.placeholderWrapper, {
@@ -97,6 +106,7 @@ export default function PackGrid({
                 }
               >
                 <PackPlaceholder
+                  hideContent={packCards.length < 3}
                   index={index}
                   key={packCards[index].id}
                   collectibleEdition={`#${packCards[index].edition}`}
@@ -109,6 +119,15 @@ export default function PackGrid({
           )
         })}
       </ul>
+      {onTransfer && (
+        <Button
+          className={css.viewCollectionButton}
+          onClick={onTransfer}
+          disabled={packCards.length === 0 || !enableTransfer}
+        >
+          {t('common:actions.Save to My Collection')}
+        </Button>
+      )}
     </>
   )
 }

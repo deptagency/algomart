@@ -1,7 +1,7 @@
 import { PublishedPack } from '@algomart/schemas'
 
 import BankAccountPurchaseForm from '@/components/bank-account-form/bank-account-form'
-import EmailVerfication from '@/components/profile/email-verification'
+import EmailVerification from '@/components/profile/email-verification'
 import PurchaseNFTForm from '@/components/purchase-nft-form/purchase-nft-form'
 import { useAuth } from '@/contexts/auth-context'
 import { Environment } from '@/environment'
@@ -21,7 +21,7 @@ export default function CheckoutTemplate({
 }: CheckoutTemplateProps) {
   const { user } = useAuth()
   if (!user?.emailVerified) {
-    return <EmailVerfication inline />
+    return <EmailVerification inline />
   }
   const doesRequireWirePayment =
     Environment.isWireEnabled &&

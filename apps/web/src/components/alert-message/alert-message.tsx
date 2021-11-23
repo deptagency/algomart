@@ -1,21 +1,21 @@
 import clsx from 'clsx'
 import { ReactNode } from 'react'
 
-import css from './notification.module.css'
+import css from './alert-message.module.css'
 
-interface TextInputProps {
+interface AlertMessage {
   className?: string
   content: ReactNode | string
   showBorder?: boolean
   variant?: 'blue' | 'green' | 'red'
 }
 
-export default function TextInput({
+export default function AlertMessage({
   className,
   content,
   showBorder = false,
   variant = 'blue',
-}: TextInputProps) {
+}: AlertMessage) {
   return (
     <section
       className={clsx(

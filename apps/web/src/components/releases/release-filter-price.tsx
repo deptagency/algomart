@@ -11,8 +11,8 @@ import CurrencyInput, {
 } from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
 import { usePackFilterContext } from '@/contexts/pack-filter-context'
-import { useLocale } from '@/hooks/useLocale'
-import { packFilterActions } from '@/hooks/usePackFilter'
+import { useLocale } from '@/hooks/use-locale'
+import { packFilterActions } from '@/hooks/use-pack-filter'
 import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 
 export default function ReleaseFilterPrice() {

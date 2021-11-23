@@ -6,7 +6,7 @@ import { urls } from '@/utils/urls'
 export interface AuthAPI {
   isUsernameAvailable(username: string): Promise<boolean>
   updateUsername(username: string): Promise<boolean>
-  verifyPassphrase(externalId: string, passphrase: string): Promise<boolean>
+  verifyPassphrase(passphrase: string): Promise<boolean>
 }
 
 export class AuthService implements AuthAPI {
@@ -54,13 +54,10 @@ export class AuthService implements AuthAPI {
     }
   }
 
-  async verifyPassphrase(
-    externalId: string,
-    passphrase: string
-  ): Promise<boolean> {
+  async verifyPassphrase(passphrase: string): Promise<boolean> {
     const { isValid } = await this.http
       .post(urls.api.v1.verifyPassphrase, {
-        json: { externalId, passphrase },
+        json: { passphrase },
       })
       .json<{ isValid: boolean }>()
 

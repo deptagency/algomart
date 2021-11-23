@@ -24,6 +24,7 @@ export default function PackItem({
 }: PackItemProps) {
   const { t } = useTranslation('common')
   const label = labelName || t('common:global.rarityDefault')
+
   return (
     <div className={css.root}>
       <div className={css.column}>
@@ -55,11 +56,13 @@ export default function PackItem({
             </div>
           )}
           <div className={css.information}>
-            <h1 className={css.title}>{title}</h1>
+            <div className={css.titleWrapper}>
+              <h2 className={css.title}>{title}</h2>
+            </div>
+
             <span
               className={clsx(css.label, {
                 [css.defaultColor]: !color,
-                backgroundColor: color,
               })}
               style={{ backgroundColor: color }}
             >

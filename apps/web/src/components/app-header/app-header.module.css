@@ -1,6 +1,6 @@
 .root {
   /* Base */
-  @apply fixed top-0 z-20 w-full bg-white shadow-medium;
+  @apply sticky top-0 z-20 w-full bg-white shadow-medium;
   /* Tablet + */
   @apply md:bg-transparent md:pt-4 md:relative md:shadow-none;
 }

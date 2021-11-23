@@ -1,3 +1,4 @@
+import { BadRequest } from 'http-errors'
 import { NextApiResponse } from 'next'
 
 import { ApiClient } from '@/clients/api-client'
@@ -30,5 +31,12 @@ handler.post(
     response.status(204).end()
   }
 )
+
+handler.get(async (request: NextApiRequestApp, response: NextApiResponse) => {
+  const packId = request.query.packId
+  if (!packId || typeof packId !== 'string')
+    throw new BadRequest('Missing packId')
+  response.json(await ApiClient.instance.transferPackStatus(packId))
+})
 
 export default handler

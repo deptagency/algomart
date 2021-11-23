@@ -63,7 +63,7 @@ export default function MyCollectiblesTemplate({
       />
 
       {/* Tabs */}
-      <Tabs activeTab={0} tabs={getCollectionTabs(t)} />
+      <Tabs activeTab={0} tabs={getCollectionTabs(t)} negativeMargin />
 
       {/* Collectibles */}
       {assets.length > 0 ? (

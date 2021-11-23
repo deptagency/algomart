@@ -1,10 +1,10 @@
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent } from 'react'
 
+import AlertMessage from '@/components/alert-message/alert-message'
 import AppLink from '@/components/app-link/app-link'
 import { Email, Password, Submit } from '@/components/auth-inputs/auth-inputs'
 import Heading from '@/components/heading'
-import Notification from '@/components/notification/notification'
 import { AuthState } from '@/types/auth'
 import { urls } from '@/utils/urls'
 
@@ -34,7 +34,7 @@ export default function LoginEmailTemplate({
       </Heading>
       <form className="relative max-w-sm mx-auto" onSubmit={handleLogin}>
         {status === 'error' && error && (
-          <Notification
+          <AlertMessage
             className="mb-6"
             content={t('forms:errors.invalidCredentials')}
             variant="red"

@@ -67,6 +67,14 @@ Install all dependencies (may take a while the first time):
 npm install
 ```
 
+> ### For M1 Mac Users
+>
+> You might need to manually install additional system dependencies using [Homebrew](https://brew.sh/) before running `npm install`. Once Homebrew is installed, run
+>
+> ```bash
+> brew install pkg-config cairo pango libpng jpeg giflib librsvg
+> ```
+
 Additional setup may be required within each package. Check the README in each for more details. Once everything is configured, you can start everything in development/watch mode:
 
 ```bash

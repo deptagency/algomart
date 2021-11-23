@@ -7,6 +7,7 @@ import {
   DEFAULT_LOCALE,
   EventAction,
   EventEntityType,
+  LocaleAndExternalId,
   MintPack,
   MintPackStatus,
   NotificationType,
@@ -27,6 +28,7 @@ import {
   PublishedPacksQuery,
   SortDirection,
   TransferPack,
+  TransferPackStatusList,
 } from '@algomart/schemas'
 import { raw, Transaction } from 'objection'
 
@@ -43,6 +45,7 @@ import { EventModel } from '@/models/event.model'
 import { PackModel } from '@/models/pack.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import NotificationsService from '@/modules/notifications/notifications.service'
+import { chunkArray } from '@/utils/arrays'
 import { formatIntToFloat } from '@/utils/format-currency'
 import { invariant, userInvariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
@@ -108,6 +111,8 @@ function mapToPublicBid(bid: BidModel, packId: string): BidPublic {
     username: bid?.userAccount?.username as string,
   }
 }
+
+const MAX_COLLECTIBLES = 16
 
 export default class PacksService {
   logger = logger.child({ context: this.constructor.name })
@@ -383,12 +388,13 @@ export default class PacksService {
 
     // List packs purchased by owner with template details
     const allPacks: PackByOwner[] = []
-    for (const { claimedAt, templateId } of packsByOwnerId) {
+    for (const { id, claimedAt, templateId } of packsByOwnerId) {
       const template = templateLookup.get(templateId)
       if (template && claimedAt) {
         const packWithActiveBid = packWithActiveBidsLookup.get(templateId)
         allPacks.push({
           ...template,
+          id,
           status: template.status,
           claimedAt,
           activeBid:
@@ -645,15 +651,32 @@ export default class PacksService {
 
     userInvariant(pack, 'pack not found', 404)
 
-    this.logger.info({ pack }, 'pack to be transferred')
+    this.logger.info({ pack }, 'pack to be minted')
 
     const collectibleIds = pack.collectibles?.map((c) => c.id) || []
 
+    // Max 16 collectibles can be minted at a time
     await Promise.all(
-      collectibleIds.map(async (id) => {
-        await this.collectibles.mintCollectible(id, trx)
+      chunkArray(collectibleIds, MAX_COLLECTIBLES).map(async (chunk) => {
+        await this.collectibles.mintCollectibles(chunk, trx)
       })
     )
+  }
+
+  async transferPackStatus(packId: string): Promise<TransferPackStatusList> {
+    const pack = await PackModel.query()
+      .findOne('Pack.id', packId)
+      .withGraphJoined('collectibles.latestTransferTransaction')
+
+    userInvariant(pack, 'pack not found', 404)
+    invariant(pack.collectibles, 'pack has no collectibles')
+
+    return {
+      status: pack.collectibles.map((collectible) => ({
+        collectibleId: collectible.id,
+        status: collectible.latestTransferTransaction?.status,
+      })),
+    }
   }
 
   async transferPack(request: TransferPack, trx?: Transaction) {
@@ -714,6 +737,59 @@ export default class PacksService {
     }
 
     return true
+  }
+
+  async untransferredPacks({
+    externalId,
+    locale = DEFAULT_LOCALE,
+  }: LocaleAndExternalId) {
+    const packs = await PackModel.query()
+      .withGraphJoined('[collectibles, owner]')
+      .where('owner.externalId', externalId)
+      .whereNull('collectibles.ownerId')
+      .whereNotNull('collectibles.address')
+
+    if (packs.length === 0) {
+      return {
+        packs: [],
+        total: 0,
+      }
+    }
+
+    const templateIds = [...new Set(packs.map((p) => p.templateId))]
+
+    const filter: ItemFilter = {
+      status: {
+        _eq: DirectusStatus.Published,
+      },
+    }
+    if (templateIds.length > 0) filter.id = { _in: templateIds }
+
+    const { packs: templates } = await this.cms.findAllPacks({
+      locale,
+      pageSize: -1,
+      filter,
+    })
+    const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
+
+    const allPacks: PackByOwner[] = []
+    for (const { id, claimedAt, templateId } of packs) {
+      const template = templateLookup.get(templateId)
+      if (template && claimedAt) {
+        allPacks.push({
+          ...template,
+          id,
+          status: template.status,
+          claimedAt,
+          activeBid: undefined,
+        })
+      }
+    }
+
+    return {
+      packs: allPacks,
+      total: allPacks.length,
+    }
   }
 
   async claimRandomFreePack(request: ClaimFreePack, trx?: Transaction) {
