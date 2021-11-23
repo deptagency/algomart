@@ -16,11 +16,16 @@ import {
 } from '../utils.mjs'
 
 const orderedCollectionsForImport = [
-  'collections', 'collections_translations',
-  'sets', 'sets_translations',
-  'rarities', 'rarities_translations',
-  'pack_templates', 'pack_templates_translations',
-  'nft_templates', 'nft_templates_translations',
+  'collections',
+  'collections_translations',
+  'sets',
+  'sets_translations',
+  'rarities',
+  'rarities_translations',
+  'pack_templates',
+  'pack_templates_translations',
+  'nft_templates',
+  'nft_templates_translations',
 ]
 
 async function main(args) {
@@ -56,19 +61,19 @@ async function main(args) {
     }
   }
   console.timeEnd('Upload assets')
-  
+
   // Import CSVs
   console.time('Import CSVs')
   for (const collection of orderedCollectionsForImport) {
     const file = collection + '.csv'
-    if (!fs.existsSync(path.join(basePath, file))) { 
+    if (!fs.existsSync(path.join(basePath, file))) {
       continue
     }
 
     // Replace asset ids with new ones
     const csvFile = _resolve(path.join(basePath, file))
     let data = fs.readFileSync(csvFile).toString()
-    Object.keys(assetMap).forEach(id => {
+    Object.keys(assetMap).forEach((id) => {
       data = data.replaceAll(id, assetMap[id])
     })
     fs.writeFileSync(path.join(os.tmpdir(), file), data)
@@ -82,8 +87,7 @@ async function main(args) {
   console.log('Done!')
 }
 
-main(process.argv)
-  .catch((error) => {
-    console.error(error)
-    process.exit(1)
-  })
+main(process.argv).catch((error) => {
+  console.error(error)
+  process.exit(1)
+})
