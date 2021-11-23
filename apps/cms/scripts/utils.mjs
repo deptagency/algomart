@@ -127,7 +127,6 @@ export async function getCollections(token) {
 export async function getCollectionItemsAsCsv(collectionName, fields, token) {
   try {
     const fieldsString = fields?.length ? '&fields=' + fields.join(',') : ''
-    console.log(fieldsString)
     const response = await axios.get(
       `${process.env.PUBLIC_URL}/items/${collectionName}?access_token=${token}${fieldsString}&export=csv`,
     )
