@@ -123,8 +123,7 @@ async function main(args) {
   }
 
   const files = await getAllFilesMeta(token)
-  console.log(`Found ${files.length} asset files`)
-
+  console.time(`Downloading ${files.length} asset files`)
   for (const file of files) {
     const fileData = await downloadFile(file.id, token)
     await fs.writeFile(
@@ -134,6 +133,7 @@ async function main(args) {
       handleError
     )
   }
+  console.timeEnd(`Downloading ${files.length} asset files`)
 
   // Create a file for each collection
   const collections = await getCollections(token)
