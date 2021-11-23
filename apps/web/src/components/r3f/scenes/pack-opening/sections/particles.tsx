@@ -98,6 +98,7 @@ export default function Particles({
         args={[new BufferGeometry(), new Material(), count]}
       >
         <sphereBufferGeometry attach="geometry" />
+        {/* @ts-ignore ignore "Type instantiation is excessively deep and possibly infinite." */}
         <animated.meshStandardMaterial
           attach="material"
           color={color}
