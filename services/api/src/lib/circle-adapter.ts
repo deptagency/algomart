@@ -1,7 +1,9 @@
 import {
+  CircleBlockchainAddress,
   CircleCard,
   CircleCardStatus,
   CircleCardVerification,
+  CircleCreateBlockchainAddress,
   CircleCreateCard,
   CircleCreatePayment,
   CirclePaymentResponse,
@@ -9,9 +11,11 @@ import {
   CirclePaymentVerification,
   CirclePublicKey,
   CircleResponse,
+  CircleTransfer,
   CircleVerificationAVSFailureCode,
   CircleVerificationAVSSuccessCode,
   CircleVerificationCvvStatus,
+  CircleWallet,
   isCircleSuccessResponse,
   PaymentCardStatus,
   PaymentStatus,
@@ -142,6 +146,27 @@ export default class CircleAdapter {
     return null
   }
 
+  async createBlockchainAddress(
+    request: CircleCreateBlockchainAddress
+  ): Promise<CircleBlockchainAddress | null> {
+    const response = await this.http
+      .post(`v1/wallets/${request.walletId}/addresses`, {
+        json: {
+          idempotencyKey: request.idempotencyKey,
+          currency: 'USD',
+          chain: 'ALGO',
+        },
+      })
+      .json<CircleResponse<CircleBlockchainAddress>>()
+
+    if (isCircleSuccessResponse(response)) {
+      return response.data
+    }
+
+    this.logger.error({ response }, 'Failed to create blockchain address')
+    return null
+  }
+
   async createPaymentCard(
     request: CircleCreateCard
   ): Promise<ToPaymentCardBase | null> {
@@ -176,6 +201,23 @@ export default class CircleAdapter {
     return null
   }
 
+  async getMerchantWallet(): Promise<CircleWallet | null> {
+    const response = await this.http
+      .get('v1/wallets')
+      .json<CircleResponse<CircleWallet[]>>()
+
+    if (isCircleSuccessResponse(response) && response.data) {
+      const merchantWallet = response.data.find(
+        (wallet: CircleWallet) => wallet.type === 'merchant'
+      )
+      if (merchantWallet) return merchantWallet
+      return null
+    }
+
+    this.logger.error({ response }, 'Failed to get the merchant wallet')
+    return null
+  }
+
   async getPaymentCardById(id: string): Promise<ToPaymentCardBase | null> {
     const response = await this.http
       .get(`v1/cards/${id}`)
@@ -199,6 +241,24 @@ export default class CircleAdapter {
     }
 
     this.logger.error({ response }, 'Failed to get payment')
+    return null
+  }
+
+  async getTransfersForExternalWallet(
+    sourceWalletId: string
+  ): Promise<CircleTransfer[] | null> {
+    const response = await this.http
+      .get('v1/transfers', { searchParams: { sourceWalletId: sourceWalletId } })
+      .json<CircleResponse<CircleTransfer[]>>()
+
+    if (isCircleSuccessResponse(response)) {
+      return response.data
+    }
+
+    this.logger.error(
+      { response },
+      'Failed to get transfers for external wallet'
+    )
     return null
   }
 }
