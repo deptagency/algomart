@@ -39,7 +39,7 @@ async function main(args) {
 
   // Upload all asset files
   console.time('Upload assets')
-  const basePath = './scripts/export-data/export' // TODO: update directory
+  const basePath = './scripts/export'
   const assetsPath = path.join(basePath, 'files')
   const assetFiles = fs.readdirSync(assetsPath)
   // a map from old asset ids to new asset ids
@@ -65,9 +65,8 @@ async function main(args) {
       continue
     }
 
-    const csvFile = _resolve(`${basePath}/${file}`)
-    
     // Replace asset ids with new ones
+    const csvFile = _resolve(path.join(basePath, file))
     let data = fs.readFileSync(csvFile).toString()
     Object.keys(assetMap).forEach(id => {
       data = data.replaceAll(id, assetMap[id])

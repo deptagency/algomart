@@ -15,19 +15,26 @@ import {
   readFileAsync,
 } from '../utils.mjs'
 
+// fields to export for each collection (empty implies all fields)
 const collectionFields = {
-  languages: [],
-  application: [],
-  homepage: [],
-  rarities: ["id","code","color"], // excluded: "user_created","date_created","user_updated","date_updated","translations"
+  // excluded: "user_created","date_created","user_updated","date_updated","translations"
+  rarities: ["id","code","color"],
   rarities_translations: [],
-  pack_templates: ["id","status","sort","slug","type","price","released_at","auction_until","show_nfts","nft_order","nft_distribution","nfts_per_pack","pack_image","allow_bid_expiration","one_pack_per_customer","additional_images"], // excluded: "user_created","date_created","user_updated","date_updated","homepage","translations","nft_templates"
+
+  // excluded: "user_created","date_created","user_updated","date_updated","homepage","translations","nft_templates"
+  pack_templates: ["id","status","sort","slug","type","price","released_at","auction_until","show_nfts","nft_order","nft_distribution","nfts_per_pack","pack_image","allow_bid_expiration","one_pack_per_customer","additional_images"],
   pack_templates_translations: [],
-  nft_templates: ["id","status","total_editions","unique_code","preview_image","preview_video","preview_audio","asset_file","pack_template","rarity","set","collection"], // excluded: "user_created","date_created","user_updated","date_updated","homepage","translations""
+
+  // excluded: "user_created","date_created","user_updated","date_updated","homepage","translations""
+  nft_templates: ["id","status","total_editions","unique_code","preview_image","preview_video","preview_audio","asset_file","pack_template","rarity","set","collection"],
   nft_templates_translations: [],
-  collections: ["id","status","sort","slug","collection_image","reward_image"], // excluded: "user_created","date_created","user_updated","date_updated","translations","sets","nft_templates"
+
+  // excluded: "user_created","date_created","user_updated","date_updated","translations","sets","nft_templates"
+  collections: ["id","status","sort","slug","collection_image","reward_image"],
   collections_translations: [],
-  sets: ["id","status","sort","slug","collection"], // excluded: "user_created","date_created","user_updated","date_updated","translations","nft_templates"
+
+  // excluded: "user_created","date_created","user_updated","date_updated","translations","nft_templates"
+  sets: ["id","status","sort","slug","collection"],
   sets_translations: [],
 }
 
@@ -61,14 +68,14 @@ async function main(args) {
   const token = await getCMSAuthToken(config)
 
   // create export directory
-  const exportDir = _resolve('./scripts/export-data/export')
+  const exportDir = _resolve('./scripts/export')
   console.log(`Creating export directory at ${exportDir}`)
   if (!fs.existsSync(exportDir)) {
     fs.mkdirSync(exportDir)
   }
   
   // create files directory
-  const filesDir = _resolve('./scripts/export-data/export/files')
+  const filesDir = _resolve('./scripts/export/files')
   console.log(`Creating export directory at ${filesDir}`)
   if (!fs.existsSync(filesDir)) {
     fs.mkdirSync(filesDir)
@@ -77,7 +84,7 @@ async function main(args) {
   const files = await getAllFilesMeta(token)
   console.log(`Found ${files.length} asset files`)
 
-  for(const file of files) {
+  for (const file of files) {
     const fileData = await downloadFile(file.id, token)
     await fs.writeFile(
       path.join(filesDir,file.filename_disk), 
