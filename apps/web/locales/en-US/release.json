@@ -55,6 +55,9 @@
   "This sale is open": "This sale is open",
   "Total": "Total",
   "Winning Bid": "Winning Bid",
+  "You have N unclaimed packs_one": "You have one unclaimed pack.",
+  "You have N unclaimed packs_0": "You have zero unclaimed packs.",
+  "You have N unclaimed packs_other": "You have {{count}} unclaimed packs.",
   "You were outbid": "You were outbid.",
   "You won the auction": "You won the auction",
   "filters": {
