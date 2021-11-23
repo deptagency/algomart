@@ -108,20 +108,18 @@ async function main(args) {
   }
   const token = await getCMSAuthToken(config)
 
-  // create export directory
+  // Create export directories if they don't exist
   const exportDir = _resolve('./scripts/export')
   console.log(`Creating export directory at ${exportDir}`)
   if (!fs.existsSync(exportDir)) {
     fs.mkdirSync(exportDir)
   }
-
-  // create files directory
   const filesDir = _resolve('./scripts/export/files')
-  console.log(`Creating export directory at ${filesDir}`)
   if (!fs.existsSync(filesDir)) {
     fs.mkdirSync(filesDir)
   }
 
+  // Download all asset files
   const files = await getAllFilesMeta(token)
   console.time(`Downloading ${files.length} asset files`)
   for (const file of files) {
@@ -135,7 +133,7 @@ async function main(args) {
   }
   console.timeEnd(`Downloading ${files.length} asset files`)
 
-  // Create a file for each collection
+  // Create a CSV file for each collection
   const collections = await getCollections(token)
   await Promise.all(
     collections.map((collection) =>

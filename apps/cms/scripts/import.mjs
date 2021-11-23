@@ -51,6 +51,7 @@ async function main(args) {
   const assetMap = {}
   for (const filename of assetFiles) {
     if (!filename.startsWith('.')) {
+      console.time(`Uploading ${filename}`)
       const formData = new FormData()
       formData.append('title', filename)
       const file = fs.createReadStream(_resolve(assetsPath, filename))
@@ -58,6 +59,7 @@ async function main(args) {
       const fileMeta = await createAssetRecords(formData, token)
       const id = path.parse(filename).name
       assetMap[id] = fileMeta.id
+      console.timeEnd(`Uploading ${filename}`)
     }
   }
   console.timeEnd('Upload assets')
@@ -83,6 +85,7 @@ async function main(args) {
     console.log(`Importing "${collection}"`)
     await importCsvFile(formData, collection, token)
   }
+  console.timeEnd('Import CSVs')
 
   console.log('Done!')
 }
