@@ -198,7 +198,7 @@ export default class PaymentsService {
       .first()
     userInvariant(user, 'no user found', 404)
 
-    const { packId } = await this.selectPackAndAssignToUser(
+    const { price, packId } = await this.selectPackAndAssignToUser(
       bankDetails.packTemplateId,
       user.id,
       trx
@@ -220,6 +220,7 @@ export default class PaymentsService {
     const newBankAccount = await PaymentBankAccountModel.query(trx)
       .insert({
         ...bankAccount,
+        amount: price,
         packId,
         ownerId: user.id,
       })
@@ -339,7 +340,7 @@ export default class PaymentsService {
       trx
     )
 
-    return { amount, packId: randomPack.id }
+    return { price, priceInUSD: amount, packId: randomPack.id }
   }
 
   async createPayment(paymentDetails: CreatePayment, trx?: Transaction) {
@@ -349,7 +350,7 @@ export default class PaymentsService {
 
     userInvariant(user, 'user not found', 404)
 
-    const { amount, packId } = await this.selectPackAndAssignToUser(
+    const { priceInUSD, packId } = await this.selectPackAndAssignToUser(
       paymentDetails.packTemplateId,
       user.id,
       trx
@@ -382,7 +383,7 @@ export default class PaymentsService {
       idempotencyKey: idempotencyKey,
       metadata: metadata,
       amount: {
-        amount,
+        amount: priceInUSD,
         currency: DEFAULT_CURRENCY,
       },
       verification: verification,
