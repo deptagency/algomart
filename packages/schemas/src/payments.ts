@@ -177,6 +177,10 @@ const PaymentBaseSchema = Type.Object({
 const PaymentBankAccountBaseSchema = Type.Intersect([
   BaseSchema,
   Type.Omit(ToPaymentBankAccountBaseSchema, ['externalId']),
+  Type.Object({
+    amount: Type.Number(),
+    packId: IdSchema,
+  }),
 ])
 
 const PaymentCardBaseSchema = Type.Intersect([
@@ -192,8 +196,6 @@ const PaymentRequiredActionSchema = Type.Object({
 })
 
 export const SendBankAccountInstructionsSchema = Type.Object({
-  packTemplateId: IdSchema,
-  amount: Type.Number(),
   bankAccountId: IdSchema,
   ownerExternalId: Type.String(),
 })
@@ -494,6 +496,7 @@ export const CreateCardSchema = Type.Intersect([
 export const CreateBankAccountSchema = Type.Intersect([
   CircleCreateBankAccountSchema,
   Type.Object({
+    packTemplateId: IdSchema,
     ownerExternalId: Type.String(),
   }),
 ])

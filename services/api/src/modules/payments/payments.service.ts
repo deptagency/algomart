@@ -198,6 +198,12 @@ export default class PaymentsService {
       .first()
     userInvariant(user, 'no user found', 404)
 
+    const { packId } = await this.selectPackAndAssignToUser(
+      bankDetails.packTemplateId,
+      user.id,
+      trx
+    )
+
     // Create bank account using Circle API
     const bankAccount = await this.circle.createBankAccount({
       idempotencyKey: bankDetails.idempotencyKey,
@@ -214,6 +220,7 @@ export default class PaymentsService {
     const newBankAccount = await PaymentBankAccountModel.query(trx)
       .insert({
         ...bankAccount,
+        packId,
         ownerId: user.id,
       })
       .onConflict('externalId')
@@ -281,10 +288,14 @@ export default class PaymentsService {
     })
   }
 
-  async createPayment(paymentDetails: CreatePayment, trx?: Transaction) {
+  async selectPackAndAssignToUser(
+    packTemplateId: string,
+    userId: string,
+    trx?: Transaction
+  ) {
     // Find random pack to award post-payment
     const randomPack = await this.packs.randomPackByTemplateId(
-      paymentDetails.packTemplateId,
+      packTemplateId,
       trx
     )
     userInvariant(randomPack?.id, 'no pack found', 404)
@@ -317,20 +328,30 @@ export default class PaymentsService {
     const amount = convertToUSD(price, exchangeRates.rates)
     invariant(amount !== null, 'unable to convert to currency')
 
+    // Claim pack ASAP to ensure it's not claimed by someone else during this flow.
+    // We'll later clear this out if the payment fails.
+    await this.packs.claimPack(
+      {
+        packId: randomPack.id,
+        claimedById: userId,
+        claimedAt: new Date().toISOString(),
+      },
+      trx
+    )
+
+    return { amount, packId: randomPack.id }
+  }
+
+  async createPayment(paymentDetails: CreatePayment, trx?: Transaction) {
     const user = await UserAccountModel.query(trx)
       .where('externalId', paymentDetails.payerExternalId)
       .first()
 
     userInvariant(user, 'user not found', 404)
 
-    // Claim pack ASAP to ensure it's not claimed by someone else during this flow.
-    // We'll later clear this out if the payment fails.
-    await this.packs.claimPack(
-      {
-        packId: randomPack.id,
-        claimedById: user.id,
-        claimedAt: new Date().toISOString(),
-      },
+    const { amount, packId } = await this.selectPackAndAssignToUser(
+      paymentDetails.packTemplateId,
+      user.id,
       trx
     )
 
@@ -378,7 +399,7 @@ export default class PaymentsService {
       // Remove claim from payment if payment doesn't go through
       await this.packs.claimPack(
         {
-          packId: randomPack.id,
+          packId,
           claimedById: null,
           claimedAt: null,
         },
@@ -393,7 +414,7 @@ export default class PaymentsService {
       .insert({
         ...payment,
         payerId: user.id,
-        packId: randomPack.id,
+        packId,
         paymentCardId: card?.id,
       })
       .onConflict('externalId')
@@ -442,6 +463,12 @@ export default class PaymentsService {
       .first()
     userInvariant(user, 'no user found', 404)
 
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      details.bankAccountId
+    )
+    userInvariant(foundBankAccount, 'bank account is not available', 404)
+
     // Get wire instructions
     const bankAccountInstructions = await this.getWireTransferInstructions(
       details.bankAccountId
@@ -453,7 +480,7 @@ export default class PaymentsService {
     )
 
     // Get pack template details
-    const packTemplate = await this.packs.getPackById(details.packTemplateId)
+    const packTemplate = await this.packs.getPackById(foundBankAccount.packId)
     userInvariant(packTemplate, 'pack template was not found', 404)
 
     // Send bank account instructions to user
@@ -462,7 +489,7 @@ export default class PaymentsService {
         type: NotificationType.WireInstructions,
         userAccountId: user.id,
         variables: {
-          amount: formatIntToFloat(details.amount),
+          amount: formatIntToFloat(foundBankAccount.amount),
           packTitle: packTemplate.title,
           trackingRef: bankAccountInstructions.trackingRef,
           beneficiaryName: bankAccountInstructions.beneficiary.name,
