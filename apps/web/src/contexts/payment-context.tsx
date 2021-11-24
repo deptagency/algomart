@@ -313,7 +313,7 @@ export function usePaymentProvider({
       setStatus('loading')
       setLoadingText(t('common:statuses.Validating Payment Information'))
       try {
-        const packTemplateId = auctionPackId || release?.templateId
+        const packTemplateId = release?.templateId
         const amount = currentBid || release?.price
 
         if (!packTemplateId || !amount) {
@@ -429,7 +429,6 @@ export function usePaymentProvider({
       mapCircleErrors,
       t,
       validateFormForBankAccount,
-      auctionPackId,
       currentBid,
       release?.price,
       release?.templateId,

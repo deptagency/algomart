@@ -44,6 +44,7 @@ handler.post(
         line2: body.bankAddress2 || '',
         district: body.bankDistrict,
       },
+      packTemplateId: body.packTemplateId,
       ownerExternalId: request.user.externalId,
     })
 
@@ -54,8 +55,6 @@ handler.post(
 
     // Send email to user with bank address instructions
     await ApiClient.instance.sendBankAddressInstructions({
-      packTemplateId: body.packTemplateId,
-      amount: body.amount,
       bankAccountId: bankAccountId,
       ownerExternalId: request.user.externalId,
     })
