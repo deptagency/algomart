@@ -250,9 +250,6 @@ export class ApiClient {
 
   async sendBankAddressInstructions(filters: SendBankAccountInstructions) {
     const searchParameters = new URLSearchParams()
-    if (filters?.packTemplateId)
-      searchParameters.set('packTemplateId', `${filters.packTemplateId}`)
-    if (filters?.amount) searchParameters.set('amount', `${filters.amount}`)
     if (filters?.bankAccountId)
       searchParameters.set('bankAccountId', `${filters.bankAccountId}`)
     if (filters?.ownerExternalId)
