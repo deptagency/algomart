@@ -144,6 +144,12 @@ export enum CirclePaymentSourceType {
   ach = 'ach',
 }
 
+export enum CirclePaymentQueryType {
+  card = 'card',
+  ach = 'ach',
+  wire = 'wire',
+}
+
 // Schemas
 
 const ToPaymentBankAccountBaseSchema = Type.Object({
@@ -172,6 +178,7 @@ const PaymentBaseSchema = Type.Object({
   packId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
   payerId: Type.String(),
   paymentCardId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
+  paymentBankId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
 })
 
 const PaymentBankAccountBaseSchema = Type.Intersect([
@@ -390,6 +397,16 @@ const CirclePaymentResponseSchema = Type.Intersect([
   }),
 ])
 
+const CirclePaymentQuerySchema = Type.Object({
+  type: Type.Optional(Type.Enum(CirclePaymentQueryType)),
+  from: Type.Optional(Type.String({ type: 'date-time' })),
+  to: Type.Optional(Type.String({ type: 'date-time' })),
+  pageBefore: Type.Optional(Type.String()),
+  pageAfter: Type.Optional(Type.String()),
+  pageSize: Type.Optional(Type.Number()),
+  status: Type.Optional(Type.Enum(PaymentStatus)),
+})
+
 // Coinbase
 
 const CoinbaseExchangeRatesOptionsSchema = Type.Object({
@@ -517,6 +534,12 @@ export const CreatePaymentSchema = Type.Intersect([
   }),
 ])
 
+const CreateWirePaymentSchema = Type.Object({
+  bankAccountId: IdSchema,
+  packId: IdSchema,
+  ownerExternalId: IdSchema,
+})
+
 export const PublicKeySchema = Type.Object({
   keyId: Type.String(),
   publicKey: Type.String(),
@@ -555,6 +578,9 @@ export type CircleErrorResponse = Simplify<
 export type CirclePaymentAmount = Simplify<
   Static<typeof CirclePaymentAmountSchema>
 >
+export type CirclePaymentQuery = Simplify<
+  Static<typeof CirclePaymentQuerySchema>
+>
 export type CirclePaymentResponse = Simplify<
   Static<typeof CirclePaymentResponseSchema>
 >
@@ -575,6 +601,7 @@ export type CreateBankAccount = Simplify<Static<typeof CreateBankAccountSchema>>
 export type CreateCard = Simplify<Static<typeof CreateCardSchema>>
 export type CreatePayment = Simplify<Static<typeof CreatePaymentSchema>>
 export type CreatePaymentCard = Simplify<Static<typeof CreatePaymentCardSchema>>
+export type CreateWirePayment = Simplify<Static<typeof CreateWirePaymentSchema>>
 export type Currency = Simplify<Static<typeof CurrencySchema>>
 export type GetPaymentBankAccountInstructions = Simplify<
   Static<typeof GetPaymentBankAccountInstructionsSchema>

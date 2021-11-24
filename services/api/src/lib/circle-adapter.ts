@@ -7,6 +7,7 @@ import {
   CircleCreateBankAccount,
   CircleCreateCard,
   CircleCreatePayment,
+  CirclePaymentQuery,
   CirclePaymentResponse,
   CirclePaymentStatus,
   CirclePaymentVerification,
@@ -26,6 +27,7 @@ import {
   ToPaymentCardBase,
 } from '@algomart/schemas'
 import got, { Got } from 'got'
+import { URLSearchParams } from 'node:url'
 
 import { logger } from '@/utils/logger'
 
@@ -205,6 +207,12 @@ export default class CircleAdapter {
     return null
   }
 
+  async toPaymentBase(
+    request: CirclePaymentResponse
+  ): Promise<ToPaymentBase | null> {
+    return toPaymentBase(request)
+  }
+
   async createPayment(
     request: CircleCreatePayment
   ): Promise<ToPaymentBase | null> {
@@ -278,6 +286,25 @@ export default class CircleAdapter {
     }
 
     this.logger.error({ response }, 'Failed to get payment')
+    return null
+  }
+
+  async getPayments(
+    query: CirclePaymentQuery
+  ): Promise<CirclePaymentResponse[] | null> {
+    const searchParams = new URLSearchParams()
+    for (const [key, value] of Object.entries(query)) {
+      searchParams.append(key, `${value}`)
+    }
+    const response = await this.http
+      .get('v1/payments', { searchParams })
+      .json<CircleResponse<CirclePaymentResponse[]>>()
+
+    if (isCircleSuccessResponse(response)) {
+      return response.data
+    }
+
+    this.logger.error({ response }, 'Failed to get payments')
     return null
   }
 }
