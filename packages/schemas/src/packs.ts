@@ -11,7 +11,7 @@ import {
   Simplify,
   SortDirection,
 } from './shared'
-import { AlgorandTransactionStatus } from '.'
+import { AlgorandTransactionStatus } from './transactions'
 
 export enum PackType {
   Auction = 'auction',
