@@ -1,6 +1,7 @@
 const base = require('../../jest.config')
 
 process.env.API_KEY = 'test-api-key'
+process.env.EMAIL_TRANSPORT = 'smtp'
 
 module.exports = {
   ...base,
