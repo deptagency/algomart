@@ -5,8 +5,6 @@ import {
 import { Model } from 'objection'
 
 import { BaseModel } from './base.model'
-import { PackModel } from './pack.model'
-import { PaymentModel } from './payment.model'
 import { UserAccountModel } from './user-account.model'
 
 export class PaymentBankAccountModel extends BaseModel {
@@ -15,13 +13,10 @@ export class PaymentBankAccountModel extends BaseModel {
 
   amount!: number
   externalId!: string
-  packId!: string
+  description!: string
   status!: PaymentBankAccountStatus
   ownerId!: string
 
-  paymentId?: string
-  pack?: PackModel
-  payment?: PaymentModel
   owner?: UserAccountModel
 
   static relationMappings = () => ({

@@ -62,6 +62,7 @@ function toBankAccountBase(
 ): ToPaymentBankAccountBase {
   return {
     externalId: response.id,
+    description: response.description,
     status: toBankAccountStatus(response.status),
   }
 }

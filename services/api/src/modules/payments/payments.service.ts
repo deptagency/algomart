@@ -1,11 +1,9 @@
 import {
   CirclePaymentQueryType,
-  CirclePaymentResponse,
   CirclePaymentSourceType,
   CreateBankAccount,
   CreateCard,
   CreatePayment,
-  CreateWirePayment,
   DEFAULT_CURRENCY,
   EventAction,
   EventEntityType,
@@ -226,7 +224,7 @@ export default class PaymentsService {
         },
         trx
       )
-      return null
+      userInvariant(bankAccount, 'bank account could not be created', 400)
     }
 
     const newBankAccount = await PaymentBankAccountModel.query(trx)
@@ -239,8 +237,25 @@ export default class PaymentsService {
       .ignore()
 
     if (!newBankAccount) {
-      return null
+      userInvariant(bankAccount, 'bank account could not be added', 400)
     }
+
+    // Create new payment in database
+    const newPayment = await PaymentModel.query(trx).insert({
+      payerId: user.id,
+      packId: packId,
+      paymentBankId: newBankAccount.id,
+      paymentCardId: null,
+      status: PaymentStatus.Pending,
+    })
+
+    // Create event for payment creation
+    await EventModel.query(trx).insert({
+      action: EventAction.Create,
+      entityType: EventEntityType.Payment,
+      entityId: newPayment.id,
+      userAccountId: user.id,
+    })
 
     const bankAccountInstructions =
       await this.circle.getPaymentBankAccountInstructionsById(
@@ -443,52 +458,6 @@ export default class PaymentsService {
     return newPayment
   }
 
-  async createWirePayment(
-    paymentDetails: CirclePaymentResponse,
-    bankDetails: CreateWirePayment,
-    trx?: Transaction
-  ) {
-    const payment = await this.circle.toPaymentBase(paymentDetails)
-    // Remove claim from payment if payment has failed status
-    if (!payment || payment.status === PaymentStatus.Failed) {
-      await this.packs.claimPack(
-        {
-          packId: bankDetails.packId,
-          claimedById: null,
-          claimedAt: null,
-        },
-        trx
-      )
-    }
-
-    const user = await UserAccountModel.query(trx)
-      .where('externalId', bankDetails.ownerExternalId)
-      .first()
-    userInvariant(user, 'user not found', 404)
-
-    // Create new payment in database
-    const newPayment = await PaymentModel.query(trx)
-      .insert({
-        ...payment,
-        payerId: user.id,
-        packId: bankDetails.packId,
-        paymentBankId: bankDetails.bankAccountId,
-        paymentCardId: null,
-      })
-      .onConflict('externalId')
-      .ignore()
-
-    // Create event for payment creation
-    await EventModel.query(trx).insert({
-      action: EventAction.Create,
-      entityType: EventEntityType.Payment,
-      entityId: newPayment.id,
-      userAccountId: user.id,
-    })
-
-    return newPayment
-  }
-
   async getWirePayments(sourceId: string) {
     // Last 72 hours
     const newDate72HoursInpast = new Date(
@@ -556,8 +525,17 @@ export default class PaymentsService {
       404
     )
 
+    const payment = await PaymentModel.query().findOne({
+      bankAccountId: details.bankAccountId,
+    })
+    userInvariant(
+      payment && payment.packId,
+      'associated payment was not found',
+      404
+    )
+
     // Get pack template details
-    const packTemplate = await this.packs.getPackById(foundBankAccount.packId)
+    const packTemplate = await this.packs.getPackById(payment.packId)
     userInvariant(packTemplate, 'pack template was not found', 404)
 
     // Send bank account instructions to user
@@ -609,20 +587,23 @@ export default class PaymentsService {
 
     await Promise.all(
       pendingPayments.map(async (payment) => {
-        const circlePayment = await this.circle.getPaymentById(
-          payment.externalId
-        )
-        invariant(
-          circlePayment,
-          `external payment ${payment.externalId} not found`
-        )
+        if (payment.externalId) {
+          const circlePayment = await this.circle.getPaymentById(
+            payment.externalId
+          )
+          invariant(
+            circlePayment,
+            `external payment ${payment.externalId} not found`
+          )
 
-        if (payment.status !== circlePayment.status) {
-          await PaymentModel.query(trx).patchAndFetchById(payment.id, {
-            status: circlePayment.status,
-          })
-          updatedPayments++
+          if (payment.status !== circlePayment.status) {
+            await PaymentModel.query(trx).patchAndFetchById(payment.id, {
+              status: circlePayment.status,
+            })
+            updatedPayments++
+          }
         }
+        return
       })
     )
 
