@@ -2,7 +2,7 @@ import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import * as Currencies from '@dinero.js/currencies'
 import env from 'env-var'
 
-import { MailerAdapterOptions } from '@/lib/mailer-adapter'
+import { MailerAdapterOptions } from '../lib/mailer-adapter'
 
 export const Configuration = {
   get env() {
