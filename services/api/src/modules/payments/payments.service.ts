@@ -10,6 +10,7 @@ import {
   NotificationType,
   OwnerExternalId,
   PackType,
+  PaymentBankAccountStatus,
   PaymentCardStatus,
   PaymentStatus,
   SendBankAccountInstructions,
@@ -622,6 +623,36 @@ export default class PaymentsService {
     )
 
     return updatedPayments
+  }
+
+  async updatePaymentBankStatuses(trx?: Transaction) {
+    const pendingPaymentBanks = await PaymentBankAccountModel.query(trx)
+      .where('status', PaymentBankAccountStatus.Pending)
+      .limit(10)
+
+    if (pendingPaymentBanks.length === 0) return 0
+    let updatedPaymentCards = 0
+
+    await Promise.all(
+      pendingPaymentBanks.map(async (bank) => {
+        const circleBankAccount = await this.circle.getPaymentBankAccountById(
+          bank.externalId
+        )
+        invariant(
+          circleBankAccount,
+          `external bank account ${bank.externalId} not found`
+        )
+
+        if (bank.status !== circleBankAccount.status) {
+          await PaymentBankAccountModel.query(trx).patchAndFetchById(bank.id, {
+            status: circleBankAccount.status,
+          })
+          updatedPaymentCards++
+        }
+      })
+    )
+
+    return updatedPaymentCards
   }
 
   async updatePaymentCardStatuses(trx?: Transaction) {

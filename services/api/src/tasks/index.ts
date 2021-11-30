@@ -7,6 +7,7 @@ import generateCollectiblesTask from './generate-collectibles.task'
 import generatePacksTask from './generate-packs.task'
 import handlePackAuctionCompletionTask from './handle-pack-auction-completion.task'
 import handlePackAuctionExpirationTask from './handle-pack-auction-expiration.task'
+import { updatePaymentBankStatusesTask } from './update-payment-bank-statuses.task'
 import { updatePaymentCardStatusesTask } from './update-payment-card-statuses.task'
 import { updatePaymentStatusesTask } from './update-payment-statuses.task'
 
@@ -84,6 +85,17 @@ export function configureTasks(app: FastifyInstance) {
   //#endregion
 
   //#region Circle Payments
+  app.scheduler.addSimpleIntervalJob(
+    new SimpleIntervalJob(
+      { seconds: 10 },
+      new AsyncTask(
+        'check-pending-banks',
+        async () => await updatePaymentBankStatusesTask(app.container),
+        (error) => app.log.error(error)
+      )
+    )
+  )
+
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
       { seconds: 10 },
