@@ -11,8 +11,8 @@ export async function updatePaymentBankStatusesTask(
   const payments = registry.get<PaymentsService>(PaymentsService.name)
   const trx = await Model.startTransaction()
   try {
-    const updatedCards = await payments.updatePaymentBankStatuses(trx)
-    log.info('updated %d payment bank account statuses', updatedCards)
+    const updatedBanks = await payments.updatePaymentBankStatuses(trx)
+    log.info('updated %d payment bank account statuses', updatedBanks)
     await trx.commit()
   } catch (error) {
     await trx.rollback()

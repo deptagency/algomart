@@ -463,12 +463,12 @@ export default class PaymentsService {
 
   async getWirePayment(sourceId: string): Promise<ToPaymentBase | null> {
     // Last 24 hours
-    const newDate24HoursInpast = new Date(
-      new Date().setDate(new Date().getDate() + 1)
-    )
+    const newDate24HoursInPast = new Date(
+      new Date().setDate(new Date().getDate() - 1)
+    ).toISOString()
     // Get recent payments of wire type
     const payments = await this.circle.getPayments({
-      from: newDate24HoursInpast.toString(),
+      from: newDate24HoursInPast.toString(),
       type: CirclePaymentQueryType.wire,
     })
     if (!payments) return null
@@ -638,6 +638,7 @@ export default class PaymentsService {
         const circleBankAccount = await this.circle.getPaymentBankAccountById(
           bank.externalId
         )
+        console.log('circleBankAccount:', circleBankAccount)
         invariant(
           circleBankAccount,
           `external bank account ${bank.externalId} not found`

@@ -87,7 +87,7 @@ export function configureTasks(app: FastifyInstance) {
   //#region Circle Payments
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
-      { seconds: 10 },
+      { minutes: 1 },
       new AsyncTask(
         'check-pending-banks',
         async () => await updatePaymentBankStatusesTask(app.container),
