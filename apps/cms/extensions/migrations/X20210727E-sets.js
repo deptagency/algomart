@@ -243,6 +243,8 @@ module.exports = {
     await knex('directus_relations')
       .whereIn('many_collection', ['sets', 'sets_translations'])
       .delete()
-    await knex.schema.dropTableIfExists('sets')
+    await knex.schema
+      .dropTableIfExists('sets_translations')
+      .dropTableIfExists('sets')
   },
 }
