@@ -172,8 +172,9 @@ const ToPaymentCardBaseSchema = Type.Object({
 const ToPaymentBaseSchema = Type.Object({
   externalId: Type.String({ format: 'uuid' }),
   status: Type.Optional(Type.Enum(PaymentStatus)),
-  sourceId: Type.String({ format: 'uuid' }),
   error: Type.Optional(Type.Enum(CirclePaymentErrorCode)),
+  amount: Type.String(),
+  sourceId: Type.String({ format: 'uuid' }),
 })
 
 const PaymentBaseSchema = Type.Object({

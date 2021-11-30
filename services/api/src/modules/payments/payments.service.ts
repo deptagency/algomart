@@ -30,8 +30,9 @@ import { PaymentCardModel } from '@/models/payment-card.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import NotificationService from '@/modules/notifications/notifications.service'
 import PacksService from '@/modules/packs/packs.service'
-import { formatIntToFloat } from '@/utils/format-currency'
+import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 import {
+  convertFromUSD,
   convertToUSD,
   currency,
   isGreaterThanOrEqual,
@@ -462,22 +463,42 @@ export default class PaymentsService {
   }
 
   async getWirePayment(sourceId: string): Promise<ToPaymentBase | null> {
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      sourceId
+    )
+    userInvariant(foundBankAccount, 'bank account was not found', 404)
+
     // Last 24 hours
     const newDate24HoursInPast = new Date(
       new Date().setDate(new Date().getDate() - 1)
     ).toISOString()
+
     // Get recent payments of wire type
     const payments = await this.circle.getPayments({
       from: newDate24HoursInPast.toString(),
       type: CirclePaymentQueryType.wire,
     })
     if (!payments) return null
+
+    // Retrieve exchange rates for app currency and USD
+    const exchangeRates = await this.coinbase.getExchangeRates({
+      currency: currency.code,
+    })
+    invariant(exchangeRates, 'unable to find exchange rates')
+
     // Find payment with matching source ID
-    const sourcePayments = payments.filter(
-      (payment) => payment.sourceId === sourceId
-    )
-    if (!sourcePayments) return null
-    return sourcePayments[0]
+    const sourcePayment = payments.find((payment) => {
+      // Convert price to USD for payment
+      const amount = convertFromUSD(payment.amount, exchangeRates.rates)
+      invariant(amount !== null, 'unable to convert to currency')
+      const amountInt = formatFloatToInt(amount)
+      return (
+        payment.sourceId === sourceId && amountInt === foundBankAccount.amount
+      )
+    })
+    if (!sourcePayment) return null
+    return sourcePayment
   }
 
   async getPaymentById(paymentId: string) {
@@ -638,7 +659,6 @@ export default class PaymentsService {
         const circleBankAccount = await this.circle.getPaymentBankAccountById(
           bank.externalId
         )
-        console.log('circleBankAccount:', circleBankAccount)
         invariant(
           circleBankAccount,
           `external bank account ${bank.externalId} not found`

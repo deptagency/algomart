@@ -138,6 +138,7 @@ function toPaymentStatus(
 function toPaymentBase(response: CirclePaymentResponse): ToPaymentBase {
   return {
     externalId: response.id,
+    amount: response.amount.amount,
     sourceId: response.source.id,
     status: toPaymentStatus(response.status, response.verification),
     error: response.errorCode,
@@ -238,7 +239,6 @@ export default class CircleAdapter {
     const response = await this.http
       .get(`v1/banks/wires/${id}/instructions`)
       .json<CircleResponse<GetPaymentBankAccountInstructions>>()
-    console.log('getPaymentBankAccountInstructionsById resp:', response)
 
     if (isCircleSuccessResponse(response)) {
       return response.data
