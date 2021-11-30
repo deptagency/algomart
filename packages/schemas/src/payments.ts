@@ -513,6 +513,13 @@ export const CreateCardSchema = Type.Intersect([
   }),
 ])
 
+export const CreateBankAccountResponseSchema = Type.Intersect([
+  BaseSchema,
+  Type.Object({
+    status: Type.Enum(PaymentBankAccountStatus),
+  }),
+])
+
 export const CreateBankAccountSchema = Type.Intersect([
   CircleCreateBankAccountSchema,
   Type.Object({
@@ -595,6 +602,9 @@ export type CoinbaseErrorResponse = Simplify<
   Static<typeof CoinbaseErrorResponseSchema>
 >
 export type CreateBankAccount = Simplify<Static<typeof CreateBankAccountSchema>>
+export type CreateBankAccountResponse = Simplify<
+  Static<typeof CreateBankAccountResponseSchema>
+>
 export type CreateCard = Simplify<Static<typeof CreateCardSchema>>
 export type CreatePayment = Simplify<Static<typeof CreatePaymentSchema>>
 export type CreatePaymentCard = Simplify<Static<typeof CreatePaymentCardSchema>>

@@ -1,10 +1,10 @@
 import {
+  CreateBankAccountResponse,
   CreatePaymentCard,
   GetPaymentBankAccountInstructions,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Payment,
-  PaymentBankAccount,
   PaymentCards,
   PublicKey,
 } from '@algomart/schemas'
@@ -41,7 +41,7 @@ export interface CheckoutAPI {
   getPublicKey(): Promise<PublicKey | null>
   createBankAccount(
     request: CreateBankAccountRequest
-  ): Promise<PaymentBankAccount | null>
+  ): Promise<CreateBankAccountResponse | null>
   createCard(request: CreateCardRequest): Promise<CreatePaymentCard | null>
   createPayment(request: CreatePaymentRequest): Promise<Payment | null>
 }
@@ -79,12 +79,12 @@ export class CheckoutService implements CheckoutAPI {
 
   async createBankAccount(
     request: CreateBankAccountRequest
-  ): Promise<PaymentBankAccount | null> {
+  ): Promise<CreateBankAccountResponse | null> {
     const response = await this.http
       .post(urls.api.v1.createBankAccount, {
         json: request,
       })
-      .json<PaymentBankAccount>()
+      .json<CreateBankAccountResponse>()
 
     return response.id ? response : null
   }

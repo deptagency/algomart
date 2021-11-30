@@ -9,6 +9,7 @@ import {
   CollectibleShowcaseQuerystring,
   CollectionWithSets,
   CreateBankAccount,
+  CreateBankAccountResponse,
   CreateBidRequest,
   CreateCard,
   CreatePayment,
@@ -31,7 +32,6 @@ import {
   PackWithCollectibles,
   PackWithId,
   Payment,
-  PaymentBankAccount,
   PaymentCard,
   PaymentCards,
   PublicAccount,
@@ -202,7 +202,7 @@ export class ApiClient {
   async createBankAccount(json: CreateBankAccount) {
     return await this.http
       .post('payments/bank-accounts', { json })
-      .json<PaymentBankAccount>()
+      .json<CreateBankAccountResponse>()
   }
 
   async createCard(json: CreateCard) {

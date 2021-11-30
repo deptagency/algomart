@@ -242,6 +242,7 @@ export default class PaymentsService {
 
     // Create new payment in database
     const newPayment = await PaymentModel.query(trx).insert({
+      externalId: null,
       payerId: user.id,
       packId: packId,
       paymentBankId: newBankAccount.id,
@@ -458,7 +459,7 @@ export default class PaymentsService {
     return newPayment
   }
 
-  async getWirePayments(sourceId: string) {
+  async getWirePayment(sourceId: string) {
     // Last 72 hours
     const newDate72HoursInpast = new Date(
       new Date().setDate(new Date().getDate() + 3)
@@ -526,7 +527,7 @@ export default class PaymentsService {
     )
 
     const payment = await PaymentModel.query().findOne({
-      bankAccountId: details.bankAccountId,
+      paymentBankId: details.bankAccountId,
     })
     userInvariant(
       payment && payment.packId,

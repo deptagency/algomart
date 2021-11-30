@@ -1,6 +1,7 @@
 import {
   BankAccountIdSchema,
   CardIdSchema,
+  CreateBankAccountResponseSchema,
   CreateBankAccountSchema,
   CreateCardSchema,
   CreatePaymentCardSchema,
@@ -10,7 +11,6 @@ import {
   GetPaymentBankAccountStatusSchema,
   GetPaymentCardStatusSchema,
   OwnerExternalIdSchema,
-  PaymentBankAccountSchema,
   PaymentCardsSchema,
   PaymentIdSchema,
   PaymentSchema,
@@ -165,7 +165,7 @@ export async function paymentRoutes(app: FastifyInstance) {
           security,
           body: CreateBankAccountSchema,
           response: {
-            201: PaymentBankAccountSchema,
+            201: CreateBankAccountResponseSchema,
           },
         },
       },
