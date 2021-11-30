@@ -181,3 +181,10 @@ The homepage of the provided UI depicts a featured Pack, which takes prominence 
 To update the data model you can start by locally using the Directus UI. But to ensure other developers can apply those changes you will need to write a migration file based on [knex](https://knexjs.org/). See the existing migration files for examples.
 
 Running `npm run bootstrap` will apply new migrations. Additionally, the `package.json` contains other migration scripts (up, down, rollback, and latest) in case they're needed.
+
+## Importing & Exporting Data
+
+Data may be exported from the CMS via `npm run export` and loaded via `npm run import`. This includes Rarities, Packs, NFT Templates, Sets, Collections and asset files (typically images & videos). MNake sure your CMS server is running before running either script.
+
+`npm run export` — This will export data to `scripts/export/`
+`npm run import` — Import data from `scripts/export/` (this will not overwrite any records)
