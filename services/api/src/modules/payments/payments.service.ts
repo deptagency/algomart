@@ -589,7 +589,8 @@ export default class PaymentsService {
 
     await Promise.all(
       pendingPayments.map(async (payment) => {
-        if (payment.externalId) {
+        // Card flow
+        if (payment.externalId && payment.paymentCardId) {
           const circlePayment = await this.circle.getPaymentById(
             payment.externalId
           )
@@ -605,6 +606,7 @@ export default class PaymentsService {
             updatedPayments++
           }
         }
+        // Wire transfer flow
         if (payment.paymentBankId && !payment.externalId) {
           const wirePayment = await this.getWirePayment(payment.paymentBankId)
           if (wirePayment) {
