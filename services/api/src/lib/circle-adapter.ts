@@ -138,6 +138,7 @@ function toPaymentStatus(
 function toPaymentBase(response: CirclePaymentResponse): ToPaymentBase {
   return {
     externalId: response.id,
+    sourceId: response.source.id,
     status: toPaymentStatus(response.status, response.verification),
     error: response.errorCode,
   }
@@ -292,7 +293,7 @@ export default class CircleAdapter {
 
   async getPayments(
     query: CirclePaymentQuery
-  ): Promise<CirclePaymentResponse[] | null> {
+  ): Promise<ToPaymentBase[] | null> {
     const searchParams = new URLSearchParams()
     for (const [key, value] of Object.entries(query)) {
       searchParams.append(key, `${value}`)
@@ -302,7 +303,7 @@ export default class CircleAdapter {
       .json<CircleResponse<CirclePaymentResponse[]>>()
 
     if (isCircleSuccessResponse(response)) {
-      return response.data
+      return response.data.map((payment) => toPaymentBase(payment))
     }
 
     this.logger.error({ response }, 'Failed to get payments')

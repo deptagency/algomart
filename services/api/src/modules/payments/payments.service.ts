@@ -13,6 +13,7 @@ import {
   PaymentCardStatus,
   PaymentStatus,
   SendBankAccountInstructions,
+  ToPaymentBase,
   UpdatePaymentCard,
 } from '@algomart/schemas'
 import { Transaction } from 'objection'
@@ -459,23 +460,23 @@ export default class PaymentsService {
     return newPayment
   }
 
-  async getWirePayment(sourceId: string) {
-    // Last 72 hours
-    const newDate72HoursInpast = new Date(
-      new Date().setDate(new Date().getDate() + 3)
+  async getWirePayment(sourceId: string): Promise<ToPaymentBase | null> {
+    // Last 24 hours
+    const newDate24HoursInpast = new Date(
+      new Date().setDate(new Date().getDate() + 1)
     )
     // Get recent payments of wire type
     const payments = await this.circle.getPayments({
-      from: newDate72HoursInpast.toString(),
+      from: newDate24HoursInpast.toString(),
       type: CirclePaymentQueryType.wire,
     })
     if (!payments) return null
     // Find payment with matching source ID
-    const sourcePayments = payments.map(
-      (payment) => payment.source.id === sourceId
+    const sourcePayments = payments.filter(
+      (payment) => payment.sourceId === sourceId
     )
-    userInvariant(sourcePayments, 'payments not found', 404)
-    return sourcePayments
+    if (!sourcePayments) return null
+    return sourcePayments[0]
   }
 
   async getPaymentById(paymentId: string) {
@@ -600,6 +601,16 @@ export default class PaymentsService {
           if (payment.status !== circlePayment.status) {
             await PaymentModel.query(trx).patchAndFetchById(payment.id, {
               status: circlePayment.status,
+            })
+            updatedPayments++
+          }
+        }
+        if (payment.paymentBankId && !payment.externalId) {
+          const wirePayment = await this.getWirePayment(payment.paymentBankId)
+          if (wirePayment) {
+            await PaymentModel.query(trx).patchAndFetchById(payment.id, {
+              externalId: wirePayment.externalId,
+              status: wirePayment.status,
             })
             updatedPayments++
           }
