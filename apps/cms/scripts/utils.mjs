@@ -7,14 +7,14 @@ import { exec } from 'child_process'
 import { readFile } from 'fs'
 import { createInterface } from 'readline'
 
-// Group flat array into a multi-dimensional array of N items.
+/** Group flat array into a multi-dimensional array of N items. */
 export function chunkArray(array, chunkSize) {
   return Array.from(new Array(Math.ceil(array.length / chunkSize)), (_, i) =>
     array.slice(i * chunkSize, i * chunkSize + chunkSize)
   )
 }
 
-// Post CMS assets to CMS DB.
+/** Post CMS assets to CMS DB. */
 export async function createAssetRecords(formData, token) {
   try {
     const res = await axios.post(
@@ -29,11 +29,12 @@ export async function createAssetRecords(formData, token) {
     )
     return res.data.data
   } catch (error) {
-    console.log(error.response.data.errors)
+    console.log(error.response?.data?.errors)
     process.exit(1)
   }
 }
 
+/** Update entity in CMS DB. */
 export async function updateEntityRecord(entity, id, body, token) {
   try {
     const res = await axios.patch(
@@ -47,7 +48,81 @@ export async function updateEntityRecord(entity, id, body, token) {
   }
 }
 
-// Post CMS collection record(s) to CMS DB.
+/** Import csv data file into CMS. Does not override existing data. */
+export async function importCsvFile(formData, collection, token) {
+  try {
+    const response = await axios.post(
+      `${process.env.PUBLIC_URL}/utils/import/${collection}?access_token=${token}&export=csv`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          ...formData.getHeaders(),
+        },
+      }
+    )
+    return response.data.data
+  } catch (error) {
+    console.error(error.response?.data?.errors)
+    process.exit(1)
+  }
+}
+
+/** Download file from directus */
+export async function downloadFile(id, token) {
+  try {
+    const res = await axios.get(`${process.env.PUBLIC_URL}/assets/${id}?download&access_token=${token}`, {
+      responseEncoding: 'binary'
+    })
+    return res.data
+  } catch (error) {
+    console.log(error.response?.data?.errors)
+    process.exit(1)
+  }
+}
+
+/** Get list of files from directus */
+export async function getAllFilesMeta(token) {
+  try {
+    const res = await axios.get(`${process.env.PUBLIC_URL}/files?access_token=${token}`)
+    return res.data.data
+  } catch (error) {
+    console.log(error.response?.data?.errors)
+    process.exit(1)
+  }
+}
+
+/** Get all collections */
+export async function getCollections(token) {
+  try {
+    const response = await axios.get(
+      `${process.env.PUBLIC_URL}/collections?access_token=${token}&export=json`,
+    )
+    const data = response.data
+    const filteredData = data.filter((item) => !item.collection.includes('directus_'))
+    const collections = filteredData.map((item) => item.collection)
+    return collections
+  } catch (error) {
+    console.log(error.response.data.errors)
+    process.exit(1)
+  }
+}
+
+/** Get collection data as csv string. */
+export async function getCollectionItemsAsCsv(collectionName, fields, token) {
+  try {
+    const fieldsString = fields?.length ? '&fields=' + fields.join(',') : ''
+    const response = await axios.get(
+      `${process.env.PUBLIC_URL}/items/${collectionName}?access_token=${token}${fieldsString}&export=csv`,
+    )
+    return response.data
+  } catch (error) {
+    console.log(error.response.data.errors)
+    process.exit(1)
+  }
+}
+
+/** Post CMS collection record(s) to CMS DB. */
 export async function createEntityRecords(entity, body, token) {
   try {
     const res = await axios.post(
@@ -61,7 +136,7 @@ export async function createEntityRecords(entity, body, token) {
   }
 }
 
-// Execute a CLI command and get the results of its output.
+/** Execute a CLI command and get the results of its output. */
 export function execCommandAndGetOutput(command) {
   return new Promise((resolve, reject) => {
     exec(
@@ -81,7 +156,7 @@ export function execCommandAndGetOutput(command) {
   })
 }
 
-// Retrieve a temporary auth token from the CMS.
+/** Retrieve a temporary auth token from the CMS. */
 export async function getCMSAuthToken(body) {
   try {
     const tokenResponse = await axios.post(
@@ -95,7 +170,7 @@ export async function getCMSAuthToken(body) {
   }
 }
 
-// Get CLI input from the user.
+/** Get CLI input from the user. */
 export async function getConfigFromStdin() {
   console.log('Enter the CMS configuration.')
   const email = await readlineAsync('> Email address: ')
@@ -106,7 +181,7 @@ export async function getConfigFromStdin() {
   }
 }
 
-// Read CMS configuration file.
+/** Read CMS configuration file. */
 export function readFileAsync(file) {
   return new Promise((resolve, reject) => {
     readFile(file, (err, data) => {
@@ -119,7 +194,7 @@ export function readFileAsync(file) {
   })
 }
 
-// Prompt individual CLI user input.
+/** Prompt individual CLI user input. */
 export function readlineAsync(prompt) {
   return new Promise((resolve) => {
     const rl = createInterface({

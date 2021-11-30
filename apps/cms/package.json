@@ -14,6 +14,8 @@
     "db:rollback": "npx directus database migrate:rollback",
     "db:seed": "./scripts/seed.mjs ./config.local.json",
     "dev": "directus start",
+    "import": "./scripts/import.mjs ./config.local.json",
+    "export": "./scripts/export.mjs ./config.local.json",
     "start": "directus start",
     "build:price-display": "cd extensions/displays/pack-price && npx directus-extension build",
     "build:price-interface": "cd extensions/interfaces/price-conversion && npx directus-extension build",
