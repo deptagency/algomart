@@ -63,13 +63,14 @@ function getAmountAndScale(exchangeRate: string) {
 }
 
 export function convertFromUSD(
-  usdAmount: string | number,
+  usdFloat: string | number,
   rateForNonUSD: { [key: string]: string }
 ) {
   if (!rateForNonUSD[currency.code]) return null
   const rates = { [currency.code]: getAmountAndScale(rateForNonUSD.USD) }
-  const amount =
-    typeof usdAmount === 'string' ? Number.parseFloat(usdAmount) : usdAmount
+  const usdFloatNumber =
+    typeof usdFloat === 'string' ? Number.parseFloat(usdFloat) : usdFloat
+  const amount = formatFloatToInt(usdFloatNumber)
   const price = dinero({ amount, currency: USD })
   const finalPrice = currency === USD ? price : convert(price, currency, rates)
   const float = toFormat(finalPrice, ({ amount, currency }) =>
