@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import Link, { LinkProps as NextLinkProps } from 'next/link'
 import { AnchorHTMLAttributes, DetailedHTMLProps } from 'react'
 
-import { useLocale } from '@/hooks/useLocale'
+import { useLocale } from '@/hooks/use-locale'
 
 export type AppLinkProps = NextLinkProps &
   Omit<
