@@ -19,6 +19,8 @@ export class CollectibleModel extends BaseModel {
   edition!: number
   address!: number | null
   packId!: string | null
+  assetMetadataHash!: string
+  assetUrl!: string
 
   owner?: UserAccountModel
   creationTransaction?: AlgorandTransactionModel

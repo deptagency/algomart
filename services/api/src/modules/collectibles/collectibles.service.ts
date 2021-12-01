@@ -16,6 +16,7 @@ import { Transaction } from 'objection'
 
 import AlgorandAdapter from '@/lib/algorand-adapter'
 import DirectusAdapter, { ItemFilter } from '@/lib/directus-adapter'
+import NFTStorageAdapter from '@/lib/nft-storage-adapter'
 import { AlgorandAccountModel } from '@/models/algorand-account.model'
 import { AlgorandTransactionModel } from '@/models/algorand-transaction.model'
 import { CollectibleModel } from '@/models/collectible.model'
@@ -34,10 +35,11 @@ export default class CollectiblesService {
 
   constructor(
     private readonly cms: DirectusAdapter,
-    private readonly algorand: AlgorandAdapter
+    private readonly algorand: AlgorandAdapter,
+    private readonly storage: NFTStorageAdapter
   ) {}
 
-  async generateCollectibles(limit = 5, trx?: Transaction) {
+  async generateCollectibles(limit = 5, trx: Transaction) {
     const existingTemplates = await CollectibleModel.query(trx)
       .groupBy('templateId')
       .select('templateId')
@@ -60,34 +62,88 @@ export default class CollectiblesService {
       return 0
     }
 
-    const collectibles = await CollectibleModel.query(trx).insert(
-      templates.flatMap((t) =>
-        Array.from({ length: t.totalEditions }, (_, index) => ({
-          edition: index + 1,
-          templateId: t.templateId,
-        }))
+    // Generate collectibles for each template
+    const collectiblesForTemplate = await Promise.all(
+      templates.map(
+        async (t) => await this.generateCollectiblesForTemplate(t, trx)
       )
     )
 
-    await EventModel.query(trx).insert(
-      collectibles.flatMap((c) => ({
-        action: EventAction.Create,
-        entityType: EventEntityType.Collectible,
-        entityId: c.id,
-      }))
+    return collectiblesForTemplate.reduce(
+      (collectibleCount, c4t) => collectibleCount + c4t,
+      0
+    )
+  }
+
+  async generateCollectiblesForTemplate(
+    template: CollectibleBase,
+    trx: Transaction
+  ) {
+    // Store media on IPFS
+    const mediaMetadata = await this.storage.storeMedia({
+      animationUrl:
+        template.assetFile || template.previewVideo || template.previewAudio,
+      imageUrl: template.image,
+    })
+
+    // Construct collectable models for DB
+    const collectibleModels = await Promise.all(
+      Array.from({ length: template.totalEditions }).map(async (_, index) => {
+        // Create full metadata object
+        const metadata = this.storage.mapToMetadata({
+          description: template.subtitle,
+          editionNumber: index + 1,
+          mediaMetadata,
+          name: template.uniqueCode,
+          totalEditions: template.totalEditions,
+        })
+
+        // Store metadata as JSON on IPFS
+        const assetUrl = await this.storage.storeMetadata(metadata)
+
+        // Construct JSON hash of metadata
+        const assetMetadataHash = this.storage.hashMetadata(metadata)
+
+        // Return complete model
+        return {
+          assetMetadataHash,
+          assetUrl,
+          edition: index + 1,
+          templateId: template.templateId,
+        }
+      })
     )
 
-    return collectibles.length
+    try {
+      // Store collectibles
+      const collectibles = await CollectibleModel.query(trx).insert(
+        collectibleModels
+      )
+      // Update events
+      await EventModel.query(trx).insert(
+        collectibles.flatMap((c) => ({
+          action: EventAction.Create,
+          entityType: EventEntityType.Collectible,
+          entityId: c.id,
+        }))
+      )
+
+      return collectibles.length
+    } catch (error) {
+      this.logger.error(error as Error)
+      throw error
+    }
   }
 
   async getCollectiblesByPackId(packId: string, trx?: Transaction) {
     return await CollectibleModel.query(trx).where('packId', packId)
   }
 
-  async mintCollectibles(collectibleIds: string[], trx?: Transaction) {
+  async mintCollectibles(trx?: Transaction) {
     const collectibles = await CollectibleModel.query(trx)
-      .whereIn('id', collectibleIds)
-      .whereNull('address')
+      .whereNull('creationTransactionId')
+      .joinRelated('pack', { alias: 'p' })
+      .whereNotNull('p.ownerId')
 
     // No collectibles matched the IDs or they are all already minted
     if (collectibles.length === 0) return 0

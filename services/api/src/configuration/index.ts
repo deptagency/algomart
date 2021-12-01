@@ -85,6 +85,15 @@ export const Configuration = {
     return env.get('WEB_URL').default('http://localhost:3000').asUrlString()
   },
 
+  get nftStorageKey() {
+    return env
+      .get('NFT_STORAGE_KEY')
+      .default(
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGU4ZDNiMjE4YTg4RDZiQ0Y1ZWVCNDQwNzBBZjFmNjUzQmVlMGNkMEIiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTYzODIxMTUwMzM1MCwibmFtZSI6Impha2V0ZXN0In0.lJ6bhiU2bC0dSQc74FSPHSTBVNOPTFcQZoc3YX10p7w'
+      )
+      .asString()
+  },
+
   get sendgridApiKey() {
     return env
       .get('SENDGRID_API_KEY')

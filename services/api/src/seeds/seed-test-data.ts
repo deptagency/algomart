@@ -166,6 +166,8 @@ export const collectibleFactory = Factory.define<Collectible>('Collectible')
   .attr('ownerId', null)
   .attr('packId', null)
   .attr('templateId', ['template'], (template) => template.id)
+  .attr('assetMetadataHash', null)
+  .attr('assetUrl', null)
 
 // #endregion
 

@@ -175,7 +175,9 @@ export default function ClaimNFTModal({
               {t('common:statuses.Success!')}
             </h3>
             <p className={css.statusMessage}>
-              {t('release:successConfirmation', { name: packTemplate.title })}
+              {t('release:successOwnershipConfirmation', {
+                name: packTemplate.title,
+              })}
             </p>
             <Button
               className={css.button}

@@ -3,6 +3,7 @@ import AlgorandAdapter from '@/lib/algorand-adapter'
 import CircleAdapter from '@/lib/circle-adapter'
 import CoinbaseAdapter from '@/lib/coinbase-adapter'
 import DirectusAdapter from '@/lib/directus-adapter'
+import NFTStorageAdapter from '@/lib/nft-storage-adapter'
 import SendgridAdapter from '@/lib/sendgrid-adapter'
 import AccountsService from '@/modules/accounts/accounts.service'
 import BidsService from '@/modules/bids/bids.service'
@@ -102,6 +103,13 @@ export function configureResolver() {
       })
   )
   resolver.set(
+    NFTStorageAdapter.name,
+    () =>
+      new NFTStorageAdapter({
+        nftStorageKey: Configuration.nftStorageKey,
+      })
+  )
+  resolver.set(
     SendgridAdapter.name,
     () =>
       new SendgridAdapter({
@@ -145,7 +153,8 @@ export function configureResolver() {
     (c) =>
       new CollectiblesService(
         c.get<DirectusAdapter>(DirectusAdapter.name),
-        c.get<AlgorandAdapter>(AlgorandAdapter.name)
+        c.get<AlgorandAdapter>(AlgorandAdapter.name),
+        c.get<NFTStorageAdapter>(NFTStorageAdapter.name)
       )
   )
   resolver.set(

@@ -32,9 +32,6 @@ import {
 } from '@algomart/schemas'
 import { raw, Transaction } from 'objection'
 
-import AccountsService from '../accounts/accounts.service'
-import CollectiblesService from '../collectibles/collectibles.service'
-
 import DirectusAdapter, {
   DirectusStatus,
   ItemFilter,
@@ -44,8 +41,9 @@ import { CollectibleModel } from '@/models/collectible.model'
 import { EventModel } from '@/models/event.model'
 import { PackModel } from '@/models/pack.model'
 import { UserAccountModel } from '@/models/user-account.model'
+import AccountsService from '@/modules/accounts/accounts.service'
+import CollectiblesService from '@/modules/collectibles/collectibles.service'
 import NotificationsService from '@/modules/notifications/notifications.service'
-import { chunkArray } from '@/utils/arrays'
 import { formatIntToFloat } from '@/utils/format-currency'
 import { invariant, userInvariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
@@ -111,8 +109,6 @@ function mapToPublicBid(bid: BidModel, packId: string): BidPublic {
     username: bid?.userAccount?.username as string,
   }
 }
-
-const MAX_COLLECTIBLES = 16
 
 export default class PacksService {
   logger = logger.child({ context: this.constructor.name })
@@ -629,38 +625,6 @@ export default class PacksService {
       pack.collectibles?.every((c) => typeof c.address === 'number')
       ? MintPackStatus.Minted
       : MintPackStatus.Pending
-  }
-
-  async mintPack(request: MintPack, trx?: Transaction) {
-    const user = await UserAccountModel.query(trx)
-      .where('externalId', request.externalId)
-      .first()
-      .select('id')
-
-    userInvariant(user, 'user not found', 404)
-
-    const pack = await PackModel.query(trx)
-      .where('id', request.packId)
-      .where('ownerId', user.id)
-      .select('id')
-      .withGraphFetched('collectibles')
-      .modifyGraph('collectibles', (builder) => {
-        builder.select('id')
-      })
-      .first()
-
-    userInvariant(pack, 'pack not found', 404)
-
-    this.logger.info({ pack }, 'pack to be minted')
-
-    const collectibleIds = pack.collectibles?.map((c) => c.id) || []
-
-    // Max 16 collectibles can be minted at a time
-    await Promise.all(
-      chunkArray(collectibleIds, MAX_COLLECTIBLES).map(async (chunk) => {
-        await this.collectibles.mintCollectibles(chunk, trx)
-      })
-    )
   }
 
   async transferPackStatus(packId: string): Promise<TransferPackStatusList> {

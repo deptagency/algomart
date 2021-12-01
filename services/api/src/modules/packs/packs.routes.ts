@@ -135,15 +135,6 @@ export async function claimPack(
   reply.send({ pack: result })
 }
 
-export async function mintPack(
-  request: FastifyRequest<{ Body: MintPack }>,
-  reply: FastifyReply
-) {
-  const service = request.getContainer().get<PacksService>(PacksService.name)
-  await service.mintPack(request.body, request.transaction)
-  reply.status(204).send()
-}
-
 export async function mintPackStatus(
   request: FastifyRequest<{ Querystring: MintPack }>,
   reply: FastifyReply

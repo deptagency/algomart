@@ -61,6 +61,7 @@
     "i18next": "21.5.3",
     "i18next-fs-backend": "1.1.4",
     "knex": "0.95.14",
+    "nft.storage": "5.0.0",
     "objection": "3.0.0",
     "pg": "8.7.1",
     "pino": "7.4.0",

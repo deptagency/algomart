@@ -26,6 +26,8 @@ export const CollectibleSchema = Type.Intersect([
     packId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
     redemptionCode: Type.Optional(Nullable(Type.String())),
     templateId: Type.String({ format: 'uuid' }),
+    assetMetadataHash: Type.Optional(Nullable(Type.String())),
+    assetUrl: Type.Optional(Nullable(Type.String())),
   }),
 ])
 
@@ -39,6 +41,8 @@ export const CollectibleBaseSchema = Type.Object({
   templateId: Type.String({ format: 'uuid' }),
   image: Type.String({ format: 'uri' }),
   previewVideo: Type.Optional(Type.String({ format: 'uri' })),
+  previewAudio: Type.Optional(Type.String({ format: 'uri' })),
+  assetFile: Type.Optional(Type.String({ format: 'uri' })),
   totalEditions: Type.Number(),
   title: Type.String(),
   subtitle: Type.Optional(Type.String()),
