@@ -468,6 +468,7 @@ export const GetPaymentCardStatusSchema = Type.Object({
 export const PaymentSchema = Type.Intersect([
   BaseSchema,
   PaymentBaseSchema,
+  Type.Omit(ToPaymentBaseSchema, ['externalId', 'amount', 'sourceId']),
   Type.Object({
     externalId: Nullable(Type.String({ format: 'uuid' })),
   }),
