@@ -210,12 +210,6 @@ export default class CircleAdapter {
     return null
   }
 
-  async toPaymentBase(
-    request: CirclePaymentResponse
-  ): Promise<ToPaymentBase | null> {
-    return toPaymentBase(request)
-  }
-
   async createPayment(
     request: CircleCreatePayment
   ): Promise<ToPaymentBase | null> {

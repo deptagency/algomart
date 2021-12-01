@@ -462,10 +462,14 @@ export default class PaymentsService {
     return newPayment
   }
 
-  async getWirePayment(sourceId: string): Promise<ToPaymentBase | null> {
+  async handleWirePayment(
+    payment: PaymentModel,
+    trx?: Transaction
+  ): Promise<ToPaymentBase | null> {
+    if (!payment.id || !payment.paymentBankId || !payment.packId) return null
     // Find bank account in database
     const foundBankAccount = await PaymentBankAccountModel.query().findById(
-      sourceId
+      payment.paymentBankId
     )
     userInvariant(foundBankAccount, 'bank account was not found', 404)
 
@@ -488,17 +492,42 @@ export default class PaymentsService {
     invariant(exchangeRates, 'unable to find exchange rates')
 
     // Find payment with matching source ID
-    const sourcePayment = payments.find((payment) => {
+    const sourcePayment = payments.find((currentPayment) => {
       // Convert price to USD for payment
-      const amount = convertFromUSD(payment.amount, exchangeRates.rates)
+      const amount = convertFromUSD(currentPayment.amount, exchangeRates.rates)
       invariant(amount !== null, 'unable to convert to currency')
       const amountInt = formatFloatToInt(amount)
       return (
-        payment.sourceId === foundBankAccount.externalId &&
+        currentPayment.sourceId === foundBankAccount.externalId &&
         amountInt === foundBankAccount.amount
       )
     })
     if (!sourcePayment) return null
+    // Update payment details
+    if (payment.status !== sourcePayment.status || !payment.externalId) {
+      await PaymentModel.query(trx).patchAndFetchById(payment.id, {
+        externalId: sourcePayment.externalId,
+        status: sourcePayment.status,
+      })
+    }
+    // Remove claim from pack if payment fails
+    if (sourcePayment.status === PaymentStatus.Failed) {
+      await this.packs.claimPack(
+        {
+          packId: payment.packId,
+          claimedById: null,
+          claimedAt: null,
+        },
+        trx
+      )
+    }
+    // Mint pack if status is paid
+    if (sourcePayment.status === PaymentStatus.Paid) {
+      await this.packs.mintPack({
+        packId: payment.packId,
+        externalId: foundBankAccount.ownerId,
+      })
+    }
     return sourcePayment
   }
 
@@ -631,12 +660,8 @@ export default class PaymentsService {
         }
         // Wire transfer flow
         else if (payment.paymentBankId) {
-          const wirePayment = await this.getWirePayment(payment.paymentBankId)
+          const wirePayment = await this.handleWirePayment(payment, trx)
           if (wirePayment) {
-            await PaymentModel.query(trx).patchAndFetchById(payment.id, {
-              externalId: wirePayment.externalId,
-              status: wirePayment.status,
-            })
             updatedPayments++
           }
         }
