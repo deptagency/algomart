@@ -1,6 +1,7 @@
 import {
   CirclePaymentQueryType,
   CirclePaymentSourceType,
+  CirclePaymentVerificationOptions,
   CreateBankAccount,
   CreateCard,
   CreatePayment,
@@ -19,6 +20,7 @@ import {
   ToPaymentBase,
   UpdatePaymentCard,
 } from '@algomart/schemas'
+import { URL } from 'node:url'
 import { Transaction } from 'objection'
 
 import { Configuration } from '@/configuration'
@@ -32,11 +34,12 @@ import { PaymentCardModel } from '@/models/payment-card.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import NotificationService from '@/modules/notifications/notifications.service'
 import PacksService from '@/modules/packs/packs.service'
-import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 import {
   convertFromUSD,
   convertToUSD,
   currency,
+  formatFloatToInt,
+  formatIntToFloat,
   isGreaterThanOrEqual,
 } from '@/utils/format-currency'
 import { invariant, userInvariant } from '@/utils/invariant'
@@ -409,7 +412,6 @@ export default class PaymentsService {
       cardId,
       idempotencyKey,
       metadata,
-      verification,
       description,
     } = paymentDetails
     if (keyId) {
@@ -432,7 +434,16 @@ export default class PaymentsService {
           amount: priceInUSD,
           currency: DEFAULT_CURRENCY,
         },
-        verification: verification,
+        verification: CirclePaymentVerificationOptions.three_d_secure,
+        // @TODO: make these urls configurable?
+        verificationSuccessUrl: new URL(
+          '/checkout/success',
+          Configuration.webUrl
+        ).toString(),
+        verificationFailureUrl: new URL(
+          '/checkout/failure',
+          Configuration.webUrl
+        ).toString(),
         description: description,
         source: {
           id: card?.externalId || cardId,

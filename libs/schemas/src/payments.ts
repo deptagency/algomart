@@ -48,6 +48,7 @@ export enum CircleVerificationCvvStatus {
 export enum CirclePaymentVerificationOptions {
   none = 'none',
   cvv = 'cvv',
+  three_d_secure = 'three_d_secure',
 }
 
 export enum CirclePaymentErrorCode {
@@ -110,6 +111,7 @@ export enum CirclePaymentStatus {
   Pending = 'pending',
   Failed = 'failed',
   Confirmed = 'confirmed',
+  ActionRequired = 'action_required',
   Paid = 'paid',
 }
 
@@ -330,6 +332,8 @@ const CircleCreatePaymentSchema = Type.Object({
   metadata: CircleMetadataSchema,
   amount: CirclePaymentAmountSchema,
   verification: Type.Enum(CirclePaymentVerificationOptions),
+  verificationSuccessUrl: Type.Optional(Type.String({ format: 'uri' })),
+  verificationFailureUrl: Type.Optional(Type.String({ format: 'uri' })),
   source: CirclePaymentSourceSchema,
   description: Type.String({ nullable: true }),
   encryptedData: Type.Optional(Type.String({ nullable: true })),
