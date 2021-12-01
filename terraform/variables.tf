@@ -168,11 +168,35 @@ variable "circle_url" {
   sensitive = true
 }
 
-variable "sendgrid_key" {
+variable "sendgrid_api_key" {
   sensitive = true
 }
 
-variable "sendgrid_from_email" {
+variable "email_from" {
+  sensitive = true
+}
+
+variable "email_name" {
+  sensitive = true
+}
+
+variable "email_transport" {
+  sensitive = true
+}
+
+variable "smtp_host" {
+  sensitive = true
+}
+
+variable "smtp_password" {
+  sensitive = true
+}
+
+variable "smtp_user" {
+  sensitive = true
+}
+
+variable "smtp_port" {
   sensitive = true
 }
 
