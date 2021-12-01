@@ -170,6 +170,7 @@ variable "circle_url" {
 
 variable "sendgrid_api_key" {
   sensitive = true
+  default   = ""
 }
 
 variable "email_from" {
@@ -186,18 +187,22 @@ variable "email_transport" {
 
 variable "smtp_host" {
   sensitive = true
+  default   = ""
 }
 
 variable "smtp_password" {
   sensitive = true
+  default   = ""
 }
 
 variable "smtp_user" {
   sensitive = true
+  default   = ""
 }
 
 variable "smtp_port" {
   sensitive = true
+  default   = ""
 }
 
 ##
