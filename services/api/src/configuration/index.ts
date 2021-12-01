@@ -2,6 +2,8 @@ import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import * as Currencies from '@dinero.js/currencies'
 import env from 'env-var'
 
+import { MailerAdapterOptions } from '../lib/mailer-adapter'
+
 export const Configuration = {
   get env() {
     return env.get('NODE_ENV').default('development').asString()
@@ -141,5 +143,32 @@ export const Configuration = {
       .default(DEFAULT_CURRENCY)
       .asEnum(Object.keys(Currencies))
     return Currencies[code as keyof typeof Currencies]
+  },
+
+  get mailer(): MailerAdapterOptions {
+    const emailFrom =
+      env.get('EMAIL_FROM').default('').asString() ||
+      env.get('SENDGRID_FROM_EMAIL').default('').asString()
+    const emailName = env.get('EMAIL_NAME').default('AlgoMart').asString()
+    const emailTransport = env
+      .get('EMAIL_TRANSPORT')
+      .required()
+      .asEnum(['smtp', 'sendgrid'])
+    const smtpHost = env.get('SMTP_HOST').default('').asString()
+    const smtpPort = env.get('SMTP_PORT').default(0).asPortNumber()
+    const smtpUser = env.get('SMTP_USER').default('').asString()
+    const smtpPassword = env.get('SMTP_PASSWORD').default('').asString()
+    const sendGridApiKey = env.get('SENDGRID_API_KEY').default('').asString()
+
+    return {
+      emailFrom,
+      emailName,
+      emailTransport,
+      smtpHost,
+      smtpPort,
+      smtpUser,
+      smtpPassword,
+      sendGridApiKey,
+    }
   },
 }

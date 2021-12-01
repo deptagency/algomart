@@ -3,8 +3,9 @@ import AlgorandAdapter from '@/lib/algorand-adapter'
 import CircleAdapter from '@/lib/circle-adapter'
 import CoinbaseAdapter from '@/lib/coinbase-adapter'
 import DirectusAdapter from '@/lib/directus-adapter'
+import I18nAdapter from '@/lib/i18n-adapter'
+import MailerAdapter from '@/lib/mailer-adapter'
 import NFTStorageAdapter from '@/lib/nft-storage-adapter'
-import SendgridAdapter from '@/lib/sendgrid-adapter'
 import AccountsService from '@/modules/accounts/accounts.service'
 import BidsService from '@/modules/bids/bids.service'
 import CollectiblesService from '@/modules/collectibles/collectibles.service'
@@ -110,12 +111,8 @@ export function configureResolver() {
       })
   )
   resolver.set(
-    SendgridAdapter.name,
-    () =>
-      new SendgridAdapter({
-        sendgridApiKey: Configuration.sendgridApiKey,
-        sendgridFromEmail: Configuration.sendgridFromEmail,
-      })
+    MailerAdapter.name,
+    () => new MailerAdapter(Configuration.mailer)
   )
   resolver.set(
     AccountsService.name,
@@ -132,8 +129,12 @@ export function configureResolver() {
   resolver.set(
     NotificationsService.name,
     (c) =>
-      new NotificationsService(c.get<SendgridAdapter>(SendgridAdapter.name))
+      new NotificationsService(
+        c.get<MailerAdapter>(MailerAdapter.name),
+        c.get<I18nAdapter>(I18nAdapter.name)
+      )
   )
+  resolver.set(I18nAdapter.name, () => new I18nAdapter())
   resolver.set(
     TransactionsService.name,
     (c) => new TransactionsService(c.get<AlgorandAdapter>(AlgorandAdapter.name))
