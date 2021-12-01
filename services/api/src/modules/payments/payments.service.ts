@@ -494,7 +494,8 @@ export default class PaymentsService {
       invariant(amount !== null, 'unable to convert to currency')
       const amountInt = formatFloatToInt(amount)
       return (
-        payment.sourceId === sourceId && amountInt === foundBankAccount.amount
+        payment.sourceId === foundBankAccount.externalId &&
+        amountInt === foundBankAccount.amount
       )
     })
     if (!sourcePayment) return null
@@ -629,7 +630,7 @@ export default class PaymentsService {
           }
         }
         // Wire transfer flow
-        if (payment.paymentBankId && !payment.externalId) {
+        else if (payment.paymentBankId) {
           const wirePayment = await this.getWirePayment(payment.paymentBankId)
           if (wirePayment) {
             await PaymentModel.query(trx).patchAndFetchById(payment.id, {
