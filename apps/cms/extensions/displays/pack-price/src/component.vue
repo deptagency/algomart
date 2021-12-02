@@ -1,11 +1,11 @@
 <template>
-  <span :key="trigger">{{formattedValue}}</span>
+  <span :key="trigger">{{ formattedValue }}</span>
 </template>
 
 <script lang="ts">
 import * as Currencies from '@dinero.js/currencies'
-import { useApi  } from '@directus/extensions-sdk'
-import { defineComponent , ref } from 'vue'
+import { useApi } from '@directus/extensions-sdk'
+import { defineComponent, ref } from 'vue'
 import { Currency, dinero, toFormat } from 'dinero.js'
 
 const currency = ref(Currencies.USD)
@@ -38,7 +38,11 @@ export default defineComponent({
 
   data(props) {
     return {
-      formattedValue: format(parse(props.value), currency.value, language.value),
+      formattedValue: format(
+        parse(props.value),
+        currency.value,
+        language.value
+      ),
     }
   },
 
@@ -65,7 +69,11 @@ export default defineComponent({
   },
 
   updated() {
-    this.formattedValue = format(parse(this.$props.value), currency.value, language.value)
+    this.formattedValue = format(
+      parse(this.$props.value),
+      currency.value,
+      language.value
+    )
   },
 })
 </script>

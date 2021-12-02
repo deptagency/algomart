@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import * as Currencies from '@dinero.js/currencies'
-import { useApi  } from '@directus/extensions-sdk'
+import { useApi } from '@directus/extensions-sdk'
 import { Currency, dinero, toFormat } from 'dinero.js'
 import { defineComponent, ref } from 'vue'
 
@@ -62,7 +62,11 @@ export default defineComponent({
     return {
       editing: false,
       rawValue: parse(props.value),
-      formattedValue: format(parse(props.value), currency.value, language.value),
+      formattedValue: format(
+        parse(props.value),
+        currency.value,
+        language.value
+      ),
     }
   },
 
@@ -89,7 +93,7 @@ export default defineComponent({
   },
 
   updated() {
-    if (this.editing) return;
+    if (this.editing) return
     this.rawValue = parse(this.$props.value)
     this.formattedValue = format(this.rawValue, currency.value, language.value)
   },
@@ -98,32 +102,29 @@ export default defineComponent({
     onFocus(event: FocusEvent) {
       const input = event.target as HTMLInputElement
 
-      this.editing = true;
+      this.editing = true
 
       // set formatted value to localized decimal point without thousand separators
       this.formattedValue = toFloat(
         this.rawValue,
         currency.value
-      ).toLocaleString(language.value, { useGrouping: false });
+      ).toLocaleString(language.value, { useGrouping: false })
 
       // need to delay select() for a moment while value is being updated
-      setTimeout(() => input.select(), 0);
+      setTimeout(() => input.select(), 0)
     },
 
     onBlur() {
       // prepare localize value for JS-style decimal point
       const prepared = prepareValue(this.formattedValue, language.value)
 
-      let newValue = toInteger(
-        Number.parseFloat(prepared),
-        currency.value
-      );
-      if (Number.isNaN(newValue)) newValue = 0;
+      let newValue = toInteger(Number.parseFloat(prepared), currency.value)
+      if (Number.isNaN(newValue)) newValue = 0
 
-      this.rawValue = newValue;
-      this.formattedValue = format(newValue, currency.value, language.value);
-      this.$emit("input", newValue);
-      this.editing = false;
+      this.rawValue = newValue
+      this.formattedValue = format(newValue, currency.value, language.value)
+      this.$emit('input', newValue)
+      this.editing = false
     },
   },
 })
