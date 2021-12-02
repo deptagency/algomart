@@ -143,6 +143,8 @@ jobs:
           TF_VAR_email_transport: ${{ secrets.EMAIL_TRANSPORT }}
           TF_VAR_email_name: ${{ secrets.EMAIL_NAME }}
 
+          TF_VAR_nft_storage_key: ${{ secrets.NFT_STORAGE_KEY }}
+
           TF_VAR_sendgrid_api_key: ${{ secrets.SENDGRID_API_KEY }}
 
           TF_VAR_smtp_host: ${{ secrets.SMTP_HOST }}

@@ -168,6 +168,11 @@ variable "circle_url" {
   sensitive = true
 }
 
+variable "nft_storage_key" {
+  sensitive = true
+  default   = ""
+}
+
 variable "sendgrid_api_key" {
   sensitive = true
   default   = ""

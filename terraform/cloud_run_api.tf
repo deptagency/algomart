@@ -125,6 +125,11 @@ resource "google_cloud_run_service" "api" {
         }
 
         env {
+          name  = "NFT_STORAGE_KEY"
+          value = var.nft_storage_key
+        }
+
+        env {
           name  = "SENDGRID_API_KEY"
           value = var.sendgrid_api_key
         }

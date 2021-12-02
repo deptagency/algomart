@@ -28,6 +28,7 @@ cms_key                    = "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1
 cms_secret                 = "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4"
 cms_storage_bucket         = "some-bucket-name"
 project                    = "<gcp-project-id>"
+nft_storage_key           = "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4"
 sendgrid_api_key           = "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4"
 email_from                 = "admin@nfty.example.com"
 email_name                 = "AlgoMart"

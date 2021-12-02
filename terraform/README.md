@@ -71,6 +71,7 @@ and you are free to override any variables that do.
 | `cms_storage_bucket`              | The GCS bucket name in which to store assets such as images                                                                 |
 | `credentials`                     | The JSON credentials (newline-delimited) for the service account that Terraform will use to manage state and all resources. |
 | `project`                         | The id (not project number) of the GCP project that will own all resources                                                  |
+| `nft_storage_key`                 | The API key from https://nft.storage that allows files and metadata to be stored on IFPS                                    |
 | `sendgrid_api_key`                | The access token for SendGrid, only required when `email_transport` is set to `sendgrid`                                    |
 | `email_from`                      | The sender email address                                                                                                    |
 | `email_transport`                 | Either `sendgrid` or `smtp`                                                                                                 |
