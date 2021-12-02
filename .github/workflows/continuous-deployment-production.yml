@@ -2,7 +2,7 @@ name: Continuous Deployment Staging
 on:
   push:
     branches:
-      - staging
+      - main
 
 jobs:
   tag:
@@ -113,7 +113,6 @@ jobs:
           TF_VAR_project: ${{ secrets.GCP_PROJECT_ID }}
           TF_VAR_credentials: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-          TF_VAR_algod_env: ${{ secrets.ALGOD_ENV }}
           TF_VAR_algod_host: ${{ secrets.ALGOD_HOST }}
           TF_VAR_algod_key: ${{ secrets.ALGOD_KEY }}
           TF_VAR_algod_port: ${{ secrets.ALGOD_PORT }}
@@ -143,9 +142,6 @@ jobs:
           TF_VAR_email_from: ${{ secrets.EMAIL_FROM }}
           TF_VAR_email_transport: ${{ secrets.EMAIL_TRANSPORT }}
           TF_VAR_email_name: ${{ secrets.EMAIL_NAME }}
-
-          TF_VAR_pinata_api_key: ${{ secrets.PINATA_API_KEY }}
-          TF_VAR_pinata_api_secret: ${{ secrets.PINATA_API_SECRET }}
 
           TF_VAR_sendgrid_api_key: ${{ secrets.SENDGRID_API_KEY }}
 
