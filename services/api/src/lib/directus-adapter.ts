@@ -669,6 +669,7 @@ export default class DirectusAdapter {
         'unique_code',
         'preview_image.*',
         'preview_video.*',
+        'preview_audio.*',
         'asset_file.*',
         'translations.*',
         'rarity.code',
