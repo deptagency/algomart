@@ -103,13 +103,7 @@ export function configureResolver() {
         url: Configuration.cmsUrl,
       })
   )
-  resolver.set(
-    NFTStorageAdapter.name,
-    () =>
-      new NFTStorageAdapter({
-        nftStorageKey: Configuration.nftStorageKey,
-      })
-  )
+  resolver.set(NFTStorageAdapter.name, () => new NFTStorageAdapter())
   resolver.set(
     MailerAdapter.name,
     () => new MailerAdapter(Configuration.mailer)

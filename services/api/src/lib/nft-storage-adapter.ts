@@ -1,7 +1,6 @@
 import encBase64 from 'crypto-js/enc-base64'
 import sha256 from 'crypto-js/sha256'
 import got from 'got'
-import { Blob, NFTStorage } from 'nft.storage'
 
 import { Configuration } from '@/configuration'
 import { logger } from '@/utils/logger'
@@ -42,17 +41,10 @@ export interface StoreMetadataInput {
   totalEditions: number
 }
 
-export interface NFTStorageOptions {
-  nftStorageKey: string
-}
-
 export default class NFTStorageAdapter {
   logger = logger.child({ context: this.constructor.name })
-  client: NFTStorage
 
-  constructor(private readonly options: NFTStorageOptions) {
-    this.client = new NFTStorage({ token: options.nftStorageKey })
-  }
+  // constructor() {}
 
   hashBuffer(buffer: Buffer) {
     //Base64-encoded SHA-256 digest
@@ -89,6 +81,14 @@ export default class NFTStorageAdapter {
     }
   }
 
+  async storeOnIPFS(buffer: Buffer) {
+    const { body } = await got.post<string>('https://api.nft.storage/upload', {
+      headers: { Authorization: `Bearer ${Configuration.nftStorageKey}` },
+      body: buffer,
+    })
+    return JSON.parse(body).value.cid
+  }
+
   async storeMedia({ animationUrl, imageUrl }: StoreMediaInput) {
     try {
       // Fetch assets as buffers
@@ -97,10 +97,10 @@ export default class NFTStorageAdapter {
         ? await got(animationUrl, { responseType: 'buffer' })
         : null
 
-      // Store buffers as media on IFPS
-      const imageCid = await this.client.storeBlob(new Blob([image.body]))
+      // Store buffers as media on IPFS
+      const imageCid = await this.storeOnIPFS(image.body)
       const animationCid = animation
-        ? await this.client.storeBlob(new Blob([animation.body]))
+        ? await this.storeOnIPFS(animation.body)
         : null
 
       // Return partial ARC3 metadata
@@ -123,8 +123,8 @@ export default class NFTStorageAdapter {
 
   async storeMetadata(metadata: ARC3Metadata) {
     try {
-      const metadataCid: string = await this.client.storeBlob(
-        new Blob([JSON.stringify(metadata)], { type: 'application/json' })
+      const metadataCid: string = await this.storeOnIPFS(
+        Buffer.from(JSON.stringify(metadata))
       )
 
       /**
