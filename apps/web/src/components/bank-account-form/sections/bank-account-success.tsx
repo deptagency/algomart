@@ -4,6 +4,7 @@ import {
   PublishedPack,
 } from '@algomart/schemas'
 import { CheckCircleIcon } from '@heroicons/react/outline'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback } from 'react'
 
@@ -24,17 +25,15 @@ export default function BankAccountSuccess({
   release,
 }: BankAccountSuccessProps) {
   const { t } = useTranslation()
-
+  const router = useRouter()
   const isActiveAuction =
     release.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))
 
   const handleReturnToListing = useCallback(() => {
     const path = urls.release.replace(':packSlug', release.slug)
-    if (typeof window !== 'undefined') {
-      window.location.assign(new URL(path, window.location.origin).href)
-    }
-  }, [release.slug])
+    router.push(path)
+  }, [release.slug, router])
 
   return (
     <div className={css.root}>

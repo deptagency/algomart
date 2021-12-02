@@ -173,6 +173,8 @@ const ToPaymentBaseSchema = Type.Object({
   externalId: Type.String({ format: 'uuid' }),
   status: Type.Optional(Type.Enum(PaymentStatus)),
   error: Type.Optional(Type.Enum(CirclePaymentErrorCode)),
+  amount: Type.String(),
+  sourceId: Type.String({ format: 'uuid' }),
 })
 
 const PaymentBaseSchema = Type.Object({
@@ -466,7 +468,7 @@ export const GetPaymentCardStatusSchema = Type.Object({
 export const PaymentSchema = Type.Intersect([
   BaseSchema,
   PaymentBaseSchema,
-  Type.Omit(ToPaymentBaseSchema, ['externalId']),
+  Type.Omit(ToPaymentBaseSchema, ['externalId', 'amount', 'sourceId']),
   Type.Object({
     externalId: Nullable(Type.String({ format: 'uuid' })),
   }),

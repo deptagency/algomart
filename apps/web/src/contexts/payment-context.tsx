@@ -28,7 +28,7 @@ import collectibleService from '@/services/collectible-service'
 import { getExpirationDate } from '@/utils/date-time'
 import { encryptCardDetails } from '@/utils/encryption'
 import { toJSON } from '@/utils/form-to-json'
-import { formatFloatToInt, isGreaterThanOrEqual } from '@/utils/format-currency'
+import { formatFloatToInt, isGreaterThan } from '@/utils/format-currency'
 import { poll } from '@/utils/poll'
 import {
   maximumBidForCardPayments,
@@ -466,7 +466,7 @@ export function usePaymentProvider({
         if (
           !Environment.isWireEnabled ||
           (Environment.isWireEnabled &&
-            !isGreaterThanOrEqual(bid, maximumBidForCardPayments))
+            !isGreaterThan(bid, maximumBidForCardPayments))
         ) {
           setLoadingText(t('common:statuses.Authorizing card'))
 

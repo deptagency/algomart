@@ -10,9 +10,11 @@ import {
   NotificationType,
   OwnerExternalId,
   PackType,
+  PaymentBankAccountStatus,
   PaymentCardStatus,
   PaymentStatus,
   SendBankAccountInstructions,
+  ToPaymentBase,
   UpdatePaymentCard,
 } from '@algomart/schemas'
 import { Transaction } from 'objection'
@@ -28,8 +30,9 @@ import { PaymentCardModel } from '@/models/payment-card.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import NotificationService from '@/modules/notifications/notifications.service'
 import PacksService from '@/modules/packs/packs.service'
-import { formatIntToFloat } from '@/utils/format-currency'
+import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 import {
+  convertFromUSD,
   convertToUSD,
   currency,
   isGreaterThanOrEqual,
@@ -459,23 +462,73 @@ export default class PaymentsService {
     return newPayment
   }
 
-  async getWirePayment(sourceId: string) {
-    // Last 72 hours
-    const newDate72HoursInpast = new Date(
-      new Date().setDate(new Date().getDate() + 3)
+  async handleWirePayment(
+    payment: PaymentModel,
+    trx?: Transaction
+  ): Promise<ToPaymentBase | null> {
+    if (!payment.id || !payment.paymentBankId || !payment.packId) return null
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      payment.paymentBankId
     )
+    userInvariant(foundBankAccount, 'bank account was not found', 404)
+
+    // Last 24 hours
+    const newDate24HoursInPast = new Date(
+      new Date().setDate(new Date().getDate() - 1)
+    ).toISOString()
+
     // Get recent payments of wire type
     const payments = await this.circle.getPayments({
-      from: newDate72HoursInpast.toString(),
+      from: newDate24HoursInPast.toString(),
       type: CirclePaymentQueryType.wire,
     })
     if (!payments) return null
+
+    // Retrieve exchange rates for app currency and USD
+    const exchangeRates = await this.coinbase.getExchangeRates({
+      currency: currency.code,
+    })
+    invariant(exchangeRates, 'unable to find exchange rates')
+
     // Find payment with matching source ID
-    const sourcePayments = payments.map(
-      (payment) => payment.source.id === sourceId
-    )
-    userInvariant(sourcePayments, 'payments not found', 404)
-    return sourcePayments
+    const sourcePayment = payments.find((currentPayment) => {
+      // Convert price to USD for payment
+      const amount = convertFromUSD(currentPayment.amount, exchangeRates.rates)
+      invariant(amount !== null, 'unable to convert to currency')
+      const amountInt = formatFloatToInt(amount)
+      return (
+        currentPayment.sourceId === foundBankAccount.externalId &&
+        amountInt === foundBankAccount.amount
+      )
+    })
+    if (!sourcePayment) return null
+    // Update payment details
+    if (payment.status !== sourcePayment.status || !payment.externalId) {
+      await PaymentModel.query(trx).patchAndFetchById(payment.id, {
+        externalId: sourcePayment.externalId,
+        status: sourcePayment.status,
+      })
+    }
+    // Remove claim from pack if payment fails
+    if (sourcePayment.status === PaymentStatus.Failed) {
+      await this.packs.claimPack(
+        {
+          packId: payment.packId,
+          claimedById: null,
+          claimedAt: null,
+        },
+        trx
+      )
+    }
+    // Mint pack if status is paid
+    if (sourcePayment.status === PaymentStatus.Paid) {
+      await this.packs.mintPack({
+        packId: payment.packId,
+        externalId: foundBankAccount.ownerId,
+      })
+    }
+    return sourcePayment
   }
 
   async getPaymentById(paymentId: string) {
@@ -588,7 +641,8 @@ export default class PaymentsService {
 
     await Promise.all(
       pendingPayments.map(async (payment) => {
-        if (payment.externalId) {
+        // Card flow
+        if (payment.externalId && payment.paymentCardId) {
           const circlePayment = await this.circle.getPaymentById(
             payment.externalId
           )
@@ -604,11 +658,48 @@ export default class PaymentsService {
             updatedPayments++
           }
         }
+        // Wire transfer flow
+        else if (payment.paymentBankId) {
+          const wirePayment = await this.handleWirePayment(payment, trx)
+          if (wirePayment) {
+            updatedPayments++
+          }
+        }
         return
       })
     )
 
     return updatedPayments
+  }
+
+  async updatePaymentBankStatuses(trx?: Transaction) {
+    const pendingPaymentBanks = await PaymentBankAccountModel.query(trx)
+      .where('status', PaymentBankAccountStatus.Pending)
+      .limit(10)
+
+    if (pendingPaymentBanks.length === 0) return 0
+    let updatedPaymentCards = 0
+
+    await Promise.all(
+      pendingPaymentBanks.map(async (bank) => {
+        const circleBankAccount = await this.circle.getPaymentBankAccountById(
+          bank.externalId
+        )
+        invariant(
+          circleBankAccount,
+          `external bank account ${bank.externalId} not found`
+        )
+
+        if (bank.status !== circleBankAccount.status) {
+          await PaymentBankAccountModel.query(trx).patchAndFetchById(bank.id, {
+            status: circleBankAccount.status,
+          })
+          updatedPaymentCards++
+        }
+      })
+    )
+
+    return updatedPaymentCards
   }
 
   async updatePaymentCardStatuses(trx?: Transaction) {
