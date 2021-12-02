@@ -20,6 +20,7 @@ import {
   ToPaymentBase,
   UpdatePaymentCard,
 } from '@algomart/schemas'
+import { enc, SHA256 } from 'crypto-js'
 import { URL } from 'node:url'
 import { Transaction } from 'objection'
 
@@ -425,11 +426,19 @@ export default class PaymentsService {
     // Attempt to find card (cardId could be source or db ID)
     const card = await PaymentCardModel.query(trx).findById(cardId)
 
+    // Temporary workaround as `localhost` is not allowed in Circle
+    const verificationHostname = Configuration.webUrl.includes('localhost')
+      ? 'https://demo.algomart.dev'
+      : Configuration.webUrl
+
     // Create payment using Circle API
     const payment = await this.circle
       .createPayment({
         idempotencyKey: idempotencyKey,
-        metadata: metadata,
+        metadata: {
+          ...metadata,
+          sessionId: SHA256(user.id).toString(enc.Base64),
+        },
         amount: {
           amount: priceInUSD,
           currency: DEFAULT_CURRENCY,
@@ -438,11 +447,11 @@ export default class PaymentsService {
         // @TODO: make these urls configurable?
         verificationSuccessUrl: new URL(
           '/checkout/success',
-          Configuration.webUrl
+          verificationHostname
         ).toString(),
         verificationFailureUrl: new URL(
           '/checkout/failure',
-          Configuration.webUrl
+          verificationHostname
         ).toString(),
         description: description,
         source: {
@@ -743,8 +752,12 @@ export default class PaymentsService {
 
   async updatePaymentStatuses(trx?: Transaction) {
     const pendingPayments = await PaymentModel.query(trx)
-      // Pending and Confirmed are non-final statuses
-      .whereIn('status', [PaymentStatus.Pending, PaymentStatus.Confirmed])
+      // Pending, Confirmed, and ActionRequired are non-final statuses
+      .whereIn('status', [
+        PaymentStatus.Pending,
+        PaymentStatus.ActionRequired,
+        PaymentStatus.Confirmed,
+      ])
       // Prioritize pending payments
       .orderBy('status', 'desc')
       .limit(10)
@@ -768,6 +781,8 @@ export default class PaymentsService {
           if (payment.status !== circlePayment.status) {
             await PaymentModel.query(trx).patchAndFetchById(payment.id, {
               status: circlePayment.status,
+              action: circlePayment.action,
+              error: circlePayment.error,
             })
             status = circlePayment.status
             updatedPayments++
