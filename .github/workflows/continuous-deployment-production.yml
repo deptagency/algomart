@@ -1,4 +1,4 @@
-name: Continuous Deployment Staging
+name: Continuous Deployment Production
 on:
   push:
     branches:
