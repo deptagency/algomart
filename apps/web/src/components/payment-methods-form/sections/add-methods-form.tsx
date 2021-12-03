@@ -7,9 +7,9 @@ import css from './add-methods-form.module.css'
 import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
 import Heading from '@/components/heading'
-import BillingAddress from '@/components/payments/sections/billing-address'
-import CardDetails from '@/components/payments/sections/card-details'
-import FullName from '@/components/payments/sections/full-name'
+import BillingAddress from '@/components/purchase-form/sections/billing-address'
+import CardDetails from '@/components/purchase-form/sections/card-details'
+import FullName from '@/components/purchase-form/sections/full-name'
 import {
   validateExpirationDate,
   validatePurchaseForm,

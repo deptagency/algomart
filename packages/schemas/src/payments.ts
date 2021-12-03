@@ -435,6 +435,7 @@ export type CheckoutStatus =
   | 'success'
   | 'error'
   | 'summary'
+export type CheckoutMethods = 'card' | 'wire' | 'crypto'
 export type CircleCard = Simplify<Static<typeof CircleCardSchema>>
 export type CircleCardVerification = Simplify<
   Static<typeof CircleCardVerificationSchema>

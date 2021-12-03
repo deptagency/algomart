@@ -25,15 +25,3 @@ export const getLegalNavItems = (t: Translate) => [
   },
   { href: '', label: t('common:nav.legal.copyright') },
 ]
-
-export const getPaymentNavItems = (t: Translate) => [
-  {
-    href: urls.checkout,
-    label: t('common:nav.payment.Payment Methods'),
-  },
-  {
-    href: urls.checkoutInformation,
-    label: t('common:nav.payment.Payment Information'),
-  },
-  { href: urls.checkoutSummary, label: t('common:nav.payment.Summary') },
-]

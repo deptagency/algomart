@@ -8,10 +8,10 @@ import css from './card-form.module.css'
 
 import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
-import CardDetails from '@/components/card-details'
 import CurrencyInput from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
-import BillingAddress from '@/components/payments/sections/billing-address'
+import BillingAddress from '@/components/purchase-form/sections/billing-address'
+import CardDetails from '@/components/purchase-form/sections/card-details'
 import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import Toggle from '@/components/toggle/toggle'
@@ -182,10 +182,6 @@ export default function CardPurchaseForm({
                 expYear:
                   formErrors && 'expYear' in formErrors
                     ? (formErrors.expYear as string)
-                    : '',
-                fullName:
-                  formErrors && 'fullName' in formErrors
-                    ? (formErrors.fullName as string)
                     : '',
                 securityCode:
                   formErrors && 'securityCode' in formErrors
