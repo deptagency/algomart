@@ -85,8 +85,9 @@ export default function BankAccountPurchaseForm({
 
       {status === 'success' && (
         <BankAccountSuccess
-          release={release}
           bankAccountInstructions={bankAccountInstructions}
+          currentBid={currentBid}
+          release={release}
         />
       )}
 
