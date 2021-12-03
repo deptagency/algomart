@@ -88,12 +88,7 @@ export const Configuration = {
   },
 
   get nftStorageKey() {
-    return env
-      .get('NFT_STORAGE_KEY')
-      .default(
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGU4ZDNiMjE4YTg4RDZiQ0Y1ZWVCNDQwNzBBZjFmNjUzQmVlMGNkMEIiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTYzODIxMTUwMzM1MCwibmFtZSI6Impha2V0ZXN0In0.lJ6bhiU2bC0dSQc74FSPHSTBVNOPTFcQZoc3YX10p7w'
-      )
-      .asString()
+    return env.get('NFT_STORAGE_KEY').required().asString()
   },
 
   get sendgridApiKey() {
