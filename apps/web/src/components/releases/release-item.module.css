@@ -24,13 +24,13 @@
 }
 
 .metadata > div {
-  @apply flex flex-col justify-center p-4 text-white;
+  @apply flex justify-between mt-4;
 }
 
 .metadataLabel {
-  @apply text-sm;
+  @apply font-poppins font-medium text-base text-left mr-2 text-gray-50 overflow-ellipsis overflow-hidden;
 }
 
 .metadataValue {
-  @apply text-sm font-bold;
+  @apply font-poppins text-green-600 font-bold text-xs p-1 border-2 border-green-600 rounded max-h-7;
 }

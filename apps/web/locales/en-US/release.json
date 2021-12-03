@@ -43,7 +43,7 @@
   "packActivityDate": "{{date}} at {{time}}",
   "passphraseApprove": "Enter your passphrase to authorize this transaction.",
   "redemptionCode": "This NFT requires a code to redeem.",
-  "Remaining": "Remaining",
+  "Remaining": " in stock",
   "Reserve price met": "Reserve price met",
   "Reserve Price": "Reserve Price",
   "Starting Bid": "Starting Bid",
