@@ -42,9 +42,9 @@ export default function BankAccountSuccess({
 
   return (
     <div className={css.root}>
-      <CheckCircleIcon className={css.icon} height="48" width="48" />
       {release.type === PackType.Auction && isActiveAuction && (
         <>
+          <CheckCircleIcon className={css.icon} height="48" width="48" />
           <Heading className={css.bidPlacedHeading} level={3}>
             {t('common:statuses.Bid placed!')}
           </Heading>
@@ -61,9 +61,13 @@ export default function BankAccountSuccess({
           <Heading className={css.header} level={2}>
             {t('forms:fields.bankInstructions.label')}
           </Heading>
+          <p className={css.bankInstructionsHelpText}>
+            {t('forms:fields.bankInstructions.helpText')}
+          </p>
+          <hr className={css.separator} />
           <div className={css.instructions}>
             <Heading level={4}>
-              {t('forms:fields.bankInstructions.trackingRef.label')}:
+              {t('forms:fields.bankInstructions.trackingRef.label')}
             </Heading>
             <p>{bankAccountInstructions.trackingRef}</p>
           </div>
@@ -71,64 +75,65 @@ export default function BankAccountSuccess({
             {t('forms:fields.bankInstructions.beneficiary.label')}
           </Heading>
           <div className={css.instructions}>
-            <Heading level={4}>{t('forms:fields.fullName.label')}:</Heading>
+            <Heading level={4}>{t('forms:fields.fullName.label')}</Heading>
             <p>{bankAccountInstructions.beneficiary.name}</p>
           </div>
           <div className={css.instructions}>
-            <Heading level={4}>{t('forms:fields.address1.label')}:</Heading>
-            <p>{bankAccountInstructions.beneficiary.address1}</p>
-            <p>{bankAccountInstructions.beneficiary.address2}</p>
+            <Heading level={4}>{t('forms:fields.address1.label')}</Heading>
+            <p>
+              {bankAccountInstructions.beneficiary.address1}{' '}
+              {bankAccountInstructions.beneficiary.address2}
+            </p>
           </div>
           <Heading className={css.subHeader} level={3}>
             {t('forms:fields.bankInstructions.beneficiaryBank.label')}
           </Heading>
           <div className={css.instructions}>
             <Heading level={4}>
-              {t('forms:fields.bankAddress.bankName.label')}:
+              {t('forms:fields.bankAddress.bankName.label')}
             </Heading>
             <p>{bankAccountInstructions.beneficiaryBank.name}</p>
           </div>
           <div className={css.instructions}>
             <Heading level={4}>
-              {t('forms:fields.bankInstructions.swiftCode.label')}:
+              {t('forms:fields.bankInstructions.swiftCode.label')}
             </Heading>
             <p>{bankAccountInstructions.beneficiaryBank.swiftCode}</p>
           </div>
           <div className={css.instructions}>
-            <Heading level={4}>
-              {t('forms:fields.routingNumber.label')}:
-            </Heading>
+            <Heading level={4}>{t('forms:fields.routingNumber.label')}</Heading>
             <p>{bankAccountInstructions.beneficiaryBank.routingNumber}</p>
           </div>
           <div className={css.instructions}>
-            <Heading level={4}>
-              {t('forms:fields.accountNumber.label')}:
-            </Heading>
+            <Heading level={4}>{t('forms:fields.accountNumber.label')}</Heading>
             <p>{bankAccountInstructions.beneficiaryBank.accountNumber}</p>
           </div>
           <div className={css.instructions}>
-            <Heading level={4}>{t('forms:fields.address1.label')}:</Heading>
+            <Heading level={4}>{t('forms:fields.address1.label')}</Heading>
             <p>{bankAccountInstructions.beneficiaryBank.address}</p>
           </div>
           <div className={css.instructions}>
-            <Heading level={4}>{t('forms:fields.city.label')}:</Heading>
+            <Heading level={4}>{t('forms:fields.city.label')}</Heading>
             <p>{bankAccountInstructions.beneficiaryBank.city}</p>
           </div>
           <div className={css.instructions}>
-            <Heading level={4}>{t('forms:fields.zipCode.label')}:</Heading>
+            <Heading level={4}>{t('forms:fields.zipCode.label')}</Heading>
             <p>{bankAccountInstructions.beneficiaryBank.postalCode}</p>
           </div>
           <div className={css.instructions}>
-            <Heading level={4}>{t('forms:fields.country.label')}:</Heading>
+            <Heading level={4}>{t('forms:fields.country.label')}</Heading>
             <p>{bankAccountInstructions.beneficiaryBank.country}</p>
           </div>
         </div>
       )}
       {/* Price */}
-      <div className={css.priceContainer}>
-        <p className={css.priceLabel}>{t('release:Total')}</p>
-        <p className={css.priceValue}>{formatCurrency(price, lang)}</p>
-      </div>
+      {(release.type === PackType.Auction && isActiveAuction) ||
+        (release.type === PackType.Purchase && (
+          <div className={css.priceContainer}>
+            <p className={css.priceLabel}>{t('release:Total')}</p>
+            <p className={css.priceValue}>{formatCurrency(price, lang)}</p>
+          </div>
+        ))}
       <Button className={css.button} onClick={handleReturnToListing}>
         {t('common:actions.Back to Listing')}
       </Button>

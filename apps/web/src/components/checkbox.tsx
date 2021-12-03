@@ -13,7 +13,7 @@ export default function Checkbox({
   HTMLInputElement
 > & { label: string }) {
   return (
-    <label className="pl-2">
+    <label>
       <input
         type="checkbox"
         className={clsx(
@@ -28,7 +28,7 @@ export default function Checkbox({
         readOnly={readOnly}
         {...props}
       />
-      {label}
+      {label && <span className="pl-2">{label}</span>}
     </label>
   )
 }

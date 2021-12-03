@@ -443,7 +443,9 @@ export default class PaymentsService {
     // Circle may return the same payment ID if there's duplicate info
     const newPayment = await PaymentModel.query(trx)
       .insert({
-        ...payment,
+        externalId: payment.externalId,
+        status: payment.status,
+        error: payment.error,
         payerId: user.id,
         packId,
         paymentCardId: card?.id,
