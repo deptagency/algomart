@@ -17,7 +17,7 @@ import { formatCurrency } from '@/utils/format-currency'
 
 // Maximum bid for card payments as integer
 // eslint-disable-next-line unicorn/numeric-separators-style
-export const maximumBidForCardPayments = 300000
+export const MAX_BID_FOR_CARD_PAYMENT = 300000
 
 const address1 = (t: Translate) =>
   string(

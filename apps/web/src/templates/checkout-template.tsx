@@ -6,7 +6,7 @@ import PurchaseNFTForm from '@/components/purchase-nft-form/purchase-nft-form'
 import { useAuth } from '@/contexts/auth-context'
 import { Environment } from '@/environment'
 import { isGreaterThanOrEqual } from '@/utils/format-currency'
-import { maximumBidForCardPayments } from '@/utils/purchase-validation'
+import { MAX_BID_FOR_CARD_PAYMENT } from '@/utils/purchase-validation'
 
 export interface CheckoutTemplateProps {
   auctionPackId: string | null
@@ -26,9 +26,9 @@ export default function CheckoutTemplate({
   const doesRequireWirePayment =
     Environment.isWireEnabled &&
     ((currentBid &&
-      isGreaterThanOrEqual(currentBid, maximumBidForCardPayments)) ||
+      isGreaterThanOrEqual(currentBid, MAX_BID_FOR_CARD_PAYMENT)) ||
       (release.price &&
-        isGreaterThanOrEqual(release.price, maximumBidForCardPayments)))
+        isGreaterThanOrEqual(release.price, MAX_BID_FOR_CARD_PAYMENT)))
   return (
     <>
       {doesRequireWirePayment ? (

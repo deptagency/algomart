@@ -31,7 +31,7 @@ import { toJSON } from '@/utils/form-to-json'
 import { formatFloatToInt, isGreaterThan } from '@/utils/format-currency'
 import { poll } from '@/utils/poll'
 import {
-  maximumBidForCardPayments,
+  MAX_BID_FOR_CARD_PAYMENT,
   validateBankAccount,
   validateBidsForm,
   validateBidsFormForWires,
@@ -466,7 +466,7 @@ export function usePaymentProvider({
         if (
           !Environment.isWireEnabled ||
           (Environment.isWireEnabled &&
-            !isGreaterThan(bid, maximumBidForCardPayments))
+            !isGreaterThan(bid, MAX_BID_FOR_CARD_PAYMENT))
         ) {
           setLoadingText(t('common:statuses.Authorizing card'))
 

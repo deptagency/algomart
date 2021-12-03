@@ -537,7 +537,6 @@ export const CreatePaymentCardSchema = Type.Union([
 
 export const CreatePaymentSchema = Type.Intersect([
   Type.Omit(CircleCreatePaymentSchema, ['source', 'amount']),
-  Type.Omit(ToPaymentBaseSchema, ['externalId']),
   Type.Omit(PaymentBaseSchema, ['payerId']),
   Type.Object({
     cardId: Type.String(),
