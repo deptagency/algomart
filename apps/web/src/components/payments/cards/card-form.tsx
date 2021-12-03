@@ -2,12 +2,12 @@ import { PackType, PublishedPack } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useState } from 'react'
 
-import PurchaseError from './sections/purchase-error'
-import PurchaseForm from './sections/purchase-form'
-import PurchaseHeader from './sections/purchase-header'
-import PurchaseSuccess from './sections/purchase-success'
+import PurchaseError from './sections/card-error'
+import PurchaseForm from './sections/card-form'
+import PurchaseHeader from './sections/card-header'
+import PurchaseSuccess from './sections/card-success'
 
-import css from './purchase-nft-form.module.css'
+import css from './card-form.module.css'
 
 import Loading from '@/components/loading/loading'
 import { usePaymentProvider } from '@/contexts/payment-context'

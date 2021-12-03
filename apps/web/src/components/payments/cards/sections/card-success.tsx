@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback } from 'react'
 
-import css from './purchase-success.module.css'
+import css from './card-success.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'

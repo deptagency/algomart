@@ -1,7 +1,7 @@
 import { PublishedPack } from '@algomart/schemas'
 import Image from 'next/image'
 
-import css from './purchase-header.module.css'
+import css from './card-header.module.css'
 
 import Heading from '@/components/heading'
 

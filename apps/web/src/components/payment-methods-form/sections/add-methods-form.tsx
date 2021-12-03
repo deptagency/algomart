@@ -6,9 +6,10 @@ import css from './add-methods-form.module.css'
 
 import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
-import CardDetails from '@/components/card-details'
-import BillingAddress from '@/components/card-details/billing-address'
 import Heading from '@/components/heading'
+import BillingAddress from '@/components/payments/sections/billing-address'
+import CardDetails from '@/components/payments/sections/card-details'
+import FullName from '@/components/payments/sections/full-name'
 import {
   validateExpirationDate,
   validatePurchaseForm,
@@ -36,6 +37,14 @@ export default function AddMethodsForm({
         />
       )}
       <Heading level={2}>{t('forms:sections.Credit Card')}</Heading>
+      <FullName
+        formErrors={{
+          fullName:
+            formErrors && 'fullName' in formErrors
+              ? (formErrors.fullName as string)
+              : '',
+        }}
+      />
       <CardDetails
         formErrors={{
           ccNumber:
@@ -49,10 +58,6 @@ export default function AddMethodsForm({
           expYear:
             formErrors && 'expYear' in formErrors
               ? (formErrors.expYear as string)
-              : '',
-          fullName:
-            formErrors && 'fullName' in formErrors
-              ? (formErrors.fullName as string)
               : '',
           securityCode:
             formErrors && 'securityCode' in formErrors

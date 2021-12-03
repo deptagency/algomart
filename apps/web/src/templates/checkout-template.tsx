@@ -1,8 +1,11 @@
 import { PublishedPack } from '@algomart/schemas'
+import useTranslation from 'next-translate/useTranslation'
 
+import Breadcrumbs from '@/components/breadcrumbs'
+import PurchaseNFTForm from '@/components/payments/cards/card-form'
 import EmailVerification from '@/components/profile/email-verification'
-import PurchaseNFTForm from '@/components/purchase-nft-form/purchase-nft-form'
 import { useAuth } from '@/contexts/auth-context'
+import { getPaymentNavItems } from '@/utils/navigation'
 
 export interface CheckoutTemplateProps {
   auctionPackId: string | null
@@ -15,15 +18,20 @@ export default function CheckoutTemplate({
   currentBid,
   release,
 }: CheckoutTemplateProps) {
+  const { t } = useTranslation()
   const { user } = useAuth()
+  const navItems = getPaymentNavItems(t)
   if (!user?.emailVerified) {
     return <EmailVerification inline />
   }
   return (
-    <PurchaseNFTForm
-      auctionPackId={auctionPackId}
-      currentBid={currentBid}
-      release={release}
-    />
+    <>
+      <Breadcrumbs breadcrumbs={navItems} />
+      <PurchaseNFTForm
+        auctionPackId={auctionPackId}
+        currentBid={currentBid}
+        release={release}
+      />
+    </>
   )
 }

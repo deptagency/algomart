@@ -1,7 +1,7 @@
 import { ExclamationCircleIcon } from '@heroicons/react/outline'
 import useTranslation from 'next-translate/useTranslation'
 
-import css from './purchase-error.module.css'
+import css from './card-error.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'

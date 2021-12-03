@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 
-import Select from '../select/select'
+import Select from '../../select/select'
 
 import css from './card-details.module.css'
 

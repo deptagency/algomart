@@ -136,6 +136,11 @@
       "Privacy Policy": "Privacy Policy",
       "Terms & Conditions": "Terms & Conditions",
       "copyright": "©2021 Algorand"
+    },
+    "payment": {
+      "Payment Methods": "Payment Methods",
+      "Add Payment Method": "Payment Information",
+      "Summary": "Summary"
     }
   },
   "statuses": {

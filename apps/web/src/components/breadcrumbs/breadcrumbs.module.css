@@ -1,0 +1,16 @@
+.navigation {
+}
+
+.breadcrumbs {
+}
+
+.breadcrumb {
+}
+
+.navLink {
+  @apply flex gap-6 transition duration-300 text-base-gray-text hover:text-base-gray-dark;
+}
+
+.navLink.navLinkActive {
+  @apply font-bold text-base-gray-dark;
+}

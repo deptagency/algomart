@@ -1,7 +1,7 @@
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback } from 'react'
 
-import css from './purchase-passphrase.module.css'
+import css from './card-passphrase.module.css'
 
 import Heading from '@/components/heading'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
