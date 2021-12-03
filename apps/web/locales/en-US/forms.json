@@ -52,7 +52,8 @@
       }
     },
     "bankInstructions": {
-      "label": "Bank Instructions",
+      "label": "Bank Wire Instructions",
+      "helpText": "Below is all of the information you need to initiate a wire transfer. Keep in mind, your bank may use slightly different names for these details. May the odds be ever in your favor.",
       "swiftCode": {
         "label": "Swift Code"
       },

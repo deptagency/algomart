@@ -39,7 +39,7 @@
 }
 
 .instructions {
-  @apply flex gap-x-1;
+  @apply flex justify-between gap-x-1;
 }
 
 .instructions h4 {

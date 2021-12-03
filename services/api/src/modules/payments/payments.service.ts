@@ -512,21 +512,11 @@ export default class PaymentsService {
     }
     // Remove claim from pack if payment fails
     if (sourcePayment.status === PaymentStatus.Failed) {
-      await this.packs.claimPack(
-        {
-          packId: payment.packId,
-          claimedById: null,
-          claimedAt: null,
-        },
-        trx
-      )
+      // @TODO: Take action if payment fails
     }
-    // Mint pack if status is paid
+    // If status is paid and therefore the payment has settled:
     if (sourcePayment.status === PaymentStatus.Paid) {
-      await this.packs.mintPack({
-        packId: payment.packId,
-        externalId: foundBankAccount.ownerId,
-      })
+      // @TODO: Take action. How to handle if pack is already minted?
     }
     return sourcePayment
   }

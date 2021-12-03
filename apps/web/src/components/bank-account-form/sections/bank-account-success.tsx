@@ -38,27 +38,18 @@ export default function BankAccountSuccess({
   return (
     <div className={css.root}>
       <CheckCircleIcon className={css.icon} height="48" width="48" />
-      {release.type === PackType.Auction && (
+      {release.type === PackType.Auction && isActiveAuction && (
         <>
           <Heading className={css.bidPlacedHeading} level={3}>
-            {isActiveAuction
-              ? t('common:statuses.Bid placed!')
-              : t('common:statuses.Success!')}
+            {t('common:statuses.Bid placed!')}
           </Heading>
           <div className={css.bidPlacedNotice}>
-            {isActiveAuction && (
-              <div className={css.bidPlacedNoticeText}>
-                {t('forms:fields.bid.success', { title: release.title })}
-                {' 🎉'}
-              </div>
-            )}
+            <div className={css.bidPlacedNoticeText}>
+              {t('forms:fields.bid.success', { title: release.title })}
+              {' 🎉'}
+            </div>
           </div>
         </>
-      )}
-      {release.type === PackType.Purchase && (
-        <Heading className={css.successHeading} level={3}>
-          {t('common:statuses.Success!')}
-        </Heading>
       )}
       {bankAccountInstructions && (
         <div className={css.bankInstructions}>
