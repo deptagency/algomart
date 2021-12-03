@@ -404,8 +404,6 @@ export function usePaymentProvider({
           throw new Error('Bank account process failed')
         }
 
-        // @TODO: Handle minting asset
-
         // Retrieve instructions for new bank account
         const bankAccountInstructions =
           await checkoutService.getBankAccountInstructions(
