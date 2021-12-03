@@ -5,7 +5,6 @@ export default function Checkbox({
   checked,
   className,
   disabled,
-  id,
   label,
   readOnly,
   ...props
@@ -14,7 +13,7 @@ export default function Checkbox({
   HTMLInputElement
 > & { label: string }) {
   return (
-    <>
+    <label className="pl-2">
       <input
         type="checkbox"
         className={clsx(
@@ -26,15 +25,10 @@ export default function Checkbox({
         )}
         checked={checked}
         disabled={disabled}
-        id={id}
         readOnly={readOnly}
         {...props}
       />
-      {id && label && (
-        <label className="pl-2" htmlFor={id}>
-          {label}
-        </label>
-      )}
-    </>
+      {label}
+    </label>
   )
 }

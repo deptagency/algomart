@@ -82,7 +82,6 @@ export default function BankAccountForm({
             <input id="bid" name="bid" type="hidden" value={bid as string} />
             <Checkbox
               checked={isConfirmed}
-              id="confirmBid"
               name="confirmBid"
               label={t('forms:fields.bid.confirmation')}
               onChange={() => setIsConfirmed(!isConfirmed)}
