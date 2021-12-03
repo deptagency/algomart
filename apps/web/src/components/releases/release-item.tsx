@@ -15,6 +15,7 @@ export interface ReleaseItemProps {
 }
 
 export default function ReleaseItem({ pack }: ReleaseItemProps) {
+
   const locale = useLocale()
   const { t } = useTranslation()
 
@@ -104,21 +105,23 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
       {/* Metadata for purchasable pack */}
       {pack.type === PackType.Purchase && (
         // Purchase Data
-        <div className={css.metadata}>
-          <div>
-            <div className={css.metadataLabel}>{t('release:Mint Cost')}</div>
-            <div className={css.metadataValue}>
-              {formatCurrency(pack.price, locale)}
+        <div>
+          <div className={clsx(css.metadata, css.full)}>
+            <div>
+              <div className={css.metadataLabel}>{pack.title}</div>
+              <div className={css.metadataValue}>
+                {formatCurrency(pack.price, locale)}
+              </div>
             </div>
           </div>
-          <div>
-            <div className={css.metadataLabel}>{t('release:Remaining')}</div>
-            <div className={css.metadataValue}>
-              {t('release:N of N', {
-                available: pack.available,
-                total: pack.total,
-              })}
-            </div>
+          <div className="text-right mt-4">
+              <span className="font-poppins text-sm text-gray-50">
+                {t('release:N of N', {
+                  available: pack.available,
+                  total: pack.total,
+                })}
+                {t('release:Remaining')}
+              </span>
           </div>
         </div>
       )}
@@ -128,7 +131,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
         <div className={clsx(css.metadata, css.full)}>
           <div>
             <div className={css.metadataLabel}>
-              {t('common:actions.Claim My Edition')}
+              {pack.title}
             </div>
             <div className={css.metadataValue}>{t('common:statuses.Free')}</div>
           </div>
@@ -140,7 +143,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
         <div className={clsx(css.metadata, css.full)}>
           <div>
             <div className={css.metadataLabel}>
-              {t('common:actions.Claim My Edition')}
+              {pack.title}
             </div>
             <div className={css.metadataValue}>
               {t('common:statuses.Redeemable')}
