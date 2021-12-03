@@ -11,15 +11,12 @@ import Heading from '@/components/heading'
 import { isAfterNow } from '@/utils/date-time'
 import { urls } from '@/utils/urls'
 
-interface PurchaseSuccessProps {
+interface CardSuccessProps {
   packId: string
   release: PublishedPack
 }
 
-export default function PurchaseSuccess({
-  packId,
-  release,
-}: PurchaseSuccessProps) {
+export default function CardSuccess({ packId, release }: CardSuccessProps) {
   const { push } = useRouter()
   const { t } = useTranslation()
 

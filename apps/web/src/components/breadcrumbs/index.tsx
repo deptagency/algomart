@@ -8,7 +8,11 @@ import AppLink from '@/components/app-link/app-link'
 import { isRootPathMatch } from '@/utils/urls'
 
 export interface BreadcrumbsProps {
-  breadcrumbs: { label: string; href: string }[]
+  breadcrumbs: {
+    label: string
+    href?: string
+    handleClick?: () => void
+  }[]
 }
 
 export default function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
@@ -17,8 +21,10 @@ export default function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
   return (
     <nav className={css.navigation}>
       <ol className={css.breadcrumbs}>
-        {breadcrumbs.map(({ label, href }, index) => {
-          const isCurrentNavItem = isRootPathMatch(pathname, href)
+        {breadcrumbs.map(({ label, href, handleClick }, index) => {
+          const isCurrentNavItem = href
+            ? isRootPathMatch(pathname, href)
+            : false
           return (
             <li className={css.breadcrumb} key={href}>
               <AppLink
@@ -26,7 +32,7 @@ export default function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
                   [css.navLinkActive]: isCurrentNavItem,
                 })}
                 href={href}
-                key={href}
+                onClick={handleClick}
               >
                 {label}
               </AppLink>

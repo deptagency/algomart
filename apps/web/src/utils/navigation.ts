@@ -28,7 +28,7 @@ export const getLegalNavItems = (t: Translate) => [
 
 export const getPaymentNavItems = (t: Translate) => [
   {
-    href: urls.checkoutMethods,
+    href: urls.checkout,
     label: t('common:nav.payment.Payment Methods'),
   },
   {

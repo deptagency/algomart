@@ -6,15 +6,15 @@ import css from './card-error.module.css'
 import Button from '@/components/button'
 import Heading from '@/components/heading'
 
-export interface PurchaseErrorProps {
+export interface CardPurchaseErrorProps {
   error?: string
   handleRetry: () => void
 }
 
-export default function PurchaseError({
+export default function CardPurchaseError({
   error,
   handleRetry,
-}: PurchaseErrorProps) {
+}: CardPurchaseErrorProps) {
   const { t } = useTranslation()
 
   return (

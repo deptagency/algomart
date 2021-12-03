@@ -119,6 +119,7 @@
   },
   "sections": {
     "Billing Address": "Billing Address",
-    "Credit Card": "Credit Card"
+    "Credit Card": "Credit Card",
+    "Summary": "Summary"
   }
 }

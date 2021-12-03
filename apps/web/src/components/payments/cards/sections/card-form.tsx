@@ -1,7 +1,7 @@
-import { DEFAULT_CURRENCY, PackType, PublishedPack } from '@algomart/schemas'
+import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
-import { FormEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ExtractError } from 'validator-fns'
 
 import css from './card-form.module.css'
@@ -26,7 +26,7 @@ import {
 } from '@/utils/purchase-validation'
 import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
 
-export interface PurchaseFormProps {
+export interface CardPurchaseFormProps {
   formErrors?: ExtractError<
     ReturnType<
       | typeof validateBidsForm
@@ -34,31 +34,29 @@ export interface PurchaseFormProps {
       | typeof validateExpirationDate
     >
   >
+  bid: string | null
+  className: string
   currentBid: number | null
-  onSubmit(event: FormEvent<HTMLFormElement>): void
-  release: PublishedPack
+  isAuctionActive: boolean
+  setBid: (bid: string | null) => void
 }
 
-export default function PurchaseForm({
-  formErrors,
+export default function CardPurchaseForm({
+  bid,
+  className,
   currentBid,
-  onSubmit,
-  release,
-}: PurchaseFormProps) {
+  formErrors,
+  isAuctionActive,
+  setBid,
+}: CardPurchaseFormProps) {
   const locale = useLocale()
   const { t, lang } = useTranslation()
 
   const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
-
-  const [bid, setBid] = useState<string | null>(initialBid)
   const [savedCard, setSavedCard] = useState<SelectOption | null>(null)
   const [saveCard, setSaveCard] = useState<boolean>(false)
   const [defaultCard, setDefaultCard] = useState<boolean>(false)
   const [options, setOptions] = useState<Record<'id' | 'label', string>[]>([])
-  const price = release.type === PackType.Auction ? bid : release.price
-  const isAuctionActive =
-    release.type === PackType.Auction &&
-    isAfterNow(new Date(release.auctionUntil as string))
 
   useEffect(() => {
     const run = async () => {
@@ -109,7 +107,7 @@ export default function PurchaseForm({
   }
 
   return (
-    <form className={css.form} onSubmit={onSubmit}>
+    <div className={className}>
       {formErrors && 'bid' in formErrors && (
         <AlertMessage
           className={css.notification}
@@ -282,19 +280,6 @@ export default function PurchaseForm({
           }}
         />
       )}
-
-      {/* Price */}
-      <div className={css.priceContainer}>
-        <p className={css.priceLabel}>{t('release:Total')}</p>
-        <p className={css.priceValue}>{formatCurrency(price, lang)}</p>
-      </div>
-
-      {/* Submit */}
-      <Button disabled={!release} fullWidth type="submit" variant="primary">
-        {isAuctionActive
-          ? t('common:actions.Place Bid')
-          : t('common:actions.Purchase')}
-      </Button>
-    </form>
+    </div>
   )
 }

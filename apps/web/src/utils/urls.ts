@@ -17,7 +17,6 @@ export const urls = {
   releases: '/releases',
   release: '/releases/:packSlug',
   checkout: '/checkout',
-  checkoutMethods: '/checkout/methods',
   checkoutInformation: '/checkout/information',
   checkoutSummary: '/checkout/summary',
 

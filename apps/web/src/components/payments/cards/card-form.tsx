@@ -1,11 +1,13 @@
 import { PackType, PublishedPack } from '@algomart/schemas'
+import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useState } from 'react'
 
-import PurchaseError from './sections/card-error'
-import PurchaseForm from './sections/card-form'
-import PurchaseHeader from './sections/card-header'
-import PurchaseSuccess from './sections/card-success'
+import CardPurchaseError from './sections/card-error'
+import CardPurchaseForm from './sections/card-form'
+import CardPurchaseHeader from './sections/card-header'
+import CardPurchaseSuccess from './sections/card-success'
+import CardPurchaseSummary from './sections/card-summary'
 
 import css from './card-form.module.css'
 
@@ -13,21 +15,28 @@ import Loading from '@/components/loading/loading'
 import { usePaymentProvider } from '@/contexts/payment-context'
 import { useWarningOnExit } from '@/hooks/use-warning-on-exit'
 import { isAfterNow } from '@/utils/date-time'
+import { formatIntToFloat } from '@/utils/format-currency'
 
-export interface PurchaseNFTFormProps {
+export interface CardPurchaseFormProps {
   auctionPackId: string | null
   currentBid: number | null
   release: PublishedPack
 }
 
-export default function PurchaseNFTForm({
+export default function CardForm({
   auctionPackId,
   currentBid,
   release,
-}: PurchaseNFTFormProps) {
+}: CardPurchaseFormProps) {
   const { t } = useTranslation()
+  const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
+  const [bid, setBid] = useState<string | null>(initialBid)
   const [promptLeaving, setPromptLeaving] = useState(false)
-
+  const price =
+    release.type === PackType.Auction ? bid : formatIntToFloat(release.price)
+  const isAuctionActive =
+    release.type === PackType.Auction &&
+    isAfterNow(new Date(release.auctionUntil as string))
   useWarningOnExit(promptLeaving, t('common:statuses.processingPayment'))
 
   const {
@@ -64,27 +73,42 @@ export default function PurchaseNFTForm({
 
   return (
     <section className={css.root}>
-      <PurchaseHeader release={release} />
+      <CardPurchaseHeader release={release} />
 
-      <div className={status === 'form' ? 'w-full' : 'hidden'}>
-        <PurchaseForm
-          formErrors={formErrors}
+      <form
+        className={clsx(
+          css.form,
+          status === 'form' || status === 'summary' ? 'w-full' : 'hidden'
+        )}
+        onSubmit={handleSubmitPurchase}
+      >
+        <CardPurchaseForm
+          bid={bid}
+          className={status === 'form' ? 'w-full' : 'hidden'}
           currentBid={currentBid}
-          onSubmit={handleSubmitPurchase}
-          release={release}
+          formErrors={formErrors}
+          isAuctionActive={isAuctionActive}
+          setBid={setBid}
         />
-      </div>
+        {status === 'summary' && (
+          <CardPurchaseSummary
+            isAuctionActive={isAuctionActive}
+            price={price}
+            release={release}
+          />
+        )}
+      </form>
 
       {status === 'loading' && (
         <Loading loadingText={loadingText} variant="primary" />
       )}
 
       {status === 'success' && packId && (
-        <PurchaseSuccess release={release} packId={packId} />
+        <CardPurchaseSuccess release={release} packId={packId} />
       )}
 
       {status === 'error' && (
-        <PurchaseError
+        <CardPurchaseError
           error={t('forms:errors.failedPayment')}
           handleRetry={handleRetry}
         />

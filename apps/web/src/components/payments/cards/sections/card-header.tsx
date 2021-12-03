@@ -5,11 +5,13 @@ import css from './card-header.module.css'
 
 import Heading from '@/components/heading'
 
-export interface PurchaseHeaderProps {
+export interface CardPurchaseHeaderProps {
   release: PublishedPack
 }
 
-export default function PurchaseHeader({ release }: PurchaseHeaderProps) {
+export default function CardPurchaseHeader({
+  release,
+}: CardPurchaseHeaderProps) {
   const size = 110
   const imageURL = `${release.image}?fit=cover&height=${size}&width=${size}&quality=75`
   return (

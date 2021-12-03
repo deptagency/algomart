@@ -1,3 +1,20 @@
 .root {
   @apply flex flex-col h-full items-center justify-start px-8;
 }
+
+.form {
+  @apply w-full;
+}
+
+.form h2 {
+  @apply pb-4 mb-8 font-bold border-b border-base-gray-border;
+}
+
+.form input,
+.form [data-input='select'] {
+  @apply mb-6;
+}
+
+.form label {
+  @apply text-sm font-bold;
+}
