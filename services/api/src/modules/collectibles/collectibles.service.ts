@@ -423,8 +423,8 @@ export default class CollectiblesService {
 
     const filter: ItemFilter = {}
     if (templateIds.length > 0) filter.id = { _in: templateIds }
-    if (setId) filter.set = { id: setId }
-    if (collectionId) filter.collection = { id: collectionId }
+    if (setId) filter.set = { id: { _eq: setId } }
+    if (collectionId) filter.collection = { id: { _eq: collectionId } }
 
     const { collectibles: templates } = await this.cms.findAllCollectibles(
       locale,
