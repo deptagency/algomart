@@ -18,9 +18,9 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.dropTable('PaymentBankAccount')
   await knex.schema.alterTable('Payment', (table) => {
     table.dropColumn('paymentBankId')
     table.uuid('externalId').notNullable().alter()
   })
+  await knex.schema.dropTable('PaymentBankAccount')
 }
