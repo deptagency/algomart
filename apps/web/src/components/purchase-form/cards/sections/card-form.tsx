@@ -37,6 +37,7 @@ export interface CardPurchaseFormProps {
   bid: string | null
   className: string
   currentBid: number | null
+  handleContinue: () => void
   isAuctionActive: boolean
   setBid: (bid: string | null) => void
 }
@@ -46,6 +47,7 @@ export default function CardPurchaseForm({
   className,
   currentBid,
   formErrors,
+  handleContinue,
   isAuctionActive,
   setBid,
 }: CardPurchaseFormProps) {
@@ -276,6 +278,16 @@ export default function CardPurchaseForm({
           }}
         />
       )}
+
+      {/* Submit */}
+      <Button
+        fullWidth
+        type="button"
+        variant="primary"
+        onClick={handleContinue}
+      >
+        {t('common:actions.Continue to Summary')}
+      </Button>
     </div>
   )
 }

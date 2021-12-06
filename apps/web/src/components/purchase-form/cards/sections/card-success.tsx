@@ -32,7 +32,7 @@ export default function CardSuccess({ packId, release }: CardSuccessProps) {
   }, [packId])
 
   return (
-    <div className={css.root}>
+    <div className={css.successRoot}>
       <CheckCircleIcon className={css.icon} height="48" width="48" />
       {release.type === PackType.Auction && (
         <>

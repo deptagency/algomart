@@ -29,7 +29,6 @@ export default function Checkout(props: CheckoutPageProps) {
   const { t } = useTranslation()
   const { auctionPackId, currentBid, release } = props
   console.log('props:', props)
-
   useEffect(() => {
     Analytics.instance.beginCheckout({
       itemName: release.title,

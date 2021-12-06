@@ -2,9 +2,11 @@
 }
 
 .breadcrumbs {
+  @apply flex justify-between flex-wrap mb-16;
 }
 
 .breadcrumb {
+  @apply flex gap-1;
 }
 
 .navLink {
@@ -13,4 +15,12 @@
 
 .navLink.navLinkActive {
   @apply font-bold text-base-gray-dark;
+}
+
+.navLink.navLinkDisabled {
+  @apply opacity-60;
+}
+
+.icon {
+  @apply w-5;
 }

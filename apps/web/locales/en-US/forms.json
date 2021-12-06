@@ -87,6 +87,20 @@
       "helpText": "For approving transactions",
       "warning": "Write down your passphrase!"
     },
+    "paymentMethods": {
+      "label": "Payment Method",
+      "helpText": "Select Payment Method",
+      "options": {
+        "card": {
+          "label": "Credit Card",
+          "helpText": "Accepted for winning bids up to $3,000"
+        },
+        "wire": {
+          "label": "Bank Wire Transfer",
+          "helpText": "Accepted for all winning bids"
+        }
+      }
+    },
     "price": {
       "label": "Price"
     },

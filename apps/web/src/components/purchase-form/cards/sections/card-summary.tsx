@@ -1,8 +1,7 @@
 import { PublishedPack } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
-import { FormEvent } from 'react'
 
-import css from './card-success.module.css'
+import css from './card-summary.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
@@ -23,13 +22,13 @@ export default function CardSummary({
   return (
     <div className={css.root}>
       <Heading level={1}>{t('forms:sections.Summary')}</Heading>
-      <table>
+      <table className={css.paymentGrid}>
         <tr>
-          <th>{t('forms:sections.Summary')}</th>
+          <th scope="row">{t('forms:fields.paymentMethods.label')}</th>
           <td>{t('forms:sections.Credit Card')}</td>
         </tr>
         <tr>
-          <th>{release.title}</th>
+          <th scope="row">{release.title}</th>
           <td>{formatCurrency(price, lang)}</td>
         </tr>
       </table>

@@ -2,6 +2,8 @@ import { ReactNode } from 'react'
 
 import Card from './card'
 
+import Heading from '@/components/heading'
+
 export interface CardProps {
   cards: {
     handleClick: () => void
@@ -10,21 +12,29 @@ export interface CardProps {
     method: string
     title: string
   }[]
+  header: string
 }
 
-export default function Cards({ cards }: CardProps) {
+export default function Cards({ cards, header }: CardProps) {
   return (
-    <ul>
-      {cards.map(({ handleClick, helpText, icon, method, title }) => (
-        <li key={method}>
-          <Card
-            handleClick={handleClick}
-            helpText={helpText}
-            icon={icon}
-            title={title}
-          />
-        </li>
-      ))}
-    </ul>
+    <>
+      {header && (
+        <Heading className="mb-10" level={1}>
+          {header}
+        </Heading>
+      )}
+      <ul>
+        {cards.map(({ handleClick, helpText, icon, method, title }) => (
+          <li key={method}>
+            <Card
+              handleClick={handleClick}
+              helpText={helpText}
+              icon={icon}
+              title={title}
+            />
+          </li>
+        ))}
+      </ul>
+    </>
   )
 }

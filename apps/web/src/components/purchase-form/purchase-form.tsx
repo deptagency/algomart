@@ -1,10 +1,10 @@
-import { CheckoutMethods, PublishedPack } from '@algomart/schemas'
-import { ChevronRightIcon } from '@heroicons/react/outline'
+import { PublishedPack } from '@algomart/schemas'
+import { CreditCardIcon, LibraryIcon } from '@heroicons/react/outline'
 import { Translate } from 'next-translate'
 import useTranslation from 'next-translate/useTranslation'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
-import css from './card-form.module.css'
+import css from './purchase-form.module.css'
 
 import Breadcrumbs from '@/components/breadcrumbs'
 import Cards from '@/components/cards'
@@ -23,14 +23,15 @@ export default function PurchaseForm({
   release,
 }: PurchaseFormProps) {
   const { t } = useTranslation()
-  const [method, setMethod] = useState<CheckoutMethods | null>(null)
 
   const {
     formErrors,
     handleSubmitBid: onSubmitBid,
     handleSubmitPurchase: onSubmitPurchase,
     loadingText,
+    method,
     packId,
+    setMethod,
     setStatus,
     status,
   } = usePaymentProvider({
@@ -38,6 +39,39 @@ export default function PurchaseForm({
     currentBid,
     release,
   })
+  console.log('status:', status)
+
+  const getPaymentNavItems = useCallback(
+    (t: Translate) => [
+      {
+        label: t('common:nav.payment.Payment Methods'),
+        isActive: false,
+        isDisabled: false,
+        handleClick: () => {
+          setStatus('form')
+          setMethod(null)
+        },
+      },
+      {
+        label: t('common:nav.payment.Payment Information'),
+        isActive: status === 'form',
+        isDisabled: !method,
+        handleClick: () => setStatus('form'),
+      },
+      {
+        label: t('common:nav.payment.Summary'),
+        isActive: status === 'summary',
+        isDisabled: status !== 'summary',
+        handleClick: () => setStatus('summary'),
+      },
+    ],
+    [status, method, setStatus, setMethod]
+  )
+
+  const handleGetPaymentNavItems = useMemo(
+    () => getPaymentNavItems(t),
+    [getPaymentNavItems, t, status]
+  )
 
   const handleRetry = useCallback(() => {
     setStatus('form')
@@ -46,42 +80,56 @@ export default function PurchaseForm({
   const getCardList = (t: Translate) => [
     {
       handleClick: () => setMethod('card'),
-      helpText: t('common:nav.social.Instagram'),
-      icon: <ChevronRightIcon />,
+      helpText: t('forms:fields.paymentMethods.options.card.helpText'),
+      icon: <CreditCardIcon className={css.icon} />,
       method: 'card',
-      title: t('common:nav.social.Instagram'),
+      title: t('forms:fields.paymentMethods.options.card.label'),
     },
     {
       handleClick: () => setMethod('wire'),
-      helpText: t('common:nav.social.Instagram'),
-      icon: <ChevronRightIcon />,
+      helpText: t('forms:fields.paymentMethods.options.wire.helpText'),
+      icon: <LibraryIcon className={css.icon} />,
       method: 'wire',
-      title: t('common:nav.social.Instagram'),
+      title: t('forms:fields.paymentMethods.options.wire.label'),
     },
   ]
 
-  const getPaymentNavItems = (t: Translate) => [
-    {
-      label: t('common:nav.payment.Payment Methods'),
-      handleClick: () => {
-        setStatus('form')
-        setMethod(null)
-      },
-    },
-    {
-      label: t('common:nav.payment.Payment Information'),
-      handleClick: () => setStatus('form'),
-    },
-    {
-      label: t('common:nav.payment.Summary'),
-      handleClick: () => setStatus('summary'),
-    },
-  ]
+  // const getPaymentNavItems = (t: Translate) => [
+  //   {
+  //     label: t('common:nav.payment.Payment Methods'),
+  //     isActive: false,
+  //     isDisabled: false,
+  //     handleClick: () => {
+  //       setStatus('form')
+  //       setMethod(null)
+  //     },
+  //   },
+  //   {
+  //     label: t('common:nav.payment.Payment Information'),
+  //     isActive: status === 'form',
+  //     isDisabled: !method,
+  //     handleClick: () => setStatus('form'),
+  //   },
+  //   {
+  //     label: t('common:nav.payment.Summary'),
+  //     isActive: status === 'summary',
+  //     isDisabled: status !== 'summary',
+  //     handleClick: () => setStatus('summary'),
+  //   },
+  // ]
 
   return (
     <section className={css.root}>
-      {!method && <Cards cards={getCardList(t)} />}
-      {method && <Breadcrumbs breadcrumbs={getPaymentNavItems(t)} />}
+      {/* Select method */}
+      {method ? (
+        <Breadcrumbs breadcrumbs={getPaymentNavItems(t)} />
+      ) : (
+        <Cards
+          header={t('forms:fields.paymentMethods.helpText')}
+          cards={getCardList(t)}
+        />
+      )}
+      {/* Credit cards */}
       {method === 'card' && (
         <CardForm
           auctionPackId={packId}

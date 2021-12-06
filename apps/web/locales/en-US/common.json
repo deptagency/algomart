@@ -19,6 +19,7 @@
     "Click to Remove": "Click to Remove",
     "Close": "Close",
     "Confirm Purchase": "Confirm Purchase",
+    "Continue to Summary": "Continue to Summary",
     "Remove Payment Method?": "Remove Payment Method?",
     "Copy": "Copy",
     "Create Asset": "Create Asset",
@@ -139,7 +140,7 @@
     },
     "payment": {
       "Payment Methods": "Payment Methods",
-      "Add Payment Method": "Payment Information",
+      "Payment Information": "Payment Information",
       "Summary": "Summary"
     }
   },

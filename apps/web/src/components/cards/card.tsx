@@ -19,10 +19,12 @@ export default function Card({
 }: CardProps) {
   return (
     <section className={css.root}>
-      <button onClick={handleClick}>
+      <button onClick={handleClick} className={css.button}>
         {icon}
-        <Heading level={2}>{title}</Heading>
-        <p>{helpText}</p>
+        <div>
+          <Heading level={2}>{title}</Heading>
+          <p>{helpText}</p>
+        </div>
       </button>
     </section>
   )

@@ -68,7 +68,7 @@ export default function CardForm({
   )
 
   const handleRetry = useCallback(() => {
-    setStatus('form')
+    // setStatus('form')
   }, [setStatus])
 
   return (
@@ -89,6 +89,11 @@ export default function CardForm({
           formErrors={formErrors}
           isAuctionActive={isAuctionActive}
           setBid={setBid}
+          handleContinue={() => {
+            console.log('status testing 123')
+            setStatus('summary')
+            console.log('status 123:', status)
+          }}
         />
         {status === 'summary' && (
           <CardPurchaseSummary

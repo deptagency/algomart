@@ -1,2 +1,15 @@
 .root {
+  @apply border-gray-200 border flex items-center p-5 w-full mb-5;
+}
+
+.button {
+  @apply flex text-left gap-5;
+}
+
+.button svg {
+  @apply w-14;
+}
+
+.button h2 {
+  @apply pb-2;
 }

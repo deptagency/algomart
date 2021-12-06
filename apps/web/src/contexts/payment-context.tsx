@@ -1,4 +1,5 @@
 import {
+  CheckoutMethods,
   CheckoutStatus,
   GetPaymentCardStatus,
   Payment,
@@ -50,7 +51,9 @@ interface PaymentContextProps {
   handleSubmitBid(data: FormData): void
   handleSubmitPurchase(data: FormData, isPurchase: boolean): void
   loadingText: string
+  method: CheckoutMethods | null
   packId: string | null
+  setMethod: (method: CheckoutMethods | null) => void
   setStatus: (status: CheckoutStatus) => void
   status: CheckoutStatus
 }
@@ -73,6 +76,7 @@ export function usePaymentProvider({
   const [packId, setPackId] = useState<string | null>(auctionPackId || null)
   const [status, setStatus] = useState<CheckoutStatus>('form')
   const [loadingText, setLoadingText] = useState<string>('')
+  const [method, setMethod] = useState<CheckoutMethods | null>(null)
   const highestBid = currentBid || 0
   const validateFormForPurchase = useMemo(() => validatePurchaseForm(t), [t])
   const validateFormForPurchaseWithSavedCard = useMemo(
@@ -463,7 +467,10 @@ export function usePaymentProvider({
       handleSubmitBid,
       handleSubmitPurchase,
       loadingText,
+      method,
       packId,
+      release,
+      setMethod,
       setStatus,
       status,
     }),
@@ -472,7 +479,10 @@ export function usePaymentProvider({
       handleSubmitBid,
       handleSubmitPurchase,
       loadingText,
+      method,
       packId,
+      release,
+      setMethod,
       setStatus,
       status,
     ]

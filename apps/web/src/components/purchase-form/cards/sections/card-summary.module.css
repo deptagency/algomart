@@ -1,2 +1,22 @@
 .root {
 }
+
+.root h1 {
+  @apply border-b border-gray-200 pb-10;
+}
+
+.paymentGrid {
+  @apply mb-10 w-full;
+}
+
+.paymentGrid tr {
+  @apply grid grid-cols-2 border-b border-gray-200 py-5;
+}
+
+.paymentGrid tr th {
+  @apply font-medium text-left;
+}
+
+.paymentGrid tr td {
+  @apply font-bold text-right;
+}
