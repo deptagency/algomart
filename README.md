@@ -117,7 +117,7 @@ in the `docker-compose.yml` file.
 The CMS key needs to be added to the admin user created by Directus.
 Otherwise, the API cannot authenticate even though its CMS key matches.
 
-- Visit http://localhost:8085
+- Visit http://localhost:8055
 - Authenticate with the CMS admin email & password
 - Go to the [user directory](http://localhost:8085/admin/users)
 - Click the admin user and enter the CMS key into the "Token" field
