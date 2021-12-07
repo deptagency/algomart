@@ -10,6 +10,11 @@ import {
   SortDirection,
 } from './shared'
 
+export enum IPFSStatus {
+  Pending = 'pending',
+  Stored = 'stored',
+}
+
 export const CollectibleSchema = Type.Intersect([
   BaseSchema,
   Type.Object({

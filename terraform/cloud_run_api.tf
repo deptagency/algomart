@@ -125,8 +125,13 @@ resource "google_cloud_run_service" "api" {
         }
 
         env {
-          name  = "NFT_STORAGE_KEY"
-          value = var.nft_storage_key
+          name  = "PINATA_API_KEY"
+          value = var.pinata_api_key
+        }
+
+        env {
+          name  = "PINATA_API_SECRET"
+          value = var.pinata_api_secret
         }
 
         env {

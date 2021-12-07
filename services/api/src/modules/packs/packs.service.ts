@@ -7,6 +7,7 @@ import {
   DEFAULT_LOCALE,
   EventAction,
   EventEntityType,
+  IPFSStatus,
   LocaleAndExternalId,
   MintPack,
   MintPackStatus,
@@ -871,6 +872,7 @@ export default class PacksService {
     const unassignedCollectibles = await CollectibleModel.query(trx)
       .whereIn('templateId', collectibleTemplateIds)
       .whereNull('packId')
+      .where('ipfsStatus', IPFSStatus.Stored)
 
     if (unassignedCollectibles.length !== totalCollectibles) {
       this.logger.warn(

@@ -168,7 +168,12 @@ variable "circle_url" {
   sensitive = true
 }
 
-variable "nft_storage_key" {
+variable "pinata_api_key" {
+  sensitive = true
+  default   = ""
+}
+
+variable "pinata_api_secret" {
   sensitive = true
   default   = ""
 }

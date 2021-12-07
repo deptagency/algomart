@@ -103,7 +103,14 @@ export function configureResolver() {
         url: Configuration.cmsUrl,
       })
   )
-  resolver.set(NFTStorageAdapter.name, () => new NFTStorageAdapter())
+  resolver.set(
+    NFTStorageAdapter.name,
+    () =>
+      new NFTStorageAdapter({
+        pinataApiKey: Configuration.pinataApiKey,
+        pinataApiSecret: Configuration.pinataApiSecret,
+      })
+  )
   resolver.set(
     MailerAdapter.name,
     () => new MailerAdapter(Configuration.mailer)

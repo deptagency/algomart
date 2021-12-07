@@ -87,24 +87,20 @@ export const Configuration = {
     return env.get('WEB_URL').default('http://localhost:3000').asUrlString()
   },
 
-  get nftStorageKey() {
-    return env.get('NFT_STORAGE_KEY').required().asString()
+  get pinataApiKey() {
+    return env.get('PINATA_API_KEY').required().asString()
+  },
+
+  get pinataApiSecret() {
+    return env.get('PINATA_API_SECRET').required().asString()
   },
 
   get sendgridApiKey() {
-    return env
-      .get('SENDGRID_API_KEY')
-      .default(
-        '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'
-      )
-      .asString()
+    return env.get('SENDGRID_API_KEY').asString()
   },
 
   get sendgridFromEmail() {
-    return env
-      .get('SENDGRID_FROM_EMAIL')
-      .default('jake@rocketinsights.com')
-      .asString()
+    return env.get('SENDGRID_FROM_EMAIL').asString()
   },
 
   get creatorPassphrase() {

@@ -1,4 +1,4 @@
-import { CollectibleSchema } from '@algomart/schemas'
+import { CollectibleSchema, IPFSStatus } from '@algomart/schemas'
 import { Model } from 'objection'
 
 import { AlgorandTransactionModel } from './algorand-transaction.model'
@@ -21,6 +21,7 @@ export class CollectibleModel extends BaseModel {
   packId!: string | null
   assetMetadataHash!: string
   assetUrl!: string
+  ipfsStatus!: IPFSStatus | null
 
   owner?: UserAccountModel
   creationTransaction?: AlgorandTransactionModel
