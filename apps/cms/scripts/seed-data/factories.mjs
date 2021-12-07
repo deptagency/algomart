@@ -2,6 +2,8 @@ import { Factory } from 'rosie'
 
 import { randColor } from './color.mjs'
 
+const getBrandName = (seq) => `Brand-${'XYZABCDEFGHIJK'[seq]}`
+
 /**
  * Notes:
  * 1. `idx` values don't appear in the DB, they're just iterators for nested properties.
@@ -31,6 +33,7 @@ Factory.define('rarity')
 
 Factory.define('collectible')
   .sequence('idx')
+  .attr('brand', null)
   .attr('status', 'published')
   .attr('total_editions', 5)
   .sequence('unique_code', (seq) => `asset${seq}`)
@@ -84,6 +87,14 @@ Factory.define('pack')
   })
   .attr('pack_image', null)
   .attr('homepage', null)
+
+Factory.define('brand')
+  .sequence('idx')
+  .attr('status', 'published')
+  .sequence('slug', getBrandName)
+  .attr('logo', null)
+  .attr('banner', null)
+  .attr('translations', ['idx'], (idx) => [{ languages_code: 'en-US', name: getBrandName(idx) }])
 
 Factory.define('collection')
   .sequence('idx')
