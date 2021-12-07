@@ -53,7 +53,8 @@
     },
     "bankInstructions": {
       "label": "Bank Wire Instructions",
-      "helpText": "You're not done! Once you submit your payment info, we will share the information you need to bring to your bank to initiate a wire transfer. Once you complete payment below, you will have 7 days to submit payment before your winning bid is canceled.",
+      "helpText": "Below is all of the information you need to initiate a wire transfer. Keep in mind, your bank may use slightly different names for these details. May the odds be ever in your favor.",
+      "notice": "You're not done! Once you submit your payment info, we will share the information you need to bring to your bank to initiate a wire transfer. Once you complete payment below, you will have 7 days to submit payment before your winning bid is canceled.",
       "swiftCode": {
         "label": "Swift Code"
       },
@@ -171,6 +172,7 @@
     "Bank Address": "Bank Address",
     "Billing Address": "Billing Address",
     "Credit Card": "Credit Card",
-    "Summary": "Summary"
+    "Summary": "Summary",
+    "Wire Transfer": "Wire Transfer"
   }
 }

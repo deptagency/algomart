@@ -11,6 +11,7 @@ import CurrencyInput from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
 import BillingAddress from '@/components/purchase-form/sections/billing-address'
 import CardDetails from '@/components/purchase-form/sections/card-details'
+import FullName from '@/components/purchase-form/sections/full-name'
 import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import Toggle from '@/components/toggle/toggle'
@@ -18,15 +19,16 @@ import { FormValidation } from '@/contexts/payment-context'
 import { useLocale } from '@/hooks/use-locale'
 import checkoutService from '@/services/checkout-service'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
-import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
+import { formatCurrency } from '@/utils/format-currency'
 import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
 
 export interface CardPurchaseFormProps {
   bid: string | null
-  className: string
+  className?: string
   formErrors?: FormValidation
   currentBid: number | null
   handleContinue: () => void
+  initialBid?: string
   isAuctionActive: boolean
   setBid: (bid: string | null) => void
 }
@@ -37,13 +39,13 @@ export default function CardPurchaseForm({
   currentBid,
   formErrors,
   handleContinue,
+  initialBid,
   isAuctionActive,
   setBid,
 }: CardPurchaseFormProps) {
   const locale = useLocale()
   const { t, lang } = useTranslation()
 
-  const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
   const [savedCard, setSavedCard] = useState<SelectOption | null>(null)
   const [saveCard, setSaveCard] = useState<boolean>(false)
   const [defaultCard, setDefaultCard] = useState<boolean>(false)
@@ -242,30 +244,40 @@ export default function CardPurchaseForm({
       </div>
 
       {!savedCard && (
-        <BillingAddress
-          formErrors={{
-            address1:
-              formErrors && 'address1' in formErrors
-                ? (formErrors.address1 as string)
-                : '',
-            city:
-              formErrors && 'city' in formErrors
-                ? (formErrors.city as string)
-                : '',
-            state:
-              formErrors && 'state' in formErrors
-                ? (formErrors.state as string)
-                : '',
-            country:
-              formErrors && 'country' in formErrors
-                ? (formErrors.country as string)
-                : '',
-            zipCode:
-              formErrors && 'zipCode' in formErrors
-                ? (formErrors.zipCode as string)
-                : '',
-          }}
-        />
+        <>
+          <FullName
+            formErrors={{
+              fullName:
+                formErrors && 'fullName' in formErrors
+                  ? (formErrors.fullName as string)
+                  : '',
+            }}
+          />
+          <BillingAddress
+            formErrors={{
+              address1:
+                formErrors && 'address1' in formErrors
+                  ? (formErrors.address1 as string)
+                  : '',
+              city:
+                formErrors && 'city' in formErrors
+                  ? (formErrors.city as string)
+                  : '',
+              state:
+                formErrors && 'state' in formErrors
+                  ? (formErrors.state as string)
+                  : '',
+              country:
+                formErrors && 'country' in formErrors
+                  ? (formErrors.country as string)
+                  : '',
+              zipCode:
+                formErrors && 'zipCode' in formErrors
+                  ? (formErrors.zipCode as string)
+                  : '',
+            }}
+          />
+        </>
       )}
 
       {/* Submit */}

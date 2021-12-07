@@ -17,23 +17,27 @@ import { isAfterNow } from '@/utils/date-time'
 import { formatIntToFloat } from '@/utils/format-currency'
 
 export default function BankAccountPurchaseForm({
+  bid,
   currentBid,
   formErrors,
   handleSubmitBid: onSubmitBid,
   handleAddBankAccount: onSubmitBankAccount,
+  initialBid,
   loadingText,
   release,
+  setBid,
   setStatus,
   status,
 }: PaymentContextProps) {
   const { t } = useTranslation()
   const [bankAccountInstructions, setBankAccountInstructions] =
     useState<PaymentBankAccountInstructions | null>(null)
-  const price = bankAccountInstructions?.amount
-    ? formatIntToFloat(bankAccountInstructions.amount)
-    : '0'
+  const price =
+    release?.type === PackType.Auction
+      ? bid
+      : formatIntToFloat(release?.price || 0)
   const isAuctionActive =
-    release.type === PackType.Auction &&
+    release?.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))
 
   const handleSubmit = useCallback(
@@ -41,16 +45,16 @@ export default function BankAccountPurchaseForm({
       event.preventDefault()
       const data = new FormData(event.currentTarget)
       if (
-        release.type === PackType.Auction &&
+        release?.type === PackType.Auction &&
         isAfterNow(new Date(release.auctionUntil as string))
       ) {
-        await onSubmitBid(data)
+        await onSubmitBid(data, 'wire')
       } else {
         const bankInstructions = await onSubmitBankAccount(data)
         if (bankInstructions) setBankAccountInstructions(bankInstructions)
       }
     },
-    [release.auctionUntil, release.type, onSubmitBankAccount, onSubmitBid]
+    [release?.auctionUntil, release?.type, onSubmitBankAccount, onSubmitBid]
   )
 
   const handleRetry = useCallback(() => {
@@ -69,11 +73,14 @@ export default function BankAccountPurchaseForm({
         onSubmit={handleSubmit}
       >
         <BankAccountForm
-          formErrors={formErrors}
+          bid={bid}
+          className={status === 'form' ? 'w-full' : 'hidden'}
           currentBid={currentBid}
-          onSubmit={handleSubmit}
-          price={price}
+          formErrors={formErrors}
+          handleContinue={() => setStatus('summary')}
+          initialBid={initialBid}
           release={release}
+          setBid={setBid}
         />
         {status === 'summary' && (
           <BankAccountSummary

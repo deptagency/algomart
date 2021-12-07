@@ -18,7 +18,7 @@ import { urls } from '@/utils/urls'
 
 interface BankAccountSuccessProps {
   bankAccountInstructions: PaymentBankAccountInstructions | null
-  release: PublishedPack
+  release?: PublishedPack
 }
 
 export default function BankAccountSuccess({
@@ -31,17 +31,18 @@ export default function BankAccountSuccess({
     ? formatIntToFloat(bankAccountInstructions.amount)
     : '0'
   const isActiveAuction =
-    release.type === PackType.Auction &&
-    isAfterNow(new Date(release.auctionUntil as string))
+    release?.type === PackType.Auction &&
+    isAfterNow(new Date(release?.auctionUntil as string))
 
   const handleReturnToListing = useCallback(() => {
-    const path = urls.release.replace(':packSlug', release.slug)
-    router.push(path)
-  }, [release.slug, router])
+    if (release?.slug) {
+      router.push(urls.release.replace(':packSlug', release.slug))
+    } else router.push(urls.releases)
+  }, [release?.slug, router])
 
   return (
     <div className={css.root}>
-      {release.type === PackType.Auction && isActiveAuction && (
+      {release?.type === PackType.Auction && isActiveAuction && (
         <>
           <CheckCircleIcon className={css.icon} height="48" width="48" />
           <Heading className={css.bidPlacedHeading} level={3}>
@@ -126,8 +127,8 @@ export default function BankAccountSuccess({
         </div>
       )}
       {/* Price */}
-      {(release.type === PackType.Auction && isActiveAuction) ||
-        (release.type === PackType.Purchase && (
+      {(release?.type === PackType.Auction && isActiveAuction) ||
+        (release?.type === PackType.Purchase && (
           <div className={css.priceContainer}>
             <p className={css.priceLabel}>{t('release:Total')}</p>
             <p className={css.priceValue}>{formatCurrency(price, lang)}</p>

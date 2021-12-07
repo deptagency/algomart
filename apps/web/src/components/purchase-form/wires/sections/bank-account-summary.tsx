@@ -1,4 +1,6 @@
 import { PublishedPack } from '@algomart/schemas'
+import { InformationCircleIcon } from '@heroicons/react/outline'
+import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { useState } from 'react'
 
@@ -12,7 +14,7 @@ import { formatCurrency } from '@/utils/format-currency'
 interface BankAccountSummaryProps {
   isAuctionActive: boolean
   price: string | null
-  release: PublishedPack
+  release?: PublishedPack
 }
 
 export default function BankAccountSummary({
@@ -29,10 +31,20 @@ export default function BankAccountSummary({
         <tbody>
           <tr>
             <th scope="row">{t('forms:fields.paymentMethods.label')}</th>
-            <td>{t('forms:sections.Credit Card')}</td>
+            <td>{t('forms:sections.Wire Transfer')}</td>
           </tr>
+        </tbody>
+      </table>
+      <div className={css.bankInstructionsNotice}>
+        <div className={css.noticeIconWrapper}>
+          <InformationCircleIcon className={css.noticeIcon} />
+        </div>
+        <p>{t('forms:fields.bankInstructions.notice')}</p>
+      </div>
+      <table className={clsx(css.paymentGrid, css.paymentDetails)}>
+        <tbody>
           <tr>
-            <th scope="row">{release.title}</th>
+            <th scope="row">{release?.title}</th>
             <td>{formatCurrency(price, lang)}</td>
           </tr>
         </tbody>
@@ -45,6 +57,7 @@ export default function BankAccountSummary({
       />
       {/* Submit */}
       <Button
+        className={css.continueButton}
         disabled={!release || (isAuctionActive && !isConfirmed)}
         fullWidth
         type="submit"

@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { ReactNode } from 'react'
 
 import css from './card.module.css'
@@ -23,7 +24,9 @@ export default function Card({
     <section className={css.root}>
       <button
         onClick={handleClick}
-        className={css.button}
+        className={clsx(css.button, {
+          [css.disabled]: isDisabled,
+        })}
         disabled={isDisabled}
       >
         {icon}

@@ -18,6 +18,7 @@ import { isAfterNow } from '@/utils/date-time'
 import { formatIntToFloat } from '@/utils/format-currency'
 
 export default function CardForm({
+  bid,
   currentBid,
   release,
   formErrors,
@@ -25,17 +26,18 @@ export default function CardForm({
   handleSubmitPurchase: onSubmitPurchase,
   loadingText,
   packId,
+  setBid,
   setStatus,
   status,
 }: PaymentContextProps) {
   const { t } = useTranslation()
-  const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
-  const [bid, setBid] = useState<string | null>(initialBid)
   const [promptLeaving, setPromptLeaving] = useState(false)
   const price =
-    release.type === PackType.Auction ? bid : formatIntToFloat(release.price)
+    release?.type === PackType.Auction
+      ? bid
+      : formatIntToFloat(release?.price || 0)
   const isAuctionActive =
-    release.type === PackType.Auction &&
+    release?.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))
   useWarningOnExit(promptLeaving, t('common:statuses.processingPayment'))
 
@@ -44,13 +46,13 @@ export default function CardForm({
       event.preventDefault()
       setPromptLeaving(true)
       const data = new FormData(event.currentTarget)
-      await (release.type === PackType.Auction &&
+      await (release?.type === PackType.Auction &&
       isAfterNow(new Date(release.auctionUntil as string))
-        ? onSubmitBid(data)
+        ? onSubmitBid(data, 'card')
         : onSubmitPurchase(data, true))
       setPromptLeaving(false)
     },
-    [release.auctionUntil, release.type, onSubmitBid, onSubmitPurchase]
+    [release?.auctionUntil, release?.type, onSubmitBid, onSubmitPurchase]
   )
 
   const handleRetry = useCallback(() => {

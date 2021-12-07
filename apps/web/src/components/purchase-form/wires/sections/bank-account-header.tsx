@@ -6,18 +6,18 @@ import css from './bank-account-header.module.css'
 import Heading from '@/components/heading'
 
 export interface BankAccountHeaderProps {
-  release: PublishedPack
+  release?: PublishedPack
 }
 
 export default function BankAccountHeader({ release }: BankAccountHeaderProps) {
   const size = 110
-  const imageURL = `${release.image}?fit=cover&height=124&width=100&quality=75`
+  const imageURL = `${release?.image}?fit=cover&height=124&width=100&quality=75`
   return (
     <>
       <header>
         <div className={css.imageWrapper}>
           <Image
-            alt={release.title}
+            alt={release?.title}
             className={css.image}
             layout="intrinsic"
             src={imageURL}
@@ -27,7 +27,7 @@ export default function BankAccountHeader({ release }: BankAccountHeaderProps) {
         </div>
       </header>
       <Heading level={2} className={css.title}>
-        {release.title}
+        {release?.title}
       </Heading>
     </>
   )

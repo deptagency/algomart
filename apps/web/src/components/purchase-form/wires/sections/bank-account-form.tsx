@@ -1,7 +1,6 @@
 import { DEFAULT_CURRENCY, PackType, PublishedPack } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
-import { useState } from 'react'
 
 import css from './bank-account-form.module.css'
 
@@ -19,34 +18,42 @@ import { isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 
 export interface BankAccountFormProps {
-  formErrors?: FormValidation
+  bid: string | null
+  className?: string
   currentBid: number | null
-  price: string | null
-  release: PublishedPack
+  formErrors?: FormValidation
+  handleContinue: () => void
+  initialBid?: string
+  release?: PublishedPack
+  setBid: (bid: string | null) => void
 }
 
 export default function BankAccountForm({
-  formErrors,
+  bid,
+  className,
   currentBid,
-  price,
+  formErrors,
+  handleContinue,
+  initialBid,
   release,
+  setBid,
 }: BankAccountFormProps) {
   const locale = useLocale()
   const { t, lang } = useTranslation()
-
-  const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
-
-  const [bid, setBid] = useState<string | null>(initialBid)
   const isAuctionActive =
-    release.type === PackType.Auction &&
+    release?.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))
+  const price =
+    release?.type === PackType.Auction
+      ? bid
+      : formatIntToFloat(release?.price || 0)
   const countryOptions = [
     { id: 'CA', label: t('forms:fields.country.values.CA') },
     { id: 'US', label: t('forms:fields.country.values.US') },
   ]
 
   return (
-    <div className={css.form}>
+    <div className={className}>
       {formErrors && 'bid' in formErrors && (
         <AlertMessage
           className={css.notification}
@@ -217,10 +224,13 @@ export default function BankAccountForm({
       </div>
 
       {/* Submit */}
-      <Button disabled={!release} fullWidth type="button">
-        {isAuctionActive
-          ? t('common:actions.Place Bid')
-          : t('common:actions.Save Bank Information')}
+      <Button
+        disabled={!release}
+        fullWidth
+        type="button"
+        onClick={handleContinue}
+      >
+        {t('common:actions.Continue to Summary')}
       </Button>
     </div>
   )

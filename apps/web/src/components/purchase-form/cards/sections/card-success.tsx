@@ -13,7 +13,7 @@ import { urls } from '@/utils/urls'
 
 interface CardSuccessProps {
   packId: string
-  release: PublishedPack
+  release?: PublishedPack
 }
 
 export default function CardSuccess({ packId, release }: CardSuccessProps) {
@@ -21,8 +21,8 @@ export default function CardSuccess({ packId, release }: CardSuccessProps) {
   const { t } = useTranslation()
 
   const isActiveAuction =
-    release.type === PackType.Auction &&
-    isAfterNow(new Date(release.auctionUntil as string))
+    release?.type === PackType.Auction &&
+    isAfterNow(new Date(release?.auctionUntil as string))
 
   const handlePackOpening = useCallback(() => {
     const path = urls.packOpening.replace(':packId', packId)
@@ -34,7 +34,7 @@ export default function CardSuccess({ packId, release }: CardSuccessProps) {
   return (
     <div className={css.successRoot}>
       <CheckCircleIcon className={css.icon} height="48" width="48" />
-      {release.type === PackType.Auction && (
+      {release?.type === PackType.Auction && (
         <>
           <Heading className={css.bidPlacedHeading} level={3}>
             {isActiveAuction
@@ -64,7 +64,7 @@ export default function CardSuccess({ packId, release }: CardSuccessProps) {
           </Button>
         </>
       )}
-      {release.type === PackType.Purchase && (
+      {release?.type === PackType.Purchase && (
         <>
           <Heading className={css.successHeading} level={3}>
             {t('common:statuses.Success!')}

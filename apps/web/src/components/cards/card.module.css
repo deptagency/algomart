@@ -13,3 +13,7 @@
 .button h2 {
   @apply pb-2;
 }
+
+.disabled {
+  @apply opacity-50;
+}

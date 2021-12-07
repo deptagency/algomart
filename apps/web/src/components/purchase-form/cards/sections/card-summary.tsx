@@ -10,7 +10,7 @@ import { formatCurrency } from '@/utils/format-currency'
 interface CardSummaryProps {
   isAuctionActive: boolean
   price: string | null
-  release: PublishedPack
+  release?: PublishedPack
 }
 
 export default function CardSummary({
@@ -29,7 +29,7 @@ export default function CardSummary({
             <td>{t('forms:sections.Credit Card')}</td>
           </tr>
           <tr>
-            <th scope="row">{release.title}</th>
+            <th scope="row">{release?.title}</th>
             <td>{formatCurrency(price, lang)}</td>
           </tr>
         </tbody>

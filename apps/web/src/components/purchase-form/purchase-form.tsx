@@ -1,4 +1,5 @@
 import { CreditCardIcon, LibraryIcon } from '@heroicons/react/outline'
+import { useRouter } from 'next/router'
 import { Translate } from 'next-translate'
 import useTranslation from 'next-translate/useTranslation'
 
@@ -12,17 +13,23 @@ import { PaymentContextProps } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
 import { isGreaterThanOrEqual } from '@/utils/format-currency'
 import { MAX_BID_FOR_CARD_PAYMENT } from '@/utils/purchase-validation'
+import { urls } from '@/utils/urls'
 
 export default function PurchaseForm(paymentProps: PaymentContextProps) {
   const { t } = useTranslation()
+  const router = useRouter()
   const { currentBid, method, release, setMethod, setStatus, status } =
     paymentProps
+
+  if (!release) {
+    router.push(urls.releases)
+  }
 
   const doesRequireWirePayment =
     Environment.isWireEnabled &&
     ((currentBid &&
       isGreaterThanOrEqual(currentBid, MAX_BID_FOR_CARD_PAYMENT)) ||
-      (release.price &&
+      (release?.price &&
         isGreaterThanOrEqual(release.price, MAX_BID_FOR_CARD_PAYMENT)))
 
   const getCardList = (t: Translate) => [
@@ -32,7 +39,7 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
       icon: <CreditCardIcon className={css.icon} />,
       method: 'card',
       title: t('forms:fields.paymentMethods.options.card.label'),
-      isDisabled: doesRequireWirePayment,
+      isDisabled: !!doesRequireWirePayment,
     },
     {
       handleClick: () => setMethod('wire'),
@@ -40,7 +47,7 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
       icon: <LibraryIcon className={css.icon} />,
       method: 'wire',
       title: t('forms:fields.paymentMethods.options.wire.label'),
-      isDisabled: false,
+      isDisabled: !Environment.isWireEnabled,
     },
   ]
 
@@ -82,9 +89,7 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
       {/* Credit cards */}
       {method === 'card' && <CardForm {...paymentProps} />}
       {/* Wire payments */}
-      {method === 'wire' && doesRequireWirePayment && (
-        <BankAccountForm {...paymentProps} />
-      )}
+      {method === 'wire' && <BankAccountForm {...paymentProps} />}
     </section>
   )
 }
