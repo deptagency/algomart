@@ -1,8 +1,4 @@
-import {
-  GetPaymentBankAccountInstructions,
-  PackType,
-  PublishedPack,
-} from '@algomart/schemas'
+import { GetPaymentBankAccountInstructions, PackType } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useState } from 'react'
 
@@ -14,36 +10,22 @@ import BankAccountSuccess from './sections/bank-account-success'
 import css from './bank-account-form.module.css'
 
 import Loading from '@/components/loading/loading'
-import { usePaymentProvider } from '@/contexts/payment-context'
+import { PaymentContextProps } from '@/contexts/payment-context'
 import { isAfterNow } from '@/utils/date-time'
 
-export interface BankAccountFormProps {
-  auctionPackId: string | null
-  currentBid: number | null
-  release: PublishedPack
-}
-
 export default function BankAccountPurchaseForm({
-  auctionPackId,
   currentBid,
+  formErrors,
+  handleSubmitBid: onSubmitBid,
+  handleAddBankAccount: onSubmitBankAccount,
+  loadingText,
   release,
-}: BankAccountFormProps) {
+  setStatus,
+  status,
+}: PaymentContextProps) {
   const { t } = useTranslation()
   const [bankAccountInstructions, setBankAccountInstructions] =
     useState<GetPaymentBankAccountInstructions | null>(null)
-
-  const {
-    formErrors,
-    handleSubmitBid: onSubmitBid,
-    handleAddBankAccount: onSubmitBankAccount,
-    loadingText,
-    setStatus,
-    status,
-  } = usePaymentProvider({
-    auctionPackId,
-    currentBid,
-    release,
-  })
 
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {

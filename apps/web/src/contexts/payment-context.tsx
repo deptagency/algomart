@@ -1,6 +1,7 @@
 import {
   CheckoutMethods,
   CheckoutStatus,
+  GetPaymentBankAccountInstructions,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Payment,
@@ -58,10 +59,13 @@ export type FormValidation = ExtractError<
   >
 >
 
-interface PaymentContextProps {
+export interface PaymentContextProps {
   auctionPackId?: string | null
-  currentBid?: number | null
+  currentBid: number | null
   formErrors?: FormValidation
+  handleAddBankAccount(
+    data: FormData
+  ): Promise<GetPaymentBankAccountInstructions | undefined>
   handleSubmitBid(data: FormData): void
   handleSubmitPurchase(data: FormData, isPurchase: boolean): void
   loadingText: string
@@ -629,7 +633,7 @@ export function usePaymentProvider({
   const value = useMemo(
     () => ({
       auctionPackId,
-      currentBid,
+      currentBid: currentBid || null,
       formErrors,
       handleAddBankAccount,
       handleSubmitBid,
