@@ -10,7 +10,7 @@ import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import { Analytics } from '@/clients/firebase-analytics'
-import { PaymentProvider } from '@/contexts/payment-context'
+import { usePaymentProvider } from '@/contexts/payment-context'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
@@ -25,10 +25,17 @@ export interface CheckoutPageProps {
   release: PublishedPack
 }
 
-export default function Checkout(props: CheckoutPageProps) {
+export default function Checkout({
+  auctionPackId,
+  currentBid,
+  release,
+}: CheckoutPageProps) {
   const { t } = useTranslation()
-  const { auctionPackId, currentBid, release } = props
-  console.log('props:', props)
+  const paymentProps = usePaymentProvider({
+    auctionPackId,
+    currentBid,
+    release,
+  })
 
   useEffect(() => {
     Analytics.instance.beginCheckout({
@@ -38,26 +45,16 @@ export default function Checkout(props: CheckoutPageProps) {
   }, [currentBid, release])
 
   return (
-    <PaymentProvider
-      auctionPackId={auctionPackId}
-      currentBid={currentBid}
-      release={release}
+    <DefaultLayout
+      pageTitle={
+        release.type === PackType.Auction
+          ? t('common:pageTitles.Placing Bid', { name: release.title })
+          : t('common:pageTitles.Checking Out', { name: release.title })
+      }
+      panelPadding
     >
-      <DefaultLayout
-        pageTitle={
-          release.type === PackType.Auction
-            ? t('common:pageTitles.Placing Bid', { name: release.title })
-            : t('common:pageTitles.Checking Out', { name: release.title })
-        }
-        panelPadding
-      >
-        <CheckoutTemplate
-          auctionPackId={auctionPackId}
-          currentBid={currentBid}
-          release={release}
-        />
-      </DefaultLayout>
-    </PaymentProvider>
+      <CheckoutTemplate {...paymentProps} />
+    </DefaultLayout>
   )
 }
 

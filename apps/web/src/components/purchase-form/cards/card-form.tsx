@@ -1,4 +1,4 @@
-import { PackType, PublishedPack } from '@algomart/schemas'
+import { PackType } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useState } from 'react'
@@ -12,22 +12,22 @@ import CardPurchaseSummary from './sections/card-summary'
 import css from './card-form.module.css'
 
 import Loading from '@/components/loading/loading'
-import { usePaymentProvider } from '@/contexts/payment-context'
+import { PaymentContextProps } from '@/contexts/payment-context'
 import { useWarningOnExit } from '@/hooks/use-warning-on-exit'
 import { isAfterNow } from '@/utils/date-time'
 import { formatIntToFloat } from '@/utils/format-currency'
 
-export interface CardPurchaseFormProps {
-  auctionPackId: string | null
-  currentBid: number | null
-  release: PublishedPack
-}
-
 export default function CardForm({
-  auctionPackId,
   currentBid,
   release,
-}: CardPurchaseFormProps) {
+  formErrors,
+  handleSubmitBid: onSubmitBid,
+  handleSubmitPurchase: onSubmitPurchase,
+  loadingText,
+  packId,
+  setStatus,
+  status,
+}: PaymentContextProps) {
   const { t } = useTranslation()
   const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
   const [bid, setBid] = useState<string | null>(initialBid)
@@ -38,20 +38,6 @@ export default function CardForm({
     release.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))
   useWarningOnExit(promptLeaving, t('common:statuses.processingPayment'))
-
-  const {
-    formErrors,
-    handleSubmitBid: onSubmitBid,
-    handleSubmitPurchase: onSubmitPurchase,
-    loadingText,
-    packId,
-    setStatus,
-    status,
-  } = usePaymentProvider({
-    auctionPackId,
-    currentBid,
-    release,
-  })
 
   const handleSubmitPurchase = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -68,7 +54,7 @@ export default function CardForm({
   )
 
   const handleRetry = useCallback(() => {
-    // setStatus('form')
+    setStatus('form')
   }, [setStatus])
 
   return (
@@ -85,15 +71,11 @@ export default function CardForm({
         <CardPurchaseForm
           bid={bid}
           className={status === 'form' ? 'w-full' : 'hidden'}
-          currentBid={currentBid}
+          currentBid={currentBid || null}
           formErrors={formErrors}
           isAuctionActive={isAuctionActive}
           setBid={setBid}
-          handleContinue={() => {
-            console.log('status testing 123')
-            setStatus('summary')
-            console.log('status 123:', status)
-          }}
+          handleContinue={() => setStatus('summary')}
         />
         {status === 'summary' && (
           <CardPurchaseSummary

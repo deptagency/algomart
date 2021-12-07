@@ -1,5 +1,6 @@
 import { ChevronRightIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
+import React from 'react'
 
 import css from './breadcrumbs.module.css'
 
@@ -23,8 +24,8 @@ export default function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
         {breadcrumbs.map(
           ({ isActive, isDisabled, label, handleClick }, index) => {
             return (
-              <>
-                <li className={css.breadcrumb} key={index}>
+              <React.Fragment key={index}>
+                <li className={css.breadcrumb}>
                   <button
                     className={clsx(css.navLink, {
                       [css.navLinkActive]: isActive,
@@ -38,7 +39,7 @@ export default function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
                 {index < breadcrumbs.length - 1 && (
                   <ChevronRightIcon className={css.icon} />
                 )}
-              </>
+              </React.Fragment>
             )
           }
         )}

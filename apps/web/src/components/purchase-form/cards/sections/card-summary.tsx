@@ -23,14 +23,16 @@ export default function CardSummary({
     <div className={css.root}>
       <Heading level={1}>{t('forms:sections.Summary')}</Heading>
       <table className={css.paymentGrid}>
-        <tr>
-          <th scope="row">{t('forms:fields.paymentMethods.label')}</th>
-          <td>{t('forms:sections.Credit Card')}</td>
-        </tr>
-        <tr>
-          <th scope="row">{release.title}</th>
-          <td>{formatCurrency(price, lang)}</td>
-        </tr>
+        <tbody>
+          <tr>
+            <th scope="row">{t('forms:fields.paymentMethods.label')}</th>
+            <td>{t('forms:sections.Credit Card')}</td>
+          </tr>
+          <tr>
+            <th scope="row">{release.title}</th>
+            <td>{formatCurrency(price, lang)}</td>
+          </tr>
+        </tbody>
       </table>
       {/* Submit */}
       <Button disabled={!release} fullWidth type="submit" variant="primary">

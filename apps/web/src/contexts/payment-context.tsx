@@ -37,10 +37,12 @@ import {
 interface PaymentProviderProps {
   auctionPackId?: string | null
   currentBid?: number | null
-  release?: PublishedPack
+  release: PublishedPack
 }
 
-interface PaymentContextProps {
+export interface PaymentContextProps {
+  auctionPackId?: string | null
+  currentBid?: number | null
   formErrors?: ExtractError<
     ReturnType<
       | typeof validateBidsForm
@@ -53,6 +55,7 @@ interface PaymentContextProps {
   loadingText: string
   method: CheckoutMethods | null
   packId: string | null
+  release: PublishedPack
   setMethod: (method: CheckoutMethods | null) => void
   setStatus: (status: CheckoutStatus) => void
   status: CheckoutStatus
@@ -368,6 +371,8 @@ export function usePaymentProvider({
     [
       auctionPackId,
       handleAddCard,
+      setFormErrors,
+      setStatus,
       validateFormForBids,
       validateFormForBidsWithSavedCard,
       t,
@@ -463,6 +468,8 @@ export function usePaymentProvider({
 
   const value = useMemo(
     () => ({
+      auctionPackId,
+      currentBid,
       formErrors,
       handleSubmitBid,
       handleSubmitPurchase,
@@ -475,6 +482,8 @@ export function usePaymentProvider({
       status,
     }),
     [
+      auctionPackId,
+      currentBid,
       formErrors,
       handleSubmitBid,
       handleSubmitPurchase,
