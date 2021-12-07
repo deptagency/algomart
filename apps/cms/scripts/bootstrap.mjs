@@ -42,7 +42,7 @@ async function main(args) {
   if (Number.parseInt(usersCount, 10) < 1) {
     console.log('Creating initial admin user...')
     const adminRoleId = await execCommandAndGetOutput(
-      'npx directus roles create --role Admin --admin'
+      'LOG_LEVEL=warn npx directus roles create --role Admin --admin'
     )
     await execCommandAndGetOutput(
       `npx directus users create --email ${config.email} --password ${config.password} --role ${adminRoleId}`

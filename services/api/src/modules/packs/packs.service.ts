@@ -433,7 +433,7 @@ export default class PacksService {
     invariant(pack.collectibles.length > 0, 'pack has no collectibles')
 
     const packTemplate = await this.cms.findPack(
-      { id: pack.templateId },
+      { id: { _eq: pack.templateId } },
       locale
     )
     invariant(packTemplate, 'pack template missing in cms')
@@ -514,7 +514,10 @@ export default class PacksService {
       return null
     }
 
-    const template = await this.cms.findPack({ id: pack.templateId }, locale)
+    const template = await this.cms.findPack(
+      { id: { _eq: pack.templateId } },
+      locale
+    )
 
     if (!template) {
       throw new Error(`pack template with ID ${pack.templateId} not found`)
@@ -532,7 +535,7 @@ export default class PacksService {
 
     const template = await this.cms.findPack(
       {
-        id: pack.templateId,
+        id: { _eq: pack.templateId },
       },
       locale
     )
@@ -550,7 +553,7 @@ export default class PacksService {
     templateId: string,
     trx?: Transaction
   ): Promise<PackWithId> {
-    const template = await this.cms.findPack({ id: templateId })
+    const template = await this.cms.findPack({ id: { _eq: templateId } })
 
     userInvariant(template, 'pack template not found', 404)
 
@@ -1015,7 +1018,9 @@ export default class PacksService {
       filter: {
         _and: [
           {
-            type: PackType.Auction,
+            type: {
+              _eq: PackType.Auction,
+            },
           },
           // Shouldn't need every historical auction
           {
@@ -1054,7 +1059,11 @@ export default class PacksService {
         )
 
         const packTemplate = await this.cms.findPack(
-          { id: pack.templateId },
+          {
+            id: {
+              _eq: pack.templateId,
+            },
+          },
           pack.activeBid.userAccount.locale
         )
         invariant(packTemplate, 'packTemplate not found')
@@ -1116,7 +1125,7 @@ export default class PacksService {
         )
 
         const packTemplate = await this.cms.findPack(
-          { id: pack.templateId },
+          { id: { _eq: pack.templateId } },
           pack.activeBid.userAccount.locale
         )
         invariant(packTemplate, 'packTemplate not found')
@@ -1191,7 +1200,7 @@ export default class PacksService {
           )
 
           const packTemplate = await this.cms.findPack(
-            { id: pack.templateId },
+            { id: { _eq: pack.templateId } },
             selectedBid.userAccount.locale
           )
           invariant(packTemplate, 'packTemplate not found')
