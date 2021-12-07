@@ -1,10 +1,10 @@
 import {
   CheckoutMethods,
   CheckoutStatus,
-  GetPaymentBankAccountInstructions,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Payment,
+  PaymentBankAccountInstructions,
   PublicKey,
   PublishedPack,
 } from '@algomart/schemas'
@@ -65,7 +65,7 @@ export interface PaymentContextProps {
   formErrors?: FormValidation
   handleAddBankAccount(
     data: FormData
-  ): Promise<GetPaymentBankAccountInstructions | undefined>
+  ): Promise<PaymentBankAccountInstructions | undefined>
   handleSubmitBid(data: FormData): void
   handleSubmitPurchase(data: FormData, isPurchase: boolean): void
   loadingText: string

@@ -1,4 +1,5 @@
-import { GetPaymentBankAccountInstructions, PackType } from '@algomart/schemas'
+import { PackType, PaymentBankAccountInstructions } from '@algomart/schemas'
+import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useState } from 'react'
 
@@ -6,12 +7,14 @@ import BankAccountError from './sections/bank-account-error'
 import BankAccountForm from './sections/bank-account-form'
 import BankAccountHeader from './sections/bank-account-header'
 import BankAccountSuccess from './sections/bank-account-success'
+import BankAccountSummary from './sections/bank-account-summary'
 
 import css from './bank-account-form.module.css'
 
 import Loading from '@/components/loading/loading'
 import { PaymentContextProps } from '@/contexts/payment-context'
 import { isAfterNow } from '@/utils/date-time'
+import { formatIntToFloat } from '@/utils/format-currency'
 
 export default function BankAccountPurchaseForm({
   currentBid,
@@ -25,7 +28,13 @@ export default function BankAccountPurchaseForm({
 }: PaymentContextProps) {
   const { t } = useTranslation()
   const [bankAccountInstructions, setBankAccountInstructions] =
-    useState<GetPaymentBankAccountInstructions | null>(null)
+    useState<PaymentBankAccountInstructions | null>(null)
+  const price = bankAccountInstructions?.amount
+    ? formatIntToFloat(bankAccountInstructions.amount)
+    : '0'
+  const isAuctionActive =
+    release.type === PackType.Auction &&
+    isAfterNow(new Date(release.auctionUntil as string))
 
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -52,14 +61,28 @@ export default function BankAccountPurchaseForm({
     <section className={css.root}>
       <BankAccountHeader release={release} />
 
-      <div className={status === 'form' ? 'w-full' : 'hidden'}>
+      <form
+        className={clsx(
+          css.form,
+          status === 'form' || status === 'summary' ? 'w-full' : 'hidden'
+        )}
+        onSubmit={handleSubmit}
+      >
         <BankAccountForm
           formErrors={formErrors}
           currentBid={currentBid}
           onSubmit={handleSubmit}
+          price={price}
           release={release}
         />
-      </div>
+        {status === 'summary' && (
+          <BankAccountSummary
+            isAuctionActive={isAuctionActive}
+            price={price}
+            release={release}
+          />
+        )}
+      </form>
 
       {status === 'loading' && (
         <Loading loadingText={loadingText} variant="primary" />
@@ -68,7 +91,6 @@ export default function BankAccountPurchaseForm({
       {status === 'success' && (
         <BankAccountSuccess
           bankAccountInstructions={bankAccountInstructions}
-          currentBid={currentBid}
           release={release}
         />
       )}

@@ -53,7 +53,7 @@
     },
     "bankInstructions": {
       "label": "Bank Wire Instructions",
-      "helpText": "Below is all of the information you need to initiate a wire transfer. Keep in mind, your bank may use slightly different names for these details. May the odds be ever in your favor.",
+      "helpText": "You're not done! Once you submit your payment info, we will share the information you need to bring to your bank to initiate a wire transfer. Once you complete payment below, you will have 7 days to submit payment before your winning bid is canceled.",
       "swiftCode": {
         "label": "Swift Code"
       },
@@ -68,7 +68,7 @@
       }
     },
     "bid": {
-      "confirmation": "I promise to pay",
+      "confirmation": "I understand that I need to complete payment within 72 hours or I will forfeit my winning bid.",
       "description": "Your card will be charged immediately on auction close if you place the winning bid.",
       "label": "Your Bid",
       "helpTextCurrentBid": "Current bid is {{amount}}",

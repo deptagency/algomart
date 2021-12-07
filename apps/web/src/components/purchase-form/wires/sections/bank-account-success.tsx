@@ -1,6 +1,6 @@
 import {
-  GetPaymentBankAccountInstructions,
   PackType,
+  PaymentBankAccountInstructions,
   PublishedPack,
 } from '@algomart/schemas'
 import { CheckCircleIcon } from '@heroicons/react/outline'
@@ -17,20 +17,19 @@ import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 import { urls } from '@/utils/urls'
 
 interface BankAccountSuccessProps {
-  bankAccountInstructions: GetPaymentBankAccountInstructions | null
-  currentBid: number | null
+  bankAccountInstructions: PaymentBankAccountInstructions | null
   release: PublishedPack
 }
 
 export default function BankAccountSuccess({
   bankAccountInstructions,
-  currentBid,
   release,
 }: BankAccountSuccessProps) {
   const { t, lang } = useTranslation()
   const router = useRouter()
-  const amount = release.type === PackType.Auction ? currentBid : release.price
-  const price = amount ? formatIntToFloat(amount) : '0'
+  const price = bankAccountInstructions?.amount
+    ? formatIntToFloat(bankAccountInstructions.amount)
+    : '0'
   const isActiveAuction =
     release.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))

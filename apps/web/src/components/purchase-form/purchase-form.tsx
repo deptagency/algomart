@@ -7,16 +7,23 @@ import css from './purchase-form.module.css'
 import Breadcrumbs from '@/components/breadcrumbs'
 import Cards from '@/components/cards'
 import CardForm from '@/components/purchase-form/cards/card-form'
+import BankAccountForm from '@/components/purchase-form/wires/bank-account-form'
 import { PaymentContextProps } from '@/contexts/payment-context'
+import { Environment } from '@/environment'
+import { isGreaterThanOrEqual } from '@/utils/format-currency'
+import { MAX_BID_FOR_CARD_PAYMENT } from '@/utils/purchase-validation'
 
-export default function PurchaseForm({
-  method,
-  setMethod,
-  setStatus,
-  status,
-  ...rest
-}: PaymentContextProps) {
+export default function PurchaseForm(paymentProps: PaymentContextProps) {
   const { t } = useTranslation()
+  const { currentBid, method, release, setMethod, setStatus, status } =
+    paymentProps
+
+  const doesRequireWirePayment =
+    Environment.isWireEnabled &&
+    ((currentBid &&
+      isGreaterThanOrEqual(currentBid, MAX_BID_FOR_CARD_PAYMENT)) ||
+      (release.price &&
+        isGreaterThanOrEqual(release.price, MAX_BID_FOR_CARD_PAYMENT)))
 
   const getCardList = (t: Translate) => [
     {
@@ -25,6 +32,7 @@ export default function PurchaseForm({
       icon: <CreditCardIcon className={css.icon} />,
       method: 'card',
       title: t('forms:fields.paymentMethods.options.card.label'),
+      isDisabled: doesRequireWirePayment,
     },
     {
       handleClick: () => setMethod('wire'),
@@ -32,6 +40,7 @@ export default function PurchaseForm({
       icon: <LibraryIcon className={css.icon} />,
       method: 'wire',
       title: t('forms:fields.paymentMethods.options.wire.label'),
+      isDisabled: false,
     },
   ]
 
@@ -71,14 +80,10 @@ export default function PurchaseForm({
         />
       )}
       {/* Credit cards */}
-      {method === 'card' && (
-        <CardForm
-          method={method}
-          setMethod={setMethod}
-          setStatus={setStatus}
-          status={status}
-          {...rest}
-        />
+      {method === 'card' && <CardForm {...paymentProps} />}
+      {/* Wire payments */}
+      {method === 'wire' && doesRequireWirePayment && (
+        <BankAccountForm {...paymentProps} />
       )}
     </section>
   )

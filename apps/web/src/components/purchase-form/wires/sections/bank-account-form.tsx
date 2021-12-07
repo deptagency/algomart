@@ -1,16 +1,16 @@
 import { DEFAULT_CURRENCY, PackType, PublishedPack } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
-import { FormEvent, useState } from 'react'
+import { useState } from 'react'
 
 import css from './bank-account-form.module.css'
 
 import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
-import BillingAddress from '@/components/card-details/billing-address'
-import Checkbox from '@/components/checkbox'
 import CurrencyInput from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
+import BillingAddress from '@/components/purchase-form/sections/billing-address'
+import FullName from '@/components/purchase-form/sections/full-name'
 import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import { FormValidation } from '@/contexts/payment-context'
@@ -21,14 +21,14 @@ import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 export interface BankAccountFormProps {
   formErrors?: FormValidation
   currentBid: number | null
-  onSubmit(event: FormEvent<HTMLFormElement>): void
+  price: string | null
   release: PublishedPack
 }
 
 export default function BankAccountForm({
   formErrors,
   currentBid,
-  onSubmit,
+  price,
   release,
 }: BankAccountFormProps) {
   const locale = useLocale()
@@ -37,8 +37,6 @@ export default function BankAccountForm({
   const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
 
   const [bid, setBid] = useState<string | null>(initialBid)
-  const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
-  const price = release.type === PackType.Auction ? bid : release.price
   const isAuctionActive =
     release.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))
@@ -48,7 +46,7 @@ export default function BankAccountForm({
   ]
 
   return (
-    <form className={css.form} onSubmit={onSubmit}>
+    <div className={css.form}>
       {formErrors && 'bid' in formErrors && (
         <AlertMessage
           className={css.notification}
@@ -80,12 +78,6 @@ export default function BankAccountForm({
             />
             {/* Force formData to be built from this "unmasked" value */}
             <input id="bid" name="bid" type="hidden" value={bid as string} />
-            <Checkbox
-              checked={isConfirmed}
-              name="confirmBid"
-              label={t('forms:fields.bid.confirmation')}
-              onChange={() => setIsConfirmed(!isConfirmed)}
-            />
           </>
         ) : (
           <>
@@ -113,17 +105,13 @@ export default function BankAccountForm({
               variant="small"
             />
 
-            <TextInput
-              error={
-                formErrors && 'fullName' in formErrors
-                  ? (formErrors.fullName as string)
-                  : ''
-              }
-              helpText={t('forms:fields.fullName.helpText')}
-              label={t('forms:fields.fullName.label')}
-              name="fullName"
-              placeholder="Jane Smith"
-              variant="small"
+            <FullName
+              formErrors={{
+                fullName:
+                  formErrors && 'fullName' in formErrors
+                    ? (formErrors.fullName as string)
+                    : '',
+              }}
             />
 
             <BillingAddress
@@ -229,15 +217,11 @@ export default function BankAccountForm({
       </div>
 
       {/* Submit */}
-      <Button
-        disabled={!release || (isAuctionActive && !isConfirmed)}
-        fullWidth
-        type="submit"
-      >
+      <Button disabled={!release} fullWidth type="button">
         {isAuctionActive
           ? t('common:actions.Place Bid')
           : t('common:actions.Save Bank Information')}
       </Button>
-    </form>
+    </div>
   )
 }

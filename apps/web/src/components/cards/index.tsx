@@ -9,6 +9,7 @@ export interface CardProps {
     handleClick: () => void
     helpText: string
     icon: ReactNode
+    isDisabled: boolean
     method: string
     title: string
   }[]
@@ -24,16 +25,19 @@ export default function Cards({ cards, header }: CardProps) {
         </Heading>
       )}
       <ul>
-        {cards.map(({ handleClick, helpText, icon, method, title }) => (
-          <li key={method}>
-            <Card
-              handleClick={handleClick}
-              helpText={helpText}
-              icon={icon}
-              title={title}
-            />
-          </li>
-        ))}
+        {cards.map(
+          ({ handleClick, helpText, isDisabled, icon, method, title }) => (
+            <li key={method}>
+              <Card
+                handleClick={handleClick}
+                helpText={helpText}
+                isDisabled={isDisabled}
+                icon={icon}
+                title={title}
+              />
+            </li>
+          )
+        )}
       </ul>
     </>
   )

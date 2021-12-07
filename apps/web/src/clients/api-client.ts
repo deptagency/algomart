@@ -16,7 +16,6 @@ import {
   CreateUserAccountRequest,
   DEFAULT_LOCALE,
   ExternalId,
-  GetPaymentBankAccountInstructions,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
@@ -32,6 +31,7 @@ import {
   PackWithCollectibles,
   PackWithId,
   Payment,
+  PaymentBankAccountInstructions,
   PaymentCard,
   PaymentCards,
   PublicAccount,
@@ -212,7 +212,7 @@ export class ApiClient {
   async getBankAddressInstructions(bankAccountId: string) {
     return await this.http
       .get(`payments/bank-accounts/${bankAccountId}/instructions`)
-      .json<GetPaymentBankAccountInstructions>()
+      .json<PaymentBankAccountInstructions>()
   }
 
   async getBankAddressStatus(bankAccountId: string) {

@@ -133,7 +133,10 @@ export default class PaymentsService {
     )
     userInvariant(bankAccount, 'bank account instructions were not found', 404)
 
-    return bankAccount
+    return {
+      ...bankAccount,
+      amount: foundBankAccount.amount,
+    }
   }
 
   async createCard(cardDetails: CreateCard, trx?: Transaction) {
