@@ -88,11 +88,11 @@ export const Configuration = {
   },
 
   get pinataApiKey() {
-    return env.get('PINATA_API_KEY').required().asString()
+    return env.get('PINATA_API_KEY').default('').asString()
   },
 
   get pinataApiSecret() {
-    return env.get('PINATA_API_SECRET').required().asString()
+    return env.get('PINATA_API_SECRET').default('').asString()
   },
 
   get sendgridApiKey() {
