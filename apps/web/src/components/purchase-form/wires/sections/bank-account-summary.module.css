@@ -37,3 +37,7 @@
 .noticeIcon {
   @apply w-8 text-yellow-600;
 }
+
+.root input {
+  @apply mb-0;
+}

@@ -7,7 +7,12 @@
 }
 
 .form h2 {
-  @apply pb-4 mb-8 font-bold border-b border-base-gray-border;
+  @apply pb-4 mt-5 mb-8 font-bold border-b border-base-gray-border;
+}
+
+.form input,
+.form [data-input='select'] {
+  @apply mb-6;
 }
 
 .form label {
