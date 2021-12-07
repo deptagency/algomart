@@ -33,6 +33,7 @@ export const CollectibleSchema = Type.Intersect([
     templateId: Type.String({ format: 'uuid' }),
     assetMetadataHash: Type.Optional(Nullable(Type.String())),
     assetUrl: Type.Optional(Nullable(Type.String())),
+    ipfsStatus: Type.Optional(Nullable(Type.Enum(IPFSStatus))),
   }),
 ])
 

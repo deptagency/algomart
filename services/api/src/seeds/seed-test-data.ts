@@ -4,6 +4,7 @@ import {
   AlgorandTransactionStatus,
   Collectible,
   DEFAULT_LOCALE,
+  IPFSStatus,
   Pack,
   PackCollectibleDistribution,
   PackCollectibleOrder,
@@ -166,8 +167,9 @@ export const collectibleFactory = Factory.define<Collectible>('Collectible')
   .attr('ownerId', null)
   .attr('packId', null)
   .attr('templateId', ['template'], (template) => template.id)
-  .attr('assetMetadataHash', null)
-  .attr('assetUrl', null)
+  .attr('assetMetadataHash', 'abc')
+  .attr('assetUrl', 'abc')
+  .attr('ipfsStatus', IPFSStatus.Stored)
 
 // #endregion
 
