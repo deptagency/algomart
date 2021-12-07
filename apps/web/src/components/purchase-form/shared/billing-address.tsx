@@ -1,11 +1,10 @@
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 
-import Select from '../../select/select'
-
 import css from './card-details.module.css'
 
 import Heading from '@/components/heading'
+import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 
 export interface BillingAddressProps {

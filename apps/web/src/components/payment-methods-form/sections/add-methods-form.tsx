@@ -6,9 +6,9 @@ import css from './add-methods-form.module.css'
 import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
 import Heading from '@/components/heading'
-import BillingAddress from '@/components/purchase-form/sections/billing-address'
-import CardDetails from '@/components/purchase-form/sections/card-details'
-import FullName from '@/components/purchase-form/sections/full-name'
+import BillingAddress from '@/components/purchase-form/shared/billing-address'
+import CardDetails from '@/components/purchase-form/shared/card-details'
+import FullName from '@/components/purchase-form/shared/full-name'
 import { FormValidation } from '@/contexts/payment-context'
 
 export interface AddMethodsFormProps {

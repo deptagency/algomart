@@ -3,8 +3,6 @@ import { useRouter } from 'next/router'
 import { Translate } from 'next-translate'
 import useTranslation from 'next-translate/useTranslation'
 
-import css from './purchase-form.module.css'
-
 import Breadcrumbs from '@/components/breadcrumbs'
 import Cards from '@/components/cards'
 import CardForm from '@/components/purchase-form/cards/card-form'
@@ -36,7 +34,7 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
     {
       handleClick: () => setMethod('card'),
       helpText: t('forms:fields.paymentMethods.options.card.helpText'),
-      icon: <CreditCardIcon className={css.icon} />,
+      icon: <CreditCardIcon />,
       method: 'card',
       title: t('forms:fields.paymentMethods.options.card.label'),
       isDisabled: !!doesRequireWirePayment,
@@ -44,7 +42,7 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
     {
       handleClick: () => setMethod('wire'),
       helpText: t('forms:fields.paymentMethods.options.wire.helpText'),
-      icon: <LibraryIcon className={css.icon} />,
+      icon: <LibraryIcon />,
       method: 'wire',
       title: t('forms:fields.paymentMethods.options.wire.label'),
       isDisabled: !Environment.isWireEnabled,
@@ -76,7 +74,7 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
   ]
 
   return (
-    <section className={css.root}>
+    <section>
       {/* Select method */}
       {method ? (
         <Breadcrumbs breadcrumbs={getPaymentNavItems(t)} />
