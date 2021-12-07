@@ -1,0 +1,3 @@
+.root {
+  @apply flex flex-col h-full items-center justify-start px-8;
+}

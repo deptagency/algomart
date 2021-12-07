@@ -2,7 +2,6 @@ import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect, useState } from 'react'
-import { ExtractError } from 'validator-fns'
 
 import css from './card-form.module.css'
 
@@ -15,27 +14,17 @@ import CardDetails from '@/components/purchase-form/sections/card-details'
 import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import Toggle from '@/components/toggle/toggle'
+import { FormValidation } from '@/contexts/payment-context'
 import { useLocale } from '@/hooks/use-locale'
 import checkoutService from '@/services/checkout-service'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
-import {
-  validateBidsForm,
-  validateExpirationDate,
-  validatePurchaseForm,
-} from '@/utils/purchase-validation'
 import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
 
 export interface CardPurchaseFormProps {
-  formErrors?: ExtractError<
-    ReturnType<
-      | typeof validateBidsForm
-      | typeof validatePurchaseForm
-      | typeof validateExpirationDate
-    >
-  >
   bid: string | null
   className: string
+  formErrors?: FormValidation
   currentBid: number | null
   handleContinue: () => void
   isAuctionActive: boolean

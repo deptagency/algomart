@@ -1,6 +1,5 @@
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent } from 'react'
-import { ExtractError } from 'validator-fns'
 
 import css from './add-methods-form.module.css'
 
@@ -10,15 +9,10 @@ import Heading from '@/components/heading'
 import BillingAddress from '@/components/purchase-form/sections/billing-address'
 import CardDetails from '@/components/purchase-form/sections/card-details'
 import FullName from '@/components/purchase-form/sections/full-name'
-import {
-  validateExpirationDate,
-  validatePurchaseForm,
-} from '@/utils/purchase-validation'
+import { FormValidation } from '@/contexts/payment-context'
 
 export interface AddMethodsFormProps {
-  formErrors?: ExtractError<
-    ReturnType<typeof validatePurchaseForm | typeof validateExpirationDate>
-  >
+  formErrors?: FormValidation
   onSubmit(event: FormEvent<HTMLFormElement>): void
 }
 

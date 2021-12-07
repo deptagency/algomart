@@ -1,9 +1,12 @@
 import {
+  BankAccountId,
   CardId,
+  CreateBankAccount,
   CreateCard,
   CreatePayment,
   OwnerExternalId,
   PaymentId,
+  SendBankAccountInstructions,
   UpdatePaymentCard,
 } from '@algomart/schemas'
 import { FastifyReply, FastifyRequest } from 'fastify'
@@ -37,6 +40,57 @@ export async function getCardStatus(
   }
 }
 
+export async function getWireTransferInstructions(
+  request: FastifyRequest<{
+    Params: BankAccountId
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const bankAccount = await paymentService.getWireTransferInstructions(
+    request.params.bankAccountId
+  )
+  if (bankAccount) {
+    reply.send(bankAccount)
+  } else {
+    reply.notFound()
+  }
+}
+
+export async function sendWireTransferInstructions(
+  request: FastifyRequest<{
+    Querystring: SendBankAccountInstructions
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  await paymentService.sendWireInstructions(request.query)
+  reply.status(204).send()
+}
+
+export async function getBankAccountStatus(
+  request: FastifyRequest<{
+    Params: BankAccountId
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const bankAccount = await paymentService.getBankAccountStatus(
+    request.params.bankAccountId
+  )
+  if (bankAccount) {
+    reply.send(bankAccount)
+  } else {
+    reply.notFound()
+  }
+}
+
 export async function getCards(
   request: FastifyRequest<{
     Querystring: OwnerExternalId
@@ -55,6 +109,26 @@ export async function getCards(
     reply.send(cards)
   } else {
     reply.notFound()
+  }
+}
+
+export async function createBankAccount(
+  request: FastifyRequest<{
+    Body: CreateBankAccount
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const bankAccount = await paymentService.createBankAccount(
+    request.body,
+    request.transaction
+  )
+  if (bankAccount) {
+    reply.status(201).send(bankAccount)
+  } else {
+    reply.badRequest('Unable to create bank account')
   }
 }
 

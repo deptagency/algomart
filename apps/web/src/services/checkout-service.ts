@@ -1,5 +1,8 @@
 import {
+  CreateBankAccountResponse,
   CreatePaymentCard,
+  GetPaymentBankAccountInstructions,
+  GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Payment,
   PaymentCards,
@@ -10,18 +13,35 @@ import ky from 'ky'
 
 import loadFirebase from '@/clients/firebase-client'
 import { ExtractBodyType } from '@/middleware/validate-body-middleware'
-import { validateCard, validatePurchase } from '@/utils/purchase-validation'
+import {
+  validateBankAccount,
+  validateCard,
+  validatePurchase,
+} from '@/utils/purchase-validation'
 import { urls } from '@/utils/urls'
+
+export type CreateBankAccountRequest = ExtractBodyType<
+  typeof validateBankAccount
+>
 
 export type CreateCardRequest = ExtractBodyType<typeof validateCard>
 
 export type CreatePaymentRequest = ExtractBodyType<typeof validatePurchase>
 
 export interface CheckoutAPI {
+  getBankAccountInstructions(
+    bankAccountId: string
+  ): Promise<GetPaymentBankAccountInstructions>
+  getBankAccountStatus(
+    bankAccountId: string
+  ): Promise<GetPaymentBankAccountStatus>
   getCardStatus(cardId: string): Promise<GetPaymentCardStatus>
   getPayment(paymentId: string): Promise<Payment>
   getCards(): Promise<PaymentCards>
   getPublicKey(): Promise<PublicKey | null>
+  createBankAccount(
+    request: CreateBankAccountRequest
+  ): Promise<CreateBankAccountResponse | null>
   createCard(request: CreateCardRequest): Promise<CreatePaymentCard | null>
   createPayment(request: CreatePaymentRequest): Promise<Payment | null>
 }
@@ -55,6 +75,18 @@ export class CheckoutService implements CheckoutAPI {
     const response = await this.http.get(urls.api.v1.publicKey)
     if (response.ok) return await response.json()
     return null
+  }
+
+  async createBankAccount(
+    request: CreateBankAccountRequest
+  ): Promise<CreateBankAccountResponse | null> {
+    const response = await this.http
+      .post(urls.api.v1.createBankAccount, {
+        json: request,
+      })
+      .json<CreateBankAccountResponse>()
+
+    return response.id ? response : null
   }
 
   async createCard(
@@ -91,6 +123,26 @@ export class CheckoutService implements CheckoutAPI {
     if (!response.ok) return []
     const { cards } = await response.json()
     return cards
+  }
+
+  async getBankAccountInstructions(
+    bankAccountId: string
+  ): Promise<GetPaymentBankAccountInstructions> {
+    const response = await this.http.get(
+      `${urls.api.v1.getBankAccountInstructions}?bankAccountId=${bankAccountId}`
+    )
+    const bankAccount = await response.json()
+    return bankAccount
+  }
+
+  async getBankAccountStatus(
+    bankAccountId: string
+  ): Promise<GetPaymentBankAccountStatus> {
+    const response = await this.http.get(
+      `${urls.api.v1.getBankAccountStatus}?bankAccountId=${bankAccountId}`
+    )
+    const bankAccount = await response.json()
+    return bankAccount
   }
 
   async getCardStatus(cardId: string): Promise<GetPaymentCardStatus> {
