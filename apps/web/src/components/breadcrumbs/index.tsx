@@ -28,6 +28,7 @@ export default function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
                       [css.navLinkActive]: isActive,
                       [css.navLinkDisabled]: isDisabled,
                     })}
+                    disabled={isDisabled}
                     onClick={handleClick}
                   >
                     {label}

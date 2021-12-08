@@ -16,5 +16,5 @@
 }
 
 .form label {
-  @apply text-sm font-semibold;
+  @apply font-semibold text-sm;
 }

@@ -35,12 +35,14 @@ export default function BankAccountSummary({
           </tr>
         </tbody>
       </table>
-      <div className={css.bankInstructionsNotice}>
-        <div className={css.noticeIconWrapper}>
-          <InformationCircleIcon className={css.noticeIcon} />
+      {!isAuctionActive && (
+        <div className={css.bankInstructionsNotice}>
+          <div className={css.noticeIconWrapper}>
+            <InformationCircleIcon className={css.noticeIcon} />
+          </div>
+          <p>{t('forms:fields.bankInstructions.notice')}</p>
         </div>
-        <p>{t('forms:fields.bankInstructions.notice')}</p>
-      </div>
+      )}
       <table className={clsx(css.paymentGrid, css.paymentDetails)}>
         <tbody>
           <tr>

@@ -2,12 +2,20 @@
   @apply border-b border-gray-200 pb-10;
 }
 
+.root input {
+  @apply mb-0 !important;
+}
+
+.paymentDetails {
+  @apply mb-5;
+}
+
 .paymentDetails tr {
   @apply border-t border-b border-gray-200;
 }
 
 .paymentGrid {
-  @apply mb-5 w-full;
+  @apply w-full;
 }
 
 .paymentGrid tr {
@@ -36,8 +44,4 @@
 
 .noticeIcon {
   @apply w-8 text-yellow-600;
-}
-
-.root input {
-  @apply mb-0;
 }
