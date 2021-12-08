@@ -85,17 +85,19 @@ export default class NFTStorageAdapter {
   }
 
   async storeFile(url: string) {
+    let fileName: fs.PathLike = ''
     try {
       const pipeline = promisify(stream.pipeline)
 
       // Kick off download stream, intercept file metadata
       const downloadStream = got.stream(url)
-      const fileName = downloadStream.options.url.pathname
+      fileName = downloadStream.options.url.pathname
         .split('/')
         .at(-1) as fs.PathLike
       const { mime, stream: outStream } = await getMimeType(downloadStream)
       outStream.on('error', (error: Error) => {
         this.logger.error(error.message, `Failed to download ${fileName}`)
+        throw error
       })
 
       // Pipe downloaded file to fs
@@ -103,6 +105,7 @@ export default class NFTStorageAdapter {
         .createWriteStream(fileName)
         .on('error', (error: Error) => {
           this.logger.error(error.message, `Failed to save ${fileName}`)
+          throw error
         })
       await pipeline(outStream, fileWriteStream)
 
@@ -129,6 +132,10 @@ export default class NFTStorageAdapter {
     } catch (error) {
       this.logger.error(error as Error)
       throw error
+    } finally {
+      if (fs.existsSync(fileName)) {
+        fs.unlinkSync(fileName)
+      }
     }
   }
 

@@ -27,7 +27,7 @@ export function configureTasks(app: FastifyInstance) {
 
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
-      { minutes: 1 },
+      { minutes: 1, runImmediately: true },
       new AsyncTask(
         'generate-collectibles',
         async () => await generateCollectiblesTask(app.container),
@@ -38,7 +38,7 @@ export function configureTasks(app: FastifyInstance) {
 
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
-      { minutes: 3 },
+      { minutes: 1 },
       new AsyncTask(
         'store-collectibles',
         async () => await storeCollectiblesTask(app.container),

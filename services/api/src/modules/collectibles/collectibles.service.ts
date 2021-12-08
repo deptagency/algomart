@@ -84,7 +84,7 @@ export default class CollectiblesService {
     const collectibles = await CollectibleModel.query(trx)
       .whereNull('ipfsStatus')
       .orderBy('templateId')
-      .limit(100)
+      .limit(10)
 
     if (collectibles.length === 0) {
       return 0

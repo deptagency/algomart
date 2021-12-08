@@ -95,14 +95,6 @@ export const Configuration = {
     return env.get('PINATA_API_SECRET').default('').asString()
   },
 
-  get sendgridApiKey() {
-    return env.get('SENDGRID_API_KEY').asString()
-  },
-
-  get sendgridFromEmail() {
-    return env.get('SENDGRID_FROM_EMAIL').asString()
-  },
-
   get creatorPassphrase() {
     return env
       .get('CREATOR_PASSPHRASE')
