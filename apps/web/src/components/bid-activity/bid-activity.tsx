@@ -81,14 +81,13 @@ export default function BidActivity({
         {bids.map((bid, index) => {
           const avatar = avatars[bid.externalId]
           const createdAtDateTime = new Date(bid.createdAt)
-          const reservePriceInt = formatFloatToInt(reservePrice || 0)
           const meetsReservePrice =
-            reservePrice && isGreaterThanOrEqual(bid.amount, reservePriceInt)
-          const isFollowingBid = bids[index + 1]
+            reservePrice && isGreaterThanOrEqual(bid.amount, reservePrice)
+          const followingBid = bids[index + 1]
           const followingBidDoesNotMeetReservePrice =
-            reservePrice &&
-            isFollowingBid &&
-            !isGreaterThanOrEqual(bids[index + 1].amount, reservePriceInt)
+            !!reservePrice &&
+            !!followingBid &&
+            !isGreaterThanOrEqual(followingBid.amount, reservePrice)
           return (
             <React.Fragment key={bid.id}>
               <BidActivityDetails
@@ -113,7 +112,7 @@ export default function BidActivity({
                 )}
               </BidActivityDetails>
               {meetsReservePrice &&
-                (!isFollowingBid || followingBidDoesNotMeetReservePrice) && (
+                (!followingBid || followingBidDoesNotMeetReservePrice) && (
                   <BidActivityDetails
                     amount={null}
                     content={t('release:Reserve price met')}
