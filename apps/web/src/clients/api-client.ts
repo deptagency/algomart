@@ -275,10 +275,6 @@ export class ApiClient {
       .json<{ pack: PackWithId }>()
   }
 
-  async mintPack(json: MintPack) {
-    return await this.http.post('packs/mint', { json })
-  }
-
   async mintPackStatus(params: MintPack) {
     return await this.http
       .get('packs/mint', { searchParams: params })

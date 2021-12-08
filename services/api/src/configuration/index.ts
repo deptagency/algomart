@@ -87,20 +87,12 @@ export const Configuration = {
     return env.get('WEB_URL').default('http://localhost:3000').asUrlString()
   },
 
-  get sendgridApiKey() {
-    return env
-      .get('SENDGRID_API_KEY')
-      .default(
-        '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'
-      )
-      .asString()
+  get pinataApiKey() {
+    return env.get('PINATA_API_KEY').default('').asString()
   },
 
-  get sendgridFromEmail() {
-    return env
-      .get('SENDGRID_FROM_EMAIL')
-      .default('jake@rocketinsights.com')
-      .asString()
+  get pinataApiSecret() {
+    return env.get('PINATA_API_SECRET').default('').asString()
   },
 
   get creatorPassphrase() {

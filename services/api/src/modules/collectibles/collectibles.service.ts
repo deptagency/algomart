@@ -8,6 +8,7 @@ import {
   DEFAULT_LOCALE,
   EventAction,
   EventEntityType,
+  IPFSStatus,
   SortDirection,
 } from '@algomart/schemas'
 import { CollectibleListShowcase } from '@algomart/schemas'
@@ -16,6 +17,7 @@ import { Transaction } from 'objection'
 
 import AlgorandAdapter from '@/lib/algorand-adapter'
 import DirectusAdapter, { ItemFilter } from '@/lib/directus-adapter'
+import NFTStorageAdapter from '@/lib/nft-storage-adapter'
 import { AlgorandAccountModel } from '@/models/algorand-account.model'
 import { AlgorandTransactionModel } from '@/models/algorand-transaction.model'
 import { CollectibleModel } from '@/models/collectible.model'
@@ -34,28 +36,25 @@ export default class CollectiblesService {
 
   constructor(
     private readonly cms: DirectusAdapter,
-    private readonly algorand: AlgorandAdapter
+    private readonly algorand: AlgorandAdapter,
+    private readonly storage: NFTStorageAdapter
   ) {}
 
   async generateCollectibles(limit = 5, trx?: Transaction) {
     const existingTemplates = await CollectibleModel.query(trx)
       .groupBy('templateId')
       .select('templateId')
-
     const filter: ItemFilter = {}
-
     if (existingTemplates.length > 0) {
       filter.id = {
         _nin: existingTemplates.map((c) => c.templateId),
       }
     }
-
     const { collectibles: templates } = await this.cms.findAllCollectibles(
       undefined,
       filter,
       limit
     )
-
     if (templates.length === 0) {
       return 0
     }
@@ -80,14 +79,126 @@ export default class CollectiblesService {
     return collectibles.length
   }
 
+  async storeCollectibles(limit = 5, trx: Transaction) {
+    // Get unstored collectibles
+    const collectibles = await CollectibleModel.query(trx)
+      .whereNull('ipfsStatus')
+      .orderBy('templateId')
+      .limit(10)
+
+    if (collectibles.length === 0) {
+      return 0
+    }
+
+    // Group collectibles into a map, keyed by their template ID
+    const collectiblesLookupByTemplate = new Map<string, CollectibleModel[]>(
+      collectibles.map((c) => [
+        c.templateId,
+        collectibles.filter(({ templateId }) => templateId === c.templateId),
+      ])
+    )
+
+    // Get corresponding templates from CMS
+    const { collectibles: templates } = await this.cms.findAllCollectibles(
+      undefined,
+      { id: { _in: [...collectiblesLookupByTemplate.keys()] } },
+      limit
+    )
+
+    if (templates.length === 0) {
+      return 0
+    }
+
+    // Grouping collectibles by template data prevents need to upload assets more than once
+    await Promise.all(
+      templates.map(
+        async (t) =>
+          await this.storeCollectiblesByTemplate(
+            t,
+            collectiblesLookupByTemplate.get(t.templateId) || [],
+            trx
+          )
+      )
+    )
+
+    return collectibles.length
+  }
+
+  async storeCollectiblesByTemplate(
+    template: CollectibleBase,
+    collectibles: CollectibleModel[],
+    trx: Transaction
+  ) {
+    await CollectibleModel.query()
+      .whereIn(
+        'id',
+        collectibles.map((c) => c.id)
+      )
+      .patch({ ipfsStatus: IPFSStatus.Pending })
+
+    // Store template's media assets
+    const imageData = await this.storage.storeFile(template.image)
+    const animationField: string | undefined =
+      template.assetFile || template.previewVideo || template.previewAudio
+    const animationData = animationField
+      ? await this.storage.storeFile(animationField)
+      : null
+
+    await Promise.all(
+      collectibles.map(async (c) => {
+        const metadata = this.storage.mapToMetadata({
+          ...(animationData && {
+            animation_integrity: animationData.integrityHash,
+            animation_url_mimetype: animationData.mimeType,
+            animation_url: animationData.uri,
+          }),
+          description: template.subtitle,
+          editionNumber: c.edition,
+          image_integrity: imageData.integrityHash,
+          image_mimetype: imageData.mimeType,
+          image: imageData.uri,
+          name: template.uniqueCode,
+          totalEditions: template.totalEditions,
+        })
+
+        // Store metadata as JSON on IPFS
+        const assetUrl = await this.storage.storeJSON(metadata)
+
+        // Construct JSON hash of metadata
+        const assetMetadataHash = this.storage.hashMetadata(metadata)
+
+        await CollectibleModel.query(trx).where('id', c.id).patch({
+          assetUrl,
+          assetMetadataHash,
+          ipfsStatus: IPFSStatus.Stored,
+        })
+        await EventModel.query(trx).insert({
+          action: EventAction.Update,
+          entityType: EventEntityType.Collectible,
+          entityId: c.id,
+        })
+      })
+    ).catch(async (error) => {
+      await CollectibleModel.query()
+        .whereIn(
+          'id',
+          collectibles.map((c) => c.id)
+        )
+        .patch({ ipfsStatus: null })
+      this.logger.error(error as Error)
+      throw error
+    })
+  }
+
   async getCollectiblesByPackId(packId: string, trx?: Transaction) {
     return await CollectibleModel.query(trx).where('packId', packId)
   }
 
-  async mintCollectibles(collectibleIds: string[], trx?: Transaction) {
+  async mintCollectibles(trx?: Transaction) {
     const collectibles = await CollectibleModel.query(trx)
-      .whereIn('id', collectibleIds)
-      .whereNull('address')
+      .whereNull('creationTransactionId')
+      .joinRelated('pack', { alias: 'p' })
+      .whereNotNull('p.ownerId')
 
     // No collectibles matched the IDs or they are all already minted
     if (collectibles.length === 0) return 0

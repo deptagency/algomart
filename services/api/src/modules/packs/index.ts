@@ -33,7 +33,6 @@ import {
   getPackWithCollectiblesById,
   getPublishedPacks,
   getRedeemablePack,
-  mintPack,
   mintPackStatus,
   transferPack,
   transferPackStatus,
@@ -191,23 +190,6 @@ export async function packsRoutes(app: FastifyInstance) {
       },
     },
     claimRedeemPack
-  )
-
-  app.post(
-    '/mint',
-    {
-      transact: true,
-      schema: {
-        tags,
-        security,
-        description: 'Mint all NFTs in a single pack owned by a user.',
-        body: MintPackSchema,
-        response: {
-          204: Type.Null(),
-        },
-      },
-    },
-    mintPack
   )
 
   app.get(

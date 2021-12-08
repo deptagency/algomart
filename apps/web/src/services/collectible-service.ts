@@ -20,7 +20,6 @@ export interface CollectibleAPI {
   claim(packTemplateId: string): Promise<{ packId?: string }>
   redeem(code: string): Promise<{ packId?: string }>
   removeCollectibleShowcase(id: string): Promise<boolean>
-  mint(packId: string): Promise<boolean>
   mintStatus(packId: string): Promise<MintPackStatus>
   transfer(packId: string, passphrase: string): Promise<boolean>
   transferStatus(packId: string): Promise<TransferPackStatusList>
@@ -70,14 +69,6 @@ export class CollectibleService implements CollectibleAPI {
       .json<{ pack: PackWithId }>()
 
     return { packId: pack.id }
-  }
-
-  async mint(packId: string): Promise<boolean> {
-    const response = await this.http.post(urls.api.v1.assetMint, {
-      json: { packId },
-    })
-
-    return response.ok
   }
 
   async mintStatus(packId: string): Promise<MintPackStatus> {
