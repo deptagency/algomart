@@ -24,7 +24,6 @@ import checkoutService, {
   CreateBankAccountRequest,
   CreateCardRequest,
 } from '@/services/checkout-service'
-import collectibleService from '@/services/collectible-service'
 import { getExpirationDate } from '@/utils/date-time'
 import { encryptCardDetails } from '@/utils/encryption'
 import { toJSON } from '@/utils/form-to-json'
@@ -579,15 +578,6 @@ export function usePaymentProvider({
 
           // Throw error if failed request
           if (!packId) throw new Error('Pack not available')
-
-          // Mint asset
-          setLoadingText(t('common:statuses.Minting Asset'))
-          const mintIsOK = await collectibleService.mint(packId)
-
-          if (!mintIsOK) {
-            setStatus('error')
-            return
-          }
 
           setPackId(packId)
           setStatus('success')

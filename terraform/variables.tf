@@ -168,6 +168,16 @@ variable "circle_url" {
   sensitive = true
 }
 
+variable "pinata_api_key" {
+  sensitive = true
+  default   = ""
+}
+
+variable "pinata_api_secret" {
+  sensitive = true
+  default   = ""
+}
+
 variable "sendgrid_api_key" {
   sensitive = true
   default   = ""
