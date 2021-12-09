@@ -1,0 +1,71 @@
+.root {
+  @apply max-w-sm text-center w-full;
+}
+
+.icon {
+  @apply mb-5 mx-auto text-green-600;
+}
+
+.successHeading {
+  @apply font-bold mb-16 text-base-gray-text text-2xl;
+}
+
+.bidPlacedHeading {
+  @apply font-bold text-base-gray-text text-2xl;
+}
+
+.button {
+  @apply w-full;
+}
+
+.bidPlacedNotice {
+  @apply text-center pt-6 pb-9;
+}
+
+.bidPlacedNoticeText {
+  @apply m-auto w-3/4;
+}
+
+.bankInstructions {
+  @apply mb-10;
+}
+
+.bankInstructionsHelpText {
+  @apply mt-5 mb-10 text-left;
+}
+
+.separator {
+  @apply mb-5;
+}
+
+.header {
+  @apply font-bold mb-5 text-left;
+}
+
+.subHeader {
+  @apply font-medium text-left my-5 uppercase;
+}
+
+.instructions {
+  @apply flex justify-between leading-10 gap-x-1;
+}
+
+.instructions h4 {
+  @apply font-medium text-left;
+}
+
+.instructions p {
+  @apply font-bold text-left uppercase;
+}
+
+.priceContainer {
+  @apply flex items-center justify-between w-full p-5 mb-6 rounded-sm bg-base-gray-bg;
+}
+
+.priceLabel {
+  @apply text-base text-base-gray-medium;
+}
+
+.priceValue {
+  @apply text-lg font-bold text-green-600;
+}

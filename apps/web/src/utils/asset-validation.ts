@@ -98,11 +98,6 @@ export const validateRedeemAsset = (t: Translate) =>
     ),
   })
 
-export const validateMintAsset = (t: Translate) =>
-  object({
-    packId: packId(t),
-  })
-
 export const validateTransferAsset = (t: Translate) =>
   object({
     packId: packId(t),

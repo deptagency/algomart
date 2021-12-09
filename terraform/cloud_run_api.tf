@@ -125,6 +125,16 @@ resource "google_cloud_run_service" "api" {
         }
 
         env {
+          name  = "PINATA_API_KEY"
+          value = var.pinata_api_key
+        }
+
+        env {
+          name  = "PINATA_API_SECRET"
+          value = var.pinata_api_secret
+        }
+
+        env {
           name  = "SENDGRID_API_KEY"
           value = var.sendgrid_api_key
         }

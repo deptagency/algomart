@@ -65,13 +65,6 @@ export default function ReleasePage({
       return t('forms:errors.invalidRedemptionCode')
     }
 
-    // Mint asset
-    const isMintOK = await collectibleService.mint(packId)
-
-    if (!isMintOK) {
-      return t('common:statuses.An Error has Occurred')
-    }
-
     // Clear redemption data
     if (packTemplate.type === PackType.Redeem) {
       setRedeemable(null)
