@@ -9,6 +9,7 @@ import {
   CircleCreateBlockchainAddress,
   CircleCreateCard,
   CircleCreatePayment,
+  CirclePaymentQuery,
   CirclePaymentResponse,
   CirclePaymentStatus,
   CirclePaymentVerification,
@@ -265,6 +266,7 @@ export default class CircleAdapter {
     }
 
     this.logger.error({ response }, 'Failed to get the merchant wallet')
+    return null
   }
 
   async getPaymentBankAccountInstructionsById(
@@ -346,6 +348,7 @@ export default class CircleAdapter {
       { response },
       'Failed to get transfers for external wallet'
     )
+    return null
   }
 
   async getPayments(
