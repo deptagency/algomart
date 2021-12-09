@@ -68,7 +68,9 @@ npm install
 ```
 
 > ### For M1 Mac Users
-> You might need to manually install additional system dependencies using [Homebrew](https://brew.sh/) before running `npm install`. Once Homebrew is installed, run 
+>
+> You might need to manually install additional system dependencies using [Homebrew](https://brew.sh/) before running `npm install`. Once Homebrew is installed, run
+>
 > ```bash
 > brew install pkg-config cairo pango libpng jpeg giflib librsvg
 > ```
@@ -117,9 +119,9 @@ in the `docker-compose.yml` file.
 The CMS key needs to be added to the admin user created by Directus.
 Otherwise, the API cannot authenticate even though its CMS key matches.
 
-- Visit http://localhost:3001
+- Visit http://localhost:8055
 - Authenticate with the CMS admin email & password
-- Go to the [user directory](http://localhost:3001/admin/users)
+- Go to the [user directory](http://localhost:8055/admin/users)
 - Click the admin user and enter the CMS key into the "Token" field
 - Click the green check mark in the upper right corner
 

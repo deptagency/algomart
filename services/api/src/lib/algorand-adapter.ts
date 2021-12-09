@@ -272,10 +272,16 @@ export default class AlgorandAdapter {
         throw new Error(`Missing template ${collectible.templateId}`)
       }
 
+      /**
+       * These ASA parameters should follow the following conventions to meet ARC3 compliance
+       * https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md#asa-parameters-conventions
+       */
       return algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
         assetName: `${template.uniqueCode} ${collectible.edition}/${template.totalEditions}`,
-        // TODO: fix url
-        assetURL: template.image,
+        assetURL: `${collectible.assetUrl}#arc3`,
+        assetMetadataHash: new Uint8Array(
+          Buffer.from(collectible.assetMetadataHash, 'hex')
+        ),
         from: fromAccount.addr,
         total: 1,
         decimals: 0,

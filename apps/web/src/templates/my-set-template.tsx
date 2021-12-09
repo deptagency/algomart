@@ -60,7 +60,7 @@ export default function MySetTemplate({
 
   return (
     <>
-      <Tabs activeTab={1} tabs={getCollectionTabs(t)} />
+      <Tabs activeTab={1} tabs={getCollectionTabs(t)} negativeMargin />
 
       <SetHeader
         set={set}

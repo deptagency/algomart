@@ -8,11 +8,16 @@ import {
   minDate,
   number,
   object,
+  oneOf,
   required,
   string,
 } from 'validator-fns'
 
 import { formatCurrency } from '@/utils/format-currency'
+
+// Maximum bid for card payments as integer
+// eslint-disable-next-line unicorn/numeric-separators-style
+export const MAX_BID_FOR_CARD_PAYMENT = 300000
 
 const address1 = (t: Translate) =>
   string(
@@ -41,6 +46,18 @@ const country = (t: Translate) =>
       ),
       t('forms:errors.invalidCountry')
     )
+  )
+
+const accountNumber = (t: Translate) =>
+  string(
+    required(t('forms:errors.required') as string),
+    matches(/^\d*$/i, t('forms:errors.onlyNumbers'))
+  )
+
+const routingNumber = (t: Translate) =>
+  string(
+    required(t('forms:errors.required') as string),
+    matches(/^\d*$/i, t('forms:errors.onlyNumbers'))
   )
 
 const ccNumber = (t: Translate) =>
@@ -130,6 +147,15 @@ export const validateBidsForm = (t: Translate, highestBid: number) =>
     zipCode: zipCode(t),
   })
 
+export const validateBidsFormForWires = (t: Translate, highestBid: number) =>
+  object({
+    bid: bid(t, highestBid),
+    confirmBid: boolean(
+      required(t('forms:errors.required') as string),
+      oneOf([true], t('forms:errors.mustConfirmBid') as string)
+    ),
+  })
+
 export const validateBidsFormWithSavedCard = (
   t: Translate,
   highestBid: number
@@ -156,6 +182,27 @@ export const validatePurchaseForm = (t: Translate) =>
 export const validatePurchaseFormWithSavedCard = (t: Translate) =>
   object({
     securityCode: cvv(t),
+  })
+
+export const validateBankAccount = (t: Translate) =>
+  object({
+    accountNumber: accountNumber(t),
+    routingNumber: routingNumber(t),
+    fullName: fullName(t),
+    address1: address1(t),
+    address2: address2(t),
+    city: city(t),
+    country: country(t),
+    state: state(t),
+    zipCode: zipCode(t),
+    bankName: string(),
+    bankAddress1: string(),
+    bankAddress2: string(),
+    bankCity: string(),
+    bankCountry: country(t),
+    bankDistrict: string(),
+    packTemplateId: string(),
+    amount: number(),
   })
 
 export const validateCard = (t: Translate) =>

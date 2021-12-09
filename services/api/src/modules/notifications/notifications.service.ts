@@ -1,36 +1,46 @@
 import {
   CreateNotification,
-  DEFAULT_LOCALE,
   Email,
   EventAction,
   EventEntityType,
   NotificationStatus,
   NotificationType,
 } from '@algomart/schemas'
-import i18next, { TFunction } from 'i18next'
-import Backend from 'i18next-fs-backend'
+import { ResponseError } from '@sendgrid/mail'
+import { TFunction } from 'i18next'
 import { Transaction } from 'objection'
 
 import { Configuration } from '@/configuration'
-import SendgridAdapter, { SendgridResponseError } from '@/lib/sendgrid-adapter'
+import I18nAdapter from '@/lib/i18n-adapter'
+import MailerAdapter from '@/lib/mailer-adapter'
 import { EventModel } from '@/models/event.model'
 import { NotificationModel } from '@/models/notification.model'
 import { invariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
 
+const isResponseError = (error: unknown): error is ResponseError => {
+  return typeof (error as ResponseError).response?.body === 'string'
+}
 export default class NotificationsService {
   logger = logger.child({ context: this.constructor.name })
   dispatchStore: {
     [key in NotificationType]: (n: NotificationModel, t: TFunction) => Email
   } = {
-    [NotificationType.AuctionComplete]: this.getAuctionCompleteNotification,
-    [NotificationType.BidExpired]: this.getBidExpiredNotification,
-    [NotificationType.TransferSuccess]: this.getTransferSuccessNotification,
-    [NotificationType.UserHighBid]: this.getUserHighBidNotification,
-    [NotificationType.UserOutbid]: this.getUserOutbididNotification,
+    [NotificationType.AuctionComplete]:
+      this.getAuctionCompleteNotification.bind(this),
+    [NotificationType.BidExpired]: this.getBidExpiredNotification.bind(this),
+    [NotificationType.TransferSuccess]:
+      this.getTransferSuccessNotification.bind(this),
+    [NotificationType.UserHighBid]: this.getUserHighBidNotification.bind(this),
+    [NotificationType.UserOutbid]: this.getUserOutbidNotification.bind(this),
+    [NotificationType.WireInstructions]:
+      this.getWireInstructionsNotification.bind(this),
   }
 
-  constructor(private readonly sendgrid: SendgridAdapter) {}
+  constructor(
+    private readonly mailer: MailerAdapter,
+    private readonly i18n: I18nAdapter
+  ) {}
 
   async createNotification(
     notification: CreateNotification,
@@ -64,18 +74,17 @@ export default class NotificationsService {
         }
 
         // Get recipient's locale
-        const { userAccount, type, id, userAccountId } = notification
-        await i18next.use(Backend).init({
-          backend: { loadPath: `./locales/${userAccount.locale}/emails.json` },
-          fallbackLng: DEFAULT_LOCALE,
-        })
+        const {
+          type,
+          id,
+          userAccountId,
+          userAccount: { locale },
+        } = notification
+        const t = this.i18n.getFixedT(locale, 'emails')
 
         // Attempt to send notification
         try {
-          const message = this.dispatchStore[type](
-            notification,
-            i18next.t.bind(i18next)
-          )
+          const message = this.dispatchStore[type](notification, t)
           await this.sendNotification(id, userAccountId, message, trx)
           successfullyDispatchedNotifications++
           this.logger.info('done processing notification %s', id)
@@ -91,7 +100,7 @@ export default class NotificationsService {
     )
   }
 
-  getAuctionCompleteNotification(n: NotificationModel, t: TFunction) {
+  getAuctionCompleteNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
 
     // Validate variables
@@ -122,7 +131,7 @@ export default class NotificationsService {
     return message
   }
 
-  getBidExpiredNotification(n: NotificationModel, t: TFunction) {
+  getBidExpiredNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
 
     // Validate variables
@@ -133,39 +142,38 @@ export default class NotificationsService {
     const message = {
       to: userAccount?.email as string,
       subject: t('bidExpired.subject', { ...variables }),
-      html: (
-        t('bidExpired.body', {
-          returnObjects: true,
-          ...variables,
-        }) as string[]
-      ).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
+      html: t<string[]>('bidExpired.body', {
+        returnObjects: true,
+        ...variables,
+      }).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
     }
+
     return message
   }
 
-  getTransferSuccessNotification(n: NotificationModel, t: TFunction) {
+  getTransferSuccessNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
 
     // Validate variables
     invariant(variables, 'no variables were provided for this notification')
     invariant(typeof variables.packTitle === 'string', 'packTitle is required')
 
+    const html = t<string[]>('transferSuccess.body', {
+      returnObjects: true,
+      ctaUrl: `${Configuration.webUrl}my/collectibles`,
+      ...variables,
+    })
+
     // Build notification
     const message = {
       to: userAccount?.email as string,
       subject: t('transferSuccess.subject'),
-      html: (
-        t('transferSuccess.body', {
-          returnObjects: true,
-          ctaUrl: `${Configuration.webUrl}my/collectibles`,
-          ...variables,
-        }) as string[]
-      ).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
+      html: html.reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
     }
     return message
   }
 
-  getUserHighBidNotification(n: NotificationModel, t: TFunction) {
+  getUserHighBidNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
 
     // Validate variables
@@ -188,7 +196,7 @@ export default class NotificationsService {
     return message
   }
 
-  getUserOutbididNotification(n: NotificationModel, t: TFunction) {
+  getUserOutbidNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
 
     // Validate variables
@@ -211,6 +219,82 @@ export default class NotificationsService {
     return message
   }
 
+  getWireInstructionsNotification(n: NotificationModel, t: TFunction) {
+    const { userAccount, variables } = n
+
+    // Validate variables
+    invariant(variables, 'no variables were provided for this notification')
+    invariant(
+      typeof variables.trackingRef === 'string',
+      'trackingRef is required'
+    )
+    invariant(
+      typeof variables.beneficiaryName === 'string',
+      'beneficiaryName is required'
+    )
+    invariant(
+      typeof variables.beneficiaryAddress1 === 'string',
+      'beneficiaryAddress1 is required'
+    )
+    invariant(
+      typeof variables.beneficiaryAddress2 === 'string',
+      'beneficiaryAddress2 is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankName === 'string',
+      'beneficiaryBankName is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankSwiftCode === 'string',
+      'beneficiaryBankSwiftCode is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankRoutingNumber === 'string',
+      'beneficiaryBankRoutingNumber is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankAccountingNumber === 'string',
+      'beneficiaryBankAccountingNumber is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankAddress === 'string',
+      'beneficiaryBankAddress is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankCity === 'string',
+      'beneficiaryBankCity is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankPostalCode === 'string',
+      'beneficiaryBankPostalCode is required'
+    )
+    invariant(
+      typeof variables.beneficiaryBankCountry === 'string',
+      'beneficiaryBankCountry is required'
+    )
+
+    // Build notification
+    const body = (
+      t('wireTransfer.body', {
+        returnObjects: true,
+        ctaUrl: `${Configuration.webUrl}checkout?pack=${variables.packSlug}`,
+        ...variables,
+      }) as string[]
+    ).reduce((body: string, p: string) => body + `<p>${p}</p>`, '')
+
+    const html = variables.canExpire
+      ? body + `<p>${t('wireTransfer.expirationWarning')}</p>`
+      : body
+
+    const message = {
+      to: userAccount?.email as string,
+      subject: t('wireTransfer.subject'),
+      html,
+    }
+
+    return message
+  }
+
   async sendNotification(
     notificationId: string,
     userAccountId: string,
@@ -218,23 +302,28 @@ export default class NotificationsService {
     trx?: Transaction
   ) {
     // Send notification
-    let error: string | undefined
+    let errorMessage: string | undefined
     try {
-      await this.sendgrid.sendEmail({ ...message })
-    } catch (error_) {
-      error = JSON.stringify(
-        (error_ as SendgridResponseError).response.body.errors.map(
-          ({ message }) => message
-        )
-      )
+      await this.mailer.sendEmail({ ...message })
+    } catch (error) {
+      this.logger.error(error)
+      if (isResponseError(error)) {
+        errorMessage = error.response.body
+      } else if (error instanceof Error) {
+        errorMessage = error.message
+      } else {
+        errorMessage = `Unknown error when sending notification ${notificationId}`
+      }
     }
 
     // Update notification with with status (and error if applicable)
     await NotificationModel.query(trx)
       .where('id', notificationId)
       .patch({
-        error: error ?? null,
-        status: error ? NotificationStatus.Failed : NotificationStatus.Complete,
+        error: errorMessage ?? null,
+        status: errorMessage
+          ? NotificationStatus.Failed
+          : NotificationStatus.Complete,
       })
 
     await EventModel.query(trx).insert({

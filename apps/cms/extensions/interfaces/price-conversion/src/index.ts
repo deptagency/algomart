@@ -10,7 +10,7 @@ export default defineInterface({
   icon: 'attach_money',
   component: PriceComponent,
   types: ['integer'],
-  groups: ['standard'],
+  group: 'standard',
   recommendedDisplays: ['price'],
   options: null,
 })

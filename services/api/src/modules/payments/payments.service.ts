@@ -1,14 +1,20 @@
 import {
+  CirclePaymentQueryType,
   CirclePaymentSourceType,
+  CreateBankAccount,
   CreateCard,
   CreatePayment,
   DEFAULT_CURRENCY,
   EventAction,
   EventEntityType,
+  NotificationType,
   OwnerExternalId,
   PackType,
+  PaymentBankAccountStatus,
   PaymentCardStatus,
   PaymentStatus,
+  SendBankAccountInstructions,
+  ToPaymentBase,
   UpdatePaymentCard,
 } from '@algomart/schemas'
 import { Transaction } from 'objection'
@@ -19,10 +25,14 @@ import CoinbaseAdapter from '@/lib/coinbase-adapter'
 import { BidModel } from '@/models/bid.model'
 import { EventModel } from '@/models/event.model'
 import { PaymentModel } from '@/models/payment.model'
+import { PaymentBankAccountModel } from '@/models/payment-bank-account.model'
 import { PaymentCardModel } from '@/models/payment-card.model'
 import { UserAccountModel } from '@/models/user-account.model'
+import NotificationService from '@/modules/notifications/notifications.service'
 import PacksService from '@/modules/packs/packs.service'
+import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 import {
+  convertFromUSD,
   convertToUSD,
   currency,
   isGreaterThanOrEqual,
@@ -36,6 +46,7 @@ export default class PaymentsService {
   constructor(
     private readonly circle: CircleAdapter,
     private readonly coinbase: CoinbaseAdapter,
+    private readonly notifications: NotificationService,
     private readonly packs: PacksService
   ) {}
 
@@ -104,6 +115,42 @@ export default class PaymentsService {
     return cards
   }
 
+  async getBankAccountStatus(bankAccountId: string) {
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      bankAccountId
+    )
+
+    userInvariant(foundBankAccount, 'bank account is not available', 404)
+    const externalId = foundBankAccount.externalId
+
+    // Retrieve record in Circle API
+    const bankAccount = await this.circle.getPaymentBankAccountById(externalId)
+    userInvariant(bankAccount, 'bank account was not found', 404)
+
+    return {
+      status: bankAccount.status,
+    }
+  }
+
+  async getWireTransferInstructions(bankAccountId: string) {
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      bankAccountId
+    )
+
+    userInvariant(foundBankAccount, 'bank account is not available', 404)
+    const externalId = foundBankAccount.externalId
+
+    // Retrieve record in Circle API
+    const bankAccount = await this.circle.getPaymentBankAccountInstructionsById(
+      externalId
+    )
+    userInvariant(bankAccount, 'bank account instructions were not found', 404)
+
+    return bankAccount
+  }
+
   async createCard(cardDetails: CreateCard, trx?: Transaction) {
     const user = await UserAccountModel.query(trx)
       .where('externalId', cardDetails.ownerExternalId)
@@ -164,6 +211,92 @@ export default class PaymentsService {
     return { externalId: card.externalId, status: card.status }
   }
 
+  async createBankAccount(bankDetails: CreateBankAccount, trx?: Transaction) {
+    const user = await UserAccountModel.query(trx)
+      .where('externalId', bankDetails.ownerExternalId)
+      .first()
+    userInvariant(user, 'no user found', 404)
+
+    const { price, packId } = await this.selectPackAndAssignToUser(
+      bankDetails.packTemplateId,
+      user.id,
+      trx
+    )
+
+    // Create bank account using Circle API
+    const bankAccount = await this.circle.createBankAccount({
+      idempotencyKey: bankDetails.idempotencyKey,
+      accountNumber: bankDetails.accountNumber,
+      routingNumber: bankDetails.routingNumber,
+      billingDetails: bankDetails.billingDetails,
+      bankAddress: bankDetails.bankAddress,
+    })
+
+    if (!bankAccount) {
+      // Remove claim from payment if bank account creation doesn't work
+      await this.packs.claimPack(
+        {
+          packId,
+          claimedById: null,
+          claimedAt: null,
+        },
+        trx
+      )
+      userInvariant(bankAccount, 'bank account could not be created', 400)
+    }
+
+    const newBankAccount = await PaymentBankAccountModel.query(trx)
+      .insert({
+        ...bankAccount,
+        amount: price,
+        ownerId: user.id,
+      })
+      .onConflict('externalId')
+      .ignore()
+
+    if (!newBankAccount) {
+      userInvariant(bankAccount, 'bank account could not be added', 400)
+    }
+
+    // Create new payment in database
+    const newPayment = await PaymentModel.query(trx).insert({
+      externalId: null,
+      payerId: user.id,
+      packId: packId,
+      paymentBankId: newBankAccount.id,
+      paymentCardId: null,
+      status: PaymentStatus.Pending,
+    })
+
+    // Create event for payment creation
+    await EventModel.query(trx).insert({
+      action: EventAction.Create,
+      entityType: EventEntityType.Payment,
+      entityId: newPayment.id,
+      userAccountId: user.id,
+    })
+
+    const bankAccountInstructions =
+      await this.circle.getPaymentBankAccountInstructionsById(
+        bankAccount.externalId
+      )
+    userInvariant(
+      bankAccountInstructions,
+      'bank account instructions were not found',
+      404
+    )
+
+    // Create events for bank account creation
+    await EventModel.query(trx).insert({
+      action: EventAction.Create,
+      entityType: EventEntityType.PaymentBankAccount,
+      entityId: newBankAccount.id,
+      userAccountId: user.id,
+    })
+
+    return { id: newBankAccount.id, status: bankAccount.status }
+  }
+
   async updateCard(
     cardId: string,
     cardDetails: UpdatePaymentCard,
@@ -201,10 +334,14 @@ export default class PaymentsService {
     })
   }
 
-  async createPayment(paymentDetails: CreatePayment, trx?: Transaction) {
+  async selectPackAndAssignToUser(
+    packTemplateId: string,
+    userId: string,
+    trx?: Transaction
+  ) {
     // Find random pack to award post-payment
     const randomPack = await this.packs.randomPackByTemplateId(
-      paymentDetails.packTemplateId,
+      packTemplateId,
       trx
     )
     userInvariant(randomPack?.id, 'no pack found', 404)
@@ -237,20 +374,30 @@ export default class PaymentsService {
     const amount = convertToUSD(price, exchangeRates.rates)
     invariant(amount !== null, 'unable to convert to currency')
 
+    // Claim pack ASAP to ensure it's not claimed by someone else during this flow.
+    // We'll later clear this out if the payment fails.
+    await this.packs.claimPack(
+      {
+        packId: randomPack.id,
+        claimedById: userId,
+        claimedAt: new Date().toISOString(),
+      },
+      trx
+    )
+
+    return { price, priceInUSD: amount, packId: randomPack.id }
+  }
+
+  async createPayment(paymentDetails: CreatePayment, trx?: Transaction) {
     const user = await UserAccountModel.query(trx)
       .where('externalId', paymentDetails.payerExternalId)
       .first()
 
     userInvariant(user, 'user not found', 404)
 
-    // Claim pack ASAP to ensure it's not claimed by someone else during this flow.
-    // We'll later clear this out if the payment fails.
-    await this.packs.claimPack(
-      {
-        packId: randomPack.id,
-        claimedById: user.id,
-        claimedAt: new Date().toISOString(),
-      },
+    const { priceInUSD, packId } = await this.selectPackAndAssignToUser(
+      paymentDetails.packTemplateId,
+      user.id,
       trx
     )
 
@@ -281,7 +428,7 @@ export default class PaymentsService {
       idempotencyKey: idempotencyKey,
       metadata: metadata,
       amount: {
-        amount,
+        amount: priceInUSD,
         currency: DEFAULT_CURRENCY,
       },
       verification: verification,
@@ -298,7 +445,7 @@ export default class PaymentsService {
       // Remove claim from payment if payment doesn't go through
       await this.packs.claimPack(
         {
-          packId: randomPack.id,
+          packId,
           claimedById: null,
           claimedAt: null,
         },
@@ -311,9 +458,11 @@ export default class PaymentsService {
     // Circle may return the same payment ID if there's duplicate info
     const newPayment = await PaymentModel.query(trx)
       .insert({
-        ...payment,
+        externalId: payment.externalId,
+        status: payment.status,
+        error: payment.error,
         payerId: user.id,
-        packId: randomPack.id,
+        packId,
         paymentCardId: card?.id,
       })
       .onConflict('externalId')
@@ -390,6 +539,65 @@ export default class PaymentsService {
     return { externalId: card.externalId, status: card.status }
   }
 
+  async handleWirePayment(
+    payment: PaymentModel,
+    trx?: Transaction
+  ): Promise<ToPaymentBase | null> {
+    if (!payment.id || !payment.paymentBankId || !payment.packId) return null
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      payment.paymentBankId
+    )
+    userInvariant(foundBankAccount, 'bank account was not found', 404)
+
+    // Last 24 hours
+    const newDate24HoursInPast = new Date(
+      new Date().setDate(new Date().getDate() - 1)
+    ).toISOString()
+
+    // Get recent payments of wire type
+    const payments = await this.circle.getPayments({
+      from: newDate24HoursInPast.toString(),
+      type: CirclePaymentQueryType.wire,
+    })
+    if (!payments) return null
+
+    // Retrieve exchange rates for app currency and USD
+    const exchangeRates = await this.coinbase.getExchangeRates({
+      currency: currency.code,
+    })
+    invariant(exchangeRates, 'unable to find exchange rates')
+
+    // Find payment with matching source ID
+    const sourcePayment = payments.find((currentPayment) => {
+      // Convert price to USD for payment
+      const amount = convertFromUSD(currentPayment.amount, exchangeRates.rates)
+      invariant(amount !== null, 'unable to convert to currency')
+      const amountInt = formatFloatToInt(amount)
+      return (
+        currentPayment.sourceId === foundBankAccount.externalId &&
+        amountInt === foundBankAccount.amount
+      )
+    })
+    if (!sourcePayment) return null
+    // Update payment details
+    if (payment.status !== sourcePayment.status || !payment.externalId) {
+      await PaymentModel.query(trx).patchAndFetchById(payment.id, {
+        externalId: sourcePayment.externalId,
+        status: sourcePayment.status,
+      })
+    }
+    // Remove claim from pack if payment fails
+    if (sourcePayment.status === PaymentStatus.Failed) {
+      // @TODO: Take action if payment fails
+    }
+    // If status is paid and therefore the payment has settled:
+    if (sourcePayment.status === PaymentStatus.Paid) {
+      // @TODO: Take action. How to handle if pack is already minted?
+    }
+    return sourcePayment
+  }
+
   async getPaymentById(paymentId: string) {
     const payment = await PaymentModel.query().findById(paymentId)
     userInvariant(payment, 'payment not found', 404)
@@ -413,10 +621,86 @@ export default class PaymentsService {
     })
   }
 
+  async sendWireInstructions(
+    details: SendBankAccountInstructions,
+    trx?: Transaction
+  ) {
+    const user = await UserAccountModel.query(trx)
+      .where('externalId', details.ownerExternalId)
+      .first()
+    userInvariant(user, 'no user found', 404)
+
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      details.bankAccountId
+    )
+    userInvariant(foundBankAccount, 'bank account is not available', 404)
+
+    // Get wire instructions
+    const bankAccountInstructions = await this.getWireTransferInstructions(
+      details.bankAccountId
+    )
+    userInvariant(
+      bankAccountInstructions,
+      'bank account instructions were not found',
+      404
+    )
+
+    const payment = await PaymentModel.query().findOne({
+      paymentBankId: details.bankAccountId,
+    })
+    userInvariant(
+      payment && payment.packId,
+      'associated payment was not found',
+      404
+    )
+
+    // Get pack template details
+    const packTemplate = await this.packs.getPackById(payment.packId)
+    userInvariant(packTemplate, 'pack template was not found', 404)
+
+    // Send bank account instructions to user
+    await this.notifications.createNotification(
+      {
+        type: NotificationType.WireInstructions,
+        userAccountId: user.id,
+        variables: {
+          amount: formatIntToFloat(foundBankAccount.amount),
+          packTitle: packTemplate.title,
+          trackingRef: bankAccountInstructions.trackingRef,
+          beneficiaryName: bankAccountInstructions.beneficiary.name,
+          beneficiaryAddress1: bankAccountInstructions.beneficiary.address1,
+          beneficiaryAddress2: bankAccountInstructions.beneficiary.address2,
+          beneficiaryBankName:
+            bankAccountInstructions.beneficiaryBank.name || '',
+          beneficiaryBankSwiftCode:
+            bankAccountInstructions.beneficiaryBank.swiftCode || '',
+          beneficiaryBankRoutingNumber:
+            bankAccountInstructions.beneficiaryBank.routingNumber,
+          beneficiaryBankAccountingNumber:
+            bankAccountInstructions.beneficiaryBank.accountNumber,
+          beneficiaryBankAddress:
+            bankAccountInstructions.beneficiaryBank.address || '',
+          beneficiaryBankCity:
+            bankAccountInstructions.beneficiaryBank.city || '',
+          beneficiaryBankPostalCode:
+            bankAccountInstructions.beneficiaryBank.postalCode || '',
+          beneficiaryBankCountry:
+            bankAccountInstructions.beneficiaryBank.country || '',
+        },
+      },
+      trx
+    )
+
+    return true
+  }
+
   async updatePaymentStatuses(trx?: Transaction) {
     const pendingPayments = await PaymentModel.query(trx)
       // Pending and Confirmed are non-final statuses
       .whereIn('status', [PaymentStatus.Pending, PaymentStatus.Confirmed])
+      // Prioritize pending payments
+      .orderBy('status', 'desc')
       .limit(10)
 
     if (pendingPayments.length === 0) return 0
@@ -424,24 +708,65 @@ export default class PaymentsService {
 
     await Promise.all(
       pendingPayments.map(async (payment) => {
-        const circlePayment = await this.circle.getPaymentById(
-          payment.externalId
-        )
-        invariant(
-          circlePayment,
-          `external payment ${payment.externalId} not found`
-        )
+        // Card flow
+        if (payment.externalId && payment.paymentCardId) {
+          const circlePayment = await this.circle.getPaymentById(
+            payment.externalId
+          )
+          invariant(
+            circlePayment,
+            `external payment ${payment.externalId} not found`
+          )
 
-        if (payment.status !== circlePayment.status) {
-          await PaymentModel.query(trx).patchAndFetchById(payment.id, {
-            status: circlePayment.status,
-          })
-          updatedPayments++
+          if (payment.status !== circlePayment.status) {
+            await PaymentModel.query(trx).patchAndFetchById(payment.id, {
+              status: circlePayment.status,
+            })
+            updatedPayments++
+          }
         }
+        // Wire transfer flow
+        else if (payment.paymentBankId) {
+          const wirePayment = await this.handleWirePayment(payment, trx)
+          if (wirePayment) {
+            updatedPayments++
+          }
+        }
+        return
       })
     )
 
     return updatedPayments
+  }
+
+  async updatePaymentBankStatuses(trx?: Transaction) {
+    const pendingPaymentBanks = await PaymentBankAccountModel.query(trx)
+      .where('status', PaymentBankAccountStatus.Pending)
+      .limit(10)
+
+    if (pendingPaymentBanks.length === 0) return 0
+    let updatedPaymentCards = 0
+
+    await Promise.all(
+      pendingPaymentBanks.map(async (bank) => {
+        const circleBankAccount = await this.circle.getPaymentBankAccountById(
+          bank.externalId
+        )
+        invariant(
+          circleBankAccount,
+          `external bank account ${bank.externalId} not found`
+        )
+
+        if (bank.status !== circleBankAccount.status) {
+          await PaymentBankAccountModel.query(trx).patchAndFetchById(bank.id, {
+            status: circleBankAccount.status,
+          })
+          updatedPaymentCards++
+        }
+      })
+    )
+
+    return updatedPaymentCards
   }
 
   async updatePaymentCardStatuses(trx?: Transaction) {

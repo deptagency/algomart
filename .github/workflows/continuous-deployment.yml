@@ -1,4 +1,4 @@
-name: Deploy
+name: Continuous Deployment
 on:
   push:
     branches:
@@ -139,8 +139,19 @@ jobs:
           TF_VAR_cms_secret: ${{ secrets.CMS_SECRET }}
           TF_VAR_cms_storage_bucket: ${{ secrets.CMS_STORAGE_BUCKET }}
 
-          TF_VAR_sendgrid_key: ${{ secrets.SENDGRID_KEY }}
-          TF_VAR_sendgrid_from_email: ${{ secrets.SENDGRID_FROM_EMAIL }}
+          TF_VAR_email_from: ${{ secrets.EMAIL_FROM }}
+          TF_VAR_email_transport: ${{ secrets.EMAIL_TRANSPORT }}
+          TF_VAR_email_name: ${{ secrets.EMAIL_NAME }}
+
+          TF_VAR_pinata_api_key: ${{ secrets.PINATA_API_KEY }}
+          TF_VAR_pinata_api_secret: ${{ secrets.PINATA_API_SECRET }}
+
+          TF_VAR_sendgrid_api_key: ${{ secrets.SENDGRID_API_KEY }}
+
+          TF_VAR_smtp_host: ${{ secrets.SMTP_HOST }}
+          TF_VAR_smtp_port: ${{ secrets.SMTP_PORT }}
+          TF_VAR_smtp_user: ${{ secrets.SMTP_USER }}
+          TF_VAR_smtp_password: ${{ secrets.SMTP_PASSWORD }}
 
           TF_VAR_web_domain_mapping: ${{ secrets.WEB_DOMAIN_MAPPING }}
           TF_VAR_web_firebase_service_account: ${{ secrets.WEB_FIREBASE_SERVICE_ACCOUNT }}

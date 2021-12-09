@@ -14,6 +14,8 @@
     "db:rollback": "npx directus database migrate:rollback",
     "db:seed": "./scripts/seed.mjs ./config.local.json",
     "dev": "directus start",
+    "import": "./scripts/import.mjs ./config.local.json",
+    "export": "./scripts/export.mjs ./config.local.json",
     "start": "directus start",
     "build:price-display": "cd extensions/displays/pack-price && npx directus-extension build",
     "build:price-interface": "cd extensions/interfaces/price-conversion && npx directus-extension build",
@@ -22,16 +24,16 @@
   "dependencies": {
     "canvas": "2.8.0",
     "dinero.js": "2.0.0-alpha.8",
-    "directus": "9.0.1",
+    "directus": "9.2.0",
     "env-var": "7.1.1",
     "pg": "8.7.1"
   },
   "devDependencies": {
-    "@directus/extensions-sdk": "9.0.1",
+    "@directus/extensions-sdk": "9.2.0",
     "axios": "0.24.0",
     "form-data": "4.0.0",
     "rosie": "2.1.0",
-    "typescript": "4.4.4",
+    "typescript": "4.5.2",
     "vue": "3.2.22"
   }
 }

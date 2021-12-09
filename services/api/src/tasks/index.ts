@@ -7,11 +7,14 @@ import generateCollectiblesTask from './generate-collectibles.task'
 import generatePacksTask from './generate-packs.task'
 import handlePackAuctionCompletionTask from './handle-pack-auction-completion.task'
 import handlePackAuctionExpirationTask from './handle-pack-auction-expiration.task'
+import mintCollectiblesTask from './mint-collectibles.task'
+import storeCollectiblesTask from './store-collectibles.task'
+import { updatePaymentBankStatusesTask } from './update-payment-bank-statuses.task'
 import { updatePaymentCardStatusesTask } from './update-payment-card-statuses.task'
 import { updatePaymentStatusesTask } from './update-payment-statuses.task'
 
 export function configureTasks(app: FastifyInstance) {
-  //#region Pack & Collectible generation/minting
+  //#region Pack & Collectible generation/storage/minting
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
       { seconds: 10 },
@@ -25,7 +28,7 @@ export function configureTasks(app: FastifyInstance) {
 
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
-      { minutes: 1 },
+      { minutes: 1, runImmediately: true },
       new AsyncTask(
         'generate-collectibles',
         async () => await generateCollectiblesTask(app.container),
@@ -38,8 +41,30 @@ export function configureTasks(app: FastifyInstance) {
     new SimpleIntervalJob(
       { minutes: 1 },
       new AsyncTask(
+        'store-collectibles',
+        async () => await storeCollectiblesTask(app.container),
+        (error) => app.log.error(error)
+      )
+    )
+  )
+
+  app.scheduler.addSimpleIntervalJob(
+    new SimpleIntervalJob(
+      { minutes: 1 },
+      new AsyncTask(
         'generate-packs',
         async () => await generatePacksTask(app.container),
+        (error) => app.log.error(error)
+      )
+    )
+  )
+
+  app.scheduler.addSimpleIntervalJob(
+    new SimpleIntervalJob(
+      { seconds: 10 },
+      new AsyncTask(
+        'mint-collectibles',
+        async () => await mintCollectiblesTask(app.container),
         (error) => app.log.error(error)
       )
     )
@@ -84,6 +109,17 @@ export function configureTasks(app: FastifyInstance) {
   //#endregion
 
   //#region Circle Payments
+  app.scheduler.addSimpleIntervalJob(
+    new SimpleIntervalJob(
+      { minutes: 1 },
+      new AsyncTask(
+        'check-pending-banks',
+        async () => await updatePaymentBankStatusesTask(app.container),
+        (error) => app.log.error(error)
+      )
+    )
+  )
+
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
       { seconds: 10 },

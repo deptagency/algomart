@@ -37,7 +37,10 @@ export function useApi<T>(
   return useSWR<T, ErrorResponse>(url, fetcher, options)
 }
 
-export function useAuthApi<T>(url: string | null) {
+export function useAuthApi<T>(
+  url: string | null,
+  options?: { refreshInterval?: number }
+) {
   const auth = useAuth()
-  return useSWR<T, ErrorResponse>([url, auth.user?.token], fetcher)
+  return useSWR<T, ErrorResponse>([url, auth.user?.token], fetcher, options)
 }

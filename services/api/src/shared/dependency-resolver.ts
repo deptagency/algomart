@@ -3,7 +3,9 @@ import AlgorandAdapter from '@/lib/algorand-adapter'
 import CircleAdapter from '@/lib/circle-adapter'
 import CoinbaseAdapter from '@/lib/coinbase-adapter'
 import DirectusAdapter from '@/lib/directus-adapter'
-import SendgridAdapter from '@/lib/sendgrid-adapter'
+import I18nAdapter from '@/lib/i18n-adapter'
+import MailerAdapter from '@/lib/mailer-adapter'
+import NFTStorageAdapter from '@/lib/nft-storage-adapter'
 import AccountsService from '@/modules/accounts/accounts.service'
 import BidsService from '@/modules/bids/bids.service'
 import CollectiblesService from '@/modules/collectibles/collectibles.service'
@@ -102,12 +104,16 @@ export function configureResolver() {
       })
   )
   resolver.set(
-    SendgridAdapter.name,
+    NFTStorageAdapter.name,
     () =>
-      new SendgridAdapter({
-        sendgridApiKey: Configuration.sendgridApiKey,
-        sendgridFromEmail: Configuration.sendgridFromEmail,
+      new NFTStorageAdapter({
+        pinataApiKey: Configuration.pinataApiKey,
+        pinataApiSecret: Configuration.pinataApiSecret,
       })
+  )
+  resolver.set(
+    MailerAdapter.name,
+    () => new MailerAdapter(Configuration.mailer)
   )
   resolver.set(
     AccountsService.name,
@@ -124,8 +130,12 @@ export function configureResolver() {
   resolver.set(
     NotificationsService.name,
     (c) =>
-      new NotificationsService(c.get<SendgridAdapter>(SendgridAdapter.name))
+      new NotificationsService(
+        c.get<MailerAdapter>(MailerAdapter.name),
+        c.get<I18nAdapter>(I18nAdapter.name)
+      )
   )
+  resolver.set(I18nAdapter.name, () => new I18nAdapter())
   resolver.set(
     TransactionsService.name,
     (c) => new TransactionsService(c.get<AlgorandAdapter>(AlgorandAdapter.name))
@@ -145,7 +155,8 @@ export function configureResolver() {
     (c) =>
       new CollectiblesService(
         c.get<DirectusAdapter>(DirectusAdapter.name),
-        c.get<AlgorandAdapter>(AlgorandAdapter.name)
+        c.get<AlgorandAdapter>(AlgorandAdapter.name),
+        c.get<NFTStorageAdapter>(NFTStorageAdapter.name)
       )
   )
   resolver.set(
@@ -169,6 +180,7 @@ export function configureResolver() {
       new PaymentsService(
         c.get<CircleAdapter>(CircleAdapter.name),
         c.get<CoinbaseAdapter>(CoinbaseAdapter.name),
+        c.get<NotificationsService>(NotificationsService.name),
         c.get<PacksService>(PacksService.name)
       )
   )

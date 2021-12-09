@@ -108,7 +108,7 @@ export default function TransferModal({
         {transferStatus === TransferPackStatus.Transferring && (
           <div className={css.loadingWrapper}>
             <Loading
-              loadingText={t('common:statuses.Transferring')}
+              loadingText={t('common:statuses.Transferring Asset')}
               variant="secondary"
             />
           </div>
@@ -134,7 +134,9 @@ export default function TransferModal({
               {t('common:statuses.Success!')}
             </h3>
             <p className={css.statusMessage}>
-              {t('release:successConfirmation', { name: packTemplate.title })}
+              {t('release:successTransferConfirmation', {
+                name: packTemplate.title,
+              })}
             </p>
             <Button
               className={css.button}

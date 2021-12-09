@@ -16,6 +16,7 @@ export const urls = {
   redeem: '/redeem',
   releases: '/releases',
   release: '/releases/:packSlug',
+  checkout: '/checkout',
 
   // Auth-related
   login: '/login',
@@ -37,15 +38,20 @@ export const urls = {
       assetRedeem: '/api/v1/asset/redeem',
       assetMint: '/api/v1/asset/mint',
       assetTransfer: '/api/v1/asset/transfer',
+      createBankAccount: '/api/v1/payments/create-bank-account',
       createBidForPack: 'api/v1/bid/add-to-pack',
       createCard: '/api/v1/payments/create-card',
       createPayment: '/api/v1/payments/create-payment',
       getAllCollections: '/api/v1/collection/get-all-collections',
+      getBankAccountInstructions:
+        '/api/v1/payments/get-bank-account-instructions',
+      getBankAccountStatus: '/api/v1/payments/get-bank-account-status',
       getAssetsByOwner: '/api/v1/asset/get-by-owner',
       getCardStatus: '/api/v1/payments/get-card-status',
       getCardsByOwner: '/api/v1/payments/get-cards-by-owner',
       getPayment: '/api/v1/payments/get-payment',
       getPublishedPacks: '/api/v1/pack/get-published-packs',
+      getUntransferredPacks: '/api/v1/pack/untransferred',
       getRedeemable: '/api/v1/asset/get-redeemable',
       profile: '/api/v1/profile',
       publicKey: '/api/v1/payments/public-key',

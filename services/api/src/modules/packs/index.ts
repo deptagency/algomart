@@ -2,6 +2,7 @@ import {
   ClaimFreePackSchema,
   ClaimPackSchema,
   ClaimRedeemPackSchema,
+  LocaleAndExternalIdSchema,
   LocaleSchema,
   MintPackSchema,
   MintPackStatusResponseSchema,
@@ -32,10 +33,10 @@ import {
   getPackWithCollectiblesById,
   getPublishedPacks,
   getRedeemablePack,
-  mintPack,
   mintPackStatus,
   transferPack,
   transferPackStatus,
+  untransferredPacks,
 } from './packs.routes'
 
 import bearerAuthOptions from '@/configuration/bearer-auth'
@@ -191,23 +192,6 @@ export async function packsRoutes(app: FastifyInstance) {
     claimRedeemPack
   )
 
-  app.post(
-    '/mint',
-    {
-      transact: true,
-      schema: {
-        tags,
-        security,
-        description: 'Mint all NFTs in a single pack owned by a user.',
-        body: MintPackSchema,
-        response: {
-          204: Type.Null(),
-        },
-      },
-    },
-    mintPack
-  )
-
   app.get(
     '/mint',
     {
@@ -256,5 +240,21 @@ export async function packsRoutes(app: FastifyInstance) {
       },
     },
     transferPackStatus
+  )
+
+  app.get(
+    '/untransferred',
+    {
+      schema: {
+        tags,
+        security,
+        description: 'Get all packs that have not been transferred.',
+        querystring: LocaleAndExternalIdSchema,
+        response: {
+          200: PacksByOwnerSchema,
+        },
+      },
+    },
+    untransferredPacks
   )
 }

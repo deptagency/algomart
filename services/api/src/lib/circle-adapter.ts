@@ -1,8 +1,11 @@
 import {
+  CircleBankAccount,
+  CircleBankAccountStatus,
   CircleBlockchainAddress,
   CircleCard,
   CircleCardStatus,
   CircleCardVerification,
+  CircleCreateBankAccount,
   CircleCreateBlockchainAddress,
   CircleCreateCard,
   CircleCreatePayment,
@@ -16,14 +19,18 @@ import {
   CircleVerificationAVSSuccessCode,
   CircleVerificationCvvStatus,
   CircleWallet,
+  GetPaymentBankAccountInstructions,
   isCircleSuccessResponse,
+  PaymentBankAccountStatus,
   PaymentCardStatus,
   PaymentStatus,
   PublicKey,
+  ToPaymentBankAccountBase,
   ToPaymentBase,
   ToPaymentCardBase,
 } from '@algomart/schemas'
 import got, { Got } from 'got'
+import { URLSearchParams } from 'node:url'
 
 import { logger } from '@/utils/logger'
 
@@ -36,6 +43,30 @@ function toPublicKeyBase(data: CirclePublicKey): PublicKey {
   return {
     keyId: data.keyId,
     publicKey: data.publicKey,
+  }
+}
+
+function toBankAccountStatus(
+  status: CircleBankAccountStatus
+): PaymentBankAccountStatus {
+  let finalStatus
+  if (status === CircleBankAccountStatus.Failed) {
+    finalStatus = PaymentBankAccountStatus.Failed
+  } else if (status === CircleBankAccountStatus.Complete) {
+    finalStatus = PaymentBankAccountStatus.Complete
+  } else {
+    finalStatus = PaymentBankAccountStatus.Pending
+  }
+  return finalStatus
+}
+
+function toBankAccountBase(
+  response: CircleBankAccount
+): ToPaymentBankAccountBase {
+  return {
+    externalId: response.id,
+    description: response.description,
+    status: toBankAccountStatus(response.status),
   }
 }
 
@@ -110,6 +141,8 @@ function toPaymentStatus(
 function toPaymentBase(response: CirclePaymentResponse): ToPaymentBase {
   return {
     externalId: response.id,
+    amount: response.amount.amount,
+    sourceId: response.source.id,
     status: toPaymentStatus(response.status, response.verification),
     error: response.errorCode,
   }
@@ -184,6 +217,23 @@ export default class CircleAdapter {
     return null
   }
 
+  async createBankAccount(
+    request: CircleCreateBankAccount
+  ): Promise<ToPaymentBankAccountBase | null> {
+    const response = await this.http
+      .post('v1/banks/wires', {
+        json: request,
+      })
+      .json<CircleResponse<CircleBankAccount>>()
+
+    if (isCircleSuccessResponse(response)) {
+      return toBankAccountBase(response.data)
+    }
+
+    this.logger.error({ response }, 'Failed to create bank account')
+    return null
+  }
+
   async createPayment(
     request: CircleCreatePayment
   ): Promise<ToPaymentBase | null> {
@@ -215,6 +265,38 @@ export default class CircleAdapter {
     }
 
     this.logger.error({ response }, 'Failed to get the merchant wallet')
+  }
+
+  async getPaymentBankAccountInstructionsById(
+    id: string
+  ): Promise<GetPaymentBankAccountInstructions | null> {
+    const response = await this.http
+      .get(`v1/banks/wires/${id}/instructions`)
+      .json<CircleResponse<GetPaymentBankAccountInstructions>>()
+
+    if (isCircleSuccessResponse(response)) {
+      return response.data
+    }
+
+    this.logger.error(
+      { response },
+      'Failed to get payment bank account instructions'
+    )
+    return null
+  }
+
+  async getPaymentBankAccountById(
+    id: string
+  ): Promise<ToPaymentBankAccountBase | null> {
+    const response = await this.http
+      .get(`v1/banks/wires/${id}`)
+      .json<CircleResponse<CircleBankAccount>>()
+
+    if (isCircleSuccessResponse(response)) {
+      return toBankAccountBase(response.data)
+    }
+
+    this.logger.error({ response }, 'Failed to get payment bank account')
     return null
   }
 
@@ -264,6 +346,24 @@ export default class CircleAdapter {
       { response },
       'Failed to get transfers for external wallet'
     )
+  }
+
+  async getPayments(
+    query: CirclePaymentQuery
+  ): Promise<ToPaymentBase[] | null> {
+    const searchParams = new URLSearchParams()
+    for (const [key, value] of Object.entries(query)) {
+      searchParams.append(key, `${value}`)
+    }
+    const response = await this.http
+      .get('v1/payments', { searchParams })
+      .json<CircleResponse<CirclePaymentResponse[]>>()
+
+    if (isCircleSuccessResponse(response)) {
+      return response.data.map((payment) => toPaymentBase(payment))
+    }
+
+    this.logger.error({ response }, 'Failed to get payments')
     return null
   }
 }

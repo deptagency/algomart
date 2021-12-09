@@ -3,6 +3,7 @@ import {
   ClaimPack,
   ClaimRedeemPack,
   Locale,
+  LocaleAndExternalId,
   MintPack,
   OwnerExternalId,
   PackId,
@@ -82,6 +83,15 @@ export async function getRedeemablePack(
   reply.send({ pack: result })
 }
 
+export async function untransferredPacks(
+  request: FastifyRequest<{ Querystring: LocaleAndExternalId }>,
+  reply: FastifyReply
+) {
+  const service = request.getContainer().get<PacksService>(PacksService.name)
+  const result = await service.untransferredPacks(request.query)
+  reply.send(result)
+}
+
 export async function claimRandomFreePack(
   request: FastifyRequest<{ Body: ClaimFreePack }>,
   reply: FastifyReply
@@ -123,15 +133,6 @@ export async function claimPack(
     return
   }
   reply.send({ pack: result })
-}
-
-export async function mintPack(
-  request: FastifyRequest<{ Body: MintPack }>,
-  reply: FastifyReply
-) {
-  const service = request.getContainer().get<PacksService>(PacksService.name)
-  await service.mintPack(request.body, request.transaction)
-  reply.status(204).send()
 }
 
 export async function mintPackStatus(

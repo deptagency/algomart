@@ -8,15 +8,20 @@ import {
   CollectibleListWithTotal,
   CollectibleShowcaseQuerystring,
   CollectionWithSets,
+  CreateBankAccount,
+  CreateBankAccountResponse,
   CreateBidRequest,
   CreateCard,
   CreatePayment,
   CreateUserAccountRequest,
   DEFAULT_LOCALE,
   ExternalId,
+  GetPaymentBankAccountInstructions,
+  GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
   Locale,
+  LocaleAndExternalId,
   MintPack,
   MintPackStatusResponse,
   OwnerExternalId,
@@ -34,6 +39,7 @@ import {
   PublishedPacks,
   PublishedPacksQuery,
   RedeemCode,
+  SendBankAccountInstructions,
   SetWithCollection,
   TransferPack,
   TransferPackStatusList,
@@ -193,8 +199,26 @@ export class ApiClient {
       .json<PublicKey>()
   }
 
+  async createBankAccount(json: CreateBankAccount) {
+    return await this.http
+      .post('payments/bank-accounts', { json })
+      .json<CreateBankAccountResponse>()
+  }
+
   async createCard(json: CreateCard) {
     return await this.http.post('payments/cards', { json }).json<PaymentCard>()
+  }
+
+  async getBankAddressInstructions(bankAccountId: string) {
+    return await this.http
+      .get(`payments/bank-accounts/${bankAccountId}/instructions`)
+      .json<GetPaymentBankAccountInstructions>()
+  }
+
+  async getBankAddressStatus(bankAccountId: string) {
+    return await this.http
+      .get(`payments/bank-accounts/${bankAccountId}/status`)
+      .json<GetPaymentBankAccountStatus>()
   }
 
   async getCardStatus(cardId: string) {
@@ -221,6 +245,17 @@ export class ApiClient {
   async removeCardById(cardId: string) {
     return await this.http
       .delete(`payments/cards/${cardId}`)
+      .then((response) => response.ok)
+  }
+
+  async sendBankAddressInstructions(filters: SendBankAccountInstructions) {
+    const searchParameters = new URLSearchParams()
+    if (filters?.bankAccountId)
+      searchParameters.set('bankAccountId', `${filters.bankAccountId}`)
+    if (filters?.ownerExternalId)
+      searchParameters.set('ownerExternalId', `${filters.ownerExternalId}`)
+    return await this.http
+      .get(`payments/bank-accounts/send`, { searchParams: searchParameters })
       .then((response) => response.ok)
   }
   //#endregion
@@ -274,10 +309,6 @@ export class ApiClient {
       .json<{ pack: PackWithId }>()
   }
 
-  async mintPack(json: MintPack) {
-    return await this.http.post('packs/mint', { json })
-  }
-
   async mintPackStatus(params: MintPack) {
     return await this.http
       .get('packs/mint', { searchParams: params })
@@ -292,6 +323,12 @@ export class ApiClient {
     return await this.http
       .get(`packs/transfer/${packId}`)
       .json<TransferPackStatusList>()
+  }
+
+  async untransferredPacks(params: LocaleAndExternalId): Promise<PacksByOwner> {
+    return await this.http
+      .get('packs/untransferred', { searchParams: params })
+      .json<PacksByOwner>()
   }
   //#endregion
 

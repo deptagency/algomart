@@ -1,8 +1,12 @@
 import { PublishedPack } from '@algomart/schemas'
 
-import EmailVerfication from '@/components/profile/email-verification'
+import BankAccountPurchaseForm from '@/components/bank-account-form/bank-account-form'
+import EmailVerification from '@/components/profile/email-verification'
 import PurchaseNFTForm from '@/components/purchase-nft-form/purchase-nft-form'
 import { useAuth } from '@/contexts/auth-context'
+import { Environment } from '@/environment'
+import { isGreaterThanOrEqual } from '@/utils/format-currency'
+import { MAX_BID_FOR_CARD_PAYMENT } from '@/utils/purchase-validation'
 
 export interface CheckoutTemplateProps {
   auctionPackId: string | null
@@ -17,13 +21,29 @@ export default function CheckoutTemplate({
 }: CheckoutTemplateProps) {
   const { user } = useAuth()
   if (!user?.emailVerified) {
-    return <EmailVerfication inline />
+    return <EmailVerification inline />
   }
+  const doesRequireWirePayment =
+    Environment.isWireEnabled &&
+    ((currentBid &&
+      isGreaterThanOrEqual(currentBid, MAX_BID_FOR_CARD_PAYMENT)) ||
+      (release.price &&
+        isGreaterThanOrEqual(release.price, MAX_BID_FOR_CARD_PAYMENT)))
   return (
-    <PurchaseNFTForm
-      auctionPackId={auctionPackId}
-      currentBid={currentBid}
-      release={release}
-    />
+    <>
+      {doesRequireWirePayment ? (
+        <BankAccountPurchaseForm
+          auctionPackId={auctionPackId}
+          currentBid={currentBid}
+          release={release}
+        />
+      ) : (
+        <PurchaseNFTForm
+          auctionPackId={auctionPackId}
+          currentBid={currentBid}
+          release={release}
+        />
+      )}
+    </>
   )
 }

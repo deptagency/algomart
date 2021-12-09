@@ -31,7 +31,7 @@ export default function MyCollectionsTemplate({
   return (
     <>
       {/* Tabs */}
-      <Tabs activeTab={1} tabs={getCollectionTabs(t)} />
+      <Tabs activeTab={1} tabs={getCollectionTabs(t)} negativeMargin />
 
       {/* Collections */}
       <section className="mt-12">

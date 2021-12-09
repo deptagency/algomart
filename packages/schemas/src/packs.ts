@@ -11,7 +11,7 @@ import {
   Simplify,
   SortDirection,
 } from './shared'
-import { AlgorandTransactionStatus } from '.'
+import { AlgorandTransactionStatus } from './transactions'
 
 export enum PackType {
   Auction = 'auction',
@@ -120,6 +120,7 @@ export const PublishedPacksSchema = Type.Object({
 export const PackByOwnerSchema = Type.Intersect([
   PackBaseSchema,
   Type.Object({
+    id: IdSchema,
     activeBid: Type.Optional(Type.Number()),
     claimedAt: Type.String({ format: 'date-time' }),
   }),

@@ -1,5 +1,4 @@
 {
-  "extends": "@tsconfig/node14/tsconfig.json",
   "include": ["src/**/*", "test/**/*"],
   "compilerOptions": {
     "lib": [
@@ -21,6 +20,7 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "strict": true,
     "paths": {
       "@/*": ["src/*"]

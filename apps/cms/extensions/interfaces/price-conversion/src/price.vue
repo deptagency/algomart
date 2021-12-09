@@ -1,54 +1,51 @@
 <template>
   <v-input
-    v-model="options"
-    @input="handleChange($event.target.value)"
+    v-model="formattedValue"
+    :key="trigger"
     @focus="onFocus"
+    @blur="onBlur"
   />
 </template>
 
 <script lang="ts">
 import * as Currencies from '@dinero.js/currencies'
-import { Currency, dinero, toFormat } from 'dinero.js'
 import { useApi } from '@directus/extensions-sdk'
-import { defineComponent, computed, ref } from 'vue'
+import { Currency, dinero, toFormat } from 'dinero.js'
+import { defineComponent, ref } from 'vue'
 
 const currency = ref(Currencies.USD)
+const language = ref('en-US')
 
-function formatFloatToInt(float: number | string, currency: Currency<number>) {
-  const number = typeof float === 'string' ? Number.parseFloat(float) : float
-  const factor = currency.base ** currency.exponent
-  const amount = Math.round(number * factor)
-  const price = dinero({ amount, currency })
-  return price.toJSON().amount
-}
-
-function formatIntToFloat(amount: number, currency: Currency<number>) {
-  const price = dinero({ amount, currency })
-  const float = toFormat(price, ({ amount, currency }) =>
-    amount.toFixed(currency.exponent)
+function format(value: number, currency: Currency<number>, locale: string) {
+  const price = dinero({ amount: value, currency })
+  return toFormat(price, ({ amount, currency }) =>
+    amount.toLocaleString(locale, {
+      style: 'currency',
+      currency: currency.code,
+    })
   )
-  return float
 }
 
-// Price conversion from integer to float
-function readPrice(price: number, currency: Currency<number>) {
-  try {
-    const decimal = formatIntToFloat(price, currency)
-    return decimal
-  } catch (error) {
-    throw new Error(error)
-  }
+function parse(value: number | string | null) {
+  if (!value) return 0
+  if (typeof value === 'number') return value
+  const parsedValue = Number.parseInt(value, 10)
+  return Number.isNaN(parsedValue) ? 0 : parsedValue
 }
 
-// Price conversion from float to integer
-function updatePrice(price: number | string, currency: Currency<number>) {
-  try {
-    if (!price) return price
-    const integer = formatFloatToInt(price, currency)
-    return integer
-  } catch (error) {
-    throw new Error(error)
-  }
+function toFloat(value: number, currency: Currency<number>) {
+  return value / currency.base ** currency.exponent
+}
+
+function toInteger(value: number, currency: Currency<number>) {
+  return Math.round(value * currency.base ** currency.exponent)
+}
+
+function prepareValue(value: string, locale: string) {
+  const localized = (0.1).toLocaleString(locale)
+  const decimal = localized[1]
+  const pattern = new RegExp(`[^\\d${decimal}]`, 'g')
+  return value.replace(pattern, '').replace(decimal, '.')
 }
 
 export default defineComponent({
@@ -58,46 +55,76 @@ export default defineComponent({
       default: null,
     },
   },
+
   emits: ['input'],
-  setup(props) {
-    const isInputActive = ref(false)
-    const typedValue = ref(props.value)
-    // Retrieve application currency
+
+  data(props) {
+    return {
+      editing: false,
+      rawValue: parse(props.value),
+      formattedValue: format(
+        parse(props.value),
+        currency.value,
+        language.value
+      ),
+    }
+  },
+
+  setup() {
     const api = useApi()
+    // used to trigger re-renders via the key-prop
+    const trigger = ref(0)
+
     api.get('/items/application').then((app) => {
       if (app.data.data.currency) {
         currency.value = Currencies[app.data.data.currency]
+        trigger.value += 1
       }
     })
-    const options = computed({
-      get() {
-        let value = props.value || null
-        if (
-          //!isInputActive.value &&
-          props.value &&
-          typeof props.value === 'number'
-        ) {
-          value = readPrice(props.value, currency.value)
-        } else if (isInputActive.value && value) {
-          // The value will be change to an integer on change, so we need to
-          // change the value back to the typed value which hadn't changed, to
-          // solve the issue where it formats as the user is typing.
-          value = typedValue.value
-        }
-        typedValue.value = value
-        return value
-      },
-      set() {},
+
+    api.get('/users/me').then((user) => {
+      if (user.data.data.language) {
+        language.value = user.data.data.language
+        trigger.value += 1
+      }
     })
-    function onFocus() {
-      isInputActive.value = true
-    }
-    return { options, onFocus }
+
+    return { trigger }
   },
+
+  updated() {
+    if (this.editing) return
+    this.rawValue = parse(this.$props.value)
+    this.formattedValue = format(this.rawValue, currency.value, language.value)
+  },
+
   methods: {
-    handleChange(value: string) {
-      const newValue = updatePrice(value, currency.value)
+    onFocus(event: FocusEvent) {
+      const input = event.target as HTMLInputElement
+
+      this.editing = true
+
+      // set formatted value to localized decimal point without thousand separators
+      this.formattedValue = toFloat(
+        this.rawValue,
+        currency.value
+      ).toLocaleString(language.value, { useGrouping: false })
+
+      // need to delay select() for a moment while value is being updated
+      setTimeout(() => input.select(), 0)
+    },
+
+    onBlur() {
+      // prepare localize value for JS-style decimal point
+      const prepared = prepareValue(this.formattedValue, language.value)
+
+      let newValue = toInteger(Number.parseFloat(prepared), currency.value)
+      if (Number.isNaN(newValue)) newValue = 0
+
+      this.rawValue = newValue
+      this.formattedValue = format(newValue, currency.value, language.value)
       this.$emit('input', newValue)
+      this.editing = false
     },
   },
 })

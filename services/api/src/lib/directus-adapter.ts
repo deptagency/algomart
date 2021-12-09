@@ -116,6 +116,8 @@ export interface DirectusCollectibleTemplate {
   total_editions: number
   preview_image: string | DirectusFile
   preview_video: string | DirectusFile
+  preview_audio: string | DirectusFile
+  asset_file: string | DirectusFile
   rarity: string | DirectusRarity | null
   unique_code: string
   pack_template: string | DirectusPackTemplate
@@ -408,6 +410,12 @@ export function toCollectibleBase(
     previewVideo: template.preview_video
       ? getFileURL(template.preview_video)
       : undefined,
+    previewAudio: template.preview_audio
+      ? getFileURL(template.preview_audio)
+      : undefined,
+    assetFile: template.asset_file
+      ? getFileURL(template.asset_file)
+      : undefined,
     collectionId,
     setId,
     templateId: template.id,
@@ -517,7 +525,9 @@ export default class DirectusAdapter {
   private async findPackTemplates(query: ItemQuery<DirectusPackTemplate> = {}) {
     const defaultQuery: ItemQuery<DirectusPackTemplate> = {
       filter: {
-        status: DirectusStatus.Published,
+        status: {
+          _eq: DirectusStatus.Published,
+        },
       },
       limit: -1,
       fields: ['*.*'],
@@ -534,7 +544,9 @@ export default class DirectusAdapter {
   ) {
     const defaultQuery: ItemQuery<DirectusCollectibleTemplate> = {
       filter: {
-        status: DirectusStatus.Published,
+        status: {
+          _eq: DirectusStatus.Published,
+        },
       },
       limit: -1,
       fields: ['*.*'],
@@ -549,7 +561,9 @@ export default class DirectusAdapter {
   private async findCollections(query: ItemQuery<DirectusCollection> = {}) {
     const defaultQuery: ItemQuery<DirectusCollection> = {
       filter: {
-        status: DirectusStatus.Published,
+        status: {
+          _eq: DirectusStatus.Published,
+        },
       },
       limit: -1,
       fields: ['*.*'],
@@ -564,7 +578,9 @@ export default class DirectusAdapter {
   private async findSets(query: ItemQuery<DirectusSet> = {}) {
     const defaultQuery: ItemQuery<DirectusSet> = {
       filter: {
-        status: DirectusStatus.Published,
+        status: {
+          _eq: DirectusStatus.Published,
+        },
       },
       limit: -1,
       fields: ['*.*'],
@@ -600,7 +616,9 @@ export default class DirectusAdapter {
       deep: {
         translations: {
           _filter: {
-            languages_code: locale,
+            languages_code: {
+              _eq: locale,
+            },
           },
         },
       },
@@ -627,7 +645,9 @@ export default class DirectusAdapter {
     const response = await this.findPackTemplates({
       limit: 1,
       filter: {
-        status: DirectusStatus.Published,
+        status: {
+          _eq: DirectusStatus.Published,
+        },
         ...filter,
       },
       deep: {
@@ -651,7 +671,9 @@ export default class DirectusAdapter {
   ) {
     const response = await this.findCollectibleTemplates({
       filter: {
-        status: DirectusStatus.Published,
+        status: {
+          _eq: DirectusStatus.Published,
+        },
         ...filter,
       },
       limit,
@@ -661,6 +683,8 @@ export default class DirectusAdapter {
         'unique_code',
         'preview_image.*',
         'preview_video.*',
+        'preview_audio.*',
+        'asset_file.*',
         'translations.*',
         'rarity.code',
         'rarity.color',
@@ -716,13 +740,17 @@ export default class DirectusAdapter {
       deep: {
         translations: {
           _filter: {
-            languages_code: locale,
+            languages_code: {
+              _eq: locale,
+            },
           },
         },
         sets: {
           translations: {
             _filter: {
-              languages_code: locale,
+              languages_code: {
+                _eq: locale,
+              },
             },
           },
         },
@@ -747,8 +775,12 @@ export default class DirectusAdapter {
     const response = await this.findCollections({
       limit: 1,
       filter: {
-        status: DirectusStatus.Published,
-        slug,
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+        slug: {
+          _eq: slug,
+        },
       },
       fields: [
         'collection_image',
@@ -765,13 +797,17 @@ export default class DirectusAdapter {
       deep: {
         translations: {
           _filter: {
-            languages_code: locale,
+            languages_code: {
+              _eq: locale,
+            },
           },
         },
         sets: {
           translations: {
             _filter: {
-              languages_code: locale,
+              languages_code: {
+                _eq: locale,
+              },
             },
           },
         },
@@ -786,8 +822,12 @@ export default class DirectusAdapter {
   async findSetBySlug(slug: string, locale = DEFAULT_LOCALE) {
     const response = await this.findSets({
       filter: {
-        status: DirectusStatus.Published,
-        slug,
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+        slug: {
+          _eq: slug,
+        },
       },
       fields: [
         'collection.collection_image',
@@ -805,13 +845,17 @@ export default class DirectusAdapter {
       deep: {
         translations: {
           _filter: {
-            languages_code: locale,
+            languages_code: {
+              _eq: locale,
+            },
           },
         },
         sets: {
           translations: {
             _filter: {
-              languages_code: locale,
+              languages_code: {
+                _eq: locale,
+              },
             },
           },
         },
@@ -833,17 +877,23 @@ export default class DirectusAdapter {
         deep: {
           featured_pack: {
             _filter: {
-              status: DirectusStatus.Published,
+              status: {
+                _eq: DirectusStatus.Published,
+              },
             },
           },
           upcoming_packs: {
             _filter: {
-              status: DirectusStatus.Published,
+              status: {
+                _eq: DirectusStatus.Published,
+              },
             },
           },
           notable_collectibles: {
             _filter: {
-              status: DirectusStatus.Published,
+              status: {
+                _eq: DirectusStatus.Published,
+              },
             },
           },
         },
