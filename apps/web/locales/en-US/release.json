@@ -18,6 +18,7 @@
   "emojiTrophy": "Trophy",
   "Ended": "Ended",
   "Ending In": "Ending In",
+  "failedToCreateBank": "We weren’t able to create the bank account for the wire transfer.",
   "failedToClaim": "We weren’t able to complete your transaction.",
   "failedToTransfer": "We weren’t able to complete your transaction.",
   "freeWaiting": "Your free {{name}} NFT is waiting",

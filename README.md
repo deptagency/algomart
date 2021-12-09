@@ -68,7 +68,9 @@ npm install
 ```
 
 > ### For M1 Mac Users
-> You might need to manually install additional system dependencies using [Homebrew](https://brew.sh/) before running `npm install`. Once Homebrew is installed, run 
+>
+> You might need to manually install additional system dependencies using [Homebrew](https://brew.sh/) before running `npm install`. Once Homebrew is installed, run
+>
 > ```bash
 > brew install pkg-config cairo pango libpng jpeg giflib librsvg
 > ```
