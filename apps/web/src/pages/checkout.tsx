@@ -10,6 +10,7 @@ import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import { Analytics } from '@/clients/firebase-analytics'
+import { usePaymentProvider } from '@/contexts/payment-context'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
@@ -30,6 +31,11 @@ export default function Checkout({
   release,
 }: CheckoutPageProps) {
   const { t } = useTranslation()
+  const paymentProps = usePaymentProvider({
+    auctionPackId,
+    currentBid,
+    release,
+  })
 
   useEffect(() => {
     Analytics.instance.beginCheckout({
@@ -47,11 +53,7 @@ export default function Checkout({
       }
       panelPadding
     >
-      <CheckoutTemplate
-        auctionPackId={auctionPackId}
-        currentBid={currentBid}
-        release={release}
-      />
+      <CheckoutTemplate {...paymentProps} />
     </DefaultLayout>
   )
 }

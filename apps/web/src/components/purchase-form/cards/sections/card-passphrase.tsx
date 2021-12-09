@@ -1,20 +1,20 @@
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback } from 'react'
 
-import css from './purchase-passphrase.module.css'
+import css from './card-passphrase.module.css'
 
 import Heading from '@/components/heading'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
 
-export interface PurchasePassphraseProps {
+export interface CardPurchasePassphraseProps {
   error?: string
   handleSubmitPassphrase(passphrase: string): Promise<void>
 }
 
-export default function PurchasePassphrase({
+export default function CardPurchasePassphrase({
   error,
   handleSubmitPassphrase,
-}: PurchasePassphraseProps) {
+}: CardPurchasePassphraseProps) {
   const { t } = useTranslation()
 
   const handleChange = useCallback(

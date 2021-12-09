@@ -1,10 +1,10 @@
 import {
   CreateBankAccountResponse,
   CreatePaymentCard,
-  GetPaymentBankAccountInstructions,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Payment,
+  PaymentBankAccountInstructions,
   PaymentCards,
   PublicKey,
 } from '@algomart/schemas'
@@ -31,7 +31,7 @@ export type CreatePaymentRequest = ExtractBodyType<typeof validatePurchase>
 export interface CheckoutAPI {
   getBankAccountInstructions(
     bankAccountId: string
-  ): Promise<GetPaymentBankAccountInstructions>
+  ): Promise<PaymentBankAccountInstructions>
   getBankAccountStatus(
     bankAccountId: string
   ): Promise<GetPaymentBankAccountStatus>
@@ -127,7 +127,7 @@ export class CheckoutService implements CheckoutAPI {
 
   async getBankAccountInstructions(
     bankAccountId: string
-  ): Promise<GetPaymentBankAccountInstructions> {
+  ): Promise<PaymentBankAccountInstructions> {
     const response = await this.http.get(
       `${urls.api.v1.getBankAccountInstructions}?bankAccountId=${bankAccountId}`
     )

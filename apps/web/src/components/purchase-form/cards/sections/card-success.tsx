@@ -4,28 +4,25 @@ import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback } from 'react'
 
-import css from './purchase-success.module.css'
+import css from './card-success.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
 import { isAfterNow } from '@/utils/date-time'
 import { urls } from '@/utils/urls'
 
-interface PurchaseSuccessProps {
+interface CardSuccessProps {
   packId: string
-  release: PublishedPack
+  release?: PublishedPack
 }
 
-export default function PurchaseSuccess({
-  packId,
-  release,
-}: PurchaseSuccessProps) {
+export default function CardSuccess({ packId, release }: CardSuccessProps) {
   const { push } = useRouter()
   const { t } = useTranslation()
 
   const isActiveAuction =
-    release.type === PackType.Auction &&
-    isAfterNow(new Date(release.auctionUntil as string))
+    release?.type === PackType.Auction &&
+    isAfterNow(new Date(release?.auctionUntil as string))
 
   const handlePackOpening = useCallback(() => {
     const path = urls.packOpening.replace(':packId', packId)
@@ -35,9 +32,9 @@ export default function PurchaseSuccess({
   }, [packId])
 
   return (
-    <div className={css.root}>
+    <div className={css.successRoot}>
       <CheckCircleIcon className={css.icon} height="48" width="48" />
-      {release.type === PackType.Auction && (
+      {release?.type === PackType.Auction && (
         <>
           <Heading className={css.bidPlacedHeading} level={3}>
             {isActiveAuction
@@ -67,7 +64,7 @@ export default function PurchaseSuccess({
           </Button>
         </>
       )}
-      {release.type === PackType.Purchase && (
+      {release?.type === PackType.Purchase && (
         <>
           <Heading className={css.successHeading} level={3}>
             {t('common:statuses.Success!')}

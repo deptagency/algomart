@@ -1,0 +1,26 @@
+.navigation {
+}
+
+.breadcrumbs {
+  @apply flex justify-between flex-wrap mb-16;
+}
+
+.breadcrumb {
+  @apply flex gap-1 justify-between;
+}
+
+.navLink {
+  @apply flex gap-6 transition duration-300 text-base-gray-text hover:text-base-gray-dark;
+}
+
+.navLink.navLinkActive {
+  @apply font-bold text-base-gray-dark;
+}
+
+.navLink.navLinkDisabled {
+  @apply opacity-60;
+}
+
+.icon {
+  @apply w-5;
+}

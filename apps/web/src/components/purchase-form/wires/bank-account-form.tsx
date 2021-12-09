@@ -1,8 +1,5 @@
-import {
-  GetPaymentBankAccountInstructions,
-  PackType,
-  PublishedPack,
-} from '@algomart/schemas'
+import { PackType, PaymentBankAccountInstructions } from '@algomart/schemas'
+import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useState } from 'react'
 
@@ -10,47 +7,45 @@ import BankAccountError from './sections/bank-account-error'
 import BankAccountForm from './sections/bank-account-form'
 import BankAccountHeader from './sections/bank-account-header'
 import BankAccountSuccess from './sections/bank-account-success'
+import BankAccountSummary from './sections/bank-account-summary'
 
 import css from './bank-account-form.module.css'
 
 import Loading from '@/components/loading/loading'
-import { usePaymentProvider } from '@/contexts/payment-context'
+import { PaymentContextProps } from '@/contexts/payment-context'
 import { isAfterNow } from '@/utils/date-time'
-
-export interface BankAccountFormProps {
-  auctionPackId: string | null
-  currentBid: number | null
-  release: PublishedPack
-}
+import { formatIntToFloat } from '@/utils/format-currency'
 
 export default function BankAccountPurchaseForm({
-  auctionPackId,
+  bid,
   currentBid,
+  formErrors,
+  handleSubmitBid: onSubmitBid,
+  handleAddBankAccount: onSubmitBankAccount,
+  initialBid,
+  loadingText,
   release,
-}: BankAccountFormProps) {
+  setBid,
+  setStatus,
+  status,
+}: PaymentContextProps) {
   const { t } = useTranslation()
   const [bankAccountInstructions, setBankAccountInstructions] =
-    useState<GetPaymentBankAccountInstructions | null>(null)
-
-  const {
-    formErrors,
-    handleSubmitBid: onSubmitBid,
-    handleAddBankAccount: onSubmitBankAccount,
-    loadingText,
-    setStatus,
-    status,
-  } = usePaymentProvider({
-    auctionPackId,
-    currentBid,
-    release,
-  })
+    useState<PaymentBankAccountInstructions | null>(null)
+  const price =
+    release?.type === PackType.Auction
+      ? bid
+      : formatIntToFloat(release?.price || 0)
+  const isAuctionActive =
+    release?.type === PackType.Auction &&
+    isAfterNow(new Date(release.auctionUntil as string))
 
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
       const data = new FormData(event.currentTarget)
       if (
-        release.type === PackType.Auction &&
+        release?.type === PackType.Auction &&
         isAfterNow(new Date(release.auctionUntil as string))
       ) {
         await onSubmitBid(data, 'wire')
@@ -59,7 +54,7 @@ export default function BankAccountPurchaseForm({
         if (bankInstructions) setBankAccountInstructions(bankInstructions)
       }
     },
-    [release.auctionUntil, release.type, onSubmitBankAccount, onSubmitBid]
+    [release?.auctionUntil, release?.type, onSubmitBankAccount, onSubmitBid]
   )
 
   const handleRetry = useCallback(() => {
@@ -70,14 +65,31 @@ export default function BankAccountPurchaseForm({
     <section className={css.root}>
       <BankAccountHeader release={release} />
 
-      <div className={status === 'form' ? 'w-full' : 'hidden'}>
+      <form
+        className={clsx(
+          css.form,
+          status === 'form' || status === 'summary' ? 'w-full' : 'hidden'
+        )}
+        onSubmit={handleSubmit}
+      >
         <BankAccountForm
-          formErrors={formErrors}
+          bid={bid}
+          className={status === 'form' ? 'w-full' : 'hidden'}
           currentBid={currentBid}
-          onSubmit={handleSubmit}
+          formErrors={formErrors}
+          handleContinue={() => setStatus('summary')}
+          initialBid={initialBid}
           release={release}
+          setBid={setBid}
         />
-      </div>
+        {status === 'summary' && (
+          <BankAccountSummary
+            isAuctionActive={isAuctionActive}
+            price={price}
+            release={release}
+          />
+        )}
+      </form>
 
       {status === 'loading' && (
         <Loading loadingText={loadingText} variant="primary" />
@@ -86,7 +98,6 @@ export default function BankAccountPurchaseForm({
       {status === 'success' && (
         <BankAccountSuccess
           bankAccountInstructions={bankAccountInstructions}
-          currentBid={currentBid}
           release={release}
         />
       )}

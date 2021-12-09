@@ -1,0 +1,15 @@
+.imageWrapper {
+  @apply relative flex self-center p-2 -mb-4 rounded-md -top-8 bg-base-teal;
+}
+
+.image {
+  @apply block mx-auto rounded-sm;
+}
+
+.closeButton {
+  @apply absolute top-0 right-0 z-50 text-sm border-none rounded-sm bg-none;
+}
+
+.title {
+  @apply mb-12;
+}

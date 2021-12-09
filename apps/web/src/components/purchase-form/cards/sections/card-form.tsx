@@ -1,16 +1,17 @@
-import { DEFAULT_CURRENCY, PackType, PublishedPack } from '@algomart/schemas'
+import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
-import { FormEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
-import css from './purchase-form.module.css'
+import css from './card-form.module.css'
 
 import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
-import CardDetails from '@/components/card-details'
-import BillingAddress from '@/components/card-details/billing-address'
 import CurrencyInput from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
+import BillingAddress from '@/components/purchase-form/shared/billing-address'
+import CardDetails from '@/components/purchase-form/shared/card-details'
+import FullName from '@/components/purchase-form/shared/full-name'
 import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import Toggle from '@/components/toggle/toggle'
@@ -18,36 +19,37 @@ import { FormValidation } from '@/contexts/payment-context'
 import { useLocale } from '@/hooks/use-locale'
 import checkoutService from '@/services/checkout-service'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
-import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
+import { formatCurrency } from '@/utils/format-currency'
 import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
 
-export interface PurchaseFormProps {
+export interface CardPurchaseFormProps {
+  bid: string | null
+  className?: string
   formErrors?: FormValidation
   currentBid: number | null
-  onSubmit(event: FormEvent<HTMLFormElement>): void
-  release: PublishedPack
+  handleContinue: () => void
+  initialBid?: string
+  isAuctionActive: boolean
+  setBid: (bid: string | null) => void
 }
 
-export default function PurchaseForm({
-  formErrors,
+export default function CardPurchaseForm({
+  bid,
+  className,
   currentBid,
-  onSubmit,
-  release,
-}: PurchaseFormProps) {
+  formErrors,
+  handleContinue,
+  initialBid,
+  isAuctionActive,
+  setBid,
+}: CardPurchaseFormProps) {
   const locale = useLocale()
   const { t, lang } = useTranslation()
 
-  const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
-
-  const [bid, setBid] = useState<string | null>(initialBid)
   const [savedCard, setSavedCard] = useState<SelectOption | null>(null)
   const [saveCard, setSaveCard] = useState<boolean>(false)
   const [defaultCard, setDefaultCard] = useState<boolean>(false)
   const [options, setOptions] = useState<Record<'id' | 'label', string>[]>([])
-  const price = release.type === PackType.Auction ? bid : release.price
-  const isAuctionActive =
-    release.type === PackType.Auction &&
-    isAfterNow(new Date(release.auctionUntil as string))
 
   useEffect(() => {
     const run = async () => {
@@ -98,7 +100,7 @@ export default function PurchaseForm({
   }
 
   return (
-    <form className={css.form} onSubmit={onSubmit}>
+    <div className={className}>
       {formErrors && 'bid' in formErrors && (
         <AlertMessage
           className={css.notification}
@@ -174,10 +176,6 @@ export default function PurchaseForm({
                   formErrors && 'expYear' in formErrors
                     ? (formErrors.expYear as string)
                     : '',
-                fullName:
-                  formErrors && 'fullName' in formErrors
-                    ? (formErrors.fullName as string)
-                    : '',
                 securityCode:
                   formErrors && 'securityCode' in formErrors
                     ? (formErrors.securityCode as string)
@@ -246,44 +244,51 @@ export default function PurchaseForm({
       </div>
 
       {!savedCard && (
-        <BillingAddress
-          formErrors={{
-            address1:
-              formErrors && 'address1' in formErrors
-                ? (formErrors.address1 as string)
-                : '',
-            city:
-              formErrors && 'city' in formErrors
-                ? (formErrors.city as string)
-                : '',
-            state:
-              formErrors && 'state' in formErrors
-                ? (formErrors.state as string)
-                : '',
-            country:
-              formErrors && 'country' in formErrors
-                ? (formErrors.country as string)
-                : '',
-            zipCode:
-              formErrors && 'zipCode' in formErrors
-                ? (formErrors.zipCode as string)
-                : '',
-          }}
-        />
+        <>
+          <FullName
+            formErrors={{
+              fullName:
+                formErrors && 'fullName' in formErrors
+                  ? (formErrors.fullName as string)
+                  : '',
+            }}
+          />
+          <BillingAddress
+            formErrors={{
+              address1:
+                formErrors && 'address1' in formErrors
+                  ? (formErrors.address1 as string)
+                  : '',
+              city:
+                formErrors && 'city' in formErrors
+                  ? (formErrors.city as string)
+                  : '',
+              state:
+                formErrors && 'state' in formErrors
+                  ? (formErrors.state as string)
+                  : '',
+              country:
+                formErrors && 'country' in formErrors
+                  ? (formErrors.country as string)
+                  : '',
+              zipCode:
+                formErrors && 'zipCode' in formErrors
+                  ? (formErrors.zipCode as string)
+                  : '',
+            }}
+          />
+        </>
       )}
 
-      {/* Price */}
-      <div className={css.priceContainer}>
-        <p className={css.priceLabel}>{t('release:Total')}</p>
-        <p className={css.priceValue}>{formatCurrency(price, lang)}</p>
-      </div>
-
       {/* Submit */}
-      <Button disabled={!release} fullWidth type="submit" variant="primary">
-        {isAuctionActive
-          ? t('common:actions.Place Bid')
-          : t('common:actions.Purchase')}
+      <Button
+        fullWidth
+        type="button"
+        variant="primary"
+        onClick={handleContinue}
+      >
+        {t('common:actions.Continue to Summary')}
       </Button>
-    </form>
+    </div>
   )
 }

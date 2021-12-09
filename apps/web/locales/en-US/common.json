@@ -19,6 +19,7 @@
     "Click to Remove": "Click to Remove",
     "Close": "Close",
     "Confirm Purchase": "Confirm Purchase",
+    "Continue to Summary": "Continue to Summary",
     "Remove Payment Method?": "Remove Payment Method?",
     "Copy": "Copy",
     "Create Asset": "Create Asset",
@@ -46,6 +47,7 @@
     "Select Image": "Select Image",
     "Sign Out": "Sign Out",
     "Sign": "Sign",
+    "Submit Payment Info": "Submit Payment Info",
     "Try Again": "Try Again",
     "View All Payment Methods": "View All Payment Methods",
     "View In My Collection": "View In My Collection",
@@ -137,6 +139,11 @@
       "Privacy Policy": "Privacy Policy",
       "Terms & Conditions": "Terms & Conditions",
       "copyright": "©2021 Algorand"
+    },
+    "payment": {
+      "Payment Methods": "Payment Methods",
+      "Payment Information": "Payment Information",
+      "Summary": "Summary"
     }
   },
   "statuses": {

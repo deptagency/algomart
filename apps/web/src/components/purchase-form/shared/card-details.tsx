@@ -6,7 +6,6 @@ import TextInput from '@/components/text-input/text-input'
 
 export interface CardDetailsProps {
   formErrors?: {
-    fullName?: string
     ccNumber?: string
     expMonth?: string
     expYear?: string
@@ -18,15 +17,6 @@ export default function CardDetails({ formErrors }: CardDetailsProps) {
   const { t } = useTranslation()
   return (
     <>
-      <TextInput
-        error={formErrors?.fullName}
-        helpText={t('forms:fields.fullName.helpText')}
-        label={t('forms:fields.fullName.label')}
-        name="fullName"
-        placeholder="Jane Smith"
-        variant="small"
-      />
-
       <TextInput
         error={formErrors?.ccNumber}
         label={t('forms:fields.ccNumber.label')}

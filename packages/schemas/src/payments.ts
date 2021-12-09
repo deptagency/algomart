@@ -519,6 +519,13 @@ export const GetPaymentBankAccountInstructionsSchema = Type.Object({
   status: Type.Optional(Type.Enum(PaymentBankAccountStatus)),
 })
 
+export const PaymentBankAccountInstructionsSchema = Type.Intersect([
+  GetPaymentBankAccountInstructionsSchema,
+  Type.Object({
+    amount: Type.Number(),
+  }),
+])
+
 export const GetPaymentBankAccountStatusSchema = Type.Object({
   status: Type.Optional(Type.Enum(PaymentBankAccountStatus)),
 })
@@ -634,9 +641,11 @@ export type CheckoutStatus =
   | 'loading'
   | 'success'
   | 'error'
+  | 'summary'
 export type CircleBlockchainAddress = Simplify<
   Static<typeof CircleBlockchainAddressSchema>
 >
+export type CheckoutMethods = 'card' | 'wire' | 'crypto'
 export type CircleBankAccount = Simplify<Static<typeof CircleBankAccountSchema>>
 export type CircleCard = Simplify<Static<typeof CircleCardSchema>>
 export type CircleCardVerification = Simplify<
@@ -703,6 +712,9 @@ export type Payment = Simplify<Static<typeof PaymentSchema>>
 export type PaymentId = Simplify<Static<typeof PaymentIdSchema>>
 export type PaymentBankAccount = Simplify<
   Static<typeof PaymentBankAccountSchema>
+>
+export type PaymentBankAccountInstructions = Simplify<
+  Static<typeof PaymentBankAccountInstructionsSchema>
 >
 export type PaymentCard = Simplify<Static<typeof PaymentCardSchema>>
 export type PaymentCards = Simplify<Static<typeof PaymentCardsSchema>>

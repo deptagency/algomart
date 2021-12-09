@@ -1,8 +1,10 @@
 import {
+  CheckoutMethods,
   CheckoutStatus,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Payment,
+  PaymentBankAccountInstructions,
   PublicKey,
   PublishedPack,
 } from '@algomart/schemas'
@@ -18,7 +20,6 @@ import {
 import { ExtractError } from 'validator-fns'
 
 import { Analytics } from '@/clients/firebase-analytics'
-import { Environment } from '@/environment'
 import bidService from '@/services/bid-service'
 import checkoutService, {
   CreateBankAccountRequest,
@@ -27,10 +28,9 @@ import checkoutService, {
 import { getExpirationDate } from '@/utils/date-time'
 import { encryptCardDetails } from '@/utils/encryption'
 import { toJSON } from '@/utils/form-to-json'
-import { formatFloatToInt, isGreaterThan } from '@/utils/format-currency'
+import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 import { poll } from '@/utils/poll'
 import {
-  MAX_BID_FOR_CARD_PAYMENT,
   validateBankAccount,
   validateBidsForm,
   validateBidsFormForWires,
@@ -56,12 +56,23 @@ export type FormValidation = ExtractError<
   >
 >
 
-interface PaymentContextProps {
+export interface PaymentContextProps {
+  auctionPackId?: string | null
+  bid: string | null
+  currentBid: number | null
   formErrors?: FormValidation
-  handleSubmitBid(data: FormData): void
+  handleAddBankAccount(
+    data: FormData
+  ): Promise<PaymentBankAccountInstructions | undefined>
+  handleSubmitBid(data: FormData, method: CheckoutMethods): void
   handleSubmitPurchase(data: FormData, isPurchase: boolean): void
+  initialBid?: string
   loadingText: string
+  method: CheckoutMethods | null
   packId: string | null
+  release?: PublishedPack
+  setBid: (bid: string | null) => void
+  setMethod: (method: CheckoutMethods | null) => void
   setStatus: (status: CheckoutStatus) => void
   status: CheckoutStatus
 }
@@ -84,7 +95,10 @@ export function usePaymentProvider({
   const [packId, setPackId] = useState<string | null>(auctionPackId || null)
   const [status, setStatus] = useState<CheckoutStatus>('form')
   const [loadingText, setLoadingText] = useState<string>('')
+  const [method, setMethod] = useState<CheckoutMethods | null>(null)
   const highestBid = currentBid || 0
+  const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
+  const [bid, setBid] = useState<string | null>(initialBid)
   const validateFormForBankAccount = useMemo(() => validateBankAccount(t), [t])
   const validateFormForPurchase = useMemo(() => validatePurchaseForm(t), [t])
   const validateFormForPurchaseWithSavedCard = useMemo(
@@ -433,7 +447,7 @@ export function usePaymentProvider({
   )
 
   const handleSubmitBid = useCallback(
-    async (data: FormData) => {
+    async (data: FormData, method: CheckoutMethods) => {
       setStatus('loading')
       try {
         if (!auctionPackId) {
@@ -460,11 +474,7 @@ export function usePaymentProvider({
         const bid = formatFloatToInt(floatBid)
 
         // If the bid is within the maximum bid range, submit card details
-        if (
-          !Environment.isWireEnabled ||
-          (Environment.isWireEnabled &&
-            !isGreaterThan(bid, MAX_BID_FOR_CARD_PAYMENT))
-        ) {
+        if (method === 'card') {
           setLoadingText(t('common:statuses.Authorizing card'))
 
           const validation = submittedCardId
@@ -490,7 +500,7 @@ export function usePaymentProvider({
           if (!cardId) {
             throw new Error('No card selected')
           }
-        } else {
+        } else if (method === 'wire') {
           setLoadingText(t('common:statuses.Validating Bid'))
           const bidValidation = await validateFormForBidsForWires({
             bid,
@@ -502,6 +512,8 @@ export function usePaymentProvider({
             setStatus('form')
             return
           }
+        } else {
+          throw new Error('Invalid method')
         }
 
         // Create bid
@@ -522,6 +534,8 @@ export function usePaymentProvider({
     [
       auctionPackId,
       handleAddCard,
+      setFormErrors,
+      setStatus,
       validateFormForBids,
       validateFormForBidsForWires,
       validateFormForBidsWithSavedCard,
@@ -590,12 +604,14 @@ export function usePaymentProvider({
           }
         } else {
           setStatus('success')
+          return
         }
       } catch {
         setStatus('error')
       }
 
       setLoadingText('')
+      return
     },
     [
       handleAddCard,
@@ -609,22 +625,38 @@ export function usePaymentProvider({
 
   const value = useMemo(
     () => ({
+      auctionPackId,
+      bid,
+      currentBid: currentBid || null,
       formErrors,
       handleAddBankAccount,
       handleSubmitBid,
       handleSubmitPurchase,
+      initialBid,
       loadingText,
+      method,
       packId,
+      release,
+      setBid,
+      setMethod,
       setStatus,
       status,
     }),
     [
+      auctionPackId,
+      bid,
+      currentBid,
       formErrors,
       handleAddBankAccount,
       handleSubmitBid,
       handleSubmitPurchase,
+      initialBid,
       loadingText,
+      method,
       packId,
+      release,
+      setBid,
+      setMethod,
       setStatus,
       status,
     ]

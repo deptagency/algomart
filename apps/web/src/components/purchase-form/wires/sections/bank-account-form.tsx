@@ -1,16 +1,15 @@
 import { DEFAULT_CURRENCY, PackType, PublishedPack } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
-import { FormEvent, useState } from 'react'
 
 import css from './bank-account-form.module.css'
 
 import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
-import Checkbox from '@/components/checkbox'
 import CurrencyInput from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
 import BillingAddress from '@/components/purchase-form/shared/billing-address'
+import FullName from '@/components/purchase-form/shared/full-name'
 import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import { FormValidation } from '@/contexts/payment-context'
@@ -19,36 +18,42 @@ import { isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 
 export interface BankAccountFormProps {
-  formErrors?: FormValidation
+  bid: string | null
+  className?: string
   currentBid: number | null
-  onSubmit(event: FormEvent<HTMLFormElement>): void
-  release: PublishedPack
+  formErrors?: FormValidation
+  handleContinue: () => void
+  initialBid?: string
+  release?: PublishedPack
+  setBid: (bid: string | null) => void
 }
 
 export default function BankAccountForm({
-  formErrors,
+  bid,
+  className,
   currentBid,
-  onSubmit,
+  formErrors,
+  handleContinue,
+  initialBid,
   release,
+  setBid,
 }: BankAccountFormProps) {
   const locale = useLocale()
   const { t, lang } = useTranslation()
-
-  const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
-
-  const [bid, setBid] = useState<string | null>(initialBid)
-  const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
-  const price = release.type === PackType.Auction ? bid : release.price
   const isAuctionActive =
-    release.type === PackType.Auction &&
+    release?.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))
+  const price =
+    release?.type === PackType.Auction
+      ? bid
+      : formatIntToFloat(release?.price || 0)
   const countryOptions = [
     { id: 'CA', label: t('forms:fields.country.values.CA') },
     { id: 'US', label: t('forms:fields.country.values.US') },
   ]
 
   return (
-    <form className={css.form} onSubmit={onSubmit}>
+    <div className={className}>
       {formErrors && 'bid' in formErrors && (
         <AlertMessage
           className={css.notification}
@@ -80,12 +85,6 @@ export default function BankAccountForm({
             />
             {/* Force formData to be built from this "unmasked" value */}
             <input id="bid" name="bid" type="hidden" value={bid as string} />
-            <Checkbox
-              checked={isConfirmed}
-              name="confirmBid"
-              label={t('forms:fields.bid.confirmation')}
-              onChange={() => setIsConfirmed(!isConfirmed)}
-            />
           </>
         ) : (
           <>
@@ -113,17 +112,13 @@ export default function BankAccountForm({
               variant="small"
             />
 
-            <TextInput
-              error={
-                formErrors && 'fullName' in formErrors
-                  ? (formErrors.fullName as string)
-                  : ''
-              }
-              helpText={t('forms:fields.fullName.helpText')}
-              label={t('forms:fields.fullName.label')}
-              name="fullName"
-              placeholder="Jane Smith"
-              variant="small"
+            <FullName
+              formErrors={{
+                fullName:
+                  formErrors && 'fullName' in formErrors
+                    ? (formErrors.fullName as string)
+                    : '',
+              }}
             />
 
             <BillingAddress
@@ -230,14 +225,13 @@ export default function BankAccountForm({
 
       {/* Submit */}
       <Button
-        disabled={!release || (isAuctionActive && !isConfirmed)}
+        disabled={!release}
         fullWidth
-        type="submit"
+        type="button"
+        onClick={handleContinue}
       >
-        {isAuctionActive
-          ? t('common:actions.Place Bid')
-          : t('common:actions.Save Bank Information')}
+        {t('common:actions.Continue to Summary')}
       </Button>
-    </form>
+    </div>
   )
 }
