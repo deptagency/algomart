@@ -30,6 +30,9 @@ const defaultRules = {
     },
   ],
 
+  // Allow using any for rest arguments (i.e. `...any[]`)
+  '@typescript-eslint/no-explicit-any': ['warn', { ignoreRestArgs: true }],
+
   // Enforce consistent import ordering
   'simple-import-sort/imports': [
     'error',
