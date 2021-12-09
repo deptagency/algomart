@@ -53,7 +53,7 @@ export default function BankAccountPurchaseForm({
         release.type === PackType.Auction &&
         isAfterNow(new Date(release.auctionUntil as string))
       ) {
-        await onSubmitBid(data)
+        await onSubmitBid(data, 'wire')
       } else {
         const bankInstructions = await onSubmitBankAccount(data)
         if (bankInstructions) setBankAccountInstructions(bankInstructions)
