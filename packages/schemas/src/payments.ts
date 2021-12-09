@@ -607,6 +607,10 @@ export const CreatePaymentSchema = Type.Intersect([
   }),
 ])
 
+export const CreateWalletAddressSchema = Type.Intersect([
+  Type.Omit(CircleCreateBlockchainAddressSchema, ['walletId']),
+])
+
 export const PublicKeySchema = Type.Object({
   keyId: Type.String(),
   publicKey: Type.String(),
@@ -679,6 +683,9 @@ export type CreateBankAccountResponse = Simplify<
 export type CreateCard = Simplify<Static<typeof CreateCardSchema>>
 export type CreatePayment = Simplify<Static<typeof CreatePaymentSchema>>
 export type CreatePaymentCard = Simplify<Static<typeof CreatePaymentCardSchema>>
+export type CreateWalletAddress = Simplify<
+  Static<typeof CreateWalletAddressSchema>
+>
 export type Currency = Simplify<Static<typeof CurrencySchema>>
 export type GetPaymentBankAccountInstructions = Simplify<
   Static<typeof GetPaymentBankAccountInstructionsSchema>

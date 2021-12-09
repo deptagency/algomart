@@ -4,6 +4,7 @@ import {
   CreateBankAccount,
   CreateCard,
   CreatePayment,
+  CreateWalletAddress,
   DEFAULT_CURRENCY,
   EventAction,
   EventEntityType,
@@ -479,64 +480,18 @@ export default class PaymentsService {
     return newPayment
   }
 
-  async createWallet(cardDetails: CreateCard, trx?: Transaction) {
-    const user = await UserAccountModel.query(trx)
-      .where('externalId', cardDetails.ownerExternalId)
-      .first()
-    userInvariant(user, 'no user found', 404)
+  async generateAddress(request: CreateWalletAddress) {
+    // Find the merchant wallet
+    const merchantWallet = await this.circle.getMerchantWallet()
+    userInvariant(merchantWallet, 'no wallet found', 404)
 
-    // Create card using Circle API
-    const card = await this.circle.createPaymentCard({
-      idempotencyKey: cardDetails.idempotencyKey,
-      keyId: cardDetails.keyId,
-      encryptedData: cardDetails.encryptedData,
-      billingDetails: cardDetails.billingDetails,
-      expMonth: cardDetails.expirationMonth,
-      expYear: cardDetails.expirationYear,
-      metadata: cardDetails.metadata,
+    // Create blockchain address
+    const address = await this.circle.createBlockchainAddress({
+      idempotencyKey: request.idempotencyKey,
+      walletId: merchantWallet.walletId,
     })
-
-    if (!card) {
-      return null
-    }
-
-    // Create new card in database
-    if (cardDetails.saveCard && card) {
-      // If default was selected, find any cards marked already as the default and mark false
-      if (cardDetails.default === true) {
-        await PaymentCardModel.query(trx)
-          .where({ ownerId: user.id })
-          .andWhere('default', true)
-          .patch({
-            default: false,
-          })
-      }
-      // Circle may return the same card ID if there's duplicate info
-      const newCard = await PaymentCardModel.query(trx)
-        .insert({
-          ...card,
-          ownerId: user.id,
-          default: cardDetails.default || false,
-        })
-        .onConflict('externalId')
-        .ignore()
-      if (!newCard) {
-        return null
-      }
-      // Create events for card creation
-      await EventModel.query(trx).insert({
-        action: EventAction.Create,
-        entityType: EventEntityType.PaymentCard,
-        entityId: newCard.id,
-        userAccountId: user.id,
-      })
-
-      // If the card was saved, return the card record from the database
-      return newCard
-    }
-
-    // If card was not saved, return the identifier
-    return { externalId: card.externalId, status: card.status }
+    userInvariant(address, 'wallet could not be created', 401)
+    return address
   }
 
   async handleWirePayment(
