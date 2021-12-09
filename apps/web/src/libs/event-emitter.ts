@@ -3,29 +3,29 @@ export interface Subscriber {
 }
 
 export class EventEmitter {
-  private _subscribers: { [event: string]: Subscriber[] } = {}
+  private subscribers: { [event: string]: Subscriber[] } = {}
 
-  public subscribe(event: string, function_: Subscriber) {
-    if (!this._subscribers[event]) {
-      this._subscribers[event] = []
+  public subscribe(event: string, subscriber: Subscriber) {
+    if (!this.subscribers[event]) {
+      this.subscribers[event] = []
     }
-    this._subscribers[event].push(function_)
+    this.subscribers[event].push(subscriber)
     return () => {
-      this.unsubscribe(event, function_)
+      this.unsubscribe(event, subscriber)
     }
   }
 
-  public unsubscribe(event: string, function_: Subscriber) {
-    if (this._subscribers[event]) {
-      this._subscribers[event] = this._subscribers[event].filter(
-        (subscriber) => subscriber !== function_
+  public unsubscribe(event: string, subscriber: Subscriber) {
+    if (this.subscribers[event]) {
+      this.subscribers[event] = this.subscribers[event].filter(
+        (s) => s !== subscriber
       )
     }
   }
 
   public emit(event: string, ...args: unknown[]) {
-    if (this._subscribers[event]) {
-      for (const subscriber of this._subscribers[event]) {
+    if (this.subscribers[event]) {
+      for (const subscriber of this.subscribers[event]) {
         setTimeout(() => {
           subscriber(...args)
         }, 0)
