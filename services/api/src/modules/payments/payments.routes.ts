@@ -4,6 +4,7 @@ import {
   CreateBankAccount,
   CreateCard,
   CreatePayment,
+  CreateWalletAddress,
   OwnerExternalId,
   PaymentId,
   SendBankAccountInstructions,
@@ -149,6 +150,26 @@ export async function createCard(
     reply.status(201).send(card)
   } else {
     reply.badRequest('Unable to create card')
+  }
+}
+
+export async function createWalletAddress(
+  request: FastifyRequest<{
+    Body: CreateWalletAddress
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const address = await paymentService.generateAddress(
+    request.body,
+    request.transaction
+  )
+  if (address) {
+    reply.status(201).send(address)
+  } else {
+    reply.badRequest('Unable to create wallet address')
   }
 }
 

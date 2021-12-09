@@ -1,11 +1,13 @@
 import {
   BankAccountIdSchema,
   CardIdSchema,
+  CircleBlockchainAddressSchema,
   CreateBankAccountResponseSchema,
   CreateBankAccountSchema,
   CreateCardSchema,
   CreatePaymentCardSchema,
   CreatePaymentSchema,
+  CreateWalletAddressSchema,
   CurrencySchema,
   GetPaymentBankAccountInstructionsSchema,
   GetPaymentBankAccountStatusSchema,
@@ -26,6 +28,7 @@ import {
   createBankAccount,
   createCard,
   createPayment,
+  createWalletAddress,
   getBankAccountStatus,
   getCards,
   getCardStatus,
@@ -185,6 +188,21 @@ export async function paymentRoutes(app: FastifyInstance) {
         },
       },
       createCard
+    )
+    .post(
+      'wallets',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: CreateWalletAddressSchema,
+          response: {
+            201: CircleBlockchainAddressSchema,
+          },
+        },
+      },
+      createWalletAddress
     )
     .patch(
       '/cards/:cardId',

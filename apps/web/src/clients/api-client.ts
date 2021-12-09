@@ -1,4 +1,5 @@
 import {
+  CircleBlockchainAddress,
   ClaimFreePack,
   ClaimPack,
   ClaimRedeemPack,
@@ -14,6 +15,7 @@ import {
   CreateCard,
   CreatePayment,
   CreateUserAccountRequest,
+  CreateWalletAddress,
   DEFAULT_LOCALE,
   ExternalId,
   GetPaymentBankAccountInstructions,
@@ -207,6 +209,12 @@ export class ApiClient {
 
   async createCard(json: CreateCard) {
     return await this.http.post('payments/cards', { json }).json<PaymentCard>()
+  }
+
+  async createWalletAddress(json: CreateWalletAddress) {
+    return await this.http
+      .post('payments/wallets', { json })
+      .json<CircleBlockchainAddress>()
   }
 
   async getBankAddressInstructions(bankAccountId: string) {

@@ -256,7 +256,7 @@ const CircleMetadataSchema = Type.Object({
   ipAddress: Type.Optional(Type.String()),
 })
 
-const CircleBlockchainAddressSchema = Type.Object({
+export const CircleBlockchainAddressSchema = Type.Object({
   address: Type.String(),
   addressTag: Type.Optional(Type.String()),
   currency: Type.String(),
@@ -609,6 +609,9 @@ export const CreatePaymentSchema = Type.Intersect([
 
 export const CreateWalletAddressSchema = Type.Intersect([
   Type.Omit(CircleCreateBlockchainAddressSchema, ['walletId']),
+  Type.Object({
+    ownerExternalId: Type.String(),
+  }),
 ])
 
 export const PublicKeySchema = Type.Object({
