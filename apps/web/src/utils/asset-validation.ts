@@ -72,6 +72,13 @@ export const validateClaimAsset = (t: Translate) =>
     packTemplateId: packTemplateId(t),
   })
 
+export const validateExportAsset = (t: Translate) =>
+  object({
+    address: string(required(t('forms:errors.required') as string)),
+    passphrase: passphrase(t),
+    assetIndex: number(required(t('forms:errors.required') as string)),
+  })
+
 export const validateCreateAsset = (t: Translate) =>
   object({
     files: files(t),

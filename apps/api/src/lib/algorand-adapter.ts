@@ -528,4 +528,99 @@ export default class AlgorandAdapter {
         100_000 + 28_500 * numberLocalInts + 50_000 * numberLocalByteSlices,
     }
   }
+
+  async generateExportTransactions(options: {
+    assetIndex: number
+    encryptedMnemonic: string
+    passphrase: string
+    fromAccountAddress: string
+    toAccountAddress: string
+  }) {
+    const fromAccount = algosdk.mnemonicToSecretKey(
+      decrypt(options.encryptedMnemonic, options.passphrase)
+    )
+
+    const suggestedParams = await this.algod.getTransactionParams().do()
+
+    // Send funds to cover asset transfer transaction
+    const fundsTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      suggestedParams,
+      amount: 2000,
+      from: this.fundingAccount.addr,
+      to: options.fromAccountAddress,
+    })
+
+    // Unfreeze asset for external use
+    const unfreezeSourceTxn =
+      algosdk.makeAssetFreezeTxnWithSuggestedParamsFromObject({
+        suggestedParams,
+        assetIndex: options.assetIndex,
+        from: this.fundingAccount.addr,
+        freezeTarget: options.fromAccountAddress,
+        freezeState: false,
+      })
+
+    const unfreezeTargetTxn =
+      algosdk.makeAssetFreezeTxnWithSuggestedParamsFromObject({
+        suggestedParams,
+        assetIndex: options.assetIndex,
+        from: this.fundingAccount.addr,
+        freezeTarget: options.toAccountAddress,
+        freezeState: false,
+      })
+
+    // Unset clawback, freeze, manager, and reserve addresses
+    const configureTxn =
+      algosdk.makeAssetConfigTxnWithSuggestedParamsFromObject({
+        suggestedParams,
+        assetIndex: options.assetIndex,
+        from: this.fundingAccount.addr,
+        strictEmptyAddressChecking: false,
+        manager: this.fundingAccount.addr,
+        freeze: this.fundingAccount.addr,
+      })
+
+    // Transfer asset to recipient and remove opt-in from sender
+    const transferAssetTxn =
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        suggestedParams,
+        assetIndex: options.assetIndex,
+        from: options.fromAccountAddress,
+        to: options.toAccountAddress,
+        amount: 1,
+        closeRemainderTo: options.toAccountAddress,
+      })
+
+    const returnFundsTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      suggestedParams,
+      from: options.fromAccountAddress,
+      to: this.fundingAccount.addr,
+      amount: 100_000,
+    })
+
+    const txns = [
+      fundsTxn,
+      unfreezeSourceTxn,
+      unfreezeTargetTxn,
+      configureTxn,
+      transferAssetTxn,
+      returnFundsTxn,
+    ]
+
+    algosdk.assignGroupID(txns)
+
+    const signedTxns = [
+      fundsTxn.signTxn(this.fundingAccount.sk),
+      unfreezeSourceTxn.signTxn(this.fundingAccount.sk),
+      unfreezeTargetTxn.signTxn(this.fundingAccount.sk),
+      configureTxn.signTxn(this.fundingAccount.sk),
+      transferAssetTxn.signTxn(fromAccount.sk),
+      returnFundsTxn.signTxn(fromAccount.sk),
+    ]
+
+    return {
+      transactionIds: txns.map((txn) => txn.txID()),
+      signedTransactions: signedTxns,
+    }
+  }
 }

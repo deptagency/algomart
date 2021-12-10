@@ -9,6 +9,7 @@ import {
   DEFAULT_LOCALE,
   EventAction,
   EventEntityType,
+  ExportCollectible,
   IPFSStatus,
   SortDirection,
 } from '@algomart/schemas'
@@ -816,5 +817,42 @@ export default class CollectiblesService {
         })
       })
     )
+  }
+
+  async exportCollectible(request: ExportCollectible, trx?: Transaction) {
+    const user = await UserAccountModel.query(trx)
+      .findOne({
+        externalId: request.externalId,
+      })
+      .withGraphFetched('algorandAccount')
+
+    userInvariant(user, 'user not found', 404)
+    invariant(user.algorandAccount, 'algorand account not loaded')
+
+    const collectible = await CollectibleModel.query(trx).findOne({
+      address: request.assetIndex,
+      ownerId: user.id,
+    })
+
+    userInvariant(collectible, 'collectible not found', 404)
+
+    const result = await this.algorand.generateExportTransactions({
+      assetIndex: request.assetIndex,
+      encryptedMnemonic: user.algorandAccount.encryptedKey,
+      passphrase: request.passphrase,
+      fromAccountAddress: user.algorandAccount.address,
+      toAccountAddress: request.address,
+    })
+
+    await this.algorand.submitTransaction(result.signedTransactions)
+    await this.algorand.waitForConfirmation(result.transactionIds[0])
+
+    await CollectibleModel.query(trx)
+      .where({
+        id: collectible.id,
+      })
+      .patch({
+        ownerId: null,
+      })
   }
 }

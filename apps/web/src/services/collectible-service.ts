@@ -24,6 +24,11 @@ export interface CollectibleAPI {
   transfer(packId: string, passphrase: string): Promise<boolean>
   transferStatus(packId: string): Promise<TransferPackStatusList>
   shareProfile(shareProfile: boolean): Promise<boolean>
+  exportCollectible(
+    assetIndex: number,
+    address: string,
+    passphrase: string
+  ): Promise<boolean>
 }
 
 export class CollectibleService implements CollectibleAPI {
@@ -120,6 +125,18 @@ export class CollectibleService implements CollectibleAPI {
   async shareProfile(shareProfile: boolean): Promise<boolean> {
     const response = await this.http.put(urls.api.v1.addToShowcase, {
       json: { shareProfile },
+    })
+
+    return response.ok
+  }
+
+  async exportCollectible(
+    assetIndex: number,
+    address: string,
+    passphrase: string
+  ): Promise<boolean> {
+    const response = await this.http.post(urls.api.v1.exportCollectible, {
+      json: { assetIndex, address, passphrase },
     })
 
     return response.ok

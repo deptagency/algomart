@@ -178,6 +178,13 @@ export const CollectibleListShowcaseSchema = Type.Object({
   collectibles: CollectibleListSchema,
 })
 
+export const ExportCollectibleSchema = Type.Object({
+  assetIndex: Type.Number(),
+  address: Type.String(),
+  passphrase: Type.String(),
+  externalId: Type.String(),
+})
+
 export type Collectible = Simplify<Static<typeof CollectibleSchema>>
 export type CollectibleAuction = Simplify<
   Static<typeof CollectibleAuctionSchema>
@@ -213,3 +220,4 @@ export type CollectibleId = Simplify<Static<typeof CollectibleIdSchema>>
 export type CollectibleListShowcase = Simplify<
   Static<typeof CollectibleListShowcaseSchema>
 >
+export type ExportCollectible = Simplify<Static<typeof ExportCollectibleSchema>>
