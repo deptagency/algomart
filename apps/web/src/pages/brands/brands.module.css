@@ -1,0 +1,12 @@
+.brandsContainer {
+  @apply grid grid-cols-1 gap-4 m-4;
+  @apply sm:grid-cols-3;
+}
+
+.brandCard {
+  @apply relative bg-white rounded-lg shadow-lg;
+}
+
+.brandNoLogo {
+  @apply flex items-center justify-center h-full p-4 pb-6 text-2xl font-bold;
+}
