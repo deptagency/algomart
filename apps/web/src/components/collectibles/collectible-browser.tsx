@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import css from './collectible-browser.module.css'
 
 import Heading from '@/components/heading'
+import { useExportCollectible } from '@/hooks/use-export-collectible'
 import { cmsImageLoader } from '@/utils/cms-image-loader'
 
 export interface CollectibleBrowserProps {
@@ -23,6 +24,7 @@ export default function CollectibleBrowser({
   const [current, setCurrent] = useState(initialCollectible)
   const [showVideoCoverImage, setShowVideoCoverImage] = useState(false)
   const collectible = collectibles[current]
+  const { connect, connected, exportCollectible } = useExportCollectible()
 
   const videoReference = useRef<HTMLVideoElement>(null)
   const router = useRouter()
@@ -166,6 +168,17 @@ export default function CollectibleBrowser({
             </span>
           </div>
         )}
+      </div>
+      <div>
+        <button
+          onClick={() =>
+            !connected
+              ? connect()
+              : collectible.address && exportCollectible(collectible.address)
+          }
+        >
+          {connected ? 'Export' : 'Connect'}
+        </button>
       </div>
 
       {collectibles.length > 1 && (

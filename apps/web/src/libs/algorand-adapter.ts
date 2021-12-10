@@ -99,10 +99,25 @@ export class AlgorandAdapter {
     return assets
   }
 
+  async makeAssetOptInTransaction(
+    assetIndex: number,
+    recipient: string
+  ): Promise<Transaction> {
+    const algosdk = await algosdkLoader
+    const client = await this.algod()
+    return algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+      suggestedParams: await client.getTransactionParams().do(),
+      assetIndex,
+      from: recipient,
+      to: recipient,
+      amount: 0,
+    })
+  }
+
   async sendRawTransaction(txn: Uint8Array | Uint8Array[]): Promise<string> {
     const client = await this.algod()
-    const { txID } = await client.sendRawTransaction(txn).do()
-    return txID
+    const { txId } = await client.sendRawTransaction(txn).do()
+    return txId
   }
 
   async encodeUnsignedTransaction(txn: Transaction): Promise<Uint8Array> {
@@ -136,5 +151,47 @@ export class AlgorandAdapter {
       suggestedParams: await client.getTransactionParams().do(),
       ...params,
     })
+  }
+
+  async hasOptedIn(address: string, assetIndex: number) {
+    const assets = await this.getAssetData(address)
+    return assets.some((asset) => asset.id === assetIndex)
+  }
+
+  async getTransactionStatus(transactionId: string) {
+    const client = await this.algod()
+    const info = await client.pendingTransactionInformation(transactionId).do()
+    const confirmedRound: number = info['confirmed-round'] || 0
+    const poolError: string = info['pool-error'] || ''
+    const assetIndex: number = info['asset-index'] || 0
+    return { confirmedRound, poolError, assetIndex }
+  }
+
+  async waitForConfirmation(transactionId: string, maxRounds = 5) {
+    const client = await this.algod()
+    let firstRound: number | null = null
+    let lastRound: number | null = null
+    let elapsed: number | null = null
+
+    while (!elapsed || elapsed <= maxRounds) {
+      const lastRoundAfterCall: Record<string, unknown> = lastRound
+        ? await client.statusAfterBlock(lastRound).do()
+        : await client.status().do()
+
+      lastRound = lastRoundAfterCall['last-round'] as number
+      firstRound = firstRound || lastRound
+
+      const status = await this.getTransactionStatus(transactionId)
+
+      if (status.confirmedRound || status.poolError) {
+        return status
+      }
+
+      elapsed = lastRound - firstRound + 1
+    }
+
+    throw new Error(
+      `Too many rounds elapsed when waiting for confirmation: ${transactionId}`
+    )
   }
 }
