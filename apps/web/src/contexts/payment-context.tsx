@@ -515,7 +515,6 @@ export function usePaymentProvider({
             bid,
             confirmBid,
           })
-          console.log('bidValidation', bidValidation)
 
           if (!bidValidation.isValid) {
             setFormErrors(bidValidation.errors)

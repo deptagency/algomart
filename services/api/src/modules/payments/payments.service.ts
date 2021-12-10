@@ -484,18 +484,14 @@ export default class PaymentsService {
   }
 
   async generateAddress(request: CreateWalletAddress, trx?: Transaction) {
-    console.log('request', request)
     // Find the merchant wallet
     const merchantWallet = await this.circle.getMerchantWallet()
-    console.log('merchantWallet1', merchantWallet)
     userInvariant(merchantWallet, 'no wallet found', 404)
-    console.log('merchantWallet2', merchantWallet)
     // Create blockchain address
     const address = await this.circle.createBlockchainAddress({
       idempotencyKey: request.idempotencyKey,
       walletId: merchantWallet.walletId,
     })
-    console.log('address 2', address)
     userInvariant(address, 'wallet could not be created', 401)
     return address
   }

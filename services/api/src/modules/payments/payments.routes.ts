@@ -159,7 +159,6 @@ export async function createWalletAddress(
   }>,
   reply: FastifyReply
 ) {
-  console.log('request:', request.body)
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
