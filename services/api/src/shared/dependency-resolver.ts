@@ -6,6 +6,7 @@ import DirectusAdapter from '@/lib/directus-adapter'
 import SendgridAdapter from '@/lib/sendgrid-adapter'
 import AccountsService from '@/modules/accounts/accounts.service'
 import BidsService from '@/modules/bids/bids.service'
+import BrandsService from '@/modules/brands/brands.service'
 import CollectiblesService from '@/modules/collectibles/collectibles.service'
 import CollectionsService from '@/modules/collections/collections.service'
 import HomepageService from '@/modules/homepage/homepage.service'
@@ -179,6 +180,10 @@ export function configureResolver() {
   resolver.set(
     CollectionsService.name,
     (c) => new CollectionsService(c.get<DirectusAdapter>(DirectusAdapter.name))
+  )
+  resolver.set(
+    BrandsService.name,
+    (c) => new BrandsService(c.get<DirectusAdapter>(DirectusAdapter.name))
   )
   resolver.set(
     HomepageService.name,

@@ -1,4 +1,5 @@
 import {
+  BrandListWithTotal,
   ClaimFreePack,
   ClaimPack,
   ClaimRedeemPack,
@@ -128,6 +129,13 @@ export class ApiClient {
       .post('accounts/verify-username', { json })
       .json<{ isAvailable: boolean }>()
   }
+  //#endregion
+
+  //#region Brands
+  async getBrands(): Promise<BrandListWithTotal> {
+    return await this.http.get('brands').json<BrandListWithTotal>()
+  }
+
   //#endregion
 
   //#region Collectibles

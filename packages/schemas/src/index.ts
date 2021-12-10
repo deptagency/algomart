@@ -1,5 +1,6 @@
 export * from './accounts'
 export * from './bids'
+export * from './brands'
 export * from './collectibles'
 export * from './collections'
 export * from './events'
