@@ -1,4 +1,9 @@
-import { CreditCardIcon, LibraryIcon } from '@heroicons/react/outline'
+import { PackType } from '@algomart/schemas'
+import {
+  CreditCardIcon,
+  CurrencyDollarIcon,
+  LibraryIcon,
+} from '@heroicons/react/outline'
 import { useRouter } from 'next/router'
 import { Translate } from 'next-translate'
 import useTranslation from 'next-translate/useTranslation'
@@ -6,6 +11,7 @@ import useTranslation from 'next-translate/useTranslation'
 import Breadcrumbs from '@/components/breadcrumbs'
 import Cards from '@/components/cards'
 import CardForm from '@/components/purchase-form/cards/card-form'
+import CryptoPurchaseForm from '@/components/purchase-form/crypto/crypto-purchase-form'
 import BankAccountForm from '@/components/purchase-form/wires/bank-account-form'
 import { PaymentContextProps } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
@@ -40,6 +46,14 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
         title: t('forms:fields.paymentMethods.options.card.label'),
         isDisabled: !!doesRequireWirePayment,
       },
+      {
+        handleClick: () => setMethod('crypto'),
+        helpText: t('forms:fields.paymentMethods.options.crypto.helpText'),
+        icon: <CurrencyDollarIcon />,
+        method: 'crypto',
+        title: t('forms:fields.paymentMethods.options.crypto.label'),
+        isDisabled: false,
+      },
     ]
     if (Environment.isWireEnabled) {
       baseCards.push({
@@ -54,30 +68,49 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
     return baseCards
   }
 
-  const getPaymentNavItems = (t: Translate) => [
-    {
-      label: t('common:nav.payment.Payment Methods'),
-      isActive: false,
-      isDisabled: false,
-      handleClick: () => {
-        setStatus('form')
-        setMethod(null)
+  const getPaymentNavItems = (t: Translate) => {
+    const navItemsBase = [
+      {
+        label: t('common:nav.payment.Payment Methods'),
+        isActive: false,
+        isDisabled: false,
+        handleClick: () => {
+          setStatus('form')
+          setMethod(null)
+        },
       },
-    },
-    {
-      label: t('common:nav.payment.Payment Information'),
-      isActive: status === 'form',
-      isDisabled: !method,
-      handleClick: () => setStatus('form'),
-    },
-    {
-      label: t('common:nav.payment.Summary'),
-      isActive:
-        status === 'summary' || status === 'success' || status === 'error',
-      isDisabled: !status || status === 'form' || status === 'passphrase',
-      handleClick: () => setStatus('summary'),
-    },
-  ]
+    ]
+    const fiatPaymentNavItems = [
+      {
+        label: t('common:nav.payment.Payment Information'),
+        isActive: status === 'form',
+        isDisabled: !method,
+        handleClick: () => setStatus('form'),
+      },
+      {
+        label: t('common:nav.payment.Summary'),
+        isActive:
+          status === 'summary' || status === 'success' || status === 'error',
+        isDisabled: !status || status === 'form' || status === 'passphrase',
+        handleClick: () => setStatus('summary'),
+      },
+    ]
+    if (method === 'wire' || method === 'card') {
+      return [...navItemsBase, ...fiatPaymentNavItems]
+    }
+    if (method === 'crypto') {
+      return [
+        ...navItemsBase,
+        {
+          label: t('common:nav.payment.Pay with Crypto Wallet'),
+          isActive: true,
+          isDisabled: false,
+          handleClick: () => setStatus('form'),
+        },
+      ]
+    }
+    return navItemsBase
+  }
 
   return (
     <section>
@@ -94,6 +127,8 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
       {method === 'card' && <CardForm {...paymentProps} />}
       {/* Wire payments */}
       {method === 'wire' && <BankAccountForm {...paymentProps} />}
+      {/* Crypto payments */}
+      {method === 'crypto' && <CryptoPurchaseForm {...paymentProps} />}
     </section>
   )
 }

@@ -3,6 +3,7 @@ import {
   CheckoutStatus,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
+  PackType,
   Payment,
   PaymentBankAccountInstructions,
   PublicKey,
@@ -33,7 +34,7 @@ import { poll } from '@/utils/poll'
 import {
   validateBankAccount,
   validateBidsForm,
-  validateBidsFormForWires,
+  validateBidsFormWithoutCard,
   validateBidsFormWithSavedCard,
   validateExpirationDate,
   validatePurchaseForm,
@@ -52,7 +53,7 @@ export type FormValidation = ExtractError<
     | typeof validatePurchaseForm
     | typeof validateExpirationDate
     | typeof validateBankAccount
-    | typeof validateBidsFormForWires
+    | typeof validateBidsFormWithoutCard
   >
 >
 
@@ -70,6 +71,7 @@ export interface PaymentContextProps {
   loadingText: string
   method: CheckoutMethods | null
   packId: string | null
+  price: string | null
   release?: PublishedPack
   setBid: (bid: string | null) => void
   setMethod: (method: CheckoutMethods | null) => void
@@ -109,8 +111,8 @@ export function usePaymentProvider({
     () => validateBidsForm(t, highestBid),
     [t, highestBid]
   )
-  const validateFormForBidsForWires = useMemo(
-    () => validateBidsFormForWires(t, highestBid),
+  const validateFormForBidsWithoutCard = useMemo(
+    () => validateBidsFormWithoutCard(t, highestBid),
     [t, highestBid]
   )
   const validateFormForBidsWithSavedCard = useMemo(
@@ -122,6 +124,10 @@ export function usePaymentProvider({
     [t]
   )
   const [formErrors, setFormErrors] = useState<FormValidation>()
+  const price =
+    release?.type === PackType.Auction
+      ? bid
+      : formatIntToFloat(release?.price || 0)
 
   const mapCircleErrors = useCallback(
     (code: string | number) => {
@@ -500,25 +506,23 @@ export function usePaymentProvider({
           if (!cardId) {
             throw new Error('No card selected')
           }
-        } else if (method === 'wire') {
+        } else {
           setLoadingText(t('common:statuses.Validating Bid'))
-          const bidValidation = await validateFormForBidsForWires({
+          const bidValidation = await validateFormForBidsWithoutCard({
             bid,
             confirmBid,
           })
+          console.log('bidValidation', bidValidation)
 
           if (!bidValidation.isValid) {
             setFormErrors(bidValidation.errors)
             setStatus('form')
             return
           }
-        } else {
-          throw new Error('Invalid method')
         }
 
         // Create bid
         const isBidValid = await bidService.addToPack(bid, auctionPackId)
-
         if (isBidValid) {
           setStatus('success')
         } else {
@@ -533,13 +537,11 @@ export function usePaymentProvider({
     },
     [
       auctionPackId,
-      handleAddCard,
-      setFormErrors,
-      setStatus,
-      validateFormForBids,
-      validateFormForBidsForWires,
-      validateFormForBidsWithSavedCard,
       t,
+      validateFormForBidsWithSavedCard,
+      validateFormForBids,
+      handleAddCard,
+      validateFormForBidsWithoutCard,
     ]
   )
 
@@ -636,6 +638,7 @@ export function usePaymentProvider({
       loadingText,
       method,
       packId,
+      price,
       release,
       setBid,
       setMethod,
@@ -654,6 +657,7 @@ export function usePaymentProvider({
       loadingText,
       method,
       packId,
+      price,
       release,
       setBid,
       setMethod,

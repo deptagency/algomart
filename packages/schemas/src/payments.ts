@@ -616,9 +616,6 @@ export const CreatePaymentSchema = Type.Intersect([
 
 export const CreateWalletAddressSchema = Type.Intersect([
   Type.Omit(CircleCreateBlockchainAddressSchema, ['walletId']),
-  Type.Object({
-    ownerExternalId: Type.String(),
-  }),
 ])
 
 export const PublicKeySchema = Type.Object({

@@ -1,4 +1,4 @@
-import { DEFAULT_CURRENCY, PackType, PublishedPack } from '@algomart/schemas'
+import { PackType, PublishedPack } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 
@@ -6,14 +6,13 @@ import css from './bank-account-form.module.css'
 
 import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
-import CurrencyInput from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
+import Bid from '@/components/purchase-form/shared/bid'
 import BillingAddress from '@/components/purchase-form/shared/billing-address'
 import FullName from '@/components/purchase-form/shared/full-name'
 import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import { FormValidation } from '@/contexts/payment-context'
-import { useLocale } from '@/hooks/use-locale'
 import { isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 
@@ -38,7 +37,6 @@ export default function BankAccountForm({
   release,
   setBid,
 }: BankAccountFormProps) {
-  const locale = useLocale()
   const { t, lang } = useTranslation()
   const isAuctionActive =
     release?.type === PackType.Auction &&
@@ -64,28 +62,13 @@ export default function BankAccountForm({
 
       <div className={clsx(css.formSection)}>
         {isAuctionActive ? (
-          <>
-            <CurrencyInput
-              className={css.bid}
-              decimalsLimit={2}
-              handleChange={(value) => setBid(value)}
-              helpText={
-                currentBid
-                  ? t('forms:fields.bid.helpTextCurrentBid', {
-                      amount: formatCurrency(initialBid, lang),
-                    })
-                  : undefined
-              }
-              id="bid-input"
-              intlConfig={{ locale, currency: DEFAULT_CURRENCY }}
-              label={t('forms:fields.bid.label')}
-              name="bid-input"
-              value={bid || ''}
-              variant={'small'}
-            />
-            {/* Force formData to be built from this "unmasked" value */}
-            <input id="bid" name="bid" type="hidden" value={bid as string} />
-          </>
+          <Bid
+            bid={bid}
+            className={css.bid}
+            currentBid={currentBid}
+            initialBid={initialBid}
+            setBid={setBid}
+          />
         ) : (
           <>
             <Heading level={2}>{t('forms:sections.Bank Account')}</Heading>

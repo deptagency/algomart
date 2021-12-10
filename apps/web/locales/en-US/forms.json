@@ -131,6 +131,10 @@
         "wire": {
           "label": "Bank Wire Transfer",
           "helpText": "Accepted for all winning bids"
+        },
+        "crypto": {
+          "label": "Crypto Wallet",
+          "helpText": "Accepted for all winning bids. Payment accepted in USDC from WalletConnect, MyAlgo, or Coinbase."
         }
       }
     },

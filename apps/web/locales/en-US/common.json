@@ -143,6 +143,7 @@
     "payment": {
       "Payment Methods": "Payment Methods",
       "Payment Information": "Payment Information",
+      "Pay with Crypto Wallet": "Pay with Crypto Wallet",
       "Summary": "Summary"
     }
   },

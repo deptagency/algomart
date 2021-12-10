@@ -484,11 +484,6 @@ export default class PaymentsService {
   }
 
   async generateAddress(request: CreateWalletAddress, trx?: Transaction) {
-    const user = await UserAccountModel.query(trx)
-      .where('externalId', request.ownerExternalId)
-      .first()
-    userInvariant(user, 'no user found', 404)
-
     // Find the merchant wallet
     const merchantWallet = await this.circle.getMerchantWallet()
     userInvariant(merchantWallet, 'no wallet found', 404)

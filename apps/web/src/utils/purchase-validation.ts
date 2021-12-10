@@ -147,7 +147,7 @@ export const validateBidsForm = (t: Translate, highestBid: number) =>
     zipCode: zipCode(t),
   })
 
-export const validateBidsFormForWires = (t: Translate, highestBid: number) =>
+export const validateBidsFormWithoutCard = (t: Translate, highestBid: number) =>
   object({
     bid: bid(t, highestBid),
     confirmBid: boolean(

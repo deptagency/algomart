@@ -1,4 +1,3 @@
-import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect, useState } from 'react'
@@ -7,8 +6,8 @@ import css from './card-form.module.css'
 
 import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
-import CurrencyInput from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
+import Bid from '@/components/purchase-form/shared/bid'
 import BillingAddress from '@/components/purchase-form/shared/billing-address'
 import CardDetails from '@/components/purchase-form/shared/card-details'
 import FullName from '@/components/purchase-form/shared/full-name'
@@ -16,10 +15,8 @@ import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import Toggle from '@/components/toggle/toggle'
 import { FormValidation } from '@/contexts/payment-context'
-import { useLocale } from '@/hooks/use-locale'
 import checkoutService from '@/services/checkout-service'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
-import { formatCurrency } from '@/utils/format-currency'
 import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
 
 export interface CardPurchaseFormProps {
@@ -43,8 +40,7 @@ export default function CardPurchaseForm({
   isAuctionActive,
   setBid,
 }: CardPurchaseFormProps) {
-  const locale = useLocale()
-  const { t, lang } = useTranslation()
+  const { t } = useTranslation()
 
   const [savedCard, setSavedCard] = useState<SelectOption | null>(null)
   const [saveCard, setSaveCard] = useState<boolean>(false)
@@ -124,26 +120,13 @@ export default function CardPurchaseForm({
       >
         {isAuctionActive && (
           <>
-            <CurrencyInput
+            <Bid
+              bid={bid}
               className={css.bid}
-              decimalsLimit={2}
-              handleChange={(value) => setBid(value)}
-              helpText={
-                currentBid
-                  ? t('forms:fields.bid.helpTextCurrentBid', {
-                      amount: formatCurrency(initialBid, lang),
-                    })
-                  : undefined
-              }
-              id="bid-input"
-              intlConfig={{ locale, currency: DEFAULT_CURRENCY }}
-              label={t('forms:fields.bid.label')}
-              name="bid-input"
-              value={bid || ''}
-              variant={'small'}
+              currentBid={currentBid}
+              initialBid={initialBid}
+              setBid={setBid}
             />
-            {/* Force formData to be built from this "unmasked" value */}
-            <input id="bid" name="bid" type="hidden" value={bid as string} />
             <p className={css.notice}>{t('forms:fields.bid.description')}</p>
           </>
         )}

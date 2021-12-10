@@ -6,6 +6,7 @@ import {
   greaterThan,
   greaterThanOrEqual,
   toFormat,
+  toUnit,
 } from 'dinero.js'
 
 import { Environment } from '@/environment'
@@ -37,6 +38,11 @@ export function formatCurrency(
   }
 
   return toFormat(dinero({ amount, currency }), transformer)
+}
+
+export function formatToDecimal(amount: number, decimalPlaces: number) {
+  const price = dinero({ amount, currency, scale: decimalPlaces })
+  return toUnit(price)
 }
 
 export function formatFloatToInt(float: number | string) {

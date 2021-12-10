@@ -15,7 +15,6 @@ import Loading from '@/components/loading/loading'
 import { PaymentContextProps } from '@/contexts/payment-context'
 import { useWarningOnExit } from '@/hooks/use-warning-on-exit'
 import { isAfterNow } from '@/utils/date-time'
-import { formatIntToFloat } from '@/utils/format-currency'
 
 export default function CardForm({
   bid,
@@ -26,16 +25,13 @@ export default function CardForm({
   handleSubmitPurchase: onSubmitPurchase,
   loadingText,
   packId,
+  price,
   setBid,
   setStatus,
   status,
 }: PaymentContextProps) {
   const { t } = useTranslation()
   const [promptLeaving, setPromptLeaving] = useState(false)
-  const price =
-    release?.type === PackType.Auction
-      ? bid
-      : formatIntToFloat(release?.price || 0)
   const isAuctionActive =
     release?.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))

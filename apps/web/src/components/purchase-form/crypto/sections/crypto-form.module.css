@@ -1,0 +1,11 @@
+.heading {
+  @apply mb-10;
+}
+
+.bid {
+  @apply mb-5;
+}
+
+.submit {
+  @apply mt-10;
+}

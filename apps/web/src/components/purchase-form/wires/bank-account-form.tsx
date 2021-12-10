@@ -14,7 +14,6 @@ import css from './bank-account-form.module.css'
 import Loading from '@/components/loading/loading'
 import { PaymentContextProps } from '@/contexts/payment-context'
 import { isAfterNow } from '@/utils/date-time'
-import { formatIntToFloat } from '@/utils/format-currency'
 
 export default function BankAccountPurchaseForm({
   bid,
@@ -24,6 +23,7 @@ export default function BankAccountPurchaseForm({
   handleAddBankAccount: onSubmitBankAccount,
   initialBid,
   loadingText,
+  price,
   release,
   setBid,
   setStatus,
@@ -32,10 +32,6 @@ export default function BankAccountPurchaseForm({
   const { t } = useTranslation()
   const [bankAccountInstructions, setBankAccountInstructions] =
     useState<PaymentBankAccountInstructions | null>(null)
-  const price =
-    release?.type === PackType.Auction
-      ? bid
-      : formatIntToFloat(release?.price || 0)
   const isAuctionActive =
     release?.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))
