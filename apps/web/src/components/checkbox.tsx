@@ -2,30 +2,33 @@ import clsx from 'clsx'
 import { DetailedHTMLProps, InputHTMLAttributes } from 'react'
 
 export default function Checkbox({
+  checked,
   className,
   disabled,
-  id,
-  name,
+  label,
   readOnly,
-  value,
   ...props
-}: DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) {
+}: DetailedHTMLProps<
+  InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+> & { label: string }) {
   return (
-    <input
-      type="checkbox"
-      className={clsx(
-        'form-checkbox',
-        {
-          'bg-gray-200': readOnly || disabled,
-        },
-        className
-      )}
-      disabled={disabled}
-      id={id}
-      name={name}
-      readOnly={readOnly}
-      value={value}
-      {...props}
-    />
+    <label>
+      <input
+        type="checkbox"
+        className={clsx(
+          'form-checkbox',
+          {
+            'bg-gray-200': readOnly || disabled,
+          },
+          className
+        )}
+        checked={checked}
+        disabled={disabled}
+        readOnly={readOnly}
+        {...props}
+      />
+      {label && <span className="pl-2">{label}</span>}
+    </label>
   )
 }

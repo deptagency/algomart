@@ -30,6 +30,8 @@ module.exports = transpileModules(
     },
     publicRuntimeConfig: {
       NEXT_PUBLIC_FIREBASE_CONFIG: process.env.NEXT_PUBLIC_FIREBASE_CONFIG,
+      NEXT_PUBLIC_WIRE_PAYMENT_ENABLED:
+        process.env.NEXT_PUBLIC_WIRE_PAYMENT_ENABLED,
     },
   })
 )

@@ -2,7 +2,6 @@ import { DEFAULT_CURRENCY, PackType, PublishedPack } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useEffect, useState } from 'react'
-import { ExtractError } from 'validator-fns'
 
 import css from './purchase-form.module.css'
 
@@ -15,25 +14,15 @@ import Heading from '@/components/heading'
 import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import Toggle from '@/components/toggle/toggle'
+import { FormValidation } from '@/contexts/payment-context'
 import { useLocale } from '@/hooks/use-locale'
 import checkoutService from '@/services/checkout-service'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
-import {
-  validateBidsForm,
-  validateExpirationDate,
-  validatePurchaseForm,
-} from '@/utils/purchase-validation'
 import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
 
 export interface PurchaseFormProps {
-  formErrors?: ExtractError<
-    ReturnType<
-      | typeof validateBidsForm
-      | typeof validatePurchaseForm
-      | typeof validateExpirationDate
-    >
-  >
+  formErrors?: FormValidation
   currentBid: number | null
   onSubmit(event: FormEvent<HTMLFormElement>): void
   release: PublishedPack

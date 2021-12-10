@@ -16,6 +16,7 @@
     "invalidState": "Invalid province/state code",
     "failedPayment": "Invalid payment details. Check your credit card and/or billing address details.",
     "minimumBid": "Your bid must be at least {{amount}}",
+    "mustConfirmBid": "Bid must be confirmed",
     "bidLessThanHighestBid": "Your bid was lower than the current high bid.",
     "maxCharacters": "Must be less than {max} characters",
     "minCharacters": "Must be at least {min} characters",
@@ -33,13 +34,44 @@
     "invalidZipCode": "Invalid ZIP Code"
   },
   "fields": {
+    "accountNumber": {
+      "label": "Account Number"
+    },
     "address1": {
       "label": "Street Address"
     },
+    "bankAddress": {
+      "bankName": {
+        "label": "Bank Name"
+      },
+      "bankAddress1": {
+        "label": "Bank Address Line 1"
+      },
+      "bankAddress2": {
+        "label": "Bank Address Line 2"
+      }
+    },
+    "bankInstructions": {
+      "label": "Bank Wire Instructions",
+      "helpText": "Below is all of the information you need to initiate a wire transfer. Keep in mind, your bank may use slightly different names for these details. May the odds be ever in your favor.",
+      "swiftCode": {
+        "label": "Swift Code"
+      },
+      "trackingRef": {
+        "label": "Tracking Reference"
+      },
+      "beneficiary": {
+        "label": "Beneficiary"
+      },
+      "beneficiaryBank": {
+        "label": "Beneficiary Bank"
+      }
+    },
     "bid": {
+      "confirmation": "I promise to pay",
+      "description": "Your card will be charged immediately on auction close if you place the winning bid.",
       "label": "Your Bid",
       "helpTextCurrentBid": "Current bid is {{amount}}",
-      "description": "Your card will be charged immediately on auction close if you place the winning bid.",
       "success": "You're the current high bidder for {{title}}"
     },
     "ccNumber": {
@@ -96,6 +128,9 @@
     "redemptionCode": {
       "label": "Redemption Code"
     },
+    "routingNumber": {
+      "label": "Routing Number"
+    },
     "saveCard": {
       "label": "Save my card for future purchases"
     },
@@ -118,6 +153,8 @@
     }
   },
   "sections": {
+    "Bank Account": "Bank Account",
+    "Bank Address": "Bank Address",
     "Billing Address": "Billing Address",
     "Credit Card": "Credit Card"
   }

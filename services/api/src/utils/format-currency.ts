@@ -12,9 +12,10 @@ import { Configuration } from '@/configuration'
 
 export const currency = Configuration.currency
 
-export function formatFloatToInt(float: number) {
+export function formatFloatToInt(float: number | string) {
+  const number = typeof float === 'string' ? Number.parseFloat(float) : float
   const factor = currency.base ** currency.exponent
-  const amount = Math.round(float * factor)
+  const amount = Math.round(number * factor)
   const price = dinero({ amount, currency })
   return price.toJSON().amount
 }
@@ -62,11 +63,14 @@ function getAmountAndScale(exchangeRate: string) {
 }
 
 export function convertFromUSD(
-  amount: number,
+  usdFloat: string | number,
   rateForNonUSD: { [key: string]: string }
 ) {
   if (!rateForNonUSD[currency.code]) return null
   const rates = { [currency.code]: getAmountAndScale(rateForNonUSD.USD) }
+  const usdFloatNumber =
+    typeof usdFloat === 'string' ? Number.parseFloat(usdFloat) : usdFloat
+  const amount = formatFloatToInt(usdFloatNumber)
   const price = dinero({ amount, currency: USD })
   const finalPrice = currency === USD ? price : convert(price, currency, rates)
   const float = toFormat(finalPrice, ({ amount, currency }) =>

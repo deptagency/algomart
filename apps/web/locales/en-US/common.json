@@ -40,6 +40,7 @@
     "Remove Method": "Remove Method",
     "Reveal All": "Reveal All",
     "Save": "Save",
+    "Save Bank Information": "Save Bank Information",
     "Save Changes": "Save Changes",
     "Save to My Collection": "Save to My Collection",
     "Select Image": "Select Image",
@@ -163,6 +164,7 @@
     "Transferring Asset": "Transferring Asset",
     "Minting Asset": "Minting Asset",
     "Uncollected": "Uncollected",
+    "Validating Bid": "Validating Bid",
     "Validating Payment Information": "Validating Payment Information",
     "Verifying Passphrase": "Verifying Passphrase",
     "noVideoSupport": "Your browser does not support the video tag."

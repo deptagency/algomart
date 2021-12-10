@@ -183,6 +183,7 @@ export function configureResolver() {
       new PaymentsService(
         c.get<CircleAdapter>(CircleAdapter.name),
         c.get<CoinbaseAdapter>(CoinbaseAdapter.name),
+        c.get<NotificationsService>(NotificationsService.name),
         c.get<PacksService>(PacksService.name)
       )
   )
