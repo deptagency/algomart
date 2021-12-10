@@ -8,16 +8,14 @@ import css from './my-profile-wallet.module.css'
 import Button from '@/components/button'
 import Heading from '@/components/heading'
 import { useAuth } from '@/contexts/auth-context'
+import { formatAlgoAddress } from '@/utils/format-string'
 
 export default function MyWallet() {
   const { user } = useAuth()
   const { t } = useTranslation()
 
   const formattedAddress = useMemo(() => {
-    const addr = user?.address as string
-    const first6 = addr.slice(0, 6)
-    const last6 = addr.slice(-6, addr.length)
-    return `${first6}...${last6}`
+    return formatAlgoAddress(user?.address || '')
   }, [user?.address])
 
   const handleCopy = useCallback(() => {

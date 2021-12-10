@@ -54,6 +54,14 @@ export const Configuration = {
     return env.get('ALGOD_PORT').default('4001').asPortNumber()
   },
 
+  get algodEnv() {
+    return env
+      .get('ALGOD_ENV')
+      .required()
+      .default('testnet')
+      .asEnum(['betanet', 'testnet', 'mainnet'])
+  },
+
   get databaseUrl() {
     return env
       .get('DATABASE_URL')

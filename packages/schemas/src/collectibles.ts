@@ -91,6 +91,19 @@ export enum CollectibleSortField {
   Title = 'title',
 }
 
+export const CollectiblesByAlgoAddressQuerystringSchema = Type.Intersect([
+  LocaleSchema,
+  PaginationSchema,
+  Type.Object({
+    sortBy: Type.Optional(
+      Type.Enum(CollectibleSortField, { default: CollectibleSortField.Title })
+    ),
+    sortDirection: Type.Optional(
+      Type.Enum(SortDirection, { default: SortDirection.Ascending })
+    ),
+  }),
+])
+
 export const CollectibleListQuerystringSchema = Type.Intersect([
   PaginationSchema,
   LocaleSchema,
@@ -143,6 +156,9 @@ export type CollectibleBase = Simplify<Static<typeof CollectibleBaseSchema>>
 export type CollectibleRarity = Simplify<Static<typeof CollectibleRaritySchema>>
 export type CollectibleWithDetails = Simplify<
   Static<typeof CollectibleWithDetailsSchema>
+>
+export type CollectiblesByAlgoAddressQuerystring = Simplify<
+  Static<typeof CollectiblesByAlgoAddressQuerystringSchema>
 >
 export type CollectibleListQuerystring = Simplify<
   Static<typeof CollectibleListQuerystringSchema>

@@ -6,6 +6,7 @@ import {
   CollectibleListQuerystring,
   CollectibleListShowcase,
   CollectibleListWithTotal,
+  CollectiblesByAlgoAddressQuerystring,
   CollectibleShowcaseQuerystring,
   CollectionWithSets,
   CreateBidRequest,
@@ -131,6 +132,17 @@ export class ApiClient {
   //#endregion
 
   //#region Collectibles
+  async getcollectiblesByAlgoAddress(
+    algoAddress: string,
+    query: CollectiblesByAlgoAddressQuerystring
+  ): Promise<CollectibleListWithTotal> {
+    return await this.http
+      .get(`collectibles/address/${algoAddress}`, {
+        searchParams: query,
+      })
+      .json<CollectibleListWithTotal>()
+  }
+
   async getCollectiblesByUser(
     query: CollectibleListQuerystring
   ): Promise<CollectibleListWithTotal> {

@@ -88,6 +88,7 @@
   "pageTitles": {
     "404": "404",
     "Add Payment Method": "Add Payment Method",
+    "Algorand Address": "Algorand Address: {{algoAddress}}",
     "Checking Out": "Checkout for {{name}}",
     "Login": "Login",
     "My Collectibles": "My Collectibles",

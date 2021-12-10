@@ -42,6 +42,7 @@ export const urls = {
       createCard: '/api/v1/payments/create-card',
       createPayment: '/api/v1/payments/create-payment',
       getAllCollections: '/api/v1/collection/get-all-collections',
+      getAssetsByAlgoAddress: '/api/v1/asset/get-by-algo-address',
       getAssetsByOwner: '/api/v1/asset/get-by-owner',
       getCardStatus: '/api/v1/payments/get-card-status',
       getCardsByOwner: '/api/v1/payments/get-cards-by-owner',

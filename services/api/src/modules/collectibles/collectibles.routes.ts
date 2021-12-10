@@ -1,6 +1,8 @@
-import { CollectibleId } from '@algomart/schemas'
 import {
+  AlgoAddress,
+  CollectibleId,
   CollectibleListQuerystring,
+  CollectiblesByAlgoAddressQuerystring,
   CollectibleShowcaseQuerystring,
 } from '@algomart/schemas'
 import { FastifyReply, FastifyRequest } from 'fastify'
@@ -31,6 +33,25 @@ export async function getCollectibles(
   } else {
     reply.send(collectiblesForAccount)
   }
+}
+
+export async function getcollectiblesByAlgoAddress(
+  request: FastifyRequest<{
+    Params: AlgoAddress
+    Querystring: CollectiblesByAlgoAddressQuerystring
+  }>,
+  reply: FastifyReply
+) {
+  const collectiblesService = request
+    .getContainer()
+    .get<CollectiblesService>(CollectiblesService.name)
+
+  const result = await collectiblesService.getcollectiblesByAlgoAddress(
+    request.params.algoAddress,
+    request.query
+  )
+
+  reply.send(result)
 }
 
 export async function getShowcaseCollectibles(
