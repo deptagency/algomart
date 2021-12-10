@@ -593,7 +593,9 @@ export default class DirectusAdapter {
     )
 
     return {
-      brands: response.data.map((brand) => toBrandBase(brand, this.getFileURL)),
+      brands: response.data.map((brand) =>
+        toBrandBase(brand, this.getFileURL.bind(this))
+      ),
       total: response.meta.filter_count,
     }
   }
