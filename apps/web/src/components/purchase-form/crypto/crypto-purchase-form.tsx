@@ -1,7 +1,5 @@
 import { PackType } from '@algomart/schemas'
-import { GetServerSideProps } from 'next'
 import { FormEvent, useCallback, useRef, useState } from 'react'
-import { v4 as uuid } from 'uuid'
 
 import CryptoForm from './sections/crypto-form'
 import CryptoHeader from './sections/crypto-header'
@@ -9,15 +7,13 @@ import CryptoSuccess from './sections/crypto-success'
 
 import css from './crypto-purchase-form.module.css'
 
-import { ApiClient } from '@/clients/api-client'
 import Loading from '@/components/loading/loading'
 import { PaymentContextProps } from '@/contexts/payment-context'
-import { useUntransferredPacks } from '@/hooks/use-untransferred-packs'
 import { AlgorandAdapter, ChainType, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
 import { isAfterNow } from '@/utils/date-time'
-import { formatToDecimal } from '@/utils/format-currency'
-import { urls } from '@/utils/urls'
+import { formatToDecimal, isGreaterThanOrEqual } from '@/utils/format-currency'
+import { formatFloatToInt } from '@/utils/format-currency'
 
 const algorand = new AlgorandAdapter(ChainType.TestNet)
 
@@ -28,7 +24,6 @@ export interface CryptoPurchaseFormProps {
 
 export default function CryptoPurchaseForm({
   address,
-  addressTag,
   bid,
   currentBid,
   handleSubmitBid: onSubmitBid,
@@ -44,11 +39,7 @@ export default function CryptoPurchaseForm({
     isAfterNow(new Date(release.auctionUntil as string))
   const [connected, setConnected] = useState(false)
   const [account, setAccount] = useState<string>('')
-  console.log('account:', account)
   const connectorReference = useRef<IConnector>()
-  const { data: untransferred } = useUntransferredPacks()
-
-  console.log(untransferred)
 
   const connect = useCallback(async () => {
     setConnected(false)
@@ -75,31 +66,28 @@ export default function CryptoPurchaseForm({
   }, [])
 
   const purchase = useCallback(async () => {
-    // console.log('account:', account)
+    if (!price || !address) return null
     const assetData = await algorand.getAssetData(account)
-    // console.log('assetData:', assetData)
-    // Confirm account has enough funds
     const usdcAsset = assetData.find((asset) => asset.unitName === 'USDC')
-    console.log('usdcAsset:', usdcAsset)
     if (!usdcAsset) return null
     const usdcBalance = formatToDecimal(usdcAsset.amount, usdcAsset.decimals)
-    console.log('usdcBalance:', usdcBalance)
-    console.log('price:', price)
-    // const connector = connectorReference.current
-    // if (connector) {
-    //   const amount = price + 1000
-    //   const paymentTx = await algorand.makePaymentTransaction({
-    //     // initial balance plus non-participation transaction fee
-    //     amount,
-    //     from: account,
-    //     to: address,
-    //     closeRemainderTo: address,
-    //     note: undefined,
-    //     rekeyTo: undefined,
-    //   })
-    //   await connector.signTransaction(paymentTx)
-    // }
-  }, [account, address, addressTag, price])
+    const usdcBalanceInt = formatFloatToInt(usdcBalance)
+    const priceInt = formatFloatToInt(price)
+    if (!isGreaterThanOrEqual(usdcBalanceInt, priceInt)) return null
+    const connector = connectorReference.current
+    if (connector) {
+      const assetTx = await algorand.makeAssetTransferTransaction({
+        // price of pack + non-participation transaction fee
+        amount: priceInt + 1000,
+        from: account,
+        to: address,
+        assetIndex: usdcAsset.id,
+        note: undefined,
+        rekeyTo: undefined,
+      })
+      await connector.signTransaction(assetTx)
+    }
+  }, [account, address, price])
 
   const handleSubmitPurchase = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -111,10 +99,6 @@ export default function CryptoPurchaseForm({
     },
     [release?.type, isAuctionActive, onSubmitBid, purchase]
   )
-
-  const handleRetry = useCallback(() => {
-    setStatus('form')
-  }, [setStatus])
 
   return (
     <section className={css.root}>
@@ -144,30 +128,4 @@ export default function CryptoPurchaseForm({
       {status === 'success' && <CryptoSuccess release={release} />}
     </section>
   )
-}
-
-export const getServerSideProps: GetServerSideProps<
-  CryptoPurchaseFormProps
-> = async () => {
-  // Generate blockchain address
-  const address = await ApiClient.instance.createWalletAddress({
-    idempotencyKey: uuid(),
-  })
-  console.log('address', address)
-
-  if (address) {
-    return {
-      props: {
-        address: address.address,
-        addressTag: address.addressTag,
-      },
-    }
-  }
-
-  return {
-    redirect: {
-      destination: urls.home,
-      permanent: false,
-    },
-  }
 }

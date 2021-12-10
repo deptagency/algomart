@@ -9,6 +9,7 @@ import Checkbox from '@/components/checkbox'
 import Heading from '@/components/heading'
 import Bid from '@/components/purchase-form/shared/bid'
 import { FormValidation } from '@/contexts/payment-context'
+import { formatCurrency } from '@/utils/format-currency'
 
 const formatAccount = (account: string) =>
   `${account.slice(0, 6)}...${account.slice(-6)}`
@@ -46,7 +47,7 @@ export default function CryptoForm({
   release,
   setBid,
 }: CryptoFormProps) {
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
   return (
     <form className={className} onSubmit={handleSubmitPurchase}>
@@ -81,6 +82,13 @@ export default function CryptoForm({
           )}
         </>
       )}
+
+      {/* Price */}
+      <div className={css.priceContainer}>
+        <p className={css.priceLabel}>{t('release:Total')}</p>
+        <p className={css.priceValue}>{formatCurrency(price, lang)}</p>
+      </div>
+
       {/* Submit */}
       <Button className={css.submit} fullWidth type="submit" variant="primary">
         {isAuctionActive

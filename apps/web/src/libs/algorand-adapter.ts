@@ -1,5 +1,6 @@
 import type {
   Algodv2,
+  makeAssetTransferTxnWithSuggestedParamsFromObject,
   makePaymentTxnWithSuggestedParamsFromObject,
   Transaction,
 } from 'algosdk'
@@ -107,6 +108,20 @@ export class AlgorandAdapter {
   async encodeUnsignedTransaction(txn: Transaction): Promise<Uint8Array> {
     const algosdk = await algosdkLoader
     return algosdk.encodeUnsignedTransaction(txn)
+  }
+
+  async makeAssetTransferTransaction(
+    params: Omit<
+      Parameters<typeof makeAssetTransferTxnWithSuggestedParamsFromObject>[0],
+      'suggestedParams'
+    >
+  ): Promise<Transaction> {
+    const algosdk = await algosdkLoader
+    const client = await this.algod()
+    return algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+      suggestedParams: await client.getTransactionParams().do(),
+      ...params,
+    })
   }
 
   async makePaymentTransaction(

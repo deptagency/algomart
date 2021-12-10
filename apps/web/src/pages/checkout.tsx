@@ -7,6 +7,7 @@ import {
 import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
+import { v4 as uuid } from 'uuid'
 
 import { ApiClient } from '@/clients/api-client'
 import { Analytics } from '@/clients/firebase-analytics'
@@ -20,12 +21,14 @@ import CheckoutTemplate from '@/templates/checkout-template'
 import { urls } from '@/utils/urls'
 
 export interface CheckoutPageProps {
+  address?: string
   auctionPackId: string | null
   currentBid: number | null
   release: PublishedPack
 }
 
 export default function Checkout({
+  address,
   auctionPackId,
   currentBid,
   release,
@@ -36,6 +39,13 @@ export default function Checkout({
     currentBid,
     release,
   })
+  const { setAddress } = paymentProps
+
+  useEffect(() => {
+    if (address) {
+      setAddress(address)
+    }
+  }, [address, setAddress])
 
   useEffect(() => {
     Analytics.instance.beginCheckout({
@@ -67,7 +77,6 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
     return handleUnauthenticatedRedirect(context.resolvedUrl)
   }
 
-  // Get release based on search query
   const { pack: packSlug } = context.query
   if (typeof packSlug === 'string') {
     const { packs } = await ApiClient.instance.getPublishedPacks({
@@ -119,8 +128,14 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
           }
         }
       }
+
+      // Get release based on search query
+      const address = await ApiClient.instance.createWalletAddress({
+        idempotencyKey: uuid(),
+      })
       return {
         props: {
+          address: address?.address,
           release: packTemplate,
           currentBid:
             typeof pack?.activeBid?.amount === 'number'

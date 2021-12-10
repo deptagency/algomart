@@ -212,6 +212,7 @@ export class ApiClient {
   }
 
   async createWalletAddress(json: CreateWalletAddress) {
+    console.log('json:', json)
     return await this.http
       .post('payments/wallets', { json })
       .json<CircleBlockchainAddress>()

@@ -10,11 +10,7 @@ import BidActivityEmoji from './sections/bid-activity-emoji'
 import css from './bid-activity.module.css'
 
 import { isAfterNow, isNowBetweenDates } from '@/utils/date-time'
-import {
-  formatCurrency,
-  formatFloatToInt,
-  isGreaterThanOrEqual,
-} from '@/utils/format-currency'
+import { formatCurrency, isGreaterThanOrEqual } from '@/utils/format-currency'
 
 export interface BidActivityProps {
   avatars: { [key: string]: string | null }

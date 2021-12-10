@@ -190,7 +190,7 @@ export async function paymentRoutes(app: FastifyInstance) {
       createCard
     )
     .post(
-      'wallets',
+      '/wallets',
       {
         transact: true,
         schema: {
