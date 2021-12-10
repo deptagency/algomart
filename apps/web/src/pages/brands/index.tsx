@@ -1,5 +1,4 @@
-import { Brands } from '@algomart/schemas'
-import { GetServerSidePropsContext } from 'next'
+import { Brand, BrandListWithTotal } from '@algomart/schemas'
 import Image from 'next/image'
 
 import css from './brands.module.css'
@@ -9,16 +8,11 @@ import Heading from '@/components/heading'
 import DefaultLayout from '@/layouts/default-layout'
 import { cmsImageLoader } from '@/utils/cms-image-loader'
 
-interface BrandsProps {
-  brands: Brands
-  total: number
-}
-
-export default function BrandsPage({ total, brands }: BrandsProps) {
+export default function BrandsPage({ brands }: BrandListWithTotal) {
   return (
     <DefaultLayout noPanel>
       <ul className={css.brandsContainer}>
-        {brands.map((brand: any) => (
+        {brands.map((brand) => (
           <li key={brand.id} className={css.brandCard}>
             {!brand.logo && (
               <Heading level={3} className={css.brandNoLogo}>
@@ -43,7 +37,7 @@ export default function BrandsPage({ total, brands }: BrandsProps) {
   )
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export async function getServerSideProps() {
   return {
     props: await ApiClient.instance.getBrands(),
   }
