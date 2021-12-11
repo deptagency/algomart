@@ -10,8 +10,8 @@ output "web_domain_mapping" {
 output "credentials" {
   value = var.credentials
 }
-output "image" {
-  value = var.image
+output "api_image" {
+  value = var.api_image
 }
 output "api_service_name" {
   value = var.api_service_name
