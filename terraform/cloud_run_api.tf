@@ -1,28 +1,3 @@
-output "cms_domain_mapping" {
-  value = var.cms_domain_mapping
-}
-output "api_domain_mapping" {
-  value = var.api_domain_mapping
-}
-output "web_domain_mapping" {
-  value = var.web_domain_mapping
-}
-output "credentials" {
-  value = var.credentials
-}
-output "api_image" {
-  value = var.api_image
-}
-output "api_service_name" {
-  value = var.api_service_name
-}
-output "region" {
-  value = var.region
-}
-output "api_revision_name" {
-  value = var.api_revision_name
-}
-
 resource "google_cloud_run_service" "api" {
   name     = var.api_service_name
   location = var.region
