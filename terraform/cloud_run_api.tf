@@ -94,6 +94,16 @@ resource "google_cloud_run_service" "api" {
           value = "https://${var.cms_domain_mapping}"
         }
 
+        output "cms_domain_mapping" {
+          value = var.cms_domain_mapping
+        }
+        output "api_domain_mapping" {
+          value = var.api_domain_mapping
+        }
+        output "web_domain_mapping" {
+          value = var.web_domain_mapping
+        }
+
         env {
           name  = "CREATOR_PASSPHRASE"
           value = var.api_creator_passphrase
