@@ -187,8 +187,8 @@ jobs:
         # Use `input=false` to prevent a hanging job where terraform expects any
         # missing required variables to come from STDIN
         run: |
-          terraform import google_cloud_run_service.web algomart-web
-          terraform import google_cloud_run_service.web algomart-cms
-          terraform import google_cloud_run_service.web algomart-api
+          terraform import google_cloud_run_service.web us-docker.pkg.dev/algomart-og2d-332422/algomart-web
+          terraform import google_cloud_run_service.web us-docker.pkg.dev/algomart-og2d-332422/algomart-cms
+          terraform import google_cloud_run_service.web us-docker.pkg.dev/algomart-og2d-332422/algomart-api
           unset $( printenv | grep "^TF_VAR_[a-zA-Z0-9_]*=$" | sed 's/.$//' )
           terraform apply -auto-approve -input=false
