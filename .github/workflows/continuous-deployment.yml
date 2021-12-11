@@ -187,4 +187,4 @@ jobs:
         # missing required variables to come from STDIN
         run: |
           unset $( printenv | grep "^TF_VAR_[a-zA-Z0-9_]*=$" | sed 's/.$//' )
-          terraform apply -auto-approve -input=false
+          terraform apply -auto-approve -input=false -raw
