@@ -1,3 +1,13 @@
+output "cms_domain_mapping" {
+  value = var.cms_domain_mapping
+}
+output "api_domain_mapping" {
+  value = var.api_domain_mapping
+}
+output "web_domain_mapping" {
+  value = var.web_domain_mapping
+}
+
 resource "google_cloud_run_service" "api" {
   name     = var.api_service_name
   location = var.region
@@ -92,16 +102,6 @@ resource "google_cloud_run_service" "api" {
         env {
           name  = "CMS_URL"
           value = "https://${var.cms_domain_mapping}"
-        }
-
-        output "cms_domain_mapping" {
-          value = var.cms_domain_mapping
-        }
-        output "api_domain_mapping" {
-          value = var.api_domain_mapping
-        }
-        output "web_domain_mapping" {
-          value = var.web_domain_mapping
         }
 
         env {
