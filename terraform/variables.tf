@@ -5,29 +5,24 @@
 # rather than which *are*.
 
 variable "project" {
-  # sensitive = true
 }
 
 variable "region" {
   default   = "us-east4"
-  # sensitive = true
 }
 
 variable "bucket_location" {
   # This specifies multi-region but could be single eg. "US-EAST4".
   # Once created it cannot be changed.
   default   = "US"
-  # sensitive = true
 }
 
 # The service account credentials for terraform
 variable "credentials" {
-  # sensitive = true
 }
 
 variable "disable_apis_on_destroy" {
   default   = false
-  # sensitive = true
 }
 
 ##
@@ -39,38 +34,31 @@ variable "disable_apis_on_destroy" {
 
 variable "api_service_name" {
   default   = "algomart-api"
-  # sensitive = true
 }
 
 variable "cms_service_name" {
   default   = "algomart-cms"
-  # sensitive = true
 }
 
 variable "database_server_name" {
   default   = "algomart"
-  # sensitive = true
 }
 
 variable "private_ip_name" {
   default   = "algomart-private-ip"
-  # sensitive = true
 }
 
 variable "vpc_name" {
   default   = "algomart-vpc"
-  # sensitive = true
 }
 
 variable "vpc_access_connector_name" {
   # Limited to <= 24 characters
   default   = "algomart-access-conn"
-  # sensitive = true
 }
 
 variable "web_service_name" {
   default   = "algomart-web"
-  # sensitive = true
 }
 
 ##
@@ -78,7 +66,6 @@ variable "web_service_name" {
 ##
 variable "database_server_tier" {
   default   = "db-f1-micro"
-  # sensitive = true
 }
 
 variable "database_max_connections" {
@@ -90,7 +77,6 @@ variable "database_max_connections" {
   # leaves very little room for the fluctuating connections with background
   # API tasks.
   default   = 50
-  # sensitive = true
 }
 
 ##
@@ -98,120 +84,93 @@ variable "database_max_connections" {
 ##
 
 variable "algod_host" {
-  # sensitive = true
 }
 
 variable "algod_key" {
-  # sensitive = true
 }
 
 variable "algod_port" {
-  # sensitive = true
 }
 
 variable "api_creator_passphrase" {
-  # sensitive = true
 }
 
 variable "api_database_name" {
   default   = "algorand_marketplace_api"
-  # sensitive = true
 }
 
 variable "api_database_schema" {
   default   = "public"
-  # sensitive = true
 }
 
 variable "api_database_user_name" {
-  # sensitive = true
 }
 
 variable "api_database_user_password" {
-  # sensitive = true
 }
 
 variable "api_domain_mapping" {
-  # sensitive = true
 }
 
 variable "api_funding_mnemonic" {
-  # sensitive = true
 }
 
 variable "api_image" {
-  # sensitive = true
 }
 
 variable "api_key" {
-  # sensitive = true
 }
 
 variable "api_node_env" {
   default   = "production"
-  # sensitive = true
 }
 
 variable "api_revision_name" {
-  # sensitive = true
 }
 
 variable "api_secret" {
-  # sensitive = true
 }
 
 variable "circle_key" {
-  # sensitive = true
 }
 
 variable "circle_url" {
-  # sensitive = true
 }
 
 variable "pinata_api_key" {
-  # sensitive = true
   default   = ""
 }
 
 variable "pinata_api_secret" {
-  # sensitive = true
   default   = ""
 }
 
 variable "sendgrid_api_key" {
-  # sensitive = true
   default   = ""
 }
 
 variable "email_from" {
-  # sensitive = true
 }
 
 variable "email_name" {
-  # sensitive = true
 }
 
 variable "email_transport" {
-  # sensitive = true
 }
 
 variable "smtp_host" {
-  # sensitive = true
   default   = ""
 }
 
 variable "smtp_password" {
-  # sensitive = true
   default   = ""
 }
 
 variable "smtp_user" {
-  # sensitive = true
   default   = ""
 }
 
 variable "smtp_port" {
-  # sensitive = true
   default   = ""
 }
 
@@ -221,53 +180,41 @@ variable "smtp_port" {
 
 # Directus will use these to create an "admin" user automatically
 variable "cms_admin_email" {
-  # sensitive = true
 }
 
 variable "cms_admin_password" {
-  # sensitive = true
 }
 
 variable "cms_database_name" {
   default   = "algorand_marketplace_cms"
-  # sensitive = true
 }
 
 variable "cms_database_user_name" {
-  # sensitive = true
 }
 
 variable "cms_database_user_password" {
-  # sensitive = true
 }
 
 variable "cms_domain_mapping" {
-  # sensitive = true
 }
 
 variable "cms_image" {
-  # sensitive = true
 }
 
 variable "cms_key" {
-  # sensitive = true
 }
 
 variable "cms_node_env" {
   default   = "production"
-  # sensitive = true
 }
 
 variable "cms_revision_name" {
-  # sensitive = true
 }
 
 variable "cms_secret" {
-  # sensitive = true
 }
 
 variable "cms_storage_bucket" {
-  # sensitive = true
 }
 
 ##
@@ -275,31 +222,24 @@ variable "cms_storage_bucket" {
 ##
 
 variable "web_domain_mapping" {
-  # sensitive = true
 }
 
 variable "web_firebase_service_account" {
-  # sensitive = true
 }
 
 variable "web_image" {
-  # sensitive = true
 }
 
 variable "web_next_public_3js_debug" {
   default   = ""
-  # sensitive = true
 }
 
 variable "web_next_public_firebase_config" {
-  # sensitive = true
 }
 
 variable "web_node_env" {
   default   = "production"
-  # sensitive = true
 }
 
 variable "web_revision_name" {
-  # sensitive = true
 }

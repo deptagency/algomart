@@ -1,14 +1,26 @@
 output "cms_domain_mapping" {
   value = var.cms_domain_mapping
-  sensitive = true
 }
 output "api_domain_mapping" {
   value = var.api_domain_mapping
-  sensitive = true
 }
 output "web_domain_mapping" {
   value = var.web_domain_mapping
-  sensitive = true
+}
+output "credentials" {
+  value = var.credentials
+}
+output "image" {
+  value = var.image
+}
+output "api_service_name" {
+  value = var.api_service_name
+}
+output "region" {
+  value = var.region
+}
+output "api_revision_name" {
+  value = var.api_revision_name
 }
 
 resource "google_cloud_run_service" "api" {
