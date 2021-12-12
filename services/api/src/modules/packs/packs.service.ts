@@ -855,6 +855,7 @@ export default class PacksService {
       }
     }
 
+    this.logger.info(`filter ${JSON.stringify(filter)}`)
     const template = await this.cms.findPack(filter)
     this.logger.info(`template ${JSON.stringify(template)}`)
 
