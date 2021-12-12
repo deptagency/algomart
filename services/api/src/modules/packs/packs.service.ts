@@ -872,21 +872,23 @@ export default class PacksService {
         },
       })
 
-    this.logger.info('collectibleTemplates', collectibleTemplates)
+    this.logger.info(
+      `collectibleTemplates from cms ${JSON.stringify(collectibleTemplates)}`
+    )
 
     const totalCollectibles = collectibleTemplates.reduce(
       (sum, t) => sum + t.totalEditions,
       0
     )
 
-    this.logger.info('totalCollectibles', totalCollectibles)
+    this.logger.info(`totalCollectibles: ${totalCollectibles}`)
 
     const unassignedCollectibles = await CollectibleModel.query(trx)
       .whereIn('templateId', collectibleTemplateIds)
       .whereNull('packId')
       .where('ipfsStatus', IPFSStatus.Stored)
 
-    this.logger.info('unassignedCollectibles', unassignedCollectibles)
+    this.logger.info(`unassignedCollectibles: ${unassignedCollectibles}`)
 
     if (unassignedCollectibles.length !== totalCollectibles) {
       this.logger.warn(
