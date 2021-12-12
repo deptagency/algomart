@@ -50,6 +50,7 @@ export default class CollectiblesService {
         _nin: existingTemplates.map((c) => c.templateId),
       }
     }
+    this.logger.info(`filter ${JSON.stringify(filter)}`)
     const { collectibles: templates } = await this.cms.findAllCollectibles(
       undefined,
       filter,
