@@ -30,7 +30,7 @@ export default function Button({
       className={clsx(
         'duration-300 rounded-sm transition',
         {
-          'px-4 py-3 border border-transparent font-semibold text-sm rounded-full shadow-sm text-gray-50 hover:cursor-pointer focus:outline-none bg-blue-600 hover:bg-blue-400 active:shadow-inner active:bg-blue-800 font-poppins disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed':
+          'px-4 py-3 border border-blue-500 font-semibold text-sm rounded-full shadow-sm text-gray-50 hover:cursor-pointer focus:outline-none bg-gradient-to-r from-green-400 to-blue-500 hover:sha active:shadow-inner active:bg-blue-800 font-poppins disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed':
             !disabled && variant === 'primary',
           'p-3.5 border-2 border-gray-600 hover:bg-gray-900 rounded-full font-medium text-gray-400 disabled:cursor-not-allowed':
             variant === 'secondary',

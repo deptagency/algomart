@@ -8,10 +8,12 @@ export const getMainNavItems = (t: Translate) => [
 ]
 
 export const getSocialNavItems = (t: Translate) => [
-  { href: '#', label: t('common:nav.social.Instagram') },
-  { href: '#', label: t('common:nav.social.Twitter') },
+  {
+    href: 'https://www.facebook.com/og2dnft/',
+    label: t('common:nav.social.Facebook'),
+  },
+  { href: 'https://twitter.com/og2d1', label: t('common:nav.social.Twitter') },
   { href: '#', label: t('common:nav.social.Discord') },
-  { href: '#', label: t('common:nav.social.Blog') },
 ]
 
 export const getLegalNavItems = (t: Translate) => [

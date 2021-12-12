@@ -1,5 +1,5 @@
 {
-  "Active & Upcoming Drops": "Active & Upcoming Drops",
+  "Active & Upcoming Drops": "Latest Drops",
   "Activity": "Activity",
   "Auction begins in": "Auction begins in",
   "Auction ends in": "Auction ends in",
@@ -37,7 +37,7 @@
   "N of N": "{{available}} of {{total}}",
   "N remaining of M": "<0>{{available}}</0> remaining of {{total}}",
   "noLongerAvailable": "This release is no longer available.",
-  "Notable Collectibles": "Notable Collectibles",
+  "Notable Collectibles": "Top Collectibles",
   "Not Met": "Not Met",
   "openToEmployees": "Open to {{name}} Employees",
   "packActivityDate": "{{date}} at {{time}}",
