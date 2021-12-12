@@ -47,6 +47,9 @@ export default class CollectiblesService {
     const existingTemplates = await CollectibleModel.query(trx)
       .groupBy('templateId')
       .select('templateId')
+
+    this.logger.info(`existingTemplates ${JSON.stringify(existingTemplates)}`)
+
     const filter: ItemFilter = {}
     if (existingTemplates.length > 0) {
       filter.id = {
