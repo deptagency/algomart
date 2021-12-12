@@ -58,6 +58,8 @@ export default class CollectiblesService {
       filter,
       limit
     )
+    this.logger.info(`all collectibles ${JSON.stringify(templates)}`)
+
     if (templates.length === 0) {
       return 0
     }
