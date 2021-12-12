@@ -2,4 +2,4 @@
 set -e
 
 node_modules/.bin/directus bootstrap
-node_modules/.bin/directus start
+node_modules/.bin/directus start & npm run db:seed
