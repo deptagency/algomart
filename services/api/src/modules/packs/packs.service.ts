@@ -888,7 +888,7 @@ export default class PacksService {
       .whereNull('packId')
       .where('ipfsStatus', IPFSStatus.Stored)
 
-    this.logger.info(`unassignedCollectibles: ${unassignedCollectibles}`)
+    this.logger.info(`unassignedCollectibles: ${unassignedCollectibles.length}`)
 
     if (unassignedCollectibles.length !== totalCollectibles) {
       this.logger.warn(
