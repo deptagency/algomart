@@ -2,12 +2,12 @@
   /* Base */
   @apply relative mx-auto;
   /* Tablet + */
-  @apply md:max-w-520 md:overflow-hidden md:rounded-xl;
+  @apply md:max-w-520 md:overflow-hidden md:rounded-xl bg-black border-1;
 }
 
 .buttonContainer {
   /* Base */
-  @apply flex flex-col px-8 py-12 space-y-8 bg-blue-600;
+  @apply flex flex-col px-8 py-12 space-y-8;
   /* Mobile + */
   @apply sm:p-16;
 }
