@@ -1,5 +1,6 @@
 import { CollectibleBase, PublishedPack } from '@algomart/schemas'
 import clsx from 'clsx'
+import Script from 'next/script'
 import useTranslation from 'next-translate/useTranslation'
 
 import css from './home-template.module.css'
@@ -133,6 +134,10 @@ export default function HomeTemplate({
 
   return (
     <>
+      <Script
+        src="https://apps.elfsight.com/p/platform.js"
+        strategy="lazyOnload"
+      />
       {featuredPack ? (
         <FeaturedPack
           featuredPack={featuredPack}
@@ -182,6 +187,8 @@ export default function HomeTemplate({
           </div>
         </>
       ) : null}
+
+      <div className="elfsight-app-0c051f04-30ad-4b6d-bbea-c128a02cf0b0" />
     </>
   )
 }

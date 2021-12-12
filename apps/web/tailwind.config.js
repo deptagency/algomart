@@ -150,6 +150,7 @@ module.exports = {
   plugins: [
     require('@tailwindcss/aspect-ratio'),
     require('@tailwindcss/line-clamp'),
+    require('@tailwindcss/typography'),
     // Enables specifying border colors per-side i.e., border-t-green-100 for a light green top border
     plugin(({ addUtilities, theme }) => {
       const colors = flattenColorPalette(theme('colors'))

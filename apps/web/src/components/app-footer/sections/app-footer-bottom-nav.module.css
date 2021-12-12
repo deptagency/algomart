@@ -28,7 +28,7 @@
 
 .bottomNavLinks {
   /* Base */
-  @apply block mb-4 text-sm transition duration-300 outline-none text-base-gray-medium focus:text-black hover:text-black;
+  @apply block mb-4 text-sm transition duration-300 outline-none text-base-gray-medium focus:text-white hover:text-white;
   /* Tablet + */
   @apply md:inline md:mb-0;
 }

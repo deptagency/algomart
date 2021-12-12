@@ -47,16 +47,20 @@ export default function HomeTemplate({
       <div className="grid grid-cols-1 md:grid-cols-12 z-10 space-y-10 md:space-x-20 mx-auto max-w-7xl px-4 py-24">
         <div className="col-span-1 md:col-span-5 mt-12">
           <div className="font-extrabold text-4xl text-white tracking-wide leading-tight pr-20">
-            We connect passionate fans with 100% authenticated & original NFT
-            collectibles.
+            Buy, Sell & Trade Authentic NFTs.
           </div>
-          <div className="text-white mt-4">
-            In art, entertainment, memorabilia, & business.
+          <div className="text-white mt-4 prose">
+            Built by the passionate for the passionate
+            <ul>
+              <li>Carbon Neutral</li>
+              <li>Fees as low as $0.001</li>
+              <li>Multi-crypto and fiat supported</li>
+            </ul>
           </div>
           <div className="mt-12 w-72">
             <AppLink
               className={
-                'flex items-center justify-center px-4 py-3 border border-transparent font-semibold text-sm rounded-full shadow-sm text-gray-50 hover:cursor-pointer focus:outline-none bg-gradient-to-r from-green-400 to-blue-500 hover:sha active:shadow-inner font-poppins disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed'
+                'flex items-center justify-center px-4 py-3 border border-blue-500 font-semibold text-sm rounded-full shadow-sm text-gray-50 hover:cursor-pointer focus:outline-none bg-gradient-to-r from-green-400 to-blue-500 hover:sha active:shadow-inner font-poppins disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed'
               }
               href={'/releases'}
               key={'/releases'}
@@ -66,43 +70,10 @@ export default function HomeTemplate({
           </div>
         </div>
         <div className="col-span-1 md:col-span-7">
-          {/* Top bar */}
-          <div className="p-4 text-sm font-bold text-center text-white uppercase bg-gray-900 rounded-t-xl">
-            {isAuction ? (
-              <>
-                {isActive && (
-                  <>
-                    {t('release:Live auction ends in')}{' '}
-                    <Counter
-                      plainString
-                      includeDaysInPlainString
-                      target={new Date(featuredPack.auctionUntil || Date.now())}
-                    />
-                  </>
-                )}
-                {isExpired && t('release:Auction is now closed')}
-                {isUpcoming && (
-                  <>
-                    {t('release:Live auction starts in')}:{' '}
-                    <Counter
-                      plainString
-                      includeDaysInPlainString
-                      target={new Date(featuredPack.releasedAt || Date.now())}
-                    />
-                  </>
-                )}
-              </>
-            ) : (
-              t('release:Limited Edition N Remaining', {
-                available: featuredPack.available,
-              })
-            )}
-          </div>
-
           {/* Columns */}
-          <div className="sm:flex sm:flex-col sm:items-center bg-gray-900 rounded-b-xl">
+          <div className="sm:flex sm:flex-col sm:items-center bg-gray-900 rounded-xl">
             {/* Image */}
-            <div className="sm:w-1/2 aspect-w-16 aspect-w-9">
+            <div className="sm:w-1/2 aspect-w-16 aspect-w-9 mt-6">
               <Image
                 src={featuredPack.image}
                 className="rounded-xl"
@@ -118,16 +89,46 @@ export default function HomeTemplate({
               <Heading className={css.featuredHeading} level={2} bold>
                 {featuredPack.title}
               </Heading>
-              {featuredPack.body ? (
-                <div className={css.featuredBody}>
-                  <Markdown options={{ forceBlock: true }}>
-                    {featuredPack.body}
-                  </Markdown>
-                </div>
-              ) : null}
+
+              {/* CTA bar */}
+              <div className="p-4 text-sm font-bold text-center text-white uppercase bg-gray-900 rounded-t-xl">
+                {isAuction ? (
+                  <>
+                    {isActive && (
+                      <>
+                        {t('release:Live auction ends in')}{' '}
+                        <Counter
+                          plainString
+                          includeDaysInPlainString
+                          target={
+                            new Date(featuredPack.auctionUntil || Date.now())
+                          }
+                        />
+                      </>
+                    )}
+                    {isExpired && t('release:Auction is now closed')}
+                    {isUpcoming && (
+                      <>
+                        {t('release:Live auction starts in')}:{' '}
+                        <Counter
+                          plainString
+                          includeDaysInPlainString
+                          target={
+                            new Date(featuredPack.releasedAt || Date.now())
+                          }
+                        />
+                      </>
+                    )}
+                  </>
+                ) : (
+                  t('release:Limited Edition N Remaining', {
+                    available: featuredPack.available,
+                  })
+                )}
+              </div>
 
               {/* Remaining */}
-              {featuredPack.type === PackType.Purchase ? (
+              {/* {featuredPack.type === PackType.Purchase ? (
                 <p className={css.featuredAvailability}>
                   <Trans
                     i18nKey="release:N remaining of M"
@@ -143,7 +144,7 @@ export default function HomeTemplate({
                     }}
                   />
                 </p>
-              ) : null}
+              ) : null} */}
 
               {/* Actions */}
               <div className={css.featuredControls}>
