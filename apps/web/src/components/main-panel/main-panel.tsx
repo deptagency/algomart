@@ -21,7 +21,6 @@ export default function MainPanel({
   return (
     <main
       className={clsx(
-        'max-w-7xl mx-auto',
         {
           [css.rootNoPanel]: noPanel,
           [css.rootPanel]: !noPanel,

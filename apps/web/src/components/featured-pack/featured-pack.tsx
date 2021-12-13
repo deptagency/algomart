@@ -45,7 +45,7 @@ export default function HomeTemplate({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 z-10 space-y-10 md:space-x-20 mx-auto max-w-7xl px-4 py-24">
-        <div className="col-span-1 md:col-span-5 mt-12">
+        <div className="col-span-1 md:col-span-5 mt-12 flex flex-col justify-center">
           <div className="font-extrabold text-4xl text-white tracking-wide leading-tight pr-20">
             Buy, Sell & Trade Authentic NFTs.
           </div>
@@ -91,7 +91,7 @@ export default function HomeTemplate({
               </Heading>
 
               {/* CTA bar */}
-              <div className="p-4 text-sm font-bold text-center text-white uppercase bg-gray-900 rounded-t-xl">
+              <div className="p-4 text-sm font-bold text-center text-white uppercase bg-gray-900 rounded-xl">
                 {isAuction ? (
                   <>
                     {isActive && (
