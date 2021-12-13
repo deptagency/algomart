@@ -47,7 +47,7 @@ export default function MyCollectionTemplate({
   }, [assets, collection])
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto max-w-7xl mt-10">
       {/* Tabs */}
       <Tabs activeTab={1} tabs={getCollectionTabs(t)} negativeMargin />
 
