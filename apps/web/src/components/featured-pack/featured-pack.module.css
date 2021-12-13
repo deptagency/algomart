@@ -39,7 +39,7 @@
 }
 
 .featuredHeading {
-  @apply text-2xl;
+  @apply text-2xl text-center;
 }
 
 .featuredBody {
