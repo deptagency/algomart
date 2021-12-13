@@ -46,7 +46,6 @@ export default function CollectibleBrowserDialog({
       document.removeEventListener('keydown', handler)
     }
   }, [onClose])
-  console.log(username, isCurrentUser)
 
   return (
     <Dialog
