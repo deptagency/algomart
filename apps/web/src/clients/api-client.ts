@@ -1,4 +1,5 @@
 import {
+  Brand,
   BrandListWithTotal,
   ClaimFreePack,
   ClaimPack,
@@ -134,6 +135,10 @@ export class ApiClient {
   //#region Brands
   async getBrands(): Promise<BrandListWithTotal> {
     return await this.http.get('brands').json<BrandListWithTotal>()
+  }
+
+  async getBrand(brandSlug: string): Promise<Brand> {
+    return await this.http.get(`brands/${brandSlug}`).json<Brand>()
   }
 
   //#endregion

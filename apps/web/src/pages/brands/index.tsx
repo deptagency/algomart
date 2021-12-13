@@ -1,4 +1,4 @@
-import { Brand, BrandListWithTotal } from '@algomart/schemas'
+import { BrandListWithTotal } from '@algomart/schemas'
 import Image from 'next/image'
 
 import css from './brands.module.css'
@@ -13,24 +13,26 @@ export default function BrandsPage({ brands }: BrandListWithTotal) {
     <DefaultLayout noPanel>
       <ul className={css.brandsContainer}>
         {brands.map((brand) => (
-          <li key={brand.id} className={css.brandCard}>
-            {!brand.logo && (
-              <Heading level={3} className={css.brandNoLogo}>
-                {brand.name}
-              </Heading>
-            )}
-            {brand.logo && (
-              <Image
-                loader={cmsImageLoader}
-                src={brand.logo}
-                alt={brand.name}
-                width={356}
-                height={356}
-                objectFit="cover"
-                layout="responsive"
-              />
-            )}
-          </li>
+          <a href={`brands/${brand.slug}`} key={brand.id}>
+            <li className={css.brandCard}>
+              {!brand.logo && (
+                <Heading level={3} className={css.brandNoLogo}>
+                  {brand.name}
+                </Heading>
+              )}
+              {brand.logo && (
+                <Image
+                  loader={cmsImageLoader}
+                  src={brand.logo}
+                  alt={brand.name}
+                  width={356}
+                  height={356}
+                  objectFit="cover"
+                  layout="responsive"
+                />
+              )}
+            </li>
+          </a>
         ))}
       </ul>
     </DefaultLayout>

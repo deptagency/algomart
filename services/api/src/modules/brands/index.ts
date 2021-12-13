@@ -1,8 +1,13 @@
-import { BrandListWithTotalSchema, LocaleSchema } from '@algomart/schemas'
+import {
+  BrandListWithTotalSchema,
+  BrandSchema,
+  LocaleSchema,
+  SlugSchema,
+} from '@algomart/schemas'
 import { FastifyInstance } from 'fastify'
 import fastifyBearerAuth from 'fastify-bearer-auth'
 
-import { getBrands } from './brands.routes'
+import { getBrand, getBrands } from './brands.routes'
 
 import bearerAuthOptions from '@/configuration/bearer-auth'
 import { appErrorHandler } from '@/utils/errors'
@@ -35,5 +40,21 @@ export async function brandsRoutes(app: FastifyInstance) {
       },
     },
     getBrands
+  )
+
+  app.get(
+    '/:slug',
+    {
+      schema: {
+        tags,
+        security,
+        querystring: LocaleSchema,
+        params: SlugSchema,
+        response: {
+          200: BrandSchema,
+        },
+      },
+    },
+    getBrand
   )
 }

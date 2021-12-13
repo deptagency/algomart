@@ -5,6 +5,7 @@
 
 .brandCard {
   @apply relative bg-white rounded-lg shadow-lg;
+  @apply transition-transform duration-200 scale-100 hover:scale-105 transform-gpu;
 }
 
 .brandNoLogo {

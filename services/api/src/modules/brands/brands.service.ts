@@ -8,4 +8,8 @@ export default class BrandsService {
   async getBrands(locale = DEFAULT_LOCALE) {
     return await this.cms.findAllBrands({ locale })
   }
+
+  async getBrand(slug: string, locale = DEFAULT_LOCALE) {
+    return await this.cms.findBrand({ slug, locale })
+  }
 }

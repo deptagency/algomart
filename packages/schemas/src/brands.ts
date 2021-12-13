@@ -7,6 +7,7 @@ export const BrandSchema = Type.Object({
   name: Type.String(),
   slug: Type.String(),
   logo: Type.Optional(Nullable(Type.String({ format: 'uri' }))),
+  banner: Type.Optional(Nullable(Type.String({ format: 'uri' }))),
 })
 
 export const BrandListSchema = Type.Array(BrandSchema)

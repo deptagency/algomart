@@ -70,6 +70,7 @@ export interface DirectusBrand {
   id: string
   slug: string
   logo: string | DirectusFile | null
+  banner: string | DirectusFile | null
   translations: DirectusBrandTranslation[]
 }
 
@@ -505,6 +506,7 @@ export function toBrandBase(
     name: translation.name ?? undefined,
     slug: brand.slug,
     logo: brand.logo ? getFileURL(brand.logo) : null,
+    banner: brand.banner ? getFileURL(brand.banner) : null,
   }
 }
 
@@ -573,7 +575,7 @@ export default class DirectusAdapter {
     const response = await this.findBrands({
       page,
       limit: pageSize,
-      fields: ['id', 'translations.*', 'logo.*', 'slug'],
+      fields: ['id', 'translations.*', 'logo.*', 'banner.*', 'slug'],
       deep: {
         translations: {
           _filter: {
@@ -598,6 +600,34 @@ export default class DirectusAdapter {
       ),
       total: response.meta.filter_count,
     }
+  }
+
+  async findBrand({
+    slug,
+    locale = DEFAULT_LOCALE,
+  }: {
+    slug: string
+    locale?: string
+  }) {
+    const response = await this.findBrands({
+      limit: 1,
+      fields: ['id', 'translations.*', 'logo.*', 'banner.*', 'slug'],
+      deep: {
+        translations: {
+          _filter: {
+            languages_code: locale,
+          },
+        },
+      },
+      filter: {
+        status: DirectusStatus.Published,
+        slug,
+      },
+    })
+
+    return response.data[0]
+      ? toBrandBase(response.data[0], this.getFileURL.bind(this))
+      : null
   }
 
   private async findPackTemplates(query: ItemQuery<DirectusPackTemplate> = {}) {
