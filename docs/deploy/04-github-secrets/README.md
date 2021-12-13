@@ -49,7 +49,8 @@ and a "funding account" that can issue transactions to create
 new accounts, fund asset creation, etc.
 
 | Variable               | Description                                                                    |
-| ---------------------- | ------------------------------------------------------------------------------ |
+| ---------------------- | ------------------------------------------------------------------------------ | --- | --------- | --- | ----------- |
+| `ALGOD_ENV`            | The blockchain environment (`betanet`                                          |     | `testnet` |     | `mainnet`). |
 | `ALGOD_HOST`           | The host name of the `algod` server - this **MUST** include `https://` prefix. |
 | `ALGOD_KEY`            | The access token for the `algod` server                                        |
 | `ALGOD_PORT`           | The port for the `algod` server                                                |
