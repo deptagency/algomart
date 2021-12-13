@@ -3,7 +3,7 @@
 }
 
 .dialog {
-  @apply bg-white relative w-full max-w-lg my-8 overflow-visible sm:w-full;
+  @apply bg-black relative w-full max-w-lg my-8 overflow-visible sm:w-full;
 }
 
 .root {
