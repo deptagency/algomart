@@ -124,7 +124,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return {
     props: {
-      algoAddress: context.params?.algoAddress as string,
+      algoAddress,
     },
   }
 }

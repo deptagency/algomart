@@ -46,6 +46,7 @@ export default function AlgoAddressTemplate({
   const { t } = useTranslation()
 
   const formattedAlgoAddress = formatAlgoAddress(algoAddress)
+  const isCurrentUser = user?.address === algoAddress
 
   const Address = () => (
     <>
@@ -103,16 +104,19 @@ export default function AlgoAddressTemplate({
 
       {/* Viewer */}
       <CollectibleBrowserDialog
-        open={isViewerActive}
-        onClose={() => toggleViewer()}
-        username={user?.username || ''}
-        isCurrentUser={user?.address === algoAddress}
+        collectibles={assets}
+        isCurrentUser={isCurrentUser}
         initialCollectible={
           activeAsset
             ? assets.findIndex(({ id }) => id === activeAsset.id)
             : undefined
         }
-        collectibles={assets}
+        isAlgoAddress={!isCurrentUser}
+        onClose={() => toggleViewer()}
+        open={isViewerActive}
+        username={
+          isCurrentUser ? (user?.username as string) : formattedAlgoAddress
+        }
       />
 
       {/* Sorting filter */}

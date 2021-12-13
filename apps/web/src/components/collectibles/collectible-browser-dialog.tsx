@@ -13,19 +13,21 @@ import Button from '@/components/button'
 import Dialog from '@/components/dialog/dialog'
 
 export interface CollectibleBrowserDialogProps extends CollectibleBrowserProps {
-  open: boolean
-  username: string
+  isAlgoAddress?: boolean
   isCurrentUser?: boolean
   onClose: () => void
+  open: boolean
+  username: string
 }
 
 export default function CollectibleBrowserDialog({
-  open,
-  username,
-  isCurrentUser,
-  onClose,
   collectibles,
   initialCollectible,
+  isAlgoAddress,
+  isCurrentUser,
+  onClose,
+  open,
+  username,
 }: CollectibleBrowserDialogProps) {
   const { t } = useTranslation()
 
@@ -44,6 +46,7 @@ export default function CollectibleBrowserDialog({
       document.removeEventListener('keydown', handler)
     }
   }, [onClose])
+  console.log(username, isCurrentUser)
 
   return (
     <Dialog
@@ -55,11 +58,16 @@ export default function CollectibleBrowserDialog({
     >
       <div className={css.root}>
         <div>
-          <Avatar
-            prefix={t('collection:viewer.ownedBy')}
-            suffix={isCurrentUser ? t('collection:viewer.thatsYou') : undefined}
-            username={username}
-          />
+          {username && (
+            <Avatar
+              prefix={t('collection:viewer.ownedBy')}
+              suffix={
+                isCurrentUser ? t('collection:viewer.thatsYou') : undefined
+              }
+              textOnly={isAlgoAddress}
+              username={username}
+            />
+          )}
         </div>
         <Button
           aria-label={t('common:actions.Close')}
