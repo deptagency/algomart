@@ -34,7 +34,7 @@ export default function CheckoutTemplate({
       (release.price &&
         isGreaterThanOrEqual(release.price, MAX_BID_FOR_CARD_PAYMENT)))
   return (
-    <>
+    <div className="mx-auto max-w-7xl mt-10">
       {doesRequireWirePayment ? (
         <BankAccountPurchaseForm
           auctionPackId={auctionPackId}
@@ -48,6 +48,6 @@ export default function CheckoutTemplate({
           release={release}
         />
       )}
-    </>
+    </div>
   )
 }
