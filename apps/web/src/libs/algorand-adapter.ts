@@ -118,7 +118,6 @@ export class AlgorandAdapter {
   ): Promise<Transaction> {
     const algosdk = await algosdkLoader
     const client = await this.algod()
-    console.log('assetTx params:', params)
     return algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
       suggestedParams: await client.getTransactionParams().do(),
       ...params,
@@ -137,10 +136,5 @@ export class AlgorandAdapter {
       suggestedParams: await client.getTransactionParams().do(),
       ...params,
     })
-  }
-
-  async submitTransaction(transaction: Uint8Array | Uint8Array[]) {
-    const client = await this.algod()
-    return client.sendRawTransaction(transaction).do()
   }
 }

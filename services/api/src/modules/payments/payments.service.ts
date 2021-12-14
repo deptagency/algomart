@@ -22,7 +22,6 @@ import {
 import { Transaction } from 'objection'
 
 import { Configuration } from '@/configuration'
-import AlgorandAdapter from '@/lib/algorand-adapter'
 import CircleAdapter from '@/lib/circle-adapter'
 import CoinbaseAdapter from '@/lib/coinbase-adapter'
 import { BidModel } from '@/models/bid.model'
@@ -50,8 +49,7 @@ export default class PaymentsService {
     private readonly circle: CircleAdapter,
     private readonly coinbase: CoinbaseAdapter,
     private readonly notifications: NotificationService,
-    private readonly packs: PacksService,
-    private readonly algorand: AlgorandAdapter
+    private readonly packs: PacksService
   ) {}
 
   async getPublicKey() {
@@ -90,21 +88,6 @@ export default class PaymentsService {
   }
 
   async getCards(filters: OwnerExternalId) {
-    // Find user by external ID
-    userInvariant(filters.ownerExternalId, 'owner external ID is required', 400)
-    const user = await UserAccountModel.query()
-      .where('externalId', '=', filters.ownerExternalId)
-      .first()
-    userInvariant(user, 'no user found', 404)
-
-    // Find cards in the database
-    const cards = await PaymentCardModel.query()
-      .where({ ownerId: user.id })
-      .andWhereNot('status', PaymentCardStatus.Inactive)
-    return cards
-  }
-
-  async getTransfers(filters: OwnerExternalId) {
     // Find user by external ID
     userInvariant(filters.ownerExternalId, 'owner external ID is required', 400)
     const user = await UserAccountModel.query()
@@ -486,6 +469,27 @@ export default class PaymentsService {
     return newPayment
   }
 
+  async findTransferByAddress(destinationAddress: string) {
+    // Find merchant wallet
+    const merchantWallet = await this.circle.getMerchantWallet()
+    userInvariant(merchantWallet, 'merchant wallet could not be found', 404)
+
+    // Last 24 hours
+    const newDate24HoursInPast = new Date(
+      new Date().setDate(new Date().getDate() - 1)
+    ).toISOString()
+
+    // Find transfer by address in last 24 hours
+    const transfer = await this.circle.getTransfersForAddress(
+      {
+        destinationWalletId: merchantWallet.walletId,
+        from: newDate24HoursInPast.toString(),
+      },
+      destinationAddress
+    )
+    return transfer
+  }
+
   async createTransferPayment(
     transferDetails: CreateTransferPayment,
     trx?: Transaction
@@ -501,26 +505,15 @@ export default class PaymentsService {
       400
     )
 
-    const { priceInUSD, packId } = await this.selectPackAndAssignToUser(
+    const { packId } = await this.selectPackAndAssignToUser(
       transferDetails.packTemplateId,
       user.id,
       trx
     )
 
     // Find transfer
-    const merchantWallet = await this.circle.getMerchantWallet()
-    userInvariant(merchantWallet, 'merchant wallet could not be found', 404)
-    const transfer = await this.circle.getTransfersForAddress(
-      merchantWallet.walletId,
+    const transfer = await this.findTransferByAddress(
       transferDetails.destinationAddress
-    )
-
-    // @TODO: Move this conditional
-    // Error if the transfer was found in the wrong amount
-    userInvariant(
-      transfer && transfer.amount !== priceInUSD,
-      'transfer was not in correct amount',
-      400
     )
 
     // Create new payment in database
@@ -543,22 +536,10 @@ export default class PaymentsService {
       userAccountId: user.id,
     })
 
-    return { id: newPayment.id, status: newPayment.status }
+    return newPayment
   }
 
-  async submitTxnAndCreatePayment(
-    transferDetails: CreateTransferPayment & {
-      walletTransaction: Uint8Array | Uint8Array[]
-    },
-    trx?: Transaction
-  ) {
-    // Submit transaction to Algorand
-    await this.algorand.submitTransaction(transferDetails.walletTransaction)
-    // Create payment
-    return this.createTransferPayment(transferDetails, trx)
-  }
-
-  async generateAddress(request: CreateWalletAddress, trx?: Transaction) {
+  async generateAddress(request: CreateWalletAddress) {
     // Find the merchant wallet
     const merchantWallet = await this.circle.getMerchantWallet()
     userInvariant(merchantWallet, 'no wallet found', 404)
@@ -761,6 +742,22 @@ export default class PaymentsService {
         else if (payment.paymentBankId) {
           const wirePayment = await this.handleWirePayment(payment, trx)
           if (wirePayment) {
+            updatedPayments++
+          }
+        }
+        // Crypto flow
+        else if (payment.destinationAddress) {
+          const transfer = payment.transferId
+            ? await this.circle.getTransferById(payment.transferId)
+            : await this.findTransferByAddress(payment.destinationAddress)
+          if (
+            transfer &&
+            (payment.status !== transfer.status || !payment.transferId)
+          ) {
+            await PaymentModel.query(trx).patchAndFetchById(payment.id, {
+              status: transfer.status,
+              transferId: transfer.externalId,
+            })
             updatedPayments++
           }
         }

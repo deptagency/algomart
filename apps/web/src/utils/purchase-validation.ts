@@ -1,5 +1,4 @@
 import { Translate } from 'next-translate'
-import { isTypedArray } from 'node:util/types'
 import {
   boolean,
   date,
@@ -115,6 +114,12 @@ const description = (t: Translate) =>
 const identifier = (t: Translate) =>
   string(required(t('forms:errors.required') as string))
 
+const address = (t: Translate) =>
+  string(
+    required(t('forms:errors.required') as string),
+    matches(/[\da-z]+/, t('forms:errors.onlyLettersAndNumbers'))
+  )
+
 const bid = (t: Translate, highestBid: number) => {
   const minimum = highestBid + 1
   return number(
@@ -226,6 +231,7 @@ export const validateCard = (t: Translate) =>
 export const validateTransferPurchase = (t: Translate) =>
   object({
     packTemplateId: identifier(t),
+    destinationAddress: address(t),
   })
 
 export const validatePurchase = (t: Translate) =>

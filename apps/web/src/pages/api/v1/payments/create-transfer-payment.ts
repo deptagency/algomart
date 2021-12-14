@@ -25,9 +25,10 @@ handler.post(
     const payment = await ApiClient.instance.createTransferPurchase({
       payerExternalId: request.user.externalId,
       packTemplateId: body.packTemplateId,
+      destinationAddress: body.destinationAddress,
     })
 
-    const paymentId = payment?.externalId
+    const paymentId = payment?.id
 
     if (!paymentId) {
       throw new BadRequest('Payment for transfer could not be created')

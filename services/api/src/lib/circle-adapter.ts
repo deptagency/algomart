@@ -15,6 +15,7 @@ import {
   CirclePublicKey,
   CircleResponse,
   CircleTransfer,
+  CircleTransferQuery,
   CircleTransferStatus,
   CircleVerificationAVSFailureCode,
   CircleVerificationAVSSuccessCode,
@@ -334,14 +335,29 @@ export default class CircleAdapter {
   }
 
   async getTransfersForAddress(
-    destinationWalletId: string,
+    query: CircleTransferQuery,
     destinationAddressId: string
   ): Promise<ToPaymentBase | null> {
+    const searchParams = {}
+    if (query.walletId)
+      Object.assign(searchParams, { walletId: query.walletId })
+    if (query.sourceWalletId)
+      Object.assign(searchParams, { sourceWalletId: query.sourceWalletId })
+    if (query.destinationWalletId)
+      Object.assign(searchParams, {
+        destinationWalletId: query.destinationWalletId,
+      })
+    if (query.from) Object.assign(searchParams, { from: query.from })
+    if (query.to) Object.assign(searchParams, { to: query.to })
+    if (query.pageBefore)
+      Object.assign(searchParams, { pageBefore: query.pageBefore })
+    if (query.pageAfter)
+      Object.assign(searchParams, { pageAfter: query.pageAfter })
+    if (query.pageSize)
+      Object.assign(searchParams, { pageSize: query.pageSize })
     const response = await this.http
       .get('v1/transfers', {
-        searchParams: {
-          destinationWalletId,
-        },
+        searchParams,
       })
       .json<CircleResponse<CircleTransfer[]>>()
 
@@ -359,6 +375,19 @@ export default class CircleAdapter {
       { response },
       'Failed to get transfers for external wallet'
     )
+    return null
+  }
+
+  async getTransferById(id: string): Promise<ToPaymentBase | null> {
+    const response = await this.http
+      .get(`v1/transfers/${id}`)
+      .json<CircleResponse<CircleTransfer>>()
+
+    if (isCircleSuccessResponse(response)) {
+      return toPaymentBase(response.data)
+    }
+
+    this.logger.error({ response }, 'Failed to get transfer by ID')
     return null
   }
 

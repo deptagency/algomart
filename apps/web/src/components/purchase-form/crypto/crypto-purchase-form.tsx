@@ -1,6 +1,8 @@
 import { PackType } from '@algomart/schemas'
+import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useRef, useState } from 'react'
 
+import CryptoPurchaseError from './sections/crypto-error'
 import CryptoForm from './sections/crypto-form'
 import CryptoHeader from './sections/crypto-header'
 import CryptoSuccess from './sections/crypto-success'
@@ -35,12 +37,14 @@ export default function CryptoPurchaseForm({
   setStatus,
   status,
 }: PaymentContextProps & CryptoPurchaseFormProps) {
+  const { t } = useTranslation()
   const isAuctionActive =
     release?.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))
   const [connected, setConnected] = useState(false)
   const [account, setAccount] = useState<string>('')
   const connectorReference = useRef<IConnector>()
+  const [error, setError] = useState<string>('')
 
   const connect = useCallback(async () => {
     setConnected(false)
@@ -67,14 +71,32 @@ export default function CryptoPurchaseForm({
   }, [])
 
   const purchase = useCallback(async () => {
-    if (!price || !address) return null
+    if (!address || !price || !release?.templateId) {
+      setError(t('forms:errors.invalidDetails'))
+      setStatus('error')
+      return
+    }
     const assetData = await algorand.getAssetData(account)
     const usdcAsset = assetData.find((asset) => asset.unitName === 'USDC')
-    if (!usdcAsset) return null
+    if (!usdcAsset) {
+      // No USDC asset found
+      setError(t('forms:errors.noUSDC'))
+      setStatus('error')
+      return
+    }
+
+    // Check USDC balance
     const usdcBalance = formatToDecimal(usdcAsset.amount, usdcAsset.decimals)
     const usdcBalanceInt = formatFloatToInt(usdcBalance)
     const priceInt = formatFloatToInt(price)
-    if (!isGreaterThanOrEqual(usdcBalanceInt, priceInt)) return null
+    if (!isGreaterThanOrEqual(usdcBalanceInt, priceInt)) {
+      // Not enough USDC
+      setError(t('forms:errors.minUSDC', { balance: usdcBalance, min: price }))
+      setStatus('error')
+      return
+    }
+
+    // Submit the transaction to Algorand
     const connector = connectorReference.current
     if (connector) {
       const assetTx = await algorand.makeAssetTransferTransaction({
@@ -86,18 +108,26 @@ export default function CryptoPurchaseForm({
         note: undefined,
         rekeyTo: undefined,
       })
-      console.log('assetTx:', assetTx)
+      // User signs transaction and we submit to Algorand network
       const txn = await connector.signTransaction(assetTx)
       if (txn) {
+        // Creating payment for the pending transfer
         const transfer = await checkoutService.createTransferPayment({
-          //
+          packTemplateId: release.templateId,
+          destinationAddress: address,
         })
-        console.log('transfer:', transfer)
-        // Create payment
+        if (!transfer) {
+          // While this shouldn't happen, there's a possibility the payment may still have worked
+          // @TODO: Find way to handle this better - possibly send to customer support email or direct to contact
+          setError(t('forms:errors.paymentNotCreated'))
+          setStatus('error')
+          return
+        }
+        // Success!
         setStatus('success')
       }
     }
-  }, [account, address, price, setStatus])
+  }, [account, address, price, release?.templateId, setStatus, t])
 
   const handleSubmitPurchase = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -109,6 +139,10 @@ export default function CryptoPurchaseForm({
     },
     [release?.type, isAuctionActive, onSubmitBid, purchase]
   )
+
+  const handleRetry = useCallback(() => {
+    setStatus('form')
+  }, [setStatus])
 
   return (
     <section className={css.root}>
@@ -135,6 +169,10 @@ export default function CryptoPurchaseForm({
       )}
 
       {status === 'success' && <CryptoSuccess release={release} />}
+
+      {status === 'error' && (
+        <CryptoPurchaseError error={error} handleRetry={handleRetry} />
+      )}
     </section>
   )
 }

@@ -478,6 +478,17 @@ const CirclePaymentQuerySchema = Type.Object({
   status: Type.Optional(Type.Enum(PaymentStatus)),
 })
 
+const CircleTransferQuerySchema = Type.Object({
+  walletId: Type.Optional(Type.String()),
+  sourceWalletId: Type.Optional(Type.String()),
+  destinationWalletId: Type.Optional(Type.String()),
+  from: Type.Optional(Type.String({ type: 'date-time' })),
+  to: Type.Optional(Type.String({ type: 'date-time' })),
+  pageBefore: Type.Optional(Type.String()),
+  pageAfter: Type.Optional(Type.String()),
+  pageSize: Type.Optional(Type.Number()),
+})
+
 // Coinbase
 
 const CoinbaseExchangeRatesOptionsSchema = Type.Object({
@@ -626,7 +637,6 @@ export const CreateTransferPaymentSchema = Type.Intersect([
   Type.Object({
     packTemplateId: Type.String({ format: 'uuid' }),
     payerExternalId: Type.String(),
-    walletTransaction: Type.Any(),
   }),
 ])
 
@@ -691,6 +701,9 @@ export type CirclePaymentVerification = Simplify<
 >
 export type CirclePublicKey = Simplify<Static<typeof CirclePublicKeySchema>>
 export type CircleTransfer = Simplify<Static<typeof CircleTransferSchema>>
+export type CircleTransferQuery = Simplify<
+  Static<typeof CircleTransferQuerySchema>
+>
 export type CircleWallet = Simplify<Static<typeof CircleWalletSchema>>
 export type CoinbaseExchangeRatesOptions = Simplify<
   Static<typeof CoinbaseExchangeRatesOptionsSchema>

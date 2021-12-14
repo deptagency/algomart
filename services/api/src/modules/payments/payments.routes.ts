@@ -163,10 +163,7 @@ export async function createWalletAddress(
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const address = await paymentService.generateAddress(
-    request.body,
-    request.transaction
-  )
+  const address = await paymentService.generateAddress(request.body)
   if (address) {
     reply.status(201).send(address)
   } else {
@@ -223,16 +220,14 @@ export async function createPayment(
 
 export async function createTransferPayment(
   request: FastifyRequest<{
-    Body: CreateTransferPayment & {
-      walletTransaction: Uint8Array | Uint8Array[]
-    }
+    Body: CreateTransferPayment
   }>,
   reply: FastifyReply
 ) {
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const payment = await paymentService.submitTxnAndCreatePayment(
+  const payment = await paymentService.createTransferPayment(
     request.body,
     request.transaction
   )
