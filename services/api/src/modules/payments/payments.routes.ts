@@ -6,6 +6,7 @@ import {
   CreatePayment,
   CreateTransferPayment,
   CreateWalletAddress,
+  FindTransferByAddress,
   OwnerExternalId,
   PaymentId,
   SendBankAccountInstructions,
@@ -263,4 +264,23 @@ export async function getCurrency(
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
   reply.send(await paymentService.getCurrency())
+}
+
+export async function findTransferByAddress(
+  request: FastifyRequest<{
+    Querystring: FindTransferByAddress
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const transfer = await paymentService.findTransferByAddress(
+    request.query.destinationAddress
+  )
+  if (transfer) {
+    reply.status(200).send(transfer)
+  } else {
+    reply.notFound()
+  }
 }

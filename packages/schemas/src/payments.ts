@@ -2,7 +2,7 @@ import { Static, Type } from '@sinclair/typebox'
 
 import { BaseSchema, IdSchema, Nullable, Simplify } from './shared'
 
-// Enums
+// #region Enums
 
 export enum CircleVerificationAVSSuccessCode {
   D = 'D',
@@ -163,7 +163,8 @@ export enum CirclePaymentQueryType {
   wire = 'wire',
 }
 
-// Schemas
+// #endregion
+// #region Schemas
 
 const ToPaymentBankAccountBaseSchema = Type.Object({
   externalId: Type.String({ format: 'uuid' }),
@@ -224,12 +225,17 @@ const PaymentRequiredActionSchema = Type.Object({
   redirectUrl: Type.String(),
 })
 
+export const FindTransferByAddressSchema = Type.Object({
+  destinationAddress: Type.String(),
+})
+
 export const SendBankAccountInstructionsSchema = Type.Object({
   bankAccountId: IdSchema,
   ownerExternalId: Type.String(),
 })
 
-// Circle
+// #endregion
+// #region Circle
 
 const CircleVerificationAVSCode = Type.Intersect([
   Type.Enum(CircleVerificationAVSCodeOptions),
@@ -489,7 +495,8 @@ const CircleTransferQuerySchema = Type.Object({
   pageSize: Type.Optional(Type.Number()),
 })
 
-// Coinbase
+// #endregion
+// #region Coinbase
 
 const CoinbaseExchangeRatesOptionsSchema = Type.Object({
   currency: Type.String(),
@@ -509,7 +516,8 @@ const CoinbaseErrorResponseSchema = Type.Object({
   ),
 })
 
-// Payment/card routes schemas
+// #endregion
+// #region Payment/card routes schemas
 
 export const CurrencySchema = Type.Object({
   base: Type.Number(),
@@ -654,7 +662,8 @@ export const UpdatePaymentCardSchema = Type.Object({
   ownerExternalId: Type.String(),
 })
 
-// Types
+// #endregion
+// #region Types
 
 export type BankAccountId = Simplify<Static<typeof BankAccountIdSchema>>
 export type CardId = Simplify<Static<typeof CardIdSchema>>
@@ -728,6 +737,9 @@ export type CreateWalletAddress = Simplify<
   Static<typeof CreateWalletAddressSchema>
 >
 export type Currency = Simplify<Static<typeof CurrencySchema>>
+export type FindTransferByAddress = Simplify<
+  Static<typeof FindTransferByAddressSchema>
+>
 export type GetPaymentBankAccountInstructions = Simplify<
   Static<typeof GetPaymentBankAccountInstructionsSchema>
 >
@@ -758,7 +770,8 @@ export type ToPaymentBase = Simplify<Static<typeof ToPaymentBaseSchema>>
 export type ToPaymentCardBase = Simplify<Static<typeof ToPaymentCardBaseSchema>>
 export type UpdatePaymentCard = Simplify<Static<typeof UpdatePaymentCardSchema>>
 
-// Success/error response
+// #endregion
+// #region Success/error response
 
 interface CircleSuccessResponse<T = unknown> {
   data: T
@@ -789,3 +802,5 @@ export function isCoinbaseSuccessResponse<T = unknown>(
   const { data } = response as CoinbaseSuccessResponse<T>
   return !!data
 }
+
+// #endregion

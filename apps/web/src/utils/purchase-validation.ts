@@ -232,6 +232,7 @@ export const validateTransferPurchase = (t: Translate) =>
   object({
     packTemplateId: identifier(t),
     destinationAddress: address(t),
+    transferId: identifier(t),
   })
 
 export const validatePurchase = (t: Translate) =>

@@ -31,6 +31,7 @@
     "onlyLowercaseLettersAndNumbers": "Only lowercase characters and numbers allowed",
     "paymentNotCreated": "The payment could not be created. Please contact support.",
     "required": "This field is required",
+    "transferNotFound": "Transfer not found. If this was completed, keep checking the status.",
     "usernameTaken": "Username already in use",
     "invalidDuration": "Invalid Duration",
     "invalidRedemptionCode": "Invalid Redemption Code",

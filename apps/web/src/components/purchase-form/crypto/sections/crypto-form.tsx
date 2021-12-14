@@ -1,4 +1,4 @@
-import { PublishedPack } from '@algomart/schemas'
+import { ToPaymentBase } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useState } from 'react'
 
@@ -25,11 +25,13 @@ export interface CryptoFormProps {
   currentBid: number | null
   disconnect: () => Promise<void>
   formErrors?: FormValidation
+  handleCheckForPurchase: () => void
   handleSubmitPurchase: (event: FormEvent<HTMLFormElement>) => Promise<void>
   initialBid?: string
   isAuctionActive: boolean
   price: string | null
   setBid: (bid: string | null) => void
+  transfer: ToPaymentBase | null
 }
 
 export default function CryptoForm({
@@ -41,11 +43,13 @@ export default function CryptoForm({
   currentBid,
   disconnect,
   formErrors,
+  handleCheckForPurchase,
   handleSubmitPurchase,
   initialBid,
   isAuctionActive,
   price,
   setBid,
+  transfer,
 }: CryptoFormProps) {
   const { t, lang } = useTranslation()
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
@@ -126,10 +130,21 @@ export default function CryptoForm({
         <p className={css.priceValue}>{formatCurrency(price, lang)}</p>
       </div>
 
+      {!isAuctionActive && (
+        <Button
+          className={css.checkForTransfer}
+          fullWidth
+          onClick={handleCheckForPurchase}
+          type="button"
+        >
+          {t('common:actions.Check for Payment')}
+        </Button>
+      )}
+
       {/* Submit */}
       <Button
         className={css.submit}
-        disabled={!connected || !account}
+        disabled={(!connected || !account) && !transfer}
         fullWidth
         type="submit"
         variant="primary"

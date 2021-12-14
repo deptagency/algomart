@@ -10,6 +10,7 @@ import {
   CreateTransferPaymentSchema,
   CreateWalletAddressSchema,
   CurrencySchema,
+  FindTransferByAddressSchema,
   GetPaymentBankAccountStatusSchema,
   GetPaymentCardStatusSchema,
   OwnerExternalIdSchema,
@@ -31,6 +32,7 @@ import {
   createPayment,
   createTransferPayment,
   createWalletAddress,
+  findTransferByAddress,
   getBankAccountStatus,
   getCards,
   getCardStatus,
@@ -175,6 +177,20 @@ export async function paymentRoutes(app: FastifyInstance) {
         },
       },
       createTransferPayment
+    )
+    .get(
+      '/transfers',
+      {
+        schema: {
+          tags,
+          security,
+          querystring: FindTransferByAddressSchema,
+          response: {
+            200: PaymentSchema,
+          },
+        },
+      },
+      findTransferByAddress
     )
     .post(
       '/bank-accounts',

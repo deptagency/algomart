@@ -19,6 +19,7 @@ import {
   CreateWalletAddress,
   DEFAULT_LOCALE,
   ExternalId,
+  FindTransferByAddress,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
@@ -270,6 +271,15 @@ export class ApiClient {
     return await this.http
       .get(`payments/bank-accounts/send`, { searchParams: searchParameters })
       .then((response) => response.ok)
+  }
+
+  async getTransferByAddress(query: FindTransferByAddress) {
+    const searchParameters = new URLSearchParams()
+    if (query?.destinationAddress)
+      searchParameters.set('destinationAddress', `${query.destinationAddress}`)
+    return await this.http
+      .get('transfers', { searchParams: searchParameters })
+      .json<Payment>()
   }
   //#endregion
 

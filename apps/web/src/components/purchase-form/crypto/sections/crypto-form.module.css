@@ -10,6 +10,10 @@
   @apply mt-10;
 }
 
+.checkForTransfer {
+  @apply bg-base-errorRed text-white mt-10 uppercase;
+}
+
 .priceContainer {
   @apply flex items-center justify-between w-full p-5 mt-5 mb-6 rounded-sm bg-base-gray-bg;
 }

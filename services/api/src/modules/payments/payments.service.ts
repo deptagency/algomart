@@ -487,6 +487,7 @@ export default class PaymentsService {
       },
       destinationAddress
     )
+
     return transfer
   }
 
@@ -499,11 +500,7 @@ export default class PaymentsService {
       .first()
     userInvariant(user, 'no user found', 404)
 
-    userInvariant(
-      transferDetails.destinationAddress,
-      'address not provided',
-      400
-    )
+    userInvariant(transferDetails.transferId, 'transfer ID not provided', 400)
 
     const { packId } = await this.selectPackAndAssignToUser(
       transferDetails.packTemplateId,
@@ -512,9 +509,10 @@ export default class PaymentsService {
     )
 
     // Find transfer
-    const transfer = await this.findTransferByAddress(
-      transferDetails.destinationAddress
+    const transfer = await this.circle.getTransferById(
+      transferDetails.transferId
     )
+    userInvariant(transfer, 'transfer not found', 404)
 
     // Create new payment in database
     const newPayment = await PaymentModel.query(trx).insert({
@@ -527,6 +525,7 @@ export default class PaymentsService {
       transferId: transfer?.externalId ? transfer.externalId : null,
       destinationAddress: transferDetails.destinationAddress,
     })
+    userInvariant(newPayment, 'payment could not be created', 400)
 
     // Create event for payment creation
     await EventModel.query(trx).insert({

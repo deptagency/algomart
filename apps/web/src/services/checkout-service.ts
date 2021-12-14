@@ -7,6 +7,7 @@ import {
   PaymentBankAccountInstructions,
   PaymentCards,
   PublicKey,
+  ToPaymentBase,
 } from '@algomart/schemas'
 import { getAuth } from 'firebase/auth'
 import ky from 'ky'
@@ -133,6 +134,14 @@ export class CheckoutService implements CheckoutAPI {
     )
     const payment = await response.json()
     return payment
+  }
+
+  async getTransferByAddress(address: string): Promise<ToPaymentBase | null> {
+    const response = await this.http.get(
+      `${urls.api.v1.getTransfer}?destinationAddress=${address}`
+    )
+    const transfer = await response.json()
+    return transfer
   }
 
   async getCards(): Promise<PaymentCards> {
