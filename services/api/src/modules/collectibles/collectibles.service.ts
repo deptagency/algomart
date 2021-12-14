@@ -127,7 +127,7 @@ export default class CollectiblesService {
     return collectibles.length
   }
 
-  async getcollectiblesByAlgoAddress(
+  async getCollectiblesByAlgoAddress(
     algoAddress: string,
     {
       locale = DEFAULT_LOCALE,

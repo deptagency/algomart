@@ -14,7 +14,7 @@ import fastifyBearerAuth from 'fastify-bearer-auth'
 import {
   addCollectibleShowcase,
   getCollectibles,
-  getcollectiblesByAlgoAddress,
+  getCollectiblesByAlgoAddress,
   getShowcaseCollectibles,
   removeCollectibleShowcase,
 } from './collectibles.routes'
@@ -67,7 +67,7 @@ export async function collectiblesRoutes(app: FastifyInstance) {
           },
         },
       },
-      getcollectiblesByAlgoAddress
+      getCollectiblesByAlgoAddress
     )
     .get(
       '/showcase',

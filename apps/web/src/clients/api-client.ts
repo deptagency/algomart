@@ -137,7 +137,7 @@ export class ApiClient {
   //#endregion
 
   //#region Collectibles
-  async getcollectiblesByAlgoAddress(
+  async getCollectiblesByAlgoAddress(
     algoAddress: string,
     query: CollectiblesByAlgoAddressQuerystring
   ): Promise<CollectibleListWithTotal> {

@@ -35,7 +35,7 @@ export async function getCollectibles(
   }
 }
 
-export async function getcollectiblesByAlgoAddress(
+export async function getCollectiblesByAlgoAddress(
   request: FastifyRequest<{
     Params: AlgoAddress
     Querystring: CollectiblesByAlgoAddressQuerystring
@@ -46,7 +46,7 @@ export async function getcollectiblesByAlgoAddress(
     .getContainer()
     .get<CollectiblesService>(CollectiblesService.name)
 
-  const result = await collectiblesService.getcollectiblesByAlgoAddress(
+  const result = await collectiblesService.getCollectiblesByAlgoAddress(
     request.params.algoAddress,
     request.query
   )

@@ -8,17 +8,12 @@ import { logger } from '@/utils/logger'
  * https://testnet.algoexplorer.io/api-dev/v2
  */
 
-interface AlgoExplorerAsset {
-  amount: number
+interface AlgoExplorerAssetHolding {
   'asset-id': number
-  creator: string
-  'is-frozen': boolean
 }
 
 interface AlgoExplorerAccount {
-  address: string
-  amount: number
-  assets: AlgoExplorerAsset[]
+  assets: AlgoExplorerAssetHolding[]
 }
 
 export default class AlgoExplorerAdapter {

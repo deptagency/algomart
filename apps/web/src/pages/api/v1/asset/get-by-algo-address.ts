@@ -13,7 +13,7 @@ handler.get(async (request: NextApiRequestApp, response: NextApiResponse) => {
     if (!algoAddress || typeof algoAddress !== 'string') {
       throw new BadRequest('Algorand address is required')
     }
-    const result = await ApiClient.instance.getcollectiblesByAlgoAddress(
+    const result = await ApiClient.instance.getCollectiblesByAlgoAddress(
       algoAddress,
       rest
     )
