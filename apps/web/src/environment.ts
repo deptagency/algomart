@@ -69,4 +69,9 @@ export const Environment = {
     const isEnabled = this.config('NEXT_PUBLIC_WIRE_PAYMENT_ENABLED', '')
     return isEnabled.toLowerCase() === 'true'
   },
+
+  get isCryptoEnabled() {
+    const isEnabled = this.config('NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED', '')
+    return isEnabled.toLowerCase() === 'true'
+  },
 }

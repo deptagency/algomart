@@ -41,14 +41,6 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
         title: t('forms:fields.paymentMethods.options.card.label'),
         isDisabled: !!doesRequireWirePayment,
       },
-      {
-        handleClick: () => setMethod('crypto'),
-        helpText: t('forms:fields.paymentMethods.options.crypto.helpText'),
-        icon: <CashIcon />,
-        method: 'crypto',
-        title: t('forms:fields.paymentMethods.options.crypto.label'),
-        isDisabled: false,
-      },
     ]
     if (Environment.isWireEnabled) {
       baseCards.push({
@@ -57,6 +49,16 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
         icon: <LibraryIcon />,
         method: 'wire',
         title: t('forms:fields.paymentMethods.options.wire.label'),
+        isDisabled: false,
+      })
+    }
+    if (Environment.isCryptoEnabled) {
+      baseCards.push({
+        handleClick: () => setMethod('crypto'),
+        helpText: t('forms:fields.paymentMethods.options.crypto.helpText'),
+        icon: <CashIcon />,
+        method: 'crypto',
+        title: t('forms:fields.paymentMethods.options.crypto.label'),
         isDisabled: false,
       })
     }
