@@ -1,9 +1,4 @@
-import { PackType } from '@algomart/schemas'
-import {
-  CreditCardIcon,
-  CurrencyDollarIcon,
-  LibraryIcon,
-} from '@heroicons/react/outline'
+import { CashIcon, CreditCardIcon, LibraryIcon } from '@heroicons/react/outline'
 import { useRouter } from 'next/router'
 import { Translate } from 'next-translate'
 import useTranslation from 'next-translate/useTranslation'
@@ -49,7 +44,7 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
       {
         handleClick: () => setMethod('crypto'),
         helpText: t('forms:fields.paymentMethods.options.crypto.helpText'),
-        icon: <CurrencyDollarIcon />,
+        icon: <CashIcon />,
         method: 'crypto',
         title: t('forms:fields.paymentMethods.options.crypto.label'),
         isDisabled: false,
