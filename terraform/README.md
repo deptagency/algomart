@@ -78,7 +78,7 @@ and you are free to override any variables that do.
 | `email_transport`                 | Either `sendgrid` or `smtp`                                                                                                 |
 | `email_name`                      | The sender name                                                                                                             |
 | `smtp_host`                       | The SMTP hostname, only required when `email_transport` is set to `smtp`                                                    |
-| `smtp_post`                       | The SMTP port, only required when `email_transport` is set to `smtp`                                                        |
+| `smtp_post`                       | The SMTP port, a valid port is required when `email_transport` is set to `smtp`, otherwise, set to a non-falsy integer      |
 | `smtp_user`                       | The SMTP user, only required when `email_transport` is set to `smtp`                                                        |
 | `smtp_password`                   | The SMTP password, only required when `email_transport` is set to `smtp`                                                    |
 | `web_domain_mapping`              | The domain name for the front-end web server                                                                                |

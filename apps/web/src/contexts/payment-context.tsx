@@ -271,7 +271,6 @@ export function usePaymentProvider({
           .catch(async (error) => {
             const response = await error.response.json()
             mapCircleErrors(response.code)
-            setFormErrors({})
             setStatus('form')
             return
           })
@@ -375,7 +374,6 @@ export function usePaymentProvider({
           .catch(async (error) => {
             const response = await error.response.json()
             mapCircleErrors(response.code)
-            setFormErrors({})
             setStatus('form')
             return
           })

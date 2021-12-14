@@ -68,16 +68,43 @@ Circle is used for processing payments.
 | `CIRCLE_KEY` | The private API key                                                                                            |
 | `CIRCLE_URL` | The environment-specific URL for the API, ie. sandbox or production - this **MUST** include `https://` prefix. |
 
-### Sendgrid
+### Email Dispatching
 
-Sendgrid is used for email notifications of certain events,
-such as purchase confirmation, transfer success,
-or a user being out-bid in an auction.
+Emails are dispatched when various actions are taken by a user (claimed assets, bid notifications, etc.). These emails can be sent using SMTP (via [Nodemailer](https://nodemailer.com/about/)) or via [Sendgrid](https://sendgrid.com/). Alternatively, other email transports could be added with relative ease following the existing patterns within the API code.
 
-| Variable              | Description                        |
-| --------------------- | ---------------------------------- |
-| `SENDGRID_FROM_EMAIL` | The sender email for notifications |
-| `SENDGRID_KEY`        | The private API key                |
+Regardless of which out-of-the-box approach you take, the following variables are required:
+
+| Variable          | Description                                                      |
+| ----------------- | ---------------------------------------------------------------- |
+| `EMAIL_TRANSPORT` | `smtp` or `sendgrid`                                             |
+| `EMAIL_FROM`      | The sender name                                                  |
+| `EMAIL_NAME`      | The sender email address                                         |
+| `SMTP_PORT`       | Valid port for `smtp` or just a non-falsy integer for `sendgrid` |
+
+If `EMAIL_TRANSPORT` is set to `smtp`, the following variables are required:
+
+| Variable        | Description   |
+| --------------- | ------------- |
+| `SMTP_HOST`     | SMTP host     |
+| `SMTP_USER`     | SMTP user     |
+| `SMTP_PASSWORD` | SMTP password |
+
+If `EMAIL_TRANSPORT` is set to `sendgrid`, the following variable is required:
+
+| Variable           | Description                               |
+| ------------------ | ----------------------------------------- |
+| `SENDGRID_API_KEY` | The Sendgrid API key provided by Sendgrid |
+
+### IPFS Storage
+
+To persist assets on the [IPFS](https://ipfs.io/), [Pinata](https://pinata.cloud/) is used in background tasks to store newly generated collectibles. This helps ensure the integrity of ASAs since IPFS content IDs are stored in metadata associated with the on-chain assets to adhere to [ARC3 standards](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md).
+
+_Note: Pinata allows storage up to 1GB storage for free. This might be suitable for smaller storefronts with lightweight assets. However, if the storefront has many assets (particularly larger media types such as audio or video), a paid account is recommended._
+
+| Variable            | Description                       |
+| ------------------- | --------------------------------- |
+| `PINATA_API_KEY`    | The API key provided by Pinata    |
+| `PINATA_API_SECRET` | The API secret provided by Pinata |
 
 ### Miscellaneous
 

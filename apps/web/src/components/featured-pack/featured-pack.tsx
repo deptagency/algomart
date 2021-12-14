@@ -77,6 +77,7 @@ export default function HomeTemplate({
             width={512}
             height={512}
             layout="responsive"
+            objectFit="cover"
           />
         </div>
 

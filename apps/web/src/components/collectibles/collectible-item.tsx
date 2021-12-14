@@ -51,7 +51,7 @@ export default function CollectibleItem({
       alt={alt}
       width={160}
       height={160}
-      objectFit="contain"
+      objectFit="cover"
       layout="responsive"
     />
   ) : (
