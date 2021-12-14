@@ -17,6 +17,7 @@ import {
   validateBankAccount,
   validateCard,
   validatePurchase,
+  validateTransferPurchase,
 } from '@/utils/purchase-validation'
 import { urls } from '@/utils/urls'
 
@@ -27,6 +28,10 @@ export type CreateBankAccountRequest = ExtractBodyType<
 export type CreateCardRequest = ExtractBodyType<typeof validateCard>
 
 export type CreatePaymentRequest = ExtractBodyType<typeof validatePurchase>
+
+export type CreateTransferRequest = ExtractBodyType<
+  typeof validateTransferPurchase
+>
 
 export interface CheckoutAPI {
   getBankAccountInstructions(
@@ -44,6 +49,7 @@ export interface CheckoutAPI {
   ): Promise<CreateBankAccountResponse | null>
   createCard(request: CreateCardRequest): Promise<CreatePaymentCard | null>
   createPayment(request: CreatePaymentRequest): Promise<Payment | null>
+  createTransferPayment(request: CreateTransferRequest): Promise<Payment | null>
 }
 
 export class CheckoutService implements CheckoutAPI {
@@ -104,6 +110,17 @@ export class CheckoutService implements CheckoutAPI {
   async createPayment(request: CreatePaymentRequest): Promise<Payment | null> {
     const response = await this.http
       .post(urls.api.v1.createPayment, {
+        json: request,
+      })
+      .json<Payment>()
+    return response.id && response.packId ? response : null
+  }
+
+  async createTransferPayment(
+    request: CreateTransferRequest
+  ): Promise<Payment | null> {
+    const response = await this.http
+      .post(urls.api.v1.createTransfer, {
         json: request,
       })
       .json<Payment>()

@@ -14,6 +14,7 @@ import {
   CreateBidRequest,
   CreateCard,
   CreatePayment,
+  CreateTransferPayment,
   CreateUserAccountRequest,
   CreateWalletAddress,
   DEFAULT_LOCALE,
@@ -209,6 +210,10 @@ export class ApiClient {
 
   async createCard(json: CreateCard) {
     return await this.http.post('payments/cards', { json }).json<PaymentCard>()
+  }
+
+  async createTransferPurchase(json: CreateTransferPayment) {
+    return await this.http.post('payments/transfers', { json }).json<Payment>()
   }
 
   async createWalletAddress(json: CreateWalletAddress) {

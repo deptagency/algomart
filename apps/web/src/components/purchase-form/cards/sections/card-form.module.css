@@ -42,14 +42,6 @@
   @apply hidden;
 }
 
-.bid {
-  @apply shadow-medium;
-}
-
-.notice {
-  @apply px-8 py-5 mb-8 text-center rounded bg-base-gray-notice text-base-gray-text;
-}
-
 .notification {
   @apply mb-5;
 }

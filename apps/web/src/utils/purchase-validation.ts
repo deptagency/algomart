@@ -1,4 +1,5 @@
 import { Translate } from 'next-translate'
+import { isTypedArray } from 'node:util/types'
 import {
   boolean,
   date,
@@ -220,6 +221,11 @@ export const validateCard = (t: Translate) =>
     zipCode: zipCode(t),
     saveCard: boolean(),
     default: boolean(),
+  })
+
+export const validateTransferPurchase = (t: Translate) =>
+  object({
+    packTemplateId: identifier(t),
   })
 
 export const validatePurchase = (t: Translate) =>

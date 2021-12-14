@@ -7,6 +7,7 @@ import {
   CreateCardSchema,
   CreatePaymentCardSchema,
   CreatePaymentSchema,
+  CreateTransferPaymentSchema,
   CreateWalletAddressSchema,
   CurrencySchema,
   GetPaymentBankAccountStatusSchema,
@@ -28,6 +29,7 @@ import {
   createBankAccount,
   createCard,
   createPayment,
+  createTransferPayment,
   createWalletAddress,
   getBankAccountStatus,
   getCards,
@@ -61,21 +63,6 @@ export async function paymentRoutes(app: FastifyInstance) {
 
   // Services/Routes
   app
-    .post(
-      '/',
-      {
-        transact: true,
-        schema: {
-          tags,
-          security,
-          body: CreatePaymentSchema,
-          response: {
-            201: PaymentSchema,
-          },
-        },
-      },
-      createPayment
-    )
     .get(
       '/:paymentId',
       {
@@ -158,6 +145,36 @@ export async function paymentRoutes(app: FastifyInstance) {
         },
       },
       getWireTransferInstructions
+    )
+    .post(
+      '/',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: CreatePaymentSchema,
+          response: {
+            201: PaymentSchema,
+          },
+        },
+      },
+      createPayment
+    )
+    .post(
+      '/transfers',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: CreateTransferPaymentSchema,
+          response: {
+            201: PaymentSchema,
+          },
+        },
+      },
+      createTransferPayment
     )
     .post(
       '/bank-accounts',

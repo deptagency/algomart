@@ -21,3 +21,35 @@
 .priceValue {
   @apply text-lg font-bold text-green-600;
 }
+
+.information {
+  @apply bg-base-gray-bg p-5 mb-10;
+}
+
+.infoHelpText {
+  @apply pb-5;
+}
+
+.tutorial a {
+  @apply pl-1;
+}
+
+.prompt {
+  @apply font-bold pr-1;
+}
+
+.separator {
+  @apply mb-10;
+}
+
+.instructions ol {
+  @apply pb-10;
+}
+
+.instructions h2 {
+  @apply font-bold pb-5;
+}
+
+.connect p {
+  @apply pb-5;
+}

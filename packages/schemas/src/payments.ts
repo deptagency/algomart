@@ -185,7 +185,12 @@ const ToPaymentCardBaseSchema = Type.Object({
 const ToPaymentBaseSchema = Type.Object({
   externalId: Type.String({ format: 'uuid' }),
   status: Type.Optional(Type.Enum(PaymentStatus)),
-  error: Type.Optional(Type.Enum(CirclePaymentErrorCode)),
+  error: Type.Optional(
+    Type.Union([
+      Type.Enum(CirclePaymentErrorCode),
+      Type.Enum(CircleTransferErrorCode),
+    ])
+  ),
   amount: Type.String(),
   sourceId: Type.String({ format: 'uuid' }),
 })
@@ -195,6 +200,8 @@ const PaymentBaseSchema = Type.Object({
   payerId: Type.String(),
   paymentCardId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
   paymentBankId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
+  destinationAddress: Type.Optional(Nullable(Type.String())),
+  transferId: Type.Optional(Nullable(Type.String())),
 })
 
 const PaymentBankAccountBaseSchema = Type.Intersect([
@@ -614,6 +621,15 @@ export const CreatePaymentSchema = Type.Intersect([
   }),
 ])
 
+export const CreateTransferPaymentSchema = Type.Intersect([
+  Type.Omit(PaymentBaseSchema, ['payerId']),
+  Type.Object({
+    packTemplateId: Type.String({ format: 'uuid' }),
+    payerExternalId: Type.String(),
+    walletTransaction: Type.Any(),
+  }),
+])
+
 export const CreateWalletAddressSchema = Type.Intersect([
   Type.Omit(CircleCreateBlockchainAddressSchema, ['walletId']),
 ])
@@ -692,6 +708,9 @@ export type CreateBankAccountResponse = Simplify<
 export type CreateCard = Simplify<Static<typeof CreateCardSchema>>
 export type CreatePayment = Simplify<Static<typeof CreatePaymentSchema>>
 export type CreatePaymentCard = Simplify<Static<typeof CreatePaymentCardSchema>>
+export type CreateTransferPayment = Simplify<
+  Static<typeof CreateTransferPaymentSchema>
+>
 export type CreateWalletAddress = Simplify<
   Static<typeof CreateWalletAddressSchema>
 >

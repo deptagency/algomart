@@ -4,6 +4,7 @@ import {
   CreateBankAccount,
   CreateCard,
   CreatePayment,
+  CreateTransferPayment,
   CreateWalletAddress,
   OwnerExternalId,
   PaymentId,
@@ -217,6 +218,28 @@ export async function createPayment(
     reply.status(201).send(payment)
   } else {
     reply.badRequest('Unable to create payment')
+  }
+}
+
+export async function createTransferPayment(
+  request: FastifyRequest<{
+    Body: CreateTransferPayment & {
+      walletTransaction: Uint8Array | Uint8Array[]
+    }
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payment = await paymentService.submitTxnAndCreatePayment(
+    request.body,
+    request.transaction
+  )
+  if (payment) {
+    reply.status(201).send(payment)
+  } else {
+    reply.badRequest('Unable to create transfer payment')
   }
 }
 

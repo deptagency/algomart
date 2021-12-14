@@ -11,6 +11,7 @@ import Loading from '@/components/loading/loading'
 import { PaymentContextProps } from '@/contexts/payment-context'
 import { AlgorandAdapter, ChainType, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
+import checkoutService from '@/services/checkout-service'
 import { isAfterNow } from '@/utils/date-time'
 import { formatToDecimal, isGreaterThanOrEqual } from '@/utils/format-currency'
 import { formatFloatToInt } from '@/utils/format-currency'
@@ -78,16 +79,25 @@ export default function CryptoPurchaseForm({
     if (connector) {
       const assetTx = await algorand.makeAssetTransferTransaction({
         // price of pack + non-participation transaction fee
-        amount: priceInt + 1000,
+        amount: priceInt * 10_000 + 1000,
         from: account,
         to: address,
         assetIndex: usdcAsset.id,
         note: undefined,
         rekeyTo: undefined,
       })
-      await connector.signTransaction(assetTx)
+      console.log('assetTx:', assetTx)
+      const txn = await connector.signTransaction(assetTx)
+      if (txn) {
+        const transfer = await checkoutService.createTransferPayment({
+          //
+        })
+        console.log('transfer:', transfer)
+        // Create payment
+        setStatus('success')
+      }
     }
-  }, [account, address, price])
+  }, [account, address, price, setStatus])
 
   const handleSubmitPurchase = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -116,7 +126,6 @@ export default function CryptoPurchaseForm({
           handleSubmitPurchase={handleSubmitPurchase}
           isAuctionActive={isAuctionActive}
           price={price}
-          release={release}
           setBid={setBid}
         />
       )}

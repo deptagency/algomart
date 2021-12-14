@@ -4,6 +4,7 @@ import {
   CreateBankAccount,
   CreateCard,
   CreatePayment,
+  CreateTransferPayment,
   CreateWalletAddress,
   DEFAULT_CURRENCY,
   EventAction,
@@ -21,6 +22,7 @@ import {
 import { Transaction } from 'objection'
 
 import { Configuration } from '@/configuration'
+import AlgorandAdapter from '@/lib/algorand-adapter'
 import CircleAdapter from '@/lib/circle-adapter'
 import CoinbaseAdapter from '@/lib/coinbase-adapter'
 import { BidModel } from '@/models/bid.model'
@@ -48,7 +50,8 @@ export default class PaymentsService {
     private readonly circle: CircleAdapter,
     private readonly coinbase: CoinbaseAdapter,
     private readonly notifications: NotificationService,
-    private readonly packs: PacksService
+    private readonly packs: PacksService,
+    private readonly algorand: AlgorandAdapter
   ) {}
 
   async getPublicKey() {
@@ -481,6 +484,78 @@ export default class PaymentsService {
     })
 
     return newPayment
+  }
+
+  async createTransferPayment(
+    transferDetails: CreateTransferPayment,
+    trx?: Transaction
+  ) {
+    const user = await UserAccountModel.query(trx)
+      .where('externalId', transferDetails.payerExternalId)
+      .first()
+    userInvariant(user, 'no user found', 404)
+
+    userInvariant(
+      transferDetails.destinationAddress,
+      'address not provided',
+      400
+    )
+
+    const { priceInUSD, packId } = await this.selectPackAndAssignToUser(
+      transferDetails.packTemplateId,
+      user.id,
+      trx
+    )
+
+    // Find transfer
+    const merchantWallet = await this.circle.getMerchantWallet()
+    userInvariant(merchantWallet, 'merchant wallet could not be found', 404)
+    const transfer = await this.circle.getTransfersForAddress(
+      merchantWallet.walletId,
+      transferDetails.destinationAddress
+    )
+
+    // @TODO: Move this conditional
+    // Error if the transfer was found in the wrong amount
+    userInvariant(
+      transfer && transfer.amount !== priceInUSD,
+      'transfer was not in correct amount',
+      400
+    )
+
+    // Create new payment in database
+    const newPayment = await PaymentModel.query(trx).insert({
+      externalId: null,
+      payerId: user.id,
+      packId: packId,
+      paymentCardId: null,
+      paymentBankId: null,
+      status: transfer?.status ? transfer.status : PaymentStatus.Pending,
+      transferId: transfer?.externalId ? transfer.externalId : null,
+      destinationAddress: transferDetails.destinationAddress,
+    })
+
+    // Create event for payment creation
+    await EventModel.query(trx).insert({
+      action: EventAction.Create,
+      entityType: EventEntityType.Payment,
+      entityId: newPayment.id,
+      userAccountId: user.id,
+    })
+
+    return { id: newPayment.id, status: newPayment.status }
+  }
+
+  async submitTxnAndCreatePayment(
+    transferDetails: CreateTransferPayment & {
+      walletTransaction: Uint8Array | Uint8Array[]
+    },
+    trx?: Transaction
+  ) {
+    // Submit transaction to Algorand
+    await this.algorand.submitTransaction(transferDetails.walletTransaction)
+    // Create payment
+    return this.createTransferPayment(transferDetails, trx)
   }
 
   async generateAddress(request: CreateWalletAddress, trx?: Transaction) {

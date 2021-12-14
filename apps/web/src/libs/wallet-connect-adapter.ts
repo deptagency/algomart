@@ -37,6 +37,7 @@ export class WalletConnectAdapter extends EventEmitter implements IConnector {
     this._connector.on('session_update', (error, payload) => {
       if (error) throw error
       const { accounts } = payload.params[0]
+      console.log('session_update payload:', payload)
       this.onSessionUpdate(accounts)
     })
 
@@ -104,6 +105,8 @@ export class WalletConnectAdapter extends EventEmitter implements IConnector {
     const [encodedSignedTxn]: string[] =
       await this._connector.sendCustomRequest(request)
 
-    return new Uint8Array(Buffer.from(encodedSignedTxn, 'base64'))
+    const txn = new Uint8Array(Buffer.from(encodedSignedTxn, 'base64'))
+    await this.algorand.sendRawTransaction(txn)
+    return txn
   }
 }
