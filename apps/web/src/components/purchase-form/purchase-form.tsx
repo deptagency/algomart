@@ -24,8 +24,8 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
     router.push(urls.releases)
   }
 
-  const doesRequireWirePayment =
-    Environment.isWireEnabled &&
+  const doesRequireNonCardPayment =
+    (Environment.isWireEnabled || Environment.isCryptoEnabled) &&
     ((currentBid &&
       isGreaterThanOrEqual(currentBid, MAX_BID_FOR_CARD_PAYMENT)) ||
       (release?.price &&
@@ -39,7 +39,7 @@ export default function PurchaseForm(paymentProps: PaymentContextProps) {
         icon: <CreditCardIcon />,
         method: 'card',
         title: t('forms:fields.paymentMethods.options.card.label'),
-        isDisabled: !!doesRequireWirePayment,
+        isDisabled: !!doesRequireNonCardPayment,
       },
     ]
     if (Environment.isWireEnabled) {
