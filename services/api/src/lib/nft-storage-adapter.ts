@@ -7,6 +7,7 @@ import { promisify } from 'node:util'
 import { getMimeType } from 'stream-mime-type'
 
 import { Configuration } from '@/configuration'
+import { invariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
 
 export interface ARC3Metadata {
@@ -60,7 +61,8 @@ export default class NFTStorageAdapter {
 
   async testConnection() {
     try {
-      await this.client.testAuthentication()
+      const { authenticated } = await this.client.testAuthentication()
+      invariant(authenticated)
       this.logger.info('Successfully connected to Pinata')
     } catch (error) {
       this.logger.error(error, 'Failed to connect to Pinata')
