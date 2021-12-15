@@ -22,11 +22,16 @@ it is possible to build images and deploy manually if desired.
 
 This requires:
 
-- [Specifying input variables](#input-variables)
-- [Configuring `gcloud` and `docker`](#authorize-gcloud)
-- [Pushing docker images](#build-and-push-docker-images)
-- [Initializing Terraform](#initialize-terraform)
-- [Applying Terraform](#apply-terraform)
+- [Terraform](#terraform)
+  - [Input variables](#input-variables)
+    - [Required](#required)
+    - [Optional](#optional)
+  - [Authorize gcloud](#authorize-gcloud)
+  - [Build and push docker images](#build-and-push-docker-images)
+  - [Initialize Terraform](#initialize-terraform)
+  - [Apply Terraform](#apply-terraform)
+  - [Troubleshooting](#troubleshooting)
+    - [State lock](#state-lock)
 
 ## Input variables
 
