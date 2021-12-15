@@ -48,12 +48,13 @@ to both an `algod` node (on MainNet or TestNet, depending on environment)
 and a "funding account" that can issue transactions to create
 new accounts, fund asset creation, etc.
 
-| Variable               | Description                                                                    |
-| ---------------------- | ------------------------------------------------------------------------------ |
-| `ALGOD_HOST`           | The host name of the `algod` server - this **MUST** include `https://` prefix. |
-| `ALGOD_KEY`            | The access token for the `algod` server                                        |
-| `ALGOD_PORT`           | The port for the `algod` server                                                |
-| `API_FUNDING_MNEMONIC` | The 25-word mnemonic for the master funding account                            |
+| Variable               | Description                                                                                                                                               |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ALGOD_ENV`            | Block chain environment, can be `mainnet`, `betanet`, or `testnet` (default) Block chain environment, can be `mainnet`, `betanet`, or `testnet` (default) |
+| `ALGOD_HOST`           | The host name of the `algod` server - this **MUST** include `https://` prefix.                                                                            |
+| `ALGOD_KEY`            | The access token for the `algod` server                                                                                                                   |
+| `ALGOD_PORT`           | The port for the `algod` server                                                                                                                           |
+| `API_FUNDING_MNEMONIC` | The 25-word mnemonic for the master funding account                                                                                                       |
 
 **Important:** The funding account used **must have funds** before
 the app can be used. Without funds, admins cannot create NFTs,
