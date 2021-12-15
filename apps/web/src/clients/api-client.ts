@@ -45,6 +45,7 @@ import {
   RedeemCode,
   SendBankAccountInstructions,
   SetWithCollection,
+  ToPaymentBase,
   TransferPack,
   TransferPackStatusList,
   UpdatePaymentCard,
@@ -274,12 +275,13 @@ export class ApiClient {
   }
 
   async getTransferByAddress(query: FindTransferByAddress) {
-    const searchParameters = new URLSearchParams()
+    const searchParams = new URLSearchParams()
     if (query?.destinationAddress)
-      searchParameters.set('destinationAddress', `${query.destinationAddress}`)
+      searchParams.set('destinationAddress', query.destinationAddress)
     return await this.http
-      .get('transfers', { searchParams: searchParameters })
-      .json<Payment>()
+      .get('payments/transfers', { searchParams })
+      .json<ToPaymentBase>()
+      .catch(() => null)
   }
   //#endregion
 

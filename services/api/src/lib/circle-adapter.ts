@@ -334,7 +334,7 @@ export default class CircleAdapter {
     return null
   }
 
-  async getTransfersForAddress(
+  async getTransferForAddress(
     query: CircleTransferQuery,
     destinationAddressId: string
   ): Promise<ToPaymentBase | null> {

@@ -26,6 +26,7 @@ handler.post(
       payerExternalId: request.user.externalId,
       packTemplateId: body.packTemplateId,
       destinationAddress: body.destinationAddress,
+      transferId: body.transferId,
     })
 
     const paymentId = payment?.id

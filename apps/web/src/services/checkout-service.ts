@@ -137,11 +137,15 @@ export class CheckoutService implements CheckoutAPI {
   }
 
   async getTransferByAddress(address: string): Promise<ToPaymentBase | null> {
-    const response = await this.http.get(
-      `${urls.api.v1.getTransfer}?destinationAddress=${address}`
-    )
-    const transfer = await response.json()
-    return transfer
+    try {
+      const response = await this.http.get(
+        `${urls.api.v1.getTransfer}?destinationAddress=${address}`
+      )
+      return await response.json()
+    } catch {
+      // If transfer wasn't found, return null
+      return null
+    }
   }
 
   async getCards(): Promise<PaymentCards> {

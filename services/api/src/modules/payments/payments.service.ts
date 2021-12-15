@@ -472,7 +472,6 @@ export default class PaymentsService {
   async findTransferByAddress(destinationAddress: string) {
     // Find merchant wallet
     const merchantWallet = await this.circle.getMerchantWallet()
-    userInvariant(merchantWallet, 'merchant wallet could not be found', 404)
 
     // Last 24 hours
     const newDate24HoursInPast = new Date(
@@ -480,14 +479,15 @@ export default class PaymentsService {
     ).toISOString()
 
     // Find transfer by address in last 24 hours
-    const transfer = await this.circle.getTransfersForAddress(
-      {
+    const searchParams = { from: newDate24HoursInPast.toString() }
+    if (merchantWallet?.walletId)
+      Object.assign(searchParams, {
         destinationWalletId: merchantWallet.walletId,
-        from: newDate24HoursInPast.toString(),
-      },
+      })
+    const transfer = await this.circle.getTransferForAddress(
+      searchParams,
       destinationAddress
     )
-
     return transfer
   }
 

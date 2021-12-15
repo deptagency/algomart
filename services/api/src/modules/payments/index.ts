@@ -20,6 +20,7 @@ import {
   PaymentSchema,
   PublicKeySchema,
   SendBankAccountInstructionsSchema,
+  ToPaymentBaseSchema,
   UpdatePaymentCardSchema,
 } from '@algomart/schemas'
 import { Type } from '@sinclair/typebox'
@@ -186,7 +187,7 @@ export async function paymentRoutes(app: FastifyInstance) {
           security,
           querystring: FindTransferByAddressSchema,
           response: {
-            200: PaymentSchema,
+            200: ToPaymentBaseSchema,
           },
         },
       },

@@ -1,11 +1,15 @@
-import { ToPaymentBase } from '@algomart/schemas'
+import { CheckoutStatus, PublishedPack, ToPaymentBase } from '@algomart/schemas'
+import { RefreshIcon } from '@heroicons/react/outline'
+import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useState } from 'react'
+
+import CryptoFormInstructions from './crypto-form-instructions'
+import CryptoFormWalletConnect from './crypto-form-wc'
 
 import css from './crypto-form.module.css'
 
 import AlertMessage from '@/components/alert-message/alert-message'
-import AppLink from '@/components/app-link/app-link'
 import Button from '@/components/button'
 import Checkbox from '@/components/checkbox'
 import Heading from '@/components/heading'
@@ -13,48 +17,49 @@ import Bid from '@/components/purchase-form/shared/bid'
 import { FormValidation } from '@/contexts/payment-context'
 import { formatCurrency } from '@/utils/format-currency'
 
-const formatAccount = (account: string) =>
-  `${account.slice(0, 6)}...${account.slice(-6)}`
-
 export interface CryptoFormProps {
-  account: string
+  address?: string
   bid: string | null
   className?: string
-  connect: () => Promise<void>
-  connected: boolean
   currentBid: number | null
-  disconnect: () => Promise<void>
   formErrors?: FormValidation
   handleCheckForPurchase: () => void
-  handleSubmitPurchase: (event: FormEvent<HTMLFormElement>) => Promise<void>
+  handleSubmitBid: (event: FormEvent<HTMLFormElement>) => Promise<void>
   initialBid?: string
   isAuctionActive: boolean
+  isLoading: boolean
   price: string | null
+  release?: PublishedPack
   setBid: (bid: string | null) => void
+  setError: (error: string) => void
+  setStatus: (status: CheckoutStatus) => void
+  setTransfer: (transfer: ToPaymentBase | null) => void
   transfer: ToPaymentBase | null
 }
 
 export default function CryptoForm({
-  account,
+  address,
   bid,
   className,
-  connect,
-  connected,
   currentBid,
-  disconnect,
   formErrors,
   handleCheckForPurchase,
-  handleSubmitPurchase,
+  handleSubmitBid,
   initialBid,
   isAuctionActive,
+  isLoading,
   price,
+  release,
   setBid,
+  setError,
+  setStatus,
+  setTransfer,
   transfer,
 }: CryptoFormProps) {
   const { t, lang } = useTranslation()
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
   return (
-    <form className={className} onSubmit={handleSubmitPurchase}>
+    <form className={className} onSubmit={handleSubmitBid}>
       {formErrors && 'bid' in formErrors && (
         <AlertMessage
           className={css.notification}
@@ -83,44 +88,17 @@ export default function CryptoForm({
         </>
       ) : (
         <>
-          <div className={css.information}>
-            <p className={css.infoHelpText}>
-              {t('forms:fields.payWithCrypto.helpText')}
-            </p>
-            <p className={css.tutorial}>
-              <span className={css.prompt}>
-                {t('forms:fields.payWithCrypto.tutorial.prompt')}
-              </span>
-              <span>
-                {t('forms:fields.payWithCrypto.tutorial.text')}
-                <AppLink href="#">
-                  {t('forms:fields.payWithCrypto.tutorial.hyperlink')}
-                </AppLink>
-              </span>
-            </p>
-          </div>
-          <div className={css.instructions}>
-            <Heading level={2}>
-              {t('forms:fields.payWithCrypto.instructions.label')}:
-            </Heading>
-            <ol>
-              <li>{t('forms:fields.payWithCrypto.instructions.1')}</li>
-              <li>{t('forms:fields.payWithCrypto.instructions.2')}</li>
-              <li>
-                {t('forms:fields.payWithCrypto.instructions.3', { price })}
-              </li>
-              <li>{t('forms:fields.payWithCrypto.instructions.4')}</li>
-            </ol>
-            <hr className={css.separator} />
-          </div>
-          {connected ? (
-            <div className={css.connect}>
-              <p>Selected account: {formatAccount(account)}</p>
-              <Button onClick={disconnect}>Disconnect</Button>
-            </div>
-          ) : (
-            <Button onClick={connect}>Connect</Button>
-          )}
+          <CryptoFormInstructions price={price} />
+          <CryptoFormWalletConnect
+            address={address}
+            price={price}
+            release={release}
+            setError={setError}
+            setStatus={setStatus}
+            setTransfer={setTransfer}
+            transfer={transfer}
+          />
+          <hr />
         </>
       )}
 
@@ -130,29 +108,31 @@ export default function CryptoForm({
         <p className={css.priceValue}>{formatCurrency(price, lang)}</p>
       </div>
 
-      {!isAuctionActive && (
+      {!isAuctionActive ? (
         <Button
           className={css.checkForTransfer}
+          disabled={!!transfer || isLoading}
           fullWidth
           onClick={handleCheckForPurchase}
           type="button"
         >
+          <RefreshIcon
+            className={clsx(css.icon, {
+              [css.spinningIcon]: isLoading,
+            })}
+          />
           {t('common:actions.Check for Payment')}
         </Button>
+      ) : (
+        <Button
+          className={css.submit}
+          fullWidth
+          type="submit"
+          variant="primary"
+        >
+          {t('common:actions.Place Bid')}
+        </Button>
       )}
-
-      {/* Submit */}
-      <Button
-        className={css.submit}
-        disabled={(!connected || !account) && !transfer}
-        fullWidth
-        type="submit"
-        variant="primary"
-      >
-        {isAuctionActive
-          ? t('common:actions.Place Bid')
-          : t('common:actions.Purchase')}
-      </Button>
     </form>
   )
 }

@@ -77,6 +77,7 @@ export interface PaymentContextProps {
   setAddress(address: string): void
   setBid: (bid: string | null) => void
   setMethod: (method: CheckoutMethods | null) => void
+  setPackId: (packId: string | null) => void
   setStatus: (status: CheckoutStatus) => void
   status: CheckoutStatus
 }
@@ -646,6 +647,7 @@ export function usePaymentProvider({
       setAddress,
       setBid,
       setMethod,
+      setPackId,
       setStatus,
       status,
     }),
@@ -667,6 +669,7 @@ export function usePaymentProvider({
       setAddress,
       setBid,
       setMethod,
+      setPackId,
       setStatus,
       status,
     ]

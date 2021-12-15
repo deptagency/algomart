@@ -153,11 +153,12 @@
       },
       "instructions": {
         "label": "If you already have a wallet",
-        "1": "1. Click to connect to your wallet",
-        "2": "2. Scan the QR code using your wallet's mobile app, or copy the payment code to your clipboard to use on the website.",
-        "3": "3. Click to initiate the purchase. Submit your payment of {{price}} in USDC.",
+        "1": "1. Click to connect and scan the QR code using your wallet's mobile app, OR copy the blockchain address to your clipboard.",
+        "2": "2. Initiate the purchase, either by clicking the Purchase button or manually transferring funds to the copied address. Submit your payment of {{price}} in USDC.",
+        "3": "3. Check for payment.",
         "4": "4. Once we receive your payment, you will get an email with a link to claim your NFT."
-      }
+      },
+      "Connected account": "Connected account"
     },
     "price": {
       "label": "Price"

@@ -1,3 +1,12 @@
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .heading {
   @apply mb-10;
 }
@@ -11,7 +20,7 @@
 }
 
 .checkForTransfer {
-  @apply bg-base-errorRed text-white mt-10 uppercase;
+  @apply bg-base-errorRed flex justify-center gap-2 items-center mt-10 text-white uppercase;
 }
 
 .priceContainer {
@@ -54,6 +63,34 @@
   @apply font-bold pb-5;
 }
 
-.connect p {
-  @apply pb-5;
+.walletConnect {
+  @apply mb-5;
+}
+
+.connectedAccount {
+  @apply flex items-center gap-2 mt-5;
+}
+
+.connectedAccount p {
+  @apply font-bold;
+}
+
+.disconnectButton {
+  @apply mt-2 p-0 text-sm text-left underline w-full;
+}
+
+.copyWrapper {
+  @apply flex gap-1 items-center mt-5;
+}
+
+.copyButton {
+  @apply m-0 p-0 text-lg;
+}
+
+.icon {
+  @apply w-8;
+}
+
+.spinningIcon {
+  @apply animate-spin;
 }

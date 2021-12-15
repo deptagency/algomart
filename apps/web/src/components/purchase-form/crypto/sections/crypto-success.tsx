@@ -2,6 +2,7 @@ import { PackType, PublishedPack } from '@algomart/schemas'
 import { CheckCircleIcon } from '@heroicons/react/outline'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
+import { useCallback } from 'react'
 
 import css from './crypto-success.module.css'
 
@@ -11,16 +12,22 @@ import { isAfterNow } from '@/utils/date-time'
 import { urls } from '@/utils/urls'
 
 interface CryptoSuccessProps {
+  packId: string
   release?: PublishedPack
 }
 
-export default function CryptoSuccess({ release }: CryptoSuccessProps) {
+export default function CryptoSuccess({ packId, release }: CryptoSuccessProps) {
   const { push } = useRouter()
   const { t } = useTranslation()
 
   const isActiveAuction =
     release?.type === PackType.Auction &&
     isAfterNow(new Date(release?.auctionUntil as string))
+
+  const handlePackOpening = useCallback(() => {
+    const path = urls.packOpening.replace(':packId', packId)
+    return push(path)
+  }, [packId, push])
 
   return (
     <div className={css.successRoot}>
@@ -32,13 +39,13 @@ export default function CryptoSuccess({ release }: CryptoSuccessProps) {
               ? t('common:statuses.Bid placed!')
               : t('common:statuses.Success!')}
           </Heading>
-          <div className={css.bidPlacedNotice}>
-            {isActiveAuction && (
+          {isActiveAuction && (
+            <div className={css.bidPlacedNotice}>
               <p className={css.bidPlacedNoticeText}>
                 {t('forms:fields.bid.success', { title: release.title })}
               </p>
-            )}
-          </div>
+            </div>
+          )}
         </>
       )}
       {release?.type === PackType.Purchase && (
@@ -46,22 +53,20 @@ export default function CryptoSuccess({ release }: CryptoSuccessProps) {
           {t('common:statuses.Success!')}
         </Heading>
       )}
-      {release?.slug && (
-        <Button
-          className={css.button}
-          onClick={() =>
-            push(
-              isActiveAuction
-                ? urls.release.replace(':packSlug', release.slug)
-                : urls.myCollectibles
-            )
-          }
-        >
-          {isActiveAuction
-            ? t('common:actions.Back to Listing')
-            : t('common:actions.View My Collection')}
-        </Button>
-      )}
+      <Button
+        className={css.button}
+        onClick={() =>
+          !isActiveAuction
+            ? handlePackOpening()
+            : release?.slug
+            ? push(urls.release.replace(':packSlug', release.slug))
+            : push(urls.myCollectibles)
+        }
+      >
+        {isActiveAuction
+          ? t('common:actions.Back to Listing')
+          : t('common:actions.Open Pack')}
+      </Button>
     </div>
   )
 }

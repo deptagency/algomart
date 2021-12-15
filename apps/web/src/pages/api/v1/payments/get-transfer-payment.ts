@@ -23,7 +23,7 @@ handler.get(async (request: NextApiRequestApp, response: NextApiResponse) => {
   })
 
   if (!transfer) {
-    return null
+    throw new NotFound('Transfer not found')
   }
 
   response.status(200).json(transfer)
