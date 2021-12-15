@@ -36,6 +36,17 @@ export default class AlgorandAdapter {
     )
 
     this.fundingAccount = algosdk.mnemonicToSecretKey(options.fundingMnemonic)
+
+    this.testConnection()
+  }
+
+  async testConnection() {
+    try {
+      const status = this.algod.status().do()
+      this.logger.info({ status }, 'Successfully connected to Algod')
+    } catch (error) {
+      this.logger.error(error, 'Failed to connect to Algod')
+    }
   }
 
   generateAccount(passphrase: string): PublicAccount {

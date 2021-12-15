@@ -226,58 +226,59 @@ export default class CollectiblesService {
       )
       .patch({ ipfsStatus: IPFSStatus.Pending })
 
-    // Store template's media assets
-    const imageData = await this.storage.storeFile(template.image)
-    const animationField: string | undefined =
-      template.assetFile || template.previewVideo || template.previewAudio
-    const animationData = animationField
-      ? await this.storage.storeFile(animationField)
-      : null
+    try {
+      // Store template's media assets
+      const imageData = await this.storage.storeFile(template.image)
+      const animationField: string | undefined =
+        template.assetFile || template.previewVideo || template.previewAudio
+      const animationData = animationField
+        ? await this.storage.storeFile(animationField)
+        : null
 
-    await Promise.all(
-      collectibles.map(async (c) => {
-        const metadata = this.storage.mapToMetadata({
-          ...(animationData && {
-            animation_integrity: animationData.integrityHash,
-            animation_url_mimetype: animationData.mimeType,
-            animation_url: animationData.uri,
-          }),
-          description: template.subtitle,
-          editionNumber: c.edition,
-          image_integrity: imageData.integrityHash,
-          image_mimetype: imageData.mimeType,
-          image: imageData.uri,
-          name: template.uniqueCode,
-          totalEditions: template.totalEditions,
+      await Promise.all(
+        collectibles.map(async (c) => {
+          const metadata = this.storage.mapToMetadata({
+            ...(animationData && {
+              animation_integrity: animationData.integrityHash,
+              animation_url_mimetype: animationData.mimeType,
+              animation_url: animationData.uri,
+            }),
+            description: template.subtitle,
+            editionNumber: c.edition,
+            image_integrity: imageData.integrityHash,
+            image_mimetype: imageData.mimeType,
+            image: imageData.uri,
+            name: template.uniqueCode,
+            totalEditions: template.totalEditions,
+          })
+
+          // Store metadata as JSON on IPFS
+          const assetUrl = await this.storage.storeJSON(metadata)
+
+          // Construct JSON hash of metadata
+          const assetMetadataHash = this.storage.hashMetadata(metadata)
+
+          await CollectibleModel.query(trx).where('id', c.id).patch({
+            assetUrl,
+            assetMetadataHash,
+            ipfsStatus: IPFSStatus.Stored,
+          })
+          await EventModel.query(trx).insert({
+            action: EventAction.Update,
+            entityType: EventEntityType.Collectible,
+            entityId: c.id,
+          })
         })
-
-        // Store metadata as JSON on IPFS
-        const assetUrl = await this.storage.storeJSON(metadata)
-
-        // Construct JSON hash of metadata
-        const assetMetadataHash = this.storage.hashMetadata(metadata)
-
-        await CollectibleModel.query(trx).where('id', c.id).patch({
-          assetUrl,
-          assetMetadataHash,
-          ipfsStatus: IPFSStatus.Stored,
-        })
-        await EventModel.query(trx).insert({
-          action: EventAction.Update,
-          entityType: EventEntityType.Collectible,
-          entityId: c.id,
-        })
-      })
-    ).catch(async (error) => {
+      )
+    } catch (error) {
       await CollectibleModel.query()
         .whereIn(
           'id',
           collectibles.map((c) => c.id)
         )
         .patch({ ipfsStatus: null })
-      this.logger.error(error as Error)
       throw error
-    })
+    }
   }
 
   async getCollectiblesByPackId(packId: string, trx?: Transaction) {

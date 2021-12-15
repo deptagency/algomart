@@ -504,6 +504,49 @@ export default class DirectusAdapter {
         Authorization: `Bearer ${options.accessToken}`,
       },
     })
+
+    this.testConnection()
+  }
+
+  async testConnection() {
+    try {
+      await this.ensureFilePermission()
+      this.logger.info('Successfully connected to CMS')
+    } catch (error) {
+      this.logger.error(error, 'Failed to connect to CMS')
+    }
+  }
+
+  async ensureFilePermission() {
+    const permissions = await this.http
+      .get('permissions', {
+        searchParams: {
+          fields: 'id,role,collection,action,fields',
+          'filter[collection][_eq]': 'directus_files',
+          'filter[fields][_in]': '*',
+          'filter[action][_eq]': 'read',
+        },
+      })
+      .json<{
+        data: Array<{
+          id: number
+          role: string | null
+          collection: string
+          action: 'create' | 'read' | 'update' | 'delete'
+          fields: string[]
+        }>
+      }>()
+
+    if (permissions.data.length === 0) {
+      await this.http.post('permissions', {
+        json: {
+          collection: 'directus_files',
+          fields: ['*'],
+          action: 'read',
+          role: null,
+        },
+      })
+    }
   }
 
   private async findMany<TItem>(
