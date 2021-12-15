@@ -22,11 +22,16 @@ it is possible to build images and deploy manually if desired.
 
 This requires:
 
-- [Specifying input variables](#input-variables)
-- [Configuring `gcloud` and `docker`](#authorize-gcloud)
-- [Pushing docker images](#build-and-push-docker-images)
-- [Initializing Terraform](#initialize-terraform)
-- [Applying Terraform](#apply-terraform)
+- [Terraform](#terraform)
+  - [Input variables](#input-variables)
+    - [Required](#required)
+    - [Optional](#optional)
+  - [Authorize gcloud](#authorize-gcloud)
+  - [Build and push docker images](#build-and-push-docker-images)
+  - [Initialize Terraform](#initialize-terraform)
+  - [Apply Terraform](#apply-terraform)
+  - [Troubleshooting](#troubleshooting)
+    - [State lock](#state-lock)
 
 ## Input variables
 
@@ -44,8 +49,8 @@ and you are free to override any variables that do.
 ### Required
 
 | Variable                          | Description                                                                                                                 |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --- | --------- | --- | ---------- |
-| `algod_env`                       | The blockchain environment (`betanet`                                                                                       |     | `testnet` |     | `mainnet`) |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `algod_env`                       | Block chain environment, can be `mainnet`, `betanet`, or `testnet` (default)                                                |
 | `algod_host`                      | Host name or IP address of the Algod server                                                                                 |
 | `algod_key`                       | Access token for the Algod server                                                                                           |
 | `algod_port`                      | Access port for the Algod server                                                                                            |
@@ -79,7 +84,7 @@ and you are free to override any variables that do.
 | `email_transport`                 | Either `sendgrid` or `smtp`                                                                                                 |
 | `email_name`                      | The sender name                                                                                                             |
 | `smtp_host`                       | The SMTP hostname, only required when `email_transport` is set to `smtp`                                                    |
-| `smtp_post`                       | The SMTP port, only required when `email_transport` is set to `smtp`                                                        |
+| `smtp_port`                       | The SMTP port, a valid port is required when `email_transport` is set to `smtp`, otherwise, set to a non-falsy integer      |
 | `smtp_user`                       | The SMTP user, only required when `email_transport` is set to `smtp`                                                        |
 | `smtp_password`                   | The SMTP password, only required when `email_transport` is set to `smtp`                                                    |
 | `web_domain_mapping`              | The domain name for the front-end web server                                                                                |
