@@ -3,6 +3,10 @@ import { Static, TSchema, Type } from '@sinclair/typebox'
 export const DEFAULT_CURRENCY = 'USD'
 export const DEFAULT_LOCALE = 'en-US'
 
+export const AlgoAddressSchema = Type.Object({
+  algoAddress: Type.String({ maxLength: 58, minLength: 58 }),
+})
+
 export const IdSchema = Type.String({ format: 'uuid' })
 
 export const BaseSchema = Type.Object({
@@ -59,6 +63,7 @@ export type Simplify<T> = T extends unknown[]
   : { [KeyType in keyof T]: Simplify<T[KeyType]> }
 
 export type Base = Simplify<Static<typeof BaseSchema>>
+export type AlgoAddress = Simplify<Static<typeof AlgoAddressSchema>>
 export type ExternalId = Simplify<Static<typeof ExternalIdSchema>>
 export type OwnerExternalId = Simplify<Static<typeof OwnerExternalIdSchema>>
 export type Pagination = Simplify<Static<typeof PaginationSchema>>

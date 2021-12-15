@@ -44,7 +44,8 @@ and you are free to override any variables that do.
 ### Required
 
 | Variable                          | Description                                                                                                                 |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --- | --------- | --- | ---------- |
+| `algod_env`                       | The blockchain environment (`betanet`                                                                                       |     | `testnet` |     | `mainnet`) |
 | `algod_host`                      | Host name or IP address of the Algod server                                                                                 |
 | `algod_key`                       | Access token for the Algod server                                                                                           |
 | `algod_port`                      | Access port for the Algod server                                                                                            |

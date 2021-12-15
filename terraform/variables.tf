@@ -97,6 +97,10 @@ variable "database_max_connections" {
 ## API service
 ##
 
+variable "algod_env" {
+  sensitive = true
+}
+
 variable "algod_host" {
   sensitive = true
 }

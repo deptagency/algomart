@@ -1,8 +1,10 @@
 import {
+  AlgoAddressSchema,
   CollectibleIdSchema,
   CollectibleListQuerystringSchema,
   CollectibleListShowcaseSchema,
   CollectibleListWithTotalSchema,
+  CollectiblesByAlgoAddressQuerystringSchema,
   CollectibleShowcaseQuerystringSchema,
 } from '@algomart/schemas'
 import { Type } from '@sinclair/typebox'
@@ -12,6 +14,7 @@ import fastifyBearerAuth from 'fastify-bearer-auth'
 import {
   addCollectibleShowcase,
   getCollectibles,
+  getCollectiblesByAlgoAddress,
   getShowcaseCollectibles,
   removeCollectibleShowcase,
 } from './collectibles.routes'
@@ -50,6 +53,21 @@ export async function collectiblesRoutes(app: FastifyInstance) {
         },
       },
       getCollectibles
+    )
+    .get(
+      '/address/:algoAddress',
+      {
+        schema: {
+          tags,
+          security,
+          params: AlgoAddressSchema,
+          querystring: CollectiblesByAlgoAddressQuerystringSchema,
+          response: {
+            200: CollectibleListWithTotalSchema,
+          },
+        },
+      },
+      getCollectiblesByAlgoAddress
     )
     .get(
       '/showcase',

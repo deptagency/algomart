@@ -10,6 +10,11 @@
     "Collections": "Collections",
     "Showcase": "Showcase"
   },
+  "algoAddressPage": {
+    "Algorand Account": "Algorand Account",
+    "invalidAlgoAccount": "This address does not exist.",
+    "noCollectiblesInAccount": "This Algorand account does not have any collectibles."
+  },
   "collectionPage": {
     "A collection by": "<0>A collection by <1>{{brand}}</1></0>",
     "Number of Total Collected": "{{number}} of {{total}} Collected",

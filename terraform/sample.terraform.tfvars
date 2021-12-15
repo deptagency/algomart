@@ -5,6 +5,7 @@
 #
 # Otherwise, this file can be copied to `terraform.tfvars` & populated with values,
 # and terraform will load it automatically.
+algod_env                  = "testnet"
 algod_host                 = "https://algo.nfty.example.com" # The `https://` protocol is necessary
 algod_key                  = "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4"
 algod_port                 = "443"
