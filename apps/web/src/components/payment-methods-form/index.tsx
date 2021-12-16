@@ -1,5 +1,5 @@
 import { CheckoutStatus } from '@algomart/schemas'
-import { FormEvent, useCallback } from 'react'
+import { FormEvent } from 'react'
 
 import AddMethodsError from './sections/add-methods-error'
 import AddMethodsForm from './sections/add-methods-form'

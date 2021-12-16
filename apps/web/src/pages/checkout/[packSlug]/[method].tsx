@@ -37,13 +37,13 @@ export default function CheckoutMethodPage({
   release,
 }: CheckoutMethodPageProps) {
   const { t } = useTranslation()
-  const { query, pathname, push } = useRouter()
+  const { query } = useRouter()
   const paymentProps = usePaymentProvider({
     auctionPackId,
     currentBid,
     release,
   })
-  const { setStatus, setAddress, status } = paymentProps
+  const { setStatus, setAddress } = paymentProps
 
   // Set the address retrieved in server side props
   useEffect(() => {

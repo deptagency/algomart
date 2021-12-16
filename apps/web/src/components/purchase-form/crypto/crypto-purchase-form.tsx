@@ -27,9 +27,7 @@ export interface CryptoPurchaseFormProps {
 export default function CryptoPurchaseForm({
   address,
   bid,
-  currentBid,
   formErrors,
-  setStatus,
   handleRetry,
   handleSubmitBid: onSubmitBid,
   loadingText,
@@ -38,6 +36,7 @@ export default function CryptoPurchaseForm({
   release,
   setBid,
   setPackId,
+  setStatus,
   status,
 }: PaymentContextProps & CryptoPurchaseFormProps) {
   const { t } = useTranslation()
@@ -120,7 +119,6 @@ export default function CryptoPurchaseForm({
           address={address}
           bid={bid}
           className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
-          currentBid={currentBid || null}
           formErrors={formErrors}
           handleCheckForPurchase={handleCheckForPurchase}
           setStatus={setStatus}

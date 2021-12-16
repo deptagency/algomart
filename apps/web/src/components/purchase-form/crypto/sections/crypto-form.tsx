@@ -21,7 +21,6 @@ export interface CryptoFormProps {
   address: string | null
   bid: string | null
   className?: string
-  currentBid: number | null
   formErrors?: FormValidation
   handleCheckForPurchase: () => void
   setStatus: (status: CheckoutStatus) => void
@@ -41,7 +40,6 @@ export default function CryptoForm({
   address,
   bid,
   className,
-  currentBid,
   formErrors,
   handleCheckForPurchase,
   setStatus,
