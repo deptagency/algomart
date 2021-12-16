@@ -3,7 +3,7 @@ import { FormEvent } from 'react'
 
 import common from '@/components/profile/my-profile-common.module.css'
 
-import PaymentMethodsForm from '@/components/payment-methods-form'
+import PaymentMethodsForm from '@/components/purchase-form/cards/add-card'
 import { FormValidation } from '@/contexts/payment-context'
 
 export interface MyProfilePaymentMethodsAddProps {
