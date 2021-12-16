@@ -34,6 +34,7 @@ import {
 import got, { Got } from 'got'
 import { URLSearchParams } from 'node:url'
 
+import { invariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
 
 export interface CircleAdapterOptions {
@@ -166,6 +167,18 @@ export default class CircleAdapter {
         Authorization: `Bearer ${options.apiKey}`,
       },
     })
+
+    this.testConnection()
+  }
+
+  async testConnection() {
+    try {
+      const publicKey = await this.getPublicKey()
+      invariant(publicKey)
+      this.logger.info('Successfully connected to Circle')
+    } catch (error) {
+      this.logger.error(error, 'Failed to connect to Circle')
+    }
   }
 
   async ping() {

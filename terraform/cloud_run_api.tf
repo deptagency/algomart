@@ -51,6 +51,11 @@ resource "google_cloud_run_service" "api" {
         image = var.api_image
 
         env {
+          name  = "ALGOD_ENV"
+          value = var.algod_env
+        }
+
+        env {
           name  = "ALGOD_SERVER"
           value = var.algod_host
         }

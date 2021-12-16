@@ -7,6 +7,7 @@ import { promisify } from 'node:util'
 import { getMimeType } from 'stream-mime-type'
 
 import { Configuration } from '@/configuration'
+import { invariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
 
 export interface ARC3Metadata {
@@ -54,6 +55,18 @@ export default class NFTStorageAdapter {
 
   constructor(private readonly options: NFTStorageAdapterOptions) {
     this.client = pinataSDK(options.pinataApiKey, options.pinataApiSecret)
+
+    this.testConnection()
+  }
+
+  async testConnection() {
+    try {
+      const { authenticated } = await this.client.testAuthentication()
+      invariant(authenticated)
+      this.logger.info('Successfully connected to Pinata')
+    } catch (error) {
+      this.logger.error(error, 'Failed to connect to Pinata')
+    }
   }
 
   hashMetadata(metadata: ARC3Metadata) {
@@ -96,7 +109,7 @@ export default class NFTStorageAdapter {
         .at(-1) as fs.PathLike
       const { mime, stream: outStream } = await getMimeType(downloadStream)
       outStream.on('error', (error: Error) => {
-        this.logger.error(error.message, `Failed to download ${fileName}`)
+        this.logger.error(error, `Failed to download ${fileName}`)
         throw error
       })
 
@@ -104,7 +117,7 @@ export default class NFTStorageAdapter {
       const fileWriteStream = fs
         .createWriteStream(fileName)
         .on('error', (error: Error) => {
-          this.logger.error(error.message, `Failed to save ${fileName}`)
+          this.logger.error(error, `Failed to save ${fileName}`)
           throw error
         })
       await pipeline(outStream, fileWriteStream)
@@ -129,9 +142,6 @@ export default class NFTStorageAdapter {
         mimeType: mime,
         uri: `ipfs://${fileUpload.IpfsHash}`,
       }
-    } catch (error) {
-      this.logger.error(error as Error)
-      throw error
     } finally {
       if (fs.existsSync(fileName)) {
         fs.unlinkSync(fileName)
@@ -140,23 +150,18 @@ export default class NFTStorageAdapter {
   }
 
   async storeJSON(metadata: ARC3Metadata) {
-    try {
-      const { IpfsHash } = await this.client.pinJSONToIPFS(metadata, {
-        pinataMetadata: { name: metadata.name },
-      })
+    const { IpfsHash } = await this.client.pinJSONToIPFS(metadata, {
+      pinataMetadata: { name: metadata.name },
+    })
 
-      /**
-       * Note: metadata should be stored on-chain as a URI with an ipfs:// protocol.
-       * However, to verify manually, assets can be viewed through a https:// tunnel.
-       *
-       * Example using ipfs.io:
-       * console.log(`https://ipfs.io/ipfs/${IpfsHash}`)
-       */
+    /**
+     * Note: metadata should be stored on-chain as a URI with an ipfs:// protocol.
+     * However, to verify manually, assets can be viewed through a https:// tunnel.
+     *
+     * Example using ipfs.io:
+     * console.log(`https://ipfs.io/ipfs/${IpfsHash}`)
+     */
 
-      return `ipfs://${IpfsHash}`
-    } catch (error) {
-      this.logger.error(error as Error)
-      throw error
-    }
+    return `ipfs://${IpfsHash}`
   }
 }

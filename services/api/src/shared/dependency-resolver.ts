@@ -1,4 +1,5 @@
 import { Configuration } from '@/configuration'
+import AlgoExplorerAdapter from '@/lib/algoexplorer-adapter'
 import AlgorandAdapter from '@/lib/algorand-adapter'
 import CircleAdapter from '@/lib/circle-adapter'
 import CoinbaseAdapter from '@/lib/coinbase-adapter'
@@ -95,6 +96,7 @@ export function configureResolver() {
         fundingMnemonic: Configuration.fundingMnemonic,
       })
   )
+  resolver.set(AlgoExplorerAdapter.name, () => new AlgoExplorerAdapter())
   resolver.set(
     DirectusAdapter.name,
     () =>
@@ -156,7 +158,8 @@ export function configureResolver() {
       new CollectiblesService(
         c.get<DirectusAdapter>(DirectusAdapter.name),
         c.get<AlgorandAdapter>(AlgorandAdapter.name),
-        c.get<NFTStorageAdapter>(NFTStorageAdapter.name)
+        c.get<NFTStorageAdapter>(NFTStorageAdapter.name),
+        c.get<AlgoExplorerAdapter>(AlgoExplorerAdapter.name)
       )
   )
   resolver.set(

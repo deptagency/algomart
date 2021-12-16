@@ -5,44 +5,48 @@ import { useEffect, useState } from 'react'
 import css from './avatar.module.css'
 
 export interface AvatarProps {
+  imageOnly?: boolean
   prefix?: string
   suffix?: string
+  textOnly?: boolean
   username: string
-  imageOnly?: boolean
 }
 
 export default function Avatar({
   imageOnly,
   prefix,
   suffix,
+  textOnly,
   username,
 }: AvatarProps) {
   const [url, setUrl] = useState<string>('')
   const { t } = useTranslation()
 
   useEffect(() => {
-    if (window) {
+    if (window && !textOnly) {
       setUrl(
         new URL(`/api/v1/profile/avatar/${username}`, window.location.origin)
           .href
       )
     }
-  }, [setUrl, username])
+  }, [setUrl, textOnly, username])
   return (
     <div className={css.root}>
       <div className={css.container}>
-        <div className={css.imageContainer}>
-          {url && (
-            <Image
-              alt={t('common:nav.utility.My profile picture')}
-              className={css.image}
-              src={url}
-              layout="responsive"
-              height="100%"
-              width="100%"
-            />
-          )}
-        </div>
+        {!textOnly && (
+          <div className={css.imageContainer}>
+            {url && (
+              <Image
+                alt={t('common:nav.utility.My profile picture')}
+                className={css.image}
+                src={url}
+                layout="responsive"
+                height="100%"
+                width="100%"
+              />
+            )}
+          </div>
+        )}
         {!imageOnly && (
           <div className={css.textContent}>
             <p className={css.text}>

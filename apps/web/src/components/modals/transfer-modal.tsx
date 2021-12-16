@@ -66,7 +66,8 @@ export default function TransferModal({
               className={css.image}
               height={140}
               width={140}
-              src={`${packTemplate.image}?fit=contain&height=140&width=140&quality=75`}
+              objectFit="cover"
+              src={`${packTemplate.image}?fit=contain&width=240&quality=75`}
             />
           </div>
           <Button

@@ -113,6 +113,7 @@ jobs:
           TF_VAR_project: ${{ secrets.GCP_PROJECT_ID }}
           TF_VAR_credentials: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
+          TF_VAR_algod_env: ${{ secrets.ALGOD_ENV }}
           TF_VAR_algod_host: ${{ secrets.ALGOD_HOST }}
           TF_VAR_algod_key: ${{ secrets.ALGOD_KEY }}
           TF_VAR_algod_port: ${{ secrets.ALGOD_PORT }}

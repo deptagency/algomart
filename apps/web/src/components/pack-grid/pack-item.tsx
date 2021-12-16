@@ -36,6 +36,7 @@ export default function PackItem({
               width="100%"
               height="100%"
               layout="responsive"
+              objectFit="cover"
               className={css.image}
             />
           ) : (

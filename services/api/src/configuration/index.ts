@@ -54,6 +54,14 @@ export const Configuration = {
     return env.get('ALGOD_PORT').default('4001').asPortNumber()
   },
 
+  get algodEnv() {
+    return env
+      .get('ALGOD_ENV')
+      .required()
+      .default('testnet')
+      .asEnum(['betanet', 'testnet', 'mainnet'])
+  },
+
   get databaseUrl() {
     return env
       .get('DATABASE_URL')
@@ -138,7 +146,7 @@ export const Configuration = {
       .required()
       .asEnum(['smtp', 'sendgrid'])
     const smtpHost = env.get('SMTP_HOST').default('').asString()
-    const smtpPort = env.get('SMTP_PORT').default(0).asPortNumber()
+    const smtpPort = env.get('SMTP_PORT').default(1).asPortNumber()
     const smtpUser = env.get('SMTP_USER').default('').asString()
     const smtpPassword = env.get('SMTP_PASSWORD').default('').asString()
     const sendGridApiKey = env.get('SENDGRID_API_KEY').default('').asString()

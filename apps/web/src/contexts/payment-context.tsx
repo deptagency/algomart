@@ -16,7 +16,6 @@ import {
   ReactNode,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from 'react'
@@ -310,7 +309,6 @@ export function usePaymentProvider({
           .catch(async (error) => {
             const response = await error.response.json()
             mapCircleErrors(response.code)
-            setFormErrors({})
             handleSetStatus(CheckoutStatus.form)
             return
           })
@@ -343,7 +341,7 @@ export function usePaymentProvider({
 
       return cardId
     },
-    [mapCircleErrors, t, validateFormExpirationDate]
+    [handleSetStatus, mapCircleErrors, t, validateFormExpirationDate]
   )
 
   const handleAddBankAccount = useCallback(
@@ -414,7 +412,6 @@ export function usePaymentProvider({
           .catch(async (error) => {
             const response = await error.response.json()
             mapCircleErrors(response.code)
-            setFormErrors({})
             handleSetStatus(CheckoutStatus.form)
             return
           })
