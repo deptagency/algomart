@@ -105,11 +105,6 @@ export default function CryptoPurchaseForm({
     }
   }, [handlePurchase, transfer])
 
-  // If there's no address, redirect to the Checkout page:
-  useEffect(() => {
-    if (!address) router.push(router.asPath.split('?')[0])
-  }, [address, router])
-
   return (
     <section className={css.root}>
       <CryptoHeader release={release} />

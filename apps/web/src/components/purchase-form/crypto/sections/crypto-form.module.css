@@ -98,3 +98,7 @@
 .notification {
   @apply mb-5;
 }
+
+.noAddress p {
+  @apply mb-10;
+}

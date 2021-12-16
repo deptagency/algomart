@@ -1,6 +1,7 @@
 {
   "errors": {
     "accountAlreadyConfigured": "Account is already configured",
+    "addressNotFound": "Could not retrieve the blockchain address for sending funds. Apologies for any inconvenience.",
     "cardExpiration": "Your card has expired.",
     "emailAlreadyInUse": "Email already in use",
     "emailValid": "Must be a valid email address",

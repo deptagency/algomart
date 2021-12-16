@@ -1,6 +1,7 @@
 import { CheckoutStatus, PublishedPack, ToPaymentBase } from '@algomart/schemas'
 import { RefreshIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useState } from 'react'
 
@@ -16,6 +17,7 @@ import Heading from '@/components/heading'
 import Bid from '@/components/purchase-form/shared/bid'
 import { FormValidation } from '@/contexts/payment-context'
 import { formatCurrency } from '@/utils/format-currency'
+import { urls } from '@/utils/urls'
 
 export interface CryptoFormProps {
   address: string | null
@@ -55,7 +57,26 @@ export default function CryptoForm({
   transfer,
 }: CryptoFormProps) {
   const { t, lang } = useTranslation()
+  const { push } = useRouter()
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
+
+  if (!address) {
+    return (
+      <div className={css.noAddress}>
+        <p>{t('forms:errors.addressNotFound')}</p>
+        <Button
+          onClick={() =>
+            push(
+              urls.checkoutPack.replace(':packSlug', release?.slug as string)
+            )
+          }
+        >
+          {t('common:actions.Go Back')}
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <form className={className} onSubmit={handleSubmitBid}>
       {formErrors && 'bid' in formErrors && (
