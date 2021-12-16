@@ -18,7 +18,7 @@ import { FormValidation } from '@/contexts/payment-context'
 import { formatCurrency } from '@/utils/format-currency'
 
 export interface CryptoFormProps {
-  address?: string
+  address: string | null
   bid: string | null
   className?: string
   currentBid: number | null

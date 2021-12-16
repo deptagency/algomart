@@ -114,7 +114,7 @@ export default class NotificationsService {
     const body = (
       t('auctionComplete.body', {
         returnObjects: true,
-        ctaUrl: `${Configuration.webUrl}checkout?pack=${variables.packSlug}`,
+        ctaUrl: `${Configuration.webUrl}checkout/${variables.packSlug}`,
         ...variables,
       }) as string[]
     ).reduce((body: string, p: string) => body + `<p>${p}</p>`, '')
@@ -277,7 +277,7 @@ export default class NotificationsService {
     const body = (
       t('wireTransfer.body', {
         returnObjects: true,
-        ctaUrl: `${Configuration.webUrl}checkout?pack=${variables.packSlug}`,
+        ctaUrl: `${Configuration.webUrl}checkout/${variables.packSlug}`,
         ...variables,
       }) as string[]
     ).reduce((body: string, p: string) => body + `<p>${p}</p>`, '')

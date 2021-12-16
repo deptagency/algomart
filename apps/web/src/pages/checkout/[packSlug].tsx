@@ -24,7 +24,7 @@ import CheckoutTemplate from '@/templates/checkout-template'
 import { urls } from '@/utils/urls'
 
 export interface CheckoutPageProps {
-  address?: string
+  address: string | null
   auctionPackId: string | null
   currentBid: number | null
   release: PublishedPack
@@ -167,12 +167,14 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
   }
 
   // Get release based on search query
-  const address = await ApiClient.instance.createWalletAddress({
-    idempotencyKey: uuid(),
-  })
+  const address = await ApiClient.instance
+    .createWalletAddress({
+      idempotencyKey: uuid(),
+    })
+    .catch(() => null)
   return {
     props: {
-      address: address?.address,
+      address: address?.address || null,
       release: packTemplate,
       currentBid:
         typeof pack?.activeBid?.amount === 'number'

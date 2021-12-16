@@ -59,7 +59,7 @@ export type FormValidation = ExtractError<
 >
 
 export interface PaymentContextProps {
-  address?: string
+  address: string | null
   auctionPackId?: string | null
   bid: string | null
   currentBid: number | null
@@ -106,7 +106,7 @@ export function usePaymentProvider({
   const highestBid = currentBid || 0
   const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
   const [bid, setBid] = useState<string | null>(initialBid)
-  const [address, setAddress] = useState<string>()
+  const [address, setAddress] = useState<string | null>(null)
   const validateFormForBankAccount = useMemo(() => validateBankAccount(t), [t])
   const validateFormForPurchase = useMemo(() => validatePurchaseForm(t), [t])
   const validateFormForPurchaseWithSavedCard = useMemo(

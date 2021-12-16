@@ -24,7 +24,7 @@ const formatAccount = (account: string) =>
   `${account.slice(0, 6)}...${account.slice(-6)}`
 
 export interface CryptoFormWalletConnectProps {
-  address?: string
+  address: string | null
   handleSetStatus: (status: CheckoutStatus) => void
   price: string | null
   release?: PublishedPack
@@ -72,6 +72,7 @@ export default function CryptoFormWalletConnect({
   }, [])
 
   const handleWalletConnectPurchase = useCallback(async () => {
+    handleSetStatus(CheckoutStatus.loading)
     // If using WalletConnect:
     if (!account || !connected || !address || !price || !release?.templateId) {
       setError(t('forms:errors.invalidDetails'))

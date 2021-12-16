@@ -21,7 +21,7 @@ import checkoutService from '@/services/checkout-service'
 import { isAfterNow } from '@/utils/date-time'
 
 export interface CryptoPurchaseFormProps {
-  address?: string
+  address: string | null
 }
 
 export default function CryptoPurchaseForm({
