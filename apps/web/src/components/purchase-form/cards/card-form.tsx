@@ -1,5 +1,6 @@
 import { CheckoutMethod, CheckoutStatus, PackType } from '@algomart/schemas'
 import clsx from 'clsx'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useState } from 'react'
 
@@ -18,10 +19,9 @@ import { isAfterNow } from '@/utils/date-time'
 
 export default function CardForm({
   bid,
-  currentBid,
   release,
   formErrors,
-  handleSetStatus,
+  handleRetry,
   handleSubmitBid: onSubmitBid,
   handleSubmitPurchase: onSubmitPurchase,
   loadingText,
@@ -31,6 +31,7 @@ export default function CardForm({
   status,
 }: PaymentContextProps) {
   const { t } = useTranslation()
+  const { asPath, push } = useRouter()
   const [promptLeaving, setPromptLeaving] = useState(false)
   const isAuctionActive =
     release?.type === PackType.Auction &&
@@ -51,10 +52,6 @@ export default function CardForm({
     [release?.auctionUntil, release?.type, onSubmitBid, onSubmitPurchase]
   )
 
-  const handleRetry = useCallback(() => {
-    handleSetStatus(CheckoutStatus.form)
-  }, [handleSetStatus])
-
   return (
     <section className={css.root}>
       <CardPurchaseHeader release={release} />
@@ -71,11 +68,10 @@ export default function CardForm({
         <CardPurchaseForm
           bid={bid}
           className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
-          currentBid={currentBid || null}
           formErrors={formErrors}
           isAuctionActive={isAuctionActive}
           setBid={setBid}
-          handleContinue={() => handleSetStatus(CheckoutStatus.summary)}
+          handleContinue={() => push(`${asPath.split('?')[0]}?step=summary`)}
         />
         {status === CheckoutStatus.summary && (
           <CardPurchaseSummary

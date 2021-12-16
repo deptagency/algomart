@@ -24,7 +24,7 @@ export interface CryptoFormProps {
   currentBid: number | null
   formErrors?: FormValidation
   handleCheckForPurchase: () => void
-  handleSetStatus: (status: CheckoutStatus) => void
+  setStatus: (status: CheckoutStatus) => void
   handleSubmitBid: (event: FormEvent<HTMLFormElement>) => Promise<void>
   initialBid?: string
   isAuctionActive: boolean
@@ -44,7 +44,7 @@ export default function CryptoForm({
   currentBid,
   formErrors,
   handleCheckForPurchase,
-  handleSetStatus,
+  setStatus,
   handleSubmitBid,
   initialBid,
   isAuctionActive,
@@ -75,7 +75,6 @@ export default function CryptoForm({
           <Bid
             bid={bid}
             className={css.bid}
-            currentBid={currentBid}
             initialBid={initialBid}
             setBid={setBid}
           />
@@ -91,7 +90,7 @@ export default function CryptoForm({
           <CryptoFormInstructions price={price} />
           <CryptoFormWalletConnect
             address={address}
-            handleSetStatus={handleSetStatus}
+            setStatus={setStatus}
             price={price}
             release={release}
             setError={setError}

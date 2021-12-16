@@ -23,7 +23,6 @@ export interface CardPurchaseFormProps {
   bid: string | null
   className?: string
   formErrors?: FormValidation
-  currentBid: number | null
   handleContinue: () => void
   initialBid?: string
   isAuctionActive: boolean
@@ -33,7 +32,6 @@ export interface CardPurchaseFormProps {
 export default function CardPurchaseForm({
   bid,
   className,
-  currentBid,
   formErrors,
   handleContinue,
   initialBid,
@@ -123,7 +121,6 @@ export default function CardPurchaseForm({
             <Bid
               bid={bid}
               className={css.bid}
-              currentBid={currentBid}
               initialBid={initialBid}
               setBid={setBid}
             />

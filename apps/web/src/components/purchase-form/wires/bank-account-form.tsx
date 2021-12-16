@@ -5,6 +5,7 @@ import {
   PaymentBankAccountInstructions,
 } from '@algomart/schemas'
 import clsx from 'clsx'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useState } from 'react'
 
@@ -22,11 +23,10 @@ import { isAfterNow } from '@/utils/date-time'
 
 export default function BankAccountPurchaseForm({
   bid,
-  currentBid,
   formErrors,
-  handleSetStatus,
-  handleSubmitBid: onSubmitBid,
   handleAddBankAccount: onSubmitBankAccount,
+  handleRetry,
+  handleSubmitBid: onSubmitBid,
   initialBid,
   loadingText,
   price,
@@ -35,6 +35,7 @@ export default function BankAccountPurchaseForm({
   status,
 }: PaymentContextProps) {
   const { t } = useTranslation()
+  const { asPath, push } = useRouter()
   const [bankAccountInstructions, setBankAccountInstructions] =
     useState<PaymentBankAccountInstructions | null>(null)
   const isAuctionActive =
@@ -58,10 +59,6 @@ export default function BankAccountPurchaseForm({
     [release?.auctionUntil, release?.type, onSubmitBankAccount, onSubmitBid]
   )
 
-  const handleRetry = useCallback(() => {
-    handleSetStatus(CheckoutStatus.form)
-  }, [handleSetStatus])
-
   return (
     <section className={css.root}>
       <BankAccountHeader release={release} />
@@ -78,9 +75,8 @@ export default function BankAccountPurchaseForm({
         <BankAccountForm
           bid={bid}
           className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
-          currentBid={currentBid}
           formErrors={formErrors}
-          handleContinue={() => handleSetStatus(CheckoutStatus.summary)}
+          handleContinue={() => push(`${asPath.split('?')[0]}?step=summary`)}
           initialBid={initialBid}
           release={release}
           setBid={setBid}

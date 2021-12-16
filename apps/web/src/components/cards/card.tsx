@@ -7,7 +7,6 @@ import AppLink from '@/components/app-link/app-link'
 import Heading from '@/components/heading'
 
 export interface CardProps {
-  handleClick?: () => void
   helpText: string
   href: string
   icon: ReactNode
@@ -16,7 +15,6 @@ export interface CardProps {
 }
 
 export default function Card({
-  handleClick,
   helpText,
   href,
   icon,
@@ -30,7 +28,6 @@ export default function Card({
           [css.disabled]: isDisabled,
         })}
         href={href}
-        onClick={handleClick}
       >
         {icon}
         <div>

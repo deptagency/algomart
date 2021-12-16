@@ -9,24 +9,20 @@ import Loading from '@/components/loading/loading'
 import { FormValidation } from '@/contexts/payment-context'
 
 export interface MyProfilePaymentMethodsAddProps {
-  handleSetStatus: (status: CheckoutStatus) => void
   formErrors?: FormValidation
+  handleRetry: () => void
   loadingText: string
   onSubmit(event: FormEvent<HTMLFormElement>): void
   status?: CheckoutStatus
 }
 
 export default function MyProfilePaymentMethodsAddTemplate({
-  handleSetStatus,
+  handleRetry,
   formErrors,
   loadingText,
   onSubmit,
   status,
 }: MyProfilePaymentMethodsAddProps) {
-  const handleRetry = useCallback(() => {
-    handleSetStatus(CheckoutStatus.form)
-  }, [handleSetStatus])
-
   return (
     <section className="pt-5">
       <div className={status === CheckoutStatus.form ? '' : 'hidden'}>

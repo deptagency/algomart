@@ -21,7 +21,7 @@ export function formatCurrency(
   if (amount === null || amount === undefined) {
     amount = 0
   } else if (typeof amount === 'string') {
-    amount = Number.parseFloat(amount) * 100
+    amount = Math.round(Number.parseFloat(amount) * 100)
   }
 
   function transformer({

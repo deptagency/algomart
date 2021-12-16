@@ -16,20 +16,17 @@ export default function Cards({ cards, header }: CardsProps) {
         </Heading>
       )}
       <ul>
-        {cards.map(
-          ({ handleClick, helpText, href, isDisabled, icon, title }) => (
-            <li key={href}>
-              <Card
-                helpText={helpText}
-                isDisabled={isDisabled}
-                icon={icon}
-                title={title}
-                handleClick={handleClick}
-                href={href}
-              />
-            </li>
-          )
-        )}
+        {cards.map(({ helpText, href, isDisabled, icon, title }) => (
+          <li key={href}>
+            <Card
+              helpText={helpText}
+              isDisabled={isDisabled}
+              icon={icon}
+              title={title}
+              href={href}
+            />
+          </li>
+        ))}
       </ul>
     </>
   )

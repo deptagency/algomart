@@ -29,7 +29,8 @@ export default function CryptoPurchaseForm({
   bid,
   currentBid,
   formErrors,
-  handleSetStatus,
+  setStatus,
+  handleRetry,
   handleSubmitBid: onSubmitBid,
   loadingText,
   packId,
@@ -65,7 +66,7 @@ export default function CryptoPurchaseForm({
   const handlePurchase = useCallback(async () => {
     if (!address || !release?.templateId || !transfer) {
       setError(t('forms:errors.invalidDetails'))
-      handleSetStatus(CheckoutStatus.error)
+      setStatus(CheckoutStatus.error)
       return
     }
     // Creating payment for the pending transfer
@@ -78,16 +79,16 @@ export default function CryptoPurchaseForm({
       // While this shouldn't happen, there's a possibility the payment may still have worked
       // @TODO: Find way to handle this better - possibly send to customer support email or direct to contact
       setError(t('forms:errors.paymentNotCreated'))
-      handleSetStatus(CheckoutStatus.error)
+      setStatus(CheckoutStatus.error)
       return
     }
     if (transferPayment.packId) {
       setPackId(transferPayment.packId)
     }
     // Success!
-    handleSetStatus(CheckoutStatus.success)
+    setStatus(CheckoutStatus.success)
     return transferPayment
-  }, [address, handleSetStatus, release?.templateId, setPackId, t, transfer])
+  }, [address, setStatus, release?.templateId, setPackId, t, transfer])
 
   const handleSubmitBid = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -97,10 +98,6 @@ export default function CryptoPurchaseForm({
     },
     [onSubmitBid]
   )
-
-  const handleRetry = useCallback(() => {
-    handleSetStatus(CheckoutStatus.form)
-  }, [handleSetStatus])
 
   // Once there's a transfer found, we can initiate payment:
   useEffect(() => {
@@ -126,7 +123,7 @@ export default function CryptoPurchaseForm({
           currentBid={currentBid || null}
           formErrors={formErrors}
           handleCheckForPurchase={handleCheckForPurchase}
-          handleSetStatus={handleSetStatus}
+          setStatus={setStatus}
           handleSubmitBid={handleSubmitBid}
           isAuctionActive={isAuctionActive}
           isLoading={isLoading}

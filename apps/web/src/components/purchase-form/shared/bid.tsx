@@ -8,18 +8,11 @@ import { formatCurrency } from '@/utils/format-currency'
 export interface BidProps {
   bid: string | null
   className?: string
-  currentBid: number | null
   initialBid?: string
   setBid: (bid: string | null) => void
 }
 
-export default function Bid({
-  bid,
-  className,
-  currentBid,
-  initialBid,
-  setBid,
-}: BidProps) {
+export default function Bid({ bid, className, initialBid, setBid }: BidProps) {
   const locale = useLocale()
   const { t, lang } = useTranslation()
   return (
@@ -29,7 +22,7 @@ export default function Bid({
         decimalsLimit={2}
         handleChange={(value) => setBid(value)}
         helpText={
-          currentBid
+          initialBid
             ? t('forms:fields.bid.helpTextCurrentBid', {
                 amount: formatCurrency(initialBid, lang),
               })

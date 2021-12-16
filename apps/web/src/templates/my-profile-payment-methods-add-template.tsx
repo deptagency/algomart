@@ -8,24 +8,24 @@ import { FormValidation } from '@/contexts/payment-context'
 
 export interface MyProfilePaymentMethodsAddProps {
   formErrors?: FormValidation
+  handleRetry: () => void
   loadingText: string
   onSubmit(event: FormEvent<HTMLFormElement>): void
   status?: CheckoutStatus
-  setStatus: (status: CheckoutStatus) => void
 }
 
 export default function MyProfilePaymentMethodsAddTemplate({
+  handleRetry,
   formErrors,
   loadingText,
   onSubmit,
-  setStatus,
   status,
 }: MyProfilePaymentMethodsAddProps) {
   return (
     <div className={common.sectionContent}>
       <PaymentMethodsForm
-        handleSetStatus={setStatus}
         formErrors={formErrors}
+        handleRetry={handleRetry}
         loadingText={loadingText}
         onSubmit={onSubmit}
         status={status}

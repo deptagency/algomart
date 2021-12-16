@@ -19,7 +19,6 @@ import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 export interface BankAccountFormProps {
   bid: string | null
   className?: string
-  currentBid: number | null
   formErrors?: FormValidation
   handleContinue: () => void
   initialBid?: string
@@ -30,7 +29,6 @@ export interface BankAccountFormProps {
 export default function BankAccountForm({
   bid,
   className,
-  currentBid,
   formErrors,
   handleContinue,
   initialBid,
@@ -65,7 +63,6 @@ export default function BankAccountForm({
           <Bid
             bid={bid}
             className={css.bid}
-            currentBid={currentBid}
             initialBid={initialBid}
             setBid={setBid}
           />

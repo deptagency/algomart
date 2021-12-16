@@ -25,7 +25,7 @@ const formatAccount = (account: string) =>
 
 export interface CryptoFormWalletConnectProps {
   address: string | null
-  handleSetStatus: (status: CheckoutStatus) => void
+  setStatus: (status: CheckoutStatus) => void
   price: string | null
   release?: PublishedPack
   setError: (error: string) => void
@@ -35,7 +35,7 @@ export interface CryptoFormWalletConnectProps {
 
 export default function CryptoFormWalletConnect({
   address,
-  handleSetStatus,
+  setStatus,
   price,
   release,
   setError,
@@ -72,11 +72,11 @@ export default function CryptoFormWalletConnect({
   }, [])
 
   const handleWalletConnectPurchase = useCallback(async () => {
-    handleSetStatus(CheckoutStatus.loading)
+    setStatus(CheckoutStatus.loading)
     // If using WalletConnect:
     if (!account || !connected || !address || !price || !release?.templateId) {
       setError(t('forms:errors.invalidDetails'))
-      handleSetStatus(CheckoutStatus.error)
+      setStatus(CheckoutStatus.error)
       return
     }
     const assetData = await algorand.getAssetData(account)
@@ -84,7 +84,7 @@ export default function CryptoFormWalletConnect({
     if (!usdcAsset) {
       // No USDC asset found
       setError(t('forms:errors.noUSDC'))
-      handleSetStatus(CheckoutStatus.error)
+      setStatus(CheckoutStatus.error)
       return
     }
 
@@ -95,7 +95,7 @@ export default function CryptoFormWalletConnect({
     if (!isGreaterThanOrEqual(usdcBalanceInt, priceInt)) {
       // Not enough USDC
       setError(t('forms:errors.minUSDC', { balance: usdcBalance, min: price }))
-      handleSetStatus(CheckoutStatus.error)
+      setStatus(CheckoutStatus.error)
       return
     }
 
@@ -127,7 +127,7 @@ export default function CryptoFormWalletConnect({
         )
         if (!transferResp || transferResp.status === PaymentStatus.Failed) {
           setError(t('forms:errors.transferNotFound'))
-          handleSetStatus(CheckoutStatus.form)
+          setStatus(CheckoutStatus.error)
           return
         }
         setTransfer(transfer)
@@ -137,7 +137,7 @@ export default function CryptoFormWalletConnect({
     account,
     address,
     connected,
-    handleSetStatus,
+    setStatus,
     price,
     release?.templateId,
     setError,

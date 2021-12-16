@@ -1,20 +1,16 @@
 import {
-  CheckoutMethod,
   PackAuction,
   PackStatus,
   PackType,
   PublishedPack,
 } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
-import { v4 as uuid } from 'uuid'
 
 import { ApiClient } from '@/clients/api-client'
 import { Analytics } from '@/clients/firebase-analytics'
 import { usePaymentProvider } from '@/contexts/payment-context'
-import { Environment } from '@/environment'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
@@ -24,45 +20,22 @@ import CheckoutTemplate from '@/templates/checkout-template'
 import { urls } from '@/utils/urls'
 
 export interface CheckoutPageProps {
-  address: string | null
   auctionPackId: string | null
   currentBid: number | null
   release: PublishedPack
 }
 
 export default function Checkout({
-  address,
   auctionPackId,
   currentBid,
   release,
 }: CheckoutPageProps) {
   const { t } = useTranslation()
-  const { query } = useRouter()
   const paymentProps = usePaymentProvider({
     auctionPackId,
     currentBid,
     release,
   })
-  const { setAddress, setMethod } = paymentProps
-
-  // Set the address retrieved in server side props
-  useEffect(() => {
-    if (address) {
-      setAddress(address)
-    }
-  }, [address, setAddress])
-
-  // Set the method to the method listed as a query param:
-  useEffect(() => {
-    if (
-      query.method &&
-      Object.values(CheckoutMethod).includes(query.method as CheckoutMethod)
-    ) {
-      setMethod(query.method as CheckoutMethod)
-    } else {
-      setMethod(null)
-    }
-  }, [query.method, setMethod])
 
   useEffect(() => {
     Analytics.instance.beginCheckout({
@@ -92,12 +65,6 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
   const user = await getAuthenticatedUser(context)
   if (!user) {
     return handleUnauthenticatedRedirect(context.resolvedUrl)
-  }
-
-  // Automatically set the method to card if the feature flags aren't set
-  if (!Environment.isWireEnabled && !Environment.isCryptoEnabled) {
-    context.query.method = 'card'
-    context.query.step = 'details'
   }
 
   const { packs: packTemplates } = await ApiClient.instance.getPublishedPacks({
@@ -166,15 +133,8 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
     }
   }
 
-  // Get release based on search query
-  const address = await ApiClient.instance
-    .createWalletAddress({
-      idempotencyKey: uuid(),
-    })
-    .catch(() => null)
   return {
     props: {
-      address: address?.address || null,
       release: packTemplate,
       currentBid:
         typeof pack?.activeBid?.amount === 'number'

@@ -1,6 +1,8 @@
 export const urls = {
   // Main pages
   checkout: '/checkout',
+  checkoutPack: '/checkout/:packSlug',
+  checkoutPackWithMethod: '/checkout/:packSlug/:method',
   home: '/',
   myCollectibles: '/my/collectibles',
   myCollection: '/my/collections/:collectionSlug',
@@ -39,7 +41,7 @@ export const urls = {
       assetRedeem: '/api/v1/asset/redeem',
       assetTransfer: '/api/v1/asset/transfer',
       createBankAccount: '/api/v1/payments/create-bank-account',
-      createBidForPack: 'api/v1/bid/add-to-pack',
+      createBidForPack: '/api/v1/bid/add-to-pack',
       createCard: '/api/v1/payments/create-card',
       createPayment: '/api/v1/payments/create-payment',
       createTransfer: '/api/v1/payments/create-transfer-payment',

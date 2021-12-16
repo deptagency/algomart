@@ -67,19 +67,19 @@ export interface PaymentContextProps {
   handleAddBankAccount(
     data: FormData
   ): Promise<PaymentBankAccountInstructions | undefined>
-  handleSetStatus: (status: CheckoutStatus) => void
+  handleRetry: () => void
   handleSubmitBid(data: FormData, method: CheckoutMethod): void
   handleSubmitPurchase(data: FormData, isPurchase: boolean): void
   initialBid?: string
   loadingText: string
-  method: CheckoutMethod | null
+  method?: string | string[]
   packId: string | null
   price: string | null
   release?: PublishedPack
-  setAddress(address: string): void
+  setAddress(address: string | null): void
   setBid: (bid: string | null) => void
-  setMethod: (method: CheckoutMethod | null) => void
   setPackId: (packId: string | null) => void
+  setStatus: (status: CheckoutStatus) => void
   status: CheckoutStatus
 }
 
@@ -97,12 +97,12 @@ export function usePaymentProvider({
   release,
 }: PaymentProviderProps) {
   const { t } = useTranslation()
-  const { query, pathname, push } = useRouter()
+  const { asPath, query, push } = useRouter()
+  const { method } = query
 
   const [packId, setPackId] = useState<string | null>(auctionPackId || null)
   const [status, setStatus] = useState<CheckoutStatus>(CheckoutStatus.form)
   const [loadingText, setLoadingText] = useState<string>('')
-  const [method, setMethod] = useState<CheckoutMethod | null>(null)
   const highestBid = currentBid || 0
   const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
   const [bid, setBid] = useState<string | null>(initialBid)
@@ -136,16 +136,16 @@ export function usePaymentProvider({
       : formatIntToFloat(release?.price || 0)
 
   const handleSetStatus = useCallback(
-    (status: CheckoutStatus) => {
-      setStatus(status)
-      const details = { pathname, query: { ...query, step: 'summary' } }
-      if (status === CheckoutStatus.form) {
-        details.query.step = 'details'
-      }
-      return push(details)
+    (status: CheckoutStatus.form | CheckoutStatus.summary) => {
+      const step = status === CheckoutStatus.form ? 'details' : 'summary'
+      return push(`${asPath.split('?')[0]}?step=${step}`)
     },
-    [query, pathname, push]
+    [asPath, push]
   )
+
+  const handleRetry = useCallback(() => {
+    handleSetStatus(CheckoutStatus.form)
+  }, [handleSetStatus])
 
   const mapCircleErrors = useCallback(
     (code: string | number) => {
@@ -346,14 +346,14 @@ export function usePaymentProvider({
 
   const handleAddBankAccount = useCallback(
     async (data: FormData) => {
-      handleSetStatus(CheckoutStatus.loading)
+      setStatus(CheckoutStatus.loading)
       setLoadingText(t('common:statuses.Validating Payment Information'))
       try {
         const packTemplateId = release?.templateId
         const amount = currentBid || release?.price
 
         if (!packTemplateId || !amount) {
-          handleSetStatus(CheckoutStatus.error)
+          setStatus(CheckoutStatus.error)
           return
         }
 
@@ -450,28 +450,28 @@ export function usePaymentProvider({
           throw new Error('Bank account instructions not found')
         }
 
-        handleSetStatus(CheckoutStatus.success)
+        setStatus(CheckoutStatus.success)
 
         return bankAccountInstructions
       } catch {
-        handleSetStatus(CheckoutStatus.error)
+        setStatus(CheckoutStatus.error)
       }
       setLoadingText('')
     },
     [
-      handleSetStatus,
       t,
       release?.templateId,
       release?.price,
       currentBid,
       validateFormForBankAccount,
+      handleSetStatus,
       mapCircleErrors,
     ]
   )
 
   const handleSubmitBid = useCallback(
     async (data: FormData, method: CheckoutMethod) => {
-      handleSetStatus(CheckoutStatus.loading)
+      setStatus(CheckoutStatus.loading)
       try {
         if (!auctionPackId) {
           throw new Error('Pack not found')
@@ -540,31 +540,31 @@ export function usePaymentProvider({
         // Create bid
         const isBidValid = await bidService.addToPack(bid, auctionPackId)
         if (isBidValid) {
-          handleSetStatus(CheckoutStatus.success)
+          setStatus(CheckoutStatus.success)
         } else {
-          handleSetStatus(CheckoutStatus.error)
+          setStatus(CheckoutStatus.error)
         }
       } catch {
         // Error
-        handleSetStatus(CheckoutStatus.error)
+        setStatus(CheckoutStatus.error)
       }
 
       setLoadingText('')
     },
     [
-      handleSetStatus,
       auctionPackId,
       t,
       validateFormForBidsWithSavedCard,
       validateFormForBids,
       handleAddCard,
+      handleSetStatus,
       validateFormForBidsWithoutCard,
     ]
   )
 
   const handleSubmitPurchase = useCallback(
     async (data: FormData, isPurchase: boolean) => {
-      handleSetStatus(CheckoutStatus.loading)
+      setStatus(CheckoutStatus.loading)
       setLoadingText(t('common:statuses.Validating Payment Information'))
       try {
         // Get the public key
@@ -613,7 +613,7 @@ export function usePaymentProvider({
           if (!packId) throw new Error('Pack not available')
 
           setPackId(packId)
-          handleSetStatus(CheckoutStatus.success)
+          setStatus(CheckoutStatus.success)
           if (release) {
             Analytics.instance.purchase({
               itemName: release.title,
@@ -622,11 +622,11 @@ export function usePaymentProvider({
             })
           }
         } else {
-          handleSetStatus(CheckoutStatus.success)
+          setStatus(CheckoutStatus.success)
           return
         }
       } catch {
-        handleSetStatus(CheckoutStatus.error)
+        setStatus(CheckoutStatus.error)
       }
 
       setLoadingText('')
@@ -651,6 +651,7 @@ export function usePaymentProvider({
       currentBid: currentBid || null,
       formErrors,
       handleAddBankAccount,
+      handleRetry,
       handleSubmitBid,
       handleSubmitPurchase,
       initialBid,
@@ -661,9 +662,8 @@ export function usePaymentProvider({
       release,
       setAddress,
       setBid,
-      setMethod,
       setPackId,
-      handleSetStatus,
+      setStatus,
       status,
     }),
     [
@@ -673,6 +673,7 @@ export function usePaymentProvider({
       currentBid,
       formErrors,
       handleAddBankAccount,
+      handleRetry,
       handleSubmitBid,
       handleSubmitPurchase,
       initialBid,
@@ -683,9 +684,8 @@ export function usePaymentProvider({
       release,
       setAddress,
       setBid,
-      setMethod,
       setPackId,
-      handleSetStatus,
+      setStatus,
       status,
     ]
   )
