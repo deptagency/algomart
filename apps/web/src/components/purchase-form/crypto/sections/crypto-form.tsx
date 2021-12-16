@@ -24,6 +24,7 @@ export interface CryptoFormProps {
   currentBid: number | null
   formErrors?: FormValidation
   handleCheckForPurchase: () => void
+  handleSetStatus: (status: CheckoutStatus) => void
   handleSubmitBid: (event: FormEvent<HTMLFormElement>) => Promise<void>
   initialBid?: string
   isAuctionActive: boolean
@@ -32,7 +33,6 @@ export interface CryptoFormProps {
   release?: PublishedPack
   setBid: (bid: string | null) => void
   setError: (error: string) => void
-  setStatus: (status: CheckoutStatus) => void
   setTransfer: (transfer: ToPaymentBase | null) => void
   transfer: ToPaymentBase | null
 }
@@ -44,6 +44,7 @@ export default function CryptoForm({
   currentBid,
   formErrors,
   handleCheckForPurchase,
+  handleSetStatus,
   handleSubmitBid,
   initialBid,
   isAuctionActive,
@@ -52,7 +53,6 @@ export default function CryptoForm({
   release,
   setBid,
   setError,
-  setStatus,
   setTransfer,
   transfer,
 }: CryptoFormProps) {
@@ -91,10 +91,10 @@ export default function CryptoForm({
           <CryptoFormInstructions price={price} />
           <CryptoFormWalletConnect
             address={address}
+            handleSetStatus={handleSetStatus}
             price={price}
             release={release}
             setError={setError}
-            setStatus={setStatus}
             setTransfer={setTransfer}
             transfer={transfer}
           />

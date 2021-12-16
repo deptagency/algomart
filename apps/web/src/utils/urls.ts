@@ -84,3 +84,32 @@ export function isRootPathMatch(path1: string, path2: string) {
     .toLowerCase()
     .includes(path2.split('/')[1].toLowerCase())
 }
+
+/**
+ * Compares path1 and path2 and determines if they have matching query parameters.
+ * @param path1 1st path to check
+ * @param path2 2nd path to compare with
+ */
+export function isMatchingQueryParams(path1: string, path2: string) {
+  const queryParams1 = path1.split('?')[1]
+  const queryParams2 = path2.split('?')[1]
+
+  // If neither path contains query params, they match
+  if (!queryParams1 && !queryParams2) return true
+
+  // If the characters don't match, they're not the same
+  if (
+    !queryParams1 ||
+    !queryParams2 ||
+    queryParams1.length !== queryParams2.length
+  )
+    return false
+
+  // Sort query params and compare
+  const queryPairs1 = queryParams1.split('&').sort()
+  const queryPairs2 = queryParams2.split('&').sort()
+
+  if (JSON.stringify(queryPairs1) !== JSON.stringify(queryPairs2)) return false
+
+  return true
+}

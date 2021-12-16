@@ -163,6 +163,21 @@ export enum CirclePaymentQueryType {
   wire = 'wire',
 }
 
+export enum CheckoutMethod {
+  card = 'card',
+  wire = 'wire',
+  crypto = 'crypto',
+}
+
+export enum CheckoutStatus {
+  passphrase = 'passphrase',
+  form = 'form',
+  loading = 'loading',
+  success = 'success',
+  error = 'error',
+  summary = 'summary',
+}
+
 // #endregion
 // #region Schemas
 
@@ -667,17 +682,9 @@ export const UpdatePaymentCardSchema = Type.Object({
 
 export type BankAccountId = Simplify<Static<typeof BankAccountIdSchema>>
 export type CardId = Simplify<Static<typeof CardIdSchema>>
-export type CheckoutStatus =
-  | 'passphrase'
-  | 'form'
-  | 'loading'
-  | 'success'
-  | 'error'
-  | 'summary'
 export type CircleBlockchainAddress = Simplify<
   Static<typeof CircleBlockchainAddressSchema>
 >
-export type CheckoutMethods = 'card' | 'wire' | 'crypto'
 export type CircleBankAccount = Simplify<Static<typeof CircleBankAccountSchema>>
 export type CircleCard = Simplify<Static<typeof CircleCardSchema>>
 export type CircleCardVerification = Simplify<

@@ -1,4 +1,4 @@
-import { PackType } from '@algomart/schemas'
+import { CheckoutMethod, CheckoutStatus, PackType } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useState } from 'react'
@@ -21,13 +21,13 @@ export default function CardForm({
   currentBid,
   release,
   formErrors,
+  handleSetStatus,
   handleSubmitBid: onSubmitBid,
   handleSubmitPurchase: onSubmitPurchase,
   loadingText,
   packId,
   price,
   setBid,
-  setStatus,
   status,
 }: PaymentContextProps) {
   const { t } = useTranslation()
@@ -44,7 +44,7 @@ export default function CardForm({
       const data = new FormData(event.currentTarget)
       await (release?.type === PackType.Auction &&
       isAfterNow(new Date(release.auctionUntil as string))
-        ? onSubmitBid(data, 'card')
+        ? onSubmitBid(data, CheckoutMethod.card)
         : onSubmitPurchase(data, true))
       setPromptLeaving(false)
     },
@@ -52,8 +52,8 @@ export default function CardForm({
   )
 
   const handleRetry = useCallback(() => {
-    setStatus('form')
-  }, [setStatus])
+    handleSetStatus(CheckoutStatus.form)
+  }, [handleSetStatus])
 
   return (
     <section className={css.root}>
@@ -62,20 +62,22 @@ export default function CardForm({
       <form
         className={clsx(
           css.form,
-          status === 'form' || status === 'summary' ? 'w-full' : 'hidden'
+          status === CheckoutStatus.form || status === CheckoutStatus.summary
+            ? 'w-full'
+            : 'hidden'
         )}
         onSubmit={handleSubmitPurchase}
       >
         <CardPurchaseForm
           bid={bid}
-          className={status === 'form' ? 'w-full' : 'hidden'}
+          className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
           currentBid={currentBid || null}
           formErrors={formErrors}
           isAuctionActive={isAuctionActive}
           setBid={setBid}
-          handleContinue={() => setStatus('summary')}
+          handleContinue={() => handleSetStatus(CheckoutStatus.summary)}
         />
-        {status === 'summary' && (
+        {status === CheckoutStatus.summary && (
           <CardPurchaseSummary
             isAuctionActive={isAuctionActive}
             price={price}
@@ -84,15 +86,15 @@ export default function CardForm({
         )}
       </form>
 
-      {status === 'loading' && (
+      {status === CheckoutStatus.loading && (
         <Loading loadingText={loadingText} variant="primary" />
       )}
 
-      {status === 'success' && packId && (
+      {status === CheckoutStatus.success && packId && (
         <CardPurchaseSuccess release={release} packId={packId} />
       )}
 
-      {status === 'error' && (
+      {status === CheckoutStatus.error && (
         <CardPurchaseError
           error={t('forms:errors.failedPayment')}
           handleRetry={handleRetry}

@@ -1,22 +1,13 @@
-import { ReactNode } from 'react'
-
-import Card from './card'
+import Card, { CardProps } from './card'
 
 import Heading from '@/components/heading'
 
-export interface CardProps {
-  cards: {
-    handleClick: () => void
-    helpText: string
-    icon: ReactNode
-    isDisabled: boolean
-    method: string
-    title: string
-  }[]
+export interface CardsProps {
+  cards: CardProps[]
   header: string
 }
 
-export default function Cards({ cards, header }: CardProps) {
+export default function Cards({ cards, header }: CardsProps) {
   return (
     <>
       {header && (
@@ -26,14 +17,15 @@ export default function Cards({ cards, header }: CardProps) {
       )}
       <ul>
         {cards.map(
-          ({ handleClick, helpText, isDisabled, icon, method, title }) => (
-            <li key={method}>
+          ({ handleClick, helpText, href, isDisabled, icon, title }) => (
+            <li key={href}>
               <Card
-                handleClick={handleClick}
                 helpText={helpText}
                 isDisabled={isDisabled}
                 icon={icon}
                 title={title}
+                handleClick={handleClick}
+                href={href}
               />
             </li>
           )

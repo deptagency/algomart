@@ -24,10 +24,10 @@ export default function MyProfilePaymentMethodsAddTemplate({
   return (
     <div className={common.sectionContent}>
       <PaymentMethodsForm
+        handleSetStatus={setStatus}
         formErrors={formErrors}
         loadingText={loadingText}
         onSubmit={onSubmit}
-        setStatus={setStatus}
         status={status}
       />
     </div>

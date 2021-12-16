@@ -3,7 +3,7 @@
 }
 
 .button {
-  @apply flex text-left gap-5;
+  @apply flex text-left gap-5 no-underline;
 }
 
 .button svg {
@@ -15,5 +15,5 @@
 }
 
 .disabled {
-  @apply opacity-50;
+  @apply opacity-50 pointer-events-none;
 }

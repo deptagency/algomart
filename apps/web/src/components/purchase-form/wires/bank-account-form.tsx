@@ -1,4 +1,9 @@
-import { PackType, PaymentBankAccountInstructions } from '@algomart/schemas'
+import {
+  CheckoutMethod,
+  CheckoutStatus,
+  PackType,
+  PaymentBankAccountInstructions,
+} from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useState } from 'react'
@@ -19,6 +24,7 @@ export default function BankAccountPurchaseForm({
   bid,
   currentBid,
   formErrors,
+  handleSetStatus,
   handleSubmitBid: onSubmitBid,
   handleAddBankAccount: onSubmitBankAccount,
   initialBid,
@@ -26,7 +32,6 @@ export default function BankAccountPurchaseForm({
   price,
   release,
   setBid,
-  setStatus,
   status,
 }: PaymentContextProps) {
   const { t } = useTranslation()
@@ -44,7 +49,7 @@ export default function BankAccountPurchaseForm({
         release?.type === PackType.Auction &&
         isAfterNow(new Date(release.auctionUntil as string))
       ) {
-        await onSubmitBid(data, 'wire')
+        await onSubmitBid(data, CheckoutMethod.wire)
       } else {
         const bankInstructions = await onSubmitBankAccount(data)
         if (bankInstructions) setBankAccountInstructions(bankInstructions)
@@ -54,8 +59,8 @@ export default function BankAccountPurchaseForm({
   )
 
   const handleRetry = useCallback(() => {
-    setStatus('form')
-  }, [setStatus])
+    handleSetStatus(CheckoutStatus.form)
+  }, [handleSetStatus])
 
   return (
     <section className={css.root}>
@@ -64,21 +69,23 @@ export default function BankAccountPurchaseForm({
       <form
         className={clsx(
           css.form,
-          status === 'form' || status === 'summary' ? 'w-full' : 'hidden'
+          status === CheckoutStatus.form || status === CheckoutStatus.summary
+            ? 'w-full'
+            : 'hidden'
         )}
         onSubmit={handleSubmit}
       >
         <BankAccountForm
           bid={bid}
-          className={status === 'form' ? 'w-full' : 'hidden'}
+          className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
           currentBid={currentBid}
           formErrors={formErrors}
-          handleContinue={() => setStatus('summary')}
+          handleContinue={() => handleSetStatus(CheckoutStatus.summary)}
           initialBid={initialBid}
           release={release}
           setBid={setBid}
         />
-        {status === 'summary' && (
+        {status === CheckoutStatus.summary && (
           <BankAccountSummary
             isAuctionActive={isAuctionActive}
             price={price}
@@ -87,18 +94,18 @@ export default function BankAccountPurchaseForm({
         )}
       </form>
 
-      {status === 'loading' && (
+      {status === CheckoutStatus.loading && (
         <Loading loadingText={loadingText} variant="primary" />
       )}
 
-      {status === 'success' && (
+      {status === CheckoutStatus.success && (
         <BankAccountSuccess
           bankAccountInstructions={bankAccountInstructions}
           release={release}
         />
       )}
 
-      {status === 'error' && (
+      {status === CheckoutStatus.error && (
         <BankAccountError
           error={t('forms:errors.failedPayment')}
           handleRetry={handleRetry}

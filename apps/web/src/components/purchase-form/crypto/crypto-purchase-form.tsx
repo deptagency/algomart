@@ -1,4 +1,9 @@
-import { PackType, ToPaymentBase } from '@algomart/schemas'
+import {
+  CheckoutMethod,
+  CheckoutStatus,
+  PackType,
+  ToPaymentBase,
+} from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useEffect, useState } from 'react'
@@ -23,6 +28,8 @@ export default function CryptoPurchaseForm({
   address,
   bid,
   currentBid,
+  formErrors,
+  handleSetStatus,
   handleSubmitBid: onSubmitBid,
   loadingText,
   packId,
@@ -30,7 +37,6 @@ export default function CryptoPurchaseForm({
   release,
   setBid,
   setPackId,
-  setStatus,
   status,
 }: PaymentContextProps & CryptoPurchaseFormProps) {
   const { t } = useTranslation()
@@ -59,7 +65,7 @@ export default function CryptoPurchaseForm({
   const handlePurchase = useCallback(async () => {
     if (!address || !release?.templateId || !transfer) {
       setError(t('forms:errors.invalidDetails'))
-      setStatus('error')
+      handleSetStatus(CheckoutStatus.error)
       return
     }
     // Creating payment for the pending transfer
@@ -72,47 +78,55 @@ export default function CryptoPurchaseForm({
       // While this shouldn't happen, there's a possibility the payment may still have worked
       // @TODO: Find way to handle this better - possibly send to customer support email or direct to contact
       setError(t('forms:errors.paymentNotCreated'))
-      setStatus('error')
+      handleSetStatus(CheckoutStatus.error)
       return
     }
     if (transferPayment.packId) {
       setPackId(transferPayment.packId)
     }
     // Success!
-    setStatus('success')
+    handleSetStatus(CheckoutStatus.success)
     return transferPayment
-  }, [address, release?.templateId, setPackId, setStatus, t, transfer])
+  }, [address, handleSetStatus, release?.templateId, setPackId, t, transfer])
 
   const handleSubmitBid = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
       const data = new FormData(event.currentTarget)
-      return onSubmitBid(data, 'crypto')
+      return onSubmitBid(data, CheckoutMethod.crypto)
     },
     [onSubmitBid]
   )
 
   const handleRetry = useCallback(() => {
-    setStatus('form')
-  }, [setStatus])
+    handleSetStatus(CheckoutStatus.form)
+  }, [handleSetStatus])
 
+  // Once there's a transfer found, we can initiate payment:
   useEffect(() => {
     if (transfer) {
       handlePurchase()
     }
   }, [handlePurchase, transfer])
 
+  // If there's no address, redirect to the Checkout page:
+  useEffect(() => {
+    if (!address) router.push(router.asPath.split('?')[0])
+  }, [address, router])
+
   return (
     <section className={css.root}>
       <CryptoHeader release={release} />
 
-      {status === 'form' && (
+      {status === CheckoutStatus.form && (
         <CryptoForm
           address={address}
           bid={bid}
-          className={status === 'form' ? 'w-full' : 'hidden'}
+          className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
           currentBid={currentBid || null}
+          formErrors={formErrors}
           handleCheckForPurchase={handleCheckForPurchase}
+          handleSetStatus={handleSetStatus}
           handleSubmitBid={handleSubmitBid}
           isAuctionActive={isAuctionActive}
           isLoading={isLoading}
@@ -120,21 +134,20 @@ export default function CryptoPurchaseForm({
           release={release}
           setBid={setBid}
           setError={setError}
-          setStatus={setStatus}
           setTransfer={setTransfer}
           transfer={transfer}
         />
       )}
 
-      {status === 'loading' && (
+      {status === CheckoutStatus.loading && (
         <Loading loadingText={loadingText} variant="primary" />
       )}
 
-      {status === 'success' && packId && (
+      {status === CheckoutStatus.success && packId && (
         <CryptoSuccess packId={packId} release={release} />
       )}
 
-      {status === 'error' && (
+      {status === CheckoutStatus.error && (
         <CryptoPurchaseError error={error} handleRetry={handleRetry} />
       )}
     </section>

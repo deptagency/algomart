@@ -94,3 +94,7 @@
 .spinningIcon {
   @apply animate-spin;
 }
+
+.notification {
+  @apply mb-5;
+}

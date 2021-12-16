@@ -10,7 +10,7 @@
 }
 
 .navLink {
-  @apply flex gap-6 transition duration-300 text-base-gray-text hover:text-base-gray-dark;
+  @apply flex gap-6 transition duration-300 text-base-gray-text hover:text-base-gray-dark no-underline;
 }
 
 .navLink.navLinkActive {

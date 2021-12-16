@@ -25,20 +25,20 @@ const formatAccount = (account: string) =>
 
 export interface CryptoFormWalletConnectProps {
   address?: string
+  handleSetStatus: (status: CheckoutStatus) => void
   price: string | null
   release?: PublishedPack
   setError: (error: string) => void
-  setStatus: (status: CheckoutStatus) => void
   setTransfer: (transfer: ToPaymentBase | null) => void
   transfer: ToPaymentBase | null
 }
 
 export default function CryptoFormWalletConnect({
   address,
+  handleSetStatus,
   price,
   release,
   setError,
-  setStatus,
   setTransfer,
   transfer,
 }: CryptoFormWalletConnectProps) {
@@ -75,7 +75,7 @@ export default function CryptoFormWalletConnect({
     // If using WalletConnect:
     if (!account || !connected || !address || !price || !release?.templateId) {
       setError(t('forms:errors.invalidDetails'))
-      setStatus('error')
+      handleSetStatus(CheckoutStatus.error)
       return
     }
     const assetData = await algorand.getAssetData(account)
@@ -83,7 +83,7 @@ export default function CryptoFormWalletConnect({
     if (!usdcAsset) {
       // No USDC asset found
       setError(t('forms:errors.noUSDC'))
-      setStatus('error')
+      handleSetStatus(CheckoutStatus.error)
       return
     }
 
@@ -94,7 +94,7 @@ export default function CryptoFormWalletConnect({
     if (!isGreaterThanOrEqual(usdcBalanceInt, priceInt)) {
       // Not enough USDC
       setError(t('forms:errors.minUSDC', { balance: usdcBalance, min: price }))
-      setStatus('error')
+      handleSetStatus(CheckoutStatus.error)
       return
     }
 
@@ -126,7 +126,7 @@ export default function CryptoFormWalletConnect({
         )
         if (!transferResp || transferResp.status === PaymentStatus.Failed) {
           setError(t('forms:errors.transferNotFound'))
-          setStatus('form')
+          handleSetStatus(CheckoutStatus.form)
           return
         }
         setTransfer(transfer)
@@ -136,10 +136,10 @@ export default function CryptoFormWalletConnect({
     account,
     address,
     connected,
+    handleSetStatus,
     price,
     release?.templateId,
     setError,
-    setStatus,
     setTransfer,
     t,
     transfer,

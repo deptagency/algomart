@@ -3,38 +3,41 @@ import { ReactNode } from 'react'
 
 import css from './card.module.css'
 
+import AppLink from '@/components/app-link/app-link'
 import Heading from '@/components/heading'
 
 export interface CardProps {
-  handleClick: () => void
+  handleClick?: () => void
   helpText: string
-  isDisabled: boolean
+  href: string
   icon: ReactNode
+  isDisabled: boolean
   title: string
 }
 
 export default function Card({
   handleClick,
   helpText,
-  isDisabled,
+  href,
   icon,
+  isDisabled,
   title,
 }: CardProps) {
   return (
     <section className={css.root}>
-      <button
-        onClick={handleClick}
+      <AppLink
         className={clsx(css.button, {
           [css.disabled]: isDisabled,
         })}
-        disabled={isDisabled}
+        href={href}
+        onClick={handleClick}
       >
         {icon}
         <div>
           <Heading level={2}>{title}</Heading>
           <p>{helpText}</p>
         </div>
-      </button>
+      </AppLink>
     </section>
   )
 }
