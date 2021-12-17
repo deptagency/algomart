@@ -1,5 +1,6 @@
 .background {
-  @apply flex flex-col flex-grow bg-gray-900;
+  @apply flex flex-col flex-grow;
+  background: linear-gradient(178deg, #01224a, black);
 }
 
 .pageTitle {

@@ -1,12 +1,12 @@
 .root {
   /* Tablet + */
-  @apply md:border;
+  /* @apply md:border; */
 }
 
 .header {
-  @apply border-b border-base-gray-border;
+  /* @apply border-b border-base-gray-border; */
 }
 
 .title {
-  @apply font-bold p-6 text-2xl text-center;
+  @apply font-bold p-6 text-4xl text-center text-blue-400;
 }

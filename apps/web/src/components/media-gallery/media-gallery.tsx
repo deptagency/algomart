@@ -91,7 +91,6 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               <button
                 aria-label={t('common:actions.Select Image')}
                 className={clsx(
-                  css.aspect,
                   css.overflowHidden,
                   css.mediaHyperlinkedWrapper,
                   {

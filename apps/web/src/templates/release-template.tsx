@@ -158,11 +158,11 @@ export default function ReleaseTemplate({
           />
         )}
 
-        {/* Media Gallery */}
-        <MediaGallery media={[packTemplate.image]} />
 
-        {/* Release Details */}
-        <section>
+        <div className='md:flex-row md:flex flex-col'>
+          {/* Media Gallery */}
+          <MediaGallery media={[packTemplate.image]} />
+          {/* Release Details */}
           <ReleaseDetails
             avatars={avatars}
             disallowBuyOrClaim={disallowBuyOrClaim}
@@ -172,7 +172,7 @@ export default function ReleaseTemplate({
             packAuction={packAuction}
             packTemplate={packTemplate}
           />
-        </section>
+        </div>
       </div>
 
       {/* Modal */}

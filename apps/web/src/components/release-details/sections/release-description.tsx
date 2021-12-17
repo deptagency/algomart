@@ -19,20 +19,18 @@ export default function ReleaseDescription({
   return (
     <div className={css.root}>
       <div
-        className={clsx(css.collapseContainer, {
-          [css.collapsed]: collapsed,
-        })}
+        className={clsx(css.collapseContainer)}
       >
         <Markdown options={{ forceBlock: true }}>{description}</Markdown>
       </div>
-      {collapsed && (
+      {/* {collapsed && (
         <>
           <div className={css.mask} />
           <button className={css.readMore} onClick={handleToggle}>
             {t('common:actions.Read More')}
           </button>
         </>
-      )}
+      )} */}
     </div>
   )
 }

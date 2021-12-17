@@ -1,13 +1,12 @@
 .metadata {
-  @apply text-center;
+  @apply text-left;
 }
 
 .metadataGrid {
-  @apply grid grid-cols-3;
 }
 
 .column {
-  @apply p-6 border-r border-base-gray-border;
+  @apply px-6 py-3 text-yellow-400;
 }
 
 .column:last-child {
@@ -20,6 +19,10 @@
 
 .metadataValue {
   @apply font-bold text-xl;
+}
+
+.price {
+  @apply text-blue-400 text-3xl text-center;
 }
 
 .active {

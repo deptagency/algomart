@@ -139,7 +139,7 @@ export default function ReleaseMetadata({
             </div>
           </>
         ) : (
-          <div className={css.metadataValue}>
+          <div className={clsx(css.metadataValue, css.price)}>
             {packTemplate.type === Purchase && formatCurrency(price, lang)}
             {packTemplate.type === Free && t('common:statuses.Free')}
             {packTemplate.type === Redeem && t('common:statuses.Redeemable')}

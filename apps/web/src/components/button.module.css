@@ -1,0 +1,44 @@
+.customButton {
+  padding: 1rem 2.5rem;
+  font-size: 16px;
+  background: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 0.3rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.primary {
+  border: 0.15rem solid #6dfeff;
+  color: #6dfeff;
+  filter: drop-shadow(0 0 0.25rem #6dfeff);
+  background-color: #011f44 !important;
+}
+.primary:hover {
+  filter: drop-shadow(0.25rem 0.25rem 0.25rem #6dfeff);
+  background: #6dfeff47;
+  color: white;
+}
+
+.secondary {
+  border: 0.15rem solid #6dfeff;
+  filter: drop-shadow(0.25rem 0.25rem 0.25rem #6dfeff);
+  color: #6dfeff;
+  background-color: #011f44;
+}
+.tertiary {
+  border: 0.15rem solid #6dfeff;
+  filter: drop-shadow(0.25rem 0.25rem 0.25rem #6dfeff);
+  color: #6dfeff;
+  background-color: #011f44;
+}
+.link {
+  border: 0.15rem solid #6dfeff;
+  filter: drop-shadow(0.25rem 0.25rem 0.25rem #6dfeff);
+  color: #6dfeff;
+  background-color: #011f44;
+}

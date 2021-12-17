@@ -1,5 +1,10 @@
 .mediaGalleryWrapper {
-  @apply w-full;
+  width: 240rem;
+}
+@media only screen and (max-width: 600px) {
+  .mediaGalleryWrapper {
+    width: 100%;
+  }
 }
 
 .selectedImageWrapper {
@@ -14,12 +19,16 @@
   @apply absolute inset-y-0 z-10 block w-16 transition duration-300 transform outline-none cursor-pointer text-base-gray-medium;
 }
 
+.iconStyle:hover {
+  color: #6dfeff;
+}
+
 .leftIcon {
-  @apply left-0 -translate-x-20;
+  @apply left-0 -translate-x-2;
 }
 
 .rightIcon {
-  @apply right-0 translate-x-20;
+  @apply right-0 translate-x-2;
 }
 
 .flexCenter {
@@ -27,11 +36,12 @@
 }
 
 .selectedMediaWrapper {
-  @apply relative bg-base-gray-border;
+  @apply relative;
+  filter: drop-shadow(0 0 2.5rem #6dfeff4f);
 }
 
 .aspect {
-  @apply aspect-h-1 aspect-w-1;
+  @apply aspect-h-1 aspect-w-1 m-4;
 }
 
 .contain {

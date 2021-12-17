@@ -43,6 +43,11 @@ export default function ReleaseDetails({
         <h1 className={css.title}>{packTemplate.title}</h1>
       </div>
 
+      {/* Description content */}
+      {packTemplate.body && (
+        <ReleaseDescription description={packTemplate.body} />
+      )}
+
       {/* Metadata */}
       <ReleaseMetadata packAuction={packAuction} packTemplate={packTemplate} />
 
@@ -60,11 +65,6 @@ export default function ReleaseDetails({
           status={packTemplate.status}
           type={packTemplate.type}
         />
-      )}
-
-      {/* Description content */}
-      {packTemplate.body && (
-        <ReleaseDescription description={packTemplate.body} />
       )}
 
       {/* Bidding activity */}

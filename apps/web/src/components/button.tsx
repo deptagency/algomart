@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import { ButtonHTMLAttributes, DetailedHTMLProps, HTMLAttributes } from 'react'
+import css from './button.module.css'
 
 export interface ButtonProps {
   disablePadding?: boolean
@@ -28,16 +29,12 @@ export default function Button({
   return (
     <button
       className={clsx(
-        'duration-300 rounded-sm transition',
+        css.customButton,
+        !disabled && variant === 'primary' ? css.primary : null,
+        variant === 'secondary' ? css.secondary : null,
+        variant === 'tertiary' ? css.tertiary : null,
+        variant === 'link' ? css.link : null,
         {
-          'px-4 py-3 border border-blue-500 font-semibold text-sm rounded-full shadow-sm text-gray-50 hover:cursor-pointer focus:outline-none bg-gradient-to-r from-green-400 to-blue-500 hover:sha active:shadow-inner active:bg-blue-800 font-poppins disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed':
-            !disabled && variant === 'primary',
-          'p-3.5 border-2 border-gray-600 hover:bg-gray-900 rounded-full font-medium text-gray-400 disabled:cursor-not-allowed':
-            variant === 'secondary',
-          'bg-transparent border-none text-base-gray-dark hover:border-none':
-            variant === 'tertiary',
-          'bg-transparent border-none text-base-gray-dark float-left mb-5':
-            variant === 'link',
           'font-bold text-xl': size === 'medium',
           'px-10 py-5': size === 'medium' && !disablePadding,
           'px-6 py-2': size === 'small' && !disablePadding,
