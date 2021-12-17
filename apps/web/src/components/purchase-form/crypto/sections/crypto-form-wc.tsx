@@ -121,7 +121,7 @@ export default function CryptoFormWalletConnect({
         setLoadingText(t('common:statuses.Searching for Payment'))
         const completeWhenNotPendingForTransfer = (
           transfer: ToPaymentBase | null
-        ) => !transfer
+        ) => !(transfer?.status === PaymentStatus.Paid)
         const transfer = await poll<ToPaymentBase | null>(
           async () =>
             await checkoutService
