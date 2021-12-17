@@ -68,6 +68,7 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
     return handleUnauthenticatedRedirect(context.resolvedUrl)
   }
 
+  // Redirect to the card page if the feature flags aren't enabled
   if (!Environment.isWireEnabled && !Environment.isCryptoEnabled) {
     return {
       redirect: {
