@@ -7,7 +7,7 @@ import MyProfilePaymentMethodsAddTemplate from '@/templates/my-profile-payment-m
 
 export default function MyProfilePaymentMethodsAddPage() {
   const { t } = useTranslation()
-  const { formErrors, setStatus, handleSubmitPurchase, loadingText, status } =
+  const { formErrors, handleRetry, handleSubmitPurchase, loadingText, status } =
     usePaymentProvider({})
 
   const handleAddCard = useCallback(
@@ -23,8 +23,8 @@ export default function MyProfilePaymentMethodsAddPage() {
   return (
     <MyProfileLayout pageTitle={t('common:pageTitles.Add Payment Method')}>
       <MyProfilePaymentMethodsAddTemplate
-        setStatus={setStatus}
         formErrors={formErrors}
+        handleRetry={handleRetry}
         loadingText={loadingText}
         onSubmit={handleAddCard}
         status={status}

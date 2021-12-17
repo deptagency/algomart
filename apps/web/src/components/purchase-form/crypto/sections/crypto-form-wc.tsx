@@ -104,43 +104,38 @@ export default function CryptoFormWalletConnect({
     const connector = connectorReference.current
     if (connector) {
       setLoadingText(t('common:statuses.Connected to Wallet'))
-      try {
-        const assetTx = await algorand.makeAssetTransferTransaction({
-          amount: priceInt * 10_000,
-          from: account,
-          to: address,
-          assetIndex: usdcAsset.id,
-          note: undefined,
-          rekeyTo: undefined,
-        })
-        // User signs transaction and we submit to Algorand network
-        const txn = await connector.signTransaction(assetTx)
-        setLoadingText(t('common:statuses.Sent Transaction'))
-        if (txn) {
-          setLoadingText(t('common:statuses.Transaction Received'))
-          // Check for pending transfer
-          setLoadingText(t('common:statuses.Searching for Payment'))
-          const completeWhenNotPendingForTransfer = (
-            transfer: ToPaymentBase | null
-          ) => !transfer
-          const transfer = await poll<ToPaymentBase | null>(
-            async () =>
-              await checkoutService
-                .getTransferByAddress(address)
-                .catch(() => null),
-            completeWhenNotPendingForTransfer,
-            1000
-          )
-          if (!transfer || transfer.status === PaymentStatus.Failed) {
-            setError(t('forms:errors.transferNotFound'))
-            setStatus(CheckoutStatus.error)
-            return
-          }
-          return handlePurchase(transfer)
+      const assetTx = await algorand.makeAssetTransferTransaction({
+        amount: priceInt * 10_000,
+        from: account,
+        to: address,
+        assetIndex: usdcAsset.id,
+        note: undefined,
+        rekeyTo: undefined,
+      })
+      // User signs transaction and we submit to Algorand network
+      const txn = await connector.signTransaction(assetTx)
+      setLoadingText(t('common:statuses.Sent Transaction'))
+      if (txn) {
+        setLoadingText(t('common:statuses.Transaction Received'))
+        // Check for pending transfer
+        setLoadingText(t('common:statuses.Searching for Payment'))
+        const completeWhenNotPendingForTransfer = (
+          transfer: ToPaymentBase | null
+        ) => !transfer
+        const transfer = await poll<ToPaymentBase | null>(
+          async () =>
+            await checkoutService
+              .getTransferByAddress(address)
+              .catch(() => null),
+          completeWhenNotPendingForTransfer,
+          1000
+        )
+        if (!transfer || transfer.status === PaymentStatus.Failed) {
+          setError(t('forms:errors.transferNotFound'))
+          setStatus(CheckoutStatus.error)
+          return
         }
-      } catch (error) {
-        setError(error.message)
-        setStatus(CheckoutStatus.error)
+        return handlePurchase(transfer)
       }
     }
   }, [
