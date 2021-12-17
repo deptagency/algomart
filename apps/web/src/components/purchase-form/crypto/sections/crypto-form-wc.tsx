@@ -25,22 +25,22 @@ const formatAccount = (account: string) =>
 
 export interface CryptoFormWalletConnectProps {
   address: string | null
-  setStatus: (status: CheckoutStatus) => void
+  handlePurchase: (transfer: ToPaymentBase) => Promise<void>
   price: string | null
   release?: PublishedPack
   setError: (error: string) => void
-  setTransfer: (transfer: ToPaymentBase | null) => void
-  transfer: ToPaymentBase | null
+  setLoadingText: (loadingText: string) => void
+  setStatus: (status: CheckoutStatus) => void
 }
 
 export default function CryptoFormWalletConnect({
   address,
-  setStatus,
+  handlePurchase,
   price,
   release,
   setError,
-  setTransfer,
-  transfer,
+  setLoadingText,
+  setStatus,
 }: CryptoFormWalletConnectProps) {
   const { t } = useTranslation()
   const [connected, setConnected] = useState(false)
@@ -73,6 +73,7 @@ export default function CryptoFormWalletConnect({
 
   const handleWalletConnectPurchase = useCallback(async () => {
     setStatus(CheckoutStatus.loading)
+    setLoadingText(t('common:statuses.Validating Payment Information'))
     // If using WalletConnect:
     if (!account || !connected || !address || !price || !release?.templateId) {
       setError(t('forms:errors.invalidDetails'))
@@ -102,48 +103,56 @@ export default function CryptoFormWalletConnect({
     // Submit the transaction to Algorand
     const connector = connectorReference.current
     if (connector) {
-      const assetTx = await algorand.makeAssetTransferTransaction({
-        amount: priceInt * 10_000,
-        from: account,
-        to: address,
-        assetIndex: usdcAsset.id,
-        note: undefined,
-        rekeyTo: undefined,
-      })
-      // User signs transaction and we submit to Algorand network
-      const txn = await connector.signTransaction(assetTx)
-      if (txn) {
-        // Check for pending transfer
-        const completeWhenNotPendingForTransfer = (
-          transfer: ToPaymentBase | null
-        ) => !(transfer?.status !== PaymentStatus.Pending)
-        const transferResp = await poll<ToPaymentBase | null>(
-          async () =>
-            await checkoutService
-              .getTransferByAddress(address)
-              .catch(() => null),
-          completeWhenNotPendingForTransfer,
-          1000
-        )
-        if (!transferResp || transferResp.status === PaymentStatus.Failed) {
-          setError(t('forms:errors.transferNotFound'))
-          setStatus(CheckoutStatus.error)
-          return
+      setLoadingText(t('common:statuses.Connected to Wallet'))
+      try {
+        const assetTx = await algorand.makeAssetTransferTransaction({
+          amount: priceInt * 10_000,
+          from: account,
+          to: address,
+          assetIndex: usdcAsset.id,
+          note: undefined,
+          rekeyTo: undefined,
+        })
+        // User signs transaction and we submit to Algorand network
+        const txn = await connector.signTransaction(assetTx)
+        setLoadingText(t('common:statuses.Sent Transaction'))
+        if (txn) {
+          setLoadingText(t('common:statuses.Transaction Received'))
+          // Check for pending transfer
+          setLoadingText(t('common:statuses.Searching for Payment'))
+          const completeWhenNotPendingForTransfer = (
+            transfer: ToPaymentBase | null
+          ) => !transfer
+          const transfer = await poll<ToPaymentBase | null>(
+            async () =>
+              await checkoutService
+                .getTransferByAddress(address)
+                .catch(() => null),
+            completeWhenNotPendingForTransfer,
+            1000
+          )
+          if (!transfer || transfer.status === PaymentStatus.Failed) {
+            setError(t('forms:errors.transferNotFound'))
+            setStatus(CheckoutStatus.error)
+            return
+          }
+          return handlePurchase(transfer)
         }
-        setTransfer(transfer)
+      } catch (error) {
+        setError(error.message)
+        setStatus(CheckoutStatus.error)
       }
     }
   }, [
     account,
     address,
     connected,
-    setStatus,
+    handlePurchase,
     price,
     release?.templateId,
     setError,
-    setTransfer,
+    setStatus,
     t,
-    transfer,
   ])
 
   const copyToClipboard = useCallback(() => {

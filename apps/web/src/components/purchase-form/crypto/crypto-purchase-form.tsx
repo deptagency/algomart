@@ -6,7 +6,7 @@ import {
 } from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { FormEvent, useCallback, useEffect, useState } from 'react'
+import { FormEvent, useCallback, useState } from 'react'
 
 import CryptoPurchaseError from './sections/crypto-error'
 import CryptoForm from './sections/crypto-form'
@@ -35,6 +35,7 @@ export default function CryptoPurchaseForm({
   price,
   release,
   setBid,
+  setLoadingText,
   setPackId,
   setStatus,
   status,
@@ -45,49 +46,40 @@ export default function CryptoPurchaseForm({
     release?.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))
   const [error, setError] = useState<string>('')
-  const [transfer, setTransfer] = useState<ToPaymentBase | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const handleCheckForPurchase = useCallback(async () => {
-    setIsLoading(true)
-    if (!address) {
-      return router.reload()
-    }
-    // Check if purchase has been made for this address
-    const transfer = await checkoutService.getTransferByAddress(address)
-    // Initiate payment creation and transfer if so
-    if (transfer) {
-      setTransfer(transfer)
-    }
-    setIsLoading(false)
-  }, [address, router])
-
-  const handlePurchase = useCallback(async () => {
-    if (!address || !release?.templateId || !transfer) {
-      setError(t('forms:errors.invalidDetails'))
-      setStatus(CheckoutStatus.error)
+  const handlePurchase = useCallback(
+    async (transfer: ToPaymentBase) => {
+      setLoadingText(t('common:statuses.Checking for Payment'))
+      // Validate details
+      if (!address || !release?.templateId || !transfer) {
+        setError(t('forms:errors.invalidDetails'))
+        setStatus(CheckoutStatus.error)
+        return
+      }
+      // Creating payment for the pending transfer
+      setLoadingText(t('common:statuses.Creating Payment'))
+      const transferPayment = await checkoutService.createTransferPayment({
+        packTemplateId: release.templateId,
+        transferId: transfer.externalId,
+        destinationAddress: address,
+      })
+      if (!transferPayment) {
+        // While this shouldn't happen, there's a possibility the payment may still have worked
+        // @TODO: Find way to handle this better - possibly send to customer support email or direct to contact
+        setError(t('forms:errors.paymentNotCreated'))
+        setStatus(CheckoutStatus.error)
+        return
+      }
+      if (transferPayment.packId) {
+        setPackId(transferPayment.packId)
+      }
+      // Success!
+      setStatus(CheckoutStatus.success)
       return
-    }
-    // Creating payment for the pending transfer
-    const transferPayment = await checkoutService.createTransferPayment({
-      packTemplateId: release.templateId,
-      transferId: transfer.externalId,
-      destinationAddress: address,
-    })
-    if (!transferPayment) {
-      // While this shouldn't happen, there's a possibility the payment may still have worked
-      // @TODO: Find way to handle this better - possibly send to customer support email or direct to contact
-      setError(t('forms:errors.paymentNotCreated'))
-      setStatus(CheckoutStatus.error)
-      return
-    }
-    if (transferPayment.packId) {
-      setPackId(transferPayment.packId)
-    }
-    // Success!
-    setStatus(CheckoutStatus.success)
-    return transferPayment
-  }, [address, setStatus, release?.templateId, setPackId, t, transfer])
+    },
+    [address, release?.templateId, setLoadingText, setPackId, setStatus, t]
+  )
 
   const handleSubmitBid = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -98,12 +90,18 @@ export default function CryptoPurchaseForm({
     [onSubmitBid]
   )
 
-  // Once there's a transfer found, we can initiate payment:
-  useEffect(() => {
-    if (transfer) {
-      handlePurchase()
+  const handleCheckForPurchase = useCallback(async () => {
+    setIsLoading(true)
+    if (!address) {
+      return router.reload()
     }
-  }, [handlePurchase, transfer])
+    // Otherwise, check if purchase has been made for this address
+    const transferResp = await checkoutService.getTransferByAddress(address)
+    if (transferResp) {
+      handlePurchase(transferResp)
+    }
+    setIsLoading(false)
+  }, [address, handlePurchase, router])
 
   return (
     <section className={css.root}>
@@ -116,6 +114,7 @@ export default function CryptoPurchaseForm({
           className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
           formErrors={formErrors}
           handleCheckForPurchase={handleCheckForPurchase}
+          handlePurchase={handlePurchase}
           setStatus={setStatus}
           handleSubmitBid={handleSubmitBid}
           isAuctionActive={isAuctionActive}
@@ -124,8 +123,7 @@ export default function CryptoPurchaseForm({
           release={release}
           setBid={setBid}
           setError={setError}
-          setTransfer={setTransfer}
-          transfer={transfer}
+          setLoadingText={setLoadingText}
         />
       )}
 

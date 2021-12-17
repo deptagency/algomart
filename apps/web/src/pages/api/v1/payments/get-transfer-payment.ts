@@ -22,11 +22,11 @@ handler.get(async (request: NextApiRequestApp, response: NextApiResponse) => {
     destinationAddress: request.query.destinationAddress,
   })
 
-  if (!transfer) {
-    throw new NotFound('Transfer not found')
+  if (transfer) {
+    response.status(200).json(transfer)
   }
 
-  response.status(200).json(transfer)
+  response.status(200)
 })
 
 export default handler

@@ -78,6 +78,7 @@ export interface PaymentContextProps {
   release?: PublishedPack
   setAddress(address: string | null): void
   setBid: (bid: string | null) => void
+  setLoadingText: (loadingText: string) => void
   setPackId: (packId: string | null) => void
   setStatus: (status: CheckoutStatus) => void
   status: CheckoutStatus
@@ -97,7 +98,7 @@ export function usePaymentProvider({
   release,
 }: PaymentProviderProps) {
   const { t } = useTranslation()
-  const { asPath, query, push } = useRouter()
+  const { asPath, back, query, push } = useRouter()
   const { method } = query
 
   const [packId, setPackId] = useState<string | null>(auctionPackId || null)
@@ -145,7 +146,9 @@ export function usePaymentProvider({
 
   const handleRetry = useCallback(() => {
     handleSetStatus(CheckoutStatus.form)
-  }, [handleSetStatus])
+    setFormErrors({})
+    back()
+  }, [back, handleSetStatus])
 
   const mapCircleErrors = useCallback(
     (code: string | number) => {
@@ -662,6 +665,7 @@ export function usePaymentProvider({
       release,
       setAddress,
       setBid,
+      setLoadingText,
       setPackId,
       setStatus,
       status,
@@ -684,6 +688,7 @@ export function usePaymentProvider({
       release,
       setAddress,
       setBid,
+      setLoadingText,
       setPackId,
       setStatus,
       status,

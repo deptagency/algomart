@@ -24,8 +24,8 @@ export interface CryptoFormProps {
   bid: string | null
   className?: string
   formErrors?: FormValidation
-  handleCheckForPurchase: () => void
-  setStatus: (status: CheckoutStatus) => void
+  handleCheckForPurchase: () => Promise<void>
+  handlePurchase: (transfer: ToPaymentBase) => Promise<void>
   handleSubmitBid: (event: FormEvent<HTMLFormElement>) => Promise<void>
   initialBid?: string
   isAuctionActive: boolean
@@ -34,8 +34,8 @@ export interface CryptoFormProps {
   release?: PublishedPack
   setBid: (bid: string | null) => void
   setError: (error: string) => void
-  setTransfer: (transfer: ToPaymentBase | null) => void
-  transfer: ToPaymentBase | null
+  setLoadingText: (loadingText: string) => void
+  setStatus: (status: CheckoutStatus) => void
 }
 
 export default function CryptoForm({
@@ -43,8 +43,8 @@ export default function CryptoForm({
   bid,
   className,
   formErrors,
+  handlePurchase,
   handleCheckForPurchase,
-  setStatus,
   handleSubmitBid,
   initialBid,
   isAuctionActive,
@@ -53,8 +53,8 @@ export default function CryptoForm({
   release,
   setBid,
   setError,
-  setTransfer,
-  transfer,
+  setLoadingText,
+  setStatus,
 }: CryptoFormProps) {
   const { t, lang } = useTranslation()
   const { push } = useRouter()
@@ -109,12 +109,12 @@ export default function CryptoForm({
           <CryptoFormInstructions price={price} />
           <CryptoFormWalletConnect
             address={address}
-            setStatus={setStatus}
+            handlePurchase={handlePurchase}
             price={price}
             release={release}
             setError={setError}
-            setTransfer={setTransfer}
-            transfer={transfer}
+            setLoadingText={setLoadingText}
+            setStatus={setStatus}
           />
           <hr />
         </>
@@ -129,7 +129,7 @@ export default function CryptoForm({
       {!isAuctionActive ? (
         <Button
           className={css.checkForTransfer}
-          disabled={!!transfer || isLoading}
+          disabled={isLoading}
           fullWidth
           onClick={handleCheckForPurchase}
           type="button"
