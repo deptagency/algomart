@@ -86,13 +86,35 @@ export default function CheckoutMethodPage({
 export const getServerSideProps: GetServerSideProps<
   CheckoutMethodPageProps
 > = async (context) => {
+  const params = context.params
   // Verify authentication
   const user = await getAuthenticatedUser(context)
   if (!user) {
     return handleUnauthenticatedRedirect(context.resolvedUrl)
   }
 
-  if (!Environment.isWireEnabled && !Environment.isCryptoEnabled) {
+  // Redirect to checkout page to select method if the method isn't recognized
+  if (
+    params?.method &&
+    !Object.values(CheckoutMethod).includes(params.method as CheckoutMethod)
+  ) {
+    return {
+      redirect: {
+        destination: urls.checkoutPack.replace(
+          ':packSlug',
+          context?.params?.packSlug as string
+        ),
+        permanent: false,
+      },
+    }
+  }
+
+  // Redirect to card payment flow if feature flags aren't present
+  if (
+    !Environment.isWireEnabled &&
+    !Environment.isCryptoEnabled &&
+    params?.method !== CheckoutMethod.card
+  ) {
     return {
       redirect: {
         destination: urls.checkoutPackWithMethod
@@ -103,7 +125,7 @@ export const getServerSideProps: GetServerSideProps<
     }
   }
 
-  const params = context.params
+  // Find pack templates
   const { packs: packTemplates } = await ApiClient.instance.getPublishedPacks({
     locale: context.locale,
     slug: params?.packSlug as string,

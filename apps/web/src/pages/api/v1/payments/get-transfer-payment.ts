@@ -1,4 +1,4 @@
-import { BadRequest, NotFound } from 'http-errors'
+import { BadRequest } from 'http-errors'
 import { NextApiResponse } from 'next'
 
 import { ApiClient } from '@/clients/api-client'
