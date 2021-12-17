@@ -138,8 +138,13 @@ export function usePaymentProvider({
 
   const handleSetStatus = useCallback(
     (status: CheckoutStatus.form | CheckoutStatus.summary) => {
+      setStatus(status)
       const step = status === CheckoutStatus.form ? 'details' : 'summary'
-      return push(`${asPath.split('?')[0]}?step=${step}`)
+      const path = `${asPath.split('?')[0]}?step=${step}`
+      if (path !== asPath) {
+        return push(`${asPath.split('?')[0]}?step=${step}`)
+      }
+      return
     },
     [asPath, push]
   )

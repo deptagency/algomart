@@ -146,6 +146,7 @@ export default function CryptoFormWalletConnect({
     price,
     release?.templateId,
     setError,
+    setLoadingText,
     setStatus,
     t,
   ])
