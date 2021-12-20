@@ -1,6 +1,6 @@
 .sectionTitle {
   /* Base */
-  @apply mt-8 mb-5 text-center underline;
+  @apply mt-8 mb-5 text-center text-3xl text-blue-400;
   /* Tablet */
   @apply sm:mt-16 sm:mb-6;
 }

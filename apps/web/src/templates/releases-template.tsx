@@ -6,7 +6,7 @@ import css from './releases-template.module.css'
 
 import AlertMessage from '@/components/alert-message/alert-message'
 import AppLink from '@/components/app-link/app-link'
-import Grid from '@/components/grid/grid'
+// import Grid from '@/components/grid/grid'
 import Loading from '@/components/loading/loading'
 import Pagination from '@/components/pagination/pagination'
 import ReleaseFilterPrice from '@/components/releases/release-filter-price'
@@ -69,7 +69,7 @@ export default function ReleasesTemplate({
         ) : (
           <section className={css.gridColumn}>
             <>
-              <Grid columns={4}>
+              <div className="grid items-start flex-1 grid-cols-1 gap-8 auto-rows-max lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
                 {packs.map((pack) => (
                   <AppLink
                     className={css.gridItem}
@@ -79,7 +79,7 @@ export default function ReleasesTemplate({
                     <ReleaseItem pack={pack} />
                   </AppLink>
                 ))}
-              </Grid>
+              </div>
               <div className={css.paginationWrapper}>
                 <Pagination
                   currentPage={state.currentPage}

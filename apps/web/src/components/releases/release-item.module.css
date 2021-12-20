@@ -1,5 +1,7 @@
 .root {
-  @apply relative flex flex-col h-full overflow-hidden text-center rounded-md shadow-large;
+  @apply relative flex flex-col h-full overflow-hidden text-center rounded-xl shadow-large bg-blue-1000 pb-3;
+
+  filter: drop-shadow(0 0 0.3rem #6dfeff);
 }
 
 .imageWrapper {
@@ -15,7 +17,7 @@
 }
 
 .metadata {
-  @apply grid grid-cols-2;
+  @apply grid grid-cols-2 px-4;
   gap: 1px;
 }
 
@@ -28,9 +30,9 @@
 }
 
 .metadataLabel {
-  @apply font-poppins font-medium text-base text-left mr-2 text-gray-50 overflow-ellipsis overflow-hidden;
+  @apply font-poppins font-medium text-base text-left text-gray-50 overflow-ellipsis overflow-hidden;
 }
 
 .metadataValue {
-  @apply font-poppins text-green-600 font-bold text-xs p-1 border-2 border-green-600 rounded max-h-7;
+  @apply font-poppins text-blue-600 font-bold text-xs p-1 border-2 border-blue-600 rounded max-h-7 mt-3 w-max;
 }

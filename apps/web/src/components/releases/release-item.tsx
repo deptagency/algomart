@@ -41,7 +41,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
       {/* Metadata for active auction pack */}
       {pack.type === PackType.Auction && pack.status === PackStatus.Active && (
         <div className={css.metadata}>
-          <div>
+          <div className="flex flex-col">
             <div className={css.metadataLabel}>
               {reserveMet
                 ? t('release:Current Bid')
@@ -53,7 +53,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
                 : t('release:Not Met')}
             </div>
           </div>
-          <div>
+          <div className="flex flex-col">
             <div className={css.metadataLabel}>{t('release:Ending In')}</div>
             <div className={css.metadataValue}>
               <Counter
@@ -68,7 +68,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
       {/* Metadata for expired auction pack */}
       {pack.type === PackType.Auction && pack.status === PackStatus.Expired && (
         <div className={css.metadata}>
-          <div>
+          <div className="flex flex-col">
             <div className={css.metadataLabel}>
               {reserveMet
                 ? t('release:Winning Bid')
@@ -80,7 +80,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
                 : t('release:Not Met')}
             </div>
           </div>
-          <div>
+          <div className="flex flex-col">
             <div className={css.metadataLabel}>{t('release:Auction Has')}</div>
             <div className={css.metadataValue}>{t('release:Ended')}</div>
           </div>
@@ -90,7 +90,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
       {/* Metadata for upcoming auction pack */}
       {pack.type === PackType.Auction && pack.status === PackStatus.Upcoming && (
         <div className={clsx(css.metadata, css.full)}>
-          <div>
+          <div className="flex flex-col">
             <div className={css.metadataLabel}>{t('release:Starting In')}</div>
             <div className={css.metadataValue}>
               <Counter
@@ -107,15 +107,15 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
         // Purchase Data
         <div>
           <div className={clsx(css.metadata, css.full)}>
-            <div>
+            <div className="flex flex-col">
               <div className={css.metadataLabel}>{pack.title}</div>
               <div className={css.metadataValue}>
                 {formatCurrency(pack.price, locale)}
               </div>
             </div>
           </div>
-          <div className="text-right mt-4">
-              <span className="font-poppins text-sm text-gray-50">
+          <div className="text-right mt-4 px-4">
+              <span className="font-poppins text-sm text-green-600">
                 {t('release:N of N', {
                   available: pack.available,
                   total: pack.total,
@@ -129,7 +129,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
       {/* Metadata for free pack */}
       {pack.type === PackType.Free && (
         <div className={clsx(css.metadata, css.full)}>
-          <div>
+          <div className="flex flex-col">
             <div className={css.metadataLabel}>
               {pack.title}
             </div>
@@ -141,7 +141,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
       {/* Metadata for redeemable pack */}
       {pack.type === PackType.Redeem && (
         <div className={clsx(css.metadata, css.full)}>
-          <div>
+          <div className="flex flex-col">
             <div className={css.metadataLabel}>
               {pack.title}
             </div>

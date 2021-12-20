@@ -1,6 +1,6 @@
 .root {
   /* Base */
-  @apply mt-20;
+  /* @apply mt-20; */
   /* Tablet + */
-  @apply md:mt-5;
+  /* @apply md:mt-5; */
 }

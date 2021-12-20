@@ -38,7 +38,7 @@ export default function Logo({
     image
   ) : (
     <AppLink className={clsx(css.link, linkClassName)} href="/">
-      <div className="h-12 w-32 relative">{image}</div>
+      <div className="h-8 w-32 relative">{image}</div>
     </AppLink>
   )
 }
