@@ -157,9 +157,36 @@
         "1": "1. Click to connect and scan the QR code using your wallet's mobile app, OR copy the blockchain address to your clipboard.",
         "2": "2. Initiate the purchase, either by clicking the Purchase button or manually transferring funds to the copied address. Submit your payment of {{price}} in USDC.",
         "3": "3. Check for payment.",
-        "4": "4. Once we receive your payment, you will get an email with a link to claim your NFT."
+        "4": "4. Once we receive your payment, you will be the new owner of the NFT."
       },
-      "Connected account": "Connected account"
+      "Connected account": "Connected account",
+      "walletInstructions": {
+        "label": "Wallet Instructions",
+        "createWallet": {
+          "label": "Create a Wallet",
+          "link": "Tutorial on creating a new account",
+          "1": "Install Algorand Wallet on your mobile device",
+          "2": "Create a new account with Algorand Wallet",
+          "3": "Add USDC by clicking Add new asset and searching for USDC"
+        },
+        "purchaseAlgos": {
+          "label": "Purchase ALGOs",
+          "link": "Tutorial on transferring cryptocurrency using Coinbase",
+          "notice": "Note: Fees are added during the swap",
+          "1": "Sign up for a Coinbase account",
+          "2": "Purchase ALGOs from Coinbase",
+          "3": "Transfer ALGOs to your Algorand wallet"
+        },
+        "swapAlgos": {
+          "label": "Swap ALGOs for USDC-A",
+          "link": "Visit Tinyman",
+          "notice": "Beware of extra fees and slippage! Wallet needs to have enough to cover the item cost + fees.",
+          "1": "Go to Tinyman",
+          "2": "Select ALGOs as From and USDC as To",
+          "3": "Connect to your wallet",
+          "4": "Initiate the swap"
+        }
+      }
     },
     "price": {
       "label": "Price"

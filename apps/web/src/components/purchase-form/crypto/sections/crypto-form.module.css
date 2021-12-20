@@ -102,3 +102,7 @@
 .noAddress p {
   @apply mb-10;
 }
+
+.openButton {
+  @apply font-normal ml-1 p-0 text-base underline;
+}

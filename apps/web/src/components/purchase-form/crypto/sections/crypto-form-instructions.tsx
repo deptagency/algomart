@@ -1,9 +1,11 @@
 import useTranslation from 'next-translate/useTranslation'
+import { useCallback, useState } from 'react'
 
 import css from './crypto-form.module.css'
 
-import AppLink from '@/components/app-link/app-link'
+import Button from '@/components/button'
 import Heading from '@/components/heading'
+import WalletInstructionsModal from '@/components/modals/wallet-instructions'
 import { formatCurrency } from '@/utils/format-currency'
 
 export interface CryptoFormInstructionsProps {
@@ -14,6 +16,15 @@ export default function CryptoFormInstructions({
   price,
 }: CryptoFormInstructionsProps) {
   const { t, lang } = useTranslation()
+  const [open, setOpen] = useState(false)
+
+  const onClose = useCallback(() => {
+    setOpen(false)
+  }, [])
+
+  const onOpen = useCallback(() => {
+    setOpen(true)
+  }, [])
   return (
     <>
       <div className={css.information}>
@@ -26,9 +37,13 @@ export default function CryptoFormInstructions({
           </span>
           <span>
             {t('forms:fields.payWithCrypto.tutorial.text')}
-            <AppLink href="#">
-              {t('forms:fields.payWithCrypto.tutorial.hyperlink')}
-            </AppLink>
+            <Button
+              className={css.openButton}
+              onClick={onOpen}
+              variant="tertiary"
+            >
+              {t('forms:fields.payWithCrypto.tutorial.hyperlink')}.
+            </Button>
           </span>
         </p>
       </div>
@@ -48,6 +63,7 @@ export default function CryptoFormInstructions({
         </ol>
         <hr className={css.separator} />
       </div>
+      <WalletInstructionsModal onClose={onClose} open={open} />
     </>
   )
 }

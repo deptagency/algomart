@@ -1,0 +1,35 @@
+.container {
+  @apply px-4 pt-4 pb-20;
+}
+
+.dialog {
+  @apply bg-white relative w-full max-w-lg my-8 overflow-visible sm:w-full;
+}
+
+.root {
+  @apply flex flex-col justify-start h-full px-8 sm:px-16;
+}
+
+.heading {
+  @apply mb-5;
+}
+
+.notice {
+  @apply italic mt-1;
+}
+
+.closeButton {
+  @apply absolute top-0 right-0 z-50 text-sm border-none rounded-sm bg-none;
+}
+
+.list {
+  @apply mt-2 text-left;
+}
+
+.section {
+  @apply py-5;
+}
+
+.link {
+  @apply block pt-2 underline;
+}
