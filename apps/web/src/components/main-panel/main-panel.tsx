@@ -21,6 +21,7 @@ export default function MainPanel({
   return (
     <main
       className={clsx(
+        css.root,
         {
           [css.rootNoPanel]: noPanel,
           [css.rootPanel]: !noPanel,

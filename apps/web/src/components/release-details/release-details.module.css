@@ -1,6 +1,12 @@
 .root {
+  width: 50%;
   /* Tablet + */
   /* @apply md:border; */
+}
+@media only screen and (max-width: 768px) {
+  .root {
+    width: 100%;
+  }
 }
 
 .header {

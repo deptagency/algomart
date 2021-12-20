@@ -1,6 +1,6 @@
 .root {
   /* Base */
-  @apply sticky top-0 z-20 w-full bg-white shadow-medium;
+  @apply fixed top-0 z-20 w-full bg-blue-1000 shadow-medium;
   /* Tablet + */
   @apply md:bg-transparent md:pt-4 md:relative md:shadow-none;
 }
@@ -45,10 +45,10 @@
 
 .mainNav {
   /* Base */
-  @apply absolute left-0 w-full h-full px-10 pt-6 border-base-gray-bg border-t-1;
+  @apply absolute left-0 w-full h-full px-10 pt-6;
   top: 68px;
   /* Tablet + */
-  @apply md:border-0 md:col-span-2 md:grid md:grid-cols-2 md:h-auto md:justify-center md:overflow-hidden md:p-0 md:relative md:text-center md:top-0 md:w-auto;
+  @apply md:col-span-2 md:grid md:grid-cols-2 md:h-auto md:justify-center md:overflow-hidden md:p-0 md:relative md:text-center md:top-0 md:w-auto;
 }
 
 .mainNavHidden {
@@ -60,20 +60,18 @@
 
 .mainNavLink {
   /* Base */
-  @apply block py-3 text-3xl font-bold transition duration-300 border-t focus:outline-none border-t-base-gray-border text-base-gray-text hover:text-base-gray-dark;
+  @apply block py-3 text-3xl font-bold transition duration-300 focus:outline-none text-base-gray-text hover:text-base-gray-dark;
   /* Tablet + */
-  @apply md:border-b-6 md:border-blue-600 md:border-opacity-0 md:border-t-0 md:inline md:no-underline md:p-2 md:text-base md:focus:border-opacity-50 md:hover:border-opacity-50 md:hover:text-base-gray-text;
+  @apply md:inline md:no-underline md:p-2 md:text-base md:hover:text-base-gray-text;
 }
 
-.mainNavLink:first-child {
-  border-top: none;
+.mainNavLink:hover {
+  @apply text-blue-600;
 }
 
 .mainNavLink.mainNavLinkActive {
   /* Base */
   @apply text-blue-600;
-  /* Tablet + */
-  @apply md:border-opacity-100 md:text-base-gray-text;
 }
 
 .utilityNav {
