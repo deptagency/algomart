@@ -128,13 +128,10 @@ async function seed (token, brandId) {
  
        item.preview_image = previewImage.id
        item.homepage = isNotable ? homepage.id : null
-       item.brand = brandId
 
        return item
      })
    )
-
-   console.log('collectibleFactories', collectibleFactories)
  
    // Directus only supports 100 items per batch, so split them up into groups of 100
    const collectibles = []
@@ -149,7 +146,7 @@ async function seed (token, brandId) {
        collectibles.push(...collectibleGroup)
      })
    )
- 
+
    /**
     * Create N packs, each with numCollectiblesPerPack (where N = numCollectibles / numCollectiblesPerPack).
     * This distributes all of the collectibles evenly across packs.
@@ -179,7 +176,8 @@ async function seed (token, brandId) {
        })
  
        pack.pack_image = packImage.id
- 
+       pack.brand = brandId
+
        return pack
      })
    )
@@ -304,7 +302,6 @@ async function main(args) {
     CASCADE`)
 
   console.time('Seed database')
-  console.log('createBrands', createBrands)
   if (createBrands === 'y') {
     const brandFactories = await Factory.buildList('brand', numBrands)
     const brands = await createEntityRecords('brands', brandFactories, token)

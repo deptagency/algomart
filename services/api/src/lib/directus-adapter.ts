@@ -72,6 +72,7 @@ export interface DirectusBrand {
   logo: string | DirectusFile | null
   banner: string | DirectusFile | null
   translations: DirectusBrandTranslation[]
+  pack_templates: DirectusPackTemplate[]
 }
 
 export interface DirectusRarity {

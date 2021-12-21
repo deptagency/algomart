@@ -23,7 +23,7 @@ module.exports = {
         table.string('name').notNullable()
       })
 
-    await knex.schema.alterTable('nft_templates', (table) => {
+    await knex.schema.alterTable('pack_templates', (table) => {
       table.uuid('brand').references('id').inTable('brands')
     })
 
@@ -76,7 +76,7 @@ module.exports = {
       },
       {
         collection: 'brands',
-        field: 'nft_templates',
+        field: 'pack_templates',
         special: 'o2m',
         interface: 'list-o2m',
         options: {
@@ -85,7 +85,7 @@ module.exports = {
           template: '{{unique_code}}',
         },
         translations: JSON.stringify([
-          { language: 'en-US', translation: 'NFT Templates' },
+          { language: 'en-US', translation: 'Pack Templates' },
         ]),
       },
       {
@@ -201,7 +201,7 @@ module.exports = {
       },
       // NFT Templates Fields
       {
-        collection: 'nft_templates',
+        collection: 'pack_templates',
         field: 'brand',
         special: 'm2o',
         interface: 'select-dropdown-m2o',
@@ -237,10 +237,10 @@ module.exports = {
         junction_field: 'brands_id',
       },
       {
-        many_collection: 'nft_templates',
+        many_collection: 'pack_templates',
         many_field: 'brand',
         one_collection: 'brands',
-        one_field: 'nft_templates',
+        one_field: 'pack_templates',
       },
     ])
   },
@@ -252,14 +252,18 @@ module.exports = {
     await knex('directus_collections')
       .whereIn('collection', ['brands', 'brands_translations'])
       .delete()
-    await knex.schema.alterTable('nft_templates', (table) => {
+    await knex.schema.alterTable('pack_templates', (table) => {
       table.dropColumn('brand')
     })
     await knex('directus_fields')
       .whereIn('collection', ['brands', 'brands_translations'])
       .delete()
+    await knex('directus_fields').whereIn('field', ['brand']).delete()
     await knex('directus_relations')
       .whereIn('many_collection', ['brands', 'brands_translations'])
+      .delete()
+    await knex('directus_relations')
+      .whereIn('one_collection', ['brands'])
       .delete()
     await knex.schema
       .dropTableIfExists('brands_translations')

@@ -34,6 +34,15 @@ export default function Home({ page }: HomeProps) {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const brands = await ApiClient.instance.getBrands()
+  if (brands.total) {
+    return {
+      redirect: {
+        permanent: true,
+        destination: '/brands',
+      },
+    }
+  }
   return {
     props: {
       page: await ApiClient.instance.getHomepage(
