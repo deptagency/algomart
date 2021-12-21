@@ -500,7 +500,7 @@ export default class PaymentsService {
 
     userInvariant(transferDetails.transferId, 'transfer ID not provided', 400)
 
-    const { packId } = await this.selectPackAndAssignToUser(
+    const { packId, price } = await this.selectPackAndAssignToUser(
       transferDetails.packTemplateId,
       user.id,
       trx
@@ -512,6 +512,18 @@ export default class PaymentsService {
     )
     userInvariant(transfer, 'transfer not found', 404)
 
+    // Retrieve exchange rates for app currency and USD
+    const exchangeRates = await this.coinbase.getExchangeRates({
+      currency: currency.code,
+    })
+    invariant(exchangeRates, 'unable to find exchange rates')
+
+    // Check transfer amount
+    const amount = convertFromUSD(transfer.amount, exchangeRates.rates)
+    invariant(amount !== null, 'unable to convert to currency')
+    const amountInt = formatFloatToInt(amount)
+    const status = amountInt === price ? transfer.status : PaymentStatus.Failed
+
     // Create new payment in database
     const newPayment = await PaymentModel.query(trx).insert({
       externalId: null,
@@ -519,7 +531,7 @@ export default class PaymentsService {
       packId: packId,
       paymentCardId: null,
       paymentBankId: null,
-      status: transfer?.status ? transfer.status : PaymentStatus.Pending,
+      status: transfer?.status ? status : PaymentStatus.Pending,
       transferId: transfer?.externalId ? transfer.externalId : null,
       destinationAddress: transferDetails.destinationAddress,
     })
@@ -596,30 +608,6 @@ export default class PaymentsService {
         externalId: sourcePayment.externalId,
         status: sourcePayment.status,
       })
-    }
-    // If the payment status is resolved as failed:
-    if (payment.status === PaymentStatus.Failed) {
-      await this.packs.claimPack(
-        {
-          packId: payment.packId,
-          claimedAt: null,
-          claimedById: null,
-          ownerId: null,
-        },
-        trx
-      )
-    }
-    // If the payment status is resolved as paid:
-    if (payment.status === PaymentStatus.Paid) {
-      await this.packs.claimPack(
-        {
-          packId: payment.packId,
-          claimedAt: new Date().toISOString(),
-          claimedById: payment.payerId,
-          ownerId: payment.payerId,
-        },
-        trx
-      )
     }
     return sourcePayment
   }
@@ -735,8 +723,9 @@ export default class PaymentsService {
     await Promise.all(
       pendingPayments.map(async (payment) => {
         let status: PaymentStatus | null = null
-        // Card flow
+        // Card flow:
         if (payment.externalId && payment.paymentCardId) {
+          // Find card payment
           const circlePayment = await this.circle.getPaymentById(
             payment.externalId
           )
@@ -745,6 +734,7 @@ export default class PaymentsService {
             `external payment ${payment.externalId} not found`
           )
 
+          // Update status if needed
           if (payment.status !== circlePayment.status) {
             await PaymentModel.query(trx).patchAndFetchById(payment.id, {
               status: circlePayment.status,
@@ -753,19 +743,22 @@ export default class PaymentsService {
             updatedPayments++
           }
         }
-        // Wire transfer flow
+        // Wire transfer flow:
         else if (payment.paymentBankId) {
+          // Find matching wire payment
           const wirePayment = await this.handleWirePayment(payment, trx)
           if (wirePayment) {
             status = wirePayment.status ?? null
             updatedPayments++
           }
         }
-        // Crypto flow
+        // Crypto flow:
         else if (payment.destinationAddress) {
+          // Find transfer payment either by ID or address
           const transfer = payment.transferId
             ? await this.circle.getTransferById(payment.transferId)
             : await this.findTransferByAddress(payment.destinationAddress)
+          // If transfer was found + the status or transfer ID needs updating:
           if (
             transfer &&
             (payment.status !== transfer.status || !payment.transferId)
