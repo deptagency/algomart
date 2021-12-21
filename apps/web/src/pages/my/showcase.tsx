@@ -30,7 +30,7 @@ export default function MyShowcasePage() {
   const { data: { collectibles, total } = {} } =
     useApi<CollectibleListWithTotal>(
       user?.username
-        ? `${urls.api.v1.getAssetsByOwner}?ownerUsername=${user.username}&page=${activePage}&pageSize=${PAGE_SIZE}`
+        ? `${urls.api.v1.getAssetsByOwner}?claimedByUsername=${user.username}&page=${activePage}&pageSize=${PAGE_SIZE}`
         : null
     )
 

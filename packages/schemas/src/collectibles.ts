@@ -108,6 +108,8 @@ export const CollectibleListQuerystringSchema = Type.Intersect([
   PaginationSchema,
   LocaleSchema,
   Type.Object({
+    claimedByUsername: Type.Optional(Type.String()),
+    claimedByExternalId: Type.Optional(Type.String()),
     ownerUsername: Type.Optional(Type.String()),
     ownerExternalId: Type.Optional(Type.String()),
     sortBy: Type.Optional(

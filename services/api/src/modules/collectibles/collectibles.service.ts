@@ -485,14 +485,25 @@ export default class CollectiblesService {
     locale = DEFAULT_LOCALE,
     sortBy = CollectibleSortField.Title,
     sortDirection = SortDirection.Ascending,
+    claimedByExternalId,
+    claimedByUsername,
     ownerExternalId,
     ownerUsername,
     templateIds,
     setId,
     collectionId,
   }: CollectibleListQuerystring): Promise<CollectibleListWithTotal | null> {
-    const ownerIdentifier = ownerExternalId || ownerUsername
-    userInvariant(ownerIdentifier, 'Must specify owner')
+    let identifier: string | null = null,
+      field: string | null = null
+    if (ownerExternalId || claimedByExternalId) {
+      identifier = ownerExternalId ?? claimedByExternalId ?? null
+      field = 'externalId'
+    } else if (ownerUsername || claimedByUsername) {
+      identifier = ownerUsername ?? claimedByUsername ?? null
+      field = 'username'
+    }
+
+    userInvariant(identifier && field, 'Must specify owner')
     userInvariant(page > 0, 'page must be greater than 0')
     userInvariant(
       pageSize > 0 || pageSize === -1,
@@ -511,9 +522,8 @@ export default class CollectiblesService {
       'sortDirection must be one of asc or desc'
     )
 
-    const field = ownerUsername ? 'username' : 'externalId'
     const account = await UserAccountModel.query()
-      .findOne(field, '=', ownerIdentifier)
+      .findOne(field, '=', identifier)
       .select('id')
     userInvariant(account, 'user not found', 404)
 

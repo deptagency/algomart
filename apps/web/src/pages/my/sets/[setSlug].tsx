@@ -31,7 +31,7 @@ export default function MySetPage({ set, collection }: MySetPageProps) {
   // Fetch asset data and the set's collection
   const { data: { collectibles } = {} } = useApi<CollectibleListWithTotal>(
     user?.username
-      ? `${urls.api.v1.getAssetsByOwner}?ownerUsername=${user.username}&pageSize=-1&setId=${set.id}`
+      ? `${urls.api.v1.getAssetsByOwner}?claimedByUsername=${user.username}&pageSize=-1&setId=${set.id}`
       : null
   )
 

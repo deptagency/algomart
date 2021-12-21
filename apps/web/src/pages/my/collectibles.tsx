@@ -47,7 +47,7 @@ export default function MyCollectiblesPage() {
 
   const { data } = useApi<CollectibleListWithTotal>(
     user?.username
-      ? `${urls.api.v1.getAssetsByOwner}?ownerUsername=${user.username}&sortBy=${sortBy}&sortDirection=${sortDirection}&page=${currentPage}`
+      ? `${urls.api.v1.getAssetsByOwner}?claimedByUsername=${user.username}&sortBy=${sortBy}&sortDirection=${sortDirection}&page=${currentPage}`
       : null
   )
 

@@ -28,7 +28,7 @@ export default function MyCollectionPage({
   // Fetch asset data
   const { data: { collectibles } = {} } = useApi<CollectibleListWithTotal>(
     user?.username
-      ? `${urls.api.v1.getAssetsByOwner}?ownerUsername=${user.username}&pageSize=-1&collectionId=${collection.id}`
+      ? `${urls.api.v1.getAssetsByOwner}?claimedByUsername=${user.username}&pageSize=-1&collectionId=${collection.id}`
       : null
   )
 
