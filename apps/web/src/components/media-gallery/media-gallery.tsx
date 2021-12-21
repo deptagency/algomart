@@ -77,6 +77,7 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               className={css.contain}
               layout="fill"
               src={currentMedia}
+              objectFit="cover"
             />
           </div>
         </div>
@@ -104,6 +105,7 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                   className={clsx(css.cover, css.fullWidth, css.rounded)}
                   layout="fill"
                   src={media}
+                  objectFit="cover"
                 />
               </button>
             </li>

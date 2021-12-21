@@ -1,3 +1,5 @@
 config.*.json
 !config.example.json
 uploads/
+
+scripts/export

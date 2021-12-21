@@ -31,7 +31,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
           height={250}
           layout="responsive"
           loader={cmsImageLoader}
-          objectFit="contain"
+          objectFit="cover"
           src={pack.image}
           width={250}
         />

@@ -10,6 +10,11 @@ import {
   SortDirection,
 } from './shared'
 
+export enum IPFSStatus {
+  Pending = 'pending',
+  Stored = 'stored',
+}
+
 export const CollectibleSchema = Type.Intersect([
   BaseSchema,
   Type.Object({
@@ -26,6 +31,9 @@ export const CollectibleSchema = Type.Intersect([
     packId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
     redemptionCode: Type.Optional(Nullable(Type.String())),
     templateId: Type.String({ format: 'uuid' }),
+    assetMetadataHash: Type.Optional(Nullable(Type.String())),
+    assetUrl: Type.Optional(Nullable(Type.String())),
+    ipfsStatus: Type.Optional(Nullable(Type.Enum(IPFSStatus))),
   }),
 ])
 
@@ -39,6 +47,8 @@ export const CollectibleBaseSchema = Type.Object({
   templateId: Type.String({ format: 'uuid' }),
   image: Type.String({ format: 'uri' }),
   previewVideo: Type.Optional(Type.String({ format: 'uri' })),
+  previewAudio: Type.Optional(Type.String({ format: 'uri' })),
+  assetFile: Type.Optional(Type.String({ format: 'uri' })),
   totalEditions: Type.Number(),
   title: Type.String(),
   subtitle: Type.Optional(Type.String()),
@@ -80,6 +90,19 @@ export enum CollectibleSortField {
   ClaimedAt = 'claimedAt',
   Title = 'title',
 }
+
+export const CollectiblesByAlgoAddressQuerystringSchema = Type.Intersect([
+  LocaleSchema,
+  PaginationSchema,
+  Type.Object({
+    sortBy: Type.Optional(
+      Type.Enum(CollectibleSortField, { default: CollectibleSortField.Title })
+    ),
+    sortDirection: Type.Optional(
+      Type.Enum(SortDirection, { default: SortDirection.Ascending })
+    ),
+  }),
+])
 
 export const CollectibleListQuerystringSchema = Type.Intersect([
   PaginationSchema,
@@ -133,6 +156,9 @@ export type CollectibleBase = Simplify<Static<typeof CollectibleBaseSchema>>
 export type CollectibleRarity = Simplify<Static<typeof CollectibleRaritySchema>>
 export type CollectibleWithDetails = Simplify<
   Static<typeof CollectibleWithDetailsSchema>
+>
+export type CollectiblesByAlgoAddressQuerystring = Simplify<
+  Static<typeof CollectiblesByAlgoAddressQuerystringSchema>
 >
 export type CollectibleListQuerystring = Simplify<
   Static<typeof CollectibleListQuerystringSchema>

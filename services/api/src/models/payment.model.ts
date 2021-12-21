@@ -11,11 +11,12 @@ export class PaymentModel extends BaseModel {
 
   payerId!: string
   packId!: string | null
-  externalId!: string
-  paymentCardId!: string | null
+  paymentCardId?: string | null
+  externalId!: string | null
   status!: PaymentStatus | null
   error!: string | null
 
+  paymentBankId?: string | null
   payer?: UserAccountModel
   pack?: PackModel
 

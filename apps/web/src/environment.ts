@@ -64,4 +64,9 @@ export const Environment = {
     )
     return Currencies[code as keyof typeof Currencies]
   },
+
+  get isWireEnabled() {
+    const isEnabled = this.config('NEXT_PUBLIC_WIRE_PAYMENT_ENABLED', '')
+    return isEnabled.toLowerCase() === 'true'
+  },
 }

@@ -127,8 +127,9 @@ dist
 cypress/screenshots/
 
 # lockfile
-# package-lock.json
 yarn.lock
+# packages should always be installed from the root of the mono repo
+**/package-lock.json
 
 .vercel
 

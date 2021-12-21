@@ -102,7 +102,8 @@ export default function ClaimNFTModal({
               className={css.image}
               height={140}
               width={140}
-              src={`${packTemplate.image}?fit=contain&height=140&width=140&quality=75`}
+              objectFit="cover"
+              src={`${packTemplate.image}?fit=contain&width=240&quality=75`}
             />
           </div>
           <Button
@@ -175,7 +176,9 @@ export default function ClaimNFTModal({
               {t('common:statuses.Success!')}
             </h3>
             <p className={css.statusMessage}>
-              {t('release:successConfirmation', { name: packTemplate.title })}
+              {t('release:successOwnershipConfirmation', {
+                name: packTemplate.title,
+              })}
             </p>
             <Button
               className={css.button}

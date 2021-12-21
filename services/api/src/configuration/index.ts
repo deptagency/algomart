@@ -2,6 +2,8 @@ import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import * as Currencies from '@dinero.js/currencies'
 import env from 'env-var'
 
+import { MailerAdapterOptions } from '../lib/mailer-adapter'
+
 export const Configuration = {
   get env() {
     return env.get('NODE_ENV').default('development').asString()
@@ -52,6 +54,14 @@ export const Configuration = {
     return env.get('ALGOD_PORT').default('4001').asPortNumber()
   },
 
+  get algodEnv() {
+    return env
+      .get('ALGOD_ENV')
+      .required()
+      .default('testnet')
+      .asEnum(['betanet', 'testnet', 'mainnet'])
+  },
+
   get databaseUrl() {
     return env
       .get('DATABASE_URL')
@@ -85,20 +95,12 @@ export const Configuration = {
     return env.get('WEB_URL').default('http://localhost:3000').asUrlString()
   },
 
-  get sendgridApiKey() {
-    return env
-      .get('SENDGRID_API_KEY')
-      .default(
-        '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'
-      )
-      .asString()
+  get pinataApiKey() {
+    return env.get('PINATA_API_KEY').default('').asString()
   },
 
-  get sendgridFromEmail() {
-    return env
-      .get('SENDGRID_FROM_EMAIL')
-      .default('jake@rocketinsights.com')
-      .asString()
+  get pinataApiSecret() {
+    return env.get('PINATA_API_SECRET').default('').asString()
   },
 
   get creatorPassphrase() {
@@ -132,5 +134,32 @@ export const Configuration = {
       .default(DEFAULT_CURRENCY)
       .asEnum(Object.keys(Currencies))
     return Currencies[code as keyof typeof Currencies]
+  },
+
+  get mailer(): MailerAdapterOptions {
+    const emailFrom =
+      env.get('EMAIL_FROM').default('').asString() ||
+      env.get('SENDGRID_FROM_EMAIL').default('').asString()
+    const emailName = env.get('EMAIL_NAME').default('AlgoMart').asString()
+    const emailTransport = env
+      .get('EMAIL_TRANSPORT')
+      .required()
+      .asEnum(['smtp', 'sendgrid'])
+    const smtpHost = env.get('SMTP_HOST').default('').asString()
+    const smtpPort = env.get('SMTP_PORT').default(1).asPortNumber()
+    const smtpUser = env.get('SMTP_USER').default('').asString()
+    const smtpPassword = env.get('SMTP_PASSWORD').default('').asString()
+    const sendGridApiKey = env.get('SENDGRID_API_KEY').default('').asString()
+
+    return {
+      emailFrom,
+      emailName,
+      emailTransport,
+      smtpHost,
+      smtpPort,
+      smtpUser,
+      smtpPassword,
+      sendGridApiKey,
+    }
   },
 }

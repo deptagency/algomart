@@ -20,6 +20,7 @@ export enum NotificationType {
   TransferSuccess = 'tranfer-success',
   UserHighBid = 'user-high-bid',
   UserOutbid = 'user-outbid',
+  WireInstructions = 'wire-instructions',
 }
 
 export const CreateNotificationSchema = Type.Intersect([

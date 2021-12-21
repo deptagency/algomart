@@ -51,6 +51,11 @@ resource "google_cloud_run_service" "api" {
         image = var.api_image
 
         env {
+          name  = "ALGOD_ENV"
+          value = var.algod_env
+        }
+
+        env {
           name  = "ALGOD_SERVER"
           value = var.algod_host
         }
@@ -125,13 +130,53 @@ resource "google_cloud_run_service" "api" {
         }
 
         env {
-          name  = "SENDGRID_API_KEY"
-          value = var.sendgrid_key
+          name  = "PINATA_API_KEY"
+          value = var.pinata_api_key
         }
 
         env {
-          name  = "SENDGRID_FROM_EMAIL"
-          value = var.sendgrid_from_email
+          name  = "PINATA_API_SECRET"
+          value = var.pinata_api_secret
+        }
+
+        env {
+          name  = "SENDGRID_API_KEY"
+          value = var.sendgrid_api_key
+        }
+
+        env {
+          name  = "EMAIL_FROM"
+          value = var.email_from
+        }
+
+        env {
+          name  = "EMAIL_TRANSPORT"
+          value = var.email_transport
+        }
+
+        env {
+          name  = "EMAIL_NAME"
+          value = var.email_name
+        }
+
+        env {
+          name  = "SMTP_HOST"
+          value = var.smtp_host
+        }
+
+        env {
+          name  = "SMTP_PORT"
+          value = var.smtp_port
+        }
+
+        env {
+          name  = "SMTP_USER"
+          value = var.smtp_user
+        }
+
+        env {
+          name  = "SMTP_PASSWORD"
+          value = var.smtp_password
         }
 
         env {
