@@ -1,6 +1,5 @@
 import {
   ClaimFreePackSchema,
-  ClaimPackSchema,
   ClaimRedeemPackSchema,
   LocaleAndExternalIdSchema,
   LocaleSchema,
@@ -25,7 +24,6 @@ import { FastifyInstance } from 'fastify'
 import fastifyBearerAuth from 'fastify-bearer-auth'
 
 import {
-  claimPack,
   claimRandomFreePack,
   claimRedeemPack,
   getAuctionPackByTemplateId,
@@ -138,23 +136,6 @@ export async function packsRoutes(app: FastifyInstance) {
       },
     },
     getRedeemablePack
-  )
-
-  app.post(
-    '/claim',
-    {
-      transact: true,
-      schema: {
-        tags,
-        security,
-        body: ClaimPackSchema,
-        description: 'Used to claim purchasable and auction packs.',
-        response: {
-          200: Type.Object({ pack: PackWithIdSchema }),
-        },
-      },
-    },
-    claimPack
   )
 
   app.post(

@@ -75,6 +75,7 @@ export const ClaimRedeemPackSchema = Type.Intersect([
 
 export const ClaimPackSchema = Type.Object({
   packId: IdSchema,
+  ownerId: Type.Optional(Nullable(IdSchema)),
   claimedById: Type.Optional(Nullable(IdSchema)),
   claimedAt: Type.Optional(Nullable(Type.String({ format: 'date-time' }))),
 })
@@ -195,6 +196,7 @@ export const PackSchema = Type.Intersect([
   Type.Object({
     activeBidId: Type.Optional(Nullable(IdSchema)),
     claimedAt: Type.Optional(Nullable(Type.String({ format: 'date-time' }))),
+    claimedById: Type.Optional(Nullable(IdSchema)),
     expiresAt: Type.Optional(Nullable(Type.String({ format: 'date-time' }))),
     ownerId: Type.Optional(Nullable(IdSchema)),
     redeemCode: Type.Optional(Nullable(Type.String())),

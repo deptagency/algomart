@@ -330,10 +330,6 @@ export class ApiClient {
       .json<{ pack: PackWithId }>()
   }
 
-  async claimPack(json: ClaimPack) {
-    return await this.http.post('packs/claim', { json }).json<PackWithId>()
-  }
-
   async claimFreePack(json: ClaimFreePack) {
     return await this.http
       .post('packs/claim/free', { json })

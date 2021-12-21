@@ -229,6 +229,7 @@ export default class PaymentsService {
           packId,
           claimedById: null,
           claimedAt: null,
+          ownerId: null,
         },
         trx
       )
@@ -371,6 +372,7 @@ export default class PaymentsService {
         packId: randomPack.id,
         claimedById: userId,
         claimedAt: new Date().toISOString(),
+        ownerId: null,
       },
       trx
     )
@@ -402,13 +404,8 @@ export default class PaymentsService {
       verification,
       description,
     } = paymentDetails
-    if (keyId) {
-      Object.assign(encryptedDetails, { keyId })
-    }
-
-    if (encryptedData) {
-      Object.assign(encryptedDetails, { encryptedData })
-    }
+    if (keyId) Object.assign(encryptedDetails, { keyId })
+    if (encryptedData) Object.assign(encryptedDetails, { encryptedData })
 
     // Attempt to find card (cardId could be source or db ID)
     const card = await PaymentCardModel.query(trx).findById(cardId)
@@ -438,6 +435,7 @@ export default class PaymentsService {
           packId,
           claimedById: null,
           claimedAt: null,
+          ownerId: null,
         },
         trx
       )
@@ -599,13 +597,29 @@ export default class PaymentsService {
         status: sourcePayment.status,
       })
     }
-    // Remove claim from pack if payment fails
-    if (sourcePayment.status === PaymentStatus.Failed) {
-      // @TODO: Take action if payment fails
+    // If the payment status is resolved as failed:
+    if (payment.status === PaymentStatus.Failed) {
+      await this.packs.claimPack(
+        {
+          packId: payment.packId,
+          claimedAt: null,
+          claimedById: null,
+          ownerId: null,
+        },
+        trx
+      )
     }
-    // If status is paid and therefore the payment has settled:
-    if (sourcePayment.status === PaymentStatus.Paid) {
-      // @TODO: Take action. How to handle if pack is already minted?
+    // If the payment status is resolved as paid:
+    if (payment.status === PaymentStatus.Paid) {
+      await this.packs.claimPack(
+        {
+          packId: payment.packId,
+          claimedAt: new Date().toISOString(),
+          claimedById: payment.payerId,
+          ownerId: payment.payerId,
+        },
+        trx
+      )
     }
     return sourcePayment
   }
@@ -720,6 +734,7 @@ export default class PaymentsService {
 
     await Promise.all(
       pendingPayments.map(async (payment) => {
+        let status: PaymentStatus | null = null
         // Card flow
         if (payment.externalId && payment.paymentCardId) {
           const circlePayment = await this.circle.getPaymentById(
@@ -734,6 +749,7 @@ export default class PaymentsService {
             await PaymentModel.query(trx).patchAndFetchById(payment.id, {
               status: circlePayment.status,
             })
+            status = circlePayment.status ?? null
             updatedPayments++
           }
         }
@@ -741,6 +757,7 @@ export default class PaymentsService {
         else if (payment.paymentBankId) {
           const wirePayment = await this.handleWirePayment(payment, trx)
           if (wirePayment) {
+            status = wirePayment.status ?? null
             updatedPayments++
           }
         }
@@ -757,8 +774,33 @@ export default class PaymentsService {
               status: transfer.status,
               transferId: transfer.externalId,
             })
+            status = transfer.status ?? null
             updatedPayments++
           }
+        }
+        // If the payment status is resolved as failed, remove pack owner:
+        if (status === PaymentStatus.Failed && payment.packId) {
+          await this.packs.claimPack(
+            {
+              packId: payment.packId,
+              claimedAt: null,
+              claimedById: null,
+              ownerId: null,
+            },
+            trx
+          )
+        }
+        // If the payment status is resolved as paid, update pack owner:
+        if (status === PaymentStatus.Paid && payment.packId) {
+          await this.packs.claimPack(
+            {
+              packId: payment.packId,
+              claimedAt: new Date().toISOString(),
+              claimedById: payment.payerId,
+              ownerId: payment.payerId,
+            },
+            trx
+          )
         }
         return
       })

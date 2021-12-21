@@ -1,6 +1,5 @@
 import {
   ClaimFreePack,
-  ClaimPack,
   ClaimRedeemPack,
   Locale,
   LocaleAndExternalId,
@@ -119,19 +118,6 @@ export async function claimRedeemPack(
     return
   }
 
-  reply.send({ pack: result })
-}
-
-export async function claimPack(
-  request: FastifyRequest<{ Body: ClaimPack }>,
-  reply: FastifyReply
-) {
-  const service = request.getContainer().get<PacksService>(PacksService.name)
-  const result = await service.claimPack(request.body, request.transaction)
-  if (!result) {
-    reply.badRequest('Unable to claim pack')
-    return
-  }
   reply.send({ pack: result })
 }
 

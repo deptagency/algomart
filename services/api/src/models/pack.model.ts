@@ -13,11 +13,13 @@ export class PackModel extends BaseModel {
   templateId!: string
   ownerId!: string | null
   claimedAt!: string | null
+  claimedById!: string | null
   redeemCode!: string | null
   activeBidId!: string | null
   expiresAt!: string | null
 
   owner?: UserAccountModel
+  claimedBy?: UserAccountModel
   collectibles?: CollectibleModel[]
   bids?: BidModel[]
   activeBid?: BidModel
@@ -28,6 +30,14 @@ export class PackModel extends BaseModel {
       modelClass: UserAccountModel,
       join: {
         from: 'Pack.ownerId',
+        to: 'UserAccount.id',
+      },
+    },
+    claimedBy: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: UserAccountModel,
+      join: {
+        from: 'Pack.claimedById',
         to: 'UserAccount.id',
       },
     },

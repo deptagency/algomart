@@ -586,6 +586,7 @@ export default class PacksService {
         templateId,
         ownerId: null,
         claimedAt: null,
+        claimedById: null,
         redeemCode: null,
       })
       // Ordering by ID will provide some randomness too since we use UUIDs
@@ -775,6 +776,7 @@ export default class PacksService {
       .patch({
         claimedAt: new Date().toISOString(),
         ownerId: user.id,
+        claimedById: user.id,
       })
       .where({ id: pack.id })
 
@@ -807,6 +809,7 @@ export default class PacksService {
       .patch({
         claimedAt: new Date().toISOString(),
         ownerId: user.id,
+        claimedById: user.id,
       })
       .where({ id: pack.id })
 
@@ -823,8 +826,9 @@ export default class PacksService {
   async claimPack(request: ClaimPack, trx?: Transaction) {
     const pack = await PackModel.query(trx)
       .patch({
-        ownerId: request.claimedById ?? null,
         claimedAt: request.claimedAt ?? null,
+        claimedById: request.claimedById ?? null,
+        ownerId: request.ownerId ?? null,
         updatedAt: new Date().toISOString(),
       })
       .where({ id: request.packId })
