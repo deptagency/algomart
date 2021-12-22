@@ -9,12 +9,13 @@ import AppLink from '@/components/app-link/app-link'
 const ImageBlack = '/images/logos/og2d-logo.png'
 const ImageGrey = '/images/logos/og2d-logo.png'
 const ImageWhite = '/images/logos/og2d-logo.png'
+const ImageSvg = '/images/logos/og2d_logo.svg'
 
 export interface LogoProps {
   className?: string
   linkClassName?: string
   isLinked?: boolean
-  color?: 'white' | 'black' | 'grey'
+  color?: 'white' | 'black' | 'grey' | 'blue'
   layout?: 'fixed' | 'intrinsic' | 'responsive'
 }
 
@@ -31,8 +32,10 @@ export default function Logo({
       <Image src={ImageGrey} {...props} objectFit="cover" layout="fill" />
     ) : color === 'white' ? (
       <Image src={ImageWhite} {...props} objectFit="cover" layout="fill" />
-    ) : (
+    ) : color === 'black' ? (
       <Image src={ImageBlack} {...props} objectFit="cover" layout="fill" />
+    ) : (
+      <Image src={ImageSvg} {...props} objectFit="cover" layout="fill" />
     )
   return !isLinked ? (
     image

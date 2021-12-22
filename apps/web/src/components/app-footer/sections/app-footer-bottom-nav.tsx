@@ -16,7 +16,7 @@ export default function AppFooterBottomNav() {
       <div className={css.bottomNavWrapper}>
         <div className={css.bottomNavLeft}>
           <Logo
-            color={'black'}
+            color={'blue'}
             className={css.bottomNavLeftImage}
             layout="fixed"
           />

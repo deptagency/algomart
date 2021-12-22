@@ -3,7 +3,7 @@
 }
 
 .imageWrapper {
-  @apply relative overflow-hidden bg-black hover:border-base-green focus:border-base-green;
+  @apply relative overflow-hidden hover:border-base-green focus:border-base-green;
 }
 
 .content {

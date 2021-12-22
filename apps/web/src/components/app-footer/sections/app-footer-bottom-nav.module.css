@@ -1,5 +1,5 @@
 .bottomNav {
-  @apply pb-8;
+  @apply pb-8 bg-gray-900;
 }
 
 .bottomNavWrapper {

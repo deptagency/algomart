@@ -1,8 +1,8 @@
 .root {
   /* Base */
-  @apply fixed top-0 z-20 w-full bg-blue-1000 shadow-medium;
+  @apply fixed top-0 z-20 w-full bg-gray-900 shadow-medium;
   /* Tablet + */
-  @apply md:bg-transparent md:relative md:shadow-none;
+  @apply md:relative md:shadow-none;
 }
 
 .rootMobileVisible {
@@ -60,18 +60,14 @@
 
 .mainNavLink {
   /* Base */
-  @apply block py-3 text-3xl font-bold transition duration-300 focus:outline-none text-base-gray-text hover:text-base-gray-dark;
+  @apply block py-3 text-3xl font-bold transition duration-300 focus:outline-none text-gray-400 hover:text-blue-800;
   /* Tablet + */
-  @apply md:inline md:no-underline md:p-2 md:text-base md:hover:text-base-gray-text;
-}
-
-.mainNavLink:hover {
-  @apply text-blue-600;
+  @apply md:inline md:no-underline md:p-2 md:text-base;
 }
 
 .mainNavLink.mainNavLinkActive {
   /* Base */
-  @apply text-blue-600;
+  @apply text-blue-800;
 }
 
 .utilityNav {

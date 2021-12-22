@@ -42,10 +42,6 @@
   filter: drop-shadow(1rem 1rem 1.5rem #01224a);
 }
 
-.featuredHeading {
-  @apply text-2xl text-center;
-}
-
 .featuredBody {
   /* Base */
   @apply text-base-gray-text;
@@ -88,9 +84,4 @@
 
 .completeSuccess {
   @apply text-green-600;
-}
-
-.featuredPrice {
-  /* Base */
-  @apply mt-4 font-bold text-center;
 }

@@ -33,7 +33,7 @@ const MarketingCardsSection = () => {
     children: any
   }) => {
     return (
-      <div className="rounded-2xl border-2 border-gray-600 space-y-6 flex flex-col justify-between px-8 py-20 items-center">
+      <div className="rounded-2xl border-2 border-gray-600 space-y-6 flex flex-col justify-between px-8 py-20 items-center hover:border-blue-800">
         <div className="bg-blue-600 rounded-full w-12 h-12 p-2.5 text-center">
           <span className="text-gray-50 text-lg font-bold font-poppins">
             {icon}
@@ -53,12 +53,12 @@ const MarketingCardsSection = () => {
     )
   }
   return (
-    <div className="w-full mx-auto mt-24">
+    <div className="w-full mx-auto">
       <div className="relative sm:overflow-hidden">
-        <div className="relative px-4 py-16 sm:px-6 sm:py-24 lg:py-32 lg:px-8">
-          <span className="mt-6 mx-auto text-center text-sm inline-block w-full text-blue-400 font-bold font-poppins uppercase">
+        <div className="relative px-4 py-12 sm:px-6 sm:py-16 lg:py-20 lg:px-8">
+          <Heading level={2} size={1} bold className="text-center text-3xl text-blue-800">
             Original 2 Digital
-          </span>
+          </Heading>
           <h1 className="mt-6 text-center text-hero font-bold text-white sm:max-w-3xl mx-auto font-dm-sans">
             <span className="block">
               Take a step beyond the noise. We’re not your typical marketplace
@@ -82,7 +82,7 @@ const MarketingCardsSection = () => {
                 <AppLink
                   href="/login"
                   key="/login"
-                  className="text-blue-400 text-sm font-poppins"
+                  className="text-blue-800 text-sm font-poppins"
                 >
                   Signup here
                 </AppLink>
@@ -96,7 +96,7 @@ const MarketingCardsSection = () => {
                 {/* Should be a link */}
                 <AppLink
                   href="/releases"
-                  className="text-blue-400 text-sm font-poppins"
+                  className="text-blue-800 text-sm font-poppins"
                   key="/releases"
                 >
                   Start searching
@@ -112,7 +112,7 @@ const MarketingCardsSection = () => {
                 <AppLink
                   href="/my/collectibles"
                   key="/my/collectibles"
-                  className="text-blue-400 text-sm font-poppins"
+                  className="text-blue-800 text-sm font-poppins"
                 >
                   View your NFTs
                 </AppLink>
@@ -124,6 +124,18 @@ const MarketingCardsSection = () => {
     </div>
   )
 }
+
+const BackgroundGrid = () => (
+  <div className='relative h-60 w-full z-10'>
+    <div className='absolute bottom-0 h-60 w-full z-10 from-gray-900 via-gray-900 to-transparent bg-gradient-to-br'></div>
+    <img
+      src="/images/backgrounds/background-grid.svg"
+      alt=""
+      className="absolute bottom-0 w-full h-full object-center object-cover"
+    />
+  </div>
+)
+
 export default function HomeTemplate({
   featuredPack,
   upcomingPacks,
@@ -147,8 +159,9 @@ export default function HomeTemplate({
 
       {upcomingPacks.length > 0 ? (
         <>
-          <div className={clsx('mx-auto max-w-7xl', css.upcomingPacks)}>
-            <Heading level={2} size={1} bold className={css.sectionTitle}>
+        <div className="bg-gray-900">
+          <div className='pt-12 pb-24 mx-auto max-w-screen-2xl px-4'>
+            <Heading level={2} size={1} bold className="text-center text-3xl text-blue-800 py-12">
               {t('release:Active & Upcoming Drops')}
             </Heading>
 
@@ -163,18 +176,21 @@ export default function HomeTemplate({
                 </AppLink>
               ))}
             </div>
-            <MarketingCardsSection />
           </div>
+        </div>
+        <div className='bg-gray-800'>
+          <MarketingCardsSection />
+        </div>
         </>
       ) : null}
 
       {notableCollectibles.length > 0 ? (
-        <>
-          <Heading level={2} size={1} bold className={css.sectionTitle}>
+        <div className='bg-gray-900 relative z-10 pb-12'>
+          <Heading level={2} size={1} bold className="text-center text-3xl text-blue-800 py-12">
             {t('release:Notable Collectibles')}
           </Heading>
 
-          <div className={clsx('mx-auto max-w-7xl', css.notableCollectibles)}>
+          <div className={clsx('mx-auto max-w-7xl z-20', css.notableCollectibles)}>
             {/* Steps cards */}
             <Grid columns={4}>
               {notableCollectibles.map((collectible) => (
@@ -185,10 +201,14 @@ export default function HomeTemplate({
               ))}
             </Grid>
           </div>
-        </>
+          <div className={clsx(css.bgGridContainer,'absolute bottom-0 right-0 w-full h-60')}>
+                <BackgroundGrid />
+          </div>
+        </div>
       ) : null}
 
-      <div className="elfsight-app-0c051f04-30ad-4b6d-bbea-c128a02cf0b0" />
+
+      <div className={clsx("elfsight-app-0c051f04-30ad-4b6d-bbea-c128a02cf0b0", css.scriptDiv)} />
     </>
   )
 }

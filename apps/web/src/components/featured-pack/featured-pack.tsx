@@ -36,20 +36,20 @@ export default function HomeTemplate({
 
   return (
     <section className="flex relative md:mt-0 mt-16">
-      <div className="absolute inset-0 overflow-hidden opacity-75">
+      <div className="absolute inset-0 overflow-hidden opacity-75 flex align-center from-transparent via-transparent to-blue-200 bg-gradient-to-br top-40">
         <img
-          src="/images/backgrounds/hero-background.png"
+          src="/images/backgrounds/background-wave.svg"
           alt=""
-          className="w-full h-full object-center object-cover"
+          className="w-full object-center object-cover"
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 z-10 space-y-10 md:space-x-20 mx-auto max-w-7xl px-4 md:pb-40 pb-10">
-        <div className="col-span-1 md:col-span-5 mt-12 flex flex-col justify-center">
-          <div className="font-extrabold md:text-5xl text-4xl text-blue-400 tracking-wide leading-tight pr-20">
+      <div className="grid grid-cols-1 md:grid-cols-12 z-10 mx-auto max-w-screen-2xl pt-12 pb-20">
+        <div className="col-span-1 md:col-span-7 mt-12 flex flex-col justify-center ml-12">
+          <div className="font-extrabold md:text-5xl text-4xl text-blue-800 tracking-wide leading-tight pr-20">
             Buy, Sell & Trade Authentic NFTs.
           </div>
-          <div className="text-yellow-400 md:text-3xl text-2xl font-bold mt-4">
+          <div className="text-gray-200 md:text-3xl text-2xl font-bold mt-4">
             Built by the passionate for the passionate
             <ul className="list-inside list-disc">
               <li>Carbon Neutral</li>
@@ -69,7 +69,7 @@ export default function HomeTemplate({
             </AppLink>
           </div>
         </div>
-        <div className="col-span-1 md:col-span-7">
+        <div className="col-span-1 md:col-span-5">
           {/* Columns */}
           <div className="sm:flex sm:flex-col sm:items-center rounded-xl relative">
             {/* Image */}
@@ -85,8 +85,8 @@ export default function HomeTemplate({
             </div>
 
             {/* Content */}
-            <div className={clsx(css.featuredContent, "bg-blue-1000 bg-opacity-70 rounded md:absolute relative md:-bottom-20 -bottom-0 md:right-52 -right-0  w-full md:w-4/5")}>
-              <Heading className={clsx(css.featuredHeading, "text-blue-400")} level={2} bold>
+            <div className="bg-gray-900 bg-opacity-70 rounded md:relative lg:absolute relative md:-bottom-20 lg:-bottom-12 md:w-4/5 py-4 px-8 mx-4">
+              <Heading className="text-blue-800 lg:text-2xl md:text-xl sm:mb-4 md:mb-2 lg:mb-0" level={2} bold>
                 {featuredPack.title}
               </Heading>
 
@@ -221,10 +221,7 @@ export default function HomeTemplate({
                 )}
                 {isPurchase && (
                   <>
-                    <Button fullWidth onClick={onClickFeatured}>
-                      {t('common:actions.Buy Now')}
-                    </Button>
-                    <p className={clsx(css.featuredPrice, "text-blue-400 text-2xl")}>
+                    <p className="text-blue-800 text-2xl my-4 font-bold text-center">
                       {(featuredPack.type === PackType.Auction ||
                         featuredPack.type === PackType.Purchase) &&
                         formatCurrency(
@@ -232,6 +229,9 @@ export default function HomeTemplate({
                           locale
                         )}
                     </p>
+                    <Button onClick={onClickFeatured} fullWidth size='small'>
+                      {t('common:actions.Buy Now')}
+                    </Button>
                   </>
                 )}
                 {!isAuction && !isPurchase && (

@@ -6,7 +6,7 @@ export interface AppFooterProps {
 
 export default function AppFooter() {
   return (
-    <footer className="bg-black">
+    <footer className="bg-gray-900">
       <AppFooterTopNav />
       <AppFooterBottomNav />
     </footer>

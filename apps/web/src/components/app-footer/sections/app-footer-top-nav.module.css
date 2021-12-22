@@ -1,17 +1,17 @@
 .topNav {
-  @apply bg-black;
+  @apply bg-gray-900;
 }
 
 .topNavWrapper {
   /* Base */
-  @apply mx-auto mb-6 border-b max-w-wrapper border-base-gray-border;
+  @apply mx-auto mb-6 border-b-2 max-w-wrapper border-gray-600;
   /* Tablet + */
   @apply md:space-x-20 md:px-4 md:py-12;
 }
 
 .topNavLink {
   /* Base */
-  @apply block py-5 text-lg font-bold text-center no-underline transition duration-300 border-t focus:outline-none text-base-gray-text focus:text-blue-600 hover:text-blue-600;
+  @apply block py-5 text-lg font-bold text-center no-underline transition duration-300 border-t focus:outline-none text-base-gray-text focus:text-blue-800 hover:text-blue-800;
   /* Tablet + */
   @apply md:border-t-0 md:inline md:text-left md:py-0 md:text-base;
 }
@@ -21,5 +21,5 @@
 }
 
 .topNavLinkActive {
-  @apply border-t-base-gray-border text-blue-600;
+  @apply border-t-base-gray-border text-blue-400;
 }
