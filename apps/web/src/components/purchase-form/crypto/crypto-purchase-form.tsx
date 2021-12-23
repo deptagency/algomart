@@ -59,11 +59,13 @@ export default function CryptoPurchaseForm({
       }
       // Creating payment for the pending transfer
       setLoadingText(t('common:statuses.Creating Payment'))
-      const transferPayment = await checkoutService.createTransferPayment({
-        packTemplateId: release.templateId,
-        transferId: transfer.externalId,
-        destinationAddress: address,
-      })
+      const transferPayment = await checkoutService
+        .createTransferPayment({
+          packTemplateId: release.templateId,
+          transferId: transfer.externalId,
+          destinationAddress: address,
+        })
+        .catch(() => null)
       if (!transferPayment) {
         // While this shouldn't happen, there's a possibility the payment may still have worked
         // @TODO: Find way to handle this better - possibly send to customer support email or direct to contact
