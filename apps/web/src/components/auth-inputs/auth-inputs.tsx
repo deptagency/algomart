@@ -29,6 +29,7 @@ export function Email({ error, t, defaultValue }: AuthInputProps) {
     <FormField className={css.formField}>
       <TextInput
         value={defaultValue || undefined}
+        readOnly={!!defaultValue}
         error={error as string}
         id="email"
         label={t('forms:fields.email.label')}

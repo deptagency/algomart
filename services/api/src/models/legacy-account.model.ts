@@ -1,15 +1,15 @@
 import { LegacyAccountSchema } from '@algomart/schemas'
 import { Model } from 'objection'
 
+import { BaseModel } from './base.model'
 import { UserAccountModel } from './user-account.model'
-// import { BaseModel } from './base.model'
 
-export class LegacyAccountModel extends Model {
+export class LegacyAccountModel extends BaseModel {
   static tableName = 'LegacyAccount'
   static jsonSchema = LegacyAccountSchema
 
-  id!: string
   legacyEmail!: string
+  newAccountId!: string | null
 
   newAccount?: UserAccountModel
 

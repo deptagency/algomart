@@ -12,7 +12,7 @@
 }
 
 .inputDisabled {
-  @apply border-base-gray-bg;
+  @apply focus:bg-gray-900 focus:outline-none focus:text-white focus:border-gray-600 text-gray-400 focus:text-gray-400;
 }
 
 .inputError {

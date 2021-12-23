@@ -35,7 +35,7 @@ export default class AccountsService {
     const result = this.algorand.generateAccount(request.passphrase)
 
     // 3. save account with encrypted mnemonic
-    await UserAccountModel.query(trx).insertGraph({
+    const user = await UserAccountModel.query(trx).insertGraph({
       username: request.username,
       email: request.email,
       locale: request.locale,
@@ -46,6 +46,11 @@ export default class AccountsService {
       },
     })
 
+    if (request.legacyAccountId && user) {
+      await LegacyAccountModel.query(trx)
+        .findById(request.legacyAccountId)
+        .patch({ newAccountId: user.id })
+    }
     // 4. return "public" user account
     const userAccount = await UserAccountModel.query(trx)
       .findOne({

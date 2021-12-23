@@ -18,6 +18,7 @@ import { urls } from '@/utils/urls'
 export default function SignUpPage() {
   const auth = useAuth()
   const router = useRouter()
+  const token = router.query.token
   const { redeemable } = useRedemption()
   const { t } = useTranslation()
 
@@ -37,6 +38,7 @@ export default function SignUpPage() {
         password: formData.get('password') as string,
         passphrase: formData.get('passphrase') as string,
         profilePic: profilePic as FileWithPreview,
+        legacyAccountId: token || null,
       }
 
       setFormErrors({})
@@ -73,7 +75,6 @@ export default function SignUpPage() {
     setProfilePic(null)
   }, [])
 
-  const token = router.query.token
   const { data, isValidating } = useApi<PublicLegacyAccount>(
     `${urls.api.v1.getLegacyAccount}?${stringify({ id: token })}`
   )

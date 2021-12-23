@@ -5,6 +5,8 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary()
     table.text('legacyEmail').unique().notNullable()
     table.uuid('newAccountId').references('id').inTable('UserAccount')
+    table.timestamp('createdAt').defaultTo(knex.fn.now()).notNullable()
+    table.timestamp('updatedAt').defaultTo(knex.fn.now()).notNullable()
   })
 }
 

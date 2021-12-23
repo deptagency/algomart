@@ -64,6 +64,7 @@ export const validateUserRegistration = (t: Translate) =>
     email: username(t),
     username: username(t),
     passphrase: passphrase(t),
+    legacyAccountId: string(),
   })
 
 export const validateLogin = (t: Translate) =>
