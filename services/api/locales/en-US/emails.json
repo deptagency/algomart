@@ -18,7 +18,7 @@
     "subject": "Your collectibles are ready!",
     "body": [
       "<strong>Congratulations!</strong>",
-      "Your new pack {{packTitle}} is ready for transfer. Sign in now to enter your passcode and transfer the assets to your Algorand wallet.",
+      "Your new pack {{packTitle}} is ready for transfer. Sign in now to enter your passcode and transfer the assets to your Algorand wallet. If you've already done so, you can ignore this message.",
       "<a href=\"{{transferUrl}}\"><strong>Transfer your asset</strong></a>"
     ]
   },
