@@ -8,10 +8,11 @@ const handler = createHandler()
 handler.get(async (request: NextApiRequestApp, response: NextApiResponse) => {
   console.log('request.query', request.query)
 
-  const { packs, total } = await ApiClient.instance.getLegacyAccount(
+  const { legacyEmail } = await ApiClient.instance.getLegacyAccount(
+    // @ts-ignore idk
     request.query
   )
-  response.json({ packs, total })
+  response.json({ legacyEmail })
 })
 
 export default handler

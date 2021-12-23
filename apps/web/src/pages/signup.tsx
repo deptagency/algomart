@@ -73,8 +73,9 @@ export default function SignUpPage() {
     setProfilePic(null)
   }, [])
 
+  const token = router.query.token
   const { data, isValidating } = useApi<PublicLegacyAccount>(
-    `${urls.api.v1.getLegacyAccount}?${stringify({ id: router.query.token })}`
+    `${urls.api.v1.getLegacyAccount}?${stringify({ id: token })}`
   )
 
   useEffect(() => {
@@ -100,6 +101,7 @@ export default function SignUpPage() {
         formErrors={formErrors}
         profilePic={profilePic}
         status={auth.status}
+        legacyEmail={data?.legacyEmail}
       />
     </DefaultLayout>
   )

@@ -21,12 +21,14 @@ export interface AuthInputProps {
   error?: string | unknown
   helpLink?: ReactNode
   t: Translate
+  defaultValue?: string | null
 }
 
-export function Email({ error, t }: AuthInputProps) {
+export function Email({ error, t, defaultValue }: AuthInputProps) {
   return (
     <FormField className={css.formField}>
       <TextInput
+        value={defaultValue || undefined}
         error={error as string}
         id="email"
         label={t('forms:fields.email.label')}

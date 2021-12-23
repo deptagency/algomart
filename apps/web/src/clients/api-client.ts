@@ -85,9 +85,8 @@ export class ApiClient {
   }
 
   //#region User Accounts
-  async getLegacyAccount(json: any) {
+  async getLegacyAccount(json: { id: string }) {
     const searchQuery = stringify(json)
-    console.log(searchQuery)
     return await this.http.get(`accounts/legacy-account?${searchQuery}`).json()
   }
 
