@@ -1,5 +1,5 @@
 .alertWrapper {
-  @apply h-20 text-base-gray-text rounded-t-md;
+  @apply h-20 text-base-gray-text rounded-t-md mx-4 mt-20 sm:mt-2;
 }
 
 .alertWrapper span {
@@ -28,8 +28,4 @@
 
 .centerContent {
   @apply justify-center;
-}
-
-.callToAction {
-  @apply flex-none bg-blue-600 font-normal mr-5 px-10 py-2.5 rounded-md text-sm text-white;
 }

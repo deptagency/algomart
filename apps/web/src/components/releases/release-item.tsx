@@ -15,7 +15,7 @@ export interface ReleaseItemProps {
 }
 
 export default function ReleaseItem({ pack }: ReleaseItemProps) {
-
+console.log(pack)
   const locale = useLocale()
   const { t } = useTranslation()
 
@@ -27,14 +27,17 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
   return (
     <div className={css.root}>
       <div className="relative my-4 sm:my-0 cursor-pointer">
-        <div className={` w-full relative h-80`}>
+        <div className={`w-full relative h-80`}>
           <Image
             alt={pack.title}
             layout="fill"
-            className="rounded-xl transition-all hover:opacity-80 object-contain lg:object-cover w-full h-full"
+            className=" transition-all hover:opacity-80 object-contain lg:object-cover w-full h-full"
             loader={cmsImageLoader}
             src={pack.image}
           />
+        </div>
+        <div className={css.subtitle}>
+          {pack.subtitle}
         </div>
       </div>
 
@@ -115,7 +118,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
             </div>
           </div>
           <div className="text-right mt-4 px-4">
-              <span className="font-poppins text-sm text-green-600">
+              <span className="font-poppins text-sm text-blue-800">
                 {t('release:N of N', {
                   available: pack.available,
                   total: pack.total,

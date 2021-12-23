@@ -1,42 +1,20 @@
 .customButton {
-  background: none;
-  cursor: pointer;
-  transition: all 0.3s;
-  border-radius: 0.3rem !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-transform: uppercase;
-  font-weight: bold;
+  @apply cursor-pointer duration-300 transition-all	rounded flex items-center capitalize font-bold justify-center;
+}
+.customButton:hover {
+  filter: drop-shadow(0 0 0.5rem #6dfeff);
 }
 
 .primary {
-  border: 0.15rem solid #6dfeff;
-  color: #6dfeff;
-  filter: drop-shadow(0 0 0.25rem #6dfeff);
-  background-color: #011f44 !important;
-}
-.primary:hover {
-  filter: drop-shadow(0.25rem 0.25rem 0.25rem #6dfeff);
-  background: #6dfeff47;
-  color: white;
+  @apply bg-gray-900 text-blue-800 border-1 border-blue-800;
 }
 
 .secondary {
-  border: 0.15rem solid #6dfeff;
-  filter: drop-shadow(0.25rem 0.25rem 0.25rem #6dfeff);
-  color: #6dfeff;
-  background-color: #011f44;
+  @apply bg-blue-900 text-blue-800 border-1 border-blue-800;
 }
 .tertiary {
-  border: 0.15rem solid #6dfeff;
-  filter: drop-shadow(0.25rem 0.25rem 0.25rem #6dfeff);
-  color: #6dfeff;
-  background-color: #011f44;
+  @apply bg-blue-600 text-blue-800 border-1 border-blue-800;
 }
 .link {
-  border: 0.15rem solid #6dfeff;
-  filter: drop-shadow(0.25rem 0.25rem 0.25rem #6dfeff);
-  color: #6dfeff;
-  background-color: #011f44;
+  @apply bg-gray-900 text-blue-800 border-1 border-blue-800;
 }

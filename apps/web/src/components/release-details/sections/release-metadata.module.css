@@ -1,12 +1,9 @@
 .metadata {
-  @apply text-left;
-}
-
-.metadataGrid {
+  @apply text-left bg-gray-200 bg-opacity-20 rounded-2xl px-2 py-4 m-2;
 }
 
 .column {
-  @apply px-6 py-3 text-yellow-400;
+  @apply px-6 py-3 text-red-200;
 }
 
 .column:last-child {
@@ -22,7 +19,7 @@
 }
 
 .price {
-  @apply text-blue-400 text-3xl text-center;
+  @apply text-blue-800 text-3xl text-center;
 }
 
 .active {

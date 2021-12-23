@@ -11,6 +11,7 @@ import FeaturedPack from '@/components/featured-pack/featured-pack'
 import Grid from '@/components/grid/grid'
 import Heading from '@/components/heading'
 import ReleaseItem from '@/components/releases/release-item'
+import BackgroundGrid from '@/components/background/background-grid'
 import { urls } from '@/utils/urls'
 
 export interface HomeTemplateProps {
@@ -34,7 +35,7 @@ const MarketingCardsSection = () => {
   }) => {
     return (
       <div className="rounded-2xl border-2 border-gray-600 space-y-6 flex flex-col justify-between px-8 py-20 items-center hover:border-blue-800">
-        <div className="bg-blue-600 rounded-full w-12 h-12 p-2.5 text-center">
+        <div className="bg-blue-400 rounded-full w-12 h-12 p-2.5 text-center">
           <span className="text-gray-50 text-lg font-bold font-poppins">
             {icon}
           </span>
@@ -65,7 +66,7 @@ const MarketingCardsSection = () => {
               for every NFT.
             </span>
           </h1>
-          <p className="mt-6 max-w-lg mx-auto text-center text-2xl text-blue-400 sm:max-w-3xl font-dm-sans">
+          <p className="mt-6 max-w-lg mx-auto text-center text-2xl text-gray-200 text-bold sm:max-w-3xl font-dm-sans">
             OG2D was created to bring together excited, passionate, and die-hard
             creators and collectors to buy, sell, and trade 100% original,
             authenticated NFT collectibles in a safe and secure way.
@@ -124,17 +125,6 @@ const MarketingCardsSection = () => {
     </div>
   )
 }
-
-const BackgroundGrid = () => (
-  <div className='relative h-60 w-full z-10'>
-    <div className='absolute bottom-0 h-60 w-full z-10 from-gray-900 via-gray-900 to-transparent bg-gradient-to-br'></div>
-    <img
-      src="/images/backgrounds/background-grid.svg"
-      alt=""
-      className="absolute bottom-0 w-full h-full object-center object-cover"
-    />
-  </div>
-)
 
 export default function HomeTemplate({
   featuredPack,
@@ -202,7 +192,7 @@ export default function HomeTemplate({
             </Grid>
           </div>
           <div className={clsx(css.bgGridContainer,'absolute bottom-0 right-0 w-full h-60')}>
-                <BackgroundGrid />
+            <BackgroundGrid />
           </div>
         </div>
       ) : null}

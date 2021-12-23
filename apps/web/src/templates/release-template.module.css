@@ -1,6 +1,5 @@
 .root {
-  @apply mr-auto ml-auto;
-  max-width: 1100px;
+  @apply mx-auto relative max-w-screen-xl;
 }
 
 .notification {

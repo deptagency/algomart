@@ -14,5 +14,5 @@
 }
 
 .title {
-  @apply font-bold p-6 text-4xl text-center text-blue-400;
+  @apply font-bold p-6 text-4xl text-center text-blue-800;
 }

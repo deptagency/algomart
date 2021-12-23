@@ -35,8 +35,8 @@ export default function HomeTemplate({
   const isUpcoming = featuredPack.status === PackStatus.Upcoming
 
   return (
-    <section className="flex relative md:mt-0 mt-16">
-      <div className="absolute inset-0 overflow-hidden opacity-75 flex align-center from-transparent via-transparent to-blue-200 bg-gradient-to-br top-40">
+    <section className="flex relative md:mt-0 mt-16 bg-blue-1000">
+      <div className="absolute inset-0 overflow-hidden opacity-75 flex from-transparent via-transparent to-blue-200 bg-gradient-to-br top-40">
         <img
           src="/images/backgrounds/background-wave.svg"
           alt=""
@@ -85,8 +85,8 @@ export default function HomeTemplate({
             </div>
 
             {/* Content */}
-            <div className="bg-gray-900 bg-opacity-70 rounded md:relative lg:absolute relative md:-bottom-20 lg:-bottom-12 md:w-4/5 py-4 px-8 mx-4">
-              <Heading className="text-blue-800 lg:text-2xl md:text-xl sm:mb-4 md:mb-2 lg:mb-0" level={2} bold>
+            <div className="bg-gray-900 bg-opacity-75 rounded-xl md:relative lg:absolute relative md:-bottom-20 lg:-bottom-12 md:w-4/5 py-4 px-8 mx-4">
+              <Heading className="text-blue-800 lg:text-2xl md:text-xl mb-4" level={2} bold>
                 {featuredPack.title}
               </Heading>
 

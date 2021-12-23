@@ -62,7 +62,6 @@ export default function ReleaseMetadata({
     <div
       className={clsx(css.metadata, {
         [css.active]: isActive,
-        [css.metadataGrid]: !isUpcomingAuction,
       })}
     >
       {/* Left Column */}
