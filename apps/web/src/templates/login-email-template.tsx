@@ -44,7 +44,7 @@ export default function LoginEmailTemplate({
         <Password
           error={formErrors?.password}
           helpLink={
-            <AppLink href={urls.resetPassword}>
+            <AppLink href={urls.resetPassword} className="text-white">
               {t('auth:Forgot your password?')}
             </AppLink>
           }
@@ -53,7 +53,7 @@ export default function LoginEmailTemplate({
         <Submit disabled={status === 'loading'} t={t} />
 
         <p className="mt-4 text-center">
-          <AppLink href={urls.signUp}>
+          <AppLink href={urls.signUp} className="text-white">
             <u>{t('auth:Need an account? Create one now')}</u>
           </AppLink>
         </p>

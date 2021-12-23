@@ -1,5 +1,7 @@
+import { PublicLegacyAccount } from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
+import { stringify } from 'query-string'
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { ExtractError } from 'validator-fns'
 
@@ -10,6 +12,7 @@ import authService from '@/services/auth-service'
 import SignupTemplate from '@/templates/signup-template'
 import { FileWithPreview } from '@/types/file'
 import { validateEmailAndPasswordRegistration } from '@/utils/auth-validation'
+import { useApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
 
 export default function SignUpPage() {
@@ -69,6 +72,16 @@ export default function SignUpPage() {
   const handleProfilePicClear = useCallback(() => {
     setProfilePic(null)
   }, [])
+
+  const { data, isValidating } = useApi<PublicLegacyAccount>(
+    `${urls.api.v1.getLegacyAccount}?${stringify({ id: router.query.token })}`
+  )
+
+  useEffect(() => {
+    if (!isValidating) {
+      console.log(data)
+    }
+  }, [isValidating, data])
 
   useEffect(() => {
     if (auth.status === 'authenticated') {

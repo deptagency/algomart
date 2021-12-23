@@ -40,7 +40,7 @@ export default function LoginPanel({
             <Button className={css.button} onClick={handleLoginEmail}>
               {t('auth:Sign in with Email')}
             </Button>
-            <Button
+            {/* <Button
               className={css.button}
               onClick={handleLoginGoogle}
               variant="secondary"
@@ -54,7 +54,7 @@ export default function LoginPanel({
               <p className={css.buttonImageText}>
                 {t('auth:Sign in with Google')}
               </p>
-            </Button>
+            </Button> */}
           </>
         )}
       </div>

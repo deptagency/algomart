@@ -63,6 +63,17 @@ export async function getByUsername(
   reply.send(account)
 }
 
+export async function getLegacyAccount(
+  request: FastifyRequest<{ Querystring: { id: string } }>,
+  reply: FastifyReply
+) {
+  const accounts = request
+    .getContainer()
+    .get<AccountsService>(AccountsService.name)
+  const account = await accounts.getLegacyAccount(request.query)
+  reply.send(account)
+}
+
 export async function verifyPassphrase(
   request: FastifyRequest<{ Params: ExternalId; Body: Passphrase }>,
   reply: FastifyReply

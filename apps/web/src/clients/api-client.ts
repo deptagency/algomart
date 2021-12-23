@@ -50,6 +50,7 @@ import {
 } from '@algomart/schemas'
 import ky, { HTTPError } from 'ky'
 import pino from 'pino'
+import { stringify } from 'query-string'
 
 import { Environment } from '@/environment'
 import {
@@ -84,6 +85,12 @@ export class ApiClient {
   }
 
   //#region User Accounts
+  async getLegacyAccount(json: any) {
+    const searchQuery = stringify(json)
+    console.log(searchQuery)
+    return await this.http.get(`accounts/legacy-account?${searchQuery}`).json()
+  }
+
   async createAccount(json: CreateUserAccountRequest) {
     return await this.http.post('accounts', { json }).json<PublicAccount>()
   }

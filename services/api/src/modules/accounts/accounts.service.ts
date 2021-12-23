@@ -11,6 +11,7 @@ import { Transaction } from 'objection'
 import AlgorandAdapter from '@/lib/algorand-adapter'
 import { AlgorandAccountModel } from '@/models/algorand-account.model'
 import { AlgorandTransactionModel } from '@/models/algorand-transaction.model'
+import { LegacyAccountModel } from '@/models/legacy-account.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import { invariant, userInvariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
@@ -163,6 +164,14 @@ export default class AccountsService {
       .withGraphJoined('algorandAccount.creationTransaction')
 
     return this.mapPublicAccount(userAccount)
+  }
+
+  async getLegacyAccount(request: { id: string }) {
+    const legacyAccount = await LegacyAccountModel.query().findOne({
+      id: request.id,
+    })
+
+    return { legacyEmail: legacyAccount?.legacyEmail }
   }
 
   async verifyPassphraseFor(externalId: string, passphrase: string) {
