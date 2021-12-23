@@ -599,14 +599,6 @@ export default class PaymentsService {
         status: sourcePayment.status,
       })
     }
-    // Remove claim from pack if payment fails
-    if (sourcePayment.status === PaymentStatus.Failed) {
-      // @TODO: Take action if payment fails
-    }
-    // If status is paid and therefore the payment has settled:
-    if (sourcePayment.status === PaymentStatus.Paid) {
-      // @TODO: Take action. How to handle if pack is already minted?
-    }
     return sourcePayment
   }
 
@@ -720,6 +712,7 @@ export default class PaymentsService {
 
     await Promise.all(
       pendingPayments.map(async (payment) => {
+        let status: PaymentStatus | undefined
         // Card flow
         if (payment.externalId && payment.paymentCardId) {
           const circlePayment = await this.circle.getPaymentById(
@@ -734,6 +727,7 @@ export default class PaymentsService {
             await PaymentModel.query(trx).patchAndFetchById(payment.id, {
               status: circlePayment.status,
             })
+            status = circlePayment.status
             updatedPayments++
           }
         }
@@ -741,6 +735,7 @@ export default class PaymentsService {
         else if (payment.paymentBankId) {
           const wirePayment = await this.handleWirePayment(payment, trx)
           if (wirePayment) {
+            status = wirePayment.status
             updatedPayments++
           }
         }
@@ -757,8 +752,30 @@ export default class PaymentsService {
               status: transfer.status,
               transferId: transfer.externalId,
             })
+            status = transfer.status
             updatedPayments++
           }
+        }
+        // If the new payment status is resolved as Paid:
+        if (status === PaymentStatus.Paid && payment.packId) {
+          // Create purchase success notification to be sent to user
+          const packWithBase = await this.packs.getPackById(payment.packId)
+          if (packWithBase) {
+            await this.notifications.createNotification(
+              {
+                type: NotificationType.PaymentSuccess,
+                userAccountId: payment.payerId,
+                variables: {
+                  packTitle: packWithBase.title,
+                },
+              },
+              trx
+            )
+          }
+        }
+        // If the new payment status is resolved as Failed:
+        if (status === PaymentStatus.Failed) {
+          // @TODO: Take action if payment fails
         }
         return
       })

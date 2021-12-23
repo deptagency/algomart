@@ -29,6 +29,8 @@ export default class NotificationsService {
     [NotificationType.AuctionComplete]:
       this.getAuctionCompleteNotification.bind(this),
     [NotificationType.BidExpired]: this.getBidExpiredNotification.bind(this),
+    [NotificationType.PaymentSuccess]:
+      this.getPaymentSuccessNotification.bind(this),
     [NotificationType.TransferSuccess]:
       this.getTransferSuccessNotification.bind(this),
     [NotificationType.UserHighBid]: this.getUserHighBidNotification.bind(this),
@@ -148,6 +150,28 @@ export default class NotificationsService {
       }).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
     }
 
+    return message
+  }
+
+  getPaymentSuccessNotification(n: NotificationModel, t: TFunction): Email {
+    const { userAccount, variables } = n
+
+    // Validate variables
+    invariant(variables, 'no variables were provided for this notification')
+    invariant(typeof variables.packTitle === 'string', 'packTitle is required')
+
+    const html = t<string[]>('paymentSuccess.body', {
+      returnObjects: true,
+      transferUrl: `${Configuration.webUrl}`,
+      ...variables,
+    })
+
+    // Build notification
+    const message = {
+      to: userAccount?.email as string,
+      subject: t('paymentSuccess.subject'),
+      html: html.reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
+    }
     return message
   }
 
