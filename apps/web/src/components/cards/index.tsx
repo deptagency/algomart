@@ -17,7 +17,7 @@ export default function Cards({ cards, header }: CardsProps) {
       )}
       <ul>
         {cards.map(({ helpText, href, isDisabled, icon, title }) => (
-          <li key={href}>
+          <li key={title}>
             <Card
               helpText={helpText}
               isDisabled={isDisabled}

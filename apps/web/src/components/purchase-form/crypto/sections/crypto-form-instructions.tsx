@@ -53,12 +53,12 @@ export default function CryptoFormInstructions({
         </Heading>
         <ol>
           <li>{t('forms:fields.payWithCrypto.instructions.1')}</li>
+          <li>{t('forms:fields.payWithCrypto.instructions.2')}</li>
           <li>
-            {t('forms:fields.payWithCrypto.instructions.2', {
+            {t('forms:fields.payWithCrypto.instructions.3', {
               price: formatCurrency(price, lang),
             })}
           </li>
-          <li>{t('forms:fields.payWithCrypto.instructions.3')}</li>
           <li>{t('forms:fields.payWithCrypto.instructions.4')}</li>
         </ol>
         <hr className={css.separator} />

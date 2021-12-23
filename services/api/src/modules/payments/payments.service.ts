@@ -502,7 +502,7 @@ export default class PaymentsService {
 
     userInvariant(transferDetails.transferId, 'transfer ID not provided', 400)
 
-    const { packId } = await this.selectPackAndAssignToUser(
+    const { packId, price } = await this.selectPackAndAssignToUser(
       transferDetails.packTemplateId,
       user.id,
       trx
@@ -513,6 +513,22 @@ export default class PaymentsService {
       transferDetails.transferId
     )
     userInvariant(transfer, 'transfer not found', 404)
+
+    // Retrieve exchange rates for app currency and USD
+    const exchangeRates = await this.coinbase.getExchangeRates({
+      currency: currency.code,
+    })
+    invariant(exchangeRates, 'unable to find exchange rates')
+
+    // Convert from USD to native currency integer
+    const amount = convertFromUSD(transfer.amount, exchangeRates.rates)
+    invariant(amount !== null, 'unable to convert to currency')
+    const amountInt = formatFloatToInt(amount)
+
+    // Check the payment amount is correct
+    const isCorrectAmount = amountInt === price
+    userInvariant(isCorrectAmount, 'incorrect amount was sent', 400)
+    // @TODO: Handle situation better - send notification to user
 
     // Create new payment in database
     const newPayment = await PaymentModel.query(trx).insert({

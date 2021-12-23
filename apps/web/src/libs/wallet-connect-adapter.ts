@@ -86,29 +86,34 @@ export class WalletConnectAdapter extends EventEmitter implements IConnector {
   }
 
   public async signTransaction(transaction: Transaction, message?: string) {
-    if (!this._connector) throw new Error('WalletConnect not initialized')
+    try {
+      if (!this._connector) throw new Error('WalletConnect not initialized')
 
-    const { formatJsonRpcRequest } = await import('@json-rpc-tools/utils')
+      const { formatJsonRpcRequest } = await import('@json-rpc-tools/utils')
 
-    const request = formatJsonRpcRequest(SIGNING_METHOD, [
-      [
-        {
-          txn: Buffer.from(
-            await this.algorand.encodeUnsignedTransaction(transaction)
-          ).toString('base64'),
-          message,
-        },
-      ],
-    ])
+      const request = formatJsonRpcRequest(SIGNING_METHOD, [
+        [
+          {
+            txn: Buffer.from(
+              await this.algorand.encodeUnsignedTransaction(transaction)
+            ).toString('base64'),
+            message,
+          },
+        ],
+      ])
 
-    const [encodedSignedTxn]: string[] =
-      await this._connector.sendCustomRequest(request)
+      const [encodedSignedTxn]: string[] =
+        await this._connector.sendCustomRequest(request)
 
-    const txn = new Uint8Array(Buffer.from(encodedSignedTxn, 'base64'))
+      const txn = new Uint8Array(Buffer.from(encodedSignedTxn, 'base64'))
 
-    // Send signed transaction to the Algorand network
-    await this.algorand.sendRawTransaction(txn)
+      // Send signed transaction to the Algorand network
+      await this.algorand.sendRawTransaction(txn)
 
-    return txn
+      return txn
+    } catch (error) {
+      this.onDisconnect()
+      throw error
+    }
   }
 }

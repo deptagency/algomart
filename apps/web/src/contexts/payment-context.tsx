@@ -41,6 +41,7 @@ import {
   validatePurchaseForm,
   validatePurchaseFormWithSavedCard,
 } from '@/utils/purchase-validation'
+import { urls } from '@/utils/urls'
 
 interface PaymentProviderProps {
   auctionPackId?: string | null
@@ -98,7 +99,7 @@ export function usePaymentProvider({
   release,
 }: PaymentProviderProps) {
   const { t } = useTranslation()
-  const { asPath, back, query, push } = useRouter()
+  const { asPath, query, push } = useRouter()
   const { method } = query
 
   const [packId, setPackId] = useState<string | null>(auctionPackId || null)
@@ -152,8 +153,11 @@ export function usePaymentProvider({
   const handleRetry = useCallback(() => {
     handleSetStatus(CheckoutStatus.form)
     setFormErrors({})
-    back()
-  }, [back, handleSetStatus])
+    push({
+      pathname: urls.checkoutPackWithMethod,
+      query: { ...query, step: 'details' },
+    })
+  }, [handleSetStatus, query, push])
 
   const mapCircleErrors = useCallback(
     (code: string | number) => {

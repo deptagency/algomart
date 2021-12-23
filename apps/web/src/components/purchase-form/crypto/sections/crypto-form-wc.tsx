@@ -113,7 +113,7 @@ export default function CryptoFormWalletConnect({
         rekeyTo: undefined,
       })
       // User signs transaction and we submit to Algorand network
-      const txn = await connector.signTransaction(assetTx)
+      const txn = await connector.signTransaction(assetTx).catch(() => null)
       setLoadingText(t('common:statuses.Sent Transaction'))
       if (txn) {
         setLoadingText(t('common:statuses.Transaction Received'))
@@ -136,6 +136,9 @@ export default function CryptoFormWalletConnect({
           return
         }
         return handlePurchase(transfer)
+      } else {
+        setError(t('forms:errors.transferDeclined'))
+        setStatus(CheckoutStatus.error)
       }
     }
   }, [

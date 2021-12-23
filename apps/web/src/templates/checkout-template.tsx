@@ -14,7 +14,7 @@ import { MAX_BID_FOR_CARD_PAYMENT } from '@/utils/purchase-validation'
 export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
   const { t } = useTranslation()
   const { user } = useAuth()
-  const { asPath } = useRouter()
+  const { pathname, query } = useRouter()
   const { currentBid, release } = paymentProps
 
   const doesRequireNonCardPayment =
@@ -31,7 +31,10 @@ export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
         icon: <CreditCardIcon />,
         title: t('forms:fields.paymentMethods.options.card.label'),
         isDisabled: !!doesRequireNonCardPayment,
-        href: `${asPath}/card?step=details`,
+        href: {
+          pathname: `${pathname}/[method]`,
+          query: { ...query, method: 'card', step: 'details' },
+        },
       },
     ]
     if (Environment.isWireEnabled) {
@@ -40,7 +43,10 @@ export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
         icon: <LibraryIcon />,
         title: t('forms:fields.paymentMethods.options.wire.label'),
         isDisabled: false,
-        href: `${asPath}/wire?step=details`,
+        href: {
+          pathname: `${pathname}/[method]`,
+          query: { ...query, method: 'wire', step: 'details' },
+        },
       })
     }
     if (Environment.isCryptoEnabled) {
@@ -49,7 +55,10 @@ export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
         icon: <CashIcon />,
         title: t('forms:fields.paymentMethods.options.crypto.label'),
         isDisabled: false,
-        href: `${asPath}/crypto?step=details`,
+        href: {
+          pathname: `${pathname}/[method]`,
+          query: { ...query, method: 'crypto', step: 'details' },
+        },
       })
     }
     return baseCards

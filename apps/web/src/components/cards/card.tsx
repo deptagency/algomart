@@ -8,7 +8,7 @@ import Heading from '@/components/heading'
 
 export interface CardProps {
   helpText: string
-  href: string
+  href: string | { pathname: string; query?: { [key: string]: string } }
   icon: ReactNode
   isDisabled: boolean
   title: string
