@@ -758,20 +758,7 @@ export default class PaymentsService {
         }
         // If the new payment status is resolved as Paid:
         if (status === PaymentStatus.Paid && payment.packId) {
-          // Create purchase success notification to be sent to user
-          const packWithBase = await this.packs.getPackById(payment.packId)
-          if (packWithBase) {
-            await this.notifications.createNotification(
-              {
-                type: NotificationType.PaymentSuccess,
-                userAccountId: payment.payerId,
-                variables: {
-                  packTitle: packWithBase.title,
-                },
-              },
-              trx
-            )
-          }
+          // @TODO: Take action if payment is successful
         }
         // If the new payment status is resolved as Failed:
         if (status === PaymentStatus.Failed) {
