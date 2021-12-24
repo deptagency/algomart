@@ -19,7 +19,7 @@
     "tailwind": "tailwind-config-viewer -o -p 5000"
   },
   "dependencies": {
-    "@algomart/schemas": "../../packages/schemas",
+    "@algomart/schemas": "1.0.0-alpha.0",
     "@builder.io/react": "^1.1.47",
     "@dinero.js/currencies": "2.0.0-alpha.8",
     "@headlessui/react": "1.4.2",

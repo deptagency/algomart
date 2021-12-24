@@ -14,11 +14,17 @@ import { FileWithPreview } from '@/types/file'
 import { validateEmailAndPasswordRegistration } from '@/utils/auth-validation'
 import { useApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
+const useToken = () => {
+  const router = useRouter()
+  if (typeof router.query.token !== 'string') return null
+
+  return router.query.token
+}
 
 export default function SignUpPage() {
   const auth = useAuth()
   const router = useRouter()
-  const token = router.query.token
+  const token = useToken()
   const { redeemable } = useRedemption()
   const { t } = useTranslation()
 
@@ -75,6 +81,7 @@ export default function SignUpPage() {
     setProfilePic(null)
   }, [])
 
+  // TODO only make this request if token is present
   const { data, isValidating } = useApi<PublicLegacyAccount>(
     `${urls.api.v1.getLegacyAccount}?${stringify({ id: token })}`
   )

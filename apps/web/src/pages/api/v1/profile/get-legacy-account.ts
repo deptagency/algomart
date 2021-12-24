@@ -6,11 +6,12 @@ import createHandler, { NextApiRequestApp } from '@/middleware'
 const handler = createHandler()
 
 handler.get(async (request: NextApiRequestApp, response: NextApiResponse) => {
-  console.log('request.query', request.query)
-
+  // @ts-ignore narrowing
+  if (typeof request.query.token === 'string[]') {
+    return response.json({})
+  }
   const { legacyEmail } = await ApiClient.instance.getLegacyAccount(
-    // @ts-ignore idk
-    request.query
+    request.query.token
   )
   response.json({ legacyEmail })
 })
