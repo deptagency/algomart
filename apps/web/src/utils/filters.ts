@@ -18,6 +18,7 @@ import { PackFilterState } from '@/hooks/use-pack-filter'
 
 export const getPublishedPacksFilterQuery = (query: PublishedPacksQuery) => {
   return stringify({
+    brandId: query.brandId,
     locale: query.locale,
     page: query.page,
     pageSize: query.pageSize || PAGE_SIZE,

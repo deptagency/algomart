@@ -4,48 +4,49 @@ module.exports = {
    */
   async up(knex) {
     await knex.schema
-      .createTable('sets', (table) => {
+      .createTable('brands', (table) => {
         table.uuid('id').primary()
+        table.string('slug').unique().notNullable()
+        table.uuid('logo').references('id').inTable('directus_files')
+        table.uuid('banner').references('id').inTable('directus_files')
         table.string('status').defaultTo('draft').notNullable()
         table.integer('sort')
         table.uuid('user_created').references('id').inTable('directus_users')
         table.timestamp('date_created')
         table.uuid('user_updated').references('id').inTable('directus_users')
         table.timestamp('date_updated')
-        table.string('slug').unique().notNullable()
-        table
-          .uuid('collection')
-          .notNullable()
-          .references('id')
-          .inTable('collections')
       })
-      .createTable('sets_translations', (table) => {
+      .createTable('brands_translations', (table) => {
         table.increments('id')
-        table.uuid('sets_id').references('id').inTable('sets')
+        table.uuid('brands_id').references('id').inTable('brands')
         table.string('languages_code').references('code').inTable('languages')
         table.string('name').notNullable()
       })
 
+    await knex.schema.alterTable('pack_templates', (table) => {
+      table.uuid('brand').references('id').inTable('brands')
+    })
+
     await knex('directus_collections').insert([
       {
-        collection: 'sets',
-        icon: 'collections',
-        note: 'A set of NFTs.',
+        collection: 'brands',
+        icon: 'storefront',
+        note: 'A brand, artist, or any other source of of NFTs.',
         archive_field: 'status',
         archive_value: 'archived',
         unarchive_value: 'draft',
         sort_field: 'sort',
       },
       {
-        collection: 'sets_translations',
-        icon: 'import_export',
+        collection: 'brands_translations',
+        icon: 'translate',
         hidden: true,
       },
     ])
 
     await knex('directus_fields').insert([
       {
-        collection: 'sets',
+        collection: 'brands',
         field: 'id',
         special: 'uuid',
         interface: 'input',
@@ -53,7 +54,42 @@ module.exports = {
         hidden: true,
       },
       {
-        collection: 'sets',
+        collection: 'brands',
+        field: 'slug',
+        interface: 'input',
+        options: { slug: true, trim: true },
+        display: 'raw',
+      },
+      {
+        collection: 'brands',
+        field: 'logo',
+        interface: 'file-image',
+        display: 'image',
+        note: 'Brand logo. (330x200)',
+      },
+      {
+        collection: 'brands',
+        field: 'banner',
+        interface: 'file-image',
+        display: 'image',
+        note: 'Brand banner image. (1060x200)',
+      },
+      {
+        collection: 'brands',
+        field: 'pack_templates',
+        special: 'o2m',
+        interface: 'list-o2m',
+        options: {
+          enableCreate: false,
+          enableSelect: true,
+          template: '{{unique_code}}',
+        },
+        translations: JSON.stringify([
+          { language: 'en-US', translation: 'Pack Templates' },
+        ]),
+      },
+      {
+        collection: 'brands',
         field: 'status',
         interface: 'select-dropdown',
         options: {
@@ -75,14 +111,14 @@ module.exports = {
         width: 'half',
       },
       {
-        collection: 'sets',
+        collection: 'brands',
         field: 'sort',
         interface: 'input',
-        hidden: true,
+        // hidden: true,
         width: 'half',
       },
       {
-        collection: 'sets',
+        collection: 'brands',
         field: 'user_created',
         special: 'user-created',
         interface: 'select-dropdown-m2o',
@@ -95,7 +131,7 @@ module.exports = {
         width: 'half',
       },
       {
-        collection: 'sets',
+        collection: 'brands',
         field: 'date_created',
         special: 'date-created',
         interface: 'datetime',
@@ -106,7 +142,7 @@ module.exports = {
         width: 'half',
       },
       {
-        collection: 'sets',
+        collection: 'brands',
         field: 'user_updated',
         special: 'user-updated',
         interface: 'select-dropdown-m2o',
@@ -119,7 +155,7 @@ module.exports = {
         width: 'half',
       },
       {
-        collection: 'sets',
+        collection: 'brands',
         field: 'date_updated',
         special: 'date-updated',
         interface: 'datetime',
@@ -130,39 +166,7 @@ module.exports = {
         width: 'half',
       },
       {
-        collection: 'sets',
-        field: 'slug',
-        interface: 'input',
-        options: { slug: true, trim: true },
-        display: 'raw',
-        width: 'half',
-      },
-      {
-        collection: 'sets',
-        field: 'collection',
-        special: 'm2o',
-        interface: 'select-dropdown-m2o',
-        options: { template: '{{slug}}' },
-        display: 'related-values',
-        display_options: { template: '{{slug}}' },
-        width: 'half',
-      },
-      {
-        collection: 'sets',
-        field: 'nft_templates',
-        special: 'o2m',
-        interface: 'list-o2m',
-        options: {
-          enableCreate: false,
-          enableSelect: true,
-          template: '{{unique_code}}',
-        },
-        translations: JSON.stringify([
-          { language: 'en-US', translation: 'NFT Templates' },
-        ]),
-      },
-      {
-        collection: 'sets',
+        collection: 'brands',
         field: 'translations',
         special: 'translations',
         interface: 'translations',
@@ -172,60 +176,71 @@ module.exports = {
         },
       },
       {
-        collection: 'sets_translations',
+        collection: 'brands_translations',
         field: 'id',
         interface: 'input',
         readonly: true,
         hidden: true,
       },
       {
-        collection: 'sets_translations',
-        field: 'sets_id',
+        collection: 'brands_translations',
+        field: 'brands_id',
         hidden: true,
       },
       {
-        collection: 'sets_translations',
+        collection: 'brands_translations',
         field: 'languages_code',
         hidden: true,
       },
       {
-        collection: 'sets_translations',
+        collection: 'brands_translations',
         field: 'name',
         interface: 'input',
         options: { trim: true },
         display: 'raw',
       },
+      // NFT Templates Fields
+      {
+        collection: 'pack_templates',
+        field: 'brand',
+        special: 'm2o',
+        interface: 'select-dropdown-m2o',
+        options: { template: '{{slug}}' },
+        display: 'related-values',
+        display_options: { template: '{{slug}}' },
+        width: 'half',
+      },
     ])
 
     await knex('directus_relations').insert([
       {
-        many_collection: 'sets',
+        many_collection: 'brands',
         many_field: 'user_created',
         one_collection: 'directus_users',
       },
       {
-        many_collection: 'sets',
+        many_collection: 'brands',
         many_field: 'user_updated',
         one_collection: 'directus_users',
       },
       {
-        many_collection: 'sets',
-        many_field: 'collection',
-        one_collection: 'collections',
-        one_field: 'sets',
-      },
-      {
-        many_collection: 'sets_translations',
-        many_field: 'sets_id',
-        one_collection: 'sets',
+        many_collection: 'brands_translations',
+        many_field: 'brands_id',
+        one_collection: 'brands',
         one_field: 'translations',
         junction_field: 'languages_code',
       },
       {
-        many_collection: 'sets_translations',
+        many_collection: 'brands_translations',
         many_field: 'languages_code',
         one_collection: 'languages',
-        junction_field: 'sets_id',
+        junction_field: 'brands_id',
+      },
+      {
+        many_collection: 'pack_templates',
+        many_field: 'brand',
+        one_collection: 'brands',
+        one_field: 'pack_templates',
       },
     ])
   },
@@ -235,16 +250,23 @@ module.exports = {
    */
   async down(knex) {
     await knex('directus_collections')
-      .whereIn('collection', ['sets', 'sets_translations'])
+      .whereIn('collection', ['brands', 'brands_translations'])
       .delete()
+    await knex.schema.alterTable('pack_templates', (table) => {
+      table.dropColumn('brand')
+    })
     await knex('directus_fields')
-      .whereIn('collection', ['sets', 'sets_translations'])
+      .whereIn('collection', ['brands', 'brands_translations'])
+      .delete()
+    await knex('directus_fields').whereIn('field', ['brand']).delete()
+    await knex('directus_relations')
+      .whereIn('many_collection', ['brands', 'brands_translations'])
       .delete()
     await knex('directus_relations')
-      .whereIn('many_collection', ['sets', 'sets_translations'])
+      .whereIn('one_collection', ['brands'])
       .delete()
     await knex.schema
-      .dropTableIfExists('sets_translations')
-      .dropTableIfExists('sets')
+      .dropTableIfExists('brands_translations')
+      .dropTableIfExists('brands')
   },
 }

@@ -1,4 +1,5 @@
 import {
+  Brand,
   CollectibleBase,
   CollectionBase,
   CollectionWithSets,
@@ -58,6 +59,20 @@ export interface DirectusPackFile {
 export interface DirectusRarityTranslation {
   language_code: string
   name: string
+}
+
+export interface DirectusBrandTranslation {
+  language_code: string
+  name: string
+}
+
+export interface DirectusBrand {
+  id: string
+  slug: string
+  logo: string | DirectusFile | null
+  banner: string | DirectusFile | null
+  translations: DirectusBrandTranslation[]
+  pack_templates: DirectusPackTemplate[]
 }
 
 export interface DirectusRarity {
@@ -486,6 +501,24 @@ export function toPackBase(
   }
 }
 
+export function toBrandBase(
+  brand: DirectusBrand,
+  getFileURL: GetFileURL
+): Brand {
+  const translation = brand.translations[0] as DirectusBrandTranslation
+  invariant(
+    translation !== undefined && typeof translation !== 'number',
+    'no translation found'
+  )
+  return {
+    id: brand.id,
+    name: translation.name ?? undefined,
+    slug: brand.slug,
+    logo: brand.logo ? getFileURL(brand.logo) : null,
+    banner: brand.banner ? getFileURL(brand.banner) : null,
+  }
+}
+
 // #endregion
 
 export interface DirectusAdapterOptions {
@@ -563,6 +596,90 @@ export default class DirectusAdapter {
     }
 
     return { data: [] }
+  }
+
+  private async findBrands(query: ItemQuery<DirectusBrand> = {}) {
+    const defaultQuery: ItemQuery<DirectusBrand> = {
+      filter: {
+        status: { _eq: DirectusStatus.Published },
+      },
+      limit: -1,
+      fields: ['id', 'translations.*', 'logo.*', 'banner.*', 'slug'],
+    }
+
+    return await this.findMany<DirectusBrand>('brands', {
+      ...defaultQuery,
+      ...query,
+    })
+  }
+
+  async findAllBrands({
+    locale = DEFAULT_LOCALE,
+    page = 1,
+    pageSize = 10,
+    filter = {},
+  }: {
+    locale?: string
+    page?: number
+    pageSize?: number
+    filter?: ItemFilter
+  }) {
+    const response = await this.findBrands({
+      page,
+      limit: pageSize,
+      fields: ['id', 'translations.*', 'logo.*', 'banner.*', 'slug'],
+      deep: {
+        translations: {
+          _filter: {
+            languages_code: { _eq: locale },
+          },
+        },
+      },
+      filter: {
+        ...filter,
+      },
+      filterCount: true,
+    })
+
+    invariant(
+      typeof response.meta?.filter_count === 'number',
+      'filter_count missing from response'
+    )
+
+    return {
+      brands: response.data.map((brand) =>
+        toBrandBase(brand, this.getFileURL.bind(this))
+      ),
+      total: response.meta.filter_count,
+    }
+  }
+
+  async findBrand({
+    slug,
+    locale = DEFAULT_LOCALE,
+  }: {
+    slug: string
+    locale?: string
+  }) {
+    const response = await this.findBrands({
+      limit: 1,
+      fields: ['id', 'translations.*', 'logo.*', 'banner.*', 'slug'],
+      deep: {
+        translations: {
+          _filter: {
+            languages_code: { _eq: locale },
+          },
+        },
+      },
+      filter: {
+        status: { _eq: DirectusStatus.Published },
+        slug: { _eq: slug },
+      },
+    })
+
+    return response.data[0]
+      ? toBrandBase(response.data[0], this.getFileURL.bind(this))
+      : null
   }
 
   private async findPackTemplates(query: ItemQuery<DirectusPackTemplate> = {}) {

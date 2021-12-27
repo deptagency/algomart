@@ -9,6 +9,7 @@ import { Knex } from 'knex'
 import swaggerOptions from '@/configuration/swagger'
 import { accountsRoutes } from '@/modules/accounts'
 import { bidsRoutes } from '@/modules/bids'
+import { brandsRoutes } from '@/modules/brands'
 import { collectiblesRoutes } from '@/modules/collectibles'
 import { collectionsRoutes } from '@/modules/collections'
 import { homepageRoutes } from '@/modules/homepage'
@@ -73,6 +74,7 @@ export default async function buildApp(config: AppConfig) {
   // Services
   await app.register(accountsRoutes, { prefix: '/accounts' })
   await app.register(bidsRoutes, { prefix: '/bids' })
+  await app.register(brandsRoutes, { prefix: '/brands' })
   await app.register(collectiblesRoutes, { prefix: '/collectibles' })
   await app.register(collectionsRoutes, { prefix: '/collections' })
   await app.register(homepageRoutes, { prefix: '/homepage' })

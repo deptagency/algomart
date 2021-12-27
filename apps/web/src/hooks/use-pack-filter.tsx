@@ -27,6 +27,7 @@ export interface PackFilterState {
   showAuctionReserveMet: boolean
   sortBy: PackSortField
   sortDirection: SortDirection
+  brandId: string | null
 }
 
 const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE'
@@ -149,7 +150,7 @@ export function packFilterReducer(
 }
 
 // usePackFilter hook
-export function usePackFilter() {
+export function usePackFilter(initialValues: Partial<PackFilterState> = {}) {
   const { t } = useTranslation()
   const selectOptions = getSelectSortingOptions(t)
   const [state, dispatch] = useReducer(packFilterReducer, {
@@ -158,6 +159,7 @@ export function usePackFilter() {
     priceLow: 0,
     selectedOption: selectOptions[0],
     selectOptions,
+    brandId: null,
     showAuction: true,
     showPurchase: true,
     showAuctionUpcoming: true,
@@ -166,6 +168,7 @@ export function usePackFilter() {
     showAuctionReserveMet: false,
     sortBy: PackSortField.ReleasedAt,
     sortDirection: SortDirection.Descending,
+    ...initialValues,
   })
 
   const value = useMemo(
