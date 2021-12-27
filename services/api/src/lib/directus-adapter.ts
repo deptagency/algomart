@@ -601,7 +601,7 @@ export default class DirectusAdapter {
   private async findBrands(query: ItemQuery<DirectusBrand> = {}) {
     const defaultQuery: ItemQuery<DirectusBrand> = {
       filter: {
-        status: DirectusStatus.Published,
+        status: { _eq: DirectusStatus.Published },
       },
       limit: -1,
       fields: ['*.*'],
