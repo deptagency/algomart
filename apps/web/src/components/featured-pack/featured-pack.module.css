@@ -85,3 +85,13 @@
 .completeSuccess {
   @apply text-green-600;
 }
+
+.blueStrockeText {
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: #00fdff;
+}
+
+.grayStrockeText {
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: #b1b5c3;
+}

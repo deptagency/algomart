@@ -45,19 +45,29 @@ export default function HomeTemplate({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 z-10 mx-auto max-w-screen-2xl pt-12 pb-20">
-        <div className="col-span-1 md:col-span-7 mt-12 flex flex-col justify-center ml-12">
-          <div className="font-extrabold md:text-5xl text-4xl text-blue-800 tracking-wide leading-tight pr-20">
+        <div className="col-span-1 md:col-span-7 md:mt-12 mt-2 flex flex-col justify-center ml-4 md:ml-12">
+          <div
+            className={clsx(
+              css.blueStrockeText,
+              'font-extrabold lg:text-7xl md:text-5xl sm:text-4xl text-5xl tracking-wide leading-tight pr-20 text-opacity-20 text-blue-800'
+            )}
+          >
             Buy, Sell & Trade Authentic NFTs.
           </div>
-          <div className="text-gray-200 md:text-3xl text-2xl font-bold mt-4">
+          <div
+            className={clsx(
+              css.grayStrockeText,
+              'text-transparent md:text-3xl text-2xl font-bold mt-4'
+            )}
+          >
             Built by the passionate for the passionate
-            <ul className="list-inside list-disc">
-              <li>Carbon Neutral</li>
-              <li>Fees as low as $0.001</li>
-              <li>Multi-crypto and fiat supported</li>
+            <ul className="list-disc">
+              <li>- Carbon Neutral</li>
+              <li>- Fees as low as $0.001</li>
+              <li>- Multi-crypto and fiat supported</li>
             </ul>
           </div>
-          <div className="mt-12 w-72">
+          <div className="mt-12 w-72 mx-auto md:ml-0">
             <AppLink
               className={
                 'flex items-center justify-center px-4 py-3 border border-blue-500 font-semibold text-sm rounded-full shadow-sm text-gray-50 hover:cursor-pointer focus:outline-none bg-gradient-to-r from-green-400 to-blue-500 hover:sha active:shadow-inner font-poppins disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed'

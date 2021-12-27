@@ -71,7 +71,7 @@ const MarketingCardsSection = () => {
               for every NFT.
             </span>
           </h1>
-          <p className="mt-6 max-w-lg mx-auto text-center text-2xl text-gray-200 text-bold sm:max-w-3xl font-dm-sans">
+          <p className="mt-6 max-w-lg mx-auto text-center text-xl text-gray-200 text-bold sm:max-w-3xl font-dm-sans">
             OG2D was created to bring together excited, passionate, and die-hard
             creators and collectors to buy, sell, and trade 100% original,
             authenticated NFT collectibles in a safe and secure way.
