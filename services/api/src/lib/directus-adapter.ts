@@ -631,7 +631,7 @@ export default class DirectusAdapter {
       deep: {
         translations: {
           _filter: {
-            languages_code: locale,
+            languages_code: { _eq: locale },
           },
         },
       },
