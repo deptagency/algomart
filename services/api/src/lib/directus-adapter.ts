@@ -673,7 +673,7 @@ export default class DirectusAdapter {
       },
       filter: {
         status: { _eq: Directus.Published },
-        slug,
+        slug: { _eq: slug },
       },
     })
 
