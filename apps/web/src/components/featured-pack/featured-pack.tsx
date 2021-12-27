@@ -61,7 +61,7 @@ export default function HomeTemplate({
             )}
           >
             Built by the passionate for the passionate
-            <ul className="list-disc">
+            <ul className="list-none">
               <li>- Carbon Neutral</li>
               <li>- Fees as low as $0.001</li>
               <li>- Multi-crypto and fiat supported</li>
