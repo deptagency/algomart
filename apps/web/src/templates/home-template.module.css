@@ -17,11 +17,11 @@
 }
 
 .scriptDiv {
-  @apply bg-blue-1000 text-white;
+  @apply bg-gray-800 text-white;
 }
 
 .scriptDiv div div div a {
-  @apply text-blue-400 !important;
+  @apply text-blue-800 !important;
 }
 
 .bgGrid {
