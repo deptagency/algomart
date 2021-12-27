@@ -1,6 +1,5 @@
 import { Static, Type } from '@sinclair/typebox'
 
-import { PackBaseSchema } from './packs'
 import { Nullable, Simplify } from './shared'
 
 export const BrandSchema = Type.Object({

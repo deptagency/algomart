@@ -604,7 +604,7 @@ export default class DirectusAdapter {
         status: { _eq: DirectusStatus.Published },
       },
       limit: -1,
-      fields: ['*.*'],
+      fields: ['id', 'translations.*', 'logo.*', 'banner.*', 'slug'],
     }
 
     return await this.findMany<DirectusBrand>('brands', {
@@ -672,7 +672,7 @@ export default class DirectusAdapter {
         },
       },
       filter: {
-        status: { _eq: Directus.Published },
+        status: { _eq: DirectusStatus.Published },
         slug: { _eq: slug },
       },
     })
