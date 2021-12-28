@@ -35,7 +35,7 @@ export default function HomeTemplate({
   const isUpcoming = featuredPack.status === PackStatus.Upcoming
 
   return (
-    <section className="flex relative md:mt-0 mt-16 bg-blue-1000">
+    <section className="flex relative md:mt-0 mt-16 bg-gray-800">
       <div className="absolute inset-0 overflow-hidden opacity-75 flex from-transparent via-transparent to-blue-200 bg-gradient-to-br top-40">
         <img
           src="/images/backgrounds/background-wave.svg"
@@ -61,10 +61,10 @@ export default function HomeTemplate({
             )}
           >
             Built by the passionate for the passionate
-            <ul className="list-none">
-              <li>- Carbon Neutral</li>
-              <li>- Fees as low as $0.001</li>
-              <li>- Multi-crypto and fiat supported</li>
+            <ul className="list-inside list-disc">
+              <li>Carbon Neutral</li>
+              <li>Fees as low as $0.001</li>
+              <li>Multi-crypto and fiat supported</li>
             </ul>
           </div>
           <div className="mt-12 w-72 mx-auto md:ml-0">
