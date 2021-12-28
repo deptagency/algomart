@@ -64,7 +64,7 @@ export default function HomeTemplate({
             <ul className="list-inside list-disc">
               <li>Carbon Neutral</li>
               <li>Fees as low as $0.001</li>
-              <li>Multi-crypto and fiat supported</li>
+              <li>Crypto and fiat supported</li>
             </ul>
           </div>
           <div className="mt-12 w-72 mx-auto md:ml-0">
