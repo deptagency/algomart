@@ -1,5 +1,5 @@
 .root {
-  @apply p-5 text-sm;
+  /* @apply p-5 text-sm; */
 }
 
 .rootTransparent {
@@ -7,7 +7,7 @@
 }
 
 .rootFilled {
-  @apply text-white bg-base-gray-dark;
+  @apply text-white;
 }
 
 .container {

@@ -1,5 +1,5 @@
 .ownedCollectiblesWrapper {
-  @apply px-0 pb-4 md:px-24;
+  /* @apply px-0 pb-4 md:px-24; */
 }
 
 .ownedCollectiblesHeading {
@@ -23,5 +23,5 @@
 }
 
 .bottomCtaWrapper {
-  @apply text-center;
+  @apply text-center flex justify-center;
 }

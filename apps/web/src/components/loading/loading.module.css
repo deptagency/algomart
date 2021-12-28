@@ -1,5 +1,5 @@
 .root {
-  @apply relative mx-auto text-center;
+  @apply relative mx-auto text-center mt-32 mb-12;
 }
 
 .loadingWrapper {
