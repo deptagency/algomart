@@ -80,7 +80,7 @@ export default function MyShowcaseTemplate({
       <Tabs activeTab={2} tabs={getCollectionTabs(t)} />
 
       {/* Showcase Grid */}
-      <section>
+      <section className='md:px-24 px-2'>
         <CollectibleShowcase
           onClickCollectible={removeCollectible}
           collectibles={showcaseCollectibles}

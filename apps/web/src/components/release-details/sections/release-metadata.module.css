@@ -1,9 +1,9 @@
 .metadata {
-  @apply text-left bg-gray-200 bg-opacity-20 rounded-2xl px-2 py-4 m-2;
+  @apply text-left bg-yellow-400 bg-opacity-10 rounded-2xl px-2 py-4 m-2;
 }
 
 .column {
-  @apply px-6 py-3 text-red-200;
+  @apply px-6 py-3 text-gray-200;
 }
 
 .column:last-child {

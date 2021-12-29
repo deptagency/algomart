@@ -1,34 +1,27 @@
 .root {
   /* Base */
-  @apply flex items-center justify-center mb-5 -mt-8;
+  @apply flex items-center justify-center mb-5 mt-28 mx-2;
   /* Tablet + */
-  @apply md:mb-12 md:mx-auto;
-}
-
-.negativeMargin {
-  @apply -mx-8;
+  @apply md:mb-12 md:mt-0;
 }
 
 .tabsContainer {
   /* Base */
-  @apply relative flex w-full overflow-hidden bg-white shadow-large;
+  @apply relative flex w-full overflow-hidden shadow-large;
   /* Tablet + */
-  @apply md:w-auto md:rounded-lg md:mx-5;
+  @apply md:w-auto md:mx-5;
 }
 
 .tab {
   /* Base */
-  @apply flex-1 px-4 py-4 text-center no-underline transition duration-300 text-base-gray-dark;
-  /* Base: Focus and Hover */
-  @apply focus:outline-none focus:text-opacity-70 hover:text-opacity-70;
+  @apply flex-1 py-2 px-0 text-center no-underline transition duration-300 font-bold mx-2 rounded-xl text-blue-800 border-1 border-blue-800 w-20;
   /* Tablet + */
-  @apply md:px-0 md:first:rounded-l-lg md:last:rounded-r-lg md:w-40;
+  @apply md:w-40 md:px-4 md:mx-2;
 }
-
-.tab + .tab {
-  @apply border-gray-200 border-l-1;
+.tab:hover {
+  @apply bg-blue-600 bg-opacity-80 text-white;
 }
 
 .tabActive {
-  @apply bg-blue-600;
+  @apply bg-blue-600 text-white;
 }

@@ -10,8 +10,9 @@
 }
 
 .bottomNavLeft {
+  @apply flex flex-col items-center;
   /* Tablet + */
-  @apply md:flex md:items-center md:space-x-14;
+  @apply md:flex md:flex-row md:items-center md:space-x-14;
 }
 
 .bottomNavLeftImage {

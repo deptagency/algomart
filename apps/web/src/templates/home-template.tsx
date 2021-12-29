@@ -57,7 +57,12 @@ const MarketingCardsSection = () => {
     <div className="w-full mx-auto">
       <div className="relative sm:overflow-hidden">
         <div className="relative px-4 py-12 sm:px-6 sm:py-16 lg:py-20 lg:px-8">
-          <Heading level={2} size={1} bold className="text-center text-3xl text-blue-800">
+          <Heading
+            level={2}
+            size={1}
+            bold
+            className="text-center text-3xl text-blue-800"
+          >
             Original 2 Digital
           </Heading>
           <h1 className="mt-6 text-center text-hero font-bold text-white sm:max-w-3xl mx-auto font-dm-sans">
@@ -66,7 +71,7 @@ const MarketingCardsSection = () => {
               for every NFT.
             </span>
           </h1>
-          <p className="mt-6 max-w-lg mx-auto text-center text-2xl text-gray-200 text-bold sm:max-w-3xl font-dm-sans">
+          <p className="mt-6 max-w-lg mx-auto text-center text-xl text-gray-200 text-bold sm:max-w-3xl font-dm-sans">
             OG2D was created to bring together excited, passionate, and die-hard
             creators and collectors to buy, sell, and trade 100% original,
             authenticated NFT collectibles in a safe and secure way.
@@ -149,38 +154,50 @@ export default function HomeTemplate({
 
       {upcomingPacks.length > 0 ? (
         <>
-        <div className="bg-gray-900">
-          <div className='pt-12 pb-24 mx-auto max-w-screen-2xl px-4'>
-            <Heading level={2} size={1} bold className="text-center text-3xl text-blue-800 py-12">
-              {t('release:Active & Upcoming Drops')}
-            </Heading>
+          <div className="bg-gray-900">
+            <div className="pt-12 pb-24 mx-auto max-w-screen-2xl px-4">
+              <Heading
+                level={2}
+                size={1}
+                bold
+                className="text-center text-3xl text-blue-800 py-12"
+              >
+                {t('release:Active & Upcoming Drops')}
+              </Heading>
 
-            <div className="grid gap-7 lg:grid-cols-4">
-              {' '}
-              {upcomingPacks.map((pack) => (
-                <AppLink
-                  key={pack.templateId}
-                  href={urls.release.replace(':packSlug', pack.slug)}
-                >
-                  <ReleaseItem pack={pack} />
-                </AppLink>
-              ))}
+              <div className="grid gap-7 lg:grid-cols-4">
+                {' '}
+                {upcomingPacks.map((pack) => (
+                  <AppLink
+                    key={pack.templateId}
+                    href={urls.release.replace(':packSlug', pack.slug)}
+                  >
+                    <ReleaseItem pack={pack} />
+                  </AppLink>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-        <div className='bg-gray-800'>
-          <MarketingCardsSection />
-        </div>
+          <div className="bg-gray-800">
+            <MarketingCardsSection />
+          </div>
         </>
       ) : null}
 
       {notableCollectibles.length > 0 ? (
-        <div className='bg-gray-900 relative z-10 pb-12'>
-          <Heading level={2} size={1} bold className="text-center text-3xl text-blue-800 py-12">
+        <div className="bg-gray-900 relative z-10 pb-12">
+          <Heading
+            level={2}
+            size={1}
+            bold
+            className="text-center text-3xl text-blue-800 py-12"
+          >
             {t('release:Notable Collectibles')}
           </Heading>
 
-          <div className={clsx('mx-auto max-w-7xl z-20', css.notableCollectibles)}>
+          <div
+            className={clsx('mx-auto max-w-7xl z-20', css.notableCollectibles)}
+          >
             {/* Steps cards */}
             <Grid columns={4}>
               {notableCollectibles.map((collectible) => (
@@ -191,14 +208,23 @@ export default function HomeTemplate({
               ))}
             </Grid>
           </div>
-          <div className={clsx(css.bgGridContainer,'absolute bottom-0 right-0 w-full h-60')}>
+          <div
+            className={clsx(
+              css.bgGridContainer,
+              'absolute bottom-0 right-0 w-full h-60'
+            )}
+          >
             <BackgroundGrid />
           </div>
         </div>
       ) : null}
 
-
-      <div className={clsx("elfsight-app-0c051f04-30ad-4b6d-bbea-c128a02cf0b0", css.scriptDiv)} />
+      <div
+        className={clsx(
+          'elfsight-app-0c051f04-30ad-4b6d-bbea-c128a02cf0b0',
+          css.scriptDiv
+        )}
+      />
     </>
   )
 }
