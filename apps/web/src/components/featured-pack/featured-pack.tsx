@@ -46,20 +46,10 @@ export default function HomeTemplate({
 
       <div className="grid grid-cols-1 md:grid-cols-12 z-10 mx-auto max-w-screen-2xl pt-12 pb-20">
         <div className="col-span-1 md:col-span-7 md:mt-12 mt-2 flex flex-col justify-center ml-4 md:ml-12">
-          <div
-            className={clsx(
-              css.blueStrockeText,
-              'font-extrabold lg:text-7xl md:text-5xl sm:text-4xl text-5xl tracking-wide leading-tight pr-20 text-opacity-20 text-blue-800'
-            )}
-          >
+          <div className="font-extrabold lg:text-7xl md:text-5xl sm:text-4xl text-5xl tracking-wide leading-tight pr-20 text-blue-800">
             Buy, Sell & Trade Authentic NFTs.
           </div>
-          <div
-            className={clsx(
-              css.grayStrockeText,
-              'text-transparent md:text-3xl text-2xl font-bold mt-4'
-            )}
-          >
+          <div className="text-gray-200 md:text-3xl text-2xl font-bold mt-4">
             Built by the passionate for the passionate
             <ul className="list-inside list-disc">
               <li>Carbon Neutral</li>
@@ -100,7 +90,7 @@ export default function HomeTemplate({
             </div>
 
             {/* Content */}
-            <div className="bg-gray-900 bg-opacity-75 rounded-xl md:relative lg:absolute relative md:-bottom-20 lg:-bottom-12 md:w-4/5 py-4 px-8 mx-4">
+            <div className="bg-gray-900 bg-opacity-75 rounded-xl md:relative lg:absolute relative md:-bottom-12 lg:-bottom-16 lg:right-48 md:w-4/5 py-4 px-8 mt-4 mx-4">
               <Heading
                 className="text-blue-800 lg:text-2xl md:text-xl mb-4"
                 level={2}
