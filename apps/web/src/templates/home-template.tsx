@@ -178,7 +178,7 @@ export default function HomeTemplate({
               </div>
             </div>
           </div>
-          <div className="bg-gray-800">
+          <div className="bg-gray-900">
             <MarketingCardsSection />
           </div>
         </>
