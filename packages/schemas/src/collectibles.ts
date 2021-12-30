@@ -129,6 +129,15 @@ export const CollectibleShowcaseQuerystringSchema = Type.Intersect([
   }),
 ])
 
+export const PublicCollectibleQuerystringSchema = Type.Intersect([
+  LocaleSchema,
+  Type.Object({
+    collectionId: Type.Optional(Type.String({ format: 'uuid' })),
+    templateIds: Type.Optional(Type.Array(IdSchema)),
+    setId: Type.Optional(Type.String({ format: 'uuid' })),
+  }),
+])
+
 export const CollectibleIdSchema = Type.Object({
   collectibleId: IdSchema,
 })
@@ -165,6 +174,9 @@ export type CollectibleListQuerystring = Simplify<
 >
 export type CollectibleShowcaseQuerystring = Simplify<
   Static<typeof CollectibleShowcaseQuerystringSchema>
+>
+export type PublicCollectibleQuerystring = Simplify<
+  Static<typeof PublicCollectibleQuerystringSchema>
 >
 export type CollectibleList = Simplify<Static<typeof CollectibleListSchema>>
 export type CollectibleListWithTotal = Simplify<

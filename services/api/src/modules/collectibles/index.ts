@@ -6,6 +6,7 @@ import {
   CollectibleListWithTotalSchema,
   CollectiblesByAlgoAddressQuerystringSchema,
   CollectibleShowcaseQuerystringSchema,
+  PublicCollectibleQuerystringSchema,
 } from '@algomart/schemas'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
@@ -15,6 +16,7 @@ import {
   addCollectibleShowcase,
   getCollectibles,
   getCollectiblesByAlgoAddress,
+  getPublicCollectibles,
   getShowcaseCollectibles,
   removeCollectibleShowcase,
 } from './collectibles.routes'
@@ -114,5 +116,19 @@ export async function collectiblesRoutes(app: FastifyInstance) {
         },
       },
       removeCollectibleShowcase
+    )
+    .get(
+      '/public',
+      {
+        schema: {
+          tags,
+          security,
+          querystring: PublicCollectibleQuerystringSchema,
+          response: {
+            200: CollectibleListWithTotalSchema,
+          },
+        },
+      },
+      getPublicCollectibles
     )
 }

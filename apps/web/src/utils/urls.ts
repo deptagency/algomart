@@ -56,6 +56,7 @@ export const urls = {
       getUntransferredPacks: '/api/v1/pack/untransferred',
       profile: '/api/v1/profile',
       getLegacyAccount: '/api/v1/profile/get-legacy-account',
+      getPublicCollectibles: 'api/v1/collectible/get-public',
       publicKey: '/api/v1/payments/public-key',
       removeCard: '/api/v1/payments/remove-card',
       showcaseCollectible: '/api/v1/collection/collectibles-showcase',

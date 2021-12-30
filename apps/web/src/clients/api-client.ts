@@ -36,6 +36,7 @@ import {
   PaymentCard,
   PaymentCards,
   PublicAccount,
+  PublicCollectibleQuerystring,
   PublicKey,
   PublicLegacyAccount,
   PublishedPacks,
@@ -163,6 +164,15 @@ export class ApiClient {
     const searchQuery = getCollectiblesFilterQuery(query)
     return await this.http
       .get(`collectibles?${searchQuery}`)
+      .json<CollectibleListWithTotal>()
+  }
+
+  async getPublicCollectibles(
+    query: PublicCollectibleQuerystring
+  ): Promise<CollectibleListWithTotal> {
+    const searchQuery = getCollectiblesFilterQuery(query)
+    return await this.http
+      .get(`collectibles/public?${searchQuery}`)
       .json<CollectibleListWithTotal>()
   }
 

@@ -10,6 +10,7 @@ import {
   EventAction,
   EventEntityType,
   IPFSStatus,
+  PublicCollectibleQuerystring,
   SortDirection,
 } from '@algomart/schemas'
 import { CollectibleListShowcase } from '@algomart/schemas'
@@ -816,5 +817,107 @@ export default class CollectiblesService {
         })
       })
     )
+  }
+
+  async getPublicCollectibles({
+    page = 1,
+    pageSize = 10,
+    locale = DEFAULT_LOCALE,
+    sortBy = CollectibleSortField.Title,
+    sortDirection = SortDirection.Ascending,
+    ownerExternalId,
+    ownerUsername,
+    templateIds,
+    setId,
+    collectionId,
+  }: CollectibleListQuerystring): Promise<CollectibleListWithTotal | null> {
+    userInvariant(templateIds, 'templateIds must be specified')
+    userInvariant(page > 0, 'page must be greater than 0')
+    userInvariant(
+      pageSize > 0 || pageSize === -1,
+      'pageSize must be greater than 0'
+    )
+    userInvariant(
+      [CollectibleSortField.ClaimedAt, CollectibleSortField.Title].includes(
+        sortBy
+      ),
+      'sortBy must be one of claimedAt or title'
+    )
+    userInvariant(
+      [SortDirection.Ascending, SortDirection.Descending].includes(
+        sortDirection
+      ),
+      'sortDirection must be one of asc or desc'
+    )
+
+    const total = await CollectibleModel.query()
+      .count('*', { as: 'count' })
+      .first()
+      .castTo<{ count: string }>()
+
+    const totalCount = Number.parseInt(total.count, 10)
+
+    if (totalCount === 0) {
+      return {
+        total: 0,
+        collectibles: [],
+      }
+    }
+
+    const collectibles = await CollectibleModel.query().whereIn(
+      'templateId',
+      templateIds
+    )
+
+    const foundTemplateIds = [...new Set(collectibles.map((c) => c.templateId))]
+
+    const cmsFilter: ItemFilter = {
+      id: {
+        _in: foundTemplateIds,
+      },
+    }
+
+    const { collectibles: templates } = await this.cms.findAllCollectibles(
+      locale,
+      cmsFilter
+    )
+
+    const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
+    const mappedCollectibles = collectibles
+      .map((c) => {
+        const template = templateLookup.get(c.templateId)
+        invariant(template !== undefined, `template ${c.templateId} not found`)
+
+        return {
+          ...template,
+          claimedAt:
+            c.claimedAt instanceof Date
+              ? c.claimedAt.toISOString()
+              : c.claimedAt,
+          id: c.id,
+          address: c.address,
+          edition: c.edition,
+        } as CollectibleWithDetails
+      })
+      .filter((collectible) => {
+        // need to filter them by set/collection here to avoid invariant error in the .map call above
+        if (setId) return collectible.setId === setId
+        if (collectionId) return collectible.collectionId === collectionId
+        return true
+      })
+      .sort((a, b) => {
+        const direction = sortDirection === SortDirection.Ascending ? 1 : -1
+        return direction * (a[sortBy] || '').localeCompare(b[sortBy] || '')
+      })
+
+    const collectiblesPage =
+      pageSize === -1
+        ? mappedCollectibles
+        : mappedCollectibles.slice((page - 1) * pageSize, page * pageSize)
+
+    return {
+      total: mappedCollectibles.length,
+      collectibles: collectiblesPage,
+    }
   }
 }
