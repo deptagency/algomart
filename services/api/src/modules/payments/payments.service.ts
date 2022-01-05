@@ -88,7 +88,7 @@ export default class PaymentsService {
   async getCards(filters: OwnerExternalId) {
     // Find user by external ID
     userInvariant(filters.ownerExternalId, 'owner external ID is required', 400)
-    const user = await UserAccountModel.query()
+    const user: UserAccountModel | undefined = await UserAccountModel.query()
       .where('externalId', '=', filters.ownerExternalId)
       .first()
     userInvariant(user, 'no user found', 404)
@@ -137,21 +137,26 @@ export default class PaymentsService {
   }
 
   async createCard(cardDetails: CreateCard, trx?: Transaction) {
-    const user = await UserAccountModel.query(trx)
+    const user: UserAccountModel | undefined = await UserAccountModel.query(trx)
       .where('externalId', cardDetails.ownerExternalId)
       .first()
     userInvariant(user, 'no user found', 404)
 
     // Create card using Circle API
-    const card = await this.circle.createPaymentCard({
-      idempotencyKey: cardDetails.idempotencyKey,
-      keyId: cardDetails.keyId,
-      encryptedData: cardDetails.encryptedData,
-      billingDetails: cardDetails.billingDetails,
-      expMonth: cardDetails.expirationMonth,
-      expYear: cardDetails.expirationYear,
-      metadata: cardDetails.metadata,
-    })
+    const card = await this.circle
+      .createPaymentCard({
+        idempotencyKey: cardDetails.idempotencyKey,
+        keyId: cardDetails.keyId,
+        encryptedData: cardDetails.encryptedData,
+        billingDetails: cardDetails.billingDetails,
+        expMonth: cardDetails.expirationMonth,
+        expYear: cardDetails.expirationYear,
+        metadata: cardDetails.metadata,
+      })
+      .catch((error) => {
+        this.logger.error(error, 'failed to create payment card')
+        return null
+      })
 
     if (!card) {
       return null
@@ -209,13 +214,18 @@ export default class PaymentsService {
     )
 
     // Create bank account using Circle API
-    const bankAccount = await this.circle.createBankAccount({
-      idempotencyKey: bankDetails.idempotencyKey,
-      accountNumber: bankDetails.accountNumber,
-      routingNumber: bankDetails.routingNumber,
-      billingDetails: bankDetails.billingDetails,
-      bankAddress: bankDetails.bankAddress,
-    })
+    const bankAccount = await this.circle
+      .createBankAccount({
+        idempotencyKey: bankDetails.idempotencyKey,
+        accountNumber: bankDetails.accountNumber,
+        routingNumber: bankDetails.routingNumber,
+        billingDetails: bankDetails.billingDetails,
+        bankAddress: bankDetails.bankAddress,
+      })
+      .catch((error) => {
+        this.logger.error(error, 'failed to create bank account')
+        return null
+      })
 
     if (!bankAccount) {
       // Remove claim from payment if bank account creation doesn't work
@@ -409,23 +419,27 @@ export default class PaymentsService {
     const card = await PaymentCardModel.query(trx).findById(cardId)
 
     // Create payment using Circle API
-    const payment = await this.circle.createPayment({
-      idempotencyKey: idempotencyKey,
-      metadata: metadata,
-      amount: {
-        amount: priceInUSD,
-        currency: DEFAULT_CURRENCY,
-      },
-      verification: verification,
-      description: description,
-      source: {
-        id: card?.externalId || cardId,
-        type: CirclePaymentSourceType.card, // @TODO: Update when support ACH
-      },
-      ...encryptedDetails,
-    })
+    const payment = await this.circle
+      .createPayment({
+        idempotencyKey: idempotencyKey,
+        metadata: metadata,
+        amount: {
+          amount: priceInUSD,
+          currency: DEFAULT_CURRENCY,
+        },
+        verification: verification,
+        description: description,
+        source: {
+          id: card?.externalId || cardId,
+          type: CirclePaymentSourceType.card, // @TODO: Update when support ACH
+        },
+        ...encryptedDetails,
+      })
+      .catch((error) => {
+        this.logger.error(error, 'failed to create payment')
+        return null
+      })
 
-    // If payment doesn't go through:
     if (!payment) {
       // Remove claim from payment if payment doesn't go through
       await this.packs.claimPack(
@@ -436,6 +450,7 @@ export default class PaymentsService {
         },
         trx
       )
+
       return null
     }
 

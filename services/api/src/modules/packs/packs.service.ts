@@ -197,7 +197,9 @@ export default class PacksService {
       .withGraphFetched('activeBid')
   }
 
-  private async getPackCounts(templateIds: string[]) {
+  private async getPackCounts(
+    templateIds: string[]
+  ): Promise<Array<{ templateId: string; available: string; total: string }>> {
     return await PackModel.query()
       .whereIn('templateId', templateIds)
       .groupBy('templateId')
@@ -212,6 +214,7 @@ export default class PacksService {
       )
       // This is needed to ensure the correct types are used
       .castTo<Array<{ templateId: string; available: string; total: string }>>()
+      .execute()
   }
 
   // #endregion
@@ -329,7 +332,10 @@ export default class PacksService {
     invariant(user, 'user not found')
 
     // Find packs by owner ID
-    const packsByOwnerId = await PackModel.query().where('ownerId', user.id)
+    const packsByOwnerId: PackModel[] = await PackModel.query().where(
+      'ownerId',
+      user.id
+    )
     const packsIdsByOwnerId = packsByOwnerId.map(({ templateId }) => templateId)
     if (packsIdsByOwnerId.length === 0) {
       return {
@@ -632,7 +638,7 @@ export default class PacksService {
   }
 
   async transferPackStatus(packId: string): Promise<TransferPackStatusList> {
-    const pack = await PackModel.query()
+    const pack: PackModel | undefined = await PackModel.query()
       .findOne('Pack.id', packId)
       .withGraphJoined('collectibles.latestTransferTransaction')
 
@@ -1107,7 +1113,7 @@ export default class PacksService {
 
   async handlePackAuctionExpiration(trx?: Transaction) {
     // get 10 packs with an activeBidId and an expires at of lte now
-    const packs = await PackModel.query(trx)
+    const packs: PackModel[] = await PackModel.query(trx)
       .where('expiresAt', '<=', new Date())
       .whereNull('ownerId')
       .whereNotNull('activeBidId')
