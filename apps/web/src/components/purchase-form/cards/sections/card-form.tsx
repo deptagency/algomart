@@ -142,6 +142,14 @@ export default function CardPurchaseForm({
 
         {!savedCard ? (
           <>
+            <FullName
+              formErrors={{
+                fullName:
+                  formErrors && 'fullName' in formErrors
+                    ? (formErrors.fullName as string)
+                    : '',
+              }}
+            />
             <CardDetails
               formErrors={{
                 ccNumber:
@@ -224,40 +232,30 @@ export default function CardPurchaseForm({
       </div>
 
       {!savedCard && (
-        <>
-          <FullName
-            formErrors={{
-              fullName:
-                formErrors && 'fullName' in formErrors
-                  ? (formErrors.fullName as string)
-                  : '',
-            }}
-          />
-          <BillingAddress
-            formErrors={{
-              address1:
-                formErrors && 'address1' in formErrors
-                  ? (formErrors.address1 as string)
-                  : '',
-              city:
-                formErrors && 'city' in formErrors
-                  ? (formErrors.city as string)
-                  : '',
-              state:
-                formErrors && 'state' in formErrors
-                  ? (formErrors.state as string)
-                  : '',
-              country:
-                formErrors && 'country' in formErrors
-                  ? (formErrors.country as string)
-                  : '',
-              zipCode:
-                formErrors && 'zipCode' in formErrors
-                  ? (formErrors.zipCode as string)
-                  : '',
-            }}
-          />
-        </>
+        <BillingAddress
+          formErrors={{
+            address1:
+              formErrors && 'address1' in formErrors
+                ? (formErrors.address1 as string)
+                : '',
+            city:
+              formErrors && 'city' in formErrors
+                ? (formErrors.city as string)
+                : '',
+            state:
+              formErrors && 'state' in formErrors
+                ? (formErrors.state as string)
+                : '',
+            country:
+              formErrors && 'country' in formErrors
+                ? (formErrors.country as string)
+                : '',
+            zipCode:
+              formErrors && 'zipCode' in formErrors
+                ? (formErrors.zipCode as string)
+                : '',
+          }}
+        />
       )}
 
       {/* Submit */}
