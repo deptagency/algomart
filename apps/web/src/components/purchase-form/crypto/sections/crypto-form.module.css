@@ -56,7 +56,7 @@
 }
 
 .instructions ol {
-  @apply pb-10;
+  @apply list-decimal pb-10;
 }
 
 .instructions h2 {

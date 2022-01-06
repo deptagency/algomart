@@ -86,9 +86,11 @@ export default function CryptoForm({
           variant="red"
         />
       )}
+
       <Heading className={css.heading} level={1}>
         {t('common:nav.payment.Pay with Crypto Wallet')}
       </Heading>
+
       {isAuctionActive ? (
         <>
           <Bid

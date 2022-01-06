@@ -23,7 +23,7 @@
 }
 
 .list {
-  @apply mt-2 text-left;
+  @apply list-decimal mt-2 text-left;
 }
 
 .section {

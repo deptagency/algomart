@@ -52,19 +52,16 @@ export default function WalletInstructionsModal({
           </Heading>
           <ol className={css.list}>
             <li>
-              1.{' '}
               {t(
                 'forms:fields.payWithCrypto.walletInstructions.createWallet.1'
               )}
             </li>
             <li>
-              2.{' '}
               {t(
                 'forms:fields.payWithCrypto.walletInstructions.createWallet.2'
               )}
             </li>
             <li>
-              3.{' '}
               {t(
                 'forms:fields.payWithCrypto.walletInstructions.createWallet.3'
               )}
@@ -95,19 +92,16 @@ export default function WalletInstructionsModal({
           </p>
           <ol className={css.list}>
             <li>
-              1.{' '}
               {t(
                 'forms:fields.payWithCrypto.walletInstructions.purchaseAlgos.1'
               )}
             </li>
             <li>
-              2.{' '}
               {t(
                 'forms:fields.payWithCrypto.walletInstructions.purchaseAlgos.2'
               )}
             </li>
             <li>
-              3.{' '}
               {t(
                 'forms:fields.payWithCrypto.walletInstructions.purchaseAlgos.3'
               )}
@@ -136,19 +130,15 @@ export default function WalletInstructionsModal({
           </p>
           <ol className={css.list}>
             <li>
-              1.{' '}
               {t('forms:fields.payWithCrypto.walletInstructions.swapAlgos.1')}
             </li>
             <li>
-              2.{' '}
               {t('forms:fields.payWithCrypto.walletInstructions.swapAlgos.2')}
             </li>
             <li>
-              3.{' '}
               {t('forms:fields.payWithCrypto.walletInstructions.swapAlgos.3')}
             </li>
             <li>
-              4.{' '}
               {t('forms:fields.payWithCrypto.walletInstructions.swapAlgos.4')}
             </li>
           </ol>
