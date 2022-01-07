@@ -17,6 +17,8 @@ export class PaymentModel extends BaseModel {
   error!: string | null
 
   paymentBankId?: string | null
+  destinationAddress?: string | null
+  transferId?: string | null
   payer?: UserAccountModel
   pack?: PackModel
 

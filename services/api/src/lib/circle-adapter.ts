@@ -1,21 +1,26 @@
 import {
   CircleBankAccount,
   CircleBankAccountStatus,
+  CircleBlockchainAddress,
   CircleCard,
   CircleCardStatus,
   CircleCardVerification,
   CircleCreateBankAccount,
+  CircleCreateBlockchainAddress,
   CircleCreateCard,
   CircleCreatePayment,
   CirclePaymentQuery,
   CirclePaymentResponse,
   CirclePaymentStatus,
-  CirclePaymentVerification,
   CirclePublicKey,
   CircleResponse,
+  CircleTransfer,
+  CircleTransferQuery,
+  CircleTransferStatus,
   CircleVerificationAVSFailureCode,
   CircleVerificationAVSSuccessCode,
   CircleVerificationCvvStatus,
+  CircleWallet,
   GetPaymentBankAccountInstructions,
   isCircleSuccessResponse,
   PaymentBankAccountStatus,
@@ -108,40 +113,45 @@ function toCardBase(response: CircleCard): ToPaymentCardBase {
 }
 
 function toPaymentStatus(
-  status: CirclePaymentStatus,
-  verification: CirclePaymentVerification
+  status: CirclePaymentStatus | CircleTransferStatus
 ): PaymentStatus {
   let finalStatus
-  if (
-    status === CirclePaymentStatus.Failed ||
-    Object.values(CircleVerificationAVSFailureCode).includes(
-      verification?.avs
-    ) ||
-    verification?.cvv === CircleVerificationCvvStatus.Fail
-  ) {
-    finalStatus = PaymentStatus.Failed
-  } else if (
-    status === CirclePaymentStatus.Paid &&
-    Object.values(CircleVerificationAVSSuccessCode).includes(
-      verification?.avs
-    ) &&
-    verification?.cvv === CircleVerificationCvvStatus.Pass
-  ) {
-    finalStatus = PaymentStatus.Paid
-  } else if (status === CirclePaymentStatus.Confirmed) {
-    finalStatus = PaymentStatus.Confirmed
-  } else {
-    finalStatus = PaymentStatus.Pending
+  switch (status) {
+    case CirclePaymentStatus.Failed:
+      finalStatus = PaymentStatus.Failed
+      break
+    case CirclePaymentStatus.Paid:
+      finalStatus = PaymentStatus.Paid
+      break
+    case CirclePaymentStatus.Confirmed:
+      finalStatus = PaymentStatus.Confirmed
+      break
+    case CirclePaymentStatus.Pending:
+      finalStatus = PaymentStatus.Pending
+      break
+    case CircleTransferStatus.Failed:
+      finalStatus = PaymentStatus.Failed
+      break
+    case CircleTransferStatus.Complete:
+      finalStatus = PaymentStatus.Paid
+      break
+    case CircleTransferStatus.Pending:
+      finalStatus = PaymentStatus.Pending
+      break
+    default:
+      finalStatus = PaymentStatus.Pending
   }
   return finalStatus
 }
 
-function toPaymentBase(response: CirclePaymentResponse): ToPaymentBase {
+function toPaymentBase(
+  response: CirclePaymentResponse | CircleTransfer
+): ToPaymentBase {
   return {
     externalId: response.id,
     amount: response.amount.amount,
     sourceId: response.source.id,
-    status: toPaymentStatus(response.status, response.verification),
+    status: toPaymentStatus(response.status),
     error: response.errorCode,
   }
 }
@@ -186,6 +196,27 @@ export default class CircleAdapter {
     }
 
     this.logger.error({ response }, 'Failed to get public key')
+    return null
+  }
+
+  async createBlockchainAddress(
+    request: CircleCreateBlockchainAddress
+  ): Promise<CircleBlockchainAddress | null> {
+    const response = await this.http
+      .post(`v1/wallets/${request.walletId}/addresses`, {
+        json: {
+          idempotencyKey: request.idempotencyKey,
+          currency: 'USD',
+          chain: 'ALGO',
+        },
+      })
+      .json<CircleResponse<CircleBlockchainAddress>>()
+
+    if (isCircleSuccessResponse(response)) {
+      return response.data
+    }
+
+    this.logger.error({ response }, 'Failed to create blockchain address')
     return null
   }
 
@@ -237,6 +268,23 @@ export default class CircleAdapter {
     }
 
     this.logger.error({ response }, 'Failed to create payment')
+    return null
+  }
+
+  async getMerchantWallet(): Promise<CircleWallet | null> {
+    const response = await this.http
+      .get('v1/wallets')
+      .json<CircleResponse<CircleWallet[]>>()
+
+    if (isCircleSuccessResponse(response) && response.data) {
+      const merchantWallet = response.data.find(
+        (wallet: CircleWallet) => wallet.type === 'merchant'
+      )
+      if (merchantWallet) return merchantWallet
+      return null
+    }
+
+    this.logger.error({ response }, 'Failed to get the merchant wallet')
     return null
   }
 
@@ -296,6 +344,63 @@ export default class CircleAdapter {
     }
 
     this.logger.error({ response }, 'Failed to get payment')
+    return null
+  }
+
+  async getTransferForAddress(
+    query: CircleTransferQuery,
+    destinationAddressId: string
+  ): Promise<ToPaymentBase | null> {
+    const searchParams = {}
+    if (query.walletId)
+      Object.assign(searchParams, { walletId: query.walletId })
+    if (query.sourceWalletId)
+      Object.assign(searchParams, { sourceWalletId: query.sourceWalletId })
+    if (query.destinationWalletId)
+      Object.assign(searchParams, {
+        destinationWalletId: query.destinationWalletId,
+      })
+    if (query.from) Object.assign(searchParams, { from: query.from })
+    if (query.to) Object.assign(searchParams, { to: query.to })
+    if (query.pageBefore)
+      Object.assign(searchParams, { pageBefore: query.pageBefore })
+    if (query.pageAfter)
+      Object.assign(searchParams, { pageAfter: query.pageAfter })
+    if (query.pageSize)
+      Object.assign(searchParams, { pageSize: query.pageSize })
+    const response = await this.http
+      .get('v1/transfers', {
+        searchParams,
+      })
+      .json<CircleResponse<CircleTransfer[]>>()
+
+    if (isCircleSuccessResponse(response)) {
+      const transfer = response.data.find(
+        (transfer) => transfer.destination.address === destinationAddressId
+      )
+      if (transfer) {
+        return toPaymentBase(transfer)
+      }
+      return null
+    }
+
+    this.logger.error(
+      { response },
+      'Failed to get transfers for external wallet'
+    )
+    return null
+  }
+
+  async getTransferById(id: string): Promise<ToPaymentBase | null> {
+    const response = await this.http
+      .get(`v1/transfers/${id}`)
+      .json<CircleResponse<CircleTransfer>>()
+
+    if (isCircleSuccessResponse(response)) {
+      return toPaymentBase(response.data)
+    }
+
+    this.logger.error({ response }, 'Failed to get transfer by ID')
     return null
   }
 

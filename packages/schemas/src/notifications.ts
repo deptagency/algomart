@@ -17,6 +17,7 @@ export enum NotificationStatus {
 export enum NotificationType {
   AuctionComplete = 'auction-complete',
   BidExpired = 'bid-expired',
+  PaymentSuccess = 'payment-success',
   TransferSuccess = 'tranfer-success',
   UserHighBid = 'user-high-bid',
   UserOutbid = 'user-outbid',

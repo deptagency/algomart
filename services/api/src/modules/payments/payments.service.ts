@@ -4,6 +4,8 @@ import {
   CreateBankAccount,
   CreateCard,
   CreatePayment,
+  CreateTransferPayment,
+  CreateWalletAddress,
   DEFAULT_CURRENCY,
   EventAction,
   EventEntityType,
@@ -133,7 +135,10 @@ export default class PaymentsService {
     )
     userInvariant(bankAccount, 'bank account instructions were not found', 404)
 
-    return bankAccount
+    return {
+      ...bankAccount,
+      amount: foundBankAccount.amount,
+    }
   }
 
   async createCard(cardDetails: CreateCard, trx?: Transaction) {
@@ -479,6 +484,104 @@ export default class PaymentsService {
     return newPayment
   }
 
+  async findTransferByAddress(destinationAddress: string) {
+    // Find merchant wallet
+    const merchantWallet = await this.circle.getMerchantWallet()
+
+    // Last 24 hours
+    const newDate24HoursInPast = new Date(
+      new Date().setDate(new Date().getDate() - 1)
+    ).toISOString()
+
+    // Find transfer by address in last 24 hours
+    const searchParams = { from: newDate24HoursInPast.toString() }
+    if (merchantWallet?.walletId)
+      Object.assign(searchParams, {
+        destinationWalletId: merchantWallet.walletId,
+      })
+    const transfer = await this.circle.getTransferForAddress(
+      searchParams,
+      destinationAddress
+    )
+    return transfer
+  }
+
+  async createTransferPayment(
+    transferDetails: CreateTransferPayment,
+    trx?: Transaction
+  ) {
+    const user = await UserAccountModel.query(trx)
+      .where('externalId', transferDetails.payerExternalId)
+      .first()
+    userInvariant(user, 'no user found', 404)
+
+    userInvariant(transferDetails.transferId, 'transfer ID not provided', 400)
+
+    const { packId, price } = await this.selectPackAndAssignToUser(
+      transferDetails.packTemplateId,
+      user.id,
+      trx
+    )
+
+    // Find transfer
+    const transfer = await this.circle.getTransferById(
+      transferDetails.transferId
+    )
+    userInvariant(transfer, 'transfer not found', 404)
+
+    // Retrieve exchange rates for app currency and USD
+    const exchangeRates = await this.coinbase.getExchangeRates({
+      currency: currency.code,
+    })
+    invariant(exchangeRates, 'unable to find exchange rates')
+
+    // Convert from USD to native currency integer
+    const amount = convertFromUSD(transfer.amount, exchangeRates.rates)
+    invariant(amount !== null, 'unable to convert to currency')
+    const amountInt = formatFloatToInt(amount)
+
+    // Check the payment amount is correct
+    const isCorrectAmount = amountInt === price
+    userInvariant(isCorrectAmount, 'incorrect amount was sent', 400)
+    // @TODO: Handle situation better - send notification to user
+
+    // Create new payment in database
+    const newPayment = await PaymentModel.query(trx).insert({
+      externalId: null,
+      payerId: user.id,
+      packId: packId,
+      paymentCardId: null,
+      paymentBankId: null,
+      status: transfer?.status ? transfer.status : PaymentStatus.Pending,
+      transferId: transfer?.externalId ? transfer.externalId : null,
+      destinationAddress: transferDetails.destinationAddress,
+    })
+    userInvariant(newPayment, 'payment could not be created', 400)
+
+    // Create event for payment creation
+    await EventModel.query(trx).insert({
+      action: EventAction.Create,
+      entityType: EventEntityType.Payment,
+      entityId: newPayment.id,
+      userAccountId: user.id,
+    })
+
+    return newPayment
+  }
+
+  async generateAddress(request: CreateWalletAddress) {
+    // Find the merchant wallet
+    const merchantWallet = await this.circle.getMerchantWallet()
+    userInvariant(merchantWallet, 'no wallet found', 404)
+    // Create blockchain address
+    const address = await this.circle.createBlockchainAddress({
+      idempotencyKey: request.idempotencyKey,
+      walletId: merchantWallet.walletId,
+    })
+    userInvariant(address, 'wallet could not be created', 401)
+    return address
+  }
+
   async handleWirePayment(
     payment: PaymentModel,
     trx?: Transaction
@@ -526,14 +629,6 @@ export default class PaymentsService {
         externalId: sourcePayment.externalId,
         status: sourcePayment.status,
       })
-    }
-    // Remove claim from pack if payment fails
-    if (sourcePayment.status === PaymentStatus.Failed) {
-      // @TODO: Take action if payment fails
-    }
-    // If status is paid and therefore the payment has settled:
-    if (sourcePayment.status === PaymentStatus.Paid) {
-      // @TODO: Take action. How to handle if pack is already minted?
     }
     return sourcePayment
   }
@@ -648,6 +743,7 @@ export default class PaymentsService {
 
     await Promise.all(
       pendingPayments.map(async (payment) => {
+        let status: PaymentStatus | undefined
         // Card flow
         if (payment.externalId && payment.paymentCardId) {
           const circlePayment = await this.circle.getPaymentById(
@@ -662,6 +758,7 @@ export default class PaymentsService {
             await PaymentModel.query(trx).patchAndFetchById(payment.id, {
               status: circlePayment.status,
             })
+            status = circlePayment.status
             updatedPayments++
           }
         }
@@ -669,8 +766,34 @@ export default class PaymentsService {
         else if (payment.paymentBankId) {
           const wirePayment = await this.handleWirePayment(payment, trx)
           if (wirePayment) {
+            status = wirePayment.status
             updatedPayments++
           }
+        }
+        // Crypto flow
+        else if (payment.destinationAddress) {
+          const transfer = payment.transferId
+            ? await this.circle.getTransferById(payment.transferId)
+            : await this.findTransferByAddress(payment.destinationAddress)
+          if (
+            transfer &&
+            (payment.status !== transfer.status || !payment.transferId)
+          ) {
+            await PaymentModel.query(trx).patchAndFetchById(payment.id, {
+              status: transfer.status,
+              transferId: transfer.externalId,
+            })
+            status = transfer.status
+            updatedPayments++
+          }
+        }
+        // If the new payment status is resolved as Paid:
+        if (status === PaymentStatus.Paid && payment.packId) {
+          // @TODO: Take action if payment is successful
+        }
+        // If the new payment status is resolved as Failed:
+        if (status === PaymentStatus.Failed) {
+          // @TODO: Take action if payment fails
         }
         return
       })

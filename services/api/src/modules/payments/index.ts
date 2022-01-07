@@ -1,21 +1,26 @@
 import {
   BankAccountIdSchema,
   CardIdSchema,
+  CircleBlockchainAddressSchema,
   CreateBankAccountResponseSchema,
   CreateBankAccountSchema,
   CreateCardSchema,
   CreatePaymentCardSchema,
   CreatePaymentSchema,
+  CreateTransferPaymentSchema,
+  CreateWalletAddressSchema,
   CurrencySchema,
-  GetPaymentBankAccountInstructionsSchema,
+  FindTransferByAddressSchema,
   GetPaymentBankAccountStatusSchema,
   GetPaymentCardStatusSchema,
   OwnerExternalIdSchema,
+  PaymentBankAccountInstructionsSchema,
   PaymentCardsSchema,
   PaymentIdSchema,
   PaymentSchema,
   PublicKeySchema,
   SendBankAccountInstructionsSchema,
+  ToPaymentBaseSchema,
   UpdatePaymentCardSchema,
 } from '@algomart/schemas'
 import { Type } from '@sinclair/typebox'
@@ -26,6 +31,9 @@ import {
   createBankAccount,
   createCard,
   createPayment,
+  createTransferPayment,
+  createWalletAddress,
+  findTransferByAddress,
   getBankAccountStatus,
   getCards,
   getCardStatus,
@@ -58,21 +66,6 @@ export async function paymentRoutes(app: FastifyInstance) {
 
   // Services/Routes
   app
-    .post(
-      '/',
-      {
-        transact: true,
-        schema: {
-          tags,
-          security,
-          body: CreatePaymentSchema,
-          response: {
-            201: PaymentSchema,
-          },
-        },
-      },
-      createPayment
-    )
     .get(
       '/:paymentId',
       {
@@ -150,11 +143,55 @@ export async function paymentRoutes(app: FastifyInstance) {
           security,
           params: BankAccountIdSchema,
           response: {
-            200: GetPaymentBankAccountInstructionsSchema,
+            200: PaymentBankAccountInstructionsSchema,
           },
         },
       },
       getWireTransferInstructions
+    )
+    .post(
+      '/',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: CreatePaymentSchema,
+          response: {
+            201: PaymentSchema,
+          },
+        },
+      },
+      createPayment
+    )
+    .post(
+      '/transfers',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: CreateTransferPaymentSchema,
+          response: {
+            201: PaymentSchema,
+          },
+        },
+      },
+      createTransferPayment
+    )
+    .get(
+      '/transfers',
+      {
+        schema: {
+          tags,
+          security,
+          querystring: FindTransferByAddressSchema,
+          response: {
+            200: ToPaymentBaseSchema,
+          },
+        },
+      },
+      findTransferByAddress
     )
     .post(
       '/bank-accounts',
@@ -185,6 +222,21 @@ export async function paymentRoutes(app: FastifyInstance) {
         },
       },
       createCard
+    )
+    .post(
+      '/wallets',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: CreateWalletAddressSchema,
+          response: {
+            201: CircleBlockchainAddressSchema,
+          },
+        },
+      },
+      createWalletAddress
     )
     .patch(
       '/cards/:cardId',

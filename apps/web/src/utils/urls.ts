@@ -1,6 +1,8 @@
 export const urls = {
   // Main pages
   checkout: '/checkout',
+  checkoutPack: '/checkout/:packSlug',
+  checkoutPackWithMethod: '/checkout/:packSlug/:method',
   home: '/',
   myCollectibles: '/my/collectibles',
   myCollection: '/my/collections/:collectionSlug',
@@ -39,9 +41,10 @@ export const urls = {
       assetRedeem: '/api/v1/asset/redeem',
       assetTransfer: '/api/v1/asset/transfer',
       createBankAccount: '/api/v1/payments/create-bank-account',
-      createBidForPack: 'api/v1/bid/add-to-pack',
+      createBidForPack: '/api/v1/bid/add-to-pack',
       createCard: '/api/v1/payments/create-card',
       createPayment: '/api/v1/payments/create-payment',
+      createTransfer: '/api/v1/payments/create-transfer-payment',
       getAllCollections: '/api/v1/collection/get-all-collections',
       getAssetsByAlgoAddress: '/api/v1/asset/get-by-algo-address',
       getAssetsByOwner: '/api/v1/asset/get-by-owner',
@@ -53,6 +56,7 @@ export const urls = {
       getPayment: '/api/v1/payments/get-payment',
       getPublishedPacks: '/api/v1/pack/get-published-packs',
       getRedeemable: '/api/v1/asset/get-redeemable',
+      getTransfer: '/api/v1/payments/get-transfer-payment',
       getUntransferredPacks: '/api/v1/pack/untransferred',
       profile: '/api/v1/profile',
       publicKey: '/api/v1/payments/public-key',
@@ -82,4 +86,33 @@ export function isRootPathMatch(path1: string, path2: string) {
     .split('/')[1]
     .toLowerCase()
     .includes(path2.split('/')[1].toLowerCase())
+}
+
+/**
+ * Compares path1 and path2 and determines if they have matching query parameters.
+ * @param path1 1st path to check
+ * @param path2 2nd path to compare with
+ */
+export function isMatchingQueryParams(path1: string, path2: string) {
+  const queryParams1 = path1.split('?')[1]
+  const queryParams2 = path2.split('?')[1]
+
+  // If neither path contains query params, they match
+  if (!queryParams1 && !queryParams2) return true
+
+  // If the characters don't match, they're not the same
+  if (
+    !queryParams1 ||
+    !queryParams2 ||
+    queryParams1.length !== queryParams2.length
+  )
+    return false
+
+  // Sort query params and compare
+  const queryPairs1 = queryParams1.split('&').sort()
+  const queryPairs2 = queryParams2.split('&').sort()
+
+  if (JSON.stringify(queryPairs1) !== JSON.stringify(queryPairs2)) return false
+
+  return true
 }

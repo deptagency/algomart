@@ -4,6 +4,9 @@ import {
   CreateBankAccount,
   CreateCard,
   CreatePayment,
+  CreateTransferPayment,
+  CreateWalletAddress,
+  FindTransferByAddress,
   OwnerExternalId,
   PaymentId,
   SendBankAccountInstructions,
@@ -152,6 +155,23 @@ export async function createCard(
   }
 }
 
+export async function createWalletAddress(
+  request: FastifyRequest<{
+    Body: CreateWalletAddress
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const address = await paymentService.generateAddress(request.body)
+  if (address) {
+    reply.status(201).send(address)
+  } else {
+    reply.badRequest('Unable to create wallet address')
+  }
+}
+
 export async function updateCard(
   request: FastifyRequest<{
     Params: CardId
@@ -199,6 +219,26 @@ export async function createPayment(
   }
 }
 
+export async function createTransferPayment(
+  request: FastifyRequest<{
+    Body: CreateTransferPayment
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payment = await paymentService.createTransferPayment(
+    request.body,
+    request.transaction
+  )
+  if (payment) {
+    reply.status(201).send(payment)
+  } else {
+    reply.badRequest('Unable to create transfer payment')
+  }
+}
+
 export async function getPaymentById(
   request: FastifyRequest<{
     Params: PaymentId
@@ -224,4 +264,23 @@ export async function getCurrency(
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
   reply.send(await paymentService.getCurrency())
+}
+
+export async function findTransferByAddress(
+  request: FastifyRequest<{
+    Querystring: FindTransferByAddress
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const transfer = await paymentService.findTransferByAddress(
+    request.query.destinationAddress
+  )
+  if (transfer) {
+    reply.status(200).send(transfer)
+  } else {
+    reply.notFound()
+  }
 }

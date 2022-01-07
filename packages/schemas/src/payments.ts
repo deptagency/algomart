@@ -2,7 +2,7 @@ import { Static, Type } from '@sinclair/typebox'
 
 import { BaseSchema, IdSchema, Nullable, Simplify } from './shared'
 
-// Enums
+// #region Enums
 
 export enum CircleVerificationAVSSuccessCode {
   D = 'D',
@@ -99,6 +99,13 @@ export enum CircleCardErrorCode {
   verification_stopped_by_issuer = 'verification_stopped_by_issuer',
 }
 
+export enum CircleTransferErrorCode {
+  insufficient_funds = 'insufficient_funds',
+  blockchain_error = 'blockchain_error',
+  transfer_denied = 'transfer_denied',
+  transfer_failed = 'transfer_failed',
+}
+
 export enum CirclePaymentStatus {
   Pending = 'pending',
   Failed = 'failed',
@@ -113,6 +120,12 @@ export enum CircleBankAccountStatus {
 }
 
 export enum CircleCardStatus {
+  Pending = 'pending',
+  Failed = 'failed',
+  Complete = 'complete',
+}
+
+export enum CircleTransferStatus {
   Pending = 'pending',
   Failed = 'failed',
   Complete = 'complete',
@@ -150,7 +163,23 @@ export enum CirclePaymentQueryType {
   wire = 'wire',
 }
 
-// Schemas
+export enum CheckoutMethod {
+  card = 'card',
+  wire = 'wire',
+  crypto = 'crypto',
+}
+
+export enum CheckoutStatus {
+  passphrase = 'passphrase',
+  form = 'form',
+  loading = 'loading',
+  success = 'success',
+  error = 'error',
+  summary = 'summary',
+}
+
+// #endregion
+// #region Schemas
 
 const ToPaymentBankAccountBaseSchema = Type.Object({
   externalId: Type.String({ format: 'uuid' }),
@@ -169,12 +198,17 @@ const ToPaymentCardBaseSchema = Type.Object({
   error: Type.Optional(Type.Enum(CircleCardErrorCode)),
 })
 
-const ToPaymentBaseSchema = Type.Object({
+export const ToPaymentBaseSchema = Type.Object({
   externalId: Type.String({ format: 'uuid' }),
   status: Type.Optional(Type.Enum(PaymentStatus)),
-  error: Type.Optional(Type.Enum(CirclePaymentErrorCode)),
+  error: Type.Optional(
+    Type.Union([
+      Type.Enum(CirclePaymentErrorCode),
+      Type.Enum(CircleTransferErrorCode),
+    ])
+  ),
   amount: Type.String(),
-  sourceId: Type.String({ format: 'uuid' }),
+  sourceId: Type.Optional(Type.String({ format: 'uuid' })),
 })
 
 const PaymentBaseSchema = Type.Object({
@@ -182,6 +216,8 @@ const PaymentBaseSchema = Type.Object({
   payerId: Type.String(),
   paymentCardId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
   paymentBankId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
+  destinationAddress: Type.Optional(Nullable(Type.String())),
+  transferId: Type.Optional(Nullable(Type.String())),
 })
 
 const PaymentBankAccountBaseSchema = Type.Intersect([
@@ -204,12 +240,17 @@ const PaymentRequiredActionSchema = Type.Object({
   redirectUrl: Type.String(),
 })
 
+export const FindTransferByAddressSchema = Type.Object({
+  destinationAddress: Type.String(),
+})
+
 export const SendBankAccountInstructionsSchema = Type.Object({
   bankAccountId: IdSchema,
   ownerExternalId: Type.String(),
 })
 
-// Circle
+// #endregion
+// #region Circle
 
 const CircleVerificationAVSCode = Type.Intersect([
   Type.Enum(CircleVerificationAVSCodeOptions),
@@ -241,6 +282,18 @@ const CircleMetadataSchema = Type.Object({
   phoneNumber: Type.Optional(Type.String({ nullable: true })),
   sessionId: Type.Optional(Type.String()),
   ipAddress: Type.Optional(Type.String()),
+})
+
+export const CircleBlockchainAddressSchema = Type.Object({
+  address: Type.String(),
+  addressTag: Type.Optional(Type.String()),
+  currency: Type.String(),
+  chain: Type.String(),
+})
+
+const CircleCreateBlockchainAddressSchema = Type.Object({
+  idempotencyKey: Type.String({ type: 'uuid' }),
+  walletId: Type.String(),
 })
 
 const CircleCreateCardSchema = Type.Object({
@@ -399,6 +452,43 @@ const CirclePaymentResponseSchema = Type.Intersect([
   }),
 ])
 
+const CircleTransferSchema = Type.Object({
+  id: IdSchema,
+  source: Type.Object({
+    type: Type.String(),
+    id: Type.String(),
+  }),
+  destination: Type.Object({
+    type: Type.String(),
+    address: Type.String(),
+    addressTag: Type.Optional(Type.String()),
+    chain: Type.String(),
+  }),
+  amount: Type.Object({
+    amount: Type.String(),
+    currency: Type.String(),
+  }),
+  transactionHash: Type.Optional(Type.String()),
+  status: Type.Enum(CircleTransferStatus),
+  errorCode: Type.Optional(Type.Enum(CircleTransferErrorCode)),
+  createDate: Type.String(),
+})
+
+const CircleWalletSchema = Type.Object({
+  walletId: Type.String(),
+  entityId: IdSchema,
+  type: Type.String(),
+  description: Type.Optional(Type.String()),
+  balances: Type.Optional(
+    Type.Array(
+      Type.Object({
+        amount: Type.Optional(Type.String()),
+        currency: Type.Optional(Type.String()),
+      })
+    )
+  ),
+})
+
 const CirclePaymentQuerySchema = Type.Object({
   type: Type.Optional(Type.Enum(CirclePaymentQueryType)),
   from: Type.Optional(Type.String({ type: 'date-time' })),
@@ -409,7 +499,19 @@ const CirclePaymentQuerySchema = Type.Object({
   status: Type.Optional(Type.Enum(PaymentStatus)),
 })
 
-// Coinbase
+const CircleTransferQuerySchema = Type.Object({
+  walletId: Type.Optional(Type.String()),
+  sourceWalletId: Type.Optional(Type.String()),
+  destinationWalletId: Type.Optional(Type.String()),
+  from: Type.Optional(Type.String({ type: 'date-time' })),
+  to: Type.Optional(Type.String({ type: 'date-time' })),
+  pageBefore: Type.Optional(Type.String()),
+  pageAfter: Type.Optional(Type.String()),
+  pageSize: Type.Optional(Type.Number()),
+})
+
+// #endregion
+// #region Coinbase
 
 const CoinbaseExchangeRatesOptionsSchema = Type.Object({
   currency: Type.String(),
@@ -429,7 +531,8 @@ const CoinbaseErrorResponseSchema = Type.Object({
   ),
 })
 
-// Payment/card routes schemas
+// #endregion
+// #region Payment/card routes schemas
 
 export const CurrencySchema = Type.Object({
   base: Type.Number(),
@@ -456,6 +559,13 @@ export const GetPaymentBankAccountInstructionsSchema = Type.Object({
   }),
   status: Type.Optional(Type.Enum(PaymentBankAccountStatus)),
 })
+
+export const PaymentBankAccountInstructionsSchema = Type.Intersect([
+  GetPaymentBankAccountInstructionsSchema,
+  Type.Object({
+    amount: Type.Number(),
+  }),
+])
 
 export const GetPaymentBankAccountStatusSchema = Type.Object({
   status: Type.Optional(Type.Enum(PaymentBankAccountStatus)),
@@ -545,6 +655,18 @@ export const CreatePaymentSchema = Type.Intersect([
   }),
 ])
 
+export const CreateTransferPaymentSchema = Type.Intersect([
+  Type.Omit(PaymentBaseSchema, ['payerId']),
+  Type.Object({
+    packTemplateId: Type.String({ format: 'uuid' }),
+    payerExternalId: Type.String(),
+  }),
+])
+
+export const CreateWalletAddressSchema = Type.Intersect([
+  Type.Omit(CircleCreateBlockchainAddressSchema, ['walletId']),
+])
+
 export const PublicKeySchema = Type.Object({
   keyId: Type.String(),
   publicKey: Type.String(),
@@ -555,20 +677,21 @@ export const UpdatePaymentCardSchema = Type.Object({
   ownerExternalId: Type.String(),
 })
 
-// Types
+// #endregion
+// #region Types
 
 export type BankAccountId = Simplify<Static<typeof BankAccountIdSchema>>
 export type CardId = Simplify<Static<typeof CardIdSchema>>
-export type CheckoutStatus =
-  | 'passphrase'
-  | 'form'
-  | 'loading'
-  | 'success'
-  | 'error'
+export type CircleBlockchainAddress = Simplify<
+  Static<typeof CircleBlockchainAddressSchema>
+>
 export type CircleBankAccount = Simplify<Static<typeof CircleBankAccountSchema>>
 export type CircleCard = Simplify<Static<typeof CircleCardSchema>>
 export type CircleCardVerification = Simplify<
   Static<typeof CircleCardVerificationSchema>
+>
+export type CircleCreateBlockchainAddress = Simplify<
+  Static<typeof CircleCreateBlockchainAddressSchema>
 >
 export type CircleCreateBankAccount = Simplify<
   Static<typeof CircleCreateBankAccountSchema>
@@ -593,6 +716,11 @@ export type CirclePaymentVerification = Simplify<
   Static<typeof CirclePaymentVerificationSchema>
 >
 export type CirclePublicKey = Simplify<Static<typeof CirclePublicKeySchema>>
+export type CircleTransfer = Simplify<Static<typeof CircleTransferSchema>>
+export type CircleTransferQuery = Simplify<
+  Static<typeof CircleTransferQuerySchema>
+>
+export type CircleWallet = Simplify<Static<typeof CircleWalletSchema>>
 export type CoinbaseExchangeRatesOptions = Simplify<
   Static<typeof CoinbaseExchangeRatesOptionsSchema>
 >
@@ -609,7 +737,16 @@ export type CreateBankAccountResponse = Simplify<
 export type CreateCard = Simplify<Static<typeof CreateCardSchema>>
 export type CreatePayment = Simplify<Static<typeof CreatePaymentSchema>>
 export type CreatePaymentCard = Simplify<Static<typeof CreatePaymentCardSchema>>
+export type CreateTransferPayment = Simplify<
+  Static<typeof CreateTransferPaymentSchema>
+>
+export type CreateWalletAddress = Simplify<
+  Static<typeof CreateWalletAddressSchema>
+>
 export type Currency = Simplify<Static<typeof CurrencySchema>>
+export type FindTransferByAddress = Simplify<
+  Static<typeof FindTransferByAddressSchema>
+>
 export type GetPaymentBankAccountInstructions = Simplify<
   Static<typeof GetPaymentBankAccountInstructionsSchema>
 >
@@ -624,6 +761,9 @@ export type PaymentId = Simplify<Static<typeof PaymentIdSchema>>
 export type PaymentBankAccount = Simplify<
   Static<typeof PaymentBankAccountSchema>
 >
+export type PaymentBankAccountInstructions = Simplify<
+  Static<typeof PaymentBankAccountInstructionsSchema>
+>
 export type PaymentCard = Simplify<Static<typeof PaymentCardSchema>>
 export type PaymentCards = Simplify<Static<typeof PaymentCardsSchema>>
 export type PublicKey = Simplify<Static<typeof PublicKeySchema>>
@@ -637,7 +777,8 @@ export type ToPaymentBase = Simplify<Static<typeof ToPaymentBaseSchema>>
 export type ToPaymentCardBase = Simplify<Static<typeof ToPaymentCardBaseSchema>>
 export type UpdatePaymentCard = Simplify<Static<typeof UpdatePaymentCardSchema>>
 
-// Success/error response
+// #endregion
+// #region Success/error response
 
 interface CircleSuccessResponse<T = unknown> {
   data: T
@@ -668,3 +809,5 @@ export function isCoinbaseSuccessResponse<T = unknown>(
   const { data } = response as CoinbaseSuccessResponse<T>
   return !!data
 }
+
+// #endregion
