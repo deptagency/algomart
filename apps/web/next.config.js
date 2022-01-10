@@ -1,7 +1,16 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const nextTranslate = require('next-translate')
-const transpileModules = require('next-transpile-modules')(['ky'])
+// const transpileModules = require('next-transpile-modules')(['ky']);
+const withNx = require('@nrwl/next/plugins/with-nx')
 
-module.exports = transpileModules(
+// process.chdir(__dirname);
+
+// require('./i18n');
+
+process.env.NEXT_TRANSLATE_PATH = __dirname
+
+module.exports = withNx(
+  // transpileModules(
   nextTranslate({
     poweredByHeader: false,
     reactStrictMode: true,
@@ -20,13 +29,16 @@ module.exports = transpileModules(
       // disable and run eslint manually as needed instead
       ignoreDuringBuilds: true,
     },
+    nx: {
+      // Set this to true if you would like to to use SVGR
+      // See: https://github.com/gregberge/svgr
+      svgr: false,
+    },
     serverRuntimeConfig: {
       API_KEY: process.env.API_KEY,
       API_URL: process.env.API_URL,
       FIREBASE_SERVICE_ACCOUNT: process.env.FIREBASE_SERVICE_ACCOUNT,
       NODE_ENV: process.env.NODE_ENV,
-      SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
-      SENDGRID_EMAIL: process.env.SENDGRID_EMAIL,
     },
     publicRuntimeConfig: {
       NEXT_PUBLIC_FIREBASE_CONFIG: process.env.NEXT_PUBLIC_FIREBASE_CONFIG,
@@ -36,4 +48,5 @@ module.exports = transpileModules(
         process.env.NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED,
     },
   })
+  // )
 )
