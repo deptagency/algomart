@@ -1,11 +1,19 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "composite": true,
+    "declaration": true,
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "paths": {
+      "@/*": ["apps/api/src/*"],
+      "test/*": ["apps/api/test/*"],
+      "@algomart/schemas": ["libs/schemas/src/index.ts"]
+    }
   },
   "include": [
+    "src/**/*.ts",
     "**/*.test.ts",
     "**/*.spec.ts",
     "**/*.d.ts",

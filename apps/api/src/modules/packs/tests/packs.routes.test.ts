@@ -1,6 +1,7 @@
 import { PackStatus, PackType } from '@algomart/schemas'
 import { FastifyInstance } from 'fastify'
 import { buildTestApp } from 'test/build-test-app'
+import { setupTestDatabase, teardownTestDatabase } from 'test/setup-tests'
 
 import DirectusAdapter, { toPackBase } from '@/lib/directus-adapter'
 import { packFactory, packTemplateFactory } from '@/seeds/seed-test-data'
@@ -9,11 +10,13 @@ import { randomRedemptionCode } from '@/utils/random'
 let app: FastifyInstance
 
 beforeEach(async () => {
-  app = await buildTestApp()
+  await setupTestDatabase('packs_test_db')
+  app = await buildTestApp('packs_test_db')
 })
 
 afterEach(async () => {
   await app.close()
+  await teardownTestDatabase('packs_test_db')
 })
 
 test('GET /packs OK', async () => {

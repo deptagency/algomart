@@ -7,7 +7,7 @@ import DirectusAdapter from '@/lib/directus-adapter'
 import NFTStorageAdapter from '@/lib/nft-storage-adapter'
 import { configureResolver } from '@/shared/dependency-resolver'
 
-export async function buildTestApp() {
+export async function buildTestApp(database: string) {
   jest
     .spyOn(DirectusAdapter.prototype, 'testConnection')
     .mockResolvedValue(Promise.resolve())
@@ -26,7 +26,7 @@ export async function buildTestApp() {
 
   return await buildApp({
     container: configureResolver(),
-    knex: getTestDatabaseConfig(),
+    knex: getTestDatabaseConfig(database),
     fastify: {
       // uncomment to enable fastify logger
       // logger: { prettyPrint: true },

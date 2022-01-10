@@ -4,7 +4,12 @@
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
     "types": ["jest", "node"],
-    "jsx": "react"
+    "jsx": "react",
+    "paths": {
+      "@/*": ["apps/web/src/*"],
+      "test/*": ["apps/web/test/*"],
+      "@algomart/schemas": ["libs/schemas/src/index.ts"]
+    }
   },
   "include": [
     "./setup-tests.ts",

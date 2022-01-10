@@ -11,7 +11,8 @@
     "prepare": "husky install",
     "start": "nx run-many --target=serve --all --parallel",
     "build": "nx run-many --target=build --all",
-    "test": "nx run-many --target=test --all"
+    "test": "nx run-many --target=test --all",
+    "lint": "nx run-many --target=lint --all"
   },
   "dependencies": {
     "@dinero.js/currencies": "2.0.0-alpha.8",

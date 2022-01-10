@@ -1,7 +1,11 @@
 import { AlgorandTransactionStatus } from '@algomart/schemas'
 import { FastifyInstance } from 'fastify'
 import { buildTestApp } from 'test/build-test-app'
-import { fakeAddressFor } from 'test/setup-tests'
+import {
+  fakeAddressFor,
+  setupTestDatabase,
+  teardownTestDatabase,
+} from 'test/setup-tests'
 
 import AlgorandAdapter from '@/lib/algorand-adapter'
 import {
@@ -13,11 +17,13 @@ import {
 let app: FastifyInstance
 
 beforeEach(async () => {
-  app = await buildTestApp()
+  await setupTestDatabase('accounts_test_db')
+  app = await buildTestApp('accounts_test_db')
 })
 
 afterEach(async () => {
   await app.close()
+  await teardownTestDatabase('accounts_test_db')
 })
 
 test('POST /accounts OK', async () => {
