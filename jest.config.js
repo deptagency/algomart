@@ -1,5 +1,5 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
+const { getJestProjects } = require('@nrwl/jest')
+
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
+  projects: getJestProjects(),
 }

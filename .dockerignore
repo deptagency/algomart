@@ -1,7 +1,7 @@
 **/.env*
 **/.github
 **/.husky
-**/.next
+# **/.next
 **/.postgres
 **/.vercel
 **/cypress
