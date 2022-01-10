@@ -1,0 +1,32 @@
+{
+  "root": "apps/cms",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "./tools/executors/directus:directus",
+      "options": {
+        "action": "start"
+      }
+    },
+    "export": {
+      "executor": "./tools/executors/directus:directus",
+      "options": {
+        "action": "schema",
+        "args": ["snapshot", "./snapshot.yml"]
+      }
+    },
+    "import": {
+      "executor": "./tools/executors/directus:directus",
+      "options": {
+        "action": "schema",
+        "args": ["apply", "./snapshot.yml"]
+      }
+    },
+    "bootstrap": {
+      "executor": "./tools/executors/directus:directus",
+      "options": {
+        "action": "bootstrap"
+      }
+    }
+  }
+}
