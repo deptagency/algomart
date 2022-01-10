@@ -11,7 +11,11 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "incremental": true
+    "incremental": true,
+    "paths": {
+      "@/*": ["apps/web/src/*"],
+      "@algomart/schemas": ["libs/schemas/src/index.ts"]
+    }
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "next-env.d.ts"],
   "exclude": ["node_modules"]

@@ -9,9 +9,8 @@
       "options": {
         "generatePackageJson": true,
         "outputPath": "dist/apps/api",
-        "main": "apps/api/src/main.ts",
-        "tsConfig": "apps/api/tsconfig.app.json",
-        "assets": ["apps/api/src/assets"]
+        "main": "apps/api/src/index.ts",
+        "tsConfig": "apps/api/tsconfig.app.json"
       },
       "configurations": {
         "production": {

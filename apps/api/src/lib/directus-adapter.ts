@@ -258,7 +258,10 @@ export function toHomepageBase(homepage: DirectusHomepage): HomepageBase {
   )
 
   return {
-    featuredPackTemplateId: homepage.featured_pack ?? undefined,
+    featuredPackTemplateId:
+      typeof homepage.featured_pack === 'string'
+        ? homepage.featured_pack
+        : homepage.featured_pack?.id,
     upcomingPackTemplateIds: (homepage.upcoming_packs ?? []) as string[],
     notableCollectibleTemplateIds: (homepage.notable_collectibles ??
       []) as string[],
@@ -425,7 +428,10 @@ export function toCollectibleBase(
       ? {
           code: rarity.code,
           color: rarity.color,
-          name: rarityTranslation?.name,
+          name:
+            typeof rarityTranslation !== 'number'
+              ? rarityTranslation?.name
+              : undefined,
         }
       : undefined,
   }

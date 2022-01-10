@@ -280,7 +280,7 @@ export function usePaymentProvider({
           expirationDate,
         })
 
-        if (!expValidation.isValid) {
+        if (expValidation.state === 'invalid') {
           setFormErrors(expValidation.errors)
           handleSetStatus(CheckoutStatus.form)
           return
@@ -321,7 +321,7 @@ export function usePaymentProvider({
             const response = await error.response.json()
             mapCircleErrors(response.code)
             handleSetStatus(CheckoutStatus.form)
-            return
+            return null
           })
 
         // Poll for card status to confirm avs check is complete
@@ -394,7 +394,7 @@ export function usePaymentProvider({
           amount,
         })
 
-        if (!bankValidation.isValid) {
+        if (bankValidation.state === 'invalid') {
           setFormErrors(bankValidation.errors)
           handleSetStatus(CheckoutStatus.form)
           return
@@ -424,7 +424,7 @@ export function usePaymentProvider({
             const response = await error.response.json()
             mapCircleErrors(response.code)
             handleSetStatus(CheckoutStatus.form)
-            return
+            return null
           })
 
         // Poll for bank account status
@@ -515,7 +515,7 @@ export function usePaymentProvider({
             ? await validateFormForBidsWithSavedCard({ ...body, bid })
             : await validateFormForBids({ ...body, bid })
 
-          if (!validation.isValid) {
+          if (validation.state === 'invalid') {
             setFormErrors(validation.errors)
             handleSetStatus(CheckoutStatus.form)
             return
@@ -541,7 +541,7 @@ export function usePaymentProvider({
             confirmBid,
           })
 
-          if (!bidValidation.isValid) {
+          if (bidValidation.state === 'invalid') {
             setFormErrors(bidValidation.errors)
             handleSetStatus(CheckoutStatus.form)
             return
@@ -601,7 +601,7 @@ export function usePaymentProvider({
           ? await validateFormForPurchaseWithSavedCard(body)
           : await validateFormForPurchase(body)
 
-        if (!validation.isValid) {
+        if (validation.state === 'invalid') {
           setFormErrors(validation.errors)
           handleSetStatus(CheckoutStatus.form)
           return
