@@ -1,1 +1,5 @@
-{}
+{
+  "scripts": {
+    "seed": "./scripts/seed.mjs"
+  }
+}

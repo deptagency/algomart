@@ -146,9 +146,7 @@ var __spreadArray =
   }
 exports.__esModule = true
 var node_child_process_1 = require('node:child_process')
-var node_util_1 = require('node:util')
 var node_path_1 = require('node:path')
-var execAsync = (0, node_util_1.promisify)(node_child_process_1.exec)
 function runAction(options, context) {
   return __awaiter(this, void 0, void 0, function () {
     return __generator(this, function (_a) {

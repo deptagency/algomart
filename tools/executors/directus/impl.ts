@@ -1,9 +1,6 @@
 import { ExecutorContext } from '@nrwl/devkit'
-import { exec, spawn, fork } from 'node:child_process'
-import { promisify } from 'node:util'
+import { spawn } from 'node:child_process'
 import { join } from 'node:path'
-
-const execAsync = promisify(exec)
 
 interface DirectusExecutorOptions {
   action:
