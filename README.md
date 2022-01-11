@@ -50,8 +50,9 @@ This software is in a pre-release state. This means while we strive to keep it s
 - Algod (Algorand node, use [algorand/sandbox][algorand sandbox] to start)
 - [Circle][circle] account for taking payments
 - [SendGrid][sendgrid] for sending email notifications
-- [Firebase][firebase] account for authentication.
+- [Firebase][firebase] account for authentication
 - (optional) [Google Cloud Platform][gcp] account for hosting
+- (optional) Install the [Nx CLI][nx cli] for ease of development: `npm i -g nx`
 
 ## 🚀 Get Started
 
@@ -177,6 +178,7 @@ npm run test:api -- --watch
 [schemas]: libs/schemas
 [sendgrid]: https://sendgrid.com
 [web]: apps/web
+[nx cli]: https://nx.dev/using-nx/nx-cli#nx-cli
 
 ## 🚢 Deployment
 
