@@ -11,6 +11,7 @@ COPY ../../dist/apps/web/ ./
 
 # need to manually copy the next-translate configuration
 COPY ../../apps/web/i18n.js ./i18n.js
+COPY ../../apps/web/locales/ ./locales/
 
 # next-translate requires pages/_app.js to be present
 RUN mkdir pages && touch pages/_app.js
