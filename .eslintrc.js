@@ -60,11 +60,6 @@ const defaultExtends = [
   'eslint:recommended',
   'plugin:@typescript-eslint/recommended',
   'plugin:unicorn/recommended',
-  // 'plugin:react/recommended',
-  // 'plugin:react-hooks/recommended',
-  // 'plugin:react/jsx-runtime',
-  // 'plugin:jsx-a11y/recommended',
-  // 'plugin:@next/next/recommended',
   'prettier',
 ]
 
@@ -107,6 +102,19 @@ module.exports = {
       files: ['*.js', '*.jsx'],
       extends: [...defaultExtends, 'plugin:@nrwl/nx/javascript'],
       plugins: [...defaultPlugins],
+      rules: {
+        ...defaultRules,
+      },
+    },
+    {
+      files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+      excludedFiles: ['**/cypress/**/*.[jt]s?(x)'],
+      extends: [
+        ...defaultExtends,
+        'plugin:jest/recommended',
+        'plugin:jest-dom/recommended',
+        'plugin:testing-library/react',
+      ],
       rules: {
         ...defaultRules,
       },
