@@ -6,31 +6,29 @@ The purpose of the CMS is to provide content authors the ability to create and m
 
 ## Initial setup
 
-Once the environment variables have been added to the `.env` file, you'll want to create a new Postgres database with the name specified in the `DB_CONNECTION_STRING` in the `.env` file.
+Once the environment variables have been added to the `.env` file, you'll want to create a new Postgres database with the name specified in the `DB_CONNECTION_STRING` in the `.env` file. You'll also want to set the `ADMIN_EMAIL` and `ADMIN_PASSWORD` values for the initial CMS admin user.
 
-Then you'll want to create an admin user, which will allow you to login and administer the CMS:
-
-```bash
-cp config.example.json config.local.json
-```
-
-Create a username and password, then set up the database and run migrations:
+Run the bootstrap and import commands via Nx:
 
 ```bash
-npm run bootstrap
+nx bootstrap cms
+nx import cms
 ```
 
 Start the server locally:
 
 ```bash
-npm run dev
+nx serve cms
 ```
 
 Optionally, you can seed the database (while the server is running) to generate dummy content:
 
 ```bash
-npm run db:seed
+cd apps/cms
+npm run seed
 ```
+
+> TODO: setup seed Nx executor
 
 Once the database is set up, it can be run in conjunction with the other monorepo packages from the root of the repository.
 
@@ -43,7 +41,7 @@ After bootstrapping and running the seed script locally, there's additional conf
 When you first spin up the app, you'll see only text rendered in place of images. There's an extra step needed in order to make these files available.
 
 1. Navigate to the local CMS, which defaults to http://localhost:8055
-1. Log in using the username and password you specified in `config.local.json`.
+1. Log in using the username and password you specified.
 1. In the local CMS, go to Settings (the cog wheel)
 1. Go to Roles & Permissions
 1. Click on the Public category

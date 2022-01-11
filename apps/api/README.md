@@ -31,6 +31,7 @@ CREATE SCHEMA <name>
 Finally, apply migrations:
 
 ```bash
+cd apps/api
 npm run db:latest
 ```
 
@@ -66,13 +67,13 @@ To create an account:
 Once everything is configured, you can start everything in development/watch mode:
 
 ```bash
-npm run dev
+nx serve api
 ```
 
 To build:
 
 ```bash
-npm run build
+nx build api
 ```
 
 ## Folder structure

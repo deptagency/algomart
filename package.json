@@ -147,6 +147,7 @@
     "sqlite3": "5.0.2",
     "tailwindcss": "2.2.19",
     "ts-jest": "27.1.2",
+    "ts-node": "10.4.0",
     "tsconfig-paths": "3.12.0",
     "typescript": "4.5.4"
   },
