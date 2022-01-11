@@ -1,11 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nextTranslate = require('next-translate')
-// const transpileModules = require('next-transpile-modules')(['ky']);
 const withNx = require('@nrwl/next/plugins/with-nx')
-
-// process.chdir(__dirname);
-
-// require('./i18n');
 
 process.env.NEXT_TRANSLATE_PATH = __dirname
 
@@ -48,5 +43,4 @@ module.exports = withNx(
         process.env.NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED,
     },
   })
-  // )
 )
