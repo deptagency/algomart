@@ -12,14 +12,14 @@
       "executor": "./tools/executors/directus:directus",
       "options": {
         "action": "schema",
-        "args": ["snapshot", "./snapshot.yml"]
+        "args": ["snapshot", "--yes", "./snapshot.yml"]
       }
     },
     "import": {
       "executor": "./tools/executors/directus:directus",
       "options": {
         "action": "schema",
-        "args": ["apply", "./snapshot.yml"]
+        "args": ["apply", "--yes", "./snapshot.yml"]
       }
     },
     "bootstrap": {
