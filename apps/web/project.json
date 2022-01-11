@@ -20,7 +20,8 @@
       "executor": "@nrwl/next:server",
       "options": {
         "buildTarget": "web:build",
-        "dev": true
+        "dev": true,
+        "port": 3000
       },
       "configurations": {
         "production": {
