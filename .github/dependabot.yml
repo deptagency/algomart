@@ -5,26 +5,6 @@ updates:
     schedule:
       interval: 'weekly'
 
-  - package-ecosystem: 'npm'
-    directory: '/apps/cms'
-    schedule:
-      interval: 'weekly'
-
-  - package-ecosystem: 'npm'
-    directory: '/apps/web'
-    schedule:
-      interval: 'weekly'
-
-  - package-ecosystem: 'npm'
-    directory: '/services/api'
-    schedule:
-      interval: 'weekly'
-
-  - package-ecosystem: 'npm'
-    directory: '/packages/schemas'
-    schedule:
-      interval: 'weekly'
-
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:

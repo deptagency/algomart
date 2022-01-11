@@ -3,21 +3,21 @@ FROM node:16-bullseye-slim AS deps
 WORKDIR /app
 
 COPY \
-  ./services/api/package*.json    \
-  ./services/api/rollup.config.js \
-  ./services/api/tsconfig.json    \
-  ./services/api/
+  ./apps/api/package*.json    \
+  ./apps/api/rollup.config.js \
+  ./apps/api/tsconfig.json    \
+  ./apps/api/
 
-COPY ./services/api/locales ./services/api/locales
-COPY ./services/api/src     ./services/api/src
+COPY ./apps/api/locales ./apps/api/locales
+COPY ./apps/api/src     ./apps/api/src
 
 COPY \
-  ./packages/schemas/package*.json    \
-  ./packages/schemas/rollup.config.js \
-  ./packages/schemas/tsconfig.json    \
-  ./packages/schemas/
+  ./libs/schemas/package*.json    \
+  ./libs/schemas/rollup.config.js \
+  ./libs/schemas/tsconfig.json    \
+  ./libs/schemas/
 
-COPY ./packages/schemas/src ./packages/schemas/src
+COPY ./libs/schemas/src ./libs/schemas/src
 
 COPY ./package*.json ./
 
@@ -25,8 +25,8 @@ RUN npm install
 RUN npm run build:schemas
 RUN npm run build:api
 
-COPY ./docker/deploy/api/run.sh ./services/api/run.sh
+COPY ./docker/deploy/api/run.sh ./apps/api/run.sh
 
-WORKDIR /app/services/api
+WORKDIR /app/apps/api
 
 CMD ["./run.sh"]

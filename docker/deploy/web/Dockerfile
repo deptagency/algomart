@@ -30,12 +30,12 @@ COPY \
   ./apps/web/tsconfig.json           \
   ./apps/web/
 
-COPY ./packages/schemas/src ./packages/schemas/src
+COPY ./libs/schemas/src ./libs/schemas/src
 COPY \
-  ./packages/schemas/package*.json    \
-  ./packages/schemas/rollup.config.js \
-  ./packages/schemas/tsconfig.json    \
-  ./packages/schemas/
+  ./libs/schemas/package*.json    \
+  ./libs/schemas/rollup.config.js \
+  ./libs/schemas/tsconfig.json    \
+  ./libs/schemas/
 
 COPY ./package*.json ./
 
