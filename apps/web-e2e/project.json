@@ -3,7 +3,7 @@
   "sourceRoot": "apps/web-e2e/src",
   "projectType": "application",
   "targets": {
-    "e2e": {
+    "serve": {
       "executor": "@nrwl/cypress:cypress",
       "options": {
         "cypressConfig": "apps/web-e2e/cypress.json",
