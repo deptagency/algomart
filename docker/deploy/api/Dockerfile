@@ -21,10 +21,12 @@ RUN nx run api:build:production
 FROM node:16-bullseye-slim AS runner
 
 WORKDIR /app
-COPY --from=builder /app/dist/apps/api/ ./
+COPY --from=builder /app/ ./
+RUN npm install --global nx
+
+WORKDIR /app/dist/apps/api
 RUN npm install --production --no-package-lock && \
   npm install tslib@2 pino-pretty@7 pg@8 --save-exact --no-package-lock
-
 COPY docker/deploy/api/run.sh ./
 
 CMD ["./run.sh"]

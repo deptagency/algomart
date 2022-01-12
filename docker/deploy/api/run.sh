@@ -2,6 +2,8 @@
 
 set -e
 
+cd /app
+
 echo 'current version, before:'
 nx run api:migrate:currentVersion
 
@@ -12,4 +14,5 @@ echo 'current version, after:'
 nx run api:migrate:currentVersion
 
 echo 'starting api...'
+cd /app/dist/apps/api
 node main.js
