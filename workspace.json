@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "projects": {
+    "api": "apps/api",
+    "cms": "apps/cms",
+    "schemas": "libs/schemas",
+    "web": "apps/web",
+    "web-e2e": "apps/web-e2e"
+  }
+}

@@ -27,7 +27,7 @@ export default function ResetPasswordPage() {
         email: formData.get('email') as string,
       }
       const validation = await validate(body)
-      if (validation.isValid) {
+      if (validation.state === 'valid') {
         await auth.sendPasswordReset(body.email)
         setResetSent(true)
       } else {

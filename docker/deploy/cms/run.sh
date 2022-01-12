@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
 
-node_modules/.bin/directus bootstrap
-node_modules/.bin/directus start
+directus bootstrap
+directus schema apply --yes ./snapshot.yml
+directus start

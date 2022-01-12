@@ -7,9 +7,9 @@
 This project is developed to be a foundational starter for creating your own NFT storefront on the Algorand blockchain. It is a monorepo that includes:
 
 - A [headless CMS](./apps/cms) (Directus)
-- A [back-end API](./services/api) (Fastify)
+- A [back-end API](./apps/api) (Fastify)
 - A [front-end](./apps/web) sample implementation (NextJS)
-- Shared Typescript [interfaces and enums](./packages/schemas)
+- Shared Typescript [interfaces and enums](./libs/schemas)
 - [Terraform templates](./terraform) for setting up infrastructure on Google Cloud Platform
 - [Github Workflows](./.github/workflows) for linting, type-checking, building, dockerizing, and deploying
 
@@ -50,12 +50,13 @@ This software is in a pre-release state. This means while we strive to keep it s
 - Algod (Algorand node, use [algorand/sandbox][algorand sandbox] to start)
 - [Circle][circle] account for taking payments
 - [SendGrid][sendgrid] for sending email notifications
-- [Firebase][firebase] account for authentication.
+- [Firebase][firebase] account for authentication
 - (optional) [Google Cloud Platform][gcp] account for hosting
+- (optional) Install the [Nx CLI][nx cli] for ease of development: `npm i -g nx`
 
 ## 🚀 Get Started
 
-Create an `.env` file in the `./services/api`, `./apps/cms`, and `./apps/web` and populate them with the appropriate environment variables. You can reference the adjacent `.env.example` file in each directory. See the corresponding comments for explanations of each variable.
+Create an `.env` file in the `./apps/api`, `./apps/cms`, and `./apps/web` and populate them with the appropriate environment variables. You can reference the adjacent `.env.example` file in each directory. See the corresponding comments for explanations of each variable.
 
 After this, you can either build and run each application manually or you can use `docker-compose`.
 
@@ -78,7 +79,7 @@ npm install
 Additional setup may be required within each package. Check the README in each for more details. Once everything is configured, you can start everything in development/watch mode:
 
 ```bash
-npm run dev
+npm start
 ```
 
 To build _everything_:
@@ -93,10 +94,10 @@ To run all tests:
 npm test
 ```
 
-To remove all `node_modules`:
+To run eslint for all projects:
 
 ```
-npm run clean
+npm run lint
 ```
 
 ### Running with docker-compose
@@ -164,7 +165,7 @@ npm run test:api -- --watch
 ```
 
 [algorand sandbox]: https://github.com/algorand/sandbox
-[api]: services/api
+[api]: apps/api
 [circle]: https://www.circle.com
 [cms]: apps/cms
 [code of conduct]: CODE_OF_CONDUCT.md
@@ -174,9 +175,10 @@ npm run test:api -- --watch
 [issue tracker]: https://github.com/deptagency/algomart/issues
 [nvm]: https://github.com/nvm-sh/nvm
 [postgres app]: https://postgresapp.com
-[schemas]: packages/schemas
+[schemas]: libs/schemas
 [sendgrid]: https://sendgrid.com
 [web]: apps/web
+[nx cli]: https://nx.dev/using-nx/nx-cli#nx-cli
 
 ## 🚢 Deployment
 

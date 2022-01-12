@@ -5,44 +5,26 @@ import { ServiceAccount } from 'firebase-admin'
 import getConfig from 'next/config'
 
 export const Environment = {
-  config<T = string>(key: string, fallback: T) {
+  config(key: string, fallback: string): string {
     const { publicRuntimeConfig = {}, serverRuntimeConfig = {} } =
       getConfig() || {}
-    return (publicRuntimeConfig[key] ||
-      serverRuntimeConfig[key] ||
-      fallback) as T
+    return publicRuntimeConfig[key] || serverRuntimeConfig[key] || fallback
   },
 
   get firebaseConfig() {
     return JSON.parse(
-      this.config<string>('NEXT_PUBLIC_FIREBASE_CONFIG', '{}')
+      this.config('NEXT_PUBLIC_FIREBASE_CONFIG', '{}')
     ) as FirebaseOptions
   },
 
   get firebaseServiceAccount() {
     return JSON.parse(
-      this.config<string>('FIREBASE_SERVICE_ACCOUNT', '{}')
+      this.config('FIREBASE_SERVICE_ACCOUNT', '{}')
     ) as ServiceAccount
   },
 
-  get circleApiKey() {
-    return this.config('CIRCLE_API_KEY', '')
-  },
-
-  get circleUrl() {
-    return this.config('CIRCLE_URL', '')
-  },
-
-  get sendgridApiKey() {
-    return this.config('SENDGRID_API_KEY', '')
-  },
-
-  get sendgridEmail() {
-    return this.config('SENDGRID_EMAIL', '')
-  },
-
   get isProduction() {
-    return this.config<string>('NODE_ENV', 'development') === 'production'
+    return this.config('NODE_ENV', 'development') === 'production'
   },
 
   get apiKey() {
@@ -58,10 +40,7 @@ export const Environment = {
   },
 
   get currency() {
-    const code = this.config<keyof typeof Currencies>(
-      'CURRENCY',
-      DEFAULT_CURRENCY
-    )
+    const code = this.config('CURRENCY', DEFAULT_CURRENCY)
     return Currencies[code as keyof typeof Currencies]
   },
 

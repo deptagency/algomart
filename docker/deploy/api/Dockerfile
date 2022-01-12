@@ -1,32 +1,32 @@
-FROM node:16-bullseye-slim AS deps
+FROM node:16-bullseye AS builder
 
 WORKDIR /app
 
-COPY \
-  ./services/api/package*.json    \
-  ./services/api/rollup.config.js \
-  ./services/api/tsconfig.json    \
-  ./services/api/
+# need to remove the npm packages canvas and sqlite3 to remove the next few lines
+RUN apt update && apt install python2 build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev sqlite3 -y
+ENV PYTHON=/usr/bin/python2
+RUN npm config set python="/usr/bin/python2"
 
-COPY ./services/api/locales ./services/api/locales
-COPY ./services/api/src     ./services/api/src
+# setup nx
+RUN npm install --global nx
 
-COPY \
-  ./packages/schemas/package*.json    \
-  ./packages/schemas/rollup.config.js \
-  ./packages/schemas/tsconfig.json    \
-  ./packages/schemas/
+# install dependencies
+COPY package*.json ./
+RUN npm install --build-from-source
 
-COPY ./packages/schemas/src ./packages/schemas/src
+# build api
+COPY . .
+RUN nx run api:build:production
 
-COPY ./package*.json ./
+FROM node:16-bullseye-slim AS runner
 
-RUN npm install
-RUN npm run build:schemas
-RUN npm run build:api
+WORKDIR /app
+COPY --from=builder /app/ ./
+RUN npm install --global nx
 
-COPY ./docker/deploy/api/run.sh ./services/api/run.sh
-
-WORKDIR /app/services/api
+WORKDIR /app/dist/apps/api
+RUN npm install --production --no-package-lock && \
+  npm install tslib@2 pino-pretty@7 pg@8 --save-exact --no-package-lock
+COPY docker/deploy/api/run.sh ./
 
 CMD ["./run.sh"]

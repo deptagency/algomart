@@ -71,9 +71,12 @@ export async function importCsvFile(formData, collection, token) {
 /** Download file from directus */
 export async function downloadFile(id, token) {
   try {
-    const res = await axios.get(`${process.env.PUBLIC_URL}/assets/${id}?download&access_token=${token}`, {
-      responseEncoding: 'binary'
-    })
+    const res = await axios.get(
+      `${process.env.PUBLIC_URL}/assets/${id}?download&access_token=${token}`,
+      {
+        responseEncoding: 'binary',
+      }
+    )
     return res.data
   } catch (error) {
     console.log(error.response?.data?.errors)
@@ -84,7 +87,9 @@ export async function downloadFile(id, token) {
 /** Get list of files from directus */
 export async function getAllFilesMeta(token) {
   try {
-    const res = await axios.get(`${process.env.PUBLIC_URL}/files?access_token=${token}`)
+    const res = await axios.get(
+      `${process.env.PUBLIC_URL}/files?access_token=${token}`
+    )
     return res.data.data
   } catch (error) {
     console.log(error.response?.data?.errors)
@@ -96,10 +101,12 @@ export async function getAllFilesMeta(token) {
 export async function getCollections(token) {
   try {
     const response = await axios.get(
-      `${process.env.PUBLIC_URL}/collections?access_token=${token}&export=json`,
+      `${process.env.PUBLIC_URL}/collections?access_token=${token}&export=json`
     )
     const data = response.data
-    const filteredData = data.filter((item) => !item.collection.includes('directus_'))
+    const filteredData = data.filter(
+      (item) => !item.collection.includes('directus_')
+    )
     const collections = filteredData.map((item) => item.collection)
     return collections
   } catch (error) {
@@ -113,7 +120,7 @@ export async function getCollectionItemsAsCsv(collectionName, fields, token) {
   try {
     const fieldsString = fields?.length ? '&fields=' + fields.join(',') : ''
     const response = await axios.get(
-      `${process.env.PUBLIC_URL}/items/${collectionName}?access_token=${token}${fieldsString}&export=csv`,
+      `${process.env.PUBLIC_URL}/items/${collectionName}?access_token=${token}${fieldsString}&export=csv`
     )
     return response.data
   } catch (error) {
