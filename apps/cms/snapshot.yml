@@ -23,7 +23,7 @@ collections:
       collapse: open
     schema:
       name: application
-      schema: cms
+      schema: public
       comment: null
   - collection: collections
     meta:
@@ -47,7 +47,7 @@ collections:
       collapse: open
     schema:
       name: collections
-      schema: cms
+      schema: public
       comment: null
   - collection: collections_translations
     meta:
@@ -71,7 +71,7 @@ collections:
       collapse: open
     schema:
       name: collections_translations
-      schema: cms
+      schema: public
       comment: null
   - collection: homepage
     meta:
@@ -95,7 +95,7 @@ collections:
       collapse: open
     schema:
       name: homepage
-      schema: cms
+      schema: public
       comment: null
   - collection: languages
     meta:
@@ -119,7 +119,7 @@ collections:
       collapse: open
     schema:
       name: languages
-      schema: cms
+      schema: public
       comment: null
   - collection: nft_templates
     meta:
@@ -147,7 +147,7 @@ collections:
       collapse: open
     schema:
       name: nft_templates
-      schema: cms
+      schema: public
       comment: null
   - collection: nft_templates_translations
     meta:
@@ -175,7 +175,7 @@ collections:
       collapse: open
     schema:
       name: nft_templates_translations
-      schema: cms
+      schema: public
       comment: null
   - collection: pack_templates
     meta:
@@ -199,7 +199,7 @@ collections:
       collapse: open
     schema:
       name: pack_templates
-      schema: cms
+      schema: public
       comment: null
   - collection: pack_templates_directus_files
     meta:
@@ -223,7 +223,7 @@ collections:
       collapse: open
     schema:
       name: pack_templates_directus_files
-      schema: cms
+      schema: public
       comment: null
   - collection: pack_templates_translations
     meta:
@@ -247,7 +247,7 @@ collections:
       collapse: open
     schema:
       name: pack_templates_translations
-      schema: cms
+      schema: public
       comment: null
   - collection: rarities
     meta:
@@ -275,7 +275,7 @@ collections:
       collapse: open
     schema:
       name: rarities
-      schema: cms
+      schema: public
       comment: null
   - collection: rarities_translations
     meta:
@@ -299,7 +299,7 @@ collections:
       collapse: open
     schema:
       name: rarities_translations
-      schema: cms
+      schema: public
       comment: null
   - collection: sets
     meta:
@@ -323,7 +323,7 @@ collections:
       collapse: open
     schema:
       name: sets
-      schema: cms
+      schema: public
       comment: null
   - collection: sets_translations
     meta:
@@ -347,7 +347,7 @@ collections:
       collapse: open
     schema:
       name: sets_translations
-      schema: cms
+      schema: public
       comment: null
 fields:
   - collection: application
@@ -368,7 +368,7 @@ fields:
       is_primary_key: true
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -408,7 +408,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -778,7 +778,7 @@ fields:
       is_primary_key: true
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -818,7 +818,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -880,7 +880,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -919,8 +919,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_users
       foreign_key_column: id
     meta:
@@ -960,7 +960,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1001,8 +1001,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_users
       foreign_key_column: id
     meta:
@@ -1042,7 +1042,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1083,7 +1083,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1132,8 +1132,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_files
       foreign_key_column: id
     meta:
@@ -1171,8 +1171,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_files
       foreign_key_column: id
     meta:
@@ -1212,7 +1212,7 @@ fields:
       is_primary_key: true
       has_auto_increment: true
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1251,8 +1251,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: collections
       foreign_key_column: id
     meta:
@@ -1290,8 +1290,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: languages
       foreign_key_column: code
     meta:
@@ -1329,7 +1329,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1369,7 +1369,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1409,7 +1409,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1462,7 +1462,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1504,7 +1504,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1546,7 +1546,7 @@ fields:
       is_primary_key: true
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1586,8 +1586,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: pack_templates
       foreign_key_column: id
     meta:
@@ -1627,7 +1627,7 @@ fields:
       is_primary_key: true
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1667,7 +1667,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1707,7 +1707,7 @@ fields:
       is_primary_key: true
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1747,7 +1747,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1809,8 +1809,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_users
       foreign_key_column: id
     meta:
@@ -1850,7 +1850,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1891,8 +1891,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_users
       foreign_key_column: id
     meta:
@@ -1932,7 +1932,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -1973,7 +1973,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -2021,7 +2021,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -2069,8 +2069,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_files
       foreign_key_column: id
     meta:
@@ -2108,8 +2108,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_files
       foreign_key_column: id
     meta:
@@ -2147,8 +2147,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_files
       foreign_key_column: id
     meta:
@@ -2186,8 +2186,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_files
       foreign_key_column: id
     meta:
@@ -2225,8 +2225,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: pack_templates
       foreign_key_column: id
     meta:
@@ -2275,8 +2275,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: rarities
       foreign_key_column: id
     meta:
@@ -2324,8 +2324,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: sets
       foreign_key_column: id
     meta:
@@ -2374,8 +2374,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: collections
       foreign_key_column: id
     meta:
@@ -2424,8 +2424,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: homepage
       foreign_key_column: id
     meta:
@@ -2463,7 +2463,7 @@ fields:
       is_primary_key: true
       has_auto_increment: true
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -2502,8 +2502,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: nft_templates
       foreign_key_column: id
     meta:
@@ -2541,8 +2541,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: languages
       foreign_key_column: code
     meta:
@@ -2580,7 +2580,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -2620,7 +2620,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -2660,7 +2660,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -2699,7 +2699,7 @@ fields:
       is_primary_key: true
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -2739,7 +2739,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -2801,7 +2801,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -2840,8 +2840,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_users
       foreign_key_column: id
     meta:
@@ -2881,7 +2881,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -2922,8 +2922,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_users
       foreign_key_column: id
     meta:
@@ -2963,7 +2963,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3004,7 +3004,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3053,7 +3053,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3109,7 +3109,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3160,7 +3160,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3207,7 +3207,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3254,7 +3254,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3308,7 +3308,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3362,7 +3362,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3416,7 +3416,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3466,8 +3466,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_files
       foreign_key_column: id
     meta:
@@ -3505,7 +3505,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3560,8 +3560,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: homepage
       foreign_key_column: id
     meta:
@@ -3599,7 +3599,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3654,7 +3654,7 @@ fields:
       is_primary_key: true
       has_auto_increment: true
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3693,8 +3693,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_files
       foreign_key_column: id
     meta:
@@ -3732,8 +3732,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: pack_templates
       foreign_key_column: id
     meta:
@@ -3771,7 +3771,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3810,7 +3810,7 @@ fields:
       is_primary_key: true
       has_auto_increment: true
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3849,8 +3849,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: pack_templates
       foreign_key_column: id
     meta:
@@ -3888,8 +3888,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: languages
       foreign_key_column: code
     meta:
@@ -3927,7 +3927,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -3967,7 +3967,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4007,7 +4007,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4046,7 +4046,7 @@ fields:
       is_primary_key: true
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4086,8 +4086,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_users
       foreign_key_column: id
     meta:
@@ -4127,7 +4127,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4168,8 +4168,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_users
       foreign_key_column: id
     meta:
@@ -4209,7 +4209,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4250,7 +4250,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4290,7 +4290,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4329,7 +4329,7 @@ fields:
       is_primary_key: true
       has_auto_increment: true
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4368,8 +4368,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: rarities
       foreign_key_column: id
     meta:
@@ -4407,8 +4407,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: languages
       foreign_key_column: code
     meta:
@@ -4446,7 +4446,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4486,7 +4486,7 @@ fields:
       is_primary_key: true
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4526,7 +4526,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4588,7 +4588,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4627,8 +4627,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_users
       foreign_key_column: id
     meta:
@@ -4668,7 +4668,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4709,8 +4709,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: directus_users
       foreign_key_column: id
     meta:
@@ -4750,7 +4750,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4791,7 +4791,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4840,8 +4840,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: collections
       foreign_key_column: id
     meta:
@@ -4890,7 +4890,7 @@ fields:
       is_primary_key: true
       has_auto_increment: true
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -4929,8 +4929,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: sets
       foreign_key_column: id
     meta:
@@ -4968,8 +4968,8 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
-      foreign_key_schema: cms
+      schema: public
+      foreign_key_schema: public
       foreign_key_table: languages
       foreign_key_column: code
     meta:
@@ -5007,7 +5007,7 @@ fields:
       is_primary_key: false
       has_auto_increment: false
       comment: null
-      schema: cms
+      schema: public
       foreign_key_schema: null
       foreign_key_table: null
       foreign_key_column: null
@@ -5365,7 +5365,7 @@ relations:
       column: user_created
       foreign_key_table: directus_users
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: rarities_user_created_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5387,7 +5387,7 @@ relations:
       column: user_updated
       foreign_key_table: directus_users
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: rarities_user_updated_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5409,7 +5409,7 @@ relations:
       column: rarities_id
       foreign_key_table: rarities
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: rarities_translations_rarities_id_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5431,7 +5431,7 @@ relations:
       column: languages_code
       foreign_key_table: languages
       foreign_key_column: code
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: rarities_translations_languages_code_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5453,7 +5453,7 @@ relations:
       column: user_created
       foreign_key_table: directus_users
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: collections_user_created_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5475,7 +5475,7 @@ relations:
       column: user_updated
       foreign_key_table: directus_users
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: collections_user_updated_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5497,7 +5497,7 @@ relations:
       column: collection_image
       foreign_key_table: directus_files
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: collections_collection_image_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5519,7 +5519,7 @@ relations:
       column: collections_id
       foreign_key_table: collections
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: collections_translations_collections_id_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5541,7 +5541,7 @@ relations:
       column: languages_code
       foreign_key_table: languages
       foreign_key_column: code
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: collections_translations_languages_code_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5563,7 +5563,7 @@ relations:
       column: user_created
       foreign_key_table: directus_users
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: sets_user_created_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5585,7 +5585,7 @@ relations:
       column: user_updated
       foreign_key_table: directus_users
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: sets_user_updated_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5607,7 +5607,7 @@ relations:
       column: collection
       foreign_key_table: collections
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: sets_collection_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5629,7 +5629,7 @@ relations:
       column: sets_id
       foreign_key_table: sets
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: sets_translations_sets_id_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5651,7 +5651,7 @@ relations:
       column: languages_code
       foreign_key_table: languages
       foreign_key_column: code
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: sets_translations_languages_code_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5673,7 +5673,7 @@ relations:
       column: user_created
       foreign_key_table: directus_users
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: pack_templates_user_created_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5695,7 +5695,7 @@ relations:
       column: user_updated
       foreign_key_table: directus_users
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: pack_templates_user_updated_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5717,7 +5717,7 @@ relations:
       column: pack_image
       foreign_key_table: directus_files
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: pack_templates_pack_image_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5739,7 +5739,7 @@ relations:
       column: pack_templates_id
       foreign_key_table: pack_templates
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: pack_templates_translations_pack_templates_id_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5761,7 +5761,7 @@ relations:
       column: languages_code
       foreign_key_table: languages
       foreign_key_column: code
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: pack_templates_translations_languages_code_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5783,7 +5783,7 @@ relations:
       column: directus_files_id
       foreign_key_table: directus_files
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: pack_templates_directus_files_directus_files_id_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5805,7 +5805,7 @@ relations:
       column: pack_templates_id
       foreign_key_table: pack_templates
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: pack_templates_directus_files_pack_templates_id_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5827,7 +5827,7 @@ relations:
       column: user_created
       foreign_key_table: directus_users
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: nft_templates_user_created_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5849,7 +5849,7 @@ relations:
       column: user_updated
       foreign_key_table: directus_users
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: nft_templates_user_updated_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5871,7 +5871,7 @@ relations:
       column: preview_image
       foreign_key_table: directus_files
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: nft_templates_preview_image_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5893,7 +5893,7 @@ relations:
       column: preview_video
       foreign_key_table: directus_files
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: nft_templates_preview_video_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5915,7 +5915,7 @@ relations:
       column: preview_audio
       foreign_key_table: directus_files
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: nft_templates_preview_audio_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5937,7 +5937,7 @@ relations:
       column: asset_file
       foreign_key_table: directus_files
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: nft_templates_asset_file_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5950,7 +5950,7 @@ relations:
       column: pack_template
       foreign_key_table: pack_templates
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: nft_templates_pack_template_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5972,7 +5972,7 @@ relations:
       column: rarity
       foreign_key_table: rarities
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: nft_templates_rarity_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -5994,7 +5994,7 @@ relations:
       column: set
       foreign_key_table: sets
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: nft_templates_set_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -6016,7 +6016,7 @@ relations:
       column: collection
       foreign_key_table: collections
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: nft_templates_collection_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -6038,7 +6038,7 @@ relations:
       column: nft_templates_id
       foreign_key_table: nft_templates
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: nft_templates_translations_nft_templates_id_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -6060,7 +6060,7 @@ relations:
       column: languages_code
       foreign_key_table: languages
       foreign_key_column: code
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: nft_templates_translations_languages_code_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -6082,7 +6082,7 @@ relations:
       column: reward_image
       foreign_key_table: directus_files
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: collections_reward_image_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -6104,7 +6104,7 @@ relations:
       column: featured_pack
       foreign_key_table: pack_templates
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: homepage_featured_pack_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -6126,7 +6126,7 @@ relations:
       column: homepage
       foreign_key_table: homepage
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: pack_templates_homepage_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
@@ -6148,7 +6148,7 @@ relations:
       column: homepage
       foreign_key_table: homepage
       foreign_key_column: id
-      foreign_key_schema: cms
+      foreign_key_schema: public
       constraint_name: nft_templates_homepage_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
