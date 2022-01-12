@@ -5,7 +5,6 @@ const withNx = require('@nrwl/next/plugins/with-nx')
 process.env.NEXT_TRANSLATE_PATH = __dirname
 
 module.exports = withNx(
-  // transpileModules(
   nextTranslate({
     poweredByHeader: false,
     reactStrictMode: true,
