@@ -25,4 +25,6 @@ COPY --from=builder /app/dist/apps/api/ ./
 RUN npm install --production --no-package-lock && \
   npm install tslib@2 pino-pretty@7 pg@8 --save-exact --no-package-lock
 
-CMD ["node", "main.js"]
+COPY docker/deploy/api/run.sh ./
+
+CMD ["./run.sh"]
