@@ -3,7 +3,6 @@
   "projects": {
     "api": "apps/api",
     "cms": "apps/cms",
-    "migrations": "apps/migrations",
     "schemas": "libs/schemas",
     "web": "apps/web",
     "web-e2e": "apps/web-e2e"

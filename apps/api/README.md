@@ -31,8 +31,7 @@ CREATE SCHEMA <name>
 Finally, apply migrations:
 
 ```bash
-cd apps/api
-npm run db:latest
+nx run api:migrate:latest
 ```
 
 Per the `.env`, you'll also need to be connected to an Algorand node, whether in development or production.
@@ -123,4 +122,17 @@ Emails are scheduled and dispatched to the appropriate users when certain asynch
 
 ## Migrations
 
-Any updates to database models should be accompanied by a database migrations (see existing migrations in `./packages/api/src/migrations` for inspiration). Each migration must include a downward migration in case a rollback is needed. Additionally, the `package.json` contains other migration scripts (up, down, rollback, and latest) in case they're needed.
+Any updates to database models should be accompanied by a database migrations (see existing migrations in `./apps/api/src/migrations` for inspiration). Each migration must include a downward migration in case a rollback is needed.
+
+Each of the following is mapped to the corresponding Knex migration command:
+
+```bash
+nx run api:migrate:up
+nx run api:migrate:down
+nx run api:migrate:latest
+nx run api:migrate:rollback
+nx run api:migrate:status
+nx run api:migrate:list
+nx run api:migrate:currentVersion
+nx run api:migrate:make --args="--name=NewMigrationName"
+```

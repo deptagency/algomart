@@ -3,10 +3,10 @@
 set -e
 
 echo 'current version, before:'
-nx run migrations:currentVersion
+nx run api:migrate:currentVersion
 
 echo 'applying migrations...'
-nx run migrations:latest
+nx run api:migrate:latest
 
 echo 'current version, after:'
-nx run migrations:currentVersion
+nx run api:migrate:currentVersion
