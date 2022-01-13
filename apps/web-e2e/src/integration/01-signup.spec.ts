@@ -1,5 +1,3 @@
-import '@testing-library/cypress/add-commands'
-
 import { getGreeting } from '../support/app.po'
 
 describe('signup', () => {
