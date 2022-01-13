@@ -7,7 +7,6 @@ export default class I18nAdapter {
   constructor() {
     if (i18next.isInitialized) return
     i18next.use(Backend).init({
-      debug: true,
       fallbackLng: DEFAULT_LOCALE,
       lng: DEFAULT_LOCALE,
       ns: ['emails'],
