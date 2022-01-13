@@ -188,4 +188,13 @@ export default class AccountsService {
       .select('id')
     return Boolean(userId)
   }
+
+  async removeUser(request: ExternalId) {
+    await UserAccountModel.query()
+      .findOne({
+        externalId: request.externalId,
+      })
+      .del()
+    return true
+  }
 }

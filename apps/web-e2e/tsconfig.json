@@ -1,10 +1,17 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "strict": true,
+    "target": "es5",
+    "lib": ["es5", "dom"],
     "sourceMap": false,
     "outDir": "../../dist/out-tsc",
     "allowJs": true,
-    "types": ["cypress", "node"]
+    "paths": {
+      "@/*": ["apps/web-e2e/src/*"],
+      "@algomart/schemas": ["libs/schemas/src/index.ts"]
+    },
+    "types": ["cypress", "@testing-library/cypress", "node"]
   },
   "include": ["src/**/*.ts", "src/**/*.js"]
 }

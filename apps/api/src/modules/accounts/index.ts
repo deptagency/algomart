@@ -14,6 +14,7 @@ import {
   createAccount,
   getByExternalId,
   getByUsername,
+  removeUser,
   updateAccount,
   verifyPassphrase,
   verifyUsername,
@@ -126,5 +127,19 @@ export async function accountsRoutes(app: FastifyInstance) {
         },
       },
       verifyUsername
+    )
+    .delete(
+      '/:externalId',
+      {
+        schema: {
+          tags,
+          security,
+          params: ExternalIdSchema,
+          response: {
+            204: Type.Null(),
+          },
+        },
+      },
+      removeUser
     )
 }

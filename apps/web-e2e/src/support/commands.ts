@@ -1,34 +1,65 @@
 // ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
+// Cypress commands
+// Create custom commands and overwrite existing commands.
 //
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
+// More information: https://on.cypress.io/custom-commands
 // ***********************************************
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
-declare namespace Cypress {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface Chainable<Subject> {
-    login(email: string, password: string): void
-  }
-}
-//
-// -- This is a parent command --
-Cypress.Commands.add('login', (email, password) => {
-  console.log('Custom command example: Login', email, password)
-  return cy.task('login', { email, password })
+import '@testing-library/cypress/add-commands'
+
+import { configure } from '@testing-library/cypress'
+
+// Configuration for React Testing Library
+configure({})
+
+/*
+ *
+ * Custom command for initiating the creation of a user
+ * @example cy.createUser()
+ *
+ */
+Cypress.Commands.add('createUser', () => {
+  let email: string, password: string, passphrase: string, username: string
+  cy.fixture('firebase')
+    .as('credentials')
+    .then((c) => {
+      email = c.email
+      passphrase = c.passphrase
+      password = c.password
+      username = c.username
+    })
+  // Create user if does exist
+  return cy
+    .exec('node ./src/utils/createUser.js', {
+      env: { email, password, passphrase, username },
+    })
+    .then((result) => console.log(result.stdout))
 })
-//
-// -- This is a child command --
-// Cypress.Commands.add("drag", { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add("dismiss", { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+/*
+ *
+ * Custom command for cleaning up test users
+ * @example cy.cleanupUser()
+ *
+ */
+Cypress.Commands.add('cleanupUser', (email: string) => {
+  return cy
+    .exec('node ./src/utils/cleanupUser.js', {
+      env: { email },
+    })
+    .then((result) => console.log(result.stdout))
+})
+
+/*
+ *
+ * Custom command for verifying a user's email
+ * @example cy.verifyEmail()
+ *
+ */
+Cypress.Commands.add('verifyEmail', (email: string) => {
+  return cy
+    .exec('node ./src/utils/cleanupUser.js', {
+      env: { email },
+    })
+    .then((result) => console.log(result.stdout))
+})
