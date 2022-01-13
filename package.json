@@ -9,10 +9,11 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "start": "nx run-many --target=serve --all --parallel",
+    "start": "nx run-many --target=serve --projects=api,cms,web --parallel",
     "build": "nx run-many --target=build --all",
     "test": "nx run-many --target=test --all",
-    "lint": "nx run-many --target=lint --all"
+    "lint": "nx run-many --target=lint --all",
+    "e2e": "nx run-many --target=serve --all --watch"
   },
   "dependencies": {
     "@dinero.js/currencies": "2.0.0-alpha.8",
