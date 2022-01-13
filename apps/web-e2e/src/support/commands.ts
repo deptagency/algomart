@@ -28,7 +28,6 @@ Cypress.Commands.add('createUser', () => {
       password = c.password
       username = c.username
     })
-  // Create user if does exist
   return cy
     .exec('node ./src/utils/createUser.js', {
       env: { email, password, passphrase, username },
