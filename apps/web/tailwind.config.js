@@ -3,7 +3,7 @@ const flattenColorPalette =
   require('tailwindcss/lib/util/flattenColorPalette').default
 const plugin = require('tailwindcss/plugin')
 const { createGlobPatternsForDependencies } = require('@nrwl/react/tailwind')
-const path = require('node:path')
+const path = require('path')
 
 module.exports = {
   // Keep JIT disabled for now. Enabling it will break the custom font loading.
