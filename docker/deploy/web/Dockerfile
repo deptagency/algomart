@@ -1,55 +1,37 @@
-# Multi-stage Dockerfile from Vercel
-#
-# See:
-#   - Original image:  https://nextjs.org/docs/deployment#docker-image
-#   - Why multi-stage: https://docs.docker.com/develop/develop-images/multistage-build/
-#
-# Adapted to...
-#   - Use `npm` instead of `yarn`
-#   - Explicitly use node 14
-#
-# IMPORTANT: Building this image REQUIRES ENVIRONMENT VARIABLES for the environment
-#            being built for, eg. building an image for production use requires API
-#            URLs, keys, etc. for that specific environment baked into the image
-
-# Install dependencies only when needed
-FROM node:16-bullseye-slim
+FROM node:16-bullseye AS builder
 
 WORKDIR /app
 
-COPY ./apps/web/locales ./apps/web/locales
-COPY ./apps/web/public  ./apps/web/public
-COPY ./apps/web/src     ./apps/web/src
-COPY \
-  ./apps/web/package*.json           \
-  ./apps/web/i18n.js                 \
-  ./apps/web/next-env.d.ts           \
-  ./apps/web/next.config.js          \
-  ./apps/web/postcss.config.js       \
-  ./apps/web/tailwind.config.js      \
-  ./apps/web/tsconfig.json           \
-  ./apps/web/
+# need to remove the npm packages canvas and sqlite3 to remove the next few lines
+RUN apt update && apt install python2 build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev sqlite3 -y
+ENV PYTHON=/usr/bin/python2
+RUN npm config set python="/usr/bin/python2"
 
-COPY ./packages/schemas/src ./packages/schemas/src
-COPY \
-  ./packages/schemas/package*.json    \
-  ./packages/schemas/rollup.config.js \
-  ./packages/schemas/tsconfig.json    \
-  ./packages/schemas/
+# Setup nx
+RUN npm install --global nx
 
-COPY ./package*.json ./
+# install dependencies
+COPY package*.json ./
+RUN npm install --build-from-source
 
-RUN npm install
-RUN npm run build:schemas
-RUN npm run build:web
+# Copy remaining files
+COPY . .
+RUN nx run web:build:production
 
-WORKDIR /app/apps/web
 
-# Need to ensure _app.js exists to prevent next-translate crashing the app
-# https://github.com/vinissimus/next-translate/issues/421#issuecomment-750824513
-RUN mkdir ./pages && touch ./pages/_app.js
+FROM node:16-bullseye AS runner
 
-# Disable anonymous NextJS usage telemetry
+WORKDIR /app
+
+COPY --from=builder /app/dist/apps/web/ ./
+
+# need to manually copy the next-translate configuration
+COPY --from=builder /app/apps/web/i18n.js ./i18n.js
+COPY --from=builder /app/apps/web/locales/ ./locales/
+
+# next-translate requires pages/_app.js to be present
+RUN mkdir pages && touch pages/_app.js
+RUN npm install --no-package-lock --production
 ENV NEXT_TELEMETRY_DISABLED 1
 
 CMD ["npm", "start"]

@@ -58,7 +58,7 @@ In order for the API to connect to the CMS, the Directus key needs to be inputte
 
 1. Go to your profile (the icon at the very bottom left)
 1. Scroll all the way down to Token, under Admin Options
-1. Paste in the desired API key (has to match `CMS_ACCESS_TOKEN` in services/api/.env)
+1. Paste in the desired API key (has to match `CMS_ACCESS_TOKEN` in apps/api/.env)
 
 ## Data Model Overview
 

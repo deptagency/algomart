@@ -3,6 +3,7 @@
 **/.husky
 **/.postgres
 **/.vercel
+**/.next
 **/cypress
 **/node_modules
 **/Dockerfile*

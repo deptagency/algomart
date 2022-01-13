@@ -14,7 +14,7 @@ Install all dependencies from the root of the monorepo:
 npm install
 ```
 
-You can start everything in development/watch mode by running the following command from the root of the monorepo (which will run the entire project) or the root of the package (`./packages/schemas`):
+You can start everything in development/watch mode by running the following command from the root of the monorepo (which will run the entire project) or the root of the package (`./libs/schemas`):
 
 ```bash
 npm run dev

@@ -15,15 +15,9 @@
       },
       "configurations": {
         "production": {
-          "optimization": true,
+          "optimization": false,
           "extractLicenses": true,
-          "inspect": false,
-          "fileReplacements": [
-            {
-              "replace": "apps/api/src/environments/environment.ts",
-              "with": "apps/api/src/environments/environment.prod.ts"
-            }
-          ]
+          "inspect": false
         }
       }
     },
@@ -46,6 +40,38 @@
       "options": {
         "jestConfig": "apps/api/jest.config.js",
         "passWithNoTests": true
+      }
+    },
+    "migrate": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "cwd": "apps/api"
+      },
+      "configurations": {
+        "up": {
+          "command": "ts-node -P tsconfig.app.json -r tsconfig-paths/register -r dotenv/config src/migrate.ts up"
+        },
+        "down": {
+          "command": "ts-node -P tsconfig.app.json -r tsconfig-paths/register -r dotenv/config src/migrate.ts down"
+        },
+        "latest": {
+          "command": "ts-node -P tsconfig.app.json -r tsconfig-paths/register -r dotenv/config src/migrate.ts latest"
+        },
+        "rollback": {
+          "command": "ts-node -P tsconfig.app.json -r tsconfig-paths/register -r dotenv/config src/migrate.ts rollback"
+        },
+        "list": {
+          "command": "ts-node -P tsconfig.app.json -r tsconfig-paths/register -r dotenv/config src/migrate.ts list"
+        },
+        "make": {
+          "command": "ts-node -P tsconfig.app.json -r tsconfig-paths/register -r dotenv/config src/migrate.ts make {args.name}"
+        },
+        "status": {
+          "command": "ts-node -P tsconfig.app.json -r tsconfig-paths/register -r dotenv/config src/migrate.ts status"
+        },
+        "currentVersion": {
+          "command": "ts-node -P tsconfig.app.json -r tsconfig-paths/register -r dotenv/config src/migrate.ts currentVersion"
+        }
       }
     }
   },

@@ -9,6 +9,7 @@ export default function buildKnexConfiguration(): Knex.Config {
     connection: Configuration.databaseUrl,
     searchPath: [Configuration.databaseSchema],
     migrations: {
+      extension: 'ts',
       directory: path.join(__dirname, '..', 'migrations'),
     },
   }

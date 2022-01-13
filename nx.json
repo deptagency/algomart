@@ -41,5 +41,6 @@
         "linter": "eslint"
       }
     }
-  }
+  },
+  "defaultProject": "migrations"
 }

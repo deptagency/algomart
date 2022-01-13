@@ -1,9 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "strict": true,
-    "target": "es5",
-    "lib": ["es5", "dom"],
     "sourceMap": false,
     "outDir": "../../dist/out-tsc",
     "allowJs": true,
