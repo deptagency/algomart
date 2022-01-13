@@ -18,22 +18,16 @@ configure({})
  * @example cy.createUser()
  *
  */
-Cypress.Commands.add('createUser', () => {
-  let email: string, password: string, passphrase: string, username: string
-  cy.fixture('firebase')
-    .as('credentials')
-    .then((c) => {
-      email = c.email
-      passphrase = c.passphrase
-      password = c.password
-      username = c.username
-    })
-  return cy
-    .exec('node ./src/utils/createUser.js', {
-      env: { email, password, passphrase, username },
-    })
-    .then((result) => console.log(result.stdout))
-})
+Cypress.Commands.add(
+  'createUser',
+  (email: string, password: string, passphrase: string, username: string) => {
+    return cy
+      .exec('node ./src/utils/createUser.js', {
+        env: { email, password, passphrase, username },
+      })
+      .then((result) => console.log(result.stdout))
+  }
+)
 
 /*
  *
