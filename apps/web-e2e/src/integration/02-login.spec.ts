@@ -4,8 +4,6 @@ describe('login', () => {
   let email: string, passphrase: string, password: string, username: string
   beforeEach(() => {
     cy.configureCypressTestingLibrary({})
-    cy.clearCookies()
-    cy.clearLocalStorage()
     cy.fixture('firebase')
       .as('credentials')
       .then((c) => {
