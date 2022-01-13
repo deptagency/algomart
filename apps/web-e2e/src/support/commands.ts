@@ -20,12 +20,10 @@ configure({})
  */
 Cypress.Commands.add(
   'createUser',
-  (email: string, password: string, passphrase: string, username: string) => {
-    return cy
-      .exec('node ./src/utils/createUser.js', {
-        env: { email, password, passphrase, username },
-      })
-      .then((result) => console.log(result.stdout))
+  (email: string, passphrase: string, password: string, username: string) => {
+    return cy.exec('node ./src/utils/createUser.js', {
+      env: { email, passphrase, password, username },
+    })
   }
 )
 
@@ -36,11 +34,9 @@ Cypress.Commands.add(
  *
  */
 Cypress.Commands.add('cleanupUser', (email: string) => {
-  return cy
-    .exec('node ./src/utils/cleanupUser.js', {
-      env: { email },
-    })
-    .then((result) => console.log(result.stdout))
+  return cy.exec('node ./src/utils/cleanupUser.js', {
+    env: { email },
+  })
 })
 
 /*
@@ -50,9 +46,7 @@ Cypress.Commands.add('cleanupUser', (email: string) => {
  *
  */
 Cypress.Commands.add('verifyEmail', (email: string) => {
-  return cy
-    .exec('node ./src/utils/cleanupUser.js', {
-      env: { email },
-    })
-    .then((result) => console.log(result.stdout))
+  return cy.exec('node ./src/utils/cleanupUser.js', {
+    env: { email },
+  })
 })

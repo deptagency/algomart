@@ -13,7 +13,7 @@ describe('login', () => {
         username = c.username
       })
   })
-  it('should sign up a user', () => {
+  it('should login a user', () => {
     cy.createUser(email, passphrase, password, username)
     // Confirm its the login page and wait until page is loaded
     cy.visit('/login')
@@ -21,11 +21,27 @@ describe('login', () => {
     getGreeting().contains('Welcome')
     // Click to sign in with email
     cy.url().should('include', '/login')
-    cy.get('button').findByText('Sign in with Email').click()
+    cy.findByText('Sign in with Email').click()
     // Fill in the login form
     cy.get('input[name=email]').type(email)
     cy.get('input[name=password]').type(password)
     // Submit form
     cy.get('button[type=submit]').click()
+    // Confirm on the home page
+    cy.location('pathname').should('eq', '/')
+    // Update user to have email verified email
+    cy.verifyEmail(email)
+  })
+
+  it('should logout a user', () => {
+    cy.createUser(email, passphrase, password, username)
+    // Navigate to the profile page
+    cy.findByLabelText('My Profile').click()
+    cy.url().should('include', '/my/profile')
+    getGreeting().contains('My Profile')
+    // Click to log the user out
+    cy.get('button').contains('Sign Out').click({ force: true })
+    // Confirm on the home page
+    cy.location('pathname').should('eq', '/')
   })
 })

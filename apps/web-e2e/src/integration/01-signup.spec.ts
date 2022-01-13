@@ -41,28 +41,15 @@ describe('signup', () => {
     cy.get('input[data-id=5]').type(passphrase[5])
     // Submit form
     cy.get('form').submit()
+    // Confirm on the home page
+    cy.location('pathname', { timeout: 10_000 }).should('eq', '/')
     // Update user to have email verified email
     cy.verifyEmail(email)
-    // Confirm on the home page
-    cy.location('pathname').should('eq', '/')
     // Click to refresh now that email is verified
     const validationText =
       "In order to make purchases, you'll need to validate your email address. Please check your inbox."
     cy.get('p').should('contain', validationText)
     cy.get('button').contains('Refresh').click()
     cy.get('p').findByText(validationText).should('not.exist')
-  })
-
-  it('should sign out a user', () => {
-    // Create a user if does not exist
-    cy.createUser(email, passphrase, password, username)
-    // Navigate to the profile page
-    cy.findByLabelText('My Profile').click()
-    cy.url().should('include', '/my/profile')
-    getGreeting().contains('My Profile')
-    // Click to log the user out
-    cy.get('button').contains('Sign Out').click({ force: true })
-    // Confirm on the home page
-    cy.location('pathname').should('eq', '/')
   })
 })

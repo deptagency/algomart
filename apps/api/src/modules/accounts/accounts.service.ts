@@ -190,11 +190,13 @@ export default class AccountsService {
   }
 
   async removeUser(request: ExternalId) {
-    await UserAccountModel.query()
-      .findOne({
-        externalId: request.externalId,
-      })
-      .del()
-    return true
+    const user = await UserAccountModel.query().findOne({
+      externalId: request.externalId,
+    })
+    if (user) {
+      await UserAccountModel.query().deleteById(user.id)
+      return true
+    }
+    return false
   }
 }

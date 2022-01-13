@@ -10,7 +10,7 @@ if (admin.apps.length === 0) {
   })
 }
 
-if (!process.env.email) console.log('no email provided')
+if (!process.env.email) console.error('no email provided')
 
 admin
   .auth()

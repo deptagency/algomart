@@ -10,10 +10,10 @@ if (admin.apps.length === 0) {
   })
 }
 
-if (!process.env.email) console.log('no email provided')
-if (!process.env.password) console.log('no password provided')
-if (!process.env.passphrase) console.log('no passphrase provided')
-if (!process.env.username) console.log('no username provided')
+if (!process.env.email) console.error('no email provided')
+if (!process.env.password) console.error('no password provided')
+if (!process.env.passphrase) console.error('no passphrase provided')
+if (!process.env.username) console.error('no username provided')
 
 const createUserInApi = (uid) => {
   return axios
@@ -64,7 +64,6 @@ admin
       admin
         .auth()
         .createUser({
-          uid: 'cypress-test-user',
           disabled: false,
           displayName: process.env.displayName,
           email: process.env.email,
