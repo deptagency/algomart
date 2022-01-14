@@ -1,10 +1,10 @@
 .topNav {
-  @apply md:bg-white;
+  @apply md:bg-base-bgCard;
 }
 
 .topNavWrapper {
   /* Base */
-  @apply mx-auto mb-6 border-b max-w-wrapper border-base-gray-border;
+  @apply mx-auto max-w-wrapper;
   /* Tablet + */
   @apply md:space-x-20 md:px-4 md:py-12;
 }

@@ -1,5 +1,5 @@
 .root {
-  @apply relative flex flex-col h-full overflow-hidden text-center bg-white rounded-md shadow-large;
+  @apply relative flex flex-col h-full overflow-hidden text-center rounded-md bg-base-bgCard shadow-large;
 }
 
 .imageWrapper {

@@ -1,6 +1,6 @@
 .root {
   /* Base */
-  @apply sticky top-0 z-20 w-full bg-white shadow-medium;
+  @apply sticky top-0 z-20 w-full bg-base-bgCard shadow-medium;
   /* Tablet + */
   @apply md:bg-transparent md:pt-4 md:relative md:shadow-none;
 }
@@ -45,10 +45,10 @@
 
 .mainNav {
   /* Base */
-  @apply absolute left-0 w-full h-full px-10 pt-6 bg-white border-base-gray-bg border-t-1;
+  @apply absolute left-0 w-full h-full px-10 pt-6 bg-base-bgCard border-base-gray-bg border-t-1;
   top: 68px;
   /* Tablet + */
-  @apply md:bg-white md:border-0 md:col-span-2 md:grid md:grid-cols-2 md:h-auto md:justify-center md:overflow-hidden md:p-0 md:relative md:rounded-md md:shadow-large md:text-center md:top-0 md:w-auto;
+  @apply md:bg-base-bgCard md:border-0 md:col-span-2 md:grid md:grid-cols-2 md:h-auto md:justify-center md:overflow-hidden md:p-0 md:relative md:rounded-md md:shadow-large md:text-center md:top-0 md:w-auto;
 }
 
 .mainNavHidden {
@@ -83,7 +83,7 @@
 
 .utilityNavLink {
   /* Base */
-  @apply block overflow-hidden transition duration-300 bg-white rounded-full outline-none text-base-gray-text focus:ring-2 focus:ring-base-teal focus:ring-offset-2 focus:ring-opacity-50 hover:bg-base-teal hover:bg-opacity-50;
+  @apply block overflow-hidden transition duration-300 rounded-full outline-none bg-base-bgCard text-base-gray-text focus:ring-2 focus:ring-base-teal focus:ring-offset-2 focus:ring-opacity-50 hover:bg-base-teal hover:bg-opacity-50;
   /* Tablet + */
   @apply md:shadow-medium;
   height: 36px;

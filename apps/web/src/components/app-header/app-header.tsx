@@ -46,7 +46,7 @@ export default function AppHeader() {
 
         {/* Logo */}
         <div className={css.logo}>
-          <Logo linkClassName={css.logoLink} color="black" />
+          <Logo linkClassName={css.logoLink} />
         </div>
 
         {/* Main Nav */}
