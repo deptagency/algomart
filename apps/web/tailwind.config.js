@@ -15,7 +15,7 @@ module.exports = {
       './src/templates/**/*.{js,ts,jsx,tsx,css}',
     ],
   },
-  darkMode: false, // or 'media' or 'class'
+  darkMode: 'class', // or false, 'media' or 'class'
   theme: {
     extend: {
       backgroundImage: {
@@ -35,19 +35,25 @@ module.exports = {
       },
       colors: {
         base: {
-          errorRed: '#AC0000',
-          green: '#02FBC2',
-          priceGreen: '#33C500',
-          teal: '#12DCC5',
+          errorRed: 'var(--error)', // TODO: rename
+          green: 'var(--actionAccent)', // TODO: rename
+          priceGreen: 'var(--price)', // TODO: rename
+          teal: 'var(--action)', // TODO: rename
+          bg: 'var(--bg)',
+          bgCard: 'var(--bgCard)',
+          textPrimary: 'var(--textPrimary)',
+          textSecondary: 'var(--textSecondary)',
+          textTertiary: 'var(--textTertiary)',
+          textDisabled: 'var(--textDisabled)',
           gray: {
-            dark: '#0A111D',
-            text: '#4B4F56',
-            nav: '#808080',
+            dark: 'var(--grayDark)',
+            text: 'var(--textPrimary)',
+            nav: 'var(--nav)',
             notice: '#F9F8F9',
             medium: '#747F8F',
             light: '#B6BECB',
-            border: '#DADCDF',
-            bg: '#ECECEC',
+            border: 'var(--border)',
+            bg: 'var(--bg)',
           },
         },
       },

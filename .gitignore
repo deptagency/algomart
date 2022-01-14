@@ -146,3 +146,4 @@ config/firebase-config.json
 *.backup
 directus-migrate.json
 
+apps/web/src/styles/_app.css

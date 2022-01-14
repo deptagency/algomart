@@ -7,7 +7,7 @@
 @layer base {
   html,
   body {
-    @apply h-full;
+    @apply h-full text-base-textPrimary bg-base-bg;
     font-family: 'Inter', ui-sans-serif, system-ui, -apple-system !important;
   }
 }

@@ -7,9 +7,10 @@
     "npm": ">=7"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "npm run css && next dev",
+    "build": "npm run css && next build",
+    "start": "npm run css && next start",
+    "css": "postcss src/styles/globals.css -o src/styles/_app.css --use postcss-import tailwindcss autoprefixer",
     "type-check": "tsc --pretty --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -88,6 +89,7 @@
     "dotenv": "10.0.0",
     "enquirer": "2.3.6",
     "postcss": "8.4.4",
+    "postcss-cli": "9.1.0",
     "postcss-import": "14.0.2",
     "prop-types": "15.7.2",
     "tailwind-config-viewer": "1.6.2",
