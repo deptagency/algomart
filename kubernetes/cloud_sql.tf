@@ -1,17 +1,3 @@
-resource "google_project_service" "sql_api" {
-  project = var.project_id
-  service = "sqladmin.googleapis.com"
-
-  disable_on_destroy = false
-}
-
-resource "google_project_service" "networking_api" {
-  project = var.project_id
-  service = "servicenetworking.googleapis.com"
-
-  disable_on_destroy = false
-}
-
 resource "random_string" "db_suffix" {
   length = 6
   special = false 
@@ -43,7 +29,7 @@ resource "google_sql_database_instance" "database_server" {
   }
 
   depends_on = [
-    google_project_service.sql_api,
+    //google_project_service.sql_api,
     google_service_networking_connection.vpc_conn,
   ]
 }

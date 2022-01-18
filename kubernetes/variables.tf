@@ -19,13 +19,13 @@ variable "region" {
 variable "zones" {
   type        = list(string)
   description = "The zones to create the cluster."
-  default = ["us-east1-b","us-east1-c","us-east1-d"]
+  default     = ["us-east1-b","us-east1-c","us-east1-d"]
 }
 
 variable "name" {
   type        = string
   description = "The name of the cluster."
-  default = "gke-test-2"
+  default     = "gke-test-2"
 }
 
 variable "machine_type" {
@@ -49,7 +49,7 @@ variable "max_count" {
 variable "disk_size_gb" {
   type        = number
   description = "Size of the node's disk."
-  default = 100
+  default     = 100
 }
 /*
 variable "service_account" {
@@ -91,5 +91,30 @@ variable "database_max_connections" {
 
 variable "cms_database_name" {
   default   = "algorand_marketplace_cms"
+  sensitive = true
+}
+
+variable "web_next_public_3js_debug" {
+  default   = ""
+  sensitive = true
+}
+
+variable "bucket_location" {
+  default   = "US"
+  sensitive = true
+}
+
+variable "web_node_env" {
+  default   = "production"
+  sensitive = true
+}
+
+variable "cms_node_env" {
+  default   = "production"
+  sensitive = true
+}
+
+variable "api_node_env" {
+  default   = "production"
   sensitive = true
 }

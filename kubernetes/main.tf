@@ -60,3 +60,14 @@ module "gke" {
     ]
   }
 }
+
+resource "google_storage_bucket" "cms_bucket" {
+  name     = data.google_secret_manager_secret_version.cms_storage_bucket.secret_data
+  project  = var.project_id
+  location = var.bucket_location
+
+  uniform_bucket_level_access = true
+
+  // Require all objects to be manually deleted prior to bucket removal
+  force_destroy = false
+}
