@@ -15,6 +15,9 @@ const defaultRules = {
         Params: true,
         args: true,
         func: true,
+        env: true,
+        prod: true,
+        dev: true,
       },
     },
   ],
@@ -57,46 +60,50 @@ const defaultExtends = [
   'eslint:recommended',
   'plugin:@typescript-eslint/recommended',
   'plugin:unicorn/recommended',
-  'plugin:react/recommended',
-  'plugin:react-hooks/recommended',
-  'plugin:react/jsx-runtime',
-  'plugin:jsx-a11y/recommended',
-  'plugin:@next/next/recommended',
   'prettier',
 ]
 
+const defaultPlugins = ['simple-import-sort']
+
 module.exports = {
   root: true,
-  env: {
-    browser: true,
-    node: true,
-  },
-  parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'simple-import-sort'],
-  extends: defaultExtends,
-  rules: defaultRules,
-  settings: {
-    react: {
-      version: 'detect',
-    },
-    next: {
-      rootDir: './apps/web/',
-    },
-  },
+  ignorePatterns: ['**/*'],
+  plugins: ['@nrwl/nx'],
   overrides: [
     {
-      files: [
-        '**/.eslintrc.js',
-        '**/babel.config.js',
-        '**/next.config.js',
-        '**/jest.config.js',
-        '**/tailwind.config.js',
-        './apps/cms/extensions/migrations/*.js',
-      ],
+      files: ['*.ts', '*.tsx', '*.js', '*.jsx'],
       rules: {
         ...defaultRules,
-        '@typescript-eslint/no-var-requires': 'off',
-        'unicorn/prefer-module': 'off',
+
+        '@nrwl/nx/enforce-module-boundaries': [
+          'error',
+          {
+            enforceBuildableLibDependency: true,
+            allow: [],
+            depConstraints: [
+              {
+                sourceTag: '*',
+                onlyDependOnLibsWithTags: ['*'],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      files: ['*.ts', '*.tsx'],
+      extends: [...defaultExtends, 'plugin:@nrwl/nx/typescript'],
+      plugins: [...defaultPlugins],
+      rules: {
+        ...defaultRules,
+      },
+    },
+    {
+      files: ['*.js', '*.jsx'],
+      extends: [...defaultExtends, 'plugin:@nrwl/nx/javascript'],
+      plugins: [...defaultPlugins],
+      rules: {
+        ...defaultRules,
       },
     },
     {

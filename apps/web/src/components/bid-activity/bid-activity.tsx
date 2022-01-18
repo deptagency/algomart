@@ -78,10 +78,10 @@ export default function BidActivity({
           const avatar = avatars[bid.externalId]
           const createdAtDateTime = new Date(bid.createdAt)
           const meetsReservePrice =
-            reservePrice && isGreaterThanOrEqual(bid.amount, reservePrice)
+            !!reservePrice && isGreaterThanOrEqual(bid.amount, reservePrice)
           const followingBid = bids[index + 1]
           const followingBidDoesNotMeetReservePrice =
-            !!reservePrice &&
+            reservePrice &&
             !!followingBid &&
             !isGreaterThanOrEqual(followingBid.amount, reservePrice)
           return (

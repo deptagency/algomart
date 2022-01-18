@@ -47,7 +47,7 @@ services:
       #   - Circle
       #   - Coinbase
       #   - Sendgrid
-      - ./services/api/.env
+      - ./apps/api/.env
     volumes:
       - ./package.json:/app/package.json
       - ./package-lock.json:/app/package-lock.json

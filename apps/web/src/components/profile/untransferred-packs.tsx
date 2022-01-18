@@ -11,7 +11,7 @@ import css from './email-verification.module.css'
 
 import { TransferPackStatus, useTransferPack } from '@/hooks/use-transfer-pack'
 import { useUntransferredPacks } from '@/hooks/use-untransferred-packs'
-import { urls } from '@/utils/urls'
+import { isRootPathMatch, urls } from '@/utils/urls'
 
 export default memo(function UntransferredPacks() {
   const { data, mutate } = useUntransferredPacks()
@@ -56,7 +56,7 @@ export default memo(function UntransferredPacks() {
     !data ||
     data.total === 0 ||
     router.asPath === urls.packOpening.replace(':packId', data.packs[0].id) ||
-    router.pathname === urls.checkout
+    isRootPathMatch(router.pathname, urls.checkout)
   )
     return null
 

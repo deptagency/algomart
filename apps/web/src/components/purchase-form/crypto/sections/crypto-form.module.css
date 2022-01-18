@@ -1,0 +1,109 @@
+@keyframes spin {
+  from {
+    transform: rotate(0deg) scale(-1, 1);
+  }
+  to {
+    transform: rotate(360deg) scale(-1, 1);
+  }
+}
+
+.heading {
+  @apply mb-10;
+}
+
+.bid {
+  @apply mb-5;
+}
+
+.submit {
+  @apply mt-10;
+}
+
+.checkForTransfer {
+  @apply bg-base-errorRed flex justify-center gap-2 items-center mt-10 text-white uppercase;
+}
+
+.priceContainer {
+  @apply flex items-center justify-between w-full p-5 mt-5 mb-6 rounded-sm bg-base-gray-bg;
+}
+
+.priceLabel {
+  @apply text-base text-base-gray-medium;
+}
+
+.priceValue {
+  @apply text-lg font-bold text-green-600;
+}
+
+.information {
+  @apply bg-base-gray-bg p-5 mb-10;
+}
+
+.infoHelpText {
+  @apply pb-5;
+}
+
+.tutorial a {
+  @apply pl-1;
+}
+
+.prompt {
+  @apply font-bold pr-1;
+}
+
+.separator {
+  @apply mb-10;
+}
+
+.instructions ol {
+  @apply list-decimal pb-10;
+}
+
+.instructions h2 {
+  @apply font-bold pb-5;
+}
+
+.walletConnect {
+  @apply mb-5;
+}
+
+.connectedAccount {
+  @apply flex items-center gap-2 mt-5;
+}
+
+.connectedAccount p {
+  @apply font-bold;
+}
+
+.disconnectButton {
+  @apply mt-2 p-0 text-sm text-left underline w-full;
+}
+
+.copyWrapper {
+  @apply flex gap-1 items-center mt-5;
+}
+
+.copyButton {
+  @apply m-0 p-0 text-lg;
+}
+
+.icon {
+  @apply w-8;
+  transform: scale(-1, 1);
+}
+
+.spinningIcon {
+  @apply animate-spin;
+}
+
+.notification {
+  @apply mb-5;
+}
+
+.noAddress p {
+  @apply mb-10;
+}
+
+.openButton {
+  @apply font-normal ml-1 p-0 text-base underline;
+}

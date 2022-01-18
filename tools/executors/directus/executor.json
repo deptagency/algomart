@@ -1,0 +1,9 @@
+{
+  "executors": {
+    "directus": {
+      "implementation": "./impl",
+      "schema": "./schema.json",
+      "description": "Runs `directus` CLI"
+    }
+  }
+}

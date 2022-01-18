@@ -65,7 +65,7 @@ export default function ReleaseTemplate({
 
   const handleClaimNFTFlow = () => {
     packType === PackType.Purchase || packType === PackType.Auction
-      ? push(`${urls.checkout}?pack=${packTemplate.slug}`)
+      ? push(`${urls.checkout}/${packTemplate.slug}`)
       : setIsModalOpen(!isModalOpen)
   }
 

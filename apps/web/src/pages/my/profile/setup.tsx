@@ -34,7 +34,7 @@ export default function MyProfileSetupPage() {
 
       setFormErrors({})
       const validation = await validate(body)
-      if (!validation.isValid && validation.errors) {
+      if (validation.state === 'invalid' && validation.errors) {
         return setFormErrors(validation.errors)
       }
 

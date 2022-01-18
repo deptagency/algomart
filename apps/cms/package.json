@@ -1,39 +1,5 @@
 {
-  "name": "@algomart/cms",
-  "version": "1.0.0-alpha.0",
-  "private": true,
-  "engines": {
-    "node": ">=16",
-    "npm": ">=7"
-  },
   "scripts": {
-    "bootstrap": "./scripts/bootstrap.mjs ./config.local.json",
-    "db:up": "npx directus database migrate:up",
-    "db:down": "npx directus database migrate:down",
-    "db:latest": "npx directus database migrate:latest",
-    "db:rollback": "npx directus database migrate:rollback",
-    "db:seed": "./scripts/seed.mjs ./config.local.json",
-    "dev": "directus start",
-    "import": "./scripts/import.mjs ./config.local.json",
-    "export": "./scripts/export.mjs ./config.local.json",
-    "start": "directus start",
-    "build:price-display": "cd extensions/displays/pack-price && npx directus-extension build",
-    "build:price-interface": "cd extensions/interfaces/price-conversion && npx directus-extension build",
-    "type-check": "tsc --noEmit"
-  },
-  "dependencies": {
-    "canvas": "2.8.0",
-    "dinero.js": "2.0.0-alpha.8",
-    "directus": "9.4.2",
-    "env-var": "7.1.1",
-    "pg": "8.7.1"
-  },
-  "devDependencies": {
-    "@directus/extensions-sdk": "9.4.2",
-    "axios": "0.24.0",
-    "form-data": "4.0.0",
-    "rosie": "2.1.0",
-    "typescript": "4.4.4",
-    "vue": "3.2.26"
+    "seed": "./scripts/seed.mjs"
   }
 }

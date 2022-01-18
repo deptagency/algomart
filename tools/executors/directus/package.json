@@ -1,0 +1,6 @@
+{
+  "executors": "./executor.json",
+  "scripts": {
+    "build": "tsc impl.ts"
+  }
+}

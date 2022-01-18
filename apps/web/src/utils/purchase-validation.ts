@@ -114,6 +114,12 @@ const description = (t: Translate) =>
 const identifier = (t: Translate) =>
   string(required(t('forms:errors.required') as string))
 
+const address = (t: Translate) =>
+  string(
+    required(t('forms:errors.required') as string),
+    matches(/[\da-z]+/, t('forms:errors.onlyLettersAndNumbers'))
+  )
+
 const bid = (t: Translate, highestBid: number) => {
   const minimum = highestBid + 1
   return number(
@@ -147,7 +153,7 @@ export const validateBidsForm = (t: Translate, highestBid: number) =>
     zipCode: zipCode(t),
   })
 
-export const validateBidsFormForWires = (t: Translate, highestBid: number) =>
+export const validateBidsFormWithoutCard = (t: Translate, highestBid: number) =>
   object({
     bid: bid(t, highestBid),
     confirmBid: boolean(
@@ -220,6 +226,13 @@ export const validateCard = (t: Translate) =>
     zipCode: zipCode(t),
     saveCard: boolean(),
     default: boolean(),
+  })
+
+export const validateTransferPurchase = (t: Translate) =>
+  object({
+    packTemplateId: identifier(t),
+    destinationAddress: address(t),
+    transferId: identifier(t),
   })
 
 export const validatePurchase = (t: Translate) =>
