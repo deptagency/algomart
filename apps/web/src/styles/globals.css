@@ -11,6 +11,7 @@
     font-family: 'Inter', ui-sans-serif, system-ui, -apple-system !important;
   }
 
+  /* Default light theme */
   :root {
     --textPrimary: 0, 0, 0;
     --textSecondary: 34, 34, 34;
@@ -21,19 +22,20 @@
     --bgCard: 255, 255, 255;
     --bgPanel: 255, 255, 255;
 
-    --actionPrimary: 10, 17, 29;
+    --actionPrimary: 10, 17, 29; /* very dark gray-blue */
     --actionContrastText: 255, 255, 255;
-    --actionSecondary: 18, 220, 197; /* was "teal" */
-    --actionAccent: 2, 251, 194; /* was "green" */
+    --actionSecondary: 18, 220, 197; /* teal */
+    --actionAccent: 2, 251, 194; /* light green */
 
     --grayDark: 10, 17, 29; /* DEPRECATED */
     --border: 218, 220, 223;
     --nav: 128, 128, 128;
 
-    --error: 172, 0, 0;
-    --price: 51, 197, 0;
+    --error: 172, 0, 0; /* red */
+    --price: 51, 197, 0; /* green */
   }
 
+  /* Dark theme */
   .dark {
     --textPrimary: 255, 255, 255;
     --textSecondary: 221, 221, 221;
@@ -46,15 +48,15 @@
 
     --actionPrimary: 253, 89, 132; /* hot pink */
     --actionContrastText: 255, 255, 255;
-    --actionSecondary: 18, 220, 197;
-    --actionAccent: 2, 251, 194;
+    --actionSecondary: 18, 220, 197; /* teal */
+    --actionAccent: 2, 251, 194; /* light green */
 
     --grayDark: 10, 17, 29; /* DEPRECATED */
     --border: 218, 220, 223;
     --nav: 128, 128, 128;
 
-    --error: 172, 0, 0;
-    --price: 51, 197, 0;
+    --error: 172, 0, 0; /* red */
+    --price: 51, 197, 0; /* green */
   }
 }
 
