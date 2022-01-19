@@ -10,6 +10,52 @@
     @apply h-full text-base-textPrimary bg-base-bg;
     font-family: 'Inter', ui-sans-serif, system-ui, -apple-system !important;
   }
+
+  :root {
+    --textPrimary: 0, 0, 0;
+    --textSecondary: 34, 34, 34;
+    --textTertiary: 68, 68, 68;
+    --textDisabled: 102, 102, 102;
+
+    --bg: 236, 236, 236;
+    --bgCard: 255, 255, 255;
+    --bgPanel: 255, 255, 255;
+
+    --actionPrimary: 0, 112, 243; /*  prev: teal */
+    --actionContrastText: 0, 0, 0;
+    --actionSecondary: 18, 220, 197; /* prev: green */
+    --actionAccent: 2, 251, 194;
+
+    --grayDark: 10, 17, 29; /* DEPRECATE ME */
+    --border: 218, 220, 223;
+    --nav: 128, 128, 128;
+
+    --error: 172, 0, 0;
+    --price: 51, 197, 0;
+  }
+
+  .dark {
+    --textPrimary: 255, 255, 255;
+    --textSecondary: 221, 221, 221;
+    --textTertiary: 187, 187, 187;
+    --textDisabled: 128, 128, 128;
+
+    --bg: 34, 35, 39;
+    --bgCard: 9, 12, 13;
+    --bgPanel: 28, 29, 33;
+
+    --actionPrimary: 0, 112, 243;
+    --actionContrastText: 0, 0, 0;
+    --actionSecondary: 18, 220, 197;
+    --actionAccent: 2, 251, 194;
+
+    --grayDark: 10, 17, 29; /* DEPRECATE ME */
+    --border: 218, 220, 223;
+    --nav: 128, 128, 128;
+
+    --error: 172, 0, 0;
+    --price: 51, 197, 0;
+  }
 }
 
 /* Custom globals  */

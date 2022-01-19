@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { SWRConfig } from 'swr'
 
-import '../styles/_app.css'
+import '../styles/globals.css'
 
 import { Analytics } from '@/clients/firebase-analytics'
 import CookieConsent from '@/components/cookie-consent/cookie-consent'

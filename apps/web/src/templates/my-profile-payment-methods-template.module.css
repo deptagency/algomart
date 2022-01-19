@@ -7,7 +7,7 @@
 }
 
 .isExpired {
-  @apply border-1 text-base-errorRed border-base-errorRed;
+  @apply border-1 text-base-error border-base-error;
 }
 
 .itemActions {

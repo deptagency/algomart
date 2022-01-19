@@ -62,7 +62,7 @@
   /* Base */
   @apply block py-5 text-3xl font-bold transition duration-300 border-t focus:outline-none border-t-base-gray-border text-base-gray-text hover:text-base-gray-dark;
   /* Tablet + */
-  @apply md:border-b-6 md:border-base-teal md:border-opacity-0 md:border-t-0 md:inline md:no-underline md:p-6 md:text-base md:focus:border-opacity-50 md:hover:border-opacity-50 md:hover:text-base-gray-text;
+  @apply md:border-b-6 md:border-base-actionSecondary md:border-opacity-0 md:border-t-0 md:inline md:no-underline md:p-6 md:text-base md:focus:border-opacity-50 md:hover:border-opacity-50 md:hover:text-base-gray-text;
 }
 
 .mainNavLink:first-child {
@@ -71,7 +71,7 @@
 
 .mainNavLink.mainNavLinkActive {
   /* Base */
-  @apply text-base-teal;
+  @apply text-base-actionSecondary;
   /* Tablet + */
   @apply md:border-opacity-100 md:text-base-gray-text;
 }
@@ -83,7 +83,7 @@
 
 .utilityNavLink {
   /* Base */
-  @apply block overflow-hidden transition duration-300 rounded-full outline-none bg-base-bgCard text-base-gray-text focus:ring-2 focus:ring-base-teal focus:ring-offset-2 focus:ring-opacity-50 hover:bg-base-teal hover:bg-opacity-50;
+  @apply block overflow-hidden transition duration-300 rounded-full outline-none bg-base-bgCard text-base-gray-text focus:ring-2 focus:ring-base-actionSecondary focus:ring-offset-2 focus:ring-opacity-50 hover:bg-base-actionSecondary hover:bg-opacity-50;
   /* Tablet + */
   @apply md:shadow-medium;
   height: 36px;

@@ -3,7 +3,7 @@
 }
 
 .icon {
-  @apply mb-5 mx-auto relative text-base-errorRed;
+  @apply mb-5 mx-auto relative text-base-error;
   width: 48px;
 }
 

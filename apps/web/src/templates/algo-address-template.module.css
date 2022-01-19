@@ -30,7 +30,7 @@
 }
 
 .emptyState {
-  @apply font-bold text-center text-base-errorRed;
+  @apply font-bold text-center text-base-error;
 }
 
 .paginationWrapper {

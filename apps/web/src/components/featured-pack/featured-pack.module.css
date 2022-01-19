@@ -1,6 +1,6 @@
 .featured {
   /* Base */
-  @apply flex flex-col bg-white shadow-lg;
+  @apply flex flex-col shadow-lg bg-base-bgCard;
 }
 
 @screen md {
@@ -10,7 +10,7 @@
 }
 
 .featuredNotice {
-  @apply p-4 text-sm font-bold text-center text-white uppercase bg-base-teal;
+  @apply p-4 text-sm font-bold text-center text-white uppercase bg-base-actionSecondary;
 }
 
 .featuredNotice span {

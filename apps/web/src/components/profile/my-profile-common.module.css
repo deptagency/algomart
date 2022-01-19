@@ -18,11 +18,11 @@
 }
 
 .confirmation {
-  @apply mb-2 text-sm font-light text-right text-base-teal;
+  @apply mb-2 text-sm font-light text-right text-base-actionSecondary;
 }
 
 .error {
-  @apply mb-2 text-sm font-light text-right text-base-errorRed;
+  @apply mb-2 text-sm font-light text-right text-base-error;
 }
 
 .sectionContent {

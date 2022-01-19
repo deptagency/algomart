@@ -3,7 +3,7 @@
 }
 
 .imageWrapper {
-  @apply relative overflow-hidden bg-black hover:border-base-green focus:border-base-green;
+  @apply relative overflow-hidden bg-black hover:border-base-actionAccent focus:border-base-actionAccent;
 }
 
 .content {
@@ -11,5 +11,5 @@
 }
 
 .title {
-  @apply px-4 text-lg font-bold text-base-gray-dark;
+  @apply px-4 text-lg font-bold;
 }

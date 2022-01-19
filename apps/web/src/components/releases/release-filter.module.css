@@ -1,5 +1,5 @@
 .root {
-  @apply rounded-sm shadow-large;
+  @apply rounded-sm shadow-large bg-base-bgCard;
 }
 
 .root + .root {
@@ -27,7 +27,7 @@
 }
 
 .filterHeader .badge {
-  @apply p-1 text-xs text-white rounded-sm bg-base-teal;
+  @apply p-1 text-xs text-white rounded-sm bg-base-actionSecondary;
 }
 
 .filterItem {

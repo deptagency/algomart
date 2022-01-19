@@ -3,7 +3,7 @@
 }
 
 .icon {
-  @apply mx-auto relative text-base-errorRed;
+  @apply mx-auto relative text-base-error;
   width: 48px;
 }
 

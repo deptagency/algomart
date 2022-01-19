@@ -20,7 +20,7 @@
 }
 
 .readMore {
-  @apply block font-bold mx-auto relative text-base-teal text-center underline;
+  @apply block font-bold mx-auto relative text-base-actionSecondary text-center underline;
 }
 
 .mask {

@@ -13,7 +13,7 @@
 
 .svgCorner:first-child,
 .svgCircle:first-child {
-  @apply stroke-current text-base-teal;
+  @apply stroke-current text-base-actionSecondary;
 }
 
 .svgCorner:last-child,

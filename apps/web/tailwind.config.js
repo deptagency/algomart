@@ -3,6 +3,13 @@ const flattenColorPalette =
   require('tailwindcss/lib/util/flattenColorPalette').default
 const plugin = require('tailwindcss/plugin')
 
+const generateColorClass = (variable) => {
+  return ({ opacityValue }) =>
+    opacityValue
+      ? `rgba(var(--${variable}), ${opacityValue});`
+      : `rgb(var(--${variable}));`
+}
+
 module.exports = {
   // Keep JIT disabled for now. Enabling it will break the custom font loading.
   // mode: 'jit',
@@ -35,25 +42,28 @@ module.exports = {
       },
       colors: {
         base: {
-          errorRed: 'var(--error)', // TODO: rename
-          green: 'var(--actionAccent)', // TODO: rename
-          priceGreen: 'var(--price)', // TODO: rename
-          teal: 'var(--action)', // TODO: rename
-          bg: 'var(--bg)',
-          bgCard: 'var(--bgCard)',
-          textPrimary: 'var(--textPrimary)',
-          textSecondary: 'var(--textSecondary)',
-          textTertiary: 'var(--textTertiary)',
-          textDisabled: 'var(--textDisabled)',
+          actionPrimary: generateColorClass('actionPrimary'),
+          actionContrastText: generateColorClass('actionContrastText'),
+          actionSecondary: generateColorClass('actionSecondary'),
+          actionAccent: generateColorClass('actionAccent'),
+          error: generateColorClass('error'),
+          price: generateColorClass('price'),
+          bg: generateColorClass('bg'),
+          bgCard: generateColorClass('bgCard'),
+          bgPanel: generateColorClass('bgPanel'),
+          textPrimary: generateColorClass('textPrimary'),
+          textSecondary: generateColorClass('textSecondary'),
+          textTertiary: generateColorClass('textTertiary'),
+          textDisabled: generateColorClass('textDisabled'),
           gray: {
-            dark: 'var(--grayDark)',
-            text: 'var(--textPrimary)',
-            nav: 'var(--nav)',
+            dark: generateColorClass('grayDark'),
+            text: generateColorClass('textPrimary'),
+            nav: generateColorClass('nav'),
             notice: '#F9F8F9',
             medium: '#747F8F',
             light: '#B6BECB',
-            border: 'var(--border)',
-            bg: 'var(--bg)',
+            border: generateColorClass('border'),
+            bg: generateColorClass('bg'),
           },
         },
       },

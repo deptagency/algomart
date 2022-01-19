@@ -16,7 +16,7 @@
 }
 
 .progressInner {
-  @apply absolute bg-base-green h-full rounded-full;
+  @apply absolute bg-base-actionAccent h-full rounded-full;
 }
 
 .button {

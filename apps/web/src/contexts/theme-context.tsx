@@ -6,8 +6,28 @@ import {
   useState,
 } from 'react'
 
-import { DEFAULT_THEME } from '@/themes'
-import { applyTheme, getThemeFromBrowser } from '@/themes/utils'
+const DEFAULT_THEME = 'light'
+
+/** Returns the theme set in localStorage, else the OS preferred theme */
+function getThemeFromBrowser(): string {
+  return (
+    localStorage.getItem('theme') ??
+    (window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light')
+  )
+}
+
+/** Sets 'dark' class & css variables on <html>  */
+const applyTheme = (theme: string): void => {
+  const root = document.documentElement
+
+  if (theme === 'dark') {
+    root.classList.add('dark')
+  } else {
+    root.classList.remove('dark')
+  }
+}
 
 interface IThemeContext {
   theme?: string
@@ -15,7 +35,7 @@ interface IThemeContext {
   setTheme: (theme?: string) => void
 }
 
-export const ThemeContext = createContext<IThemeContext>({
+const ThemeContext = createContext<IThemeContext>({
   theme: DEFAULT_THEME,
   setTheme: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   toggleTheme: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function

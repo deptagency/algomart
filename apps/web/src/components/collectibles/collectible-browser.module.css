@@ -8,7 +8,7 @@
 }
 
 .navButton {
-  @apply absolute top-1/2 hover:text-base-green focus:text-base-green;
+  @apply absolute top-1/2 hover:text-base-actionAccent focus:text-base-actionAccent;
   transform: translateY(-50%);
 }
 
@@ -57,7 +57,7 @@
 
 .flipButton {
   @apply block mx-auto;
-  @apply text-sm underline text-gray-400 hover:text-base-green;
+  @apply text-sm underline text-gray-400 hover:text-base-actionAccent;
 }
 
 .flipBox {

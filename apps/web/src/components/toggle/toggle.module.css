@@ -30,15 +30,15 @@
 }
 
 .errorText {
-  @apply w-1/2 mt-1 text-sm font-light text-right text-base-errorRed;
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-error;
 }
 
 .toggleEnabled.toggleDark {
-  @apply bg-base-teal;
+  @apply bg-base-actionSecondary;
 }
 
 .toggleNotEnabled.toggleDark {
-  @apply bg-gray-200;
+  @apply bg-gray-200 dark:bg-gray-500;
 }
 
 .toggleEnabled.toggleLight {

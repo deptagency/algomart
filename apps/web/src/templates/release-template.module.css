@@ -15,5 +15,5 @@
 }
 
 .alert button {
-  @apply bg-base-teal;
+  @apply bg-base-actionSecondary;
 }

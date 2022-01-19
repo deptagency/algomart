@@ -1,21 +1,21 @@
 .root {
-  @apply block relative;
+  @apply relative block text-black;
 }
 
 .labelContainer {
-  @apply flex flex-wrap font-bold justify-between relative text-base-gray-dark w-full;
+  @apply relative flex flex-wrap justify-between w-full font-bold text-base-gray-dark;
 }
 
 .label {
-  @apply mb-1 w-1/2;
+  @apply w-1/2 mb-1;
 }
 
 .helpText {
-  @apply font-light text-base-gray-medium text-right text-xs mt-1 w-1/2;
+  @apply w-1/2 mt-1 text-xs font-light text-right text-base-gray-medium;
 }
 
 .errorText {
-  @apply font-light text-base-errorRed text-right text-xs;
+  @apply text-xs font-light text-right text-base-error;
 }
 
 .selectContainer {
@@ -23,7 +23,7 @@
 }
 
 .selectButton {
-  @apply bg-white border border-base-gray-border cursor-default relative rounded-sm text-left w-full;
+  @apply relative w-full text-left bg-white border rounded-sm cursor-default border-base-gray-border;
   padding: 10px 50px 10px 10px;
 }
 
@@ -32,33 +32,33 @@
 }
 
 .selectButtonError {
-  @apply border-base-errorRed;
+  @apply border-base-error;
 }
 
 .selectButtonText {
-  @apply block font-light text-base-gray-dark text-sm truncate;
+  @apply block text-sm font-light truncate text-base-gray-dark;
 }
 
 .selectButtonIconContainer {
-  @apply absolute flex items-center inset-y-0 pointer-events-none pr-2 right-0;
+  @apply absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none;
 }
 
 .selectButtonIcon {
-  @apply h-5  text-gray-400 w-5;
+  @apply w-5 h-5 text-gray-400;
 }
 
 .selectOptions {
-  @apply absolute bg-white border border-base-gray-border max-h-60 mt-1 overflow-auto py-1 rounded-sm shadow-md text-sm w-full;
+  @apply absolute w-full py-1 mt-1 overflow-auto text-sm bg-white border rounded-sm shadow-md border-base-gray-border max-h-60;
 }
 
 .selectOption {
-  @apply cursor-default font-light p-3 relative select-none;
+  @apply relative p-3 font-light cursor-default select-none;
 }
 
 .selectOptionActive {
-  @apply bg-base-teal;
+  @apply bg-base-actionSecondary;
 }
 
 .selectOptionSelected {
-  @apply bg-base-gray-bg font-bold;
+  @apply font-semibold bg-gray-200;
 }

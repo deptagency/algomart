@@ -20,7 +20,7 @@
 }
 
 .errorText {
-  @apply w-1/2 mt-1 text-sm font-light text-right text-base-errorRed;
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-error;
 }
 
 /* Profile Image Input */
@@ -64,7 +64,7 @@
 }
 
 .passphraseInputWarning {
-  @apply flex items-center justify-center p-6 font-bold bg-base-green;
+  @apply flex items-center justify-center p-6 font-bold bg-base-actionAccent;
 }
 
 .passphraseInputShield {

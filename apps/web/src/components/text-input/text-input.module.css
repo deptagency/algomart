@@ -16,7 +16,7 @@
 }
 
 .inputError {
-  @apply border-base-errorRed;
+  @apply border-base-error;
 }
 
 .inputValid {
@@ -44,7 +44,7 @@
 }
 
 .errorText {
-  @apply font-light text-base-errorRed text-right text-sm mt-1 w-1/2;
+  @apply font-light text-base-error text-right text-sm mt-1 w-1/2;
 }
 
 .errorTextSmall {

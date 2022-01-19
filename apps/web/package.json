@@ -7,10 +7,9 @@
     "npm": ">=7"
   },
   "scripts": {
-    "dev": "npm run css && next dev",
-    "build": "npm run css && next build",
-    "start": "npm run css && next start",
-    "css": "postcss src/styles/globals.css -o src/styles/_app.css --use postcss-import tailwindcss autoprefixer",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "type-check": "tsc --pretty --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
