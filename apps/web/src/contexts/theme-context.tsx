@@ -37,8 +37,8 @@ interface IThemeContext {
 
 const ThemeContext = createContext<IThemeContext>({
   theme: DEFAULT_THEME,
-  setTheme: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
-  toggleTheme: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
+  setTheme: () => null,
+  toggleTheme: () => null,
 })
 
 export const useThemeContext = () => useContext(ThemeContext)
