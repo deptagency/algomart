@@ -1,5 +1,5 @@
 .selectWrapper {
-  @apply relative z-10 mb-12 transform -translate-y-1/2 border-b border-base-gray-border;
+  @apply relative z-10 mb-12 transform -translate-y-1/2 border-b border-base-border;
 }
 
 .selectWrapper label {

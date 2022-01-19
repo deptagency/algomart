@@ -7,5 +7,5 @@
 }
 
 .list {
-  @apply border-t border-base-gray-border px-7;
+  @apply border-t border-base-border px-7;
 }

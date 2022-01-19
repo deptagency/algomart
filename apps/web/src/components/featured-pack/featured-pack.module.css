@@ -44,7 +44,7 @@
 
 .featuredBody {
   /* Base */
-  @apply text-base-gray-text;
+  @apply text-base-textPrimary;
 }
 
 .featuredAvailability {
@@ -63,11 +63,11 @@
 
 /* Auction metadata */
 .columns {
-  @apply grid grid-cols-3 border-t border-base-gray-border;
+  @apply grid grid-cols-3 border-t border-base-border;
 }
 
 .column {
-  @apply p-3 text-center border-r border-base-gray-border;
+  @apply p-3 text-center border-r border-base-border;
 }
 
 .column:first-child {
@@ -75,7 +75,7 @@
 }
 
 .metadataLabel {
-  @apply text-xs capitalize text-base-gray-text;
+  @apply text-xs capitalize text-base-textPrimary;
 }
 
 .metadataValue {

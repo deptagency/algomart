@@ -1,5 +1,5 @@
 .alertWrapper {
-  @apply bg-white h-20 text-base-gray-text rounded-t-md;
+  @apply bg-white h-20 text-base-textPrimary rounded-t-md;
 }
 
 .alertWrapper span {

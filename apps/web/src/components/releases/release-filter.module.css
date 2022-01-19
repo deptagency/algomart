@@ -11,7 +11,7 @@
 }
 
 .filterRow {
-  @apply border-t border-t-base-gray-border;
+  @apply border-t border-t-base-border;
 }
 
 .filterRow:first-child {

@@ -1,5 +1,5 @@
 .form h2 {
-  @apply border-b border-base-gray-border font-bold mb-8 pb-4;
+  @apply border-b border-base-border font-bold mb-8 pb-4;
 }
 
 .form input,

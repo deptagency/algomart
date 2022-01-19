@@ -3,7 +3,7 @@
 }
 
 .root h2 {
-  @apply border-b border-base-gray-border font-bold mb-6 pb-4 text-center;
+  @apply border-b border-base-border font-bold mb-6 pb-4 text-center;
 }
 
 .passphraseContainer {

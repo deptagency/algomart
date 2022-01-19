@@ -1,5 +1,5 @@
 .root {
-  @apply p-6 bg-white border-t border-base-gray-border relative;
+  @apply p-6 bg-white border-t border-base-border relative;
 }
 
 .collapseContainer {
@@ -12,7 +12,7 @@
 }
 
 .root p {
-  @apply text-base-gray-text mb-4;
+  @apply text-base-textPrimary mb-4;
 }
 
 .root p:last-child {

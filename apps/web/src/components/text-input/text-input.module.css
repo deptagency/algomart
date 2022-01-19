@@ -12,7 +12,7 @@
 }
 
 .inputDisabled {
-  @apply border-base-gray-bg;
+  @apply border-base-bg;
 }
 
 .inputError {
@@ -20,7 +20,7 @@
 }
 
 .inputValid {
-  @apply border-base-gray-border;
+  @apply border-base-border;
 }
 
 .labelContainer {

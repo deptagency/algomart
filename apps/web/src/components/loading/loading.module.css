@@ -18,7 +18,7 @@
 
 .svgCorner:last-child,
 .svgCircle:last-child {
-  @apply stroke-current text-base-gray-border;
+  @apply stroke-current text-base-border;
 }
 
 .svgCircle {

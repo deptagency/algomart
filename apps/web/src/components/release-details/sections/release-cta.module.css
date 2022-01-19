@@ -1,5 +1,5 @@
 .root {
-  @apply p-8 bg-white border-t border-base-gray-border;
+  @apply p-8 bg-white border-t border-base-border;
 }
 
 .root button {

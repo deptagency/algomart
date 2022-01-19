@@ -3,5 +3,5 @@
 }
 
 .profileImageForm label + div {
-  @apply mt-0 bg-white border-1 border-base-gray-border;
+  @apply mt-0 bg-white border-1 border-base-border;
 }

@@ -25,7 +25,7 @@
 
 /* Profile Image Input */
 .profileImageContainer {
-  @apply flex items-center justify-between p-6 mt-2 rounded-md bg-base-gray-bg;
+  @apply flex items-center justify-between p-6 mt-2 rounded-md bg-base-bg;
 }
 
 .avatarContainer {
@@ -56,7 +56,7 @@
 
 /* Passphrase Input */
 .passphraseInputWrapper {
-  @apply w-full mt-2 overflow-hidden rounded-md bg-base-gray-bg;
+  @apply w-full mt-2 overflow-hidden rounded-md bg-base-bg;
 }
 
 .passphraseInputFields {
@@ -73,7 +73,7 @@
 }
 
 .passphraseInputDescription {
-  @apply px-6 font-light text-center text-base-gray-text;
+  @apply px-6 font-light text-center text-base-textPrimary;
 }
 
 .passphraseInputDescription p:first-child {

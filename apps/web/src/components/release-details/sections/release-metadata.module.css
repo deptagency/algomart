@@ -7,7 +7,7 @@
 }
 
 .column {
-  @apply p-6 border-r border-base-gray-border;
+  @apply p-6 border-r border-base-border;
 }
 
 .column:last-child {
@@ -15,7 +15,7 @@
 }
 
 .metadataLabel {
-  @apply text-sm capitalize text-base-gray-text;
+  @apply text-sm capitalize text-base-textPrimary;
 }
 
 .metadataValue {

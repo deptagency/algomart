@@ -3,7 +3,7 @@
 }
 
 .form h2 {
-  @apply pb-4 mb-8 font-bold border-b border-base-gray-border;
+  @apply pb-4 mb-8 font-bold border-b border-base-border;
 }
 
 .form input,
@@ -40,11 +40,11 @@
 }
 
 .differentCardLink {
-  @apply p-0 text-sm underline text-base-gray-text;
+  @apply p-0 text-sm underline text-base-textPrimary;
 }
 
 .priceContainer {
-  @apply flex items-center justify-between w-full p-5 mb-6 rounded-sm bg-base-gray-bg;
+  @apply flex items-center justify-between w-full p-5 mb-6 rounded-sm bg-base-bg;
 }
 
 .priceLabel {
@@ -64,7 +64,7 @@
 }
 
 .notice {
-  @apply px-8 py-5 mb-8 text-center rounded bg-base-gray-notice text-base-gray-text;
+  @apply px-8 py-5 mb-8 text-center rounded bg-base-bgNotice text-base-textPrimary;
 }
 
 .notification {

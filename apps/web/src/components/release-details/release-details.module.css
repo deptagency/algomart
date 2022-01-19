@@ -4,7 +4,7 @@
 }
 
 .header {
-  @apply bg-white border-b border-base-gray-border;
+  @apply bg-white border-b border-base-border;
 }
 
 .title {

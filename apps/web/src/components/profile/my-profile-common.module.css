@@ -26,11 +26,11 @@
 }
 
 .sectionContent {
-  @apply p-6 rounded-md border-1 border-base-gray-border;
+  @apply p-6 rounded-md border-1 border-base-border;
 }
 
 .sectionContentLarge {
-  @apply p-12 rounded-md border-1 border-base-gray-border;
+  @apply p-12 rounded-md border-1 border-base-border;
 }
 
 .sectionText {

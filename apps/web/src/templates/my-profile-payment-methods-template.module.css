@@ -3,7 +3,7 @@
 }
 
 .listItem {
-  @apply flex items-center justify-between px-6 py-3 mb-6 border rounded-sm border-base-gray-border;
+  @apply flex items-center justify-between px-6 py-3 mb-6 border rounded-sm border-base-border;
 }
 
 .isExpired {
@@ -35,7 +35,7 @@
 }
 
 .dialogHeader {
-  @apply mb-12 text-2xl font-bold text-base-gray-text;
+  @apply mb-12 text-2xl font-bold text-base-textPrimary;
 }
 
 .closeButton {

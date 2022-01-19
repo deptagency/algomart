@@ -55,15 +55,14 @@ module.exports = {
           textSecondary: generateColorClass('textSecondary'),
           textTertiary: generateColorClass('textTertiary'),
           textDisabled: generateColorClass('textDisabled'),
+          border: generateColorClass('border'),
+          nav: generateColorClass('nav'),
+          bgNotice: '#F9F8F9', // DEPRECATED
+          // DEPRECATED
           gray: {
             dark: generateColorClass('grayDark'),
-            text: generateColorClass('textPrimary'),
-            nav: generateColorClass('nav'),
-            notice: '#F9F8F9',
             medium: '#747F8F',
             light: '#B6BECB',
-            border: generateColorClass('border'),
-            bg: generateColorClass('bg'),
           },
         },
       },

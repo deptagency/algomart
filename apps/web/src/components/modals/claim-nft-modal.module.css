@@ -43,7 +43,7 @@
 }
 
 .instructionText {
-  @apply pt-5 pb-10 text-sm text-base-gray-text;
+  @apply pt-5 pb-10 text-sm text-base-textPrimary;
 }
 
 .loadingWrapper {
@@ -55,11 +55,11 @@
 }
 
 .statusHeading {
-  @apply my-2 text-lg font-bold text-base-gray-text;
+  @apply my-2 text-lg font-bold text-base-textPrimary;
 }
 
 .statusMessage {
-  @apply text-sm text-base-gray-text;
+  @apply text-sm text-base-textPrimary;
 }
 
 .errorIcon {

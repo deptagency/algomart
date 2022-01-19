@@ -44,7 +44,7 @@
 
 /* Item content */
 .title {
-  @apply mt-2 px-4 text-sm text-center text-base-gray-text;
+  @apply mt-2 px-4 text-sm text-center text-base-textPrimary;
 }
 
 .title.titleFaded {
@@ -64,7 +64,7 @@
 }
 
 .setNumber {
-  @apply font-black text-2xl text-base-gray-border;
+  @apply font-black text-2xl text-base-border;
 }
 
 .rarity {

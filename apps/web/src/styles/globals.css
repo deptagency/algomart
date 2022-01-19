@@ -21,12 +21,12 @@
     --bgCard: 255, 255, 255;
     --bgPanel: 255, 255, 255;
 
-    --actionPrimary: 0, 112, 243; /*  prev: teal */
+    --actionPrimary: 0, 112, 243; /* was "teal" */
     --actionContrastText: 0, 0, 0;
-    --actionSecondary: 18, 220, 197; /* prev: green */
+    --actionSecondary: 18, 220, 197; /* was "green" */
     --actionAccent: 2, 251, 194;
 
-    --grayDark: 10, 17, 29; /* DEPRECATE ME */
+    --grayDark: 10, 17, 29; /* DEPRECATED */
     --border: 218, 220, 223;
     --nav: 128, 128, 128;
 
@@ -49,7 +49,7 @@
     --actionSecondary: 18, 220, 197;
     --actionAccent: 2, 251, 194;
 
-    --grayDark: 10, 17, 29; /* DEPRECATE ME */
+    --grayDark: 10, 17, 29; /* DEPRECATED */
     --border: 218, 220, 223;
     --nav: 128, 128, 128;
 

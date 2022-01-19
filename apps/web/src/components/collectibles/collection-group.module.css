@@ -3,7 +3,7 @@
 }
 
 .image {
-  @apply bg-base-gray-border;
+  @apply bg-base-border;
   min-height: 320px;
 }
 
