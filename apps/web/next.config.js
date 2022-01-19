@@ -15,7 +15,7 @@ module.exports = transpileModules(
         asyncWebAssembly: true,
       }
 
-      return cssLoaderDarkModeShim(config)
+      return config
     },
     eslint: {
       // disable and run eslint manually as needed instead
@@ -36,39 +36,3 @@ module.exports = transpileModules(
     },
   })
 )
-
-const cssLoaderDarkModeShim = (config) => {
-  // Find the base rule that contains nested rules (which contains css-loader)
-  const rules = config.module.rules.find((r) => !!r.oneOf)
-
-  for (const loaders of rules.oneOf) {
-    if (Array.isArray(loaders.use)) {
-      for (const l of loaders.use) {
-        if (
-          typeof l !== 'string' &&
-          typeof l.loader === 'string' &&
-          /(?<!post)css-loader/.test(l.loader)
-        ) {
-          if (!l.options.modules) continue
-          const originalGetLocalIdent = l.options.modules.getLocalIdent
-          // update loader options `getLocalIdent` function to ignore 'dark' class
-          l.options.modules.getLocalIdent = (
-            context,
-            localIdentName,
-            localName,
-            options
-          ) =>
-            localName === 'dark'
-              ? localName
-              : originalGetLocalIdent(
-                  context,
-                  localIdentName,
-                  localName,
-                  options
-                )
-        }
-      }
-    }
-  }
-  return config
-}
