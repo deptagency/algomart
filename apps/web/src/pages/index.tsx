@@ -1,10 +1,11 @@
 import { DEFAULT_LOCALE, Homepage } from '@algomart/schemas'
 import { GetServerSidePropsContext } from 'next'
 import { useRouter } from 'next/router'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import DefaultLayout from '@/layouts/default-layout'
+import authService from '@/services/auth-service'
 import HomeTemplate from '@/templates/home-template'
 import { urls } from '@/utils/urls'
 
@@ -14,6 +15,13 @@ interface HomeProps {
 
 export default function Home({ page }: HomeProps) {
   const { push } = useRouter()
+  // Check if username exists
+  // const user = await authService.getUser()
+  // console.log('user:', user)
+
+  useEffect(() => {
+    authService.getUser().then((user) => console.log('user', user))
+  }, [])
 
   const onClickFeatured = useCallback(() => {
     if (page.featuredPack) {

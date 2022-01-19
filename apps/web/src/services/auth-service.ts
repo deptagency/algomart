@@ -3,10 +3,12 @@ import ky from 'ky'
 
 import loadFirebase from '@/clients/firebase-client'
 import { urls } from '@/utils/urls'
+
 export interface AuthAPI {
   isUsernameAvailable(username: string): Promise<boolean>
   updateUsername(username: string): Promise<boolean>
   verifyPassphrase(passphrase: string): Promise<boolean>
+  getUser(): Promise<any>
 }
 
 export class AuthService implements AuthAPI {
@@ -62,6 +64,12 @@ export class AuthService implements AuthAPI {
       .json<{ isValid: boolean }>()
 
     return isValid
+  }
+
+  async getUser(): Promise<any> {
+    const resp = await this.http.get(urls.api.v1.claims).json<any>()
+    console.log('resp:', resp)
+    return resp
   }
 }
 
