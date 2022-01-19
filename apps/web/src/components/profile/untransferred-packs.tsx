@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 
 import Banner from '../banner/banner'
 import Button from '../button'
@@ -11,15 +11,15 @@ import css from './email-verification.module.css'
 
 import { TransferPackStatus, useTransferPack } from '@/hooks/use-transfer-pack'
 import { useUntransferredPacks } from '@/hooks/use-untransferred-packs'
-import { urls } from '@/utils/urls'
+import { isRootPathMatch, urls } from '@/utils/urls'
 
-export default function UntransferredPacks() {
+export default memo(function UntransferredPacks() {
   const { data, mutate } = useUntransferredPacks()
   const [open, setOpen] = useState(false)
   const router = useRouter()
   const { t } = useTranslation()
   const [transfer, status, reset] = useTransferPack(
-    data && data.packs.length > 0 ? data.packs[0].id : null
+    data && data.packs.length > 0 && open ? data.packs[0].id : null
   )
 
   const onClose = useCallback(() => {
@@ -41,10 +41,13 @@ export default function UntransferredPacks() {
     if (status === TransferPackStatus.Success && !open) {
       const newPacks = data?.packs.slice(1) || []
       const newTotal = data ? data.total - 1 : 0
-      mutate({
-        packs: newPacks,
-        total: newTotal,
-      })
+      mutate(
+        {
+          packs: newPacks,
+          total: newTotal,
+        },
+        { revalidate: false }
+      )
       reset()
     }
   }, [data, mutate, open, reset, status])
@@ -53,7 +56,7 @@ export default function UntransferredPacks() {
     !data ||
     data.total === 0 ||
     router.asPath === urls.packOpening.replace(':packId', data.packs[0].id) ||
-    router.pathname === urls.checkout
+    isRootPathMatch(router.pathname, urls.checkout)
   )
     return null
 
@@ -75,4 +78,4 @@ export default function UntransferredPacks() {
       />
     </Banner>
   )
-}
+})

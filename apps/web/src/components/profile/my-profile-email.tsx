@@ -38,7 +38,7 @@ export default function MyProfileEmail() {
         password: formData.get('password') as string,
       }
       const bodyValidation = await validate(body)
-      if (bodyValidation.isValid) {
+      if (bodyValidation.state === 'valid') {
         // Validate emails match
         if (email !== emailConfirm) {
           setUpdateError(t('forms:errors.emailsDoNotMatch'))

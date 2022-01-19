@@ -2,6 +2,8 @@
 const flattenColorPalette =
   require('tailwindcss/lib/util/flattenColorPalette').default
 const plugin = require('tailwindcss/plugin')
+const { createGlobPatternsForDependencies } = require('@nrwl/react/tailwind')
+const path = require('path')
 
 const generateColorClass = (variable) => {
   return ({ opacityValue }) =>
@@ -16,11 +18,13 @@ module.exports = {
   purge: {
     // tree-shaking unused styles
     content: [
-      './src/components/**/*.{js,ts,jsx,tsx,css}',
-      './src/layouts/**/*.{js,ts,jsx,tsx,css}',
-      './src/pages/**/*.{js,ts,jsx,tsx,css}',
-      './src/templates/**/*.{js,ts,jsx,tsx,css}',
+      path.join(__dirname, 'src', '**', '*.{js,ts,jsx,tsx,css}'),
+      ...createGlobPatternsForDependencies(
+        __dirname,
+        '**/*.{js,ts,jsx,tsx,css}'
+      ),
     ],
+    css: [path.join(__dirname, 'src', '**', '*.css')],
   },
   darkMode: 'class', // or false, 'media' or 'class'
   theme: {

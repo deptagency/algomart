@@ -6,6 +6,7 @@ import {
   greaterThan,
   greaterThanOrEqual,
   toFormat,
+  toUnit,
 } from 'dinero.js'
 
 import { Environment } from '@/environment'
@@ -20,7 +21,7 @@ export function formatCurrency(
   if (amount === null || amount === undefined) {
     amount = 0
   } else if (typeof amount === 'string') {
-    amount = Number.parseFloat(amount) * 100
+    amount = Math.round(Number.parseFloat(amount) * 100)
   }
 
   function transformer({
@@ -37,6 +38,11 @@ export function formatCurrency(
   }
 
   return toFormat(dinero({ amount, currency }), transformer)
+}
+
+export function formatToDecimal(amount: number, decimalPlaces: number) {
+  const price = dinero({ amount, currency, scale: decimalPlaces })
+  return toUnit(price)
 }
 
 export function formatFloatToInt(float: number | string) {

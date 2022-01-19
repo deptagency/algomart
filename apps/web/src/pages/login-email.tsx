@@ -28,7 +28,7 @@ export default function LoginEmailPage() {
         password: formData.get('password') as string,
       }
       const validation = await validate(body)
-      if (validation.isValid) {
+      if (validation.state === 'valid') {
         const result = await auth.authenticateWithEmailAndPassword(body)
         if (result.isValid) {
           // Check if the user needs to be redirected

@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "type": "object",
+  "cli": "nx",
+  "properties": {
+    "action": {
+      "description": "Directus CLI command to run",
+      "type": "string",
+      "enum": [
+        "start",
+        "init",
+        "database",
+        "users",
+        "roles",
+        "count",
+        "bootstrap",
+        "schema"
+      ]
+    },
+    "args": {
+      "type": "array",
+      "description": "Additional arguments to pass to Directus command",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

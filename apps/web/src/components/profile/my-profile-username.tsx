@@ -37,7 +37,7 @@ export default function MyProfileUsername() {
         username: formData.get('username') as string,
       }
       const bodyValidation = await validate(body)
-      if (!bodyValidation.isValid) {
+      if (bodyValidation.state === 'invalid') {
         setFormErrors(bodyValidation.errors)
         setLoading(false)
         return

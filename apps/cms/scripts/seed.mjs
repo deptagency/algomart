@@ -70,10 +70,10 @@ async function main(args) {
     console.log('Operation canceled.')
     process.exit(0)
   }
-  await knex.raw(`TRUNCATE TABLE 
+  await knex.raw(`TRUNCATE TABLE
     directus_files,
     homepage,
-    rarities, rarities_translations, 
+    rarities, rarities_translations,
     nft_templates, nft_templates_translations,
     pack_templates, pack_templates_translations, pack_templates_directus_files,
     collections, collections_translations,
@@ -97,6 +97,16 @@ async function main(args) {
    * Begin seeding data.
    */
   console.log('Seeding database...')
+
+  try {
+    await createEntityRecords(
+      'languages',
+      [{ code: 'en-US', name: 'English' }],
+      token
+    )
+  } catch (err) {
+    console.log('Language already exists.')
+  }
 
   /**
    * These numbers can be adjusted, just be mindful of the implications.

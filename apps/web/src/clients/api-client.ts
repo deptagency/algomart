@@ -1,4 +1,5 @@
 import {
+  CircleBlockchainAddress,
   ClaimFreePack,
   ClaimPack,
   ClaimRedeemPack,
@@ -14,10 +15,12 @@ import {
   CreateBidRequest,
   CreateCard,
   CreatePayment,
+  CreateTransferPayment,
   CreateUserAccountRequest,
+  CreateWalletAddress,
   DEFAULT_LOCALE,
   ExternalId,
-  GetPaymentBankAccountInstructions,
+  FindTransferByAddress,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
@@ -33,6 +36,7 @@ import {
   PackWithCollectibles,
   PackWithId,
   Payment,
+  PaymentBankAccountInstructions,
   PaymentCard,
   PaymentCards,
   PublicAccount,
@@ -42,6 +46,7 @@ import {
   RedeemCode,
   SendBankAccountInstructions,
   SetWithCollection,
+  ToPaymentBase,
   TransferPack,
   TransferPackStatusList,
   UpdatePaymentCard,
@@ -221,10 +226,20 @@ export class ApiClient {
     return await this.http.post('payments/cards', { json }).json<PaymentCard>()
   }
 
+  async createTransferPurchase(json: CreateTransferPayment) {
+    return await this.http.post('payments/transfers', { json }).json<Payment>()
+  }
+
+  async createWalletAddress(json: CreateWalletAddress) {
+    return await this.http
+      .post('payments/wallets', { json })
+      .json<CircleBlockchainAddress>()
+  }
+
   async getBankAddressInstructions(bankAccountId: string) {
     return await this.http
       .get(`payments/bank-accounts/${bankAccountId}/instructions`)
-      .json<GetPaymentBankAccountInstructions>()
+      .json<PaymentBankAccountInstructions>()
   }
 
   async getBankAddressStatus(bankAccountId: string) {
@@ -269,6 +284,16 @@ export class ApiClient {
     return await this.http
       .get(`payments/bank-accounts/send`, { searchParams: searchParameters })
       .then((response) => response.ok)
+  }
+
+  async getTransferByAddress(query: FindTransferByAddress) {
+    const searchParams = new URLSearchParams()
+    if (query?.destinationAddress)
+      searchParams.set('destinationAddress', query.destinationAddress)
+    return await this.http
+      .get('payments/transfers', { searchParams })
+      .json<ToPaymentBase>()
+      .catch(() => null)
   }
   //#endregion
 

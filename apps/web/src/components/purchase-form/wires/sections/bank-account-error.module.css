@@ -1,0 +1,20 @@
+.root {
+  @apply text-center max-w-xs;
+}
+
+.icon {
+  @apply mx-auto relative text-base-errorRed;
+  width: 48px;
+}
+
+.heading {
+  @apply font-bold my-4 text-base-gray-text text-lg;
+}
+
+.message {
+  @apply text-sm text-base-gray-text;
+}
+
+.button {
+  @apply mt-8 w-full;
+}
