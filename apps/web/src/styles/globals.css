@@ -13,9 +13,9 @@
 
   /* Default light theme */
   :root {
-    --textPrimary: 0, 0, 0;
-    --textSecondary: 34, 34, 34;
-    --textTertiary: 68, 68, 68;
+    --textPrimary: 10, 17, 29;
+    --textSecondary: 44, 51, 63;
+    --textTertiary: 78, 85, 97;
     --textDisabled: 102, 102, 102;
 
     --bg: 236, 236, 236;
@@ -37,9 +37,9 @@
 
   /* Dark theme */
   .dark {
-    --textPrimary: 255, 255, 255;
-    --textSecondary: 221, 221, 221;
-    --textTertiary: 187, 187, 187;
+    --textPrimary: 250, 250, 250;
+    --textSecondary: 216, 216, 216;
+    --textTertiary: 182, 182, 182;
     --textDisabled: 128, 128, 128;
 
     --bg: 34, 35, 39;
@@ -52,7 +52,7 @@
     --actionAccent: 2, 251, 194; /* light green */
 
     --grayDark: 10, 17, 29; /* DEPRECATED */
-    --border: 218, 220, 223;
+    --border: 118, 120, 123;
     --nav: 128, 128, 128;
 
     --error: 172, 0, 0; /* red */
