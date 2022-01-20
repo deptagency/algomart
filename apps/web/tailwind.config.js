@@ -8,8 +8,8 @@ const path = require('path')
 const generateColorClass = (variable) => {
   return ({ opacityValue }) =>
     opacityValue
-      ? `rgba(var(--${variable}), ${opacityValue});`
-      : `rgb(var(--${variable}));`
+      ? `rgba(var(--${variable}), ${opacityValue})`
+      : `rgb(var(--${variable}))`
 }
 
 module.exports = {
@@ -107,13 +107,18 @@ module.exports = {
     plugin(({ addUtilities, theme }) => {
       const colors = flattenColorPalette(theme('colors'))
       delete colors['default']
-
-      const colorMap = Object.keys(colors).map((color) => ({
-        [`.border-t-${color}`]: { borderTopColor: colors[color] },
-        [`.border-r-${color}`]: { borderRightColor: colors[color] },
-        [`.border-b-${color}`]: { borderBottomColor: colors[color] },
-        [`.border-l-${color}`]: { borderLeftColor: colors[color] },
-      }))
+      const colorMap = Object.keys(colors).map((colorName) => {
+        const color =
+          typeof colors[colorName] === 'function'
+            ? colors[colorName](colorName)
+            : colors[colorName]
+        return {
+          [`.border-t-${colorName}`]: { borderTopColor: color },
+          [`.border-r-${colorName}`]: { borderRightColor: color },
+          [`.border-b-${colorName}`]: { borderBottomColor: color },
+          [`.border-l-${colorName}`]: { borderLeftColor: color },
+        }
+      })
       const utilities = Object.assign({}, ...colorMap)
 
       addUtilities(utilities, ['responsive', 'hover'])
