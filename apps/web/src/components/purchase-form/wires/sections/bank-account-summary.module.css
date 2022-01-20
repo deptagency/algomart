@@ -35,7 +35,7 @@
 }
 
 .bankInstructionsNotice {
-  @apply flex px-5 py-5 mb-8 text-left rounded bg-base-gray-notice text-base-gray-text;
+  @apply flex px-5 py-5 mb-8 text-left rounded bg-base-bgNotice text-base-textTertiary;
 }
 
 .noticeIconWrapper {

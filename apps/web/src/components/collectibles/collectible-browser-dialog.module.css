@@ -11,7 +11,7 @@
 }
 
 .closeButton {
-  @apply w-8 h-auto p-0 right-8 text-black bg-white rounded-full hover:bg-base-green focus:bg-base-green;
+  @apply w-8 h-auto p-0 right-8 text-black bg-white rounded-full hover:bg-action-accent focus:bg-action-accent;
 }
 
 .root {

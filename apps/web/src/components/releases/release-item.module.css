@@ -1,9 +1,9 @@
 .root {
-  @apply relative flex flex-col h-full overflow-hidden text-center bg-white rounded-md shadow-large;
+  @apply relative flex flex-col h-full overflow-hidden text-center rounded-md bg-base-bgCard shadow-large;
 }
 
 .imageWrapper {
-  @apply relative overflow-hidden bg-black hover:border-base-green focus:border-base-green;
+  @apply relative overflow-hidden bg-black hover:border-action-accent focus:border-action-accent;
 }
 
 .content {
@@ -11,7 +11,7 @@
 }
 
 .title {
-  @apply px-4 text-lg font-bold text-base-gray-dark;
+  @apply px-4 text-lg font-bold text-base-textPrimary;
 }
 
 .metadata {
@@ -24,7 +24,7 @@
 }
 
 .metadata > div {
-  @apply flex flex-col justify-center p-4 text-white bg-base-gray-dark;
+  @apply flex flex-col justify-center p-4 text-white bg-base-gray-dark dark:bg-base-bgCard dark:text-base-textSecondary;
 }
 
 .metadataLabel {

@@ -12,10 +12,10 @@
 }
 
 .inputWrapper input {
-  @apply font-bold text-center bg-black border-2 border-base-gray-border;
+  @apply font-bold text-center bg-black border-2 border-base-border;
   color: #fff !important;
 }
 
 .noCodeLink {
-  @apply block mt-12 text-sm text-base-gray-medium hover:text-base-gray-text;
+  @apply block mt-12 text-sm text-base-gray-medium hover:text-base-textPrimary;
 }

@@ -1,5 +1,5 @@
 .root {
-  @apply relative w-full h-full p-0 duration-300 bg-white border rounded-md opacity-100 border-base-gray-border shadow-medium;
+  @apply relative w-full h-full p-0 duration-300 bg-white border rounded-md opacity-100 border-base-border shadow-medium;
 }
 
 .column {
@@ -37,13 +37,13 @@
 
 .title {
   /* Base + */
-  @apply h-full pt-1 text-sm font-bold text-base-gray-text line-clamp-2;
+  @apply h-full pt-1 text-sm font-bold text-base-textPrimary line-clamp-2;
   /* Tablet + */
   @apply md:text-base md:pt-3;
 }
 
 .label {
-  @apply px-4 py-2 text-xs text-white uppercase rounded-full bg-base-gray-border;
+  @apply px-4 py-2 text-xs text-white uppercase rounded-full bg-base-border;
 }
 
 .icon {
@@ -51,5 +51,5 @@
 }
 
 .defaultColor {
-  @apply bg-base-gray-border;
+  @apply bg-base-border;
 }

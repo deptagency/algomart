@@ -15,11 +15,7 @@ export default function AppFooterBottomNav() {
     <section className={css.bottomNav}>
       <div className={css.bottomNavWrapper}>
         <div className={css.bottomNavLeft}>
-          <Logo
-            color={'black'}
-            className={css.bottomNavLeftImage}
-            layout="fixed"
-          />
+          <Logo className={css.bottomNavLeftImage} />
           <nav
             aria-label={t('common:nav.aria.Social Media')}
             className={css.bottomNavSpace}
