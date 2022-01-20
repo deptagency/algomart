@@ -12,7 +12,7 @@
 
 .sectionHeading {
   /* Base */
-  @apply mb-1 text-lg font-bold text-base-gray-dark;
+  @apply mb-1 text-lg font-bold text-base-textSecondary;
   /* Tablet + */
   @apply md:text-xl;
 }
@@ -26,7 +26,7 @@
 }
 
 .sectionContent {
-  @apply p-6 rounded-md border-1 border-base-border;
+  @apply p-6 rounded-md border-1 border-base-border bg-base-bgCard dark:border-opacity-0;
 }
 
 .sectionContentLarge {
@@ -34,5 +34,5 @@
 }
 
 .sectionText {
-  @apply mb-4 text-base-gray-dark;
+  @apply mb-4;
 }

@@ -26,11 +26,11 @@
 }
 
 .listWrapper {
-  @apply mb-5 bg-white rounded-sm shadow-large;
+  @apply mb-5 rounded-sm bg-base-bgCard shadow-large;
 }
 
-.listItem {
-  @apply border-b border-b-base-border;
+.listItem + .listItem {
+  @apply border-t border-t-base-border;
 }
 
 .listItem a {
