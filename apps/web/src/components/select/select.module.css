@@ -3,7 +3,7 @@
 }
 
 .labelContainer {
-  @apply relative flex flex-wrap justify-between w-full font-bold text-base-gray-dark;
+  @apply relative flex flex-wrap justify-between w-full font-bold text-base-textPrimary;
 }
 
 .label {
