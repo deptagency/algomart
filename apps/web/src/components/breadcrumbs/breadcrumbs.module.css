@@ -2,19 +2,19 @@
 }
 
 .breadcrumbs {
-  @apply flex flex-wrap mb-16 gap-2;
+  @apply flex flex-wrap gap-2 mb-16;
 }
 
 .breadcrumb {
-  @apply flex gap-1 justify-between;
+  @apply flex justify-between gap-1;
 }
 
 .navLink {
-  @apply flex gap-6 transition duration-300 text-base-textTertiary hover:text-base-gray-dark no-underline;
+  @apply flex gap-6 no-underline transition duration-300 text-base-textTertiary hover:text-base-textPrimary;
 }
 
 .navLink.navLinkActive {
-  @apply font-bold text-base-gray-dark;
+  @apply font-semibold border-b-1 text-base-textPrimary border-base-actionAccent;
 }
 
 .navLink.navLinkDisabled {
