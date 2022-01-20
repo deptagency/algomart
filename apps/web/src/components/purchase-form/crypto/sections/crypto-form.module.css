@@ -24,7 +24,7 @@
 }
 
 .priceContainer {
-  @apply flex items-center justify-between w-full p-5 mt-5 mb-6 rounded-sm bg-base-gray-bg;
+  @apply flex items-center justify-between w-full p-5 mt-5 mb-6 rounded-sm bg-base-bg;
 }
 
 .priceLabel {
@@ -36,7 +36,7 @@
 }
 
 .information {
-  @apply bg-base-gray-bg p-5 mb-10;
+  @apply bg-base-bg p-5 mb-10;
 }
 
 .infoHelpText {
