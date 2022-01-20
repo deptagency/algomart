@@ -1,5 +1,5 @@
 .alertWrapper {
-  @apply bg-white h-20 text-base-textPrimary rounded-t-md;
+  @apply h-20 bg-base-bgCard text-base-textPrimary rounded-t-md;
 }
 
 .alertWrapper span {
@@ -19,11 +19,11 @@
 }
 
 .endDate {
-  @apply lowercase pr-1;
+  @apply pr-1 lowercase;
 }
 
 .contentWrapper {
-  @apply flex-initial inline-flex ml-5 w-full;
+  @apply inline-flex flex-initial w-full ml-5;
 }
 
 .centerContent {
@@ -31,5 +31,5 @@
 }
 
 .callToAction {
-  @apply flex-none bg-black font-normal mr-5 px-10 py-2.5 rounded-md text-sm text-white;
+  @apply flex-none mr-5;
 }
