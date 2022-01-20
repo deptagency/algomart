@@ -6,22 +6,21 @@ import {
   useState,
 } from 'react'
 
-const DEFAULT_THEME = 'light'
+import { Environment } from '@/environment'
 
 /** Returns the theme set in localStorage, else the OS preferred theme */
 function getThemeFromBrowser(): string {
-  return (
-    localStorage.getItem('theme') ??
-    (window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light')
-  )
+  return !Environment.isProduction && typeof window !== 'undefined' ? (
+      localStorage.getItem('theme') ??
+      (window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light')
+    ) : 'light';
 }
 
 /** Sets 'dark' class & css variables on <html>  */
 const applyTheme = (theme: string): void => {
   const root = document.documentElement
-
   if (theme === 'dark') {
     root.classList.add('dark')
   } else {
@@ -36,7 +35,7 @@ interface IThemeContext {
 }
 
 const ThemeContext = createContext<IThemeContext>({
-  theme: DEFAULT_THEME,
+  theme: undefined,
   setTheme: () => null,
   toggleTheme: () => null,
 })
@@ -44,10 +43,17 @@ const ThemeContext = createContext<IThemeContext>({
 export const useThemeContext = () => useContext(ThemeContext)
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<string | undefined>(DEFAULT_THEME)
+  const [theme, setTheme] = useState<string | undefined>()
 
-  const toggleTheme = () => {
-    setTheme((theme) => (theme === 'dark' ? 'light' : 'dark'))
+  const toggleTheme = useCallback(() => {
+    setTheme((theme) => {
+      const actualTheme = theme ?? getThemeFromBrowser()
+      return actualTheme === 'dark' ? 'light' : 'dark'
+    })
+  }, [theme])
+
+  const useOSTheme = () => {
+    setTheme()
   }
 
   const handleThemeChangeShortcut = useCallback((event: KeyboardEvent) => {
@@ -57,19 +63,15 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   useEffect(() => {
-    document.addEventListener('keypress', handleThemeChangeShortcut)
-    setTheme(getThemeFromBrowser())
-    return () => {
-      document.removeEventListener('keypress', handleThemeChangeShortcut)
+    if (!Environment.isProduction) {
+      document.addEventListener('keypress', handleThemeChangeShortcut)
+      return () => {
+        document.removeEventListener('keypress', handleThemeChangeShortcut)
+      }
     }
   }, [handleThemeChangeShortcut])
 
   useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
     if (theme) {
       localStorage.setItem('theme', theme)
       applyTheme(theme)
@@ -81,8 +83,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, [theme])
 
   const value = {
-    theme,
+    theme: theme || getThemeFromBrowser(),
     setTheme,
+    useOSTheme,
     toggleTheme,
   }
 
