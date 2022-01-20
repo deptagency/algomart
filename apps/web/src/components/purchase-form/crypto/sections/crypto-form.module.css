@@ -20,7 +20,7 @@
 }
 
 .checkForTransfer {
-  @apply bg-base-errorRed flex justify-center gap-2 items-center mt-10 text-white uppercase;
+  @apply bg-base-error flex justify-center gap-2 items-center mt-10 text-white uppercase;
 }
 
 .priceContainer {
