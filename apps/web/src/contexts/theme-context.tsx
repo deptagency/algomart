@@ -35,7 +35,7 @@ interface IThemeContext {
 }
 
 const ThemeContext = createContext<IThemeContext>({
-  theme: undefined,
+  theme: null,
   setTheme: () => null,
   toggleTheme: () => null,
 })
@@ -43,7 +43,7 @@ const ThemeContext = createContext<IThemeContext>({
 export const useThemeContext = () => useContext(ThemeContext)
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<string | undefined>()
+  const [theme, setTheme] = useState<string | null>()
 
   const toggleTheme = useCallback(() => {
     setTheme((theme) => {
@@ -53,7 +53,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, [setTheme])
 
   const useOSTheme = useCallback(() => {
-    setTheme()
+    setTheme(null)
   }, [setTheme])
 
   const handleThemeChangeShortcut = useCallback((event: KeyboardEvent) => {
