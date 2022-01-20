@@ -60,7 +60,6 @@ module.exports = {
           textTertiary: generateColorClass('textTertiary'),
           textDisabled: generateColorClass('textDisabled'),
           border: generateColorClass('border'),
-          nav: generateColorClass('nav'),
           bgNotice: '#F9F8F9', // DEPRECATED
           // DEPRECATED
           gray: {

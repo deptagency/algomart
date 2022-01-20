@@ -29,7 +29,6 @@
 
     --grayDark: 10, 17, 29; /* DEPRECATED */
     --border: 218, 220, 223;
-    --nav: 128, 128, 128;
 
     --error: 172, 0, 0; /* red */
     --price: 51, 197, 0; /* green */
@@ -53,9 +52,8 @@
 
     --grayDark: 10, 17, 29; /* DEPRECATED */
     --border: 118, 120, 123;
-    --nav: 128, 128, 128;
 
-    --error: 172, 0, 0; /* red */
+    --error: 255, 70, 70; /* red */
     --price: 51, 197, 0; /* green */
   }
 }
