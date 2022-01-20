@@ -25,7 +25,7 @@ export default function Toggle({
   id,
   label,
   onChange,
-  variant,
+  variant = 'tertiary',
 }: ToggleProps) {
   const [enabled, setEnabled] = useState(checked || false)
   const handleChange = useCallback(
@@ -49,13 +49,10 @@ export default function Toggle({
       <Switch
         checked={enabled}
         onChange={handleChange}
-        className={clsx(css.input, {
+        className={clsx(css.input, css[variant], {
           [css.toggleEnabled]: enabled,
           [css.toggleNotEnabled]: !enabled,
           [css.inputDisabled]: disabled,
-          [css.togglePrimary]: variant === 'primary',
-          [css.toggleSecondary]: variant === 'secondary',
-          [css.toggleTertiary]: variant === undefined || variant === 'tertiary',
         })}
         disabled={disabled}
       >

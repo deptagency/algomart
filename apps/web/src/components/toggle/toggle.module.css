@@ -33,28 +33,23 @@
   @apply w-1/2 mt-1 text-sm font-light text-right text-base-error;
 }
 
-/* Primary */
-.toggleEnabled.togglePrimary {
-  @apply bg-base-actionPrimary;
+.toggleNotEnabled {
+  @apply bg-gray-300 dark:bg-gray-400;
 }
-.toggleNotEnabled.togglePrimary {
-  @apply bg-gray-200 dark:bg-gray-500;
+
+/* Primary */
+.toggleEnabled.primary {
+  @apply bg-base-actionPrimary;
 }
 
 /* Secondary */
-.toggleEnabled.toggleSecondary {
+.toggleEnabled.secondary {
   @apply bg-base-actionSecondary;
-}
-.toggleNotEnabled.toggleSecondary {
-  @apply bg-gray-200 dark:bg-gray-500;
 }
 
 /* Tertiary / default */
-.toggleEnabled.toggleTertiary {
-  @apply bg-gray-500 dark:bg-gray-600;
-}
-.toggleNotEnabled.toggleTertiary {
-  @apply bg-gray-200 dark:bg-gray-500;
+.toggleEnabled.tertiary {
+  @apply bg-gray-500 dark:bg-gray-500;
 }
 
 .inputDisabled {
