@@ -1,5 +1,5 @@
 .input {
-  @apply border border-solid font-light mt-1.5  rounded-md  text-base-gray-dark w-full;
+  @apply border border-solid font-light mt-1.5  rounded-md  text-base-textPrimary w-full;
 }
 
 .inputMedium {
@@ -24,7 +24,7 @@
 }
 
 .labelContainer {
-  @apply content-between flex flex-wrap font-bold relative text-base-gray-dark w-full;
+  @apply relative flex flex-wrap content-between w-full font-bold text-base-textPrimary;
 }
 
 .label {
@@ -36,7 +36,7 @@
 }
 
 .helpText {
-  @apply font-light text-base-gray-medium text-right text-sm mt-1 w-1/2;
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-textTertiary;
 }
 
 .helpTextSmall {
@@ -44,7 +44,7 @@
 }
 
 .errorText {
-  @apply font-light text-base-error text-right text-sm mt-1 w-1/2;
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-error;
 }
 
 .errorTextSmall {

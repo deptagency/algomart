@@ -14,7 +14,7 @@ export interface ToggleProps
   helpText?: string
   onChange?: (checked: boolean) => void
   label: string
-  styleMode?: 'light' | 'dark'
+  variant?: 'primary' | 'secondary' | 'tertiary'
 }
 
 export default function Toggle({
@@ -25,7 +25,7 @@ export default function Toggle({
   id,
   label,
   onChange,
-  styleMode,
+  variant,
 }: ToggleProps) {
   const [enabled, setEnabled] = useState(checked || false)
   const handleChange = useCallback(
@@ -53,8 +53,9 @@ export default function Toggle({
           [css.toggleEnabled]: enabled,
           [css.toggleNotEnabled]: !enabled,
           [css.inputDisabled]: disabled,
-          [css.toggleLight]: styleMode !== 'dark',
-          [css.toggleDark]: styleMode === 'dark',
+          [css.togglePrimary]: variant === 'primary',
+          [css.toggleSecondary]: variant === 'secondary',
+          [css.toggleTertiary]: variant === undefined || variant === 'tertiary',
         })}
         disabled={disabled}
       >

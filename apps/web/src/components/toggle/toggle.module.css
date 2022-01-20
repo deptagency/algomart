@@ -26,27 +26,35 @@
 }
 
 .helpText {
-  @apply w-1/2 mt-1 text-sm font-light text-right text-base-gray-medium;
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-textTertiary;
 }
 
 .errorText {
   @apply w-1/2 mt-1 text-sm font-light text-right text-base-error;
 }
 
-.toggleEnabled.toggleDark {
-  @apply bg-base-actionSecondary;
+/* Primary */
+.toggleEnabled.togglePrimary {
+  @apply bg-base-actionPrimary;
 }
-
-.toggleNotEnabled.toggleDark {
+.toggleNotEnabled.togglePrimary {
   @apply bg-gray-200 dark:bg-gray-500;
 }
 
-.toggleEnabled.toggleLight {
-  @apply bg-gray-500;
+/* Secondary */
+.toggleEnabled.toggleSecondary {
+  @apply bg-base-actionSecondary;
+}
+.toggleNotEnabled.toggleSecondary {
+  @apply bg-gray-200 dark:bg-gray-500;
 }
 
-.toggleNotEnabled.toggleLight {
-  @apply bg-gray-200;
+/* Tertiary / default */
+.toggleEnabled.toggleTertiary {
+  @apply bg-gray-500 dark:bg-gray-600;
+}
+.toggleNotEnabled.toggleTertiary {
+  @apply bg-gray-200 dark:bg-gray-500;
 }
 
 .inputDisabled {
