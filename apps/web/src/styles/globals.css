@@ -21,10 +21,12 @@
     --bg: 236, 236, 236;
     --bgCard: 255, 255, 255;
     --bgPanel: 255, 255, 255;
+    --bgNotice: 249, 249, 249;
 
     --actionPrimary: 10, 17, 29; /* very dark gray-blue */
-    --actionContrastText: 255, 255, 255;
+    --actionPrimaryContrastText: 255, 255, 255;
     --actionSecondary: 18, 220, 197; /* teal */
+    --actionSecondaryContrastText: 0, 0, 0;
     --actionAccent: 2, 251, 194; /* light green */
 
     --grayDark: 10, 17, 29; /* DEPRECATED */
@@ -44,10 +46,12 @@
     --bg: 34, 35, 39;
     --bgCard: 9, 12, 13;
     --bgPanel: 28, 29, 33;
+    --bgNotice: 28, 29, 33;
 
     --actionPrimary: 253, 89, 132; /* hot pink */
-    --actionContrastText: 255, 255, 255;
+    --actionPrimaryContrastText: 255, 255, 255;
     --actionSecondary: 18, 220, 197; /* teal */
+    --actionSecondaryContrastText: 0, 0, 0;
     --actionAccent: 2, 251, 194; /* light green */
 
     --grayDark: 10, 17, 29; /* DEPRECATED */

@@ -15,5 +15,5 @@
 }
 
 .tealButton {
-  @apply bg-base-actionSecondary;
+  @apply bg-action-secondary;
 }

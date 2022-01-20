@@ -45,22 +45,30 @@ module.exports = {
         large: '0px 5px 40px rgba(0, 0, 0, 0.15)',
       },
       colors: {
+        action: {
+          primary: generateColorClass('actionPrimary'),
+          primaryContrastText: generateColorClass('actionPrimaryContrastText'),
+          secondary: generateColorClass('actionSecondary'),
+          secondaryContrastText: generateColorClass(
+            'actionSecondaryContrastText'
+          ),
+          accent: generateColorClass('actionAccent'),
+        },
         base: {
-          actionPrimary: generateColorClass('actionPrimary'),
-          actionContrastText: generateColorClass('actionContrastText'),
-          actionSecondary: generateColorClass('actionSecondary'),
-          actionAccent: generateColorClass('actionAccent'),
           error: generateColorClass('error'),
           price: generateColorClass('price'),
+          border: generateColorClass('border'),
+
           bg: generateColorClass('bg'),
           bgCard: generateColorClass('bgCard'),
           bgPanel: generateColorClass('bgPanel'),
+          bgNotice: generateColorClass('bgNotice'),
+
           textPrimary: generateColorClass('textPrimary'),
           textSecondary: generateColorClass('textSecondary'),
           textTertiary: generateColorClass('textTertiary'),
           textDisabled: generateColorClass('textDisabled'),
-          border: generateColorClass('border'),
-          bgNotice: '#F9F8F9', // DEPRECATED
+
           // DEPRECATED
           gray: {
             dark: generateColorClass('grayDark'),

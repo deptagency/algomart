@@ -12,7 +12,7 @@
 
 /* Item image */
 .imageWrapper {
-  @apply relative overflow-hidden bg-black rounded-md shadow-lg hover:border-base-actionAccent focus:border-base-actionAccent;
+  @apply relative overflow-hidden bg-black rounded-md shadow-lg hover:border-action-accent focus:border-action-accent;
 }
 
 .questionMarkWrapper {
@@ -39,7 +39,7 @@
 }
 
 .badge {
-  @apply absolute bg-base-actionAccent bottom-2 font-bold left-2 px-2 py-1 rounded-full text-center text-sm text-white;
+  @apply absolute bg-action-accent bottom-2 font-bold left-2 px-2 py-1 rounded-full text-center text-sm text-white;
 }
 
 /* Item content */
@@ -89,5 +89,5 @@
 }
 
 .checkIcon {
-  @apply w-6 h-6 text-black rounded-full bg-base-actionAccent;
+  @apply w-6 h-6 text-black rounded-full bg-action-accent;
 }

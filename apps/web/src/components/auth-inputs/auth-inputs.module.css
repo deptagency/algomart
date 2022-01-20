@@ -64,7 +64,7 @@
 }
 
 .passphraseInputWarning {
-  @apply flex items-center justify-center p-6 font-bold bg-base-actionAccent text-base-gray-dark;
+  @apply flex items-center justify-center p-6 font-bold bg-action-accent text-base-gray-dark;
 }
 
 .passphraseInputShield {

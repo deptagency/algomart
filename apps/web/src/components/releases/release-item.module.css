@@ -3,7 +3,7 @@
 }
 
 .imageWrapper {
-  @apply relative overflow-hidden bg-black hover:border-base-actionAccent focus:border-base-actionAccent;
+  @apply relative overflow-hidden bg-black hover:border-action-accent focus:border-action-accent;
 }
 
 .content {

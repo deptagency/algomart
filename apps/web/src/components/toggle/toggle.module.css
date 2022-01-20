@@ -39,12 +39,12 @@
 
 /* Primary */
 .toggleEnabled.primary {
-  @apply bg-base-actionPrimary;
+  @apply bg-action-primary;
 }
 
 /* Secondary */
 .toggleEnabled.secondary {
-  @apply bg-base-actionSecondary;
+  @apply bg-action-secondary;
 }
 
 /* Tertiary / default */

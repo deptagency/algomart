@@ -18,7 +18,7 @@
 }
 
 .confirmation {
-  @apply mb-2 text-sm font-light text-right text-base-actionSecondary;
+  @apply mb-2 text-sm font-light text-right text-action-secondary;
 }
 
 .error {

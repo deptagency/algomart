@@ -38,5 +38,5 @@
 }
 
 .listItemActive a {
-  @apply text-base font-bold text-base-actionSecondary;
+  @apply text-base font-bold text-action-secondary;
 }

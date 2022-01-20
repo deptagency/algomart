@@ -10,7 +10,7 @@
 }
 
 .featuredNotice {
-  @apply p-4 text-sm font-bold text-center text-white uppercase bg-base-actionSecondary;
+  @apply p-4 text-sm font-bold text-center text-white uppercase bg-action-secondary;
 }
 
 .featuredNotice span {

@@ -20,7 +20,7 @@
   /* Base */
   @apply flex-1 px-4 py-4 text-center no-underline transition duration-300 text-base-textPrimary;
   /* Base: Focus and Hover */
-  @apply focus:outline-none focus:bg-base-actionSecondary hover:bg-base-actionSecondary focus:bg-opacity-20 hover:bg-opacity-20;
+  @apply focus:outline-none focus:bg-action-secondary hover:bg-action-secondary focus:bg-opacity-20 hover:bg-opacity-20;
   /* Tablet + */
   @apply md:px-0 md:first:rounded-l-lg md:last:rounded-r-lg md:w-40;
 }
@@ -30,5 +30,5 @@
 }
 
 .tabActive {
-  @apply font-bold bg-base-actionSecondary dark:text-black;
+  @apply font-bold bg-action-secondary text-action-secondaryContrastText;
 }

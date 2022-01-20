@@ -56,7 +56,7 @@
 }
 
 .selectOptionActive {
-  @apply bg-base-actionSecondary;
+  @apply bg-action-secondary;
 }
 
 .selectOptionSelected {

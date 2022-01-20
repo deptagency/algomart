@@ -14,7 +14,7 @@
 }
 
 .navLink.navLinkActive {
-  @apply font-semibold border-b-1 text-base-textPrimary border-base-actionAccent;
+  @apply font-semibold border-b-1 text-base-textPrimary border-action-accent;
 }
 
 .navLink.navLinkDisabled {

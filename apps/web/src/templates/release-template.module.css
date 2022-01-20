@@ -15,5 +15,5 @@
 }
 
 .alert button {
-  @apply bg-base-actionSecondary;
+  @apply bg-action-secondary;
 }
