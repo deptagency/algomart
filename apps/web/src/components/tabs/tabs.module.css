@@ -11,24 +11,24 @@
 
 .tabsContainer {
   /* Base */
-  @apply relative flex w-full overflow-hidden bg-white shadow-large;
+  @apply relative flex w-full overflow-hidden bg-base-bgCard shadow-large;
   /* Tablet + */
   @apply md:w-auto md:rounded-lg md:mx-5;
 }
 
 .tab {
   /* Base */
-  @apply flex-1 px-4 py-4 text-center no-underline transition duration-300 text-base-gray-dark;
+  @apply flex-1 px-4 py-4 text-center no-underline transition duration-300 text-base-textPrimary;
   /* Base: Focus and Hover */
-  @apply focus:outline-none focus:text-opacity-70 hover:text-opacity-70;
+  @apply focus:outline-none focus:bg-base-actionSecondary hover:bg-base-actionSecondary focus:bg-opacity-20 hover:bg-opacity-20;
   /* Tablet + */
   @apply md:px-0 md:first:rounded-l-lg md:last:rounded-r-lg md:w-40;
 }
 
 .tab + .tab {
-  @apply border-gray-200 border-l-1;
+  @apply border-base-border border-l-1;
 }
 
 .tabActive {
-  @apply font-bold bg-base-actionSecondary;
+  @apply font-bold bg-base-actionSecondary dark:text-black;
 }
