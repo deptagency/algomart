@@ -52,7 +52,6 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleThemeChangeShortcut = useCallback((event: KeyboardEvent) => {
     if (event.ctrlKey && event.key === 'l') {
-      console.log('toggle theme')
       toggleTheme()
     }
   }, [])
