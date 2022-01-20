@@ -10,12 +10,12 @@ import { Environment } from '@/environment'
 
 /** Returns the theme set in localStorage, else the OS preferred theme */
 function getThemeFromBrowser(): string {
-  return !Environment.isProduction && typeof window !== 'undefined' ? (
-      localStorage.getItem('theme') ??
-      (window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light')
-    ) : 'light';
+  return !Environment.isProduction && typeof window !== 'undefined'
+    ? localStorage.getItem('theme') ??
+        (window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light')
+    : 'light'
 }
 
 /** Sets 'dark' class & css variables on <html>  */
@@ -50,11 +50,11 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       const actualTheme = theme ?? getThemeFromBrowser()
       return actualTheme === 'dark' ? 'light' : 'dark'
     })
-  }, [theme])
+  }, [setTheme])
 
-  const useOSTheme = () => {
+  const useOSTheme = useCallback(() => {
     setTheme()
-  }
+  }, [setTheme])
 
   const handleThemeChangeShortcut = useCallback((event: KeyboardEvent) => {
     if (event.ctrlKey && event.key === 'l') {
