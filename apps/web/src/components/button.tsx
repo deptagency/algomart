@@ -32,10 +32,12 @@ export default function Button({
       className={clsx(
         'duration-300 rounded-sm transition text-base-primaryText',
         {
-          'bg-base-actionPrimary border-none shadow-large hover:bg-opacity-90 text-base-actionContrastText':
+          'bg-action-primary border-none shadow-large hover:bg-opacity-90 text-action-primaryContrastText':
             !disabled && variant === 'primary',
+          // TODO: secondary variant should map to bg-action-secondary
           'bg-white shadow-large hover:bg-opacity-90 dark:text-gray-900':
             variant === 'secondary',
+          // TODO: This should be a "ghost" variant
           'bg-transparent border-none hover:border-none':
             variant === 'tertiary',
           'bg-transparent border-none float-left mb-5': variant === 'link',
