@@ -8,6 +8,7 @@ authors = ["Simon Ingeson <44818+smonn@users.noreply.github.com>"]
 python = "^3.8"
 py-algorand-sdk = "^1.9.0"
 pyteal = "^0.9.1"
+black = "^21.12b0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
