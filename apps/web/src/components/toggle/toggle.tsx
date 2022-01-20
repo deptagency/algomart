@@ -25,7 +25,7 @@ export default function Toggle({
   id,
   label,
   onChange,
-  variant = 'tertiary',
+  variant = 'secondary',
 }: ToggleProps) {
   const [enabled, setEnabled] = useState(checked || false)
   const handleChange = useCallback(
