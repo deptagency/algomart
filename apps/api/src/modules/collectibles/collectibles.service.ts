@@ -17,7 +17,9 @@ import { CollectibleShowcaseQuerystring } from '@algomart/schemas'
 import { Transaction } from 'objection'
 
 import AlgoExplorerAdapter from '@/lib/algoexplorer-adapter'
-import AlgorandAdapter from '@/lib/algorand-adapter'
+import AlgorandAdapter, {
+  DEFAULT_INITIAL_BALANCE,
+} from '@/lib/algorand-adapter'
 import DirectusAdapter, { ItemFilter } from '@/lib/directus-adapter'
 import NFTStorageAdapter from '@/lib/nft-storage-adapter'
 import { AlgorandAccountModel } from '@/models/algorand-account.model'
@@ -307,15 +309,49 @@ export default class CollectiblesService {
 
     invariant(templates.length > 0, 'templates not found')
 
-    // TODO load creator account from pool or always create a new one...?
-    // Hard-coded to be true until 1000 asset limit is removed
-    const useCreatorAccount = true
+    // TODO: remove the creator account once the 1000 asset limit is removed
+    const initialBalance =
+      DEFAULT_INITIAL_BALANCE +
+      // 0.1 ALGO per collectible
+      collectibles.length * 100_000 +
+      // 1000 microAlgos per create transaction
+      collectibles.length * 1000
+    const creator = await this.algorand.getCreatorAccount(initialBalance)
 
-    const { signedTransactions, transactionIds, creator } =
+    const transactions = await AlgorandTransactionModel.query(trx).insert([
+      {
+        // funding transaction
+        address: creator.transactionIds[0],
+        // Creator must already be confirmed for us to get here
+        status: AlgorandTransactionStatus.Confirmed,
+      },
+      {
+        // non-participation transaction
+        address: creator.transactionIds[1],
+        status: AlgorandTransactionStatus.Pending,
+      },
+    ])
+
+    const creatorAccount = await AlgorandAccountModel.query(trx).insertGraph(
+      {
+        address: creator.address,
+        encryptedKey: creator.encryptedMnemonic,
+        creationTransactionId: transactions[0].id,
+      },
+      { relate: true }
+    )
+
+    await EventModel.query(trx).insert({
+      action: EventAction.Create,
+      entityType: EventEntityType.AlgorandAccount,
+      entityId: creatorAccount.id,
+    })
+
+    const { signedTransactions, transactionIds } =
       await this.algorand.generateCreateAssetTransactions(
         collectibles,
         templates,
-        useCreatorAccount
+        creator
       )
 
     this.logger.info('Using creator account %s', creator?.address || '-')
@@ -328,37 +364,6 @@ export default class CollectiblesService {
         await this.algorand.closeCreatorAccount(creator)
       }
       throw error
-    }
-
-    if (creator) {
-      const transactions = await AlgorandTransactionModel.query(trx).insert([
-        {
-          // funding transaction
-          address: creator.transactionIds[0],
-          // Creator must already be confirmed for us to get here
-          status: AlgorandTransactionStatus.Confirmed,
-        },
-        {
-          // non-participation transaction
-          address: creator.transactionIds[1],
-          status: AlgorandTransactionStatus.Pending,
-        },
-      ])
-
-      const creatorAccount = await AlgorandAccountModel.query(trx).insertGraph(
-        {
-          address: creator.address,
-          encryptedKey: creator.encryptedMnemonic,
-          creationTransactionId: transactions[0].id,
-        },
-        { relate: true }
-      )
-
-      await EventModel.query(trx).insert({
-        action: EventAction.Create,
-        entityType: EventEntityType.AlgorandAccount,
-        entityId: creatorAccount.id,
-      })
     }
 
     await Promise.all(
