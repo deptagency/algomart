@@ -1,5 +1,5 @@
 .root {
-  @apply relative w-full h-full p-0 duration-300 bg-white border rounded-md opacity-100 border-base-border shadow-medium;
+  @apply relative w-full h-full p-0 text-black duration-300 bg-white border rounded-md opacity-100 border-base-border shadow-medium;
 }
 
 .column {
@@ -23,7 +23,7 @@
 }
 
 .informationWrapper {
-  @apply text-center bg-white rounded-sm;
+  @apply text-center rounded-b-sm text-base-textPrimary bg-base-bg;
 }
 
 .information {

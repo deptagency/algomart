@@ -35,7 +35,7 @@
 }
 
 .packName {
-  @apply p-3 mb-1 text-sm font-bold bg-white rounded-sm;
+  @apply p-3 mb-1 text-sm font-bold text-black bg-white rounded-sm;
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
   mix-blend-mode: screen;
@@ -46,7 +46,7 @@
 }
 
 .infoWrapperColumn {
-  @apply w-1/2 py-2 bg-white rounded-sm;
+  @apply w-1/2 py-2 text-black bg-white rounded-sm;
   mix-blend-mode: screen;
 }
 
