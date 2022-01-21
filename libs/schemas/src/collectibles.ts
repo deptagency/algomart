@@ -15,6 +15,13 @@ export enum IPFSStatus {
   Stored = 'stored',
 }
 
+export enum CollectibleAuctionStatus {
+  Active = 'active',
+  Closing = 'closing',
+  Closed = 'closed',
+  Canceled = 'canceled',
+}
+
 export const CollectibleSchema = Type.Intersect([
   BaseSchema,
   Type.Object({
@@ -34,6 +41,30 @@ export const CollectibleSchema = Type.Intersect([
     assetMetadataHash: Type.Optional(Nullable(Type.String())),
     assetUrl: Type.Optional(Nullable(Type.String())),
     ipfsStatus: Type.Optional(Nullable(Type.Enum(IPFSStatus))),
+  }),
+])
+
+export const CollectibleAuctionSchema = Type.Intersect([
+  BaseSchema,
+  Type.Object({
+    collectibleId: IdSchema,
+    userAccountId: IdSchema,
+    reservePrice: Type.Integer({ minimum: 0 }),
+    startAt: Type.String({ format: 'date-time' }),
+    endAt: Type.String({ format: 'date-time' }),
+    status: Type.Enum(CollectibleAuctionStatus),
+    appId: Type.Optional(Nullable(Type.Integer())),
+    transactionId: Type.String({ format: 'uuid' }),
+  }),
+])
+
+export const CollectibleAuctionBidSchema = Type.Intersect([
+  BaseSchema,
+  Type.Object({
+    collectibleAuctionId: IdSchema,
+    amount: Type.Integer({ minimum: 0 }),
+    userAccountId: IdSchema,
+    transactionId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
   }),
 ])
 
@@ -146,6 +177,12 @@ export const CollectibleListShowcaseSchema = Type.Object({
 })
 
 export type Collectible = Simplify<Static<typeof CollectibleSchema>>
+export type CollectibleAuction = Simplify<
+  Static<typeof CollectibleAuctionSchema>
+>
+export type CollectibleAuctionBid = Simplify<
+  Static<typeof CollectibleAuctionBidSchema>
+>
 export type CollectibleOwnership = Simplify<
   Static<typeof CollectibleOwnershipSchema>
 >
