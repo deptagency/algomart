@@ -292,6 +292,7 @@ export default class CollectiblesService {
       .whereNull('creationTransactionId')
       .joinRelated('pack', { alias: 'p' })
       .whereNotNull('p.ownerId')
+      .limit(16)
 
     // No collectibles matched the IDs or they are all already minted
     if (collectibles.length === 0) return 0
