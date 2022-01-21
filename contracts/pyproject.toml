@@ -11,7 +11,8 @@ python = "^3.8"
 
 [tool.poetry.dev-dependencies]
 black = "^21.12b0"
-pytest = "^5.2"
+pytest = "^6.2"
+pytest-xdist = "^2.5.0"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

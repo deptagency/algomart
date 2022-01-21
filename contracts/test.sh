@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-poetry run pytest
+poetry run pytest -n auto
