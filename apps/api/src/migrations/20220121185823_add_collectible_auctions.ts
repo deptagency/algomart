@@ -9,7 +9,7 @@ export async function up(knex: Knex): Promise<void> {
       .references('id')
       .inTable('Collectible')
     table
-      .uuid('useAccountId')
+      .uuid('userAccountId')
       .notNullable()
       .references('id')
       .inTable('UserAccount')
