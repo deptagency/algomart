@@ -1,4 +1,4 @@
-import pino from 'pino'
+import pino, { Logger } from 'pino'
 import http from 'pino-http'
 
 import { Environment } from '@/environment'
@@ -29,7 +29,7 @@ export const logger = pino({
 })
 
 export const loggerHttp = http({
-  logger,
+  logger: logger as Logger,
   redact: {
     paths: ['req.headers', 'res.headers'],
     remove: true,
