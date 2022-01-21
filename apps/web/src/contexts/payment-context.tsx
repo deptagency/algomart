@@ -75,11 +75,13 @@ export interface PaymentContextProps {
   method?: string | string[]
   packId: string | null
   price: string | null
+  promptLeaving: boolean
   release?: PublishedPack
   setAddress(address: string | null): void
   setBid: (bid: string | null) => void
   setLoadingText: (loadingText: string) => void
   setPackId: (packId: string | null) => void
+  setPromptLeaving: (promptLeaving: boolean) => void
   setStatus: (status: CheckoutStatus) => void
   status: CheckoutStatus
 }
@@ -108,6 +110,7 @@ export function usePaymentProvider({
   const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
   const [bid, setBid] = useState<string | null>(initialBid)
   const [address, setAddress] = useState<string | null>(null)
+  const [promptLeaving, setPromptLeaving] = useState(false)
   const validateFormForBankAccount = useMemo(() => validateBankAccount(t), [t])
   const validateFormForPurchase = useMemo(() => validatePurchaseForm(t), [t])
   const validateFormForPurchaseWithSavedCard = useMemo(
@@ -516,6 +519,7 @@ export function usePaymentProvider({
             : await validateFormForBids({ ...body, bid })
 
           if (validation.state === 'invalid') {
+            setPromptLeaving(false)
             setFormErrors(validation.errors)
             handleSetStatus(CheckoutStatus.form)
             return
@@ -542,6 +546,7 @@ export function usePaymentProvider({
           })
 
           if (bidValidation.state === 'invalid') {
+            setPromptLeaving(false)
             setFormErrors(bidValidation.errors)
             handleSetStatus(CheckoutStatus.form)
             return
@@ -602,6 +607,7 @@ export function usePaymentProvider({
           : await validateFormForPurchase(body)
 
         if (validation.state === 'invalid') {
+          setPromptLeaving(false)
           setFormErrors(validation.errors)
           handleSetStatus(CheckoutStatus.form)
           return
@@ -670,11 +676,13 @@ export function usePaymentProvider({
       method,
       packId,
       price,
+      promptLeaving,
       release,
       setAddress,
       setBid,
       setLoadingText,
       setPackId,
+      setPromptLeaving,
       setStatus,
       status,
     }),
@@ -693,11 +701,13 @@ export function usePaymentProvider({
       method,
       packId,
       price,
+      promptLeaving,
       release,
       setAddress,
       setBid,
       setLoadingText,
       setPackId,
+      setPromptLeaving,
       setStatus,
       status,
     ]

@@ -27,12 +27,13 @@ export default function CardForm({
   loadingText,
   packId,
   price,
+  promptLeaving,
   setBid,
+  setPromptLeaving,
   status,
 }: PaymentContextProps) {
   const { t } = useTranslation()
   const { asPath, push } = useRouter()
-  const [promptLeaving, setPromptLeaving] = useState(false)
   const isAuctionActive =
     release?.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))
@@ -49,7 +50,13 @@ export default function CardForm({
         : onSubmitPurchase(data, true))
       setPromptLeaving(false)
     },
-    [release?.auctionUntil, release?.type, onSubmitBid, onSubmitPurchase]
+    [
+      setPromptLeaving,
+      release?.type,
+      release.auctionUntil,
+      onSubmitBid,
+      onSubmitPurchase,
+    ]
   )
 
   return (
