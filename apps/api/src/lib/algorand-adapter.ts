@@ -4,10 +4,11 @@ import algosdk from 'algosdk'
 import { Configuration } from '@/configuration'
 import { CollectibleModel } from '@/models/collectible.model'
 import { decrypt, encrypt } from '@/utils/encryption'
+import { invariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
 
 // 100_000 microAlgos = 0.1 ALGO
-const DEFAULT_INITIAL_BALANCE = 100_000
+export const DEFAULT_INITIAL_BALANCE = 100_000
 
 export interface PublicAccount {
   address: string
@@ -23,6 +24,11 @@ export interface AlgorandAdapterOptions {
   fundingMnemonic: string
 }
 
+export interface AccountInfo {
+  address: string
+  amount: number
+}
+
 export default class AlgorandAdapter {
   logger = logger.child({ context: this.constructor.name })
   fundingAccount: algosdk.Account
@@ -36,13 +42,14 @@ export default class AlgorandAdapter {
     )
 
     this.fundingAccount = algosdk.mnemonicToSecretKey(options.fundingMnemonic)
+    this.logger.info('Using funding account %s', this.fundingAccount.addr)
 
     this.testConnection()
   }
 
   async testConnection() {
     try {
-      const status = this.algod.status().do()
+      const status = await this.algod.status().do()
       this.logger.info({ status }, 'Successfully connected to Algod')
     } catch (error) {
       this.logger.error(error, 'Failed to connect to Algod')
@@ -148,28 +155,6 @@ export default class AlgorandAdapter {
       return null
     }
 
-    /*
-    {
-      "index": 269,
-      "params": {
-        "clawback": "GJM6OZHTWHSHBOQPBQNXDSMXLPUPTUE6VYRBTO24CEHWRQ2JX3NYCAHMI4",
-        "creator": "ADFI6NIG7FXBHSCSHHMHZIEFVKGPEDQ2QIL35TJZD3PGYAZBYZBOMDCX4E",
-        "decimals": 0,
-        "default-frozen": true,
-        "freeze": "GJM6OZHTWHSHBOQPBQNXDSMXLPUPTUE6VYRBTO24CEHWRQ2JX3NYCAHMI4",
-        "manager": "GJM6OZHTWHSHBOQPBQNXDSMXLPUPTUE6VYRBTO24CEHWRQ2JX3NYCAHMI4",
-        "name": "asset26 2/5",
-        "name-b64": "YXNzZXQyNiAyLzU=",
-        "reserve": "GJM6OZHTWHSHBOQPBQNXDSMXLPUPTUE6VYRBTO24CEHWRQ2JX3NYCAHMI4",
-        "total": 1,
-        "unit-name": "asset26",
-        "unit-name-b64": "YXNzZXQyNg==",
-        "url": "4ecb78d3-cd2e-4272-a6cb-9dedf9a86ed8",
-        "url-b64": "NGVjYjc4ZDMtY2QyZS00MjcyLWE2Y2ItOWRlZGY5YTg2ZWQ4"
-      }
-    }
-    */
-
     return {
       address: info.index as number,
       creator: info.params.creator as string,
@@ -247,31 +232,54 @@ export default class AlgorandAdapter {
     await this.waitForConfirmation(transaction.txID())
   }
 
+  async getAccountInfo(account: string): Promise<AccountInfo> {
+    const info = await this.algod.accountInformation(account).do()
+    return {
+      address: info.address,
+      amount: info.amount,
+    }
+  }
+
+  async getCreatorAccount(initialBalance: number) {
+    const fundingAccountInfo = await this.getAccountInfo(
+      this.fundingAccount.addr
+    )
+
+    invariant(
+      fundingAccountInfo.amount > initialBalance + 100_000,
+      `Not enough funds on account ${fundingAccountInfo.address}. Have ${
+        fundingAccountInfo.amount
+      } microAlgos, need ${initialBalance + 100_000} microAlgos.`
+    )
+
+    const creator = await this.createAccount(
+      Configuration.creatorPassphrase,
+      initialBalance
+    )
+
+    await this.submitTransaction(creator.signedTransactions)
+
+    // Just need to wait for the funding transaction to complete
+    await this.waitForConfirmation(creator.transactionIds[0])
+
+    return creator
+  }
+
   async generateCreateAssetTransactions(
     collectibles: CollectibleModel[],
     templates: CollectibleBase[],
-    useCreatorAccount?: boolean
+    creator?: PublicAccount
   ) {
+    invariant(
+      collectibles.length <= 16,
+      'Can only mint up to 16 assets at a time'
+    )
+
     const suggestedParams = await this.algod.getTransactionParams().do()
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
     let fromAccount = this.fundingAccount
-    let creator: PublicAccount | undefined
 
-    if (useCreatorAccount) {
-      const initialBalance =
-        DEFAULT_INITIAL_BALANCE +
-        // 0.1 ALGO per collectible
-        collectibles.length * 100_000 +
-        // 1000 microAlgos per create transaction
-        collectibles.length * 1000
-
-      creator = await this.createAccount(
-        Configuration.creatorPassphrase,
-        initialBalance
-      )
-      await this.submitTransaction(creator.signedTransactions)
-      // Just need to wait for the funding transaction to complete
-      await this.waitForConfirmation(creator.transactionIds[0])
+    if (creator) {
       fromAccount = algosdk.mnemonicToSecretKey(
         decrypt(creator.encryptedMnemonic, Configuration.creatorPassphrase)
       )
@@ -296,7 +304,7 @@ export default class AlgorandAdapter {
         from: fromAccount.addr,
         total: 1,
         decimals: 0,
-        defaultFrozen: true,
+        defaultFrozen: false,
         clawback: this.fundingAccount.addr,
         freeze: this.fundingAccount.addr,
         manager: this.fundingAccount.addr,
@@ -317,7 +325,6 @@ export default class AlgorandAdapter {
     return {
       signedTransactions,
       transactionIds,
-      creator,
     }
   }
 
@@ -351,8 +358,7 @@ export default class AlgorandAdapter {
       to: toAccount.addr,
     })
 
-    // To avoid unfreezing accounts, transferring asset traditionally, and re-freezing the accounts
-    // for the asset, just use a clawback to "revoke" ownership from current owner to the buyer.
+    // Use a clawback to "revoke" ownership from current owner to the buyer.
     const clawbackTxn =
       algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
         suggestedParams,
