@@ -87,3 +87,14 @@ export async function verifyUsername(
   const userExists = await accounts.verifyUsername(request.body.username)
   reply.status(200).send({ isAvailable: !userExists })
 }
+
+export async function removeUser(
+  request: FastifyRequest<{ Params: ExternalId }>,
+  reply: FastifyReply
+) {
+  const accounts = request
+    .getContainer()
+    .get<AccountsService>(AccountsService.name)
+  await accounts.removeUser(request.params)
+  reply.status(204).send()
+}
