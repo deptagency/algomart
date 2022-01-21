@@ -1,5 +1,5 @@
 .root {
-  @apply relative bg-white shadow-large;
+  @apply relative bg-base-bgCard shadow-large;
   margin-top: 72px;
 }
 

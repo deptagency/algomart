@@ -1,5 +1,5 @@
 .labelContainer {
-  @apply relative flex flex-wrap content-between w-full font-bold text-base-gray-dark;
+  @apply relative flex flex-wrap content-between w-full font-bold text-base-textPrimary;
 }
 
 .label {
