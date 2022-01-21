@@ -1,3 +1,4 @@
+import { FirebaseClaim } from '@algomart/schemas'
 import { Translate } from 'next-translate'
 import {
   email,
@@ -5,6 +6,7 @@ import {
   matches,
   min,
   object,
+  oneOf,
   required,
   string,
 } from 'validator-fns'
@@ -31,6 +33,11 @@ export const password = (t: Translate) =>
   string(
     required(t('forms:errors.required') as string),
     min(8, t('forms:errors.minCharacters') as string)
+  )
+export const role = (t: Translate) =>
+  string(
+    required(t('forms:errors.required') as string),
+    oneOf(Object.keys(FirebaseClaim), t('forms:errors.invalidClaim') as string)
   )
 
 // Form Validations
@@ -80,4 +87,9 @@ export const validatePassphrase = (t: Translate) =>
 export const validateUsername = (t: Translate) =>
   object({
     username: username(t),
+  })
+
+export const validateCustomClaims = (t: Translate) =>
+  object({
+    role: role(t),
   })

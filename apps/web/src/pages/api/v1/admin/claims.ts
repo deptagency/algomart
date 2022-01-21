@@ -1,79 +1,52 @@
-import { DEFAULT_LOCALE } from '@algomart/schemas'
 import { BadRequest } from 'http-errors'
-import { NextApiRequest, NextApiResponse } from 'next'
+import { NextApiResponse } from 'next'
 
-import { ApiClient } from '@/clients/api-client'
 import configureAdmin from '@/clients/firebase-admin-client'
-import { useClaims } from '@/hooks/use-user-claims'
 import createHandler, { NextApiRequestApp } from '@/middleware'
-import authMiddleware, { WithToken } from '@/middleware/auth-middleware'
+import adminMiddleware from '@/middleware/admin-middleware'
+import authMiddleware from '@/middleware/auth-middleware'
+import userMiddleware from '@/middleware/user-middleware'
 import validateBodyMiddleware, {
   ExtractBodyType,
 } from '@/middleware/validate-body-middleware'
-import { validateUserRegistration } from '@/utils/auth-validation'
+import { validateCustomClaims } from '@/utils/auth-validation'
+
+type BodyType = ExtractBodyType<typeof validateCustomClaims>
 
 const handler = createHandler()
-handler.use(authMiddleware())
-
-type BodyType = ExtractBodyType<typeof validateUserRegistration>
-
-// #region Create account and set claims
-handler.post(
-  validateBodyMiddleware(validateUserRegistration),
-  async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
-    const { user } = request
-    if (user) {
-      throw new BadRequest('Account is already configured')
-    }
-    const admin = configureAdmin()
-    const firebaseUser = await admin.auth().getUser(user.externalId)
-    return firebaseUser
-
-    // try {
-    //   await ApiClient.instance.createAccount({
-    //     email: body.email,
-    //     externalId: request.token.uid,
-    //     locale,
-    //     passphrase: body.passphrase,
-    //     username: body.username,
-    //   })
-    // } catch {
-    //   throw new BadRequest('Could not create account')
-    // }
-
-    // response.status(204).end()
-  }
-)
-// #endregion Create account and set claims
+handler.use(authMiddleware()).use(userMiddleware()).use(adminMiddleware())
 
 // #region Get claims for logged in user
 handler.get(async (request: NextApiRequestApp, response: NextApiResponse) => {
-  const { user } = request
-  console.log('user', user)
-  if (user) {
-    throw new BadRequest('Account is already configured')
+  if (!request.user.externalId) {
+    throw new BadRequest('No external ID provided')
   }
   const admin = configureAdmin()
-  const firebaseUser = await admin.auth().getUser(user.externalId)
-  return firebaseUser
-  // const user = await ApiClient.instance.getAccountByExternalId(
-  //   request.token.uid
-  // )
-  // if (!user) throw new BadRequest('Account is not configured')
-  // response.json(user)
-  // console.log('user:', user)
-  // response.json(user)
+  const firebaseUser = await admin.auth().getUser(request.user.externalId)
+  const claims = firebaseUser.customClaims
+    ? Object.keys(firebaseUser.customClaims)
+    : []
+  response.status(200).json({ roles: claims })
 })
 // #endregion Get claims for logged in user
 
 // #region Update claims
 handler.patch(
-  async (request: NextApiRequest & WithToken, response: NextApiResponse) => {
-    const user = await ApiClient.instance.getAccountByExternalId(
-      request.token.uid
-    )
-    if (!user) throw new BadRequest('Account is not configured')
-    response.json(user)
+  validateBodyMiddleware(validateCustomClaims),
+  async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
+    if (!request.user.externalId) {
+      throw new BadRequest('No external ID provided')
+    }
+    if (!request.body.role) {
+      throw new BadRequest('No role provided')
+    }
+    const admin = configureAdmin()
+    const firebaseUser = await admin
+      .auth()
+      .setCustomUserClaims(request.user.externalId, {
+        [request.body.role]: true,
+      })
+    response.json(firebaseUser)
   }
 )
 // #endregion Update claims

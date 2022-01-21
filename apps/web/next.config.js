@@ -33,6 +33,7 @@ module.exports = withNx(
       API_URL: process.env.API_URL,
       FIREBASE_SERVICE_ACCOUNT: process.env.FIREBASE_SERVICE_ACCOUNT,
       NODE_ENV: process.env.NODE_ENV,
+      FIREBASE_ADMIN_EMAIL: process.env.FIREBASE_ADMIN_EMAIL,
     },
     publicRuntimeConfig: {
       NEXT_PUBLIC_FIREBASE_CONFIG: process.env.NEXT_PUBLIC_FIREBASE_CONFIG,

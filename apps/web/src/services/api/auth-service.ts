@@ -1,9 +1,11 @@
+import { FirebaseClaim } from '@algomart/schemas'
 import Cookies from 'cookies'
 import { GetServerSidePropsContext } from 'next'
 
 import { ApiClient } from '@/clients/api-client'
 import configureAdmin from '@/clients/firebase-admin-client'
 import { TOKEN_COOKIE_NAME } from '@/contexts/auth-context'
+import { Environment } from '@/environment'
 import { urls } from '@/utils/urls'
 
 export async function getAuthenticatedUser({
@@ -53,4 +55,50 @@ export async function handleUnauthenticatedRedirect(urlPath: string) {
       permanent: false,
     },
   }
+}
+
+export async function isAuthenticatedUserAdmin({
+  req,
+  res,
+}: GetServerSidePropsContext) {
+  const cookies = new Cookies(req, res)
+  const token = cookies.get(TOKEN_COOKIE_NAME)
+  const admin = configureAdmin()
+
+  if (!token) {
+    return false
+  }
+
+  // Verify token
+  const decoded = await admin
+    .auth()
+    .verifyIdToken(token)
+    .catch(() => null)
+
+  if (!decoded) {
+    return false
+  }
+
+  const user = await ApiClient.instance.getAccountByExternalId(decoded.uid)
+
+  if (!user) {
+    return false
+  }
+
+  // Check user
+  const firebaseUser = await admin.auth().getUser(decoded.uid)
+
+  // Check permissions
+  const claims = firebaseUser.customClaims
+
+  // If the user is not admin OR the logged in user isn't the admin email, throw error
+  const isAdminUser =
+    !!claims && Object.keys(claims).includes(FirebaseClaim.admin)
+  const isLoggedInAdminUser =
+    Environment.firebaseAdminEmail === firebaseUser.email
+  if (!isAdminUser && !isLoggedInAdminUser) {
+    return false
+  }
+
+  return user
 }
