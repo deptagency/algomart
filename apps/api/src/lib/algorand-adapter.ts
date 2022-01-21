@@ -27,25 +27,6 @@ export interface AlgorandAdapterOptions {
 export interface AccountInfo {
   address: string
   amount: number
-
-  /*
-    "address": "MART2AF73ECUJ6WWZVQA5C6CCWSXKVDHALE273VMDAJUCODDEJEPMS6GOU",
-    "amount": 33672000,
-    "amount-without-pending-rewards": 33672000,
-    "apps-local-state": [],
-    "apps-total-schema": {
-      "num-byte-slice": 0,
-      "num-uint": 0
-    },
-    "assets": [],
-    "created-apps": [],
-    "created-assets": [],
-    "pending-rewards": 0,
-    "reward-base": 27521,
-    "rewards": 0,
-    "round": 19265963,
-    "status": "Offline"
-  */
 }
 
 export default class AlgorandAdapter {
@@ -173,28 +154,6 @@ export default class AlgorandAdapter {
     if (!info) {
       return null
     }
-
-    /*
-    {
-      "index": 269,
-      "params": {
-        "clawback": "GJM6OZHTWHSHBOQPBQNXDSMXLPUPTUE6VYRBTO24CEHWRQ2JX3NYCAHMI4",
-        "creator": "ADFI6NIG7FXBHSCSHHMHZIEFVKGPEDQ2QIL35TJZD3PGYAZBYZBOMDCX4E",
-        "decimals": 0,
-        "default-frozen": true,
-        "freeze": "GJM6OZHTWHSHBOQPBQNXDSMXLPUPTUE6VYRBTO24CEHWRQ2JX3NYCAHMI4",
-        "manager": "GJM6OZHTWHSHBOQPBQNXDSMXLPUPTUE6VYRBTO24CEHWRQ2JX3NYCAHMI4",
-        "name": "asset26 2/5",
-        "name-b64": "YXNzZXQyNiAyLzU=",
-        "reserve": "GJM6OZHTWHSHBOQPBQNXDSMXLPUPTUE6VYRBTO24CEHWRQ2JX3NYCAHMI4",
-        "total": 1,
-        "unit-name": "asset26",
-        "unit-name-b64": "YXNzZXQyNg==",
-        "url": "4ecb78d3-cd2e-4272-a6cb-9dedf9a86ed8",
-        "url-b64": "NGVjYjc4ZDMtY2QyZS00MjcyLWE2Y2ItOWRlZGY5YTg2ZWQ4"
-      }
-    }
-    */
 
     return {
       address: info.index as number,
