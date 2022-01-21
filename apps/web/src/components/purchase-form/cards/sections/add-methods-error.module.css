@@ -3,12 +3,12 @@
 }
 
 .icon {
-  @apply mb-5 mx-auto relative text-base-errorRed;
+  @apply mb-5 mx-auto relative text-base-error;
   width: 48px;
 }
 
 .heading {
-  @apply font-bold mb-16 text-base-gray-text text-2xl;
+  @apply font-bold mb-16 text-base-textPrimary text-2xl;
 }
 
 .button {

@@ -1,10 +1,10 @@
 .root {
-  @apply relative bg-white shadow-large;
+  @apply relative bg-base-bgCard shadow-large;
   margin-top: 72px;
 }
 
 .root.isInline {
-  @apply shadow-none border-1 border-base-gray-border;
+  @apply shadow-none border-1 border-base-border;
 }
 
 @screen md {

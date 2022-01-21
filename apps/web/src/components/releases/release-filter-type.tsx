@@ -25,7 +25,6 @@ export default function ReleaseFilterType() {
             onChange={(checked) => {
               dispatch(packFilterActions.setShowPurchase(checked))
             }}
-            styleMode="dark"
           />
         </div>
         <div className={css.filterItem}>
@@ -35,7 +34,6 @@ export default function ReleaseFilterType() {
             onChange={(checked) => {
               dispatch(packFilterActions.setShowAuction(checked))
             }}
-            styleMode="dark"
           />
         </div>
       </div>
@@ -53,7 +51,6 @@ export default function ReleaseFilterType() {
                 onChange={(checked) => {
                   dispatch(packFilterActions.setShowAuctionUpcoming(checked))
                 }}
-                styleMode="dark"
               />
             </div>
             <div className={css.filterItem}>
@@ -63,7 +60,6 @@ export default function ReleaseFilterType() {
                 onChange={(checked) => {
                   dispatch(packFilterActions.setShowAuctionActive(checked))
                 }}
-                styleMode="dark"
               />
             </div>
             <div className={css.filterItem}>
@@ -73,7 +69,6 @@ export default function ReleaseFilterType() {
                 onChange={(checked) => {
                   dispatch(packFilterActions.setShowAuctionExpired(checked))
                 }}
-                styleMode="dark"
               />
             </div>
           </div>
@@ -85,7 +80,6 @@ export default function ReleaseFilterType() {
                 onChange={(checked) => {
                   dispatch(packFilterActions.setShowAuctionReserveMet(checked))
                 }}
-                styleMode="dark"
               />
             </div>
           </div>

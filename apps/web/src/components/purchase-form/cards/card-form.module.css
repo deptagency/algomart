@@ -7,7 +7,7 @@
 }
 
 .form h2 {
-  @apply pb-4 mb-8 font-bold border-b border-base-gray-border;
+  @apply pb-4 mb-8 font-bold border-b border-base-border;
 }
 
 .form input,

@@ -3,7 +3,7 @@
 }
 
 .ownedCollectiblesHeading {
-  @apply pb-2 mt-8 mb-6 text-center border-b border-base-gray-border md:mt-14;
+  @apply pb-2 mt-8 mb-6 text-center border-b border-base-border md:mt-14;
 }
 
 .notification {
@@ -19,7 +19,7 @@
 }
 
 .noCollectiblesHeading {
-  @apply mb-5 font-bold text-base-gray-text;
+  @apply mb-5 font-bold text-base-textPrimary;
 }
 
 .bottomCtaWrapper {

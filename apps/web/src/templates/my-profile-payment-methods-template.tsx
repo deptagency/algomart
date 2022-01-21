@@ -48,13 +48,11 @@ export default function MyProfilePaymentMethodsTemplate({
                     <div className={css.itemActions}>
                       <Toggle
                         checked={defaultCard}
-                        className={css.defaultCard}
                         disabled={isExpired}
                         id="defaultCard"
                         label={t('forms:fields.defaultCard.label')}
                         name="defaultCard"
                         onChange={() => updateCard(id, !defaultCard)}
-                        styleMode="dark"
                       />
                       <Button
                         className={css.removeButton}

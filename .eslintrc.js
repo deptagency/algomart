@@ -3,6 +3,7 @@ const defaultRules = {
   'unicorn/no-null': 'off',
   'unicorn/filename-case': 'off',
   'unicorn/prefer-module': 'off',
+  'unicorn/no-array-reduce': 'off',
 
   // Allow some common abbreviations
   'unicorn/prevent-abbreviations': [

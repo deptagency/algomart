@@ -3,7 +3,7 @@
 }
 
 .listItem {
-  @apply grid items-center grid-cols-5 p-5 mb-5 border rounded-md border-base-gray-border;
+  @apply grid items-center grid-cols-5 p-5 mb-5 border rounded-md border-base-border;
 }
 
 .imageColumn {

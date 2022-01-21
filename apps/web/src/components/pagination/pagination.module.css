@@ -18,9 +18,9 @@
 }
 
 .currentPageNumber {
-  @apply bg-base-teal text-white;
+  @apply bg-action-secondary text-white;
 }
 
 .otherPageNumbers {
-  @apply text-base-gray-text underline;
+  @apply text-base-textPrimary underline;
 }

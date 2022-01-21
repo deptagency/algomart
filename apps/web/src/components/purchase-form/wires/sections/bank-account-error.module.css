@@ -3,16 +3,16 @@
 }
 
 .icon {
-  @apply mx-auto relative text-base-errorRed;
+  @apply mx-auto relative text-base-error;
   width: 48px;
 }
 
 .heading {
-  @apply font-bold my-4 text-base-gray-text text-lg;
+  @apply font-bold my-4 text-base-textTertiary text-lg;
 }
 
 .message {
-  @apply text-sm text-base-gray-text;
+  @apply text-sm text-base-textTertiary;
 }
 
 .button {

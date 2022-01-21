@@ -5,6 +5,13 @@ const plugin = require('tailwindcss/plugin')
 const { createGlobPatternsForDependencies } = require('@nrwl/react/tailwind')
 const path = require('path')
 
+const generateColorClass = (variable) => {
+  return ({ opacityValue }) =>
+    opacityValue
+      ? `rgba(var(--${variable}), ${opacityValue})`
+      : `rgb(var(--${variable}))`
+}
+
 module.exports = {
   // Keep JIT disabled for now. Enabling it will break the custom font loading.
   // mode: 'jit',
@@ -19,7 +26,7 @@ module.exports = {
     ],
     css: [path.join(__dirname, 'src', '**', '*.css')],
   },
-  darkMode: false, // or 'media' or 'class'
+  darkMode: 'class', // or false, 'media' or 'class'
   theme: {
     extend: {
       backgroundImage: {
@@ -38,20 +45,35 @@ module.exports = {
         large: '0px 5px 40px rgba(0, 0, 0, 0.15)',
       },
       colors: {
+        action: {
+          primary: generateColorClass('actionPrimary'),
+          primaryContrastText: generateColorClass('actionPrimaryContrastText'),
+          secondary: generateColorClass('actionSecondary'),
+          secondaryContrastText: generateColorClass(
+            'actionSecondaryContrastText'
+          ),
+          accent: generateColorClass('actionAccent'),
+        },
         base: {
-          errorRed: '#AC0000',
-          green: '#02FBC2',
-          priceGreen: '#33C500',
-          teal: '#12DCC5',
+          error: generateColorClass('error'),
+          price: generateColorClass('price'),
+          border: generateColorClass('border'),
+
+          bg: generateColorClass('bg'),
+          bgCard: generateColorClass('bgCard'),
+          bgPanel: generateColorClass('bgPanel'),
+          bgNotice: generateColorClass('bgNotice'),
+
+          textPrimary: generateColorClass('textPrimary'),
+          textSecondary: generateColorClass('textSecondary'),
+          textTertiary: generateColorClass('textTertiary'),
+          textDisabled: generateColorClass('textDisabled'),
+
+          // DEPRECATED
           gray: {
-            dark: '#0A111D',
-            text: '#4B4F56',
-            nav: '#808080',
-            notice: '#F9F8F9',
+            dark: generateColorClass('grayDark'),
             medium: '#747F8F',
             light: '#B6BECB',
-            border: '#DADCDF',
-            bg: '#ECECEC',
           },
         },
       },
@@ -92,13 +114,18 @@ module.exports = {
     plugin(({ addUtilities, theme }) => {
       const colors = flattenColorPalette(theme('colors'))
       delete colors['default']
-
-      const colorMap = Object.keys(colors).map((color) => ({
-        [`.border-t-${color}`]: { borderTopColor: colors[color] },
-        [`.border-r-${color}`]: { borderRightColor: colors[color] },
-        [`.border-b-${color}`]: { borderBottomColor: colors[color] },
-        [`.border-l-${color}`]: { borderLeftColor: colors[color] },
-      }))
+      const colorMap = Object.keys(colors).map((colorName) => {
+        const color =
+          typeof colors[colorName] === 'function'
+            ? colors[colorName](colorName)
+            : colors[colorName]
+        return {
+          [`.border-t-${colorName}`]: { borderTopColor: color },
+          [`.border-r-${colorName}`]: { borderRightColor: color },
+          [`.border-b-${colorName}`]: { borderBottomColor: color },
+          [`.border-l-${colorName}`]: { borderLeftColor: color },
+        }
+      })
       const utilities = Object.assign({}, ...colorMap)
 
       addUtilities(utilities, ['responsive', 'hover'])

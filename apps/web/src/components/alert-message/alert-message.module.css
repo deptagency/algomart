@@ -1,25 +1,25 @@
 .containerBlue {
-  @apply bg-blue-100 p-4 rounded-md;
+  @apply p-4 bg-blue-100 rounded-md;
 }
 
 .containerGreen {
-  @apply bg-base-priceGreen bg-opacity-10 p-4 rounded-md;
+  @apply p-4 rounded-md bg-base-price bg-opacity-10;
 }
 
 .containerRed {
-  @apply bg-base-errorRed bg-opacity-10 p-4 rounded-md;
+  @apply p-4 rounded-md bg-base-error bg-opacity-10;
 }
 
 .blueBorder {
-  @apply border-1 border-blue-900;
+  @apply border-blue-900 border-1;
 }
 
 .greenBorder {
-  @apply border-1 border-base-priceGreen;
+  @apply border-1 border-base-price;
 }
 
 .redBorder {
-  @apply border-1 border-base-errorRed;
+  @apply border-1 border-base-error;
 }
 
 .contentBlue {
@@ -27,9 +27,9 @@
 }
 
 .contentRed {
-  @apply text-center text-base-errorRed;
+  @apply text-center;
 }
 
 .contentGreen {
-  @apply text-center text-base-priceGreen;
+  @apply text-center text-base-price;
 }

@@ -1,3 +1,11 @@
+.svg {
+  width: 30px;
+  height: 40px;
+}
+.svg svg {
+  @apply max-w-full max-h-full;
+}
+
 .link {
   @apply outline-none focus:ring-offset-2 focus:ring-white;
 }

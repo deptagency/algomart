@@ -4,7 +4,7 @@
 }
 
 .labelContainer {
-  @apply relative flex flex-wrap content-between w-full font-bold text-base-gray-dark;
+  @apply relative flex flex-wrap content-between w-full font-bold text-base-textPrimary;
 }
 
 .label {
@@ -12,7 +12,7 @@
 }
 
 .helpText {
-  @apply w-1/2 mt-1 text-sm font-light text-right text-base-gray-medium;
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-textTertiary;
 }
 
 .helpLink {
@@ -20,16 +20,16 @@
 }
 
 .errorText {
-  @apply w-1/2 mt-1 text-sm font-light text-right text-base-errorRed;
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-error;
 }
 
 /* Profile Image Input */
 .profileImageContainer {
-  @apply flex items-center justify-between p-6 mt-2 rounded-md bg-base-gray-bg;
+  @apply flex items-center justify-between p-6 mt-2 rounded-md bg-base-bg;
 }
 
 .avatarContainer {
-  @apply block overflow-hidden bg-white rounded-full shadow-medium text-base-gray-medium;
+  @apply block overflow-hidden bg-white rounded-full shadow-medium text-base-textTertiary;
   height: 50px;
   width: 50px;
 }
@@ -56,7 +56,7 @@
 
 /* Passphrase Input */
 .passphraseInputWrapper {
-  @apply w-full mt-2 overflow-hidden rounded-md bg-base-gray-bg;
+  @apply w-full mt-2 overflow-hidden rounded-md bg-base-bg;
 }
 
 .passphraseInputFields {
@@ -64,7 +64,7 @@
 }
 
 .passphraseInputWarning {
-  @apply flex items-center justify-center p-6 font-bold bg-base-green;
+  @apply flex items-center justify-center p-6 font-bold bg-action-accent text-base-gray-dark;
 }
 
 .passphraseInputShield {
@@ -73,7 +73,7 @@
 }
 
 .passphraseInputDescription {
-  @apply px-6 font-light text-center text-base-gray-text;
+  @apply px-6 font-light text-center text-base-textPrimary;
 }
 
 .passphraseInputDescription p:first-child {

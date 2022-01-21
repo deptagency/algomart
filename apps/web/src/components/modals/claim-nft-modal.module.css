@@ -3,7 +3,7 @@
 }
 
 .dialog {
-  @apply bg-white relative w-full max-w-lg my-8 overflow-visible sm:w-full;
+  @apply relative w-full max-w-lg my-8 overflow-visible bg-base-bg text-base-textPrimary sm:w-full;
 }
 
 .root {
@@ -11,7 +11,7 @@
 }
 
 .imageWrapper {
-  @apply relative flex self-center p-2 -mb-4 rounded-md -top-8 bg-base-teal;
+  @apply relative flex self-center p-2 -mb-4 rounded-md -top-8 bg-action-secondary;
 }
 
 .form {
@@ -43,7 +43,7 @@
 }
 
 .instructionText {
-  @apply pt-5 pb-10 text-sm text-base-gray-text;
+  @apply pt-5 pb-10 text-sm text-base-textPrimary;
 }
 
 .loadingWrapper {
@@ -55,15 +55,15 @@
 }
 
 .statusHeading {
-  @apply my-2 text-lg font-bold text-base-gray-text;
+  @apply my-2 text-lg font-bold text-base-textPrimary;
 }
 
 .statusMessage {
-  @apply text-sm text-base-gray-text;
+  @apply text-sm text-base-textPrimary;
 }
 
 .errorIcon {
-  @apply relative mx-auto text-base-errorRed;
+  @apply relative mx-auto text-base-error;
   width: 48px;
 }
 

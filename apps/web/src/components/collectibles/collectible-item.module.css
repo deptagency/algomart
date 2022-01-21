@@ -12,7 +12,7 @@
 
 /* Item image */
 .imageWrapper {
-  @apply relative overflow-hidden bg-black rounded-md shadow-lg hover:border-base-green focus:border-base-green;
+  @apply relative overflow-hidden bg-black rounded-md shadow-lg hover:border-action-accent focus:border-action-accent;
 }
 
 .questionMarkWrapper {
@@ -39,12 +39,12 @@
 }
 
 .badge {
-  @apply absolute bg-base-green bottom-2 font-bold left-2 px-2 py-1 rounded-full text-center text-sm text-white;
+  @apply absolute bg-action-accent bottom-2 font-bold left-2 px-2 py-1 rounded-full text-center text-sm text-white;
 }
 
 /* Item content */
 .title {
-  @apply mt-2 px-4 text-sm text-center text-base-gray-text;
+  @apply mt-2 px-4 text-sm text-center text-base-textPrimary;
 }
 
 .title.titleFaded {
@@ -64,7 +64,7 @@
 }
 
 .setNumber {
-  @apply font-black text-2xl text-base-gray-border;
+  @apply font-black text-2xl text-base-border;
 }
 
 .rarity {
@@ -89,5 +89,5 @@
 }
 
 .checkIcon {
-  @apply w-6 h-6 text-black rounded-full bg-base-green;
+  @apply w-6 h-6 text-black rounded-full bg-action-accent;
 }
