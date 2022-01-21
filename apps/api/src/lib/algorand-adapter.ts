@@ -270,6 +270,11 @@ export default class AlgorandAdapter {
     templates: CollectibleBase[],
     creator?: PublicAccount
   ) {
+    invariant(
+      collectibles.length <= 16,
+      'Can only mint up to 16 assets at a time'
+    )
+
     const suggestedParams = await this.algod.getTransactionParams().do()
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
     let fromAccount = this.fundingAccount
