@@ -41,7 +41,7 @@ export class AdminService implements AdminAPI {
 
   async getLoggedInUserPermissions(): Promise<AdminPermissions> {
     const response = await this.http
-      .get(urls.api.v1.claims)
+      .get(urls.api.v1.getClaims)
       .json<AdminPermissions>()
     return response
   }
