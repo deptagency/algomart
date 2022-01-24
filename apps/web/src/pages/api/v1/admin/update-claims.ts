@@ -21,12 +21,12 @@ handler.use(authMiddleware()).use(userMiddleware()).use(adminMiddleware())
 handler.patch(
   validateBodyMiddleware(validateSetClaim),
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
-    // Check permissions (not using admin middleware)
+    // Check if permissions are already set
     const admin = configureAdmin()
     const firebaseUser = await admin.auth().getUser(request.body.userExternalId)
     const claims = firebaseUser.customClaims
 
-    // Set permissions if not already set
+    // If not, set admin permissions
     const isAdminUser =
       !!claims && Object.keys(claims).includes(FirebaseClaim.admin)
     if (!isAdminUser) {
