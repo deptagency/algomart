@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@dinero.js/currencies": "2.0.0-alpha.8",
-    "@fastify/ajv-compiler": "2.1.0",
+    "@fastify/ajv-compiler": "3.0.0",
     "@headlessui/react": "1.4.3",
     "@heroicons/react": "1.0.5",
     "@json-rpc-tools/utils": "1.7.6",
