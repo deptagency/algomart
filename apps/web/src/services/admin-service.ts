@@ -1,4 +1,4 @@
-import { AdminPermissions, FirebaseClaim } from '@algomart/schemas'
+import { AdminPermissions } from '@algomart/schemas'
 import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
@@ -7,7 +7,6 @@ import { urls } from '@/utils/urls'
 
 export interface AdminAPI {
   getLoggedInUserPermissions(): Promise<AdminPermissions>
-  setPermissions(uid: string, role: FirebaseClaim): Promise<boolean>
 }
 
 export class AdminService implements AdminAPI {
@@ -41,13 +40,6 @@ export class AdminService implements AdminAPI {
       .get(urls.api.v1.adminGetClaims)
       .json<AdminPermissions>()
     return response
-  }
-
-  async setPermissions(uid: string, role: FirebaseClaim): Promise<boolean> {
-    const response = await this.http.patch(urls.api.v1.adminUpdateClaims, {
-      json: { userExternalId: uid, role },
-    })
-    return response.ok
   }
 }
 
