@@ -27,14 +27,6 @@ export const Environment = {
     return this.config('FIREBASE_ADMIN_EMAIL', '')
   },
 
-  get firebasePassphrase() {
-    return this.config('FIREBASE_ADMIN_PASSPHRASE', '')
-  },
-
-  get firebaseUsername() {
-    return this.config('FIREBASE_ADMIN_USERNAME', '')
-  },
-
   get isProduction() {
     return this.config('NODE_ENV', 'development') === 'production'
   },

@@ -40,6 +40,9 @@ export const role = (t: Translate) =>
     oneOf(Object.keys(FirebaseClaim), t('forms:errors.invalidClaim') as string)
   )
 
+export const userExternalId = (t: Translate) =>
+  string(required(t('forms:errors.required') as string))
+
 // Form Validations
 export const validateEmailAndPasswordRegistration = (t: Translate) =>
   object({
@@ -89,7 +92,8 @@ export const validateUsername = (t: Translate) =>
     username: username(t),
   })
 
-export const validateCustomClaim = (t: Translate) =>
+export const validateSetClaim = (t: Translate) =>
   object({
+    userExternalId: userExternalId(t),
     role: role(t),
   })

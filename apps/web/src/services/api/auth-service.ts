@@ -5,7 +5,6 @@ import { GetServerSidePropsContext } from 'next'
 import { ApiClient } from '@/clients/api-client'
 import configureAdmin from '@/clients/firebase-admin-client'
 import { TOKEN_COOKIE_NAME } from '@/contexts/auth-context'
-import { Environment } from '@/environment'
 import { urls } from '@/utils/urls'
 
 export async function getAuthenticatedUser({
@@ -91,12 +90,10 @@ export async function isAuthenticatedUserAdmin({
   // Check permissions
   const claims = firebaseUser.customClaims
 
-  // If the user is not admin OR the logged in user isn't the admin email, throw error
+  // If the user is not admin, throw error
   const isAdminUser =
     !!claims && Object.keys(claims).includes(FirebaseClaim.admin)
-  const isLoggedInAdminUser =
-    Environment.firebaseAdminEmail === firebaseUser.email
-  if (!isAdminUser && !isLoggedInAdminUser) {
+  if (!isAdminUser) {
     return false
   }
 

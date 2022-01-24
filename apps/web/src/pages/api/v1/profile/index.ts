@@ -1,8 +1,10 @@
-import { DEFAULT_LOCALE } from '@algomart/schemas'
+import { DEFAULT_LOCALE, FirebaseClaim } from '@algomart/schemas'
 import { BadRequest } from 'http-errors'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 import { ApiClient } from '@/clients/api-client'
+import configureAdmin from '@/clients/firebase-admin-client'
+import { Environment } from '@/environment'
 import createHandler, { NextApiRequestApp } from '@/middleware'
 import authMiddleware, { WithToken } from '@/middleware/auth-middleware'
 import validateBodyMiddleware, {
@@ -40,6 +42,26 @@ handler.post(
       })
     } catch {
       throw new BadRequest('Could not create account')
+    }
+
+    // Check if the account is the admin account, and if so set admin permissions
+    if (body.email === Environment.firebaseAdminEmail) {
+      try {
+        const admin = configureAdmin()
+        const firebaseUser = await admin.auth().getUser(request.token.uid)
+        // If user doesn't already have claim, add admin claim
+        if (
+          !firebaseUser.customClaims ||
+          !firebaseUser.customClaims[FirebaseClaim.admin]
+        ) {
+          await admin.auth().setCustomUserClaims(request.token.uid, {
+            [FirebaseClaim.admin]: true,
+          })
+        }
+      } catch (error) {
+        // do nothing if setting claims does not work
+        console.error(error)
+      }
     }
 
     response.status(204).end()
