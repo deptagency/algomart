@@ -1,6 +1,13 @@
 import { Static, Type } from '@sinclair/typebox'
 
-import { BaseSchema, IdSchema, Nullable, Simplify } from './shared'
+import {
+  BaseSchema,
+  IdSchema,
+  Nullable,
+  PaginationSchema,
+  Simplify,
+  SortDirection,
+} from './shared'
 
 // #region Enums
 
@@ -176,6 +183,11 @@ export enum CheckoutStatus {
   success = 'success',
   error = 'error',
   summary = 'summary',
+}
+
+export enum PaymentSortField {
+  CreatedAt = 'createdAt',
+  UpdatedAt = 'updatedAt',
 }
 
 // #endregion
@@ -667,6 +679,22 @@ export const CreateWalletAddressSchema = Type.Intersect([
   Type.Omit(CircleCreateBlockchainAddressSchema, ['walletId']),
 ])
 
+export const PaymentsQuerySchema = Type.Intersect([
+  PaginationSchema,
+  Type.Object({
+    packId: Type.Optional(Type.String({ format: 'uuid' })),
+    packSlug: Type.Optional(Type.String()),
+    packTitle: Type.Optional(Type.String()),
+    payerUsername: Type.Optional(Type.String()),
+    sortBy: Type.Optional(
+      Type.Enum(PaymentSortField, { default: PaymentSortField.UpdatedAt })
+    ),
+    sortDirection: Type.Optional(
+      Type.Enum(SortDirection, { default: SortDirection.Ascending })
+    ),
+  }),
+])
+
 export const PublicKeySchema = Type.Object({
   keyId: Type.String(),
   publicKey: Type.String(),
@@ -676,7 +704,6 @@ export const UpdatePaymentCardSchema = Type.Object({
   default: Type.Boolean(),
   ownerExternalId: Type.String(),
 })
-
 // #endregion
 // #region Types
 
@@ -766,6 +793,7 @@ export type PaymentBankAccountInstructions = Simplify<
 >
 export type PaymentCard = Simplify<Static<typeof PaymentCardSchema>>
 export type PaymentCards = Simplify<Static<typeof PaymentCardsSchema>>
+export type PaymentsQuery = Simplify<Static<typeof PaymentsQuerySchema>>
 export type PublicKey = Simplify<Static<typeof PublicKeySchema>>
 export type SendBankAccountInstructions = Simplify<
   Static<typeof SendBankAccountInstructionsSchema>

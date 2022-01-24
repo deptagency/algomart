@@ -18,6 +18,7 @@ import {
   PaymentCardsSchema,
   PaymentIdSchema,
   PaymentSchema,
+  PaymentsQuerySchema,
   PublicKeySchema,
   SendBankAccountInstructionsSchema,
   ToPaymentBaseSchema,
@@ -39,6 +40,7 @@ import {
   getCardStatus,
   getCurrency,
   getPaymentById,
+  getPayments,
   getPublicKey,
   getWireTransferInstructions,
   removeCard,
@@ -66,6 +68,20 @@ export async function paymentRoutes(app: FastifyInstance) {
 
   // Services/Routes
   app
+    .get(
+      '/',
+      {
+        schema: {
+          tags,
+          security,
+          querystring: PaymentsQuerySchema,
+          response: {
+            200: Type.Array(PaymentSchema),
+          },
+        },
+      },
+      getPayments
+    )
     .get(
       '/:paymentId',
       {

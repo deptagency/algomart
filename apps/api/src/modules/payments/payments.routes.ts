@@ -9,6 +9,7 @@ import {
   FindTransferByAddress,
   OwnerExternalId,
   PaymentId,
+  PaymentsQuery,
   SendBankAccountInstructions,
   UpdatePaymentCard,
 } from '@algomart/schemas'
@@ -254,6 +255,19 @@ export async function getPaymentById(
   } else {
     reply.notFound()
   }
+}
+
+export async function getPayments(
+  request: FastifyRequest<{
+    Querystring: PaymentsQuery
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payments = await paymentService.getPayments(request.query)
+  reply.status(200).send(payments)
 }
 
 export async function getCurrency(

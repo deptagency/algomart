@@ -14,6 +14,7 @@ import {
   PackType,
   PaymentBankAccountStatus,
   PaymentCardStatus,
+  PaymentsQuery,
   PaymentStatus,
   SendBankAccountInstructions,
   ToPaymentBase,
@@ -59,6 +60,12 @@ export default class PaymentsService {
     } catch {
       return null
     }
+  }
+
+  async getPayments(filters: PaymentsQuery) {
+    // Find payments in the database
+    // const payments = await PaymentModel.query()
+    // return payments
   }
 
   async getCardStatus(cardId: string) {
