@@ -20,7 +20,7 @@ handler.get(async (request: NextApiRequestApp, response: NextApiResponse) => {
   const claims = firebaseUser.customClaims
     ? Object.keys(firebaseUser.customClaims)
     : []
-  response.status(200).json({ roles: claims })
+  response.status(200).json({ claims: claims })
 })
 
 export default handler

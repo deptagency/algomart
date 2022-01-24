@@ -27,8 +27,7 @@ export default function adminMiddleware(): RequestHandler<
       const claims = firebaseUser.customClaims
 
       // If the user is not admin, throw an error
-      const isAdminUser =
-        !!claims && Object.keys(claims).includes(FirebaseClaim.admin)
+      const isAdminUser = claims?.[FirebaseClaim.admin]
       if (!isAdminUser) {
         throw new Unauthorized('User does not have admin permissions')
       }

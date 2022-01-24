@@ -8,7 +8,7 @@ export enum FirebaseClaim {
 }
 
 export const AdminPermissionsSchema = Type.Object({
-  roles: Type.Array(Type.Enum(FirebaseClaim)),
+  claims: Type.Array(Type.Enum(FirebaseClaim)),
 })
 
 export const AlgorandAccountSchema = Type.Intersect([
