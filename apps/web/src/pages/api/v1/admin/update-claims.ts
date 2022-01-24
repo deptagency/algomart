@@ -27,8 +27,7 @@ handler.patch(
     const claims = firebaseUser.customClaims
 
     // If not, set admin permissions
-    const isAdminUser =
-      !!claims && Object.keys(claims).includes(FirebaseClaim.admin)
+    const isAdminUser = claims?.[FirebaseClaim.admin]
     if (!isAdminUser) {
       try {
         await admin.auth().setCustomUserClaims(request.body.userExternalId, {

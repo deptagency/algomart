@@ -20,7 +20,7 @@ export default function AdminTransactionsPage() {
       try {
         const claims = await adminService.getLoggedInUserPermissions()
         // If there is no admin role, throw error
-        if (!claims.roles || !claims.roles.includes(FirebaseClaim.admin)) {
+        if (!claims.claims || !claims.claims.includes(FirebaseClaim.admin)) {
           throw new Error('User is not admin')
         }
       } catch (error) {

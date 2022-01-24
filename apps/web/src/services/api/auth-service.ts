@@ -91,8 +91,7 @@ export async function isAuthenticatedUserAdmin({
   const claims = firebaseUser.customClaims
 
   // If the user is not admin, throw error
-  const isAdminUser =
-    !!claims && Object.keys(claims).includes(FirebaseClaim.admin)
+  const isAdminUser = claims?.[FirebaseClaim.admin]
   if (!isAdminUser) {
     return false
   }
