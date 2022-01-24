@@ -3,6 +3,7 @@ const defaultRules = {
   'unicorn/no-null': 'off',
   'unicorn/filename-case': 'off',
   'unicorn/prefer-module': 'off',
+  'unicorn/no-array-reduce': 'off',
 
   // Allow some common abbreviations
   'unicorn/prevent-abbreviations': [
@@ -107,7 +108,7 @@ module.exports = {
       },
     },
     {
-      files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+      files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(test).[jt]s?(x)'],
       excludedFiles: ['**/cypress/**/*.[jt]s?(x)'],
       extends: [
         ...defaultExtends,
@@ -115,6 +116,14 @@ module.exports = {
         'plugin:jest-dom/recommended',
         'plugin:testing-library/react',
       ],
+      rules: {
+        ...defaultRules,
+      },
+    },
+    {
+      files: ['**/?(*.)+(spec).[jt]s?(x)'],
+      excludedFiles: ['**/cypress/**/*.[jt]s?(x)'],
+      extends: [...defaultExtends, 'plugin:cypress/recommended'],
       rules: {
         ...defaultRules,
       },

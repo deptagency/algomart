@@ -75,7 +75,7 @@ export default function MyCollectionTemplate({
         <>
           {/* If there are sets AND collectibles that don't belong to sets, denote that */}
           {collection.sets.length > 0 && (
-            <div className="pb-1 mb-4 text-center border-b border-base-gray-border">
+            <div className="pb-1 mb-4 text-center border-b border-base-border">
               <div className="text-lg">
                 {t('collection:collectionPage.Other Collectibles')}
               </div>

@@ -3,7 +3,7 @@
 }
 
 .iconWrapper {
-  @apply relative flex-1 border rounded-md shadow-lg border-base-gray-border aspect-w-1 aspect-h-1 text-base-gray-border;
+  @apply relative flex-1 border rounded-md shadow-lg border-base-border aspect-w-1 aspect-h-1 text-base-border;
 }
 
 .noBorder {

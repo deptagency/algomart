@@ -1,6 +1,8 @@
 import clsx from 'clsx'
 import { ButtonHTMLAttributes, DetailedHTMLProps, HTMLAttributes } from 'react'
 
+import { useThemeContext } from '@/contexts/theme-context'
+
 export interface ButtonProps {
   disablePadding?: boolean
   size?: 'small' | 'medium'
@@ -28,20 +30,21 @@ export default function Button({
   return (
     <button
       className={clsx(
-        'duration-300 rounded-sm transition',
+        'duration-300 rounded-sm transition text-base-primaryText',
         {
-          'bg-base-gray-dark border-none shadow-large text-white hover:bg-opacity-90':
+          'bg-action-primary border-none shadow-large hover:bg-opacity-90 text-action-primaryContrastText':
             !disabled && variant === 'primary',
-          'bg-white shadow-large text-base-gray-dark hover:bg-opacity-90':
+          // TODO: secondary variant should map to bg-action-secondary
+          'bg-white shadow-large hover:bg-opacity-90 dark:text-gray-900':
             variant === 'secondary',
-          'bg-transparent border-none text-base-gray-dark hover:border-none':
+          // TODO: This should be a "ghost" variant
+          'bg-transparent border-none hover:border-none':
             variant === 'tertiary',
-          'bg-transparent border-none text-base-gray-dark float-left mb-5':
-            variant === 'link',
+          'bg-transparent border-none float-left mb-5': variant === 'link',
           'font-bold text-xl': size === 'medium',
           'px-10 py-5': size === 'medium' && !disablePadding,
           'px-6 py-2': size === 'small' && !disablePadding,
-          'bg-gray-400 cursor-not-allowed text-white focus:ring-secondary opacity-30':
+          'bg-gray-400 cursor-not-allowed focus:ring-secondary opacity-30':
             disabled,
           'block w-full': fullWidth,
         },

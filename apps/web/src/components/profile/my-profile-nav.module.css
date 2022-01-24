@@ -17,7 +17,7 @@
 }
 
 .mobileWrapper {
-  @apply relative z-10 mx-5 transform -translate-y-1/2 border-b border-base-gray-border;
+  @apply relative z-10 mx-5 transform -translate-y-1/2 border-b border-base-border;
 }
 
 .mobileWrapper label {
@@ -26,11 +26,11 @@
 }
 
 .listWrapper {
-  @apply mb-5 bg-white rounded-sm shadow-large;
+  @apply mb-5 rounded-sm bg-base-bgCard shadow-large;
 }
 
-.listItem {
-  @apply border-b border-b-base-gray-border;
+.listItem + .listItem {
+  @apply border-t border-t-base-border;
 }
 
 .listItem a {
@@ -38,5 +38,5 @@
 }
 
 .listItemActive a {
-  @apply text-base font-bold text-base-teal;
+  @apply text-base font-bold text-action-secondary;
 }

@@ -3,7 +3,7 @@
 }
 
 .firstColumn {
-  @apply overflow-hidden transition duration-300 bg-white rounded-full outline-none text-base-gray-text shadow-medium;
+  @apply overflow-hidden transition duration-300 bg-white rounded-full outline-none text-base-textPrimary shadow-medium;
   height: 36px;
   width: 36px;
 }
@@ -17,7 +17,7 @@
 }
 
 .date {
-  @apply text-sm text-base-gray-text;
+  @apply text-sm text-base-textPrimary;
 }
 
 .amount {

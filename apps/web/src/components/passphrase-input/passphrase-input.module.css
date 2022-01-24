@@ -1,5 +1,5 @@
 .labelContainer {
-  @apply relative flex flex-wrap content-between w-full font-bold text-base-gray-dark;
+  @apply relative flex flex-wrap content-between w-full font-bold text-base-textPrimary;
 }
 
 .label {
@@ -11,7 +11,7 @@
 }
 
 .errorText {
-  @apply w-1/2 mt-1 text-sm font-light text-right text-base-errorRed;
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-error;
 }
 
 /* These styles override the plugin classes... */

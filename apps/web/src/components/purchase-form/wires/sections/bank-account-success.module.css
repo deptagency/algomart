@@ -7,11 +7,11 @@
 }
 
 .successHeading {
-  @apply font-bold mb-16 text-base-gray-text text-2xl;
+  @apply font-bold mb-16 text-base-textPrimary text-2xl;
 }
 
 .bidPlacedHeading {
-  @apply font-bold text-base-gray-text text-2xl;
+  @apply font-bold text-base-textPrimary text-2xl;
 }
 
 .button {
@@ -59,7 +59,7 @@
 }
 
 .priceContainer {
-  @apply flex items-center justify-between w-full p-5 mb-6 rounded-sm bg-base-gray-bg;
+  @apply flex items-center justify-between w-full p-5 mb-6 rounded-sm bg-base-bg;
 }
 
 .priceLabel {

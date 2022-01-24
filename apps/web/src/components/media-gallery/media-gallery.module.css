@@ -27,7 +27,7 @@
 }
 
 .selectedMediaWrapper {
-  @apply relative bg-base-gray-border;
+  @apply relative bg-base-border;
 }
 
 .aspect {

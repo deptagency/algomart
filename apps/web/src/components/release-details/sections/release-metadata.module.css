@@ -1,5 +1,5 @@
 .metadata {
-  @apply bg-white text-center;
+  @apply text-center;
 }
 
 .metadataGrid {
@@ -7,7 +7,7 @@
 }
 
 .column {
-  @apply p-6 border-r border-base-gray-border;
+  @apply p-6 border-r border-base-border;
 }
 
 .column:last-child {
@@ -15,15 +15,15 @@
 }
 
 .metadataLabel {
-  @apply capitalize text-base-gray-text text-sm;
+  @apply text-sm capitalize text-base-textPrimary;
 }
 
 .metadataValue {
-  @apply font-bold text-xl;
+  @apply text-xl font-bold;
 }
 
 .active {
-  @apply text-base-gray-dark;
+  @apply text-base-textPrimary;
 }
 
 .completeSuccess {

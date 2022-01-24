@@ -3,7 +3,7 @@
 }
 
 .setInfo {
-  @apply flex items-center justify-between pb-1 mb-3 border-b border-base-gray-border;
+  @apply flex items-center justify-between pb-1 mb-3 border-b border-base-border;
 }
 
 .setName {
@@ -45,7 +45,7 @@
 
 .setGridEmpty {
   /* Base */
-  @apply border bg-base-gray-bg border-base-gray-border;
+  @apply border bg-base-bg border-base-border;
   /* Mobile + */
   @apply sm:block;
 }

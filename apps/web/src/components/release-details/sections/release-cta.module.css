@@ -1,5 +1,5 @@
 .root {
-  @apply p-8 bg-white border-t border-base-gray-border;
+  @apply p-8 border-t border-base-border;
 }
 
 .root button {
@@ -11,9 +11,9 @@
 }
 
 .actionNotAllowed {
-  @apply text-center text-base-errorRed;
+  @apply text-center text-base-error;
 }
 
 .tealButton {
-  @apply bg-base-teal;
+  @apply bg-action-secondary;
 }

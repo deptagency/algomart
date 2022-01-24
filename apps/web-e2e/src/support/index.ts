@@ -1,17 +1,29 @@
 // ***********************************************************
-// This example support/index.js is processed and
-// loaded automatically before your test files.
+// This support/index.js file is processed and
+// loaded automatically before the test files.
 //
-// This is a great place to put global configuration and
-// behavior that modifies Cypress.
+// Add any global configuration and behavior
+// that modifies Cypress in here.
 //
-// You can change the location of this file or turn off
-// automatically serving support files with the
-// 'supportFile' configuration option.
-//
-// You can read more here:
-// https://on.cypress.io/configuration
+// More information: https://on.cypress.io/configuration
 // ***********************************************************
 
-// Import commands.js using ES2015 syntax:
+// Cypress Testing Library extends Cypress' cy command
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Cypress {
+    interface Chainable {
+      createUser(
+        email: string,
+        passphrase: string,
+        password: string,
+        username: string
+      ): void
+      cleanupUser(email: string): void
+      verifyEmail(email: string): void
+    }
+  }
+}
+
 import './commands'
+import './cookies'

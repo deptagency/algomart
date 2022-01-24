@@ -1,5 +1,5 @@
 .root {
-  @apply fixed bottom-0 z-20 w-full bg-white shadow-large;
+  @apply fixed bottom-0 z-20 w-full bg-base-bgCard shadow-large;
 }
 
 .wrapper {

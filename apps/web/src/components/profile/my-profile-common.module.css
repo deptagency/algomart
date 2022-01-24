@@ -12,27 +12,27 @@
 
 .sectionHeading {
   /* Base */
-  @apply mb-1 text-lg font-bold text-base-gray-dark;
+  @apply mb-1 text-lg font-bold text-base-textSecondary;
   /* Tablet + */
   @apply md:text-xl;
 }
 
 .confirmation {
-  @apply mb-2 text-sm font-light text-right text-base-teal;
+  @apply mb-2 text-sm font-light text-right text-action-secondary;
 }
 
 .error {
-  @apply mb-2 text-sm font-light text-right text-base-errorRed;
+  @apply mb-2 text-sm font-light text-right text-base-error;
 }
 
 .sectionContent {
-  @apply p-6 rounded-md border-1 border-base-gray-border;
+  @apply p-6 rounded-md border-1 border-base-border bg-base-bgCard dark:border-opacity-0;
 }
 
 .sectionContentLarge {
-  @apply p-12 rounded-md border-1 border-base-gray-border;
+  @apply p-12 rounded-md border-1 border-base-border;
 }
 
 .sectionText {
-  @apply mb-4 text-base-gray-dark;
+  @apply mb-4;
 }
