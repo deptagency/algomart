@@ -16,6 +16,8 @@ export enum IPFSStatus {
 }
 
 export enum CollectibleAuctionStatus {
+  New = 'new',
+  SettingUp = 'setting-up',
   Active = 'active',
   Closing = 'closing',
   Closed = 'closed',
