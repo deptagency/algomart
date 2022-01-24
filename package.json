@@ -21,7 +21,7 @@
     "@headlessui/react": "1.4.3",
     "@heroicons/react": "1.0.5",
     "@json-rpc-tools/utils": "1.7.6",
-    "@nrwl/next": "13.4.6",
+    "@nrwl/next": "13.5.1",
     "@pinata/sdk": "1.1.23",
     "@react-spring/three": "9.4.2",
     "@react-spring/web": "9.4.2",
