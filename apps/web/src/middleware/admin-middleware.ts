@@ -4,7 +4,6 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { RequestHandler } from 'next-connect'
 
 import configureAdmin from '@/clients/firebase-admin-client'
-import { Environment } from '@/environment'
 import { WithToken } from '@/middleware/auth-middleware'
 import { WithUser } from '@/middleware/user-middleware'
 
@@ -27,12 +26,10 @@ export default function adminMiddleware(): RequestHandler<
       const firebaseUser = await admin.auth().getUser(request.user.externalId)
       const claims = firebaseUser.customClaims
 
-      // If the user is not admin OR the logged in user isn't the admin email, throw error
+      // If the user is not admin, throw an error
       const isAdminUser =
         !!claims && Object.keys(claims).includes(FirebaseClaim.admin)
-      const isLoggedInAdminUser =
-        Environment.firebaseAdminEmail === request.user.email
-      if (!isAdminUser && !isLoggedInAdminUser) {
+      if (!isAdminUser) {
         throw new Unauthorized('User does not have admin permissions')
       }
 

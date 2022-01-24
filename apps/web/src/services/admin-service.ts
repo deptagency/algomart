@@ -4,10 +4,10 @@ import ky from 'ky'
 
 import loadFirebase from '@/clients/firebase-client'
 // import { ExtractBodyType } from '@/middleware/validate-body-middleware'
-// import { validateCustomClaims } from '@/utils/auth-validation'
+// import { validateCustomClaim } from '@/utils/auth-validation'
 import { urls } from '@/utils/urls'
 
-// type BodyType = ExtractBodyType<typeof validateCustomClaims>
+// type BodyType = ExtractBodyType<typeof validateCustomClaim>
 
 export interface AdminAPI {
   getLoggedInUserPermissions(): Promise<AdminPermissions>
@@ -41,7 +41,7 @@ export class AdminService implements AdminAPI {
 
   async getLoggedInUserPermissions(): Promise<AdminPermissions> {
     const response = await this.http
-      .get(urls.api.v1.getClaims)
+      .get(urls.api.v1.adminGetClaims)
       .json<AdminPermissions>()
     return response
   }

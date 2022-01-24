@@ -1,25 +1,24 @@
-import { FirebaseClaim } from '@algomart/schemas'
-import { BadRequest, Unauthorized } from 'http-errors'
+import { BadRequest } from 'http-errors'
 import { NextApiResponse } from 'next'
 
 import configureAdmin from '@/clients/firebase-admin-client'
-import { Environment } from '@/environment'
 import createHandler, { NextApiRequestApp } from '@/middleware'
+import adminMiddleware from '@/middleware/admin-middleware'
 import authMiddleware from '@/middleware/auth-middleware'
 import userMiddleware from '@/middleware/user-middleware'
 import validateBodyMiddleware, {
   ExtractBodyType,
 } from '@/middleware/validate-body-middleware'
-import { validateCustomClaims } from '@/utils/auth-validation'
+import { validateCustomClaim } from '@/utils/auth-validation'
 
-type BodyType = ExtractBodyType<typeof validateCustomClaims>
+type BodyType = ExtractBodyType<typeof validateCustomClaim>
 
 const handler = createHandler()
-handler.use(authMiddleware()).use(userMiddleware())
+handler.use(authMiddleware()).use(userMiddleware()).use(adminMiddleware())
 
 // #region Update claims
 handler.patch(
-  validateBodyMiddleware(validateCustomClaims),
+  validateBodyMiddleware(validateCustomClaim),
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
     if (!request.user.externalId) {
       throw new BadRequest('No external ID provided')
@@ -31,16 +30,6 @@ handler.patch(
     // Check permissions (not using admin middleware)
     const admin = configureAdmin()
     const firebaseUser = await admin.auth().getUser(request.user.externalId)
-    const claims = firebaseUser.customClaims
-
-    // If the user is not admin OR the logged in user isn't the admin email, throw error
-    const isAdminUser =
-      !!claims && Object.keys(claims).includes(FirebaseClaim.admin)
-    const isLoggedInAdminUser =
-      Environment.firebaseAdminEmail === request.user.email
-    if (!isAdminUser && !isLoggedInAdminUser) {
-      throw new Unauthorized('User does not have admin permissions')
-    }
 
     // Check permissions (not using adminMiddleware)
     await admin.auth().setCustomUserClaims(request.user.externalId, {

@@ -35,6 +35,9 @@ export const urls = {
   api: {
     v1: {
       addToShowcase: '/api/v1/collection/add-showcase',
+      adminCreateAccount: '/api/v1/admin/create-admin-account',
+      adminGetClaims: '/api/v1/admin/get-claims',
+      adminUpdateClaims: '/api/v1/admin/update-claims',
       asset: '/api/v1/asset',
       assetClaim: '/api/v1/asset/claim',
       assetMint: '/api/v1/asset/mint',
@@ -53,7 +56,6 @@ export const urls = {
       getBankAccountStatus: '/api/v1/payments/get-bank-account-status',
       getCardsByOwner: '/api/v1/payments/get-cards-by-owner',
       getCardStatus: '/api/v1/payments/get-card-status',
-      getClaims: '/api/v1/admin/get-claims',
       getPayment: '/api/v1/payments/get-payment',
       getPublishedPacks: '/api/v1/pack/get-published-packs',
       getRedeemable: '/api/v1/asset/get-redeemable',
@@ -64,7 +66,6 @@ export const urls = {
       removeCard: '/api/v1/payments/remove-card',
       showcaseCollectible: '/api/v1/collection/collectibles-showcase',
       updateCard: '/api/v1/payments/update-card',
-      updateClaims: '/api/v1/admin/update-claims',
       updateEmail: '/api/v1/profile/update-email',
       updateUsername: '/api/v1/profile/update-username',
       verifyPassphrase: '/api/v1/profile/verify-passphrase',

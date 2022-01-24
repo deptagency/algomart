@@ -89,7 +89,7 @@ export const validateUsername = (t: Translate) =>
     username: username(t),
   })
 
-export const validateCustomClaims = (t: Translate) =>
+export const validateCustomClaim = (t: Translate) =>
   object({
     role: role(t),
   })
