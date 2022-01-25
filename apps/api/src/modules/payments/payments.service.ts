@@ -64,7 +64,8 @@ export default class PaymentsService {
 
   async getPayments(filters: PaymentsQuery) {
     // Find payments in the database
-    // const payments = await PaymentModel.query()
+    // const query = {}
+    // const payments = await PaymentModel.query().where(query)
     // return payments
   }
 
