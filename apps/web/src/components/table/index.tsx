@@ -7,6 +7,8 @@ import {
   ThHTMLAttributes,
 } from 'react'
 
+import { TableElement, Td, Th,Thead, Tr } from './elements'
+
 export type ColumnDefinitionType<T, K extends keyof T> = {
   key: K
   name: string
@@ -44,52 +46,47 @@ function Table<T, K extends keyof T>({
   DetailedHTMLProps<HTMLAttributes<HTMLTableRowElement>, HTMLTableRowElement> &
   TableProps<T, K>) {
   return (
-    <table
+    <TableElement
       aria-label={ariaLabel}
       className={clsx('table-auto w-full', className)}
       {...props}
     >
       {columns && columns.length > 0 && data && data.length > 0 && (
         <>
-          <thead className={clsx({ invisible: hidden === true })}>
+          <Thead className={clsx({ invisible: hidden === true })}>
             <tr>
-              {columns.map(({ key, name }) => {
-                return (
-                  <th key={`th ${key}`} scope="col">
-                    {name}
-                  </th>
-                )
-              })}
+              {columns.map(({ key, name }) => (
+                <Th key={`th ${key}`}>{name}</Th>
+              ))}
             </tr>
-          </thead>
+          </Thead>
           <tbody>
             {data && data.length > 0 ? (
-              data.map((row, index) => {
-                return (
-                  <tr key={`tr ${index}`}>
-                    {columns.map(({ key }) => {
-                      return <td key={`td ${key}`}>{row[key]}</td>
-                    })}
-                  </tr>
-                )
-              })
+              data.map((row, index) => (
+                <Tr key={`tr ${index}`}>
+                  {columns.map(({ key }) => (
+                    <Td key={`td ${key}`}>{row[key]}</Td>
+                  ))}
+                </Tr>
+              ))
             ) : (
-              <tr key="noResults">
+              <Tr key="noResults">
                 {columns.map(({ key }, index) =>
                   index === 0 ? (
-                    <td key={`td ${key}`}>No results found.</td>
+                    <Td key={`td ${key}`}>No results found.</Td>
                   ) : (
-                    <td aria-label="No value" key={`td ${key}`} />
+                    <Td aria-label="No value" key={`td ${key}`} />
                   )
                 )}
-              </tr>
+              </Tr>
             )}
           </tbody>
         </>
       )}
-    </table>
+    </TableElement>
   )
 }
 
 export { Table }
+
 export default Table

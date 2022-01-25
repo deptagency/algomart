@@ -1,0 +1,23 @@
+.table {
+  @apply min-w-full;
+}
+
+.thead {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+.th {
+  @apply px-6 py-4 text-xs font-medium tracking-wider text-left uppercase text-base-textTertiary;
+}
+
+.tr {
+  @apply border-b border-base-border;
+}
+
+.tr:last-of-type {
+  @apply border-b-0;
+}
+
+.td {
+  @apply px-6 py-4 text-sm font-medium text-base-textPrimary whitespace-nowrap;
+}
