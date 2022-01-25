@@ -90,7 +90,7 @@ export async function isAuthenticatedUserAdmin({
   // Check permissions
   const claims = firebaseUser.customClaims
 
-  // If the user is not admin, throw error
+  // Only allow if user has admin claim
   const isAdminUser = claims?.[FirebaseClaim.admin]
   if (!isAdminUser) {
     return false
