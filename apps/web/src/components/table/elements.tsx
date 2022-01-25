@@ -1,9 +1,15 @@
 import clsx from 'clsx'
-import { DetailedHTMLProps, TableHTMLAttributes } from 'react'
+import {
+  DetailedHTMLProps,
+  HTMLAttributes,
+  TableHTMLAttributes,
+  TdHTMLAttributes,
+  ThHTMLAttributes,
+} from 'react'
 
 import css from './table.module.css'
 
-export const TableElement: React.FC<
+export const Table: React.FC<
   DetailedHTMLProps<TableHTMLAttributes<HTMLTableElement>, HTMLTableElement>
 > = ({ className, children, ...rest }) => (
   <table className={clsx(className, css.table)} {...rest}>
@@ -11,30 +17,54 @@ export const TableElement: React.FC<
   </table>
 )
 
-export const Thead: React.FC<{ className?: string }> = ({
-  className,
-  children,
-}) => <thead className={clsx(className, css.thead)}>{children}</thead>
+export const Thead: React.FC<
+  DetailedHTMLProps<
+    HTMLAttributes<HTMLTableSectionElement>,
+    HTMLTableSectionElement
+  >
+> = ({ className, children, ...rest }) => (
+  <thead className={clsx(className, css.thead)} {...rest}>
+    {children}
+  </thead>
+)
 
-export const Th: React.FC<{ className?: string }> = ({
-  className,
-  children,
-}) => (
-  <th className={clsx(className, css.th)} scope="col">
+export const Tbody: React.FC<
+  DetailedHTMLProps<
+    HTMLAttributes<HTMLTableSectionElement>,
+    HTMLTableSectionElement
+  >
+> = ({ className, children, ...rest }) => (
+  <tbody className={clsx(className, css.tbody)} {...rest}>
+    {children}
+  </tbody>
+)
+
+export const Th: React.FC<
+  DetailedHTMLProps<
+    ThHTMLAttributes<HTMLTableHeaderCellElement>,
+    HTMLTableHeaderCellElement
+  >
+> = ({ className, children, ...rest }) => (
+  <th className={clsx(className, css.th)} scope="col" {...rest}>
     {children}
   </th>
 )
 
-export const Tr: React.FC<{ className?: string }> = ({
-  className,
-  children,
-}) => <tr className={clsx(className, css.tr)}>{children}</tr>
+export const Tr: React.FC<
+  DetailedHTMLProps<HTMLAttributes<HTMLTableRowElement>, HTMLTableRowElement>
+> = ({ className, children, ...rest }) => (
+  <tr className={clsx(className, css.tr)} {...rest}>
+    {children}
+  </tr>
+)
 
-export const Td: React.FC<{ className?: string }> = ({
-  className,
-  children,
-}) => (
-  <td className={clsx(className, css.td)} role="cell">
+export const Td: React.FC<
+  DetailedHTMLProps<
+    TdHTMLAttributes<HTMLTableDataCellElement>,
+    HTMLTableDataCellElement
+  >
+> = ({ className, children, ...rest }) => (
+  <td className={clsx(className, css.td)} {...rest}>
     {children}
   </td>
 )
