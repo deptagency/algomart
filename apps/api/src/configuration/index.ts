@@ -162,4 +162,8 @@ export const Configuration = {
       sendGridApiKey,
     }
   },
+
+  get enableMarketplace(): boolean {
+    return env.get('ENABLE_MARKETPLACE').default('false').asBool()
+  },
 }
