@@ -1,0 +1,30 @@
+.root {
+  @apply shadow-lg bg-base-bgCard;
+}
+
+.root + .root {
+  @apply mt-8;
+}
+
+.header {
+  @apply flex px-5 pt-5 mb-5;
+}
+
+.padContent {
+  @apply px-5 pb-5 mt-5;
+}
+
+.description {
+  @apply text-sm text-base-textTertiary;
+}
+
+.contentLeft {
+}
+
+.contentRight {
+  @apply flex justify-end flex-auto flex-grow flex-shrink;
+}
+
+.footer {
+  @apply p-5 border-t-1 border-base-border;
+}
