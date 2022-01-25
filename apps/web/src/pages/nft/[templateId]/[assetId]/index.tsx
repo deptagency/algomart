@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 
 import { ApiClient } from '@/clients/api-client'
 import Button from '@/components/button'
+import LinkButton from '@/components/link-button'
 import MediaGallery from '@/components/media-gallery/media-gallery'
 import ReleaseDescription from '@/components/release-details/sections/release-description'
 import { useAuth } from '@/contexts/auth-context'
@@ -36,16 +37,17 @@ export default function NFTPage({
 
           <div className="px-6 pb-6 text-center">
             {/* TODO enable this for secondary marketplace */}
-            <Button size="small" disabled>
+            <LinkButton size="small" disabled href="/">
               Sell NFT
-            </Button>
-            <Button
+            </LinkButton>
+            <LinkButton
+              href={`/nft/${collectible.templateId}/${collectible.address}/transfer`}
               size="small"
               variant="tertiary"
               disabled={auth.user?.address !== collectible.currentOwnerAddress}
             >
               Transfer NFT
-            </Button>
+            </LinkButton>
           </div>
 
           {/* TODO: add tabs for description, activity, listings, and offers */}
@@ -55,10 +57,12 @@ export default function NFTPage({
           <div className="px-6 pb-6">
             <div className="overflow-hidden text-sm border rounded-md border-base-border">
               <ul role="list" className="divide-y divide-base-border">
-                <li className="flex justify-between px-5 py-5">
-                  <span className="font-bold">Owner</span>
-                  <span>@{collectible.currentOwner}</span>
-                </li>
+                {collectible.currentOwner ? (
+                  <li className="flex justify-between px-5 py-5">
+                    <span className="font-bold">Owner</span>
+                    <span>@{collectible.currentOwner}</span>
+                  </li>
+                ) : null}
                 {/* TODO: add publisher details */}
                 {/* <li className="flex justify-between px-5 py-5">
                   <span className="font-bold">Publisher</span>
