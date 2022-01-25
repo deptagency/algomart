@@ -1,5 +1,6 @@
 import { Static, Type } from '@sinclair/typebox'
 
+import { CollectionWithSetsSchema, SetBaseSchema } from './collections'
 import {
   BaseSchema,
   IdSchema,
@@ -9,7 +10,6 @@ import {
   Simplify,
   SortDirection,
 } from './shared'
-import { CollectionWithSetsSchema, SetBaseSchema } from '.'
 
 export enum IPFSStatus {
   Pending = 'pending',
