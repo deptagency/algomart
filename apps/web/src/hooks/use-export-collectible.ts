@@ -8,9 +8,10 @@ import collectibleService from '@/services/collectible-service'
 
 const algorand = new AlgorandAdapter(Environment.chainType)
 
-export function useExportCollectible() {
+export function useExportCollectible(passphrase: string) {
   const [connected, setConnected] = useState(false)
-  const [account, setAccount] = useState('')
+  const [accounts, setAccounts] = useState([])
+  const [selectedAccount, selectAccount] = useState('')
   const connectorReference = useRef<IConnector>()
 
   const connect = useCallback(async () => {
@@ -21,11 +22,17 @@ export function useExportCollectible() {
     ))
 
     connector.subscribe('update_accounts', (accounts: string[]) => {
-      setAccount(accounts[0])
+      setAccounts(accounts)
       setConnected(true)
     })
 
     await connector.connect()
+  }, [])
+
+  const disconnect = useCallback(async () => {
+    if (connectorReference.current) {
+      await connectorReference.current.disconnect()
+    }
   }, [])
 
   const exportCollectible = useCallback(
@@ -33,44 +40,55 @@ export function useExportCollectible() {
       const connector = connectorReference.current
       if (!connector) return
 
-      const hasOptedIn = await algorand.hasOptedIn(account, assetIndex)
+      const hasOptedIn = await algorand.hasOptedIn(selectedAccount, assetIndex)
       if (!hasOptedIn) {
         const txn = await algorand.makeAssetOptInTransaction(
           assetIndex,
-          account
+          selectedAccount
         )
         const signedTxn = await connector.signTransaction(txn)
         const txId = await algorand.sendRawTransaction(signedTxn)
         await algorand.waitForConfirmation(txId)
       }
 
-      const passphrase = prompt('Enter your passphrase')
       if (!passphrase) return
 
       await collectibleService.exportCollectible(
         assetIndex,
-        account,
+        selectedAccount,
         passphrase
       )
     },
-    [account]
+    [passphrase, selectedAccount]
   )
 
   const hasOptedIn = useCallback(
     async (assetIndex: number) => {
-      return await algorand.hasOptedIn(account, assetIndex)
+      return await algorand.hasOptedIn(selectedAccount, assetIndex)
     },
-    [account]
+    [selectedAccount]
   )
 
   return useMemo(
     () => ({
-      account,
+      accounts,
+      setAccounts,
+      selectedAccount,
+      selectAccount,
       connect,
       connected,
       exportCollectible,
       hasOptedIn,
+      disconnect,
     }),
-    [account, connect, connected, exportCollectible, hasOptedIn]
+    [
+      accounts,
+      connect,
+      connected,
+      disconnect,
+      exportCollectible,
+      hasOptedIn,
+      selectedAccount,
+    ]
   )
 }
