@@ -17,7 +17,6 @@ export default class AuctionsService {
   constructor(private readonly algorand: AlgorandAdapter) {}
 
   async createAuction(request: CreateAuctionBody, trx?: Transaction) {
-    // this.logger.info({ auction: request }, 'Creating auction')
     const user = await UserAccountModel.query(trx)
       .where({
         externalId: request.externalId,
