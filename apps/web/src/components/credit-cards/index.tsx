@@ -1,13 +1,14 @@
-import Card, { CardProps } from './card'
+import Card, { CreditCardProps } from './credit-card'
 
 import Heading from '@/components/heading'
 
-export interface CardsProps {
-  cards: CardProps[]
+export interface CreditCardsProps {
+  cards: CreditCardProps[]
   header: string
 }
 
-export default function Cards({ cards, header }: CardsProps) {
+/** A list of credit cards */
+export default function CreditCards({ cards, header }: CreditCardsProps) {
   return (
     <>
       {header && (

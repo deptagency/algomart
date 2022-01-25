@@ -6,7 +6,7 @@ import css from './card.module.css'
 import AppLink from '@/components/app-link/app-link'
 import Heading from '@/components/heading'
 
-export interface CardProps {
+export interface CreditCardProps {
   helpText: string
   href: string | { pathname: string; query?: { [key: string]: string } }
   icon: ReactNode
@@ -14,13 +14,14 @@ export interface CardProps {
   title: string
 }
 
-export default function Card({
+/** A credit card */
+export default function CreditCard({
   helpText,
   href,
   icon,
   isDisabled,
   title,
-}: CardProps) {
+}: CreditCardProps) {
   return (
     <section className={css.root}>
       <AppLink

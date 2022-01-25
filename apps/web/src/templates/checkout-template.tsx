@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { Translate } from 'next-translate'
 import useTranslation from 'next-translate/useTranslation'
 
-import Cards from '@/components/cards'
+import CreditCards from '@/components/credit-cards'
 import EmailVerification from '@/components/profile/email-verification'
 import { useAuth } from '@/contexts/auth-context'
 import { PaymentContextProps } from '@/contexts/payment-context'
@@ -68,7 +68,7 @@ export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
     return <EmailVerification inline />
   }
   return (
-    <Cards
+    <CreditCards
       header={t('forms:fields.paymentMethods.helpText')}
       cards={getCardList(t)}
     />
