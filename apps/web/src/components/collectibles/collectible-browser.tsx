@@ -9,7 +9,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import css from './collectible-browser.module.css'
 
 import Heading from '@/components/heading'
-import { useExportCollectible } from '@/hooks/use-export-collectible'
 import { cmsImageLoader } from '@/utils/cms-image-loader'
 
 export interface CollectibleBrowserProps {
@@ -24,7 +23,6 @@ export default function CollectibleBrowser({
   const [current, setCurrent] = useState(initialCollectible)
   const [showVideoCoverImage, setShowVideoCoverImage] = useState(false)
   const collectible = collectibles[current]
-  const { connect, connected, exportCollectible } = useExportCollectible()
 
   const videoReference = useRef<HTMLVideoElement>(null)
   const router = useRouter()
@@ -96,6 +94,7 @@ export default function CollectibleBrowser({
             height={700}
             layout="responsive"
             objectFit="contain"
+            alt={collectible.title}
           />
         )}
         {collectible.previewVideo && (
@@ -106,8 +105,8 @@ export default function CollectibleBrowser({
           >
             <div className={css.flipBoxInner}>
               <div className={css.flipBoxFront}>
-                {/* Yes, this video tag does need a key attribute 
-                https://stackoverflow.com/questions/29291688/video-displayed-in-reactjs-component-not-updating 
+                {/* Yes, this video tag does need a key attribute
+                https://stackoverflow.com/questions/29291688/video-displayed-in-reactjs-component-not-updating
                 */}
                 <video
                   ref={videoReference}
@@ -125,6 +124,7 @@ export default function CollectibleBrowser({
               <div className={css.flipBoxBack}>
                 <Image
                   src={collectible.image}
+                  alt={collectible.title}
                   loader={cmsImageLoader}
                   width={700}
                   height={700}
@@ -169,17 +169,6 @@ export default function CollectibleBrowser({
           </div>
         )}
       </div>
-      <div>
-        <button
-          onClick={() =>
-            !connected
-              ? connect()
-              : collectible.address && exportCollectible(collectible.address)
-          }
-        >
-          {connected ? 'Export' : 'Connect'}
-        </button>
-      </div>
 
       {collectibles.length > 1 && (
         <div className={css.gallery}>
@@ -198,6 +187,7 @@ export default function CollectibleBrowser({
                 height={70}
                 objectFit="contain"
                 layout="responsive"
+                alt={collectible.title}
               />
             </button>
           ))}

@@ -19,7 +19,7 @@ export default function NFTPage({
   const auth = useAuth()
 
   return (
-    <DefaultLayout noPanel>
+    <DefaultLayout noPanel pageTitle={collectible.title}>
       <div className="ml-auto mr-auto max-w-700">
         <div className="shadow-large bg-base-bgPanel">
           <MediaGallery media={[collectible.image]} />
@@ -105,7 +105,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     templateId: templateId as string,
     assetId: Number(assetId),
   })
-  console.log('collectible', collectible)
   return {
     props: {
       collectible,
