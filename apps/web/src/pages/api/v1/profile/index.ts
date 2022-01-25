@@ -11,6 +11,7 @@ import validateBodyMiddleware, {
   ExtractBodyType,
 } from '@/middleware/validate-body-middleware'
 import { validateUserRegistration } from '@/utils/auth-validation'
+import { logger } from '@/utils/logger'
 
 const handler = createHandler()
 handler.use(authMiddleware())
@@ -59,8 +60,7 @@ handler.post(
           })
         }
       } catch (error) {
-        // do nothing if setting claims does not work
-        console.error(error)
+        logger.error(error, 'Unable to set claims')
       }
     }
 

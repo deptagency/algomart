@@ -18,9 +18,9 @@ export default function AdminTransactionsPage() {
   useEffect(() => {
     const findUser = async () => {
       try {
-        const claims = await adminService.getLoggedInUserPermissions()
+        const { claims } = await adminService.getLoggedInUserPermissions()
         // If there is no admin role, throw error
-        if (!claims.claims || !claims.claims.includes(FirebaseClaim.admin)) {
+        if (!claims || !claims.includes(FirebaseClaim.admin)) {
           throw new Error('User is not admin')
         }
       } catch (error) {
