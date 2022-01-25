@@ -35,6 +35,8 @@ export const urls = {
   api: {
     v1: {
       addToShowcase: '/api/v1/collection/add-showcase',
+      adminGetClaims: '/api/v1/admin/get-claims',
+      adminUpdateClaims: '/api/v1/admin/update-claims',
       asset: '/api/v1/asset',
       assetClaim: '/api/v1/asset/claim',
       assetMint: '/api/v1/asset/mint',

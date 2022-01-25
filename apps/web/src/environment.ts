@@ -23,6 +23,10 @@ export const Environment = {
     ) as ServiceAccount
   },
 
+  get firebaseAdminEmail() {
+    return this.config('FIREBASE_ADMIN_EMAIL', '')
+  },
+
   get isProduction() {
     return this.config('NODE_ENV', 'development') === 'production'
   },

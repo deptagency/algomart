@@ -8,6 +8,7 @@
     "emailsDoNotMatch": "Email addresses do not match",
     "invalidCVV": "Invalid CVV",
     "exactCharacters": "Must be {exact} characters",
+    "invalidClaim": "Invalid Claim",
     "invalidCredentials": "Invalid credentials",
     "invalidCreditCard": "Invalid credit card number",
     "invalidCountry": "Invalid country code",
