@@ -1,5 +1,5 @@
 import { FirebaseClaim } from '@algomart/schemas'
-import { Unauthorized } from 'http-errors'
+import { Forbidden, Unauthorized } from 'http-errors'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { RequestHandler } from 'next-connect'
 
@@ -29,7 +29,7 @@ export default function adminMiddleware(): RequestHandler<
       // If the user is not admin, throw an error
       const isAdminUser = claims?.[FirebaseClaim.admin]
       if (!isAdminUser) {
-        throw new Unauthorized('User does not have admin permissions')
+        throw new Forbidden('User does not have admin permissions')
       }
 
       request.isAdmin = true
