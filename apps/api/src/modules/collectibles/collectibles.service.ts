@@ -11,6 +11,7 @@ import {
   EventEntityType,
   ExportCollectible,
   IPFSStatus,
+  SingleCollectibleQuerystring,
   SortDirection,
 } from '@algomart/schemas'
 import { CollectibleListShowcase } from '@algomart/schemas'
@@ -83,6 +84,61 @@ export default class CollectiblesService {
     )
 
     return collectibles.length
+  }
+
+  async getCollectible(
+    query: SingleCollectibleQuerystring
+  ): Promise<CollectibleWithDetails> {
+    const collectible = await CollectibleModel.query()
+      .where('templateId', query.templateId)
+      .andWhere('address', query.assetId)
+      .first()
+
+    userInvariant(collectible, 'Collectible not found', 404)
+
+    const {
+      collectibles: [template],
+    } = await this.cms.findAllCollectibles(
+      query.locale,
+      {
+        id: { _eq: query.templateId },
+      },
+      1
+    )
+
+    invariant(template, `NFT Template ${query.templateId} not found`)
+
+    const currentOwner = await this.algoExplorer.getCurrentAssetOwner(
+      collectible.address
+    )
+    const owner = await UserAccountModel.query()
+      .alias('u')
+      .join('AlgorandAccount as a', 'u.algorandAccountId', 'a.id')
+      .where('a.address', '=', currentOwner?.address || '-')
+      .first()
+
+    const { collections } = await this.cms.findAllCollections(query.locale)
+    const collection = collections.find(
+      (c) =>
+        c.id === template.collectionId ||
+        c.sets.some((s) => s.id === template.setId)
+    )
+    const set = collection?.sets.find((s) => s.id === template.setId)
+
+    return {
+      ...template,
+      set,
+      collection,
+      currentOwner: owner?.username,
+      currentOwnerAddress: currentOwner?.address,
+      id: collectible.id,
+      edition: collectible.edition,
+      address: collectible.address,
+      claimedAt:
+        collectible.claimedAt instanceof Date
+          ? collectible.claimedAt.toISOString()
+          : collectible.claimedAt,
+    }
   }
 
   async storeCollectibles(limit = 5, trx: Transaction) {

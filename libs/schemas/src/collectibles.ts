@@ -9,6 +9,7 @@ import {
   Simplify,
   SortDirection,
 } from './shared'
+import { CollectionWithSetsSchema, SetBaseSchema } from '.'
 
 export enum IPFSStatus {
   Pending = 'pending',
@@ -99,6 +100,10 @@ export const CollectibleWithDetailsSchema = Type.Intersect([
     edition: Type.Number(),
     address: Type.Optional(Type.Number()),
     claimedAt: Type.Optional(Type.String({ format: 'date-time' })),
+    currentOwner: Type.Optional(Type.String()),
+    currentOwnerAddress: Type.Optional(Type.String()),
+    collection: Type.Optional(CollectionWithSetsSchema),
+    set: Type.Optional(SetBaseSchema),
   }),
 ])
 
@@ -134,6 +139,15 @@ export const CollectiblesByAlgoAddressQuerystringSchema = Type.Intersect([
     sortDirection: Type.Optional(
       Type.Enum(SortDirection, { default: SortDirection.Ascending })
     ),
+  }),
+])
+
+export const SingleCollectibleQuerystringSchema = Type.Intersect([
+  LocaleSchema,
+  Type.Object({
+    templateId: Type.String({ format: 'uuid' }),
+    assetId: Type.Integer({ minimum: 0 }),
+    externalId: Type.Optional(Type.String({ format: 'uuid' })),
   }),
 ])
 
@@ -221,3 +235,6 @@ export type CollectibleListShowcase = Simplify<
   Static<typeof CollectibleListShowcaseSchema>
 >
 export type ExportCollectible = Simplify<Static<typeof ExportCollectibleSchema>>
+export type SingleCollectibleQuerystring = Simplify<
+  Static<typeof SingleCollectibleQuerystringSchema>
+>

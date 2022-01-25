@@ -9,6 +9,7 @@ import {
   CollectibleListWithTotal,
   CollectiblesByAlgoAddressQuerystring,
   CollectibleShowcaseQuerystring,
+  CollectibleWithDetails,
   CollectionWithSets,
   CreateBankAccount,
   CreateBankAccountResponse,
@@ -47,6 +48,7 @@ import {
   RedeemCode,
   SendBankAccountInstructions,
   SetWithCollection,
+  SingleCollectibleQuerystring,
   ToPaymentBase,
   TransferPack,
   TransferPackStatusList,
@@ -205,6 +207,12 @@ export class ApiClient {
     return await this.http
       .post('collectibles/export', { json: request })
       .then((response) => response.ok)
+  }
+
+  async getCollectible(request: SingleCollectibleQuerystring) {
+    return await this.http
+      .get('collectibles/find-one', { searchParams: request })
+      .json<CollectibleWithDetails>()
   }
   //#endregion
 
