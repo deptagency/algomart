@@ -892,6 +892,9 @@ export default class CollectiblesService {
 
     userInvariant(collectible, 'collectible not found', 404)
 
+    const asset = await this.algorand.getAssetInfo(collectible.address)
+    userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
+
     const result = await this.algorand.generateExportTransactions({
       assetIndex: request.assetIndex,
       encryptedMnemonic: user.algorandAccount.encryptedKey,
@@ -901,7 +904,6 @@ export default class CollectiblesService {
     })
 
     await this.algorand.submitTransaction(result.signedTransactions)
-    await this.algorand.waitForConfirmation(result.transactionIds[0])
 
     await CollectibleModel.query(trx)
       .where({
@@ -910,5 +912,15 @@ export default class CollectiblesService {
       .patch({
         ownerId: null,
       })
+
+    await AlgorandTransactionModel.query(trx).insert(
+      result.transactionIds.map((txId) => ({
+        address: txId,
+        status: AlgorandTransactionStatus.Pending,
+      }))
+    )
+
+    // The third transaction is the one that actually transfers the asset
+    return result.transactionIds[2]
   }
 }

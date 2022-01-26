@@ -140,7 +140,9 @@ export async function collectiblesRoutes(app: FastifyInstance) {
           security,
           body: ExportCollectibleSchema,
           response: {
-            204: Type.Null(),
+            200: Type.Object({
+              txId: Type.String(),
+            }),
           },
         },
       },

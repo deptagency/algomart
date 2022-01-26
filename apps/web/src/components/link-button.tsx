@@ -27,8 +27,8 @@ export default function LinkButton({
   prefetch,
   locale,
   disablePadding,
-  size,
-  variant,
+  size = 'medium',
+  variant = 'primary',
   fullWidth,
   ...rest
 }: LinkButtonProps) {

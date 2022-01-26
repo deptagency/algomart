@@ -206,7 +206,7 @@ export class ApiClient {
   async exportCollectible(request: ExportCollectible) {
     return await this.http
       .post('collectibles/export', { json: request })
-      .then((response) => response.ok)
+      .json<{ txId: string }>()
   }
 
   async getCollectible(request: SingleCollectibleQuerystring) {

@@ -1,5 +1,9 @@
 import { CollectibleWithDetails } from '@algomart/schemas'
 import { RadioGroup } from '@headlessui/react'
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+} from '@heroicons/react/outline'
 import clsx from 'clsx'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
@@ -7,6 +11,8 @@ import { Fragment, useCallback, useEffect, useState } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import Button from '@/components/button'
+import Heading from '@/components/heading'
+import LinkButton from '@/components/link-button'
 import Loading from '@/components/loading/loading'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
 import CardPurchaseHeader from '@/components/purchase-form/cards/sections/card-header'
@@ -30,8 +36,14 @@ export default function TransferPage({
     disconnect,
     exportCollectible,
   } = useExportCollectible(passphrase)
+  const [error, setError] = useState('')
   const [stage, setStage] = useState<
-    'passphrase' | 'connect' | 'select-account' | 'transfer'
+    | 'passphrase'
+    | 'connect'
+    | 'select-account'
+    | 'transfer'
+    | 'success'
+    | 'error'
   >('passphrase')
   const router = useRouter()
 
@@ -48,8 +60,14 @@ export default function TransferPage({
   }, [collectible.address, collectible.templateId, disconnect, router])
 
   const transfer = useCallback(async () => {
-    setStage('transfer')
-    await exportCollectible(collectible.address)
+    try {
+      setStage('transfer')
+      await exportCollectible(collectible.address)
+      setStage('success')
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error))
+      setStage('error')
+    }
   }, [collectible.address, exportCollectible])
 
   useEffect(() => {
@@ -164,7 +182,37 @@ export default function TransferPage({
           </div>
         ) : null}
 
-        {/* TODO: update stage and show completion screen */}
+        {stage === 'success' ? (
+          <div key="success" className="w-full max-w-xs mx-auto text-center">
+            <div className="flex flex-col items-center">
+              <span className="text-base-price">
+                <CheckCircleIcon width={48} />
+              </span>
+              <Heading bold level={2} size={1} className="mt-5 mb-7">
+                Sent!
+              </Heading>
+              <LinkButton fullWidth href="/my/collectibles">
+                Back to My Collection
+              </LinkButton>
+            </div>
+          </div>
+        ) : null}
+
+        {stage === 'error' ? (
+          <div key="error" className="w-full max-w-xs mx-auto text-center">
+            <div className="flex flex-col items-center">
+              <span className="text-base-error">
+                <ExclamationCircleIcon width={48} />
+              </span>
+              <Heading bold level={2} size={1} className="mt-5 mb-7">
+                {error}
+              </Heading>
+              <LinkButton fullWidth href="/my/collectibles">
+                Back to My Collection
+              </LinkButton>
+            </div>
+          </div>
+        ) : null}
       </div>
     </DefaultLayout>
   )
