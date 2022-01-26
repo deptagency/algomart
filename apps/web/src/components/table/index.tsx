@@ -1,7 +1,17 @@
+import { ArrowUpIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
-import { DetailedHTMLProps, TableHTMLAttributes } from 'react'
 
-import { Table as TableElement, Tbody, Td, Th, Thead, Tr } from './elements'
+import {
+  Table as TableElement,
+  TableProps as TableElementProps,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from './elements'
+
+import css from './table.module.css'
 
 export type ColumnDefinitionType<T, K extends keyof T> = {
   key: K
@@ -11,29 +21,39 @@ export type ColumnDefinitionType<T, K extends keyof T> = {
 }
 
 export type TableProps<T, K extends keyof T> = {
-  ariaLabel?: string
-  data: Array<T>
   columns: Array<ColumnDefinitionType<T, K>>
+  data: Array<T>
+  onHeaderClick?: (col: ColumnDefinitionType<T, K>) => void
+  sortDirection?: 'asc' | 'desc'
+  sortBy?: string
 }
 
 function Table<T, K extends keyof T>({
-  ariaLabel,
-  className,
   columns,
   data,
+  sortDirection,
+  sortBy,
+  onHeaderClick,
   ...props
-}: DetailedHTMLProps<TableHTMLAttributes<HTMLTableElement>, HTMLTableElement> &
-  TableProps<T, K>) {
+}: TableElementProps & TableProps<T, K>) {
+  const getHeaderClickHandler = (col: ColumnDefinitionType<T, K>) =>
+    col.sortable && onHeaderClick ? () => onHeaderClick(col) : undefined
+
   return (
-    <TableElement
-      aria-label={ariaLabel}
-      className={clsx('table-auto w-full', className)}
-      {...props}
-    >
+    <TableElement {...props}>
       <Thead>
         <Tr>
-          {columns.map(({ key, name }) => (
-            <Th key={`th ${key}`}>{name}</Th>
+          {columns.map((col) => (
+            <Th key={`th ${col.key}`} onClick={getHeaderClickHandler(col)}>
+              {col.name}
+              {sortBy === col.key && (
+                <ArrowUpIcon
+                  className={clsx(css.sortIcon, {
+                    [css.sortAsc]: sortDirection === 'asc',
+                  })}
+                />
+              )}
+            </Th>
           ))}
         </Tr>
       </Thead>

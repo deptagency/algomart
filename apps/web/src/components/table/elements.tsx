@@ -9,10 +9,26 @@ import {
 
 import css from './table.module.css'
 
-export const Table: React.FC<
-  DetailedHTMLProps<TableHTMLAttributes<HTMLTableElement>, HTMLTableElement>
-> = ({ className, children, ...rest }) => (
-  <table className={clsx(className, css.table)} {...rest}>
+export interface TableProps
+  extends DetailedHTMLProps<
+    TableHTMLAttributes<HTMLTableElement>,
+    HTMLTableElement
+  > {
+  fixedLayout?: boolean
+}
+
+export const Table: React.FC<TableProps> = ({
+  className,
+  children,
+  fixedLayout,
+  ...rest
+}: TableProps) => (
+  <table
+    className={clsx(className, css.table, {
+      [css.fixedLayout]: fixedLayout,
+    })}
+    {...rest}
+  >
     {children}
   </table>
 )
@@ -44,8 +60,17 @@ export const Th: React.FC<
     ThHTMLAttributes<HTMLTableHeaderCellElement>,
     HTMLTableHeaderCellElement
   >
-> = ({ className, children, ...rest }) => (
-  <th className={clsx(className, css.th)} scope="col" {...rest}>
+> = ({ className, onClick, children, ...rest }) => (
+  <th
+    scope="col"
+    onClick={onClick}
+    className={clsx(css.th, className, {
+      [css.sortable]: !!onClick,
+      // [css.stickLeft]: stickLeft,
+      // [css.stickRight]: stickRight,
+    })}
+    {...rest}
+  >
     {children}
   </th>
 )
