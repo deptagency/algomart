@@ -139,7 +139,6 @@ export const PublishedPacksQuerySchema = Type.Intersect([
     templateIds: Type.Optional(Type.Array(IdSchema)),
     priceLow: Type.Optional(Type.Number()),
     priceHigh: Type.Optional(Type.Number()),
-    title: Type.Optional(Type.String()),
     type: Type.Optional(Type.Array(Type.Enum(PackType))),
     status: Type.Optional(Type.Array(Type.Enum(PackStatus))),
     reserveMet: Type.Optional(Type.Boolean()),

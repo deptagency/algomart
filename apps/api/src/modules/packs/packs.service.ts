@@ -225,7 +225,6 @@ export default class PacksService {
     pageSize = 10,
     templateIds = [],
     slug,
-    title,
     type = [],
     status = [],
     priceHigh = Number.POSITIVE_INFINITY,
@@ -245,8 +244,6 @@ export default class PacksService {
     if (slug) filter.slug = { _eq: slug }
     if (templateIds.length > 0) filter.id = { _in: templateIds }
     if (type.length > 0) filter.type = { _in: type }
-    // @TODO: translations
-    if (title) filter.title = { _contains: title }
 
     const { packs: templates } = await this.cms.findAllPacks({
       locale,

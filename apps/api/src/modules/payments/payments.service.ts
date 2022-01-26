@@ -7,6 +7,7 @@ import {
   CreateTransferPayment,
   CreateWalletAddress,
   DEFAULT_CURRENCY,
+  DEFAULT_LOCALE,
   EventAction,
   EventEntityType,
   NotificationType,
@@ -68,6 +69,7 @@ export default class PaymentsService {
   }
 
   async getPayments({
+    locale = DEFAULT_LOCALE,
     page = 1,
     pageSize = 10,
     packId,
@@ -111,23 +113,15 @@ export default class PaymentsService {
       packIds.push(packId)
     }
 
-    // Find packs by slug and add pack IDs to array if available
-    if (packSlug) {
-      const { packs: packTemplates } = await this.packs.getPublishedPacks({
-        slug: packSlug,
-      })
-      const templateIds = packTemplates.map((p) => p.templateId)
-      const packs = await PackModel.query().whereIn('templateId', templateIds)
-      for (const pack of packs) {
-        packIds.push(pack.id)
-      }
-    }
-
-    // Find packs by title and add pack IDs to array if available
-    if (packTitle) {
-      const { packs: packTemplates } = await this.packs.getPublishedPacks({
-        title: packTitle,
-      })
+    // Find packs and add pack IDs to array if available
+    const packQuery: { locale?: string; slug?: string; title?: string } = {}
+    if (locale) packQuery.locale = locale
+    if (packSlug) packQuery.slug = packSlug
+    if (packTitle) packQuery.title = packTitle
+    if (Object.keys(packQuery).length > 0) {
+      const { packs: packTemplates } = await this.packs.getPublishedPacks(
+        packQuery
+      )
       const templateIds = packTemplates.map((p) => p.templateId)
       const packs = await PackModel.query().whereIn('templateId', templateIds)
       for (const pack of packs) {
@@ -148,7 +142,10 @@ export default class PaymentsService {
 
     const { results: payments, total } = results
 
-    return { payments, total }
+    // @TODO: Handle error
+    const paymentsList = payments.map(({ error, ...rest }) => ({ ...rest }))
+
+    return { payments: paymentsList, total }
   }
 
   async getCardStatus(cardId: string) {

@@ -1,4 +1,4 @@
-import { FirebaseClaim, PaymentList } from '@algomart/schemas'
+import { DEFAULT_LOCALE, FirebaseClaim, PaymentList } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
@@ -65,6 +65,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { payments, total } = await ApiClient.instance.getPayments({
     page: 1,
     pageSize: PAYMENTS_PER_PAGE,
+    locale: context.locale || DEFAULT_LOCALE,
   })
 
   return {

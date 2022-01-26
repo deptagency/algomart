@@ -687,9 +687,9 @@ export const CreateWalletAddressSchema = Type.Intersect([
 export const PaymentListQuerystringSchema = Type.Intersect([
   PaginationSchema,
   Type.Object({
+    locale: Type.Optional(Type.String()),
     packId: Type.Optional(Type.String({ format: 'uuid' })),
     packSlug: Type.Optional(Type.String()),
-    packTitle: Type.Optional(Type.String()),
     payerExternalId: Type.Optional(Type.String()),
     payerUsername: Type.Optional(Type.String()),
     sortBy: Type.Optional(
