@@ -80,17 +80,17 @@ export default function NFTTransferTemplate({
       {stage === 'connect' ? (
         <div key="connect" className={css.stage}>
           <Heading level={3} bold className={css.stageTitle}>
-            {t('forms:fields.walletConnect.title')}
+            {t('nft:walletConnect.title')}
           </Heading>
           <hr className={css.separator} />
           <Button fullWidth onClick={onConnectWallet}>
-            {t('forms:fields.walletConnect.connect')}
+            {t('nft:walletConnect.connect')}
           </Button>
           <div className={css.stageHelp}>
-            {t('forms:fields.walletConnect.description')}
+            {t('nft:walletConnect.description')}
             <br />
             <br />
-            {t('forms:fields.walletConnect.helpText')}
+            {t('nft:walletConnect.helpText')}
             <br />
             <a
               href={ALGORAND_WALLET_LINK.url}
@@ -107,12 +107,12 @@ export default function NFTTransferTemplate({
       {stage === 'select-account' ? (
         <div key="select-account" className={css.stage}>
           <Heading level={3} bold className={css.stageTitle}>
-            {t('forms:fields.walletConnect.selectAccount')}
+            {t('nft:walletConnect.selectAccount')}
           </Heading>
           <hr className={css.separator} />
           <RadioGroup value={selectedAccount} onChange={onSelectAccount}>
             <RadioGroup.Label hidden>
-              {t('forms:fields.walletConnect.selectAccount')}
+              {t('nft:walletConnect.selectAccount')}
             </RadioGroup.Label>
             {accounts.map((account) => (
               <RadioGroup.Option key={account} value={account}>
@@ -139,7 +139,7 @@ export default function NFTTransferTemplate({
           </RadioGroup>
           <div className={css.spacing}>
             <Button fullWidth onClick={onTransfer} disabled={!selectedAccount}>
-              {t('forms:fields.walletConnect.transfer')}
+              {t('nft:walletConnect.transfer')}
             </Button>
           </div>
           <div className={css.spacing}>
@@ -150,7 +150,7 @@ export default function NFTTransferTemplate({
               fullWidth
               className={css.buttonLink}
             >
-              {t('forms:fields.walletConnect.orCancel')}
+              {t('nft:walletConnect.orCancel')}
             </Button>
           </div>
         </div>
@@ -158,7 +158,7 @@ export default function NFTTransferTemplate({
 
       {stage === 'transfer' ? (
         <div key="transfer">
-          <Loading loadingText={t('forms:fields.walletConnect.transferring')} />
+          <Loading loadingText={t('nft:walletConnect.transferring')} />
         </div>
       ) : null}
 
@@ -169,10 +169,10 @@ export default function NFTTransferTemplate({
               <CheckCircleIcon width={48} />
             </span>
             <Heading bold level={2} size={1} className={css.terminalStageTitle}>
-              {t('forms:fields.walletConnect.sent')}
+              {t('nft:walletConnect.sent')}
             </Heading>
             <LinkButton fullWidth href={urls.myCollectibles}>
-              {t('forms:fields.walletConnect.backToMyCollection')}
+              {t('nft:walletConnect.backToMyCollection')}
             </LinkButton>
           </div>
         </div>
@@ -188,7 +188,7 @@ export default function NFTTransferTemplate({
               {error}
             </Heading>
             <LinkButton fullWidth href={urls.myCollectibles}>
-              {t('forms:fields.walletConnect.backToMyCollection')}
+              {t('nft:walletConnect.backToMyCollection')}
             </LinkButton>
           </div>
         </div>

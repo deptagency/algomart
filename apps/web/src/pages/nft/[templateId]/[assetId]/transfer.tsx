@@ -9,6 +9,7 @@ import { useExportCollectible } from '@/hooks/use-export-collectible'
 import DefaultLayout from '@/layouts/default-layout'
 import authService from '@/services/auth-service'
 import NFTTransferTemplate from '@/templates/nft-transfer-template'
+import { urls } from '@/utils/urls'
 
 export default function TransferPage({
   collectible,
@@ -54,7 +55,11 @@ export default function TransferPage({
 
   const cancel = useCallback(async () => {
     await disconnect()
-    router.push(`/nft/${collectible.templateId}/${collectible.address}`)
+    router.push(
+      urls.nft
+        .replace(':templateId', collectible.templateId)
+        .replace(':assetId', String(collectible.address))
+    )
   }, [collectible.address, collectible.templateId, disconnect, router])
 
   const transfer = useCallback(async () => {

@@ -1,0 +1,43 @@
+.root {
+  @apply ml-auto mr-auto max-w-700;
+}
+
+.panel {
+  @apply shadow-large bg-base-bgPanel;
+}
+
+.panelHeader {
+  @apply p-6;
+}
+
+.title {
+  @apply font-bold text-center;
+}
+
+.subtitle {
+  @apply text-center text-base-textTertiary;
+}
+
+.panelActions {
+  @apply px-6 pb-6 text-center;
+}
+
+.nftMeta {
+  @apply px-6 pb-6;
+}
+
+.nftMetaContent {
+  @apply overflow-hidden text-sm border rounded-md border-base-border;
+}
+
+.nftMetaList {
+  @apply divide-y divide-base-border;
+}
+
+.nftMetaListItem {
+  @apply flex justify-between px-5 py-5;
+}
+
+.nftMetaLabel {
+  @apply font-bold;
+}

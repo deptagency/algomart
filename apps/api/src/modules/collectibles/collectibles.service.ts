@@ -131,6 +131,10 @@ export default class CollectiblesService {
       collection,
       currentOwner: owner?.username,
       currentOwnerAddress: currentOwner?.address,
+      isFrozen: currentOwner?.assets.some(
+        (asset) =>
+          asset['asset-id'] === collectible.address && asset['is-frozen']
+      ),
       id: collectible.id,
       edition: collectible.edition,
       address: collectible.address,
