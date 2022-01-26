@@ -74,7 +74,6 @@ export default class PaymentsService {
     pageSize = 10,
     packId,
     packSlug,
-    packTitle,
     payerExternalId,
     payerUsername,
     sortBy = PaymentSortField.UpdatedAt,
@@ -114,10 +113,9 @@ export default class PaymentsService {
     }
 
     // Find packs and add pack IDs to array if available
-    const packQuery: { locale?: string; slug?: string; title?: string } = {}
+    const packQuery: { locale?: string; slug?: string } = {}
     if (locale) packQuery.locale = locale
     if (packSlug) packQuery.slug = packSlug
-    if (packTitle) packQuery.title = packTitle
     if (Object.keys(packQuery).length > 0) {
       const { packs: packTemplates } = await this.packs.getPublishedPacks(
         packQuery
