@@ -126,7 +126,8 @@
       },
       "label": "Passphrase",
       "helpText": "For approving transactions",
-      "warning": "Write down your passphrase!"
+      "warning": "Write down your passphrase!",
+      "enterPassphrase": "Enter your passphrase to authorize this transaction."
     },
     "paymentMethods": {
       "label": "Payment Method",
@@ -221,6 +222,18 @@
     },
     "zipCode": {
       "label": "Postal Code"
+    },
+    "walletConnect": {
+      "title": "Algorand WalletConnect",
+      "connect": "Open WalletConnect",
+      "description": "Use WalletConnect to link your Algorand wallet to AlgoMart.",
+      "helpText": "Need a wallet? Get one here:",
+      "selectAccount": "Destination wallet:",
+      "transfer": "Transfer",
+      "orCancel": "or cancel and disconnect from wallet",
+      "transferring": "Transferring NFT...",
+      "sent": "Sent!",
+      "backToMyCollection": "Back to My Collection"
     }
   },
   "sections": {
