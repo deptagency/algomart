@@ -596,6 +596,11 @@ export const PaymentSchema = Type.Intersect([
   }),
 ])
 
+export const PaymentsSchema = Type.Object({
+  payments: Type.Array(PaymentSchema),
+  total: Type.Number(),
+})
+
 export const PaymentIdSchema = Type.Object({
   paymentId: Type.String(),
 })
@@ -685,6 +690,7 @@ export const PaymentsQuerySchema = Type.Intersect([
     packId: Type.Optional(Type.String({ format: 'uuid' })),
     packSlug: Type.Optional(Type.String()),
     packTitle: Type.Optional(Type.String()),
+    payerExternalId: Type.Optional(Type.String()),
     payerUsername: Type.Optional(Type.String()),
     sortBy: Type.Optional(
       Type.Enum(PaymentSortField, { default: PaymentSortField.UpdatedAt })
@@ -793,6 +799,7 @@ export type PaymentBankAccountInstructions = Simplify<
 >
 export type PaymentCard = Simplify<Static<typeof PaymentCardSchema>>
 export type PaymentCards = Simplify<Static<typeof PaymentCardsSchema>>
+export type Payments = Simplify<Static<typeof PaymentsSchema>>
 export type PaymentsQuery = Simplify<Static<typeof PaymentsQuerySchema>>
 export type PublicKey = Simplify<Static<typeof PublicKeySchema>>
 export type SendBankAccountInstructions = Simplify<

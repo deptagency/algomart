@@ -11,14 +11,20 @@ import {
   EventEntityType,
   NotificationType,
   OwnerExternalId,
+  Pack,
   PackType,
+  Payment,
   PaymentBankAccountStatus,
   PaymentCardStatus,
+  Payments,
+  PaymentSortField,
   PaymentsQuery,
   PaymentStatus,
   SendBankAccountInstructions,
+  SortDirection,
   ToPaymentBase,
   UpdatePaymentCard,
+  UserAccount,
 } from '@algomart/schemas'
 import { Transaction } from 'objection'
 
@@ -27,6 +33,7 @@ import CircleAdapter from '@/lib/circle-adapter'
 import CoinbaseAdapter from '@/lib/coinbase-adapter'
 import { BidModel } from '@/models/bid.model'
 import { EventModel } from '@/models/event.model'
+import { PackModel } from '@/models/pack.model'
 import { PaymentModel } from '@/models/payment.model'
 import { PaymentBankAccountModel } from '@/models/payment-bank-account.model'
 import { PaymentCardModel } from '@/models/payment-card.model'
@@ -62,11 +69,96 @@ export default class PaymentsService {
     }
   }
 
-  async getPayments(filters: PaymentsQuery) {
+  async getPayments({
+    page = 1,
+    pageSize = 10,
+    packId,
+    packSlug,
+    packTitle,
+    payerExternalId,
+    payerUsername,
+    sortBy = PaymentSortField.UpdatedAt,
+    sortDirection = SortDirection.Ascending,
+  }: PaymentsQuery): Promise<Payments> {
+    let account: UserAccount
+    const packIds: string[] = []
+    userInvariant(page > 0, 'page must be greater than 0')
+    userInvariant(
+      pageSize > 0 || pageSize === -1,
+      'pageSize must be greater than 0'
+    )
+    userInvariant(
+      [PaymentSortField.UpdatedAt, PaymentSortField.CreatedAt].includes(sortBy),
+      'sortBy must be one of createdAt or updatedAt'
+    )
+    userInvariant(
+      [SortDirection.Ascending, SortDirection.Descending].includes(
+        sortDirection
+      ),
+      'sortDirection must be one of asc or desc'
+    )
+
+    // Find payer
+    const userIdentifier = payerExternalId || payerUsername
+    const field = payerUsername ? 'username' : 'externalId'
+    if (userIdentifier) {
+      account = await UserAccountModel.query()
+        .findOne(field, '=', userIdentifier)
+        .select('id')
+      userInvariant(account, 'user not found', 404)
+    }
+
+    // Add pack ID to pack IDs array if available
+    if (packId) {
+      packIds.push(packId)
+    }
+
+    // Find packs by slug and add pack IDs to array if available
+    if (packSlug) {
+      const { packs: packTemplates } = await this.packs.getPublishedPacks({
+        slug: packSlug,
+      })
+      const templateIds = packTemplates.map((p) => p.templateId)
+      const packs = await PackModel.query().whereIn('templateId', templateIds)
+      for (const pack of packs) {
+        packIds.push(pack.id)
+      }
+    }
+
+    // Find packs by title and add pack IDs to array if available
+    if (packTitle) {
+      const { packs: packTemplates } = await this.packs.getPublishedPacks({
+        title: packTitle,
+      })
+      const templateIds = packTemplates.map((p) => p.templateId)
+      const packs = await PackModel.query().whereIn('templateId', templateIds)
+      for (const pack of packs) {
+        packIds.push(pack.id)
+      }
+    }
+
     // Find payments in the database
-    // const query = {}
-    // const payments = await PaymentModel.query().where(query)
-    // return payments
+    let payments, total
+    if (!account.id && packIds.length === 0) {
+      payments = await PaymentModel.query()
+        .orderBy(sortBy, sortDirection)
+        .page(page, pageSize)
+      total = await PaymentModel.query().count()
+    } else {
+      const filter: { payerId?: string } = {}
+      if (account.id) filter.payerId = account.id
+      payments = await PaymentModel.query()
+        .where(filter)
+        .orWhereIn('packId', packIds)
+        .orderBy(sortBy, sortDirection)
+        .page(page, pageSize)
+      total = await PaymentModel.query()
+        .where(filter)
+        .orWhereIn('packId', packIds)
+        .count()
+    }
+
+    return { payments, total }
   }
 
   async getCardStatus(cardId: string) {
