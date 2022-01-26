@@ -105,6 +105,7 @@ export const CollectibleWithDetailsSchema = Type.Intersect([
     collection: Type.Optional(CollectionWithSetsSchema),
     set: Type.Optional(SetBaseSchema),
     isFrozen: Type.Optional(Type.Boolean()),
+    mintedAt: Type.Optional(Type.String({ format: 'date-time' })),
   }),
 ])
 
