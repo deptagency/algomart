@@ -136,25 +136,17 @@ export default class PaymentsService {
     }
 
     // Find payments in the database
-    let payments, total
-    if (!account.id && packIds.length === 0) {
-      payments = await PaymentModel.query()
-        .orderBy(sortBy, sortDirection)
-        .page(page, pageSize)
-      total = await PaymentModel.query().count()
-    } else {
-      const filter: { payerId?: string } = {}
-      if (account.id) filter.payerId = account.id
-      payments = await PaymentModel.query()
-        .where(filter)
-        .orWhereIn('packId', packIds)
-        .orderBy(sortBy, sortDirection)
-        .page(page, pageSize)
-      total = await PaymentModel.query()
-        .where(filter)
-        .orWhereIn('packId', packIds)
-        .count()
+    const query = PaymentModel.query()
+    if (account?.id) query.where('payerId', '=', account.id)
+    if (packIds && packIds.length > 0) {
+      if (!account?.id) query.whereIn('packId', packIds)
+      else query.orWhereIn('packId', packIds)
     }
+    const results = await query
+      .orderBy(sortBy, sortDirection)
+      .page(page < 1 ? page - 1 : page, pageSize)
+
+    const { results: payments, total } = results
 
     return { payments, total }
   }
