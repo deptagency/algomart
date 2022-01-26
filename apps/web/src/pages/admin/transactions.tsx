@@ -15,8 +15,6 @@ export default function AdminTransactionsPage({
   payments,
   total,
 }: PaymentList) {
-  console.log('payments:', payments)
-  console.log('payments total:', total)
   const auth = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
@@ -67,13 +65,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { payments, total } = await ApiClient.instance.getPayments({
     page: 1,
     pageSize: PAYMENTS_PER_PAGE,
-    // packId: 'c2c9c2ba-7b13-4b09-b8a5-1efe7028a3e3',
-    // packSlug: 'pack-6',
-    // packTitle: 'Pack 6',
-    // payerExternalId: 'xupfBAeE8Mc4ChoLoiXoxMMmwHZ2',
-    payerUsername: 'dallasrocket',
-    // sortBy: 'createdAt',
-    // sortDirection: 'asc',
   })
 
   return {
