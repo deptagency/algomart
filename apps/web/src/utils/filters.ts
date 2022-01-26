@@ -107,7 +107,6 @@ export const getPaymentsFilterQuery = (query: PaymentListQuerystring) => {
     pageSize: query.pageSize || PAGE_SIZE,
     packId: query.packId,
     packSlug: query.packSlug,
-    packTitle: query.packTitle,
     payerExternalId: query.payerExternalId,
     payerUsername: query.payerUsername,
     sortBy: query.sortBy,
