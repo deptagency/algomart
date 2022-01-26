@@ -139,10 +139,7 @@ export default class PaymentsService {
       .page(page >= 1 ? page - 1 : page, pageSize)
     const { results: payments, total } = results
 
-    // @TODO: Handle error
-    const paymentsList = payments.map(({ error, ...rest }) => ({ ...rest }))
-
-    return { payments: paymentsList, total }
+    return { payments: payments, total }
   }
 
   async getCardStatus(cardId: string) {
