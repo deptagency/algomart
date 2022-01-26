@@ -3,11 +3,14 @@ import useTranslation from 'next-translate/useTranslation'
 
 import css from './nft-template.module.css'
 
+import AlertMessage from '@/components/alert-message/alert-message'
 import ButtonGroup from '@/components/button-group'
 import Heading from '@/components/heading'
 import LinkButton from '@/components/link-button'
 import MediaGallery from '@/components/media-gallery/media-gallery'
 import ReleaseDescription from '@/components/release-details/sections/release-description'
+import { Environment } from '@/environment'
+import { addDays } from '@/utils/date-time'
 import { urls } from '@/utils/urls'
 
 export interface NFTTemplateProps {
@@ -15,11 +18,46 @@ export interface NFTTemplateProps {
   userAddress?: string
 }
 
+function getTransferrableStatus(
+  collectible: CollectibleWithDetails,
+  currentUserAddress?: string
+) {
+  if (!currentUserAddress) return 'noUser'
+  if (collectible.currentOwnerAddress !== currentUserAddress) return 'notOwner'
+  if (collectible.isFrozen) return 'frozen'
+  if (
+    new Date(collectible.mintedAt) >
+    addDays(new Date(), -1 * Environment.minimumDaysBeforeTransfer)
+  )
+    return 'mintedRecently'
+  return null
+}
+
 export default function NFTTemplate({
   userAddress,
   collectible,
 }: NFTTemplateProps) {
   const { t } = useTranslation()
+  const transferrableStatus = getTransferrableStatus(collectible, userAddress)
+  const isTransferrable = transferrableStatus === null
+  const transferMessages: Record<
+    ReturnType<typeof getTransferrableStatus>,
+    string
+  > = {
+    frozen: t('nft:labels.cannotTransfer.frozen'),
+    mintedRecently: t('nft:labels.cannotTransfer.mintedRecently', {
+      date: addDays(
+        new Date(collectible.mintedAt),
+        Environment.minimumDaysBeforeTransfer
+      ).toLocaleString(),
+    }),
+    noUser: t('nft:labels.cannotTransfer.noUser'),
+    notOwner: t('nft:labels.cannotTransfer.notOwner'),
+  }
+  const transferMessage = transferrableStatus
+    ? transferMessages[transferrableStatus]
+    : null
+
   return (
     <div className={css.root}>
       <div className={css.panel}>
@@ -36,7 +74,7 @@ export default function NFTTemplate({
 
         {userAddress ? (
           <div className={css.panelActions}>
-            {/* TODO enable this for secondary marketplace */}
+            {/* TODO: enable this for secondary marketplace */}
             <ButtonGroup>
               <LinkButton group="left" size="small" disabled href={urls.home}>
                 {t('nft:actions.sellNFT')}
@@ -48,14 +86,20 @@ export default function NFTTemplate({
                   .replace(':assetId', String(collectible.address))}
                 size="small"
                 variant="secondary"
-                disabled={
-                  userAddress !== collectible.currentOwnerAddress ||
-                  collectible.isFrozen
-                }
+                disabled={!isTransferrable}
               >
                 {t('nft:actions.transferNFT')}
               </LinkButton>
             </ButtonGroup>
+
+            {transferMessage ? (
+              <AlertMessage
+                className="mt-5"
+                variant="red"
+                showBorder
+                content={transferMessage}
+              />
+            ) : null}
           </div>
         ) : null}
 

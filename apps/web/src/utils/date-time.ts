@@ -26,3 +26,7 @@ export function getExpirationDate(expMonth: string, expYear: string) {
   expiration.setFullYear(Number.parseFloat(year))
   return expiration
 }
+
+export function addDays(date: Date, days: number) {
+  return new Date(date.getTime() + days * 24 * 60 * 60 * 1000)
+}

@@ -21,6 +21,12 @@
     "Rarity": "Rarity",
     "Collection": "Collection",
     "Address": "Address",
-    "editionX": "#{{edition}} of {{totalEditions}}"
+    "editionX": "#{{edition}} of {{totalEditions}}",
+    "cannotTransfer": {
+      "frozen": "This NFT is frozen and cannot be transferred.",
+      "noUser": "You must be authenticated to transfer this NFT.",
+      "notOwner": "You are not the owner of this NFT.",
+      "mintedRecently": "Cannot be transferred until {{date}}."
+    }
   }
 }

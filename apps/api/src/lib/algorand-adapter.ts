@@ -597,6 +597,7 @@ export default class AlgorandAdapter {
     ]
 
     return {
+      transferTxnId: transferAssetTxn.txID(),
       transactionIds: txns.map((txn) => txn.txID()),
       signedTransactions: signedTxns,
     }

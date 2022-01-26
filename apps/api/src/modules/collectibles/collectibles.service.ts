@@ -18,6 +18,7 @@ import { CollectibleListShowcase } from '@algomart/schemas'
 import { CollectibleShowcaseQuerystring } from '@algomart/schemas'
 import { Transaction } from 'objection'
 
+import { Configuration } from '@/configuration'
 import AlgoExplorerAdapter from '@/lib/algoexplorer-adapter'
 import AlgorandAdapter, {
   DEFAULT_INITIAL_BALANCE,
@@ -32,6 +33,7 @@ import { CollectibleShowcaseModel } from '@/models/collectible-showcase.model'
 import { EventModel } from '@/models/event.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import { isDefinedArray } from '@/utils/arrays'
+import { addDays } from '@/utils/date-time'
 import { invariant, userInvariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
 
@@ -92,6 +94,7 @@ export default class CollectiblesService {
     const collectible = await CollectibleModel.query()
       .where('templateId', query.templateId)
       .andWhere('address', query.assetId)
+      .withGraphFetched('creationTransaction')
       .first()
 
     userInvariant(collectible, 'Collectible not found', 404)
@@ -138,6 +141,7 @@ export default class CollectiblesService {
       id: collectible.id,
       edition: collectible.edition,
       address: collectible.address,
+      mintedAt: collectible.creationTransaction?.createdAt,
       claimedAt:
         collectible.claimedAt instanceof Date
           ? collectible.claimedAt.toISOString()
@@ -889,12 +893,25 @@ export default class CollectiblesService {
     userInvariant(user, 'user not found', 404)
     invariant(user.algorandAccount, 'algorand account not loaded')
 
-    const collectible = await CollectibleModel.query(trx).findOne({
-      address: request.assetIndex,
-      ownerId: user.id,
-    })
+    const collectible = await CollectibleModel.query(trx)
+      .findOne({
+        address: request.assetIndex,
+        ownerId: user.id,
+      })
+      .withGraphFetched('creationTransaction')
 
     userInvariant(collectible, 'collectible not found', 404)
+    userInvariant(
+      collectible.creationTransaction?.createdAt,
+      'collectible not minted',
+      400
+    )
+    userInvariant(
+      new Date(collectible.creationTransaction?.createdAt) <
+        addDays(new Date(), -1 * Configuration.minimumDaysBeforeTransfer),
+      'collectible can not yet be transferred',
+      400
+    )
 
     const asset = await this.algorand.getAssetInfo(collectible.address)
     userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
@@ -924,7 +941,6 @@ export default class CollectiblesService {
       }))
     )
 
-    // The third transaction is the one that actually transfers the asset
-    return result.transactionIds[2]
+    return result.transferTxnId
   }
 }
