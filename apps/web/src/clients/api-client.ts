@@ -39,6 +39,8 @@ import {
   PaymentBankAccountInstructions,
   PaymentCard,
   PaymentCards,
+  PaymentList,
+  PaymentListQuerystring,
   PublicAccount,
   PublicKey,
   PublishedPacks,
@@ -60,6 +62,7 @@ import { Environment } from '@/environment'
 import {
   getCollectiblesFilterQuery,
   getPacksByOwnerFilterQuery,
+  getPaymentsFilterQuery,
   getPublishedPacksFilterQuery,
 } from '@/utils/filters'
 import { logger } from '@/utils/logger'
@@ -294,6 +297,11 @@ export class ApiClient {
       .get('payments/transfers', { searchParams })
       .json<ToPaymentBase>()
       .catch(() => null)
+  }
+
+  async getPayments(query: PaymentListQuerystring) {
+    const searchQuery = getPaymentsFilterQuery(query)
+    return await this.http.get(`payments?${searchQuery}`).json<PaymentList>()
   }
   //#endregion
 

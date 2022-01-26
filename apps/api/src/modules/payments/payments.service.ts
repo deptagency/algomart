@@ -11,14 +11,12 @@ import {
   EventEntityType,
   NotificationType,
   OwnerExternalId,
-  Pack,
   PackType,
-  Payment,
   PaymentBankAccountStatus,
   PaymentCardStatus,
-  Payments,
+  PaymentList,
+  PaymentListQuerystring,
   PaymentSortField,
-  PaymentsQuery,
   PaymentStatus,
   SendBankAccountInstructions,
   SortDirection,
@@ -79,7 +77,7 @@ export default class PaymentsService {
     payerUsername,
     sortBy = PaymentSortField.UpdatedAt,
     sortDirection = SortDirection.Ascending,
-  }: PaymentsQuery): Promise<Payments> {
+  }: PaymentListQuerystring): Promise<PaymentList> {
     let account: UserAccount
     const packIds: string[] = []
     userInvariant(page > 0, 'page must be greater than 0')

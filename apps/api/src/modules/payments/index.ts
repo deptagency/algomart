@@ -17,8 +17,8 @@ import {
   PaymentBankAccountInstructionsSchema,
   PaymentCardsSchema,
   PaymentIdSchema,
+  PaymentListQuerystringSchema,
   PaymentSchema,
-  PaymentsQuerySchema,
   PublicKeySchema,
   SendBankAccountInstructionsSchema,
   ToPaymentBaseSchema,
@@ -74,7 +74,7 @@ export async function paymentRoutes(app: FastifyInstance) {
         schema: {
           tags,
           security,
-          querystring: PaymentsQuerySchema,
+          querystring: PaymentListQuerystringSchema,
           response: {
             200: Type.Array(PaymentSchema),
           },

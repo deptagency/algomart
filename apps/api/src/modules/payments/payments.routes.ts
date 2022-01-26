@@ -9,7 +9,7 @@ import {
   FindTransferByAddress,
   OwnerExternalId,
   PaymentId,
-  PaymentsQuery,
+  PaymentListQuerystring,
   SendBankAccountInstructions,
   UpdatePaymentCard,
 } from '@algomart/schemas'
@@ -259,7 +259,7 @@ export async function getPaymentById(
 
 export async function getPayments(
   request: FastifyRequest<{
-    Querystring: PaymentsQuery
+    Querystring: PaymentListQuerystring
   }>,
   reply: FastifyReply
 ) {

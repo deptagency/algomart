@@ -596,7 +596,7 @@ export const PaymentSchema = Type.Intersect([
   }),
 ])
 
-export const PaymentsSchema = Type.Object({
+export const PaymentListSchema = Type.Object({
   payments: Type.Array(PaymentSchema),
   total: Type.Number(),
 })
@@ -684,7 +684,7 @@ export const CreateWalletAddressSchema = Type.Intersect([
   Type.Omit(CircleCreateBlockchainAddressSchema, ['walletId']),
 ])
 
-export const PaymentsQuerySchema = Type.Intersect([
+export const PaymentListQuerystringSchema = Type.Intersect([
   PaginationSchema,
   Type.Object({
     packId: Type.Optional(Type.String({ format: 'uuid' })),
@@ -799,8 +799,10 @@ export type PaymentBankAccountInstructions = Simplify<
 >
 export type PaymentCard = Simplify<Static<typeof PaymentCardSchema>>
 export type PaymentCards = Simplify<Static<typeof PaymentCardsSchema>>
-export type Payments = Simplify<Static<typeof PaymentsSchema>>
-export type PaymentsQuery = Simplify<Static<typeof PaymentsQuerySchema>>
+export type PaymentListQuerystring = Simplify<
+  Static<typeof PaymentListQuerystringSchema>
+>
+export type PaymentList = Simplify<Static<typeof PaymentListSchema>>
 export type PublicKey = Simplify<Static<typeof PublicKeySchema>>
 export type SendBankAccountInstructions = Simplify<
   Static<typeof SendBankAccountInstructionsSchema>
