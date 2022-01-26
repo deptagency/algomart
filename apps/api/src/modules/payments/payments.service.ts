@@ -136,8 +136,7 @@ export default class PaymentsService {
     }
     const results = await query
       .orderBy(sortBy, sortDirection)
-      .page(page < 1 ? page - 1 : page, pageSize)
-
+      .page(page >= 1 ? page - 1 : page, pageSize)
     const { results: payments, total } = results
 
     // @TODO: Handle error
