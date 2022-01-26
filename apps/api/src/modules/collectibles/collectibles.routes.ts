@@ -136,10 +136,12 @@ export async function exportCollectible(
     .getContainer()
     .get<CollectiblesService>(CollectiblesService.name)
 
-  const result = await collectiblesService.exportCollectible(
+  const txId = await collectiblesService.exportCollectible(
     request.body,
     request.transaction
   )
 
-  reply.send(result)
+  reply.send({
+    txId,
+  })
 }

@@ -1,4 +1,5 @@
 import { CollectibleWithDetails } from '@algomart/schemas'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 
 import css from './my-collectibles-template.module.css'
@@ -45,6 +46,7 @@ export default function MyCollectiblesTemplate({
 }: MyCollectiblesTemplateProps) {
   const { t } = useTranslation()
   const auth = useAuth()
+  const router = useRouter()
 
   return (
     <>
@@ -88,7 +90,10 @@ export default function MyCollectiblesTemplate({
                     : undefined
                 }
                 key={asset.id}
-                onClick={() => toggleViewer(asset)}
+                // onClick={() => toggleViewer(asset)}
+                onClick={() =>
+                  router.push(`/nft/${asset.templateId}/${asset.address}`)
+                }
                 title={asset.title}
               />
             ))}

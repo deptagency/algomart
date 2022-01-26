@@ -47,8 +47,8 @@ export default function Button({
   disabled = false,
   disablePadding = false,
   onClick,
-  size = 'medium',
   fullWidth,
+  size = 'medium',
   variant = 'primary',
   type = 'button',
   ...props

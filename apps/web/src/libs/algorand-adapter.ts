@@ -1,5 +1,6 @@
 import type {
   Algodv2,
+  Indexer,
   makeAssetTransferTxnWithSuggestedParamsFromObject,
   makePaymentTxnWithSuggestedParamsFromObject,
   Transaction,
@@ -35,12 +36,18 @@ export interface IConnector extends EventEmitter {
 }
 
 const ALGOD_URL = {
-  [ChainType.MainNet]: 'https://algoexplorerapi.io',
-  [ChainType.TestNet]: 'https://testnet.algoexplorerapi.io',
+  [ChainType.MainNet]: 'https://node.algoexplorerapi.io',
+  [ChainType.TestNet]: 'https://node.testnet.algoexplorerapi.io',
+}
+
+const INDEXER_URL = {
+  [ChainType.MainNet]: 'https://algoindexer.algoexplorerapi.io',
+  [ChainType.TestNet]: 'https://algoindexer.testnet.algoexplorerapi.io',
 }
 
 export class AlgorandAdapter {
   private _algod: Algodv2 | null = null
+  private _indexer: Indexer | null = null
 
   constructor(public readonly chainType: ChainType) {}
 
@@ -52,9 +59,19 @@ export class AlgorandAdapter {
     return this._algod
   }
 
+  private async indexer() {
+    if (this._indexer === null) {
+      const algosdk = await algosdkLoader
+      this._indexer = new algosdk.Indexer('', INDEXER_URL[this.chainType], '')
+    }
+    return this._indexer
+  }
+
   public async getAssetData(address: string): Promise<IAssetData[]> {
-    const client = await this.algod()
-    const accountInfo = await client.accountInformation(address).do()
+    const indexer = await this.indexer()
+    const { account: accountInfo } = await indexer
+      .lookupAccountByID(address)
+      .do()
 
     const algoBalance = accountInfo.amount as number
     const assetsFromResponse: Array<{
@@ -78,7 +95,9 @@ export class AlgorandAdapter {
 
     await Promise.all(
       assets.map(async (asset) => {
-        const { params } = await client.getAssetByID(asset.id).do()
+        const {
+          asset: { params },
+        } = await indexer.lookupAssetByID(asset.id).do()
         asset.name = params.name
         asset.unitName = params['unit-name']
         asset.url = params.url
@@ -159,35 +178,31 @@ export class AlgorandAdapter {
   }
 
   async getTransactionStatus(transactionId: string) {
-    const client = await this.algod()
-    const info = await client.pendingTransactionInformation(transactionId).do()
+    // const client = await this.algod()
+    // const info = await client.pendingTransactionInformation(transactionId).do()
+    const indexer = await this.indexer()
+    const { transaction: info } = await indexer
+      .lookupTransactionByID(transactionId)
+      .do()
+      .catch(() => ({ transaction: {} }))
     const confirmedRound: number = info['confirmed-round'] || 0
     const poolError: string = info['pool-error'] || ''
     const assetIndex: number = info['asset-index'] || 0
     return { confirmedRound, poolError, assetIndex }
   }
 
-  async waitForConfirmation(transactionId: string, maxRounds = 5) {
-    const client = await this.algod()
-    let firstRound: number | null = null
-    let lastRound: number | null = null
-    let elapsed: number | null = null
+  async waitForConfirmation(transactionId: string, maxAttempts = 5) {
+    let attempts = 0
 
-    while (!elapsed || elapsed <= maxRounds) {
-      const lastRoundAfterCall: Record<string, unknown> = lastRound
-        ? await client.statusAfterBlock(lastRound).do()
-        : await client.status().do()
-
-      lastRound = lastRoundAfterCall['last-round'] as number
-      firstRound = firstRound || lastRound
-
+    while (attempts < maxAttempts) {
       const status = await this.getTransactionStatus(transactionId)
 
       if (status.confirmedRound || status.poolError) {
         return status
       }
 
-      elapsed = lastRound - firstRound + 1
+      attempts += 1
+      await sleep(4000)
     }
 
     throw new Error(
@@ -195,3 +210,5 @@ export class AlgorandAdapter {
     )
   }
 }
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))

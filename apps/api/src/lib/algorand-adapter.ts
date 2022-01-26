@@ -192,6 +192,8 @@ export default class AlgorandAdapter {
       address: info.index as number,
       creator: info.params.creator as string,
       unitName: info.params['unit-name'] as string,
+      isFrozen: info['is-frozen'] as boolean,
+      defaultFrozen: info.params['default-frozen'] as boolean,
       url: info.params.url as string,
     }
   }
@@ -529,6 +531,9 @@ export default class AlgorandAdapter {
     }
   }
 
+  /**
+   * Only allows exporting non-frozen assets
+   */
   async generateExportTransactions(options: {
     assetIndex: number
     encryptedMnemonic: string
@@ -550,26 +555,7 @@ export default class AlgorandAdapter {
       to: options.fromAccountAddress,
     })
 
-    // Unfreeze asset for external use
-    const unfreezeSourceTxn =
-      algosdk.makeAssetFreezeTxnWithSuggestedParamsFromObject({
-        suggestedParams,
-        assetIndex: options.assetIndex,
-        from: this.fundingAccount.addr,
-        freezeTarget: options.fromAccountAddress,
-        freezeState: false,
-      })
-
-    const unfreezeTargetTxn =
-      algosdk.makeAssetFreezeTxnWithSuggestedParamsFromObject({
-        suggestedParams,
-        assetIndex: options.assetIndex,
-        from: this.fundingAccount.addr,
-        freezeTarget: options.toAccountAddress,
-        freezeState: false,
-      })
-
-    // Unset clawback, freeze, manager, and reserve addresses
+    // Clear freeze and reserve addresses
     const configureTxn =
       algosdk.makeAssetConfigTxnWithSuggestedParamsFromObject({
         suggestedParams,
@@ -577,7 +563,7 @@ export default class AlgorandAdapter {
         from: this.fundingAccount.addr,
         strictEmptyAddressChecking: false,
         manager: this.fundingAccount.addr,
-        freeze: this.fundingAccount.addr,
+        clawback: this.fundingAccount.addr,
       })
 
     // Transfer asset to recipient and remove opt-in from sender
@@ -591,6 +577,7 @@ export default class AlgorandAdapter {
         closeRemainderTo: options.toAccountAddress,
       })
 
+    // Return min balance funds to funding account
     const returnFundsTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
       suggestedParams,
       from: options.fromAccountAddress,
@@ -598,21 +585,12 @@ export default class AlgorandAdapter {
       amount: 100_000,
     })
 
-    const txns = [
-      fundsTxn,
-      unfreezeSourceTxn,
-      unfreezeTargetTxn,
-      configureTxn,
-      transferAssetTxn,
-      returnFundsTxn,
-    ]
+    const txns = [fundsTxn, configureTxn, transferAssetTxn, returnFundsTxn]
 
     algosdk.assignGroupID(txns)
 
     const signedTxns = [
       fundsTxn.signTxn(this.fundingAccount.sk),
-      unfreezeSourceTxn.signTxn(this.fundingAccount.sk),
-      unfreezeTargetTxn.signTxn(this.fundingAccount.sk),
       configureTxn.signTxn(this.fundingAccount.sk),
       transferAssetTxn.signTxn(fromAccount.sk),
       returnFundsTxn.signTxn(fromAccount.sk),

@@ -46,18 +46,19 @@ export function useExportCollectible(passphrase: string) {
           assetIndex,
           selectedAccount
         )
-        const signedTxn = await connector.signTransaction(txn)
-        const txId = await algorand.sendRawTransaction(signedTxn)
-        await algorand.waitForConfirmation(txId)
+        await connector.signTransaction(txn)
+        await algorand.waitForConfirmation(txn.txID())
       }
 
       if (!passphrase) return
 
-      await collectibleService.exportCollectible(
+      const txId = await collectibleService.exportCollectible(
         assetIndex,
         selectedAccount,
         passphrase
       )
+
+      await algorand.waitForConfirmation(txId)
     },
     [passphrase, selectedAccount]
   )

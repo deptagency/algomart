@@ -29,7 +29,7 @@ handler.post(
       passphrase,
     })
 
-    response.json({ ok: result })
+    response.json(result)
   }
 )
 

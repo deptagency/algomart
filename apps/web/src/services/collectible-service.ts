@@ -28,7 +28,7 @@ export interface CollectibleAPI {
     assetIndex: number,
     address: string,
     passphrase: string
-  ): Promise<boolean>
+  ): Promise<string>
 }
 
 export class CollectibleService implements CollectibleAPI {
@@ -134,12 +134,15 @@ export class CollectibleService implements CollectibleAPI {
     assetIndex: number,
     address: string,
     passphrase: string
-  ): Promise<boolean> {
-    const response = await this.http.post(urls.api.v1.exportCollectible, {
-      json: { assetIndex, address, passphrase },
-    })
+  ): Promise<string> {
+    const response = await this.http
+      .post(urls.api.v1.exportCollectible, {
+        json: { assetIndex, address, passphrase },
+        throwHttpErrors: true,
+      })
+      .json<{ txId: string }>()
 
-    return response.ok
+    return response.txId
   }
 }
 
