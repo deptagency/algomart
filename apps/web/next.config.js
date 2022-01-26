@@ -42,6 +42,7 @@ module.exports = withNx(
         process.env.NEXT_PUBLIC_WIRE_PAYMENT_ENABLED,
       NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED:
         process.env.NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED,
+      NODE_ENV: process.env.NODE_ENV,
     },
   })
 )
