@@ -8,6 +8,7 @@ export interface ButtonBaseProps {
   size?: 'small' | 'medium'
   variant?: 'primary' | 'secondary' | 'tertiary' | 'link'
   fullWidth?: boolean
+  group?: 'left' | 'right' | 'middle'
 }
 
 export type ButtonProps = ButtonBaseProps &
@@ -17,11 +18,21 @@ export type ButtonProps = ButtonBaseProps &
 export function buttonClasses(
   props: ButtonBaseProps & { disabled?: boolean; className?: string }
 ) {
-  const { disablePadding, size, variant, fullWidth, disabled, className } =
-    props
+  const {
+    disablePadding,
+    size,
+    variant,
+    fullWidth,
+    disabled,
+    className,
+    group,
+  } = props
   return clsx(
-    'duration-300 rounded-sm transition text-base-primaryText',
+    'duration-300 transition text-base-primaryText',
     {
+      'rounded-sm': !group,
+      'rounded-l-sm': group === 'left',
+      'rounded-r-sm': group === 'right',
       'bg-action-primary border-none shadow-large hover:bg-opacity-90 text-action-primaryContrastText':
         !disabled && variant === 'primary',
       // TODO: secondary variant should map to bg-action-secondary
@@ -51,6 +62,7 @@ export default function Button({
   size = 'medium',
   variant = 'primary',
   type = 'button',
+  group,
   ...props
 }: ButtonProps) {
   return (
@@ -62,6 +74,7 @@ export default function Button({
         size,
         fullWidth,
         variant,
+        group,
       })}
       disabled={disabled}
       onClick={onClick}

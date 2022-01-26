@@ -30,6 +30,7 @@ export default function LinkButton({
   size = 'medium',
   variant = 'primary',
   fullWidth,
+  group,
   ...rest
 }: LinkButtonProps) {
   return (
@@ -51,6 +52,7 @@ export default function LinkButton({
           fullWidth,
           disabled,
           variant,
+          group,
         })}
         {...rest}
       >

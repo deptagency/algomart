@@ -104,6 +104,7 @@ export const CollectibleWithDetailsSchema = Type.Intersect([
     currentOwnerAddress: Type.Optional(Type.String()),
     collection: Type.Optional(CollectionWithSetsSchema),
     set: Type.Optional(SetBaseSchema),
+    isFrozen: Type.Optional(Type.Boolean()),
   }),
 ])
 

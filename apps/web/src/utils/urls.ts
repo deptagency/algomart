@@ -15,6 +15,8 @@ export const urls = {
   myProfileTransactions: '/my/profile/transactions',
   mySet: '/my/sets/:setSlug',
   myShowcase: '/my/showcase',
+  nft: '/nft/:templateId/:assetId',
+  nftTransfer: '/nft/:templateId/:assetId/transfer',
   packOpening: '/pack-opening/:packId',
   redeem: '/redeem',
   release: '/releases/:packSlug',

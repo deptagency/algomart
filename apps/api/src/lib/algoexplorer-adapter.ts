@@ -11,6 +11,7 @@ import { logger } from '@/utils/logger'
 interface AlgoExplorerAssetHolding {
   'asset-id': number
   amount: number
+  'is-frozen': boolean
 }
 
 interface AlgoExplorerAccount {
