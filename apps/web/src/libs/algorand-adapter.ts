@@ -8,6 +8,8 @@ import type {
 
 import { EventEmitter } from './event-emitter'
 
+import { sleep } from '@/utils/sleep'
+
 const algosdkLoader = import('algosdk')
 
 export enum ChainType {
@@ -44,6 +46,8 @@ const INDEXER_URL = {
   [ChainType.MainNet]: 'https://algoindexer.algoexplorerapi.io',
   [ChainType.TestNet]: 'https://algoindexer.testnet.algoexplorerapi.io',
 }
+
+const TIME_BETWEEN_BLOCKS = 4500
 
 export class AlgorandAdapter {
   private _algod: Algodv2 | null = null
@@ -178,8 +182,6 @@ export class AlgorandAdapter {
   }
 
   async getTransactionStatus(transactionId: string) {
-    // const client = await this.algod()
-    // const info = await client.pendingTransactionInformation(transactionId).do()
     const indexer = await this.indexer()
     const { transaction: info } = await indexer
       .lookupTransactionByID(transactionId)
@@ -202,7 +204,7 @@ export class AlgorandAdapter {
       }
 
       attempts += 1
-      await sleep(4000)
+      await sleep(TIME_BETWEEN_BLOCKS)
     }
 
     throw new Error(
@@ -210,5 +212,3 @@ export class AlgorandAdapter {
     )
   }
 }
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
