@@ -118,8 +118,9 @@ export function useAuth() {
 
 export function useAuthProvider() {
   const reloadProfile = useCallback(async () => {
+    console.log('reload profile')
     const auth = getAuth(loadFirebase())
-    const token = await auth.currentUser?.getIdToken()
+    const token = await auth.currentUser?.getIdToken(true)
     if (auth.currentUser && token) {
       setCookie(TOKEN_COOKIE_NAME, token, TOKEN_COOKIE_EXPIRES_IN_DAYS)
 
