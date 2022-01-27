@@ -1,10 +1,18 @@
-import { DEFAULT_LOCALE, FirebaseClaim, PaymentList } from '@algomart/schemas'
+import {
+  DEFAULT_LOCALE,
+  FirebaseClaim,
+  Payment,
+  PaymentList,
+} from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
+import Panel from '@/components/panel'
+import Table from '@/components/table'
+import { ColumnDefinitionType } from '@/components/table'
 import { useAuth } from '@/contexts/auth-context'
 import DefaultLayout from '@/layouts/default-layout'
 import adminService from '@/services/admin-service'
@@ -38,13 +46,21 @@ export default function AdminTransactionsPage({
     }
   }, [auth?.user, router])
 
+  const columns: ColumnDefinitionType<Payment, keyof Payment>[] = [
+    { key: 'id', name: 'id' },
+    { key: 'packId', name: 'packId' },
+    { key: 'status', name: 'status' },
+  ]
+
   return (
     <DefaultLayout
       pageTitle={t('common:pageTitles.Transactions')}
-      panelPadding
-      width="large"
+      noPanel
+      width="full"
     >
-      {/* @TODO: Transactions table */}
+      <Panel title="Transactions" fullWidth>
+        <Table<Payment, keyof Payment> columns={columns} data={payments} />
+      </Panel>
     </DefaultLayout>
   )
 }
