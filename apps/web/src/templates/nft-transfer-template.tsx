@@ -15,8 +15,17 @@ import LinkButton from '@/components/link-button'
 import Loading from '@/components/loading/loading'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
 import CardPurchaseHeader from '@/components/purchase-form/cards/sections/card-header'
+import { ExportStatus } from '@/hooks/use-export-collectible'
 import { formatAlgoAddress } from '@/utils/format-string'
 import { urls } from '@/utils/urls'
+
+export type TransferStage =
+  | 'passphrase'
+  | 'connect'
+  | 'select-account'
+  | 'transfer'
+  | 'success'
+  | 'error'
 
 export interface NFTTransferTemplateProps {
   collectible: CollectibleWithDetails
@@ -28,20 +37,8 @@ export interface NFTTransferTemplateProps {
   error: string
   accounts: string[]
   selectedAccount: string
-  exportStatus:
-    | 'idle'
-    | 'opt-in'
-    | 'opting-in'
-    | 'pending'
-    | 'success'
-    | 'error'
-  stage:
-    | 'passphrase'
-    | 'connect'
-    | 'select-account'
-    | 'transfer'
-    | 'success'
-    | 'error'
+  exportStatus: ExportStatus
+  stage: TransferStage
 }
 
 const ALGORAND_WALLET_LINK = {

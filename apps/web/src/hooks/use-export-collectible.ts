@@ -8,13 +8,19 @@ import collectibleService from '@/services/collectible-service'
 
 const algorand = new AlgorandAdapter(Environment.chainType)
 
+export type ExportStatus =
+  | 'idle'
+  | 'opt-in'
+  | 'opting-in'
+  | 'pending'
+  | 'success'
+  | 'error'
+
 export function useExportCollectible(passphrase: string) {
   const [connected, setConnected] = useState(false)
   const [accounts, setAccounts] = useState([])
   const [selectedAccount, selectAccount] = useState('')
-  const [exportStatus, setExportStatus] = useState<
-    'idle' | 'opt-in' | 'opting-in' | 'pending' | 'success' | 'error'
-  >('idle')
+  const [exportStatus, setExportStatus] = useState<ExportStatus>('idle')
   const connectorReference = useRef<IConnector>()
 
   const connect = useCallback(async () => {

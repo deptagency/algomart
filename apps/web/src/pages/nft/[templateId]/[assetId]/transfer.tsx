@@ -8,7 +8,9 @@ import { ApiClient } from '@/clients/api-client'
 import { useExportCollectible } from '@/hooks/use-export-collectible'
 import DefaultLayout from '@/layouts/default-layout'
 import authService from '@/services/auth-service'
-import NFTTransferTemplate from '@/templates/nft-transfer-template'
+import NFTTransferTemplate, {
+  TransferStage,
+} from '@/templates/nft-transfer-template'
 import { urls } from '@/utils/urls'
 
 export default function TransferPage({
@@ -24,20 +26,12 @@ export default function TransferPage({
     accounts,
     selectAccount,
     selectedAccount,
-    hasOptedIn,
     disconnect,
     exportCollectible,
     exportStatus,
   } = useExportCollectible(passphrase)
   const [error, setError] = useState('')
-  const [stage, setStage] = useState<
-    | 'passphrase'
-    | 'connect'
-    | 'select-account'
-    | 'transfer'
-    | 'success'
-    | 'error'
-  >('passphrase')
+  const [stage, setStage] = useState<TransferStage>('passphrase')
   const router = useRouter()
 
   const handlePassphraseChange = useCallback(

@@ -4,11 +4,14 @@ import useTranslation from 'next-translate/useTranslation'
 import css from './nft-template.module.css'
 
 import AlertMessage from '@/components/alert-message/alert-message'
+import AppLink from '@/components/app-link/app-link'
 import ButtonGroup from '@/components/button-group'
+import ExternalLink from '@/components/external-link'
 import Heading from '@/components/heading'
 import LinkButton from '@/components/link-button'
 import MediaGallery from '@/components/media-gallery/media-gallery'
 import ReleaseDescription from '@/components/release-details/sections/release-description'
+import { Environment } from '@/environment'
 import { isAfterNow } from '@/utils/date-time'
 import { urls } from '@/utils/urls'
 
@@ -107,7 +110,16 @@ export default function NFTTemplate({
                   <span className={css.nftMetaLabel}>
                     {t('nft:labels.Owner')}
                   </span>
-                  <span>@{collectible.currentOwner}</span>
+                  <span>
+                    <AppLink
+                      href={urls.profileShowcase.replace(
+                        ':username',
+                        collectible.currentOwner
+                      )}
+                    >
+                      @{collectible.currentOwner}
+                    </AppLink>
+                  </span>
                 </li>
               ) : null}
               {/* TODO: add publisher details */}
@@ -142,7 +154,13 @@ export default function NFTTemplate({
                 <span className={css.nftMetaLabel}>
                   {t('nft:labels.Address')}
                 </span>
-                <span>{collectible.address}</span>
+                <span>
+                  <ExternalLink
+                    href={`${Environment.algoExplorerBaseUrl}/asset/${collectible.address}`}
+                  >
+                    {collectible.address}
+                  </ExternalLink>
+                </span>
               </li>
             </ul>
           </div>
