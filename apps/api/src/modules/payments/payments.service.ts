@@ -745,7 +745,7 @@ export default class PaymentsService {
       pendingPayments.map(async (payment) => {
         let status: PaymentStatus | undefined
         // Card flow
-        if (payment.externalId && payment.paymentCardId) {
+        if (payment.externalId) {
           const circlePayment = await this.circle.getPaymentById(
             payment.externalId
           )
@@ -759,6 +759,20 @@ export default class PaymentsService {
               status: circlePayment.status,
             })
             status = circlePayment.status
+            // If the new status is a final failed status, release the pack
+            if (
+              circlePayment.status === PaymentStatus.Failed &&
+              payment.packId
+            ) {
+              await this.packs.claimPack(
+                {
+                  packId: payment.packId,
+                  claimedById: null,
+                  claimedAt: null,
+                },
+                trx
+              )
+            }
             updatedPayments++
           }
         }

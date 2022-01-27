@@ -25,6 +25,7 @@ import {
   PackType,
   PackWithCollectibles,
   PackWithId,
+  PaymentStatus,
   PublishedPack,
   PublishedPacksQuery,
   SortDirection,
@@ -41,6 +42,7 @@ import { BidModel } from '@/models/bid.model'
 import { CollectibleModel } from '@/models/collectible.model'
 import { EventModel } from '@/models/event.model'
 import { PackModel } from '@/models/pack.model'
+import { PaymentModel } from '@/models/payment.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import AccountsService from '@/modules/accounts/accounts.service'
 import CollectiblesService from '@/modules/collectibles/collectibles.service'
@@ -749,7 +751,22 @@ export default class PacksService {
     const allPacks: PackByOwner[] = []
     for (const { id, claimedAt, templateId } of packs) {
       const template = templateLookup.get(templateId)
-      if (template && claimedAt) {
+      // For packs that require payment, we need to check if the user has paid
+      // Default to hasPaid = true for free and redeemable packs
+      let hasPaid = true
+      if (template?.type === PackType.Purchase) {
+        // If a valid payment exists, it can be transferred
+        const confirmedPayment = await PaymentModel.query()
+          .withGraphJoined('[payer]')
+          .where('packId', id)
+          .where('payer.externalId', externalId)
+          .whereIn('status', [PaymentStatus.Paid, PaymentStatus.Confirmed])
+
+        if (confirmedPayment.length === 0) {
+          hasPaid = false
+        }
+      }
+      if (template && claimedAt && hasPaid) {
         allPacks.push({
           ...template,
           id,
