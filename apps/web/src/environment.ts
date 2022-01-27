@@ -17,6 +17,14 @@ export const Environment = {
     return this.config('chainType', ChainType.TestNet)
   },
 
+  get algoExplorerBaseUrl(): string {
+    return {
+      [ChainType.MainNet]: 'https://algoexplorer.io',
+      [ChainType.TestNet]: 'https://testnet.algoexplorer.io',
+      [ChainType.BetaNet]: 'https://betanet.algoexplorer.io',
+    }[this.chainType]
+  },
+
   get firebaseConfig() {
     return JSON.parse(
       this.config('NEXT_PUBLIC_FIREBASE_CONFIG', '{}')

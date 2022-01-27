@@ -15,6 +15,7 @@ const algosdkLoader = import('algosdk')
 export enum ChainType {
   MainNet = 'mainnet',
   TestNet = 'testnet',
+  BetaNet = 'betanet',
 }
 
 export interface IAssetData {
