@@ -1,5 +1,5 @@
 .table {
-  @apply min-w-full;
+  @apply w-full;
 }
 .table.fixedLayout {
   @apply table-fixed;
@@ -10,7 +10,7 @@
 }
 
 .th {
-  @apply px-6 py-4 text-xs font-medium tracking-wider text-left uppercase text-base-textTertiary;
+  @apply px-6 py-4 overflow-x-hidden text-xs font-medium tracking-wider text-left uppercase text-base-textTertiary;
 }
 .th.sortable {
   @apply cursor-pointer hover:underline;
@@ -31,8 +31,9 @@
 }
 
 .td {
-  @apply px-6 py-4 text-sm font-medium text-base-textPrimary whitespace-nowrap;
+  @apply px-6 py-4 overflow-x-hidden text-sm text-base-textPrimary whitespace-nowrap;
 }
 
 .tbody {
+  @apply overflow-auto;
 }

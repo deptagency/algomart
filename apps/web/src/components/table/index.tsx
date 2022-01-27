@@ -17,7 +17,10 @@ export type ColumnDefinitionType<T, K extends keyof T> = {
   key: K
   name: string
   sortable?: boolean
-  width?: number
+  // tooltip?: React.ReactNode
+  // stickLeft?: boolean
+  // stickRight?: boolean
+  // width?: number
 }
 
 export type TableProps<T, K extends keyof T> = {
