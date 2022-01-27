@@ -28,6 +28,13 @@ export interface NFTTransferTemplateProps {
   error: string
   accounts: string[]
   selectedAccount: string
+  exportStatus:
+    | 'idle'
+    | 'opt-in'
+    | 'opting-in'
+    | 'pending'
+    | 'success'
+    | 'error'
   stage:
     | 'passphrase'
     | 'connect'
@@ -53,8 +60,17 @@ export default function NFTTransferTemplate({
   accounts,
   onSelectAccount,
   selectedAccount,
+  exportStatus,
 }: NFTTransferTemplateProps) {
   const { t } = useTranslation()
+  const exportStatusMessage = {
+    idle: t('nft:exportStatus.idle'),
+    'opt-in': t('nft:exportStatus.optIn'),
+    'opting-in': t('nft:exportStatus.optingIn'),
+    pending: t('nft:exportStatus.pending'),
+    success: t('nft:exportStatus.success'),
+    error: t('nft:exportStatus.error'),
+  }[exportStatus]
 
   return (
     <div className={css.root}>
@@ -158,7 +174,7 @@ export default function NFTTransferTemplate({
 
       {stage === 'transfer' ? (
         <div key="transfer">
-          <Loading loadingText={t('nft:walletConnect.transferring')} />
+          <Loading loadingText={exportStatusMessage} />
         </div>
       ) : null}
 

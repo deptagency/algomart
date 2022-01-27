@@ -167,9 +167,7 @@ export const Configuration = {
     return env.get('ENABLE_MARKETPLACE').default('false').asBool()
   },
 
-  // TODO: move to env var?
   get minimumDaysBeforeTransfer(): number {
-    const MINIMUM_DAYS = 7
-    return MINIMUM_DAYS
+    return env.get('MINIMUM_DAYS_BEFORE_TRANSFER').default(7).asInt()
   },
 }

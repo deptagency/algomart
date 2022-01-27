@@ -27,6 +27,7 @@ export default function TransferPage({
     hasOptedIn,
     disconnect,
     exportCollectible,
+    exportStatus,
   } = useExportCollectible(passphrase)
   const [error, setError] = useState('')
   const [stage, setStage] = useState<
@@ -93,6 +94,7 @@ export default function TransferPage({
         onConnectWallet={connect}
         onTransfer={transfer}
         stage={stage}
+        exportStatus={exportStatus}
       />
     </DefaultLayout>
   )

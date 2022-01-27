@@ -2,8 +2,10 @@ import {
   AlgorandTransactionStatus,
   CollectibleBase,
   CollectibleListQuerystring,
+  CollectibleListShowcase,
   CollectibleListWithTotal,
   CollectiblesByAlgoAddressQuerystring,
+  CollectibleShowcaseQuerystring,
   CollectibleSortField,
   CollectibleWithDetails,
   DEFAULT_LOCALE,
@@ -14,8 +16,6 @@ import {
   SingleCollectibleQuerystring,
   SortDirection,
 } from '@algomart/schemas'
-import { CollectibleListShowcase } from '@algomart/schemas'
-import { CollectibleShowcaseQuerystring } from '@algomart/schemas'
 import { Transaction } from 'objection'
 
 import { Configuration } from '@/configuration'
@@ -33,7 +33,7 @@ import { CollectibleShowcaseModel } from '@/models/collectible-showcase.model'
 import { EventModel } from '@/models/event.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import { isDefinedArray } from '@/utils/arrays'
-import { addDays } from '@/utils/date-time'
+import { addDays, isBeforeNow } from '@/utils/date-time'
 import { invariant, userInvariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
 
@@ -138,6 +138,10 @@ export default class CollectiblesService {
         (asset) =>
           asset['asset-id'] === collectible.address && asset['is-frozen']
       ),
+      transferrableAt: addDays(
+        new Date(collectible.creationTransaction?.createdAt),
+        Configuration.minimumDaysBeforeTransfer
+      ).toISOString(),
       id: collectible.id,
       edition: collectible.edition,
       address: collectible.address,
@@ -900,6 +904,11 @@ export default class CollectiblesService {
       })
       .withGraphFetched('creationTransaction')
 
+    const transferrableAt = addDays(
+      new Date(collectible.creationTransaction?.createdAt),
+      Configuration.minimumDaysBeforeTransfer
+    )
+
     userInvariant(collectible, 'collectible not found', 404)
     userInvariant(
       collectible.creationTransaction?.createdAt,
@@ -907,9 +916,8 @@ export default class CollectiblesService {
       400
     )
     userInvariant(
-      new Date(collectible.creationTransaction?.createdAt) <
-        addDays(new Date(), -1 * Configuration.minimumDaysBeforeTransfer),
-      'collectible can not yet be transferred',
+      isBeforeNow(transferrableAt),
+      'collectible cannot yet be transferred',
       400
     )
 

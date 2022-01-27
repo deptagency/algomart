@@ -9,8 +9,7 @@ import Heading from '@/components/heading'
 import LinkButton from '@/components/link-button'
 import MediaGallery from '@/components/media-gallery/media-gallery'
 import ReleaseDescription from '@/components/release-details/sections/release-description'
-import { Environment } from '@/environment'
-import { addDays } from '@/utils/date-time'
+import { isAfterNow } from '@/utils/date-time'
 import { urls } from '@/utils/urls'
 
 export interface NFTTemplateProps {
@@ -25,11 +24,7 @@ function getTransferrableStatus(
   if (!currentUserAddress) return 'noUser'
   if (collectible.currentOwnerAddress !== currentUserAddress) return 'notOwner'
   if (collectible.isFrozen) return 'frozen'
-  if (
-    new Date(collectible.mintedAt) >
-    addDays(new Date(), -1 * Environment.minimumDaysBeforeTransfer)
-  )
-    return 'mintedRecently'
+  if (isAfterNow(new Date(collectible.transferrableAt))) return 'mintedRecently'
   return null
 }
 
@@ -46,10 +41,7 @@ export default function NFTTemplate({
   > = {
     frozen: t('nft:labels.cannotTransfer.frozen'),
     mintedRecently: t('nft:labels.cannotTransfer.mintedRecently', {
-      date: addDays(
-        new Date(collectible.mintedAt),
-        Environment.minimumDaysBeforeTransfer
-      ).toLocaleString(),
+      date: new Date(collectible.transferrableAt).toLocaleString(),
     }),
     noUser: t('nft:labels.cannotTransfer.noUser'),
     notOwner: t('nft:labels.cannotTransfer.notOwner'),
