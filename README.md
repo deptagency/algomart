@@ -138,18 +138,13 @@ Applications with a UI.
 
 - [`cms`][cms] - Self-hosted [Directus][directus] headless CMS
 - [`web`][web] - Next.js customer-facing website
+- [`api`][api] - API abstracting communications with Algod etc
 
-### `packages/*`
+### `libs/*`
 
 Shared packages used by this monorepo.
 
 - [`schemas`][schemas] - Shared code and typings
-
-### `services/*`
-
-Background tasks and APIs without a UI.
-
-- [`api`][api] - API abstracting communications with Algod etc
 
 ## 📖 Quick Workspace Guide
 
