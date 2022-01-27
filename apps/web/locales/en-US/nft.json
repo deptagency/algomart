@@ -28,5 +28,13 @@
       "notOwner": "You are not the owner of this NFT.",
       "mintedRecently": "Cannot be transferred until {{date}}."
     }
+  },
+  "exportStatus": {
+    "idle": "Loading...",
+    "optingIn": "Please confirm the transaction in your wallet to opt-in to the NFT.",
+    "optIn": "Verifying opt-in transaction...",
+    "pending": "Transferring NFT...",
+    "success": "NFT transferred!",
+    "error": "Error transferring NFT."
   }
 }

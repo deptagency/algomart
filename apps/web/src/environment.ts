@@ -63,9 +63,4 @@ export const Environment = {
     const isEnabled = this.config('NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED', '')
     return isEnabled.toLowerCase() === 'true'
   },
-
-  get minimumDaysBeforeTransfer() {
-    const MINIMUM_DAYS = 7
-    return MINIMUM_DAYS
-  },
 }

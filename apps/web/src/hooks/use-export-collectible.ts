@@ -12,6 +12,9 @@ export function useExportCollectible(passphrase: string) {
   const [connected, setConnected] = useState(false)
   const [accounts, setAccounts] = useState([])
   const [selectedAccount, selectAccount] = useState('')
+  const [exportStatus, setExportStatus] = useState<
+    'idle' | 'opt-in' | 'opting-in' | 'pending' | 'success' | 'error'
+  >('idle')
   const connectorReference = useRef<IConnector>()
 
   const connect = useCallback(async () => {
@@ -23,6 +26,7 @@ export function useExportCollectible(passphrase: string) {
 
     connector.subscribe('update_accounts', (accounts: string[]) => {
       setAccounts(accounts)
+      selectAccount(accounts[0])
       setConnected(true)
     })
 
@@ -37,28 +41,39 @@ export function useExportCollectible(passphrase: string) {
 
   const exportCollectible = useCallback(
     async (assetIndex: number) => {
-      const connector = connectorReference.current
-      if (!connector) return
+      try {
+        setExportStatus('idle')
+        const connector = connectorReference.current
+        if (!connector || !passphrase) return
 
-      const hasOptedIn = await algorand.hasOptedIn(selectedAccount, assetIndex)
-      if (!hasOptedIn) {
-        const txn = await algorand.makeAssetOptInTransaction(
-          assetIndex,
-          selectedAccount
+        const hasOptedIn = await algorand.hasOptedIn(
+          selectedAccount,
+          assetIndex
         )
-        await connector.signTransaction(txn)
-        await algorand.waitForConfirmation(txn.txID())
+        if (!hasOptedIn) {
+          setExportStatus('opting-in')
+          const txn = await algorand.makeAssetOptInTransaction(
+            assetIndex,
+            selectedAccount
+          )
+          await connector.signTransaction(txn)
+          setExportStatus('opt-in')
+          await algorand.waitForConfirmation(txn.txID())
+        }
+
+        setExportStatus('pending')
+        const txId = await collectibleService.exportCollectible(
+          assetIndex,
+          selectedAccount,
+          passphrase
+        )
+
+        await algorand.waitForConfirmation(txId)
+        setExportStatus('success')
+      } catch (error) {
+        setExportStatus('error')
+        throw error
       }
-
-      if (!passphrase) return
-
-      const txId = await collectibleService.exportCollectible(
-        assetIndex,
-        selectedAccount,
-        passphrase
-      )
-
-      await algorand.waitForConfirmation(txId)
     },
     [passphrase, selectedAccount]
   )
@@ -73,14 +88,15 @@ export function useExportCollectible(passphrase: string) {
   return useMemo(
     () => ({
       accounts,
-      setAccounts,
-      selectedAccount,
-      selectAccount,
       connect,
       connected,
-      exportCollectible,
-      hasOptedIn,
       disconnect,
+      exportCollectible,
+      exportStatus,
+      hasOptedIn,
+      selectAccount,
+      selectedAccount,
+      setAccounts,
     }),
     [
       accounts,
@@ -88,6 +104,7 @@ export function useExportCollectible(passphrase: string) {
       connected,
       disconnect,
       exportCollectible,
+      exportStatus,
       hasOptedIn,
       selectedAccount,
     ]

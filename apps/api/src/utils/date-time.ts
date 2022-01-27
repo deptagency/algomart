@@ -1,13 +1,15 @@
 export function isAfterNow(date: Date) {
   const now = new Date()
-  return date.getTime() > now.getTime()
+  return date > now
+}
+
+export function isBeforeNow(date: Date) {
+  return date < new Date()
 }
 
 export function isNowBetweenDates(dateStart: Date, dateEnd: Date) {
   const now = new Date()
-  return (
-    dateStart.getTime() < now.getTime() && now.getTime() < dateEnd.getTime()
-  )
+  return dateStart < now && now < dateEnd
 }
 
 export function addDays(date: Date, days: number) {
