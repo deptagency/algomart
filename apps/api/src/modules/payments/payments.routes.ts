@@ -149,11 +149,7 @@ export async function createCard(
     request.body,
     request.transaction
   )
-  if (card) {
-    reply.status(201).send(card)
-  } else {
-    reply.badRequest('Unable to create card')
-  }
+  reply.status(201).send(card)
 }
 
 export async function createWalletAddress(

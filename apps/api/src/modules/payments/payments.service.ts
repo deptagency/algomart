@@ -239,14 +239,11 @@ export default class PaymentsService {
         expYear: cardDetails.expirationYear,
         metadata: cardDetails.metadata,
       })
-      .catch((error) => {
-        this.logger.error(error, 'failed to create payment card')
+      .catch(() => {
         return null
       })
 
-    if (!card) {
-      return null
-    }
+    invariant(card, 'failed to create card')
 
     // Create new card in database
     if (cardDetails.saveCard && card) {
