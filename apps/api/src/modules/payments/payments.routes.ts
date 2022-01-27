@@ -9,6 +9,7 @@ import {
   FindTransferByAddress,
   OwnerExternalId,
   PaymentId,
+  PaymentListQuerystring,
   SendBankAccountInstructions,
   UpdatePaymentCard,
 } from '@algomart/schemas'
@@ -148,11 +149,7 @@ export async function createCard(
     request.body,
     request.transaction
   )
-  if (card) {
-    reply.status(201).send(card)
-  } else {
-    reply.badRequest('Unable to create card')
-  }
+  reply.status(201).send(card)
 }
 
 export async function createWalletAddress(
@@ -254,6 +251,19 @@ export async function getPaymentById(
   } else {
     reply.notFound()
   }
+}
+
+export async function getPayments(
+  request: FastifyRequest<{
+    Querystring: PaymentListQuerystring
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payments = await paymentService.getPayments(request.query)
+  reply.status(200).send(payments)
 }
 
 export async function getCurrency(

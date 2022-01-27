@@ -10,12 +10,13 @@ const swaggerOptions: SwaggerOptions = {
   exposeRoute: true,
   openapi: {
     info: {
-      title: 'Test swagger',
-      description: 'Testing the Fastify swagger API',
-      version: '0.1.0',
+      title: 'AlgoMart API',
+      description: 'AlgoMart API endpoints',
+      version: '1.0.0-alpha.0',
     },
     tags: [
       { name: 'accounts', description: 'Account endpoints' },
+      { name: 'auctions', description: 'Auction endpoints' },
       { name: 'bids', description: 'Bid and auction endpoints' },
       { name: 'collectibles', description: 'Collectible endpoints' },
       { name: 'collections', description: 'Collection endpoints' },

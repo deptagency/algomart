@@ -6,6 +6,8 @@ import {
   Payment,
   PaymentBankAccountInstructions,
   PaymentCards,
+  PaymentList,
+  PaymentListQuerystring,
   PublicKey,
   ToPaymentBase,
 } from '@algomart/schemas'
@@ -14,6 +16,7 @@ import ky from 'ky'
 
 import loadFirebase from '@/clients/firebase-client'
 import { ExtractBodyType } from '@/middleware/validate-body-middleware'
+import { getPaymentsFilterQuery } from '@/utils/filters'
 import {
   validateBankAccount,
   validateCard,
@@ -42,6 +45,7 @@ export interface CheckoutAPI {
     bankAccountId: string
   ): Promise<GetPaymentBankAccountStatus>
   getCardStatus(cardId: string): Promise<GetPaymentCardStatus>
+  getPayments(query: PaymentListQuerystring): Promise<PaymentList>
   getPayment(paymentId: string): Promise<Payment>
   getCards(): Promise<PaymentCards>
   getPublicKey(): Promise<PublicKey | null>
@@ -126,6 +130,13 @@ export class CheckoutService implements CheckoutAPI {
       })
       .json<Payment>()
     return response.id && response.packId ? response : null
+  }
+
+  async getPayments(query: PaymentListQuerystring): Promise<PaymentList> {
+    const searchQuery = getPaymentsFilterQuery(query)
+    return await this.http
+      .get(`${urls.api.v1.listPayments}?${searchQuery}`)
+      .json<PaymentList>()
   }
 
   async getPayment(paymentId: string): Promise<Payment> {

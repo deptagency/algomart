@@ -1,16 +1,20 @@
-import { FirebaseClaim } from '@algomart/schemas'
+import { DEFAULT_LOCALE, FirebaseClaim, PaymentList } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
 
+import { ApiClient } from '@/clients/api-client'
 import { useAuth } from '@/contexts/auth-context'
 import DefaultLayout from '@/layouts/default-layout'
 import adminService from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { urls } from '@/utils/urls'
 
-export default function AdminTransactionsPage() {
+export default function AdminTransactionsPage({
+  payments,
+  total,
+}: PaymentList) {
   const auth = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
@@ -57,7 +61,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
   }
 
+  const PAYMENTS_PER_PAGE = 10
+  const { payments, total } = await ApiClient.instance.getPayments({
+    page: 1,
+    pageSize: PAYMENTS_PER_PAGE,
+    locale: context.locale || DEFAULT_LOCALE,
+  })
+
   return {
-    props: {},
+    props: { payments, total },
   }
 }
