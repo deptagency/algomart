@@ -37,6 +37,7 @@ import {
   PackId,
   PacksByOwner,
   PacksByOwnerQuery,
+  PackStatus,
   PackWithCollectibles,
   PackWithId,
   Payment,
@@ -437,6 +438,119 @@ export class ApiClient {
         },
       })
       .json<Homepage>()
+  }
+  //#endregion
+
+  //#region CollectibleAuction
+  async getCollectibleAuction(collectibleAuctionId: string) {
+    // TODO: Call API
+    const today = new Date()
+    const lastWeek = new Date(today)
+    lastWeek.setDate(lastWeek.getDate() - 1)
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const threeDaysFromNow = new Date(today)
+    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3)
+    const upcoming = {
+      id: '6cb0fb67-51f3-42dc-b288-97a2d7759ef6',
+      collectibleId: '8176f4c3-ca5e-4dfc-a195-a86a562b74de',
+      reservePrice: 0,
+      startAt: tomorrow.toISOString(),
+      endAt: threeDaysFromNow.toISOString(),
+      status: PackStatus.Upcoming,
+    }
+    const active = {
+      id: '88c1e083-91d0-4c96-828e-cca4d5d01572',
+      collectibleId: '3f214cd7-ff89-43f2-a768-580a3b85780d',
+      reservePrice: 0,
+      startAt: yesterday.toISOString(),
+      endAt: threeDaysFromNow.toISOString(),
+      status: PackStatus.Active,
+    }
+    const ended = {
+      id: 'c62b78b0-149d-4b82-8df2-c2b8298923a7',
+      collectibleId: 'e8ad7bbd-b2bf-4f2c-a925-e412cad5f521',
+      reservePrice: 0,
+      startAt: lastWeek.toISOString(),
+      endAt: yesterday.toISOString(),
+      status: PackStatus.Expired,
+    }
+    const collectibleAuctions = [upcoming, active, ended]
+    return collectibleAuctions.find((ca) => ca.id === collectibleAuctionId)
+  }
+
+  async getCollectibleAuctionBids(collectibleAuctionId: string) {
+    const today = new Date()
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+    const activeBid = {
+      amount: 700,
+      externalId: 'oa8RLiV8U8bGhVHI23iNrZHOU392',
+      username: 'davidjmurphyjr',
+      createdAt: yesterday.toISOString(),
+      collectibleAuctionId: '88c1e083-91d0-4c96-828e-cca4d5d01572',
+    }
+    const collectibleAuctionBids = [activeBid]
+    return collectibleAuctionBids.filter(
+      (a) => a.collectibleAuctionId === collectibleAuctionId
+    )
+  }
+
+  async getCollectiblesById(collectibleId: string) {
+    const upcoming = {
+      id: '8176f4c3-ca5e-4dfc-a195-a86a562b74de',
+      templateId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      ownerExternalId: '52767fe4-2257-4bf3-86a3-dd756c6e7d2c',
+    }
+    const active = {
+      id: '3f214cd7-ff89-43f2-a768-580a3b85780d',
+      templateId: 'f085fff1-b9df-4ff0-810b-71d75997f518',
+      ownerExternalId: '52767fe4-2257-4bf3-86a3-dd756c6e7d2c',
+    }
+    const ended = {
+      id: 'e8ad7bbd-b2bf-4f2c-a925-e412cad5f521',
+      templateId: '15486e91-6e0e-4883-9ea5-90d60f17413b',
+      ownerExternalId: '52767fe4-2257-4bf3-86a3-dd756c6e7d2c',
+    }
+    const collectibles = [upcoming, active, ended]
+    return collectibles.find((c) => c.id === collectibleId)
+  }
+
+  async getCollectibleTemplate(collectibleTemplateId: string) {
+    const upcoming = {
+      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      image:
+        'http://localhost:8055/assets/c3ec9cc0-ac80-4edc-bfeb-6ad74e40bf78',
+      title: 'pack-dm title',
+      subtitle: 'pack-dm subtitle',
+      body: 'pack-dm body',
+      available: 1,
+      total: 1,
+    }
+    const active = {
+      id: 'f085fff1-b9df-4ff0-810b-71d75997f518',
+      image:
+        'http://localhost:8055/assets/c3ec9cc0-ac80-4edc-bfeb-6ad74e40bf78',
+      title: 'pack-dm title',
+      subtitle: 'pack-dm subtitle',
+      body: 'pack-dm body',
+      available: 1,
+      total: 1,
+    }
+    const ended = {
+      id: '15486e91-6e0e-4883-9ea5-90d60f17413b',
+      image:
+        'http://localhost:8055/assets/c3ec9cc0-ac80-4edc-bfeb-6ad74e40bf78',
+      title: 'pack-dm title',
+      subtitle: 'pack-dm subtitle',
+      body: 'pack-dm body',
+      available: 1,
+      total: 1,
+    }
+    const CollectibleTemplates = [upcoming, active, ended]
+    return CollectibleTemplates.find((ct) => ct.id === collectibleTemplateId)
   }
   //#endregion
 }
