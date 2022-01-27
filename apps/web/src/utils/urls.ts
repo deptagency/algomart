@@ -34,6 +34,9 @@ export const urls = {
 
   api: {
     v1: {
+      admin: {
+        getPayments: '/api/v1/payments/list-payments',
+      },
       addToShowcase: '/api/v1/collection/add-showcase',
       adminGetClaims: '/api/v1/admin/get-claims',
       adminUpdateClaims: '/api/v1/admin/update-claims',

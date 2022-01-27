@@ -1,5 +1,5 @@
 .root {
-  @apply shadow-lg bg-base-bgCard;
+  @apply overflow-hidden shadow-lg bg-base-bgCard;
 }
 
 .root + .root {

@@ -1,28 +1,26 @@
-import {
-  DEFAULT_LOCALE,
-  FirebaseClaim,
-  Payment,
-  PaymentList,
-} from '@algomart/schemas'
+import { FirebaseClaim, Payment, PaymentList } from '@algomart/schemas'
+import { RefreshIcon } from '@heroicons/react/outline'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
 
-import { ApiClient } from '@/clients/api-client'
+import Pagination from '@/components/pagination/pagination'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
 import { useAuth } from '@/contexts/auth-context'
+import usePagination from '@/hooks/use-pagination'
 import DefaultLayout from '@/layouts/default-layout'
 import adminService from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
+import { getPaymentsFilterQuery } from '@/utils/filters'
+import { useAuthApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
 
-export default function AdminTransactionsPage({
-  payments,
-  total,
-}: PaymentList) {
+const PAYMENTS_PER_PAGE = 10
+
+export default function AdminTransactionsPage() {
   const auth = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
@@ -46,11 +44,35 @@ export default function AdminTransactionsPage({
     }
   }, [auth?.user, router])
 
-  const columns: ColumnDefinitionType<Payment, keyof Payment>[] = [
-    { key: 'id', name: 'id' },
-    { key: 'packId', name: 'packId' },
-    { key: 'status', name: 'status' },
-  ]
+  const { page, setPage, handleTableHeaderClick, sortBy, sortDirection } =
+    usePagination(1, 'createdAt', 'desc')
+
+  const qp = getPaymentsFilterQuery({
+    page,
+    sortBy,
+    sortDirection: sortDirection as any,
+    pageSize: PAYMENTS_PER_PAGE,
+  })
+  const { data: tableData, isValidating } = useAuthApi<PaymentList>(
+    `${urls.api.v1.admin.getPayments}?${qp}`
+  )
+
+  const columns: ColumnDefinitionType<Payment, keyof Payment>[] = tableData
+    ?.payments[0]
+    ? Object.keys(tableData.payments[0]).map((key) => ({ key, name: key }))
+    : []
+
+  const footer = (
+    <>
+      {tableData?.total > 0 && <div>{tableData.total} records found</div>}
+      <Pagination
+        currentPage={page}
+        total={tableData?.total || 0}
+        pageSize={PAYMENTS_PER_PAGE}
+        setPage={setPage}
+      />
+    </>
+  )
 
   return (
     <DefaultLayout
@@ -58,8 +80,23 @@ export default function AdminTransactionsPage({
       noPanel
       width="full"
     >
-      <Panel title="Transactions" fullWidth>
-        <Table<Payment, keyof Payment> columns={columns} data={payments} />
+      <Panel
+        fullWidth
+        title="Transactions"
+        contentRight={
+          isValidating && <RefreshIcon className="w-5 h-5 animate-spin" />
+        }
+        footer={footer}
+      >
+        <div className="overflow-x-auto">
+          <Table<Payment, keyof Payment>
+            columns={columns}
+            data={tableData?.payments}
+            onHeaderClick={handleTableHeaderClick}
+            sortBy={sortBy}
+            sortDirection={sortDirection as any}
+          />
+        </div>
       </Panel>
     </DefaultLayout>
   )
@@ -77,14 +114,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
   }
 
-  const PAYMENTS_PER_PAGE = 10
-  const { payments, total } = await ApiClient.instance.getPayments({
-    page: 1,
-    pageSize: PAYMENTS_PER_PAGE,
-    locale: context.locale || DEFAULT_LOCALE,
-  })
-
   return {
-    props: { payments, total },
+    props: {},
   }
 }
