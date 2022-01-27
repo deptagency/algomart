@@ -1,4 +1,4 @@
-import got from 'got'
+import got, { Got } from 'got'
 
 import { Configuration } from '@/configuration'
 import { logger } from '@/utils/logger'
@@ -30,18 +30,20 @@ const AlgoExplorerIndexerURLs = {
 }
 
 export default class AlgoExplorerAdapter {
-  algoExplorerUrl: string
+  http: Got
   logger = logger.child({ context: this.constructor.name })
 
   constructor() {
-    this.algoExplorerUrl = AlgoExplorerIndexerURLs[Configuration.algodEnv]
+    this.http = got.extend({
+      prefixUrl: AlgoExplorerIndexerURLs[Configuration.algodEnv],
+    })
   }
 
   async getAccount(address: string): Promise<AlgoExplorerAccount> {
     try {
-      const { account } = await got<AlgoExplorerAccount>(
-        `${this.algoExplorerUrl}/accounts/${address}`
-      ).json<{ account: AlgoExplorerAccount }>()
+      const { account } = await this.http
+        .get(`accounts/${address}`)
+        .json<{ account: AlgoExplorerAccount }>()
       return account
     } catch (error) {
       this.logger.error(error as Error)
@@ -51,10 +53,11 @@ export default class AlgoExplorerAdapter {
 
   async getAccountsByAssetId(assetId: number): Promise<AlgoExplorerAccount[]> {
     try {
-      // https://algoindexer.testnet.algoexplorerapi.io/v2
-      const { accounts } = await got<AlgoExplorerAccount[]>(
-        `${this.algoExplorerUrl}/accounts?asset-id=${assetId}`
-      ).json<{ accounts: AlgoExplorerAccount[] }>()
+      const { accounts } = await this.http
+        .get('accounts', {
+          searchParams: { 'asset-id': assetId },
+        })
+        .json<{ accounts: AlgoExplorerAccount[] }>()
       return accounts
     } catch (error) {
       this.logger.error(error as Error)
