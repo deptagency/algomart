@@ -1,4 +1,6 @@
 import {
+  AdminPaymentListQuerystringSchema,
+  AdminPaymentListSchema,
   BankAccountIdSchema,
   CardIdSchema,
   CircleBlockchainAddressSchema,
@@ -17,8 +19,6 @@ import {
   PaymentBankAccountInstructionsSchema,
   PaymentCardsSchema,
   PaymentIdSchema,
-  PaymentListQuerystringSchema,
-  PaymentListSchema,
   PaymentSchema,
   PublicKeySchema,
   SendBankAccountInstructionsSchema,
@@ -75,9 +75,9 @@ export async function paymentRoutes(app: FastifyInstance) {
         schema: {
           tags,
           security,
-          querystring: PaymentListQuerystringSchema,
+          querystring: AdminPaymentListQuerystringSchema,
           response: {
-            200: PaymentListSchema,
+            200: AdminPaymentListSchema,
           },
         },
       },

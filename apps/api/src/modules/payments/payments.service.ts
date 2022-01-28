@@ -1,4 +1,6 @@
 import {
+  AdminPaymentList,
+  AdminPaymentListQuerystring,
   CirclePaymentQueryType,
   CirclePaymentSourceType,
   CreateBankAccount,
@@ -15,10 +17,9 @@ import {
   PackType,
   PaymentBankAccountStatus,
   PaymentCardStatus,
-  PaymentList,
-  PaymentListQuerystring,
   PaymentSortField,
   PaymentStatus,
+  PublishedPack,
   SendBankAccountInstructions,
   SortDirection,
   ToPaymentBase,
@@ -78,9 +79,8 @@ export default class PaymentsService {
     payerUsername,
     sortBy = PaymentSortField.UpdatedAt,
     sortDirection = SortDirection.Ascending,
-  }: PaymentListQuerystring): Promise<PaymentList> {
+  }: AdminPaymentListQuerystring): Promise<AdminPaymentList> {
     let account: UserAccount
-    const packIds: string[] = []
     userInvariant(page > 0, 'page must be greater than 0')
     userInvariant(
       pageSize > 0 || pageSize === -1,
@@ -107,9 +107,25 @@ export default class PaymentsService {
       userInvariant(account, 'user not found', 404)
     }
 
-    // Add pack ID to pack IDs array if available
+    const packIds = []
+    const packLookup = new Map()
+
+    // Add pack ID to packs array if available
     if (packId) {
-      packIds.push(packId)
+      const packDetails = await this.packs.getPackById(packId)
+      const { packs: packTemplates } = await this.packs.getPublishedPacks({
+        templateIds: [packDetails.templateId],
+      })
+      const packTemplate = packTemplates.find(
+        (t) => t.templateId === packDetails.templateId
+      )
+      if (packTemplate) {
+        packIds.push(packId)
+        packLookup.set(packId, {
+          ...packDetails,
+          ...packTemplate,
+        })
+      }
     }
 
     // Find packs and add pack IDs to array if available
@@ -121,25 +137,48 @@ export default class PaymentsService {
         packQuery
       )
       const templateIds = packTemplates.map((p) => p.templateId)
-      const packs = await PackModel.query().whereIn('templateId', templateIds)
-      for (const pack of packs) {
-        packIds.push(pack.id)
-      }
+      const templateLookup = new Map(
+        packTemplates.map((p) => [p.templateId, p])
+      )
+      const packList = await PackModel.query()
+        .whereIn('templateId', templateIds)
+        .withGraphFetched('activeBid')
+      packList.map((p) => {
+        const template = templateLookup.get(p.templateId)
+        packIds.push(p.id)
+        packLookup.set(p.id, {
+          ...p,
+          ...template,
+          activeBid: p?.activeBid?.amount,
+        })
+      })
     }
 
     // Find payments in the database
     const query = PaymentModel.query()
     if (account?.id) query.where('payerId', '=', account.id)
     if (packIds && packIds.length > 0) {
-      if (!account?.id) query.whereIn('packId', packIds)
-      else query.orWhereIn('packId', packIds)
+      if (!account?.id) {
+        query.whereIn('packId', packIds)
+      } else {
+        query.orWhereIn('packId', packIds)
+      }
     }
+
     const results = await query
       .orderBy(sortBy, sortDirection)
       .page(page >= 1 ? page - 1 : page, pageSize)
     const { results: payments, total } = results
 
-    return { payments: payments, total }
+    const list = payments.map((p) => {
+      const pack = packLookup.get(p.packId)
+      return {
+        ...p,
+        pack,
+      }
+    })
+
+    return { payments: list, total }
   }
 
   async getCardStatus(cardId: string) {

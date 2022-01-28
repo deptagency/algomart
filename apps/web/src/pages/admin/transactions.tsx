@@ -1,4 +1,4 @@
-import { FirebaseClaim, Payment, PaymentList } from '@algomart/schemas'
+import { AdminPaymentList,FirebaseClaim, Payment } from '@algomart/schemas'
 import { RefreshIcon } from '@heroicons/react/outline'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
@@ -38,6 +38,7 @@ export default function AdminTransactionsPage() {
         router.push(urls.home)
       }
     }
+
     // Check permissions on page render, after auth token is refreshed so claims are fresh
     if (auth.user) {
       findUser()
@@ -53,13 +54,19 @@ export default function AdminTransactionsPage() {
     sortDirection: sortDirection as any,
     pageSize: PAYMENTS_PER_PAGE,
   })
-  const { data: tableData, isValidating } = useAuthApi<PaymentList>(
+  const { data, isValidating } = useAuthApi<AdminPaymentList>(
     `${urls.api.v1.admin.getPayments}?${qp}`
   )
 
-  const columns: ColumnDefinitionType<Payment, keyof Payment>[] = tableData
-    ?.payments[0]
-    ? Object.keys(tableData.payments[0]).map((key) => ({ key, name: key }))
+  const tableData = (data?.payments || []).map((pmt) => ({
+    id: pmt.id,
+    title: pmt.pack.title,
+    date: pmt.createdAt,
+    price: pmt.price,
+  }))
+
+  const columns: ColumnDefinitionType<Payment, keyof Payment>[] = tableData[0]
+    ? Object.keys(tableData[0]).map((key) => ({ key, name: key }))
     : []
 
   const footer = (
@@ -67,11 +74,11 @@ export default function AdminTransactionsPage() {
       <Pagination
         className="block"
         currentPage={page}
-        total={tableData?.total || 0}
+        total={data?.total || 0}
         pageSize={PAYMENTS_PER_PAGE}
         setPage={setPage}
       />
-      {tableData?.total > 0 && <div>{tableData.total} records found</div>}
+      {data?.total > 0 && <div>{data.total} records found</div>}
     </>
   )
 
@@ -92,7 +99,7 @@ export default function AdminTransactionsPage() {
         <div className="overflow-x-auto">
           <Table<Payment, keyof Payment>
             columns={columns}
-            data={tableData?.payments}
+            data={tableData}
             onHeaderClick={handleTableHeaderClick}
             sortBy={sortBy}
             sortDirection={sortDirection as any}

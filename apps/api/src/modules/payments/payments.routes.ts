@@ -1,4 +1,5 @@
 import {
+  AdminPaymentListQuerystring,
   BankAccountId,
   CardId,
   CreateBankAccount,
@@ -9,7 +10,6 @@ import {
   FindTransferByAddress,
   OwnerExternalId,
   PaymentId,
-  PaymentListQuerystring,
   SendBankAccountInstructions,
   UpdatePaymentCard,
 } from '@algomart/schemas'
@@ -24,7 +24,12 @@ export async function getPublicKey(
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  reply.send(await paymentService.getPublicKey())
+  const publicKey = await paymentService.getPublicKey()
+  if (publicKey) {
+    reply.send(publicKey)
+  } else {
+    reply.notFound()
+  }
 }
 
 export async function getCardStatus(
@@ -255,7 +260,7 @@ export async function getPaymentById(
 
 export async function getPayments(
   request: FastifyRequest<{
-    Querystring: PaymentListQuerystring
+    Querystring: AdminPaymentListQuerystring
   }>,
   reply: FastifyReply
 ) {

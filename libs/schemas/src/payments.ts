@@ -1,5 +1,6 @@
 import { Static, Type } from '@sinclair/typebox'
 
+import { PackWithIdSchema } from './packs'
 import {
   BaseSchema,
   IdSchema,
@@ -260,7 +261,6 @@ export const SendBankAccountInstructionsSchema = Type.Object({
   bankAccountId: IdSchema,
   ownerExternalId: Type.String(),
 })
-
 // #endregion
 // #region Circle
 
@@ -546,6 +546,38 @@ const CoinbaseErrorResponseSchema = Type.Object({
 // #endregion
 // #region Payment/card routes schemas
 
+export const AdminPaymentListQuerystringSchema = Type.Intersect([
+  PaginationSchema,
+  Type.Object({
+    locale: Type.Optional(Type.String()),
+    packId: Type.Optional(Type.String({ format: 'uuid' })),
+    packSlug: Type.Optional(Type.String()),
+    payerExternalId: Type.Optional(Type.String()),
+    payerUsername: Type.Optional(Type.String()),
+    sortBy: Type.Optional(
+      Type.Enum(PaymentSortField, { default: PaymentSortField.UpdatedAt })
+    ),
+    sortDirection: Type.Optional(
+      Type.Enum(SortDirection, { default: SortDirection.Ascending })
+    ),
+  }),
+])
+
+const AdminPaymentBaseSchema = Type.Object({
+  packId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
+  payerId: Type.String(),
+  paymentCardId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
+  paymentBankId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
+  destinationAddress: Type.Optional(Nullable(Type.String())),
+  transferId: Type.Optional(Nullable(Type.String())),
+  pack: Type.Optional(PackWithIdSchema),
+})
+
+export const AdminPaymentListSchema = Type.Object({
+  payments: Type.Array(AdminPaymentBaseSchema),
+  total: Type.Number(),
+})
+
 export const CurrencySchema = Type.Object({
   base: Type.Number(),
   code: Type.String(),
@@ -590,16 +622,11 @@ export const GetPaymentCardStatusSchema = Type.Object({
 export const PaymentSchema = Type.Intersect([
   BaseSchema,
   PaymentBaseSchema,
-  Type.Omit(ToPaymentBaseSchema, ['externalId', 'amount', 'sourceId', 'error']),
+  Type.Omit(ToPaymentBaseSchema, ['externalId', 'amount', 'sourceId']),
   Type.Object({
     externalId: Nullable(Type.String({ format: 'uuid' })),
   }),
 ])
-
-export const PaymentListSchema = Type.Object({
-  payments: Type.Array(PaymentSchema),
-  total: Type.Number(),
-})
 
 export const PaymentIdSchema = Type.Object({
   paymentId: Type.String(),
@@ -684,23 +711,6 @@ export const CreateWalletAddressSchema = Type.Intersect([
   Type.Omit(CircleCreateBlockchainAddressSchema, ['walletId']),
 ])
 
-export const PaymentListQuerystringSchema = Type.Intersect([
-  PaginationSchema,
-  Type.Object({
-    locale: Type.Optional(Type.String()),
-    packId: Type.Optional(Type.String({ format: 'uuid' })),
-    packSlug: Type.Optional(Type.String()),
-    payerExternalId: Type.Optional(Type.String()),
-    payerUsername: Type.Optional(Type.String()),
-    sortBy: Type.Optional(
-      Type.Enum(PaymentSortField, { default: PaymentSortField.UpdatedAt })
-    ),
-    sortDirection: Type.Optional(
-      Type.Enum(SortDirection, { default: SortDirection.Ascending })
-    ),
-  }),
-])
-
 export const PublicKeySchema = Type.Object({
   keyId: Type.String(),
   publicKey: Type.String(),
@@ -713,6 +723,10 @@ export const UpdatePaymentCardSchema = Type.Object({
 // #endregion
 // #region Types
 
+export type AdminPaymentList = Simplify<Static<typeof AdminPaymentListSchema>>
+export type AdminPaymentListQuerystring = Simplify<
+  Static<typeof AdminPaymentListQuerystringSchema>
+>
 export type BankAccountId = Simplify<Static<typeof BankAccountIdSchema>>
 export type CardId = Simplify<Static<typeof CardIdSchema>>
 export type CircleBlockchainAddress = Simplify<
@@ -799,10 +813,6 @@ export type PaymentBankAccountInstructions = Simplify<
 >
 export type PaymentCard = Simplify<Static<typeof PaymentCardSchema>>
 export type PaymentCards = Simplify<Static<typeof PaymentCardsSchema>>
-export type PaymentListQuerystring = Simplify<
-  Static<typeof PaymentListQuerystringSchema>
->
-export type PaymentList = Simplify<Static<typeof PaymentListSchema>>
 export type PublicKey = Simplify<Static<typeof PublicKeySchema>>
 export type SendBankAccountInstructions = Simplify<
   Static<typeof SendBankAccountInstructionsSchema>

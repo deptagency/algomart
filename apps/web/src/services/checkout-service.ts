@@ -1,4 +1,6 @@
 import {
+  AdminPaymentList,
+  AdminPaymentListQuerystring,
   CreateBankAccountResponse,
   CreatePaymentCard,
   GetPaymentBankAccountStatus,
@@ -6,8 +8,6 @@ import {
   Payment,
   PaymentBankAccountInstructions,
   PaymentCards,
-  PaymentList,
-  PaymentListQuerystring,
   PublicKey,
   ToPaymentBase,
 } from '@algomart/schemas'
@@ -45,7 +45,7 @@ export interface CheckoutAPI {
     bankAccountId: string
   ): Promise<GetPaymentBankAccountStatus>
   getCardStatus(cardId: string): Promise<GetPaymentCardStatus>
-  getPayments(query: PaymentListQuerystring): Promise<PaymentList>
+  getPayments(query: AdminPaymentListQuerystring): Promise<AdminPaymentList>
   getPayment(paymentId: string): Promise<Payment>
   getCards(): Promise<PaymentCards>
   getPublicKey(): Promise<PublicKey | null>
@@ -132,11 +132,13 @@ export class CheckoutService implements CheckoutAPI {
     return response.id && response.packId ? response : null
   }
 
-  async getPayments(query: PaymentListQuerystring): Promise<PaymentList> {
+  async getPayments(
+    query: AdminPaymentListQuerystring
+  ): Promise<AdminPaymentList> {
     const searchQuery = getPaymentsFilterQuery(query)
     return await this.http
       .get(`${urls.api.v1.listPayments}?${searchQuery}`)
-      .json<PaymentList>()
+      .json<AdminPaymentList>()
   }
 
   async getPayment(paymentId: string): Promise<Payment> {
