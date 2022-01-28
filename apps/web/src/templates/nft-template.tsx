@@ -3,7 +3,7 @@ import useTranslation from 'next-translate/useTranslation'
 
 import css from './nft-template.module.css'
 
-import AlertMessage from '@/components/alert-message/alert-message'
+import Alert from '@/components/alert/alert'
 import AppLink from '@/components/app-link/app-link'
 import ButtonGroup from '@/components/button-group'
 import ExternalLink from '@/components/external-link'
@@ -38,24 +38,25 @@ export default function NFTTemplate({
   const { t } = useTranslation()
   const transferrableStatus = getTransferrableStatus(collectible, userAddress)
   const isTransferrable = transferrableStatus === null
-  const transferMessages: Record<
-    ReturnType<typeof getTransferrableStatus>,
-    string
-  > = {
+  const transferMessage = {
     frozen: t('nft:labels.cannotTransfer.frozen'),
     mintedRecently: t('nft:labels.cannotTransfer.mintedRecently', {
       date: new Date(collectible.transferrableAt).toLocaleString(),
     }),
-    noUser: t('nft:labels.cannotTransfer.noUser'),
     notOwner: t('nft:labels.cannotTransfer.notOwner'),
-  }
-  const transferMessage = transferrableStatus
-    ? transferMessages[transferrableStatus]
-    : null
+  }[transferrableStatus]
 
   return (
     <div className={css.root}>
       <div className={css.panel}>
+        {transferMessage ? (
+          <Alert
+            className={css.alert}
+            content={transferMessage}
+            centerContent
+          />
+        ) : null}
+
         <MediaGallery media={[collectible.image]} />
 
         <div className={css.panelHeader}>
@@ -67,7 +68,7 @@ export default function NFTTemplate({
           ) : null}
         </div>
 
-        {userAddress ? (
+        {userAddress && isTransferrable ? (
           <div className={css.panelActions}>
             {/* TODO: enable this for secondary marketplace */}
             <ButtonGroup>
@@ -86,15 +87,6 @@ export default function NFTTemplate({
                 {t('nft:actions.transferNFT')}
               </LinkButton>
             </ButtonGroup>
-
-            {transferMessage ? (
-              <AlertMessage
-                className="mt-5"
-                variant="red"
-                showBorder
-                content={transferMessage}
-              />
-            ) : null}
           </div>
         ) : null}
 

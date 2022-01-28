@@ -41,3 +41,7 @@
 .nftMetaLabel {
   @apply font-bold;
 }
+
+.alert {
+  @apply bg-action-primary text-action-primaryContrastText;
+}
