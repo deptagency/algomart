@@ -64,13 +64,14 @@ export default function AdminTransactionsPage() {
 
   const footer = (
     <>
-      {tableData?.total > 0 && <div>{tableData.total} records found</div>}
       <Pagination
+        className="block"
         currentPage={page}
         total={tableData?.total || 0}
         pageSize={PAYMENTS_PER_PAGE}
         setPage={setPage}
       />
+      {tableData?.total > 0 && <div>{tableData.total} records found</div>}
     </>
   )
 
