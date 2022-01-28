@@ -1,4 +1,6 @@
 import {
+  AdminPaymentList,
+  AdminPaymentListQuerystring,
   CircleBlockchainAddress,
   ClaimFreePack,
   ClaimPack,
@@ -39,8 +41,6 @@ import {
   PaymentBankAccountInstructions,
   PaymentCard,
   PaymentCards,
-  PaymentList,
-  PaymentListQuerystring,
   PublicAccount,
   PublicKey,
   PublishedPacks,
@@ -299,9 +299,11 @@ export class ApiClient {
       .catch(() => null)
   }
 
-  async getPayments(query: PaymentListQuerystring) {
+  async getPayments(query: AdminPaymentListQuerystring) {
     const searchQuery = getPaymentsFilterQuery(query)
-    return await this.http.get(`payments?${searchQuery}`).json<PaymentList>()
+    return await this.http
+      .get(`payments?${searchQuery}`)
+      .json<AdminPaymentList>()
   }
   //#endregion
 

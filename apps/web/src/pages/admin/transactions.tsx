@@ -1,4 +1,8 @@
-import { DEFAULT_LOCALE, FirebaseClaim, PaymentList } from '@algomart/schemas'
+import {
+  AdminPaymentList,
+  DEFAULT_LOCALE,
+  FirebaseClaim,
+} from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
@@ -9,12 +13,13 @@ import { useAuth } from '@/contexts/auth-context'
 import DefaultLayout from '@/layouts/default-layout'
 import adminService from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
+import { useApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
 
 export default function AdminTransactionsPage({
   payments,
   total,
-}: PaymentList) {
+}: AdminPaymentList) {
   const auth = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
@@ -32,6 +37,7 @@ export default function AdminTransactionsPage({
         router.push(urls.home)
       }
     }
+
     // Check permissions on page render, after auth token is refreshed so claims are fresh
     if (auth.user) {
       findUser()
