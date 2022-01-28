@@ -28,7 +28,7 @@ function getTransferrableStatus(
   if (collectible.currentOwnerAddress !== currentUserAddress) return 'notOwner'
   if (collectible.isFrozen) return 'frozen'
   if (isAfterNow(new Date(collectible.transferrableAt))) return 'mintedRecently'
-  return null
+  return 'canTransfer'
 }
 
 export default function NFTTemplate({
@@ -37,13 +37,12 @@ export default function NFTTemplate({
 }: NFTTemplateProps) {
   const { t } = useTranslation()
   const transferrableStatus = getTransferrableStatus(collectible, userAddress)
-  const isTransferrable = transferrableStatus === null
+  const isTransferrable = transferrableStatus === 'canTransfer'
   const transferMessage = {
     frozen: t('nft:labels.cannotTransfer.frozen'),
     mintedRecently: t('nft:labels.cannotTransfer.mintedRecently', {
       date: new Date(collectible.transferrableAt).toLocaleString(),
     }),
-    notOwner: t('nft:labels.cannotTransfer.notOwner'),
   }[transferrableStatus]
 
   return (
