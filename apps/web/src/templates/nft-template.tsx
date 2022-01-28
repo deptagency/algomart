@@ -81,7 +81,6 @@ export default function NFTTemplate({
                   .replace(':assetId', String(collectible.address))}
                 size="small"
                 variant="secondary"
-                disabled={!isTransferrable}
               >
                 {t('nft:actions.transferNFT')}
               </LinkButton>
