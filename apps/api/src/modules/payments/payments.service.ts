@@ -19,7 +19,6 @@ import {
   PaymentCardStatus,
   PaymentSortField,
   PaymentStatus,
-  PublishedPack,
   SendBankAccountInstructions,
   SortDirection,
   ToPaymentBase,
@@ -122,8 +121,8 @@ export default class PaymentsService {
       if (packTemplate) {
         packIds.push(packId)
         packLookup.set(packId, {
-          ...packDetails,
           ...packTemplate,
+          ...packDetails,
         })
       }
     }
@@ -147,8 +146,8 @@ export default class PaymentsService {
         const template = templateLookup.get(p.templateId)
         packIds.push(p.id)
         packLookup.set(p.id, {
-          ...p,
           ...template,
+          ...p,
           activeBid: p?.activeBid?.amount,
         })
       })
@@ -174,6 +173,7 @@ export default class PaymentsService {
       const pack = packLookup.get(p.packId)
       return {
         ...p,
+        status: p.status as PaymentStatus,
         pack,
       }
     })
