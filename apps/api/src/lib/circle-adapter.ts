@@ -352,14 +352,6 @@ export default class CircleAdapter {
     destinationAddressId: string
   ): Promise<ToPaymentBase | null> {
     const searchParams = {}
-    if (query.walletId)
-      Object.assign(searchParams, { walletId: query.walletId })
-    if (query.sourceWalletId)
-      Object.assign(searchParams, { sourceWalletId: query.sourceWalletId })
-    if (query.destinationWalletId)
-      Object.assign(searchParams, {
-        destinationWalletId: query.destinationWalletId,
-      })
     if (query.from) Object.assign(searchParams, { from: query.from })
     if (query.to) Object.assign(searchParams, { to: query.to })
     if (query.pageBefore)

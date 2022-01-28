@@ -500,9 +500,6 @@ const CirclePaymentQuerySchema = Type.Object({
 })
 
 const CircleTransferQuerySchema = Type.Object({
-  walletId: Type.Optional(Type.String()),
-  sourceWalletId: Type.Optional(Type.String()),
-  destinationWalletId: Type.Optional(Type.String()),
   from: Type.Optional(Type.String({ type: 'date-time' })),
   to: Type.Optional(Type.String({ type: 'date-time' })),
   pageBefore: Type.Optional(Type.String()),
