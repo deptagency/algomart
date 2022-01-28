@@ -11,10 +11,17 @@ export interface PaginationProps {
   pageSize?: number
   setPage: (page: number) => void
   total: number
+  /**
+   * Number of consecutive pages to show in a row.
+   * Note: when this doesnt include the start or end page,
+   * then these pages will be shown as well.
+   */
   pageWindowSize?: number
+  className?: string
 }
 
 export default function Pagination({
+  className,
   currentPage,
   setPage,
   pageSize = PAGE_SIZE,
@@ -59,18 +66,16 @@ export default function Pagination({
   )
 
   return (
-    <nav aria-label="Pagination" className={clsx(css.navigation)}>
-      <div className={css.wrapper}>
-        <ul aria-label="Page navigation" className={css.pageNumbersList}>
-          {!pageArray.includes(1) && renderPage(1)}
-          {!pageArray.includes(2) && <li className={css.listItem}>...</li>}
-          {pageArray.map(renderPage)}
-          {!pageArray.includes(lastPage - 1) && (
-            <li className={css.listItem}>...</li>
-          )}
-          {!pageArray.includes(lastPage) && renderPage(lastPage)}
-        </ul>
-      </div>
+    <nav aria-label="Pagination" className={clsx(css.root, className)}>
+      <ul aria-label="Page navigation" className={css.pageNumbersList}>
+        {!pageArray.includes(1) && renderPage(1)}
+        {!pageArray.includes(2) && <li className={css.listItem}>...</li>}
+        {pageArray.map(renderPage)}
+        {!pageArray.includes(lastPage - 1) && (
+          <li className={css.listItem}>...</li>
+        )}
+        {!pageArray.includes(lastPage) && renderPage(lastPage)}
+      </ul>
     </nav>
   )
 }
