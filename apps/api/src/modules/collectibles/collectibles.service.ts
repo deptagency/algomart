@@ -94,10 +94,23 @@ export default class CollectiblesService {
     const collectible = await CollectibleModel.query()
       .where('templateId', query.templateId)
       .andWhere('address', query.assetId)
-      .withGraphFetched('creationTransaction')
+      .withGraphFetched('[creationTransaction, pack.payment]')
       .first()
 
     userInvariant(collectible, 'Collectible not found', 404)
+
+    const { payment } = collectible.pack
+    // If this collectible was purchased with a card, then it cannot be
+    // transferred until MINIMUM_DAYS_BEFORE_TRANSFER has passed since the
+    // ASA was minted.
+    const wasPaidWithCard =
+      payment && !payment.destinationAddress && !payment.paymentBankId
+    const transferrableAt = wasPaidWithCard
+      ? addDays(
+          new Date(collectible.creationTransaction?.createdAt),
+          Configuration.minimumDaysBeforeTransfer
+        ).toISOString()
+      : collectible.creationTransaction?.createdAt
 
     const {
       collectibles: [template],
@@ -138,10 +151,7 @@ export default class CollectiblesService {
         (asset) =>
           asset['asset-id'] === collectible.address && asset['is-frozen']
       ),
-      transferrableAt: addDays(
-        new Date(collectible.creationTransaction?.createdAt),
-        Configuration.minimumDaysBeforeTransfer
-      ).toISOString(),
+      transferrableAt,
       id: collectible.id,
       edition: collectible.edition,
       address: collectible.address,
