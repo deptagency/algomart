@@ -26,5 +26,5 @@
 }
 
 .footer {
-  @apply p-5 border-t-1 border-base-border;
+  @apply flex items-center justify-between gap-8 p-5 border-t-1 border-base-border text-base-textSecondary;
 }
