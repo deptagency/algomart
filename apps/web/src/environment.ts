@@ -22,6 +22,7 @@ export const Environment = {
       [ChainType.MainNet]: 'https://algoexplorer.io',
       [ChainType.TestNet]: 'https://testnet.algoexplorer.io',
       [ChainType.BetaNet]: 'https://betanet.algoexplorer.io',
+      [ChainType.SandNet]: 'http://localhost:8980',
     }[this.chainType]
   },
 

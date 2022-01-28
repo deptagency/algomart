@@ -59,7 +59,7 @@ export const Configuration = {
       .get('ALGOD_ENV')
       .required()
       .default('testnet')
-      .asEnum(['betanet', 'testnet', 'mainnet'])
+      .asEnum(['betanet', 'testnet', 'mainnet', 'sandnet'])
   },
 
   get databaseUrl() {

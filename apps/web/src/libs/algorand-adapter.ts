@@ -16,6 +16,7 @@ export enum ChainType {
   MainNet = 'mainnet',
   TestNet = 'testnet',
   BetaNet = 'betanet',
+  SandNet = 'sandnet',
 }
 
 export interface IAssetData {

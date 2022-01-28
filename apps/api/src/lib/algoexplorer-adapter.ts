@@ -27,6 +27,7 @@ const AlgoExplorerIndexerURLs = {
   mainnet: 'https://algoindexer.algoexplorerapi.io/v2',
   testnet: 'https://algoindexer.testnet.algoexplorerapi.io/v2',
   betanet: 'https://algoindexer.betanet.algoexplorerapi.io/v2',
+  sandnet: 'http://localhost:8980/v2',
 }
 
 export default class AlgoExplorerAdapter {
