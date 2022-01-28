@@ -164,21 +164,16 @@ export default class PaymentsService {
       }
     }
 
-    const results = await query
+    const { results, total } = await query
       .orderBy(sortBy, sortDirection)
       .page(page >= 1 ? page - 1 : page, pageSize)
-    const { results: payments, total } = results
 
-    const list = payments.map((p) => {
-      const pack = packLookup.get(p.packId)
-      return {
-        ...p,
-        status: p.status as PaymentStatus,
-        pack,
-      }
-    })
+    const payments = results.map((payment) => ({
+      ...payment,
+      pack: packLookup.get(payment.packId),
+    }))
 
-    return { payments: list, total }
+    return { payments, total }
   }
 
   async getCardStatus(cardId: string) {
