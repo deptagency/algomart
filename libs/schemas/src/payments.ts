@@ -564,13 +564,15 @@ export const AdminPaymentListQuerystringSchema = Type.Intersect([
 ])
 
 const AdminPaymentBaseSchema = Type.Object({
+  id: IdSchema,
   packId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
+  pack: Type.Optional(PackWithIdSchema),
   payerId: Type.String(),
   paymentCardId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
   paymentBankId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
   destinationAddress: Type.Optional(Nullable(Type.String())),
+  status: Type.Optional(Type.Enum(PaymentStatus)),
   transferId: Type.Optional(Nullable(Type.String())),
-  pack: Type.Optional(PackWithIdSchema),
 })
 
 export const AdminPaymentListSchema = Type.Object({
