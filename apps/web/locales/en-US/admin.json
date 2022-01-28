@@ -1,0 +1,10 @@
+{
+  "transactions": {
+    "table": {
+      "title": "Title",
+      "date": "Date",
+      "price": "Price",
+      "status": "Status"
+    }
+  }
+}

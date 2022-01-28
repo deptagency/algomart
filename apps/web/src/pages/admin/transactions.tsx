@@ -1,4 +1,8 @@
-import { AdminPaymentList,FirebaseClaim, Payment } from '@algomart/schemas'
+import {
+  AdminPaymentBase,
+  AdminPaymentList,
+  FirebaseClaim,
+} from '@algomart/schemas'
 import { RefreshIcon } from '@heroicons/react/outline'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
@@ -15,6 +19,7 @@ import DefaultLayout from '@/layouts/default-layout'
 import adminService from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { getPaymentsFilterQuery } from '@/utils/filters'
+import { formatCurrency } from '@/utils/format-currency'
 import { useAuthApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
 
@@ -23,7 +28,7 @@ const PAYMENTS_PER_PAGE = 10
 export default function AdminTransactionsPage() {
   const auth = useAuth()
   const router = useRouter()
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation('admin')
 
   useEffect(() => {
     const findUser = async () => {
@@ -58,26 +63,34 @@ export default function AdminTransactionsPage() {
     `${urls.api.v1.admin.getPayments}?${qp}`
   )
 
-  const tableData = (data?.payments || []).map((pmt) => ({
-    id: pmt.id,
-    title: pmt.pack.title,
-    date: pmt.createdAt,
-    price: pmt.price,
-  }))
-
-  const columns: ColumnDefinitionType<Payment, keyof Payment>[] = tableData[0]
-    ? Object.keys(tableData[0]).map((key) => ({ key, name: key }))
-    : []
+  const columns: ColumnDefinitionType<AdminPaymentBase>[] = [
+    {
+      key: 'createdAt',
+      name: t('transactions.table.date'),
+      renderer: ({ value }) =>
+        value ? new Date(value).toLocaleDateString(lang) : null,
+      sortable: true,
+    },
+    { key: 'status', name: t('transactions.table.status') },
+    { key: 'pack.title', name: t('transactions.table.title') },
+    {
+      key: 'pack.price',
+      name: t('transactions.table.price'),
+      renderer: ({ value }) => formatCurrency(value, lang),
+    },
+  ]
 
   const footer = (
     <>
-      <Pagination
-        className="block"
-        currentPage={page}
-        total={data?.total || 0}
-        pageSize={PAYMENTS_PER_PAGE}
-        setPage={setPage}
-      />
+      <div>
+        <Pagination
+          className="block"
+          currentPage={page}
+          total={data?.total || 0}
+          pageSize={PAYMENTS_PER_PAGE}
+          setPage={setPage}
+        />
+      </div>
       {data?.total > 0 && <div>{data.total} records found</div>}
     </>
   )
@@ -97,9 +110,9 @@ export default function AdminTransactionsPage() {
         footer={footer}
       >
         <div className="overflow-x-auto">
-          <Table<Payment, keyof Payment>
+          <Table<AdminPaymentBase>
             columns={columns}
-            data={tableData}
+            data={data?.payments}
             onHeaderClick={handleTableHeaderClick}
             sortBy={sortBy}
             sortDirection={sortDirection as any}

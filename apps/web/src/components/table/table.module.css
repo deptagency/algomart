@@ -37,3 +37,7 @@
 .tbody {
   @apply overflow-auto;
 }
+
+.nullish {
+  @apply text-base-textTertiary;
+}
