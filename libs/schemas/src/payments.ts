@@ -563,17 +563,19 @@ export const AdminPaymentListQuerystringSchema = Type.Intersect([
   }),
 ])
 
-const AdminPaymentBaseSchema = Type.Object({
-  id: IdSchema,
-  packId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
-  pack: Type.Optional(PackWithIdSchema),
-  payerId: Type.String(),
-  paymentCardId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
-  paymentBankId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
-  destinationAddress: Type.Optional(Nullable(Type.String())),
-  status: Type.Optional(Type.Enum(PaymentStatus)),
-  transferId: Type.Optional(Nullable(Type.String())),
-})
+const AdminPaymentBaseSchema = Type.Intersect([
+  BaseSchema,
+  Type.Object({
+    packId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
+    pack: Type.Optional(PackWithIdSchema),
+    payerId: Type.String(),
+    paymentCardId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
+    paymentBankId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
+    destinationAddress: Type.Optional(Nullable(Type.String())),
+    status: Type.Optional(Type.Enum(PaymentStatus)),
+    transferId: Type.Optional(Nullable(Type.String())),
+  }),
+])
 
 export const AdminPaymentListSchema = Type.Object({
   payments: Type.Array(AdminPaymentBaseSchema),
@@ -805,6 +807,7 @@ export type GetPaymentBankAccountStatus = Simplify<
 export type GetPaymentCardStatus = Simplify<
   Static<typeof GetPaymentCardStatusSchema>
 >
+export type AdminPaymentBase = Simplify<Static<typeof AdminPaymentBaseSchema>>
 export type Payment = Simplify<Static<typeof PaymentSchema>>
 export type PaymentId = Simplify<Static<typeof PaymentIdSchema>>
 export type PaymentBankAccount = Simplify<
