@@ -2,6 +2,8 @@ import {
   AdminPaymentList,
   DEFAULT_LOCALE,
   FirebaseClaim,
+  PaymentSortField,
+  SortDirection,
 } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
@@ -13,7 +15,6 @@ import { useAuth } from '@/contexts/auth-context'
 import DefaultLayout from '@/layouts/default-layout'
 import adminService from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
-import { useApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
 
 export default function AdminTransactionsPage({
@@ -72,6 +73,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     page: 1,
     pageSize: PAYMENTS_PER_PAGE,
     locale: context.locale || DEFAULT_LOCALE,
+    sortBy: PaymentSortField.Status,
+    sortDirection: SortDirection.Descending,
   })
 
   return {

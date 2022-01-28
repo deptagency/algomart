@@ -189,6 +189,7 @@ export enum CheckoutStatus {
 export enum PaymentSortField {
   CreatedAt = 'createdAt',
   UpdatedAt = 'updatedAt',
+  Status = 'status',
 }
 
 // #endregion
