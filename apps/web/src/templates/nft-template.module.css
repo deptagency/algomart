@@ -42,6 +42,6 @@
   @apply font-bold;
 }
 
-.alert {
+.root .alert {
   @apply bg-action-primary text-action-primaryContrastText;
 }
