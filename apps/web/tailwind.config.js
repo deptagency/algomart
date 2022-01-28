@@ -13,19 +13,12 @@ const generateColorClass = (variable) => {
 }
 
 module.exports = {
-  // Keep JIT disabled for now. Enabling it will break the custom font loading.
-  // mode: 'jit',
-  purge: {
-    // tree-shaking unused styles
-    content: [
-      path.join(__dirname, 'src', '**', '*.{js,ts,jsx,tsx,css}'),
-      ...createGlobPatternsForDependencies(
-        __dirname,
-        '**/*.{js,ts,jsx,tsx,css}'
-      ),
-    ],
-    css: [path.join(__dirname, 'src', '**', '*.css')],
-  },
+  // tree-shaking unused styles
+  content: [
+    path.join(__dirname, 'src', '**', '*.{js,ts,jsx,tsx,css}'),
+    ...createGlobPatternsForDependencies(__dirname, '**/*.{js,ts,jsx,tsx,css}'),
+  ],
+
   darkMode: 'class', // or false, 'media' or 'class'
   theme: {
     extend: {
@@ -131,9 +124,4 @@ module.exports = {
       addUtilities(utilities, ['responsive', 'hover'])
     }),
   ],
-  variants: {
-    extend: {
-      borderRadius: ['first', 'last'],
-    },
-  },
 }
