@@ -17,7 +17,6 @@ module.exports = {
   content: [
     path.join(__dirname, 'src', '**', '*.{js,ts,jsx,tsx,css}'),
     ...createGlobPatternsForDependencies(__dirname, '**/*.{js,ts,jsx,tsx,css}'),
-    path.join(__dirname, 'src', '**', '*.css'),
   ],
 
   darkMode: 'class', // or false, 'media' or 'class'
