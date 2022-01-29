@@ -2,6 +2,8 @@ import {
   AdminPaymentBase,
   AdminPaymentList,
   FirebaseClaim,
+  PaymentSortField,
+  SortDirection,
 } from '@algomart/schemas'
 import { RefreshIcon } from '@heroicons/react/outline'
 import { GetServerSideProps } from 'next'
@@ -51,7 +53,7 @@ export default function AdminTransactionsPage() {
   }, [auth?.user, router])
 
   const { page, setPage, handleTableHeaderClick, sortBy, sortDirection } =
-    usePagination(1, 'createdAt', 'desc')
+    usePagination(1, 'status', 'desc')
 
   const qp = getPaymentsFilterQuery({
     page,
@@ -71,7 +73,7 @@ export default function AdminTransactionsPage() {
         value ? new Date(value).toLocaleDateString(lang) : null,
       sortable: true,
     },
-    { key: 'status', name: t('transactions.table.status') },
+    { key: 'status', name: t('transactions.table.status'), sortable: true },
     { key: 'pack.title', name: t('transactions.table.title') },
     {
       key: 'pack.price',

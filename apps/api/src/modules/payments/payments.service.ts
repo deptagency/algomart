@@ -86,8 +86,12 @@ export default class PaymentsService {
       'pageSize must be greater than 0'
     )
     userInvariant(
-      [PaymentSortField.UpdatedAt, PaymentSortField.CreatedAt].includes(sortBy),
-      'sortBy must be one of createdAt or updatedAt'
+      [
+        PaymentSortField.UpdatedAt,
+        PaymentSortField.CreatedAt,
+        PaymentSortField.Status,
+      ].includes(sortBy),
+      'sortBy must be one of createdAt, updatedAt, or status'
     )
     userInvariant(
       [SortDirection.Ascending, SortDirection.Descending].includes(
