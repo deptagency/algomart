@@ -631,4 +631,113 @@ export default class AlgorandAdapter {
       signedTransactions: signedTxns,
     }
   }
+
+  async generateImportTransactions(options: {
+    assetIndex: number
+    toAccountAddress: string
+    fromAccountAddress: string
+  }): Promise<{ txn: string; txnId: string; signer: string }[]> {
+    const accountInfo = await this.getAccountInfo(options.toAccountAddress)
+    const transactions: algosdk.Transaction[] = []
+    const suggestedParams = await this.algod.getTransactionParams().do()
+    const signers: string[] = []
+    const transactionIds: string[] = []
+
+    if (
+      !accountInfo.assets.some((asset) => asset.assetId === options.assetIndex)
+    ) {
+      // This account has not opted in to this asset
+      let minBalanceIncrease = 100_000
+
+      if (accountInfo.amount === 0) {
+        // this is a brand new account, need to send additional funds
+        minBalanceIncrease += 100_000
+      }
+
+      // Send funds to cover asset min balance increase
+      const fundsTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        suggestedParams,
+        amount: minBalanceIncrease,
+        from: this.fundingAccount.addr,
+        to: options.toAccountAddress,
+      })
+
+      // Opt-in to asset
+      const optInAssetTxn =
+        algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+          suggestedParams,
+          assetIndex: options.assetIndex,
+          from: options.toAccountAddress,
+          to: options.toAccountAddress,
+          amount: 0,
+        })
+
+      signers.push(this.fundingAccount.addr, options.toAccountAddress)
+      transactions.push(fundsTxn, optInAssetTxn)
+      transactionIds.push(fundsTxn.txID(), optInAssetTxn.txID())
+    }
+
+    // Transfer asset to recipient and remove opt-in from sender
+    const transferAssetTxn =
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        suggestedParams,
+        assetIndex: options.assetIndex,
+        from: options.fromAccountAddress,
+        to: options.toAccountAddress,
+        amount: 1,
+        closeRemainderTo: options.toAccountAddress,
+      })
+
+    signers.push(options.fromAccountAddress)
+    transactions.push(transferAssetTxn)
+    transactionIds.push(transferAssetTxn.txID())
+
+    algosdk.assignGroupID(transactions)
+
+    return transactions.map((txn, index) => {
+      return {
+        txn: Buffer.from(algosdk.encodeUnsignedTransaction(txn)).toString(
+          'base64'
+        ),
+        txnId: transactionIds[index],
+        signer: signers[index],
+      }
+    })
+  }
+
+  signImportTransactions(options: {
+    encodedUnsignedOptInTransaction: string
+    encodedUnsignedFundTransaction: string
+    encryptedMnemonic: string
+    passphrase: string
+  }) {
+    const fromAccount = algosdk.mnemonicToSecretKey(
+      decrypt(options.encryptedMnemonic, options.passphrase)
+    )
+    const unsignedFundTransaction = algosdk.decodeUnsignedTransaction(
+      new Uint8Array(
+        Buffer.from(options.encodedUnsignedFundTransaction, 'base64')
+      )
+    )
+    const unsignedOptInTransaction = algosdk.decodeUnsignedTransaction(
+      new Uint8Array(
+        Buffer.from(options.encodedUnsignedOptInTransaction, 'base64')
+      )
+    )
+
+    const transactionIds = [
+      unsignedFundTransaction.txID(),
+      unsignedOptInTransaction.txID(),
+    ]
+
+    const signedTransactions = [
+      unsignedFundTransaction.signTxn(this.fundingAccount.sk),
+      unsignedOptInTransaction.signTxn(fromAccount.sk),
+    ]
+
+    return {
+      transactionIds,
+      signedTransactions,
+    }
+  }
 }

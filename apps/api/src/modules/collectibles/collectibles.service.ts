@@ -12,6 +12,8 @@ import {
   EventAction,
   EventEntityType,
   ExportCollectible,
+  ImportCollectible,
+  InitializeImportCollectible,
   IPFSStatus,
   SingleCollectibleQuerystring,
   SortDirection,
@@ -27,6 +29,7 @@ import DirectusAdapter, { ItemFilter } from '@/lib/directus-adapter'
 import NFTStorageAdapter from '@/lib/nft-storage-adapter'
 import { AlgorandAccountModel } from '@/models/algorand-account.model'
 import { AlgorandTransactionModel } from '@/models/algorand-transaction.model'
+import { AlgorandTransactionGroupModel } from '@/models/algorand-transaction-group.model'
 import { CollectibleModel } from '@/models/collectible.model'
 import { CollectibleOwnershipModel } from '@/models/collectible-ownership.model'
 import { CollectibleShowcaseModel } from '@/models/collectible-showcase.model'
@@ -1048,5 +1051,153 @@ export default class CollectiblesService {
       })
 
     return result.transferTxnId
+  }
+
+  async initializeImportCollectible(
+    request: InitializeImportCollectible,
+    trx?: Transaction
+  ) {
+    // Find the user's custodial wallet
+    const user = await UserAccountModel.query(trx)
+      .findOne({
+        externalId: request.externalId,
+      })
+      .withGraphFetched('algorandAccount')
+    userInvariant(user, 'user not found', 404)
+    invariant(user.algorandAccount, 'algorand account not loaded')
+
+    // Find the collectible, it must be owned by the non-custodial wallet
+    const collectible = await CollectibleModel.query(trx).findOne({
+      address: request.assetIndex,
+      ownerId: null,
+    })
+    userInvariant(collectible, 'collectible not found', 404)
+
+    // Ensure the sender currently owns the asset
+    const accountInfo = await this.algorand.getAccountInfo(request.address)
+    userInvariant(
+      accountInfo.assets.some(
+        (asset) => asset.assetId === request.assetIndex && asset.amount === 1
+      ),
+      'must own the asset to import',
+      400
+    )
+
+    // Generate the transactions that will need to be signed, but do not yet
+    // submit them to Algorand! That will be done in a separate step.
+    const transactions = await this.algorand.generateImportTransactions({
+      assetIndex: request.assetIndex,
+      fromAccountAddress: request.address,
+      toAccountAddress: user.algorandAccount.address,
+    })
+
+    // Store all of the unsigned transactions for later reference
+    await AlgorandTransactionGroupModel.query(trx).insertGraph({
+      transactions: transactions.map((tx) => ({
+        address: tx.txnId,
+        // Note the Unsigned status
+        status: AlgorandTransactionStatus.Unsigned,
+        encodedTransaction: tx.txn,
+        signer: tx.signer,
+      })),
+    })
+
+    // The transaction that needs to be signed by the non-custodial wallet will
+    // always be the last one in the list. Later, we will rely on its txnId to
+    // lookup the other transactions in the group.
+    return transactions[transactions.length - 1]
+  }
+
+  async importCollectible(request: ImportCollectible, trx?: Transaction) {
+    // Find the user's custodial wallet
+    const user = await UserAccountModel.query(trx)
+      .findOne({
+        externalId: request.externalId,
+      })
+      .withGraphFetched('algorandAccount')
+    userInvariant(user, 'user not found', 404)
+    invariant(user.algorandAccount, 'algorand account not loaded')
+
+    // Find the collectible, it must be owned by the non-custodial wallet
+    const collectible = await CollectibleModel.query(trx).findOne({
+      address: request.assetIndex,
+      ownerId: null,
+    })
+    userInvariant(collectible, 'collectible not found', 404)
+
+    // Ensure the sender still owns the asset
+    const accountInfo = await this.algorand.getAccountInfo(request.address)
+    userInvariant(
+      accountInfo.assets.some(
+        (asset) => asset.assetId === request.assetIndex && asset.amount === 1
+      ),
+      'must own the asset to import',
+      400
+    )
+
+    // Load transaction, the group, and related transactions
+    const transaction = await AlgorandTransactionModel.query(trx)
+      .findOne({
+        address: request.transactionId,
+        status: AlgorandTransactionStatus.Unsigned,
+      })
+      .withGraphFetched('group.transactions')
+    invariant(
+      transaction.group?.transactions?.length >= 1,
+      'failed to load transaction group'
+    )
+
+    const { group, address: transferTransactionId } = transaction
+
+    // Decode signed transfer transaction
+    const signedTransferTxn = new Uint8Array(
+      Buffer.from(request.signedTransaction, 'base64')
+    )
+
+    if (group.transactions.length > 1) {
+      // Also doing funding and opt-in transactions
+      const unsignedFundTransactionData = group.transactions.find(
+        (txn) => txn.signer !== user.algorandAccount.address
+      )
+      invariant(
+        unsignedFundTransactionData.encodedTransaction,
+        'missing encoded fund transaction'
+      )
+
+      const unsignedOptInTransactionData = group.transactions.find(
+        (txn) => txn.signer === user.algorandAccount.address
+      )
+      invariant(
+        unsignedFundTransactionData.encodedTransaction,
+        'missing encoded opt-in transaction'
+      )
+
+      // Sign the remaining transactions
+      const result = this.algorand.signImportTransactions({
+        encryptedMnemonic: user.algorandAccount.encryptedKey,
+        passphrase: request.passphrase,
+        encodedUnsignedFundTransaction:
+          unsignedFundTransactionData.encodedTransaction,
+        encodedUnsignedOptInTransaction:
+          unsignedOptInTransactionData.encodedTransaction,
+      })
+
+      // This should be a valid transaction group, so submit them all at once
+      const signedTransactions = [
+        ...result.signedTransactions,
+        signedTransferTxn,
+      ]
+
+      await this.algorand.submitTransaction(signedTransactions)
+    } else {
+      // Only doing transfer transaction
+      await this.algorand.submitTransaction([signedTransferTxn])
+    }
+
+    await AlgorandTransactionModel.query(trx)
+      .where({ groupId: group.id })
+      .patch({ status: AlgorandTransactionStatus.Pending })
+
+    return transferTransactionId
   }
 }

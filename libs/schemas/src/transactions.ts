@@ -3,6 +3,7 @@ import { Static, Type } from '@sinclair/typebox'
 import { BaseSchema, Nullable, Simplify } from './shared'
 
 export enum AlgorandTransactionStatus {
+  Unsigned = 'unsigned',
   Pending = 'pending',
   Failed = 'failed',
   Confirmed = 'confirmed',
@@ -20,6 +21,14 @@ export const AlgorandTransactionSchema = Type.Intersect([
     error: Type.Optional(Nullable(Type.String())),
     groupId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
     status: Type.Optional(Type.Enum(AlgorandTransactionStatus)),
+    encodedTransaction: Type.Optional(Type.String()),
+    signer: Type.Optional(
+      Type.String({
+        maxLength: 58,
+        minLength: 58,
+        pattern: '^[A-Z2-7]{58}$',
+      })
+    ),
   }),
 ])
 

@@ -201,6 +201,21 @@ export const ExportCollectibleSchema = Type.Object({
   externalId: Type.String(),
 })
 
+export const InitializeImportCollectibleSchema = Type.Object({
+  assetIndex: Type.Number(),
+  address: Type.String(),
+  externalId: Type.String(),
+})
+
+export const ImportCollectibleSchema = Type.Intersect([
+  InitializeImportCollectibleSchema,
+  Type.Object({
+    transactionId: Type.String(),
+    signedTransaction: Type.String(),
+    passphrase: Type.String(),
+  }),
+])
+
 export type Collectible = Simplify<Static<typeof CollectibleSchema>>
 export type CollectibleAuction = Simplify<
   Static<typeof CollectibleAuctionSchema>
@@ -240,3 +255,7 @@ export type ExportCollectible = Simplify<Static<typeof ExportCollectibleSchema>>
 export type SingleCollectibleQuerystring = Simplify<
   Static<typeof SingleCollectibleQuerystringSchema>
 >
+export type InitializeImportCollectible = Simplify<
+  Static<typeof InitializeImportCollectibleSchema>
+>
+export type ImportCollectible = Simplify<Static<typeof ImportCollectibleSchema>>
