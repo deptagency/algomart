@@ -33,13 +33,11 @@ async function runAction(
     )
 
     process.on('SIGTERM', () => {
-      console.log('sigterm')
       directus.kill()
       process.exit(128 + 15)
     })
 
     process.on('exit', (code) => {
-      console.log('exit')
       process.exit(code)
     })
 

@@ -165,12 +165,10 @@ function runAction(options, context) {
             }
           )
           process.on('SIGTERM', function () {
-            console.log('sigterm')
             directus.kill()
             process.exit(128 + 15)
           })
           process.on('exit', function (code) {
-            console.log('exit')
             process.exit(code)
           })
           directus.on('error', function (error) {
