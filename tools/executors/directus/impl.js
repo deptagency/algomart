@@ -193,7 +193,7 @@ function directusExecutor(options, context) {
           return [4 /*yield*/, runAction(options, context)]
         case 1:
           _a.sent()
-          return [2 /*return*/]
+          return [2 /*return*/, { success: true }]
       }
     })
   })

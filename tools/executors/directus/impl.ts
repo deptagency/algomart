@@ -60,4 +60,5 @@ export default async function directusExecutor(
   context: ExecutorContext
 ) {
   await runAction(options, context)
+  return { success: true }
 }
