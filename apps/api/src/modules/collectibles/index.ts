@@ -7,6 +7,8 @@ import {
   CollectiblesByAlgoAddressQuerystringSchema,
   CollectibleShowcaseQuerystringSchema,
   ExportCollectibleSchema,
+  ImportCollectibleSchema,
+  InitializeImportCollectibleSchema,
   SingleCollectibleQuerystringSchema,
 } from '@algomart/schemas'
 import { Type } from '@sinclair/typebox'
@@ -20,6 +22,8 @@ import {
   getCollectibles,
   getCollectiblesByAlgoAddress,
   getShowcaseCollectibles,
+  importCollectible,
+  initializeImportCollectible,
   removeCollectibleShowcase,
 } from './collectibles.routes'
 
@@ -147,5 +151,41 @@ export async function collectiblesRoutes(app: FastifyInstance) {
         },
       },
       exportCollectible
+    )
+    .post(
+      '/import',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: InitializeImportCollectibleSchema,
+          response: {
+            200: Type.Object({
+              txId: Type.String(),
+              txn: Type.String(),
+              signer: Type.String(),
+            }),
+          },
+        },
+      },
+      initializeImportCollectible
+    )
+    .post(
+      '/import/sign',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: ImportCollectibleSchema,
+          response: {
+            200: Type.Object({
+              txId: Type.String(),
+            }),
+          },
+        },
+      },
+      importCollectible
     )
 }
