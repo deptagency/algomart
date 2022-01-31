@@ -1,4 +1,5 @@
 import {
+  AdminPaymentBaseSchema,
   AdminPaymentListQuerystringSchema,
   AdminPaymentListSchema,
   BankAccountIdSchema,
@@ -96,6 +97,20 @@ export async function paymentRoutes(app: FastifyInstance) {
         },
       },
       getPaymentById
+    )
+    .get(
+      '/:paymentId/admin',
+      {
+        schema: {
+          tags,
+          security,
+          params: PaymentIdSchema,
+          response: {
+            200: AdminPaymentBaseSchema,
+          },
+        },
+      },
+      getPayments
     )
     .get(
       '/encryption-public-key',

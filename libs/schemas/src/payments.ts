@@ -561,7 +561,7 @@ export const AdminPaymentListQuerystringSchema = Type.Intersect([
   }),
 ])
 
-const AdminPaymentBaseSchema = Type.Intersect([
+export const AdminPaymentBaseSchema = Type.Intersect([
   BaseSchema,
   Type.Object({
     packId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
