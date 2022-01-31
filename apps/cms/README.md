@@ -4,7 +4,7 @@ This package within the monorepo is a minimal (but powerful) headless CMS using 
 
 The purpose of the CMS is to provide content authors the ability to create and manage application-related "templates" (content, imagery, translations, and other attributes) that can be consumed by the `api` package (to mint and transfer the appropriate assets on the blockchain) and the `web` package (to display the content and imagery in the browser).
 
-## Initial setup
+## Get started
 
 Once the environment variables have been added to the `.env` file, you'll want to create a new Postgres database with the name specified in the `DB_CONNECTION_STRING` in the `.env` file. You'll also want to set the `ADMIN_EMAIL` and `ADMIN_PASSWORD` values for the initial CMS admin user.
 
@@ -32,11 +32,9 @@ npm run seed
 
 Once the database is set up, it can be run in conjunction with the other monorepo packages from the root of the repository.
 
-## Manual configuration
+## Make files publicly viewable
 
-After bootstrapping and running the seed script locally, there's additional configuration steps which may be needed.
-
-### 1. Make files publicly viewable
+After bootstrapping and running the seed script locally, you may need to do this
 
 When you first spin up the app, you'll see only text rendered in place of images. There's an extra step needed in order to make these files available.
 
@@ -51,14 +49,6 @@ When you first spin up the app, you'll see only text rendered in place of images
 1. Select All Access
 
 Then go back and refresh, and you should see images!
-
-### 2. Add token for user
-
-In order for the API to connect to the CMS, the Directus key needs to be inputted into the CMS:
-
-1. Go to your profile (the icon at the very bottom left)
-1. Scroll all the way down to Token, under Admin Options
-1. Paste in the desired API key (has to match `CMS_ACCESS_TOKEN` in apps/api/.env)
 
 ## Data Model Overview
 

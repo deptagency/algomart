@@ -1,4 +1,6 @@
 import {
+  AdminPaymentList,
+  AdminPaymentListQuerystring,
   CreateBankAccountResponse,
   CreatePaymentCard,
   GetPaymentBankAccountStatus,
@@ -14,6 +16,7 @@ import ky from 'ky'
 
 import loadFirebase from '@/clients/firebase-client'
 import { ExtractBodyType } from '@/middleware/validate-body-middleware'
+import { getPaymentsFilterQuery } from '@/utils/filters'
 import {
   validateBankAccount,
   validateCard,
@@ -42,6 +45,7 @@ export interface CheckoutAPI {
     bankAccountId: string
   ): Promise<GetPaymentBankAccountStatus>
   getCardStatus(cardId: string): Promise<GetPaymentCardStatus>
+  getPayments(query: AdminPaymentListQuerystring): Promise<AdminPaymentList>
   getPayment(paymentId: string): Promise<Payment>
   getCards(): Promise<PaymentCards>
   getPublicKey(): Promise<PublicKey | null>
@@ -126,6 +130,15 @@ export class CheckoutService implements CheckoutAPI {
       })
       .json<Payment>()
     return response.id && response.packId ? response : null
+  }
+
+  async getPayments(
+    query: AdminPaymentListQuerystring
+  ): Promise<AdminPaymentList> {
+    const searchQuery = getPaymentsFilterQuery(query)
+    return await this.http
+      .get(`${urls.api.v1.listPayments}?${searchQuery}`)
+      .json<AdminPaymentList>()
   }
 
   async getPayment(paymentId: string): Promise<Payment> {

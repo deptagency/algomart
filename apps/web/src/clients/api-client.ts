@@ -1,4 +1,6 @@
 import {
+  AdminPaymentList,
+  AdminPaymentListQuerystring,
   CircleBlockchainAddress,
   ClaimFreePack,
   ClaimPack,
@@ -60,6 +62,7 @@ import { Environment } from '@/environment'
 import {
   getCollectiblesFilterQuery,
   getPacksByOwnerFilterQuery,
+  getPaymentsFilterQuery,
   getPublishedPacksFilterQuery,
 } from '@/utils/filters'
 import { logger } from '@/utils/logger'
@@ -294,6 +297,13 @@ export class ApiClient {
       .get('payments/transfers', { searchParams })
       .json<ToPaymentBase>()
       .catch(() => null)
+  }
+
+  async getPayments(query: AdminPaymentListQuerystring) {
+    const searchQuery = getPaymentsFilterQuery(query)
+    return await this.http
+      .get(`payments?${searchQuery}`)
+      .json<AdminPaymentList>()
   }
   //#endregion
 
