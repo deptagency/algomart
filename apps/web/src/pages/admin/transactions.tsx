@@ -66,6 +66,7 @@ export default function AdminTransactionsPage() {
   )
 
   const columns: ColumnDefinitionType<AdminPaymentBase>[] = [
+    { key: 'pack.title', name: t('transactions.table.title') },
     {
       key: 'createdAt',
       name: t('transactions.table.date'),
@@ -73,13 +74,12 @@ export default function AdminTransactionsPage() {
         value ? new Date(value).toLocaleDateString(lang) : null,
       sortable: true,
     },
-    { key: 'status', name: t('transactions.table.status'), sortable: true },
-    { key: 'pack.title', name: t('transactions.table.title') },
     {
       key: 'pack.price',
       name: t('transactions.table.price'),
       renderer: ({ value }) => formatCurrency(value, lang),
     },
+    { key: 'status', name: t('transactions.table.status'), sortable: true },
   ]
 
   const footer = (
