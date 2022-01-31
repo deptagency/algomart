@@ -166,4 +166,8 @@ export const Configuration = {
   get enableMarketplace(): boolean {
     return env.get('ENABLE_MARKETPLACE').default('false').asBool()
   },
+
+  get minimumDaysBeforeTransfer(): number {
+    return env.get('MINIMUM_DAYS_BEFORE_TRANSFER').default(7).asInt()
+  },
 }

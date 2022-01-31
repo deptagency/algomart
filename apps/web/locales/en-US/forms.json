@@ -126,7 +126,8 @@
       },
       "label": "Passphrase",
       "helpText": "For approving transactions",
-      "warning": "Write down your passphrase!"
+      "warning": "Write down your passphrase!",
+      "enterPassphrase": "Enter your passphrase to authorize this transaction."
     },
     "paymentMethods": {
       "label": "Payment Method",

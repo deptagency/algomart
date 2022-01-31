@@ -39,6 +39,7 @@ import DirectusAdapter, {
 } from '@/lib/directus-adapter'
 import { BidModel } from '@/models/bid.model'
 import { CollectibleModel } from '@/models/collectible.model'
+import { CollectibleOwnershipModel } from '@/models/collectible-ownership.model'
 import { EventModel } from '@/models/event.model'
 import { PackModel } from '@/models/pack.model'
 import { UserAccountModel } from '@/models/user-account.model'
@@ -718,10 +719,18 @@ export default class PacksService {
     locale = DEFAULT_LOCALE,
   }: LocaleAndExternalId) {
     const packs = await PackModel.query()
-      .withGraphJoined('[collectibles, owner]')
-      .where('owner.externalId', externalId)
-      .whereNull('collectibles.ownerId')
-      .whereNotNull('collectibles.address')
+      .alias('p')
+      .join('UserAccount as ua', 'ua.id', 'p.ownerId')
+      .join('Collectible as c', 'c.packId', 'p.id')
+      .whereRaw('"ua"."externalId" = ?', [externalId])
+      .whereNotNull('c.address')
+      .whereNotExists(
+        CollectibleOwnershipModel.query()
+          .alias('co')
+          .select('id')
+          .where('co.collectibleId', '=', raw('"c"."id"'))
+          .where('co.ownerId', '=', raw('"ua"."id"'))
+      )
 
     if (packs.length === 0) {
       return {

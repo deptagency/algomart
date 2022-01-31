@@ -9,6 +9,7 @@ import {
   CollectibleListWithTotal,
   CollectiblesByAlgoAddressQuerystring,
   CollectibleShowcaseQuerystring,
+  CollectibleWithDetails,
   CollectionWithSets,
   CreateBankAccount,
   CreateBankAccountResponse,
@@ -19,6 +20,7 @@ import {
   CreateUserAccountRequest,
   CreateWalletAddress,
   DEFAULT_LOCALE,
+  ExportCollectible,
   ExternalId,
   FindTransferByAddress,
   GetPaymentBankAccountStatus,
@@ -46,6 +48,7 @@ import {
   RedeemCode,
   SendBankAccountInstructions,
   SetWithCollection,
+  SingleCollectibleQuerystring,
   ToPaymentBase,
   TransferPack,
   TransferPackStatusList,
@@ -198,6 +201,18 @@ export class ApiClient {
         json: { collectibleId: request.collectibleId },
       })
       .then((response) => response.ok)
+  }
+
+  async exportCollectible(request: ExportCollectible) {
+    return await this.http
+      .post('collectibles/export', { json: request })
+      .json<{ txId: string }>()
+  }
+
+  async getCollectible(request: SingleCollectibleQuerystring) {
+    return await this.http
+      .get('collectibles/find-one', { searchParams: request })
+      .json<CollectibleWithDetails>()
   }
   //#endregion
 

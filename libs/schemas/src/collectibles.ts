@@ -1,5 +1,6 @@
 import { Static, Type } from '@sinclair/typebox'
 
+import { CollectionWithSetsSchema, SetBaseSchema } from './collections'
 import {
   BaseSchema,
   IdSchema,
@@ -99,6 +100,13 @@ export const CollectibleWithDetailsSchema = Type.Intersect([
     edition: Type.Number(),
     address: Type.Optional(Type.Number()),
     claimedAt: Type.Optional(Type.String({ format: 'date-time' })),
+    currentOwner: Type.Optional(Type.String()),
+    currentOwnerAddress: Type.Optional(Type.String()),
+    collection: Type.Optional(CollectionWithSetsSchema),
+    set: Type.Optional(SetBaseSchema),
+    isFrozen: Type.Optional(Type.Boolean()),
+    mintedAt: Type.Optional(Type.String({ format: 'date-time' })),
+    transferrableAt: Type.Optional(Type.String({ format: 'date-time' })),
   }),
 ])
 
@@ -134,6 +142,14 @@ export const CollectiblesByAlgoAddressQuerystringSchema = Type.Intersect([
     sortDirection: Type.Optional(
       Type.Enum(SortDirection, { default: SortDirection.Ascending })
     ),
+  }),
+])
+
+export const SingleCollectibleQuerystringSchema = Type.Intersect([
+  LocaleSchema,
+  Type.Object({
+    assetId: Type.Integer({ minimum: 0 }),
+    externalId: Type.Optional(Type.String({ format: 'uuid' })),
   }),
 ])
 
@@ -178,6 +194,13 @@ export const CollectibleListShowcaseSchema = Type.Object({
   collectibles: CollectibleListSchema,
 })
 
+export const ExportCollectibleSchema = Type.Object({
+  assetIndex: Type.Number(),
+  address: Type.String(),
+  passphrase: Type.String(),
+  externalId: Type.String(),
+})
+
 export type Collectible = Simplify<Static<typeof CollectibleSchema>>
 export type CollectibleAuction = Simplify<
   Static<typeof CollectibleAuctionSchema>
@@ -212,4 +235,8 @@ export type CollectibleListWithTotal = Simplify<
 export type CollectibleId = Simplify<Static<typeof CollectibleIdSchema>>
 export type CollectibleListShowcase = Simplify<
   Static<typeof CollectibleListShowcaseSchema>
+>
+export type ExportCollectible = Simplify<Static<typeof ExportCollectibleSchema>>
+export type SingleCollectibleQuerystring = Simplify<
+  Static<typeof SingleCollectibleQuerystringSchema>
 >

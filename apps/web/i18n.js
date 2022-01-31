@@ -5,6 +5,7 @@ module.exports = {
     '*': ['auth', 'collection', 'common', 'forms', 'release'],
     'rgx:/asset': ['asset'],
     'rgx:/my/profile': ['profile'],
+    'rgx:/nft': ['nft'],
   },
   // Needed to dynamically load locales within APIs using `getT()`
   // https://github.com/vinissimus/next-translate/issues/484#issuecomment-899593712

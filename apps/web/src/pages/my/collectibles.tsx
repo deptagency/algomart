@@ -1,7 +1,6 @@
 import {
   CollectibleListWithTotal,
   CollectibleSortField,
-  CollectibleWithDetails,
   SortDirection,
   SortOptions,
 } from '@algomart/schemas'
@@ -34,12 +33,7 @@ export default function MyCollectiblesPage() {
     SortDirection.Descending
   )
 
-  const [activeAsset, setActiveAsset] = useState<CollectibleWithDetails | null>(
-    null
-  )
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [isViewerActive, setIsViewerActive] = useState<boolean>(false)
-
   const selectOptions = getSelectSortingOptions(t)
   const [selectedOption, setSelectedOption] = useState<SelectOption>(
     selectOptions[0]
@@ -82,16 +76,6 @@ export default function MyCollectiblesPage() {
     setSortDirection(newSortDirection)
   }, [])
 
-  const toggleViewer = useCallback((asset?: CollectibleWithDetails) => {
-    if (asset) {
-      setIsViewerActive(true)
-      setActiveAsset(asset)
-    } else {
-      setActiveAsset(null)
-      setIsViewerActive(false)
-    }
-  }, [])
-
   return (
     <DefaultLayout
       pageTitle={t('common:pageTitles.My Collectibles')}
@@ -102,17 +86,14 @@ export default function MyCollectiblesPage() {
         <Loading />
       ) : (
         <MyCollectiblesTemplate
-          activeAsset={activeAsset}
           assets={collectibles}
           currentPage={currentPage}
           handlePageChange={handlePageChange}
           handleRedirectBrands={() => router.push(urls.releases)}
           handleSortChange={handleSortChange}
-          isViewerActive={isViewerActive}
           selectedOption={selectedOption}
           selectOptions={selectOptions}
           totalCollectibles={total}
-          toggleViewer={toggleViewer}
         />
       )}
     </DefaultLayout>
