@@ -26,6 +26,8 @@ import {
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
+  ImportCollectible,
+  InitializeImportCollectible,
   Locale,
   LocaleAndExternalId,
   MintPack,
@@ -212,6 +214,18 @@ export class ApiClient {
   async exportCollectible(request: ExportCollectible) {
     return await this.http
       .post('collectibles/export', { json: request })
+      .json<{ txId: string }>()
+  }
+
+  async initializeImportCollectible(request: InitializeImportCollectible) {
+    return await this.http
+      .post('collectibles/import', { json: request })
+      .json<{ txId: string; txn: string; signer: string }>()
+  }
+
+  async importCollectible(request: ImportCollectible) {
+    return await this.http
+      .post('collectibles/import/sign', { json: request })
       .json<{ txId: string }>()
   }
 

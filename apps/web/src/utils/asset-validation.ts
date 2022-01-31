@@ -85,6 +85,21 @@ export const validateExportAsset = (t: Translate) =>
     assetIndex: number(required(t('forms:errors.required') as string)),
   })
 
+export const validateInitializeImportAsset = (t: Translate) =>
+  object({
+    address: string(required(t('forms:errors.required') as string)),
+    assetIndex: number(required(t('forms:errors.required') as string)),
+  })
+
+export const validateImportAsset = (t: Translate) =>
+  object({
+    address: string(required(t('forms:errors.required') as string)),
+    passphrase: passphrase(t),
+    assetIndex: number(required(t('forms:errors.required') as string)),
+    transactionId: string(required(t('forms:errors.required') as string)),
+    signedTransaction: string(required(t('forms:errors.required') as string)),
+  })
+
 export const validateCreateAsset = (t: Translate) =>
   object({
     files: files(t),

@@ -149,6 +149,17 @@ export class AlgorandAdapter {
     return algosdk.encodeUnsignedTransaction(txn)
   }
 
+  async decodeUnsignedTransaction(txn: string): Promise<Transaction> {
+    const algosdk = await algosdkLoader
+    return algosdk.decodeUnsignedTransaction(
+      new Uint8Array(Buffer.from(txn, 'base64'))
+    )
+  }
+
+  encodeSignedTransaction(txn: Uint8Array): string {
+    return Buffer.from(txn).toString('base64')
+  }
+
   async makeAssetTransferTransaction(
     params: Omit<
       Parameters<typeof makeAssetTransferTxnWithSuggestedParamsFromObject>[0],
