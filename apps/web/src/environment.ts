@@ -4,11 +4,25 @@ import { FirebaseOptions } from 'firebase/app'
 import { ServiceAccount } from 'firebase-admin'
 import getConfig from 'next/config'
 
+import { ChainType } from './libs/algorand-adapter'
+
 export const Environment = {
   config(key: string, fallback: string): string {
     const { publicRuntimeConfig = {}, serverRuntimeConfig = {} } =
       getConfig() || {}
     return publicRuntimeConfig[key] || serverRuntimeConfig[key] || fallback
+  },
+
+  get chainType(): ChainType {
+    return this.config('chainType', ChainType.TestNet)
+  },
+
+  get algoExplorerBaseUrl(): string {
+    return {
+      [ChainType.MainNet]: 'https://algoexplorer.io',
+      [ChainType.TestNet]: 'https://testnet.algoexplorer.io',
+      [ChainType.BetaNet]: 'https://betanet.algoexplorer.io',
+    }[this.chainType]
   },
 
   get firebaseConfig() {

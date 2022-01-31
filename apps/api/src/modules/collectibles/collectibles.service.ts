@@ -2,20 +2,23 @@ import {
   AlgorandTransactionStatus,
   CollectibleBase,
   CollectibleListQuerystring,
+  CollectibleListShowcase,
   CollectibleListWithTotal,
   CollectiblesByAlgoAddressQuerystring,
+  CollectibleShowcaseQuerystring,
   CollectibleSortField,
   CollectibleWithDetails,
   DEFAULT_LOCALE,
   EventAction,
   EventEntityType,
+  ExportCollectible,
   IPFSStatus,
+  SingleCollectibleQuerystring,
   SortDirection,
 } from '@algomart/schemas'
-import { CollectibleListShowcase } from '@algomart/schemas'
-import { CollectibleShowcaseQuerystring } from '@algomart/schemas'
 import { Transaction } from 'objection'
 
+import { Configuration } from '@/configuration'
 import AlgoExplorerAdapter from '@/lib/algoexplorer-adapter'
 import AlgorandAdapter, {
   DEFAULT_INITIAL_BALANCE,
@@ -30,6 +33,7 @@ import { CollectibleShowcaseModel } from '@/models/collectible-showcase.model'
 import { EventModel } from '@/models/event.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import { isDefinedArray } from '@/utils/arrays'
+import { addDays, isBeforeNow } from '@/utils/date-time'
 import { invariant, userInvariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
 
@@ -82,6 +86,93 @@ export default class CollectiblesService {
     )
 
     return collectibles.length
+  }
+
+  getTransferrableAt(collectible: CollectibleModel): Date {
+    invariant(collectible.pack, 'must load collectible with its pack')
+    invariant(
+      collectible.creationTransaction,
+      'must load collectible with its creation transaction'
+    )
+
+    const { payment } = collectible.pack
+
+    // If this collectible was purchased with a card, then it cannot be
+    // transferred until MINIMUM_DAYS_BEFORE_TRANSFER has passed since the
+    // ASA was minted.
+    const wasPaidWithCard =
+      payment && !payment.destinationAddress && !payment.paymentBankId
+
+    const transferrableAt = wasPaidWithCard
+      ? addDays(
+          new Date(collectible.creationTransaction.createdAt),
+          Configuration.minimumDaysBeforeTransfer
+        )
+      : new Date(collectible.creationTransaction.createdAt)
+
+    return transferrableAt
+  }
+
+  async getCollectible(
+    query: SingleCollectibleQuerystring
+  ): Promise<CollectibleWithDetails> {
+    const collectible = await CollectibleModel.query()
+      .findOne({ address: query.assetId })
+      .withGraphFetched('[creationTransaction, pack.payment]')
+
+    userInvariant(collectible, 'Collectible not found', 404)
+
+    const transferrableAt = this.getTransferrableAt(collectible)
+
+    const {
+      collectibles: [template],
+    } = await this.cms.findAllCollectibles(
+      query.locale,
+      {
+        id: { _eq: collectible.templateId },
+      },
+      1
+    )
+
+    invariant(template, `NFT Template ${collectible.templateId} not found`)
+
+    const currentOwner = await this.algoExplorer.getCurrentAssetOwner(
+      collectible.address
+    )
+    const owner = await UserAccountModel.query()
+      .alias('u')
+      .join('AlgorandAccount as a', 'u.algorandAccountId', 'a.id')
+      .where('a.address', '=', currentOwner?.address || '-')
+      .first()
+
+    const { collections } = await this.cms.findAllCollections(query.locale)
+    const collection = collections.find(
+      (c) =>
+        c.id === template.collectionId ||
+        c.sets.some((s) => s.id === template.setId)
+    )
+    const set = collection?.sets.find((s) => s.id === template.setId)
+
+    return {
+      ...template,
+      set,
+      collection,
+      currentOwner: owner?.username,
+      currentOwnerAddress: currentOwner?.address,
+      isFrozen: currentOwner?.assets.some(
+        (asset) =>
+          asset['asset-id'] === collectible.address && asset['is-frozen']
+      ),
+      transferrableAt: transferrableAt.toISOString(),
+      id: collectible.id,
+      edition: collectible.edition,
+      address: collectible.address,
+      mintedAt: collectible.creationTransaction?.createdAt,
+      claimedAt:
+        collectible.claimedAt instanceof Date
+          ? collectible.claimedAt.toISOString()
+          : collectible.claimedAt,
+    }
   }
 
   async storeCollectibles(limit = 5, trx: Transaction) {
@@ -816,5 +907,72 @@ export default class CollectiblesService {
         })
       })
     )
+  }
+
+  async exportCollectible(request: ExportCollectible, trx?: Transaction) {
+    const user = await UserAccountModel.query(trx)
+      .findOne({
+        externalId: request.externalId,
+      })
+      .withGraphFetched('algorandAccount')
+
+    userInvariant(user, 'user not found', 404)
+    invariant(user.algorandAccount, 'algorand account not loaded')
+
+    const collectible = await CollectibleModel.query(trx)
+      .findOne({
+        address: request.assetIndex,
+      })
+      .withGraphFetched('[creationTransaction, pack.payment]')
+
+    userInvariant(collectible, 'collectible not found', 404)
+    userInvariant(
+      collectible.ownerId == user.id,
+      'not the owner of this collectible',
+      400
+    )
+    userInvariant(
+      collectible.creationTransaction?.createdAt,
+      'collectible not minted',
+      400
+    )
+
+    const transferrableAt = this.getTransferrableAt(collectible)
+
+    userInvariant(
+      isBeforeNow(transferrableAt),
+      'collectible cannot yet be transferred',
+      400
+    )
+
+    const asset = await this.algorand.getAssetInfo(collectible.address)
+    userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
+
+    const result = await this.algorand.generateExportTransactions({
+      assetIndex: request.assetIndex,
+      encryptedMnemonic: user.algorandAccount.encryptedKey,
+      passphrase: request.passphrase,
+      fromAccountAddress: user.algorandAccount.address,
+      toAccountAddress: request.address,
+    })
+
+    await AlgorandTransactionModel.query(trx).insert(
+      result.transactionIds.map((txId) => ({
+        address: txId,
+        status: AlgorandTransactionStatus.Pending,
+      }))
+    )
+
+    await this.algorand.submitTransaction(result.signedTransactions)
+
+    await CollectibleModel.query(trx)
+      .where({
+        id: collectible.id,
+      })
+      .patch({
+        ownerId: null,
+      })
+
+    return result.transferTxnId
   }
 }

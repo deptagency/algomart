@@ -13,3 +13,7 @@
 .title {
   @apply mb-12;
 }
+
+.subtitle {
+  @apply mb-12 -mt-12 text-base-gray-medium;
+}
