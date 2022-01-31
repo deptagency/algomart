@@ -33,11 +33,13 @@ async function runAction(
     )
 
     process.on('SIGTERM', () => {
+      console.log('sigterm')
       directus.kill()
       process.exit(128 + 15)
     })
 
     process.on('exit', (code) => {
+      console.log('exit')
       process.exit(code)
     })
 
@@ -45,7 +47,11 @@ async function runAction(
       reject(error)
     })
 
-    directus.on('exit', () => {
+    directus.on('exit', (code) => {
+      if (code !== 0) {
+        reject(code)
+      }
+
       resolve(true)
     })
   })
@@ -55,11 +61,5 @@ export default async function directusExecutor(
   options: DirectusExecutorOptions,
   context: ExecutorContext
 ) {
-  try {
-    await runAction(options, context);
-
-    return { success: true };
-  } catch (e) {
-    throw e;
-  }
+  await runAction(options, context)
 }
