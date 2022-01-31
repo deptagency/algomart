@@ -148,7 +148,6 @@ export const CollectiblesByAlgoAddressQuerystringSchema = Type.Intersect([
 export const SingleCollectibleQuerystringSchema = Type.Intersect([
   LocaleSchema,
   Type.Object({
-    templateId: Type.String({ format: 'uuid' }),
     assetId: Type.Integer({ minimum: 0 }),
     externalId: Type.Optional(Type.String({ format: 'uuid' })),
   }),

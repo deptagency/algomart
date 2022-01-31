@@ -21,9 +21,8 @@ export default function NFTPage({
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { templateId, assetId } = context.query
+  const { assetId } = context.query
   const collectible = await ApiClient.instance.getCollectible({
-    templateId: templateId as string,
     assetId: Number(assetId),
   })
   return {

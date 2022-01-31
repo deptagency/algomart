@@ -50,12 +50,8 @@ export default function TransferPage({
 
   const cancel = useCallback(async () => {
     await disconnect()
-    router.push(
-      urls.nft
-        .replace(':templateId', collectible.templateId)
-        .replace(':assetId', String(collectible.address))
-    )
-  }, [collectible.address, collectible.templateId, disconnect, router])
+    router.push(urls.nft.replace(':assetId', String(collectible.address)))
+  }, [collectible.address, disconnect, router])
 
   const transfer = useCallback(async () => {
     try {
@@ -95,9 +91,8 @@ export default function TransferPage({
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { templateId, assetId } = context.query
+  const { assetId } = context.query
   const collectible = await ApiClient.instance.getCollectible({
-    templateId: templateId as string,
     assetId: Number(assetId),
   })
   return {

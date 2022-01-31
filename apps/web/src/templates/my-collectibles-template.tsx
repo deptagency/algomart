@@ -70,9 +70,7 @@ export default function MyCollectiblesTemplate({
                 key={asset.id}
                 onClick={() => {
                   router.push(
-                    urls.nft
-                      .replace(':templateId', asset.templateId)
-                      .replace(':assetId', String(asset.address))
+                    urls.nft.replace(':assetId', String(asset.address))
                   )
                 }}
                 title={asset.title}

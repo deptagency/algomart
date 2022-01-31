@@ -76,9 +76,10 @@ export default function NFTTemplate({
               </LinkButton>
               <LinkButton
                 group="right"
-                href={urls.nftTransfer
-                  .replace(':templateId', collectible.templateId)
-                  .replace(':assetId', String(collectible.address))}
+                href={urls.nftTransfer.replace(
+                  ':assetId',
+                  String(collectible.address)
+                )}
                 size="small"
                 variant="secondary"
               >
