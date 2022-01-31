@@ -55,6 +55,11 @@ export default async function directusExecutor(
   options: DirectusExecutorOptions,
   context: ExecutorContext
 ) {
-  await runAction(options, context)
-  return { success: true }
+  try {
+    await runAction(options, context);
+
+    return { success: true };
+  } catch (e) {
+    throw e;
+  }
 }
