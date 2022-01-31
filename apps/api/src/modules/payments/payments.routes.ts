@@ -241,6 +241,25 @@ export async function createTransferPayment(
   }
 }
 
+export async function getAdminPaymentById(
+  request: FastifyRequest<{
+    Params: PaymentId
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payment = await paymentService.getAdminPaymentById(
+    request.params.paymentId
+  )
+  if (payment) {
+    reply.status(200).send(payment)
+  } else {
+    reply.notFound()
+  }
+}
+
 export async function getPaymentById(
   request: FastifyRequest<{
     Params: PaymentId

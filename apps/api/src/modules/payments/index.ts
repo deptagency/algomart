@@ -37,6 +37,7 @@ import {
   createTransferPayment,
   createWalletAddress,
   findTransferByAddress,
+  getAdminPaymentById,
   getBankAccountStatus,
   getCards,
   getCardStatus,
@@ -110,7 +111,7 @@ export async function paymentRoutes(app: FastifyInstance) {
           },
         },
       },
-      getPayments
+      getAdminPaymentById
     )
     .get(
       '/encryption-public-key',
