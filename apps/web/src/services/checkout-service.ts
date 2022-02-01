@@ -137,7 +137,7 @@ export class CheckoutService implements CheckoutAPI {
   ): Promise<AdminPaymentList> {
     const searchQuery = getPaymentsFilterQuery(query)
     return await this.http
-      .get(`${urls.api.v1.listPayments}?${searchQuery}`)
+      .get(`${urls.api.v1.admin.getPayments}?${searchQuery}`)
       .json<AdminPaymentList>()
   }
 
