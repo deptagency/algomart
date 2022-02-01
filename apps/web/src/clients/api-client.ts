@@ -55,6 +55,7 @@ import {
   ToPaymentBase,
   TransferPack,
   TransferPackStatusList,
+  UpdatePayment,
   UpdatePaymentCard,
   UpdateUserAccount,
   Username,
@@ -332,6 +333,12 @@ export class ApiClient {
     return await this.http
       .get(`bank-accounts/${bankAccountId}/payments`)
       .json<Payment[]>()
+  }
+
+  async updatePaymentById(paymentId: string, json: UpdatePayment) {
+    return await this.http
+      .patch(`payments/${paymentId}`, { json })
+      .json<UpdatePayment>()
   }
   //#endregion
 

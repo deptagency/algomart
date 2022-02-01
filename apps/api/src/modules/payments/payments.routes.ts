@@ -11,6 +11,7 @@ import {
   OwnerExternalId,
   PaymentId,
   SendBankAccountInstructions,
+  UpdatePayment,
   UpdatePaymentCard,
 } from '@algomart/schemas'
 import { FastifyReply, FastifyRequest } from 'fastify'
@@ -233,6 +234,27 @@ export async function createPayment(
     reply.status(201).send(payment)
   } else {
     reply.badRequest('Unable to create payment')
+  }
+}
+
+export async function updatePayment(
+  request: FastifyRequest<{
+    Params: PaymentId
+    Body: UpdatePayment
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payment = await paymentService.updatePayment(
+    request.params.paymentId,
+    request.body
+  )
+  if (payment) {
+    reply.status(201).send(payment)
+  } else {
+    reply.badRequest('Unable to update payment')
   }
 }
 

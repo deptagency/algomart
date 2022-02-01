@@ -1,3 +1,4 @@
+import { PaymentStatus } from '@algomart/schemas'
 import { Translate } from 'next-translate'
 import {
   boolean,
@@ -248,6 +249,16 @@ export const validateUpdateCard = (t: Translate) =>
   object({
     cardId: identifier(t),
     default: boolean(),
+  })
+
+export const validateUpdatePayment = (t: Translate) =>
+  object({
+    paymentId: identifier(t),
+    externalId: string(),
+    status: oneOf(
+      Object.keys(PaymentStatus),
+      t('forms:errors.invalidPayment') as string
+    ),
   })
 
 export const validateRemoveCard = (t: Translate) =>

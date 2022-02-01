@@ -22,6 +22,7 @@ import {
   SendBankAccountInstructions,
   SortDirection,
   ToPaymentBase,
+  UpdatePayment,
   UpdatePaymentCard,
   UserAccount,
 } from '@algomart/schemas'
@@ -786,6 +787,24 @@ export default class PaymentsService {
         },
       }
     }
+    return payment
+  }
+
+  async updatePayment(
+    paymentId: string,
+    updatedDetails: UpdatePayment,
+    trx?: Transaction
+  ) {
+    const payment = await PaymentModel.query(trx).findById(paymentId)
+    userInvariant(payment, 'payment not found', 404)
+    // Update payment with new details
+    await PaymentModel.query(trx).findById(paymentId).patch(updatedDetails)
+
+    await EventModel.query(trx).insert({
+      action: EventAction.Update,
+      entityType: EventEntityType.Payment,
+      entityId: paymentId,
+    })
     return payment
   }
 

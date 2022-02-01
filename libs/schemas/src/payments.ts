@@ -720,6 +720,11 @@ export const PublicKeySchema = Type.Object({
   publicKey: Type.String(),
 })
 
+export const UpdatePaymentSchema = Type.Object({
+  externalId: Type.Optional(Type.String()),
+  status: Type.Enum(PaymentStatus),
+})
+
 export const UpdatePaymentCardSchema = Type.Object({
   default: Type.Boolean(),
   ownerExternalId: Type.String(),
@@ -827,6 +832,7 @@ export type ToPaymentBankAccountBase = Simplify<
 >
 export type ToPaymentBase = Simplify<Static<typeof ToPaymentBaseSchema>>
 export type ToPaymentCardBase = Simplify<Static<typeof ToPaymentCardBaseSchema>>
+export type UpdatePayment = Simplify<Static<typeof UpdatePaymentSchema>>
 export type UpdatePaymentCard = Simplify<Static<typeof UpdatePaymentCardSchema>>
 
 // #endregion
