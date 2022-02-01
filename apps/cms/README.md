@@ -6,7 +6,7 @@ The purpose of the CMS is to provide content authors the ability to create and m
 
 ## Get started
 
-Once the environment variables have been added to the `.env` file, you'll want to create a new Postgres database with the name specified in the `DB_CONNECTION_STRING` in the `.env` file. You'll also want to set the `ADMIN_EMAIL` and `ADMIN_PASSWORD` values for the initial CMS admin user.
+Once the environment variables have been added to the `.env` file, you'll want to create a new Postgres database with the name specified in the `DB_CONNECTION_STRING` in the `.env` file and create an appropriate schema for `DB_SEARCH_PATH`. You'll also want to set the `ADMIN_EMAIL` and `ADMIN_PASSWORD` values for the initial CMS admin user.
 
 Run the bootstrap and import commands via Nx:
 
@@ -115,7 +115,7 @@ Note that once a Pack Template record is published, many of its fields cannot be
 
 ## Sets
 
-Sets are an optional mechanism to group NFTs in a way that can incentivize an end-user to collect all of the NFTs assigned to a a Set. For example, let's imagine we are distributing football card NFTs. A Set might be all of the NFTs for a player on a given team in the 2022 season.
+Sets are an optional mechanism to group NFTs in a way that can incentivize an end-user to collect all of the NFTs assigned to a Set. For example, let's imagine we are distributing football card NFTs. A Set might be all of the NFTs for a player on a given team in the 2022 season.
 
 Note that once Set record is published, many of its fields cannot be edited. This is to maintain integrity of the acquisition incentive. A Set has a number of configurable fields:
 
@@ -127,7 +127,7 @@ Note that once Set record is published, many of its fields cannot be edited. Thi
 
 ## Collections
 
-Not to be confused with Directus' "Collection" nomenclature. Within this platform, Collections are an optional mechanism to group Sets and/or individual NFTs in a way that can incentivize an end-user to collect all of the NFTs assigned to a a Collection, or all of the NFTs in the Sets assigned to the Collection. For example, let's revisit the football card NFTs scenario described above. A Collection might represent all of the football teams in a league for the 2022 season. Each Set (again, representing a team), would contain NFTs for each player on a given team in the 2022 season. So in essence, a user who has collected all NFTs in every Set of a Collection has effectively collected all of the NFTs for each player in the 2022 football league.
+Not to be confused with Directus' "Collection" nomenclature. Within this platform, Collections are an optional mechanism to group Sets and/or individual NFTs in a way that can incentivize an end-user to collect all of the NFTs assigned to a Collection, or all of the NFTs in the Sets assigned to the Collection. For example, let's revisit the football card NFTs scenario described above. A Collection might represent all of the football teams in a league for the 2022 season. Each Set (again, representing a team), would contain NFTs for each player on a given team in the 2022 season. So in essence, a user who has collected all NFTs in every Set of a Collection has effectively collected all of the NFTs for each player in the 2022 football league.
 
 Collections don't have to contain Sets. They can also just contain individual NFTs. They also contain Sets AND individual NFTs.
 
@@ -166,13 +166,7 @@ The homepage of the provided UI depicts a featured Pack, which takes prominence 
 
 ## Updating the data model
 
-To update the data model you can start by locally using the Directus UI. But to ensure other developers can apply those changes you will need to write a migration file based on [knex](https://knexjs.org/). See the existing migration files for examples.
+To update the data model you can start by locally using the Directus UI. But to ensure other developers can apply those changes you will need to export the data model to a snapshot file.
 
-Running `npm run bootstrap` will apply new migrations. Additionally, the `package.json` contains other migration scripts (up, down, rollback, and latest) in case they're needed.
-
-## Importing & Exporting Data
-
-Data may be exported from the CMS via `npm run export` and loaded via `npm run import`. This includes Rarities, Packs, NFT Templates, Sets, Collections and asset files (typically images & videos). MNake sure your CMS server is running before running either script.
-
-`npm run export` — This will export data to `scripts/export/`
-`npm run import` — Import data from `scripts/export/` (this will not overwrite any records)
+`nx export cms` - This exports the CMS data model to `snapshot.yml`
+`nx import cms` - This imports from `snapshot.yml` to your CMS

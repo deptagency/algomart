@@ -70,7 +70,7 @@ export default function Pagination({
       <ul aria-label="Page navigation" className={css.pageNumbersList}>
         {!pageArray.includes(1) && renderPage(1)}
         {!pageArray.includes(2) && <li className={css.listItem}>...</li>}
-        {pageArray.map(renderPage)}
+        {pageArray.map((pageNumber) => renderPage(pageNumber))}
         {!pageArray.includes(lastPage - 1) && (
           <li className={css.listItem}>...</li>
         )}

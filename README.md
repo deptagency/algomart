@@ -51,6 +51,7 @@ This software is in a pre-release state. This means while we strive to keep it s
 - [Circle][circle] account for taking payments
 - [SendGrid][sendgrid] for sending email notifications
 - [Firebase][firebase] account for authentication
+- [Pinata][pinata] account for storing NFTs
 - (optional) [Google Cloud Platform][gcp] account for hosting
 - (optional) Install the [Nx CLI][nx cli] for ease of development: `npm i -g nx`
 
@@ -163,6 +164,7 @@ npm run test:api -- --watch
 [sendgrid]: https://sendgrid.com
 [web]: apps/web
 [nx cli]: https://nx.dev/using-nx/nx-cli#nx-cli
+[pinata]: https://www.pinata.cloud/
 
 ## 🚢 Deployment
 
