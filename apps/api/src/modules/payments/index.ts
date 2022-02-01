@@ -235,7 +235,7 @@ export async function paymentRoutes(app: FastifyInstance) {
           security,
           querystring: FindTransferByAddressSchema,
           response: {
-            200: AdminPaymentListSchema,
+            200: ToPaymentBaseSchema,
           },
         },
       },
