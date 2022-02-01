@@ -1,4 +1,4 @@
-import { CollectibleWithDetails } from '@algomart/schemas'
+import { CollectibleListWithTotal } from '@algomart/schemas'
 import { RadioGroup } from '@headlessui/react'
 import {
   CheckCircleIcon,
@@ -6,77 +6,97 @@ import {
 } from '@heroicons/react/outline'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
+import { useCallback, useEffect, useState } from 'react'
 
-import css from './nft-transfer-template.module.css'
+import css from '../../../templates/nft-transfer-template.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
 import LinkButton from '@/components/link-button'
 import Loading from '@/components/loading/loading'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
-import CardPurchaseHeader from '@/components/purchase-form/cards/sections/card-header'
-import { ExportStatus } from '@/hooks/use-export-collectible'
+import { useImportCollectible } from '@/hooks/use-import-collectible'
+import MyProfileLayout from '@/layouts/my-profile-layout'
+import collectibleService from '@/services/collectible-service'
 import { formatAlgoAddress } from '@/utils/format-string'
+import { useApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
 
 export type TransferStage =
   | 'passphrase'
   | 'connect'
   | 'select-account'
+  | 'select-asset'
   | 'transfer'
   | 'success'
   | 'error'
-
-export interface NFTTransferTemplateProps {
-  collectible: CollectibleWithDetails
-  onPassphraseChange: (passphrase: string) => void
-  onCancel: () => void
-  onTransfer: () => void
-  onSelectAccount: (account: string) => void
-  onConnectWallet: () => void
-  error: string
-  accounts: string[]
-  selectedAccount: string
-  exportStatus: ExportStatus
-  stage: TransferStage
-}
 
 const ALGORAND_WALLET_LINK = {
   url: 'https://algorandwallet.com',
   text: 'algorandwallet.com',
 }
 
-export default function NFTTransferTemplate({
-  stage,
-  onConnectWallet,
-  collectible,
-  error,
-  onPassphraseChange,
-  onCancel,
-  onTransfer,
-  accounts,
-  onSelectAccount,
-  selectedAccount,
-  exportStatus,
-}: NFTTransferTemplateProps) {
+export default function MyImportPage() {
   const { t } = useTranslation()
-  const exportStatusMessage = {
+  const [passphrase, setPassphrase] = useState('')
+  const [stage, setStage] = useState<TransferStage>('passphrase')
+  const importer = useImportCollectible(passphrase)
+  const [assetId, setAssetId] = useState('')
+  const [error, setError] = useState('')
+  const { data: collectibles } = useApi<CollectibleListWithTotal>(
+    importer.selectedAccount
+      ? `${urls.api.v1.getAssetsByAlgoAddress}?algoAddress=${importer.selectedAccount}&pageSize=-1`
+      : null
+  )
+  const importStatusMessage = {
     idle: t('nft:exportStatus.idle'),
-    'opt-in': t('nft:exportStatus.optIn'),
-    'opting-in': t('nft:exportStatus.optingIn'),
+    'generating-transactions': t('nft:exportStatus.generatingTransactions'),
+    'sign-transaction': t('nft:exportStatus.signTransaction'),
     pending: t('nft:exportStatus.pending'),
     success: t('nft:exportStatus.success'),
     error: t('nft:exportStatus.error'),
-  }[exportStatus]
+  }[importer.importStatus]
+
+  const onConnectWallet = importer.connect
+  const onPassphraseChange = useCallback((passphrase: string) => {
+    setPassphrase(passphrase)
+
+    if (passphrase.length === 6) {
+      setStage('connect')
+    }
+  }, [])
+  const onSelectAccount = useCallback(async () => {
+    setStage('select-asset')
+  }, [])
+  const onCancel = useCallback(async () => {
+    setStage('passphrase')
+    setPassphrase('')
+    setAssetId('')
+    await importer.disconnect()
+  }, [importer])
+  const onTransfer = useCallback(async () => {
+    try {
+      setStage('transfer')
+      await importer.importCollectible(Number(assetId))
+      setStage('success')
+    } catch (error) {
+      // TODO: improve error message
+      setError(error instanceof Error ? error.message : String(error))
+      setStage('error')
+      setAssetId('')
+      setPassphrase('')
+      await importer.disconnect()
+    }
+  }, [assetId, importer])
+
+  useEffect(() => {
+    if (stage === 'connect' && importer.connected) {
+      setStage('select-account')
+    }
+  }, [stage, importer.connected])
 
   return (
-    <div className={css.root}>
-      <CardPurchaseHeader
-        image={collectible.image}
-        title={collectible.title}
-        subtitle={collectible.collection?.name}
-      />
-
+    <MyProfileLayout pageTitle={t('common:pageTitles.Import NFT')}>
       {stage === 'passphrase' ? (
         <div key="passphrase" className={css.stage}>
           <Heading level={3} bold className={css.stageTitle}>
@@ -123,11 +143,14 @@ export default function NFTTransferTemplate({
             {t('nft:walletConnect.destinationWallet')}
           </Heading>
           <hr className={css.separator} />
-          <RadioGroup value={selectedAccount} onChange={onSelectAccount}>
+          <RadioGroup
+            value={importer.selectedAccount}
+            onChange={importer.selectAccount}
+          >
             <RadioGroup.Label hidden>
               {t('nft:walletConnect.destinationWallet')}
             </RadioGroup.Label>
-            {accounts.map((account) => (
+            {importer.accounts.map((account) => (
               <RadioGroup.Option key={account} value={account}>
                 {({ checked }) => (
                   <div className={css.accountItem}>
@@ -151,7 +174,69 @@ export default function NFTTransferTemplate({
             ))}
           </RadioGroup>
           <div className={css.spacing}>
-            <Button fullWidth onClick={onTransfer} disabled={!selectedAccount}>
+            <Button
+              fullWidth
+              onClick={onSelectAccount}
+              disabled={!importer.selectedAccount}
+            >
+              {t('nft:walletConnect.selectAccount')}
+            </Button>
+          </div>
+          <div className={css.spacing}>
+            <Button
+              onClick={onCancel}
+              size="small"
+              variant="link"
+              fullWidth
+              className={css.buttonLink}
+            >
+              {t('nft:walletConnect.orCancel')}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      {stage === 'select-asset' ? (
+        <div key="select-asset" className={css.stage}>
+          <Heading level={3} bold className={css.stageTitle}>
+            {t('nft:walletConnect.nfts')}
+          </Heading>
+          <hr className={css.separator} />
+          <RadioGroup value={assetId} onChange={setAssetId}>
+            <RadioGroup.Label hidden>
+              {t('nft:walletConnect.nfts')}
+            </RadioGroup.Label>
+            {collectibles?.collectibles.map((collectible) => (
+              <RadioGroup.Option
+                key={collectible.id}
+                value={collectible.address}
+              >
+                {({ checked }) => (
+                  <div className={css.accountItem}>
+                    <span
+                      className={clsx(
+                        css.accountItemRadio,
+                        checked && css.accountItemRadioChecked,
+                        !checked && css.accountItemRadioUnchecked
+                      )}
+                    >
+                      {checked ? (
+                        <span
+                          className={css.accountItemRadioCheckedInner}
+                        ></span>
+                      ) : null}
+                    </span>
+                    <span>
+                      {collectible.title} {collectible.edition}/
+                      {collectible.totalEditions} ({collectible.address})
+                    </span>
+                  </div>
+                )}
+              </RadioGroup.Option>
+            ))}
+          </RadioGroup>
+          <div className={css.spacing}>
+            <Button fullWidth onClick={onTransfer} disabled={!assetId}>
               {t('nft:walletConnect.transfer')}
             </Button>
           </div>
@@ -171,7 +256,7 @@ export default function NFTTransferTemplate({
 
       {stage === 'transfer' ? (
         <div key="transfer">
-          <Loading loadingText={exportStatusMessage} />
+          <Loading loadingText={importStatusMessage} />
         </div>
       ) : null}
 
@@ -206,6 +291,6 @@ export default function NFTTransferTemplate({
           </div>
         </div>
       ) : null}
-    </div>
+    </MyProfileLayout>
   )
 }

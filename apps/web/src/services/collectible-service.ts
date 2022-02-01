@@ -33,7 +33,7 @@ export interface CollectibleAPI {
   ): Promise<string>
   initializeImportCollectible(
     request: Omit<InitializeImportCollectible, 'externalId'>
-  ): Promise<{ txn: string; txnId: string }>
+  ): Promise<{ txn: string; txnId: string; signer: string }[]>
   importCollectible(
     request: Omit<ImportCollectible, 'externalId'>
   ): Promise<{ txnId: string }>
@@ -78,7 +78,7 @@ export class CollectibleService implements CollectibleAPI {
     >
   ): Promise<{ txnId: string }> {
     return await this.http
-      .post(urls.api.v1.initializeImportCollectible, {
+      .post(urls.api.v1.importCollectible, {
         json: request,
       })
       .json()
@@ -89,9 +89,9 @@ export class CollectibleService implements CollectibleAPI {
       { assetIndex: number; address: string; externalId: string },
       'externalId'
     >
-  ): Promise<{ txn: string; txnId: string }> {
+  ): Promise<{ txn: string; txnId: string; signer: string }[]> {
     return await this.http
-      .post(urls.api.v1.importCollectible, { json: request })
+      .post(urls.api.v1.initializeImportCollectible, { json: request })
       .json()
   }
 

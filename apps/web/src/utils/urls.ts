@@ -15,6 +15,7 @@ export const urls = {
   myProfileSecurity: '/my/profile/security',
   myProfileSetup: '/my/profile/setup',
   myProfileTransactions: '/my/profile/transactions',
+  myProfileImportNFT: '/my/profile/import-nft',
   mySet: '/my/sets/:setSlug',
   myShowcase: '/my/showcase',
   nft: '/nft/:assetId',

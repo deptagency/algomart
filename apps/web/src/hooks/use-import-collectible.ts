@@ -2,7 +2,11 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { Environment } from '../environment'
 
-import { AlgorandAdapter, IConnector } from '@/libs/algorand-adapter'
+import {
+  AlgorandAdapter,
+  IConnector,
+  UnsignedTransaction,
+} from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
 import collectibleService from '@/services/collectible-service'
 
@@ -10,8 +14,8 @@ const algorand = new AlgorandAdapter(Environment.chainType)
 
 export type ImportStatus =
   | 'idle'
-  | 'opt-in'
-  | 'opting-in'
+  | 'generate-transactions'
+  | 'sign-transaction'
   | 'pending'
   | 'success'
   | 'error'
@@ -52,19 +56,35 @@ export function useImportCollectible(passphrase: string) {
         const connector = connectorReference.current
         if (!connector || !passphrase) return
 
+        setImportStatus('generate-transactions')
         const result = await collectibleService.initializeImportCollectible({
           address: selectedAccount,
           assetIndex,
         })
+        let txnId = ''
 
-        const unsignedTransaction = await algorand.decodeUnsignedTransaction(
-          result.txn
+        const unsignedTransactions = await Promise.all(
+          result.map(async (txn): Promise<UnsignedTransaction> => {
+            return txn.signer === selectedAccount
+              ? (txnId = txn.txnId) && {
+                  txn: await algorand.decodeUnsignedTransaction(txn.txn),
+                }
+              : {
+                  txn: await algorand.decodeUnsignedTransaction(txn.txn),
+                  signers: [txn.signer],
+                }
+          })
         )
 
-        const signedTransaction = await connector.signTransaction(
-          unsignedTransaction
+        setImportStatus('sign-transaction')
+        const signedTransactions = await connector.signTransaction(
+          unsignedTransactions,
+          undefined,
+          true
         )
+        const signedTransaction = signedTransactions.find((txn) => !!txn)
 
+        setImportStatus('pending')
         const encodedSignedTransaction =
           algorand.encodeSignedTransaction(signedTransaction)
 
@@ -73,10 +93,10 @@ export function useImportCollectible(passphrase: string) {
           assetIndex,
           passphrase,
           signedTransaction: encodedSignedTransaction,
-          transactionId: result.txnId,
+          transactionId: txnId,
         })
 
-        await algorand.waitForConfirmation(result.txnId)
+        await algorand.waitForConfirmation(txnId)
         await disconnect()
         setImportStatus('success')
       } catch (error) {

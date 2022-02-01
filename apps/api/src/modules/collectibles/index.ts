@@ -161,11 +161,13 @@ export async function collectiblesRoutes(app: FastifyInstance) {
           security,
           body: InitializeImportCollectibleSchema,
           response: {
-            200: Type.Object({
-              txId: Type.String(),
-              txn: Type.String(),
-              signer: Type.String(),
-            }),
+            200: Type.Array(
+              Type.Object({
+                txnId: Type.String(),
+                txn: Type.String(),
+                signer: Type.String(),
+              })
+            ),
           },
         },
       },

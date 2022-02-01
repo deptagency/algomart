@@ -1056,7 +1056,7 @@ export default class CollectiblesService {
   async initializeImportCollectible(
     request: InitializeImportCollectible,
     trx?: Transaction
-  ) {
+  ): Promise<{ txn: string; txnId: string; signer: string }[]> {
     // Find the user's custodial wallet
     const user = await UserAccountModel.query(trx)
       .findOne({
@@ -1105,7 +1105,7 @@ export default class CollectiblesService {
     // The transaction that needs to be signed by the non-custodial wallet will
     // always be the last one in the list. Later, we will rely on its txnId to
     // lookup the other transactions in the group.
-    return transactions[transactions.length - 1]
+    return transactions
   }
 
   async importCollectible(request: ImportCollectible, trx?: Transaction) {
@@ -1147,7 +1147,8 @@ export default class CollectiblesService {
       'failed to load transaction group'
     )
 
-    const { group, address: transferTransactionId } = transaction
+    const { group } = transaction
+    let txId = ''
 
     // Decode signed transfer transaction
     const signedTransferTxn = new Uint8Array(
@@ -1188,16 +1189,24 @@ export default class CollectiblesService {
         signedTransferTxn,
       ]
 
-      await this.algorand.submitTransaction(signedTransactions)
+      const txResult = await this.algorand.submitTransaction(signedTransactions)
+      txId = txResult.txId
     } else {
       // Only doing transfer transaction
-      await this.algorand.submitTransaction([signedTransferTxn])
+      const txResult = await this.algorand.submitTransaction([
+        signedTransferTxn,
+      ])
+      txId = txResult.txId
     }
 
     await AlgorandTransactionModel.query(trx)
       .where({ groupId: group.id })
       .patch({ status: AlgorandTransactionStatus.Pending })
 
-    return transferTransactionId
+    await CollectibleModel.query(trx)
+      .findOne({ id: collectible.id })
+      .patch({ ownerId: user.id })
+
+    return txId
   }
 }

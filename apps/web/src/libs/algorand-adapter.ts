@@ -29,11 +29,17 @@ export interface IAssetData {
   url?: string
 }
 
+export interface UnsignedTransaction {
+  txn: Transaction
+  signers?: string[]
+}
+
 export interface IConnector extends EventEmitter {
   signTransaction(
-    transaction: Transaction,
-    message?: string
-  ): Promise<Uint8Array>
+    unsignedTransactions: UnsignedTransaction[],
+    message?: string,
+    skipSubmit?: boolean
+  ): Promise<(Uint8Array | null)[]>
   connect(): Promise<void>
   disconnect(): Promise<void>
 }

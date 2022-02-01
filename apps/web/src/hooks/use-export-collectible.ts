@@ -62,7 +62,11 @@ export function useExportCollectible(passphrase: string) {
             assetIndex,
             selectedAccount
           )
-          await connector.signTransaction(txn)
+          await connector.signTransaction([
+            {
+              txn,
+            },
+          ])
           setExportStatus('opt-in')
           await algorand.waitForConfirmation(txn.txID())
         }
