@@ -1,17 +1,14 @@
+import { SortDirection } from '@algomart/schemas'
 import { useState } from 'react'
 
 const SORTS = ['asc', 'desc', undefined]
 
 const usePagination = (
-  initialPage = 1,
-  initialSortBy,
-  initialSortDirection = 'asc'
+  page = 1,
+  sortBy: string,
+  sortDirection: SortDirection = SortDirection.Descending
 ) => {
-  const [pagination, _setPagination] = useState({
-    page: initialPage,
-    sortBy: initialSortBy,
-    sortDirection: initialSortDirection,
-  })
+  const [pagination, _setPagination] = useState({ page, sortBy, sortDirection })
 
   const setPagination = (newPagination) => {
     _setPagination({ ...pagination, ...newPagination })
@@ -24,7 +21,7 @@ const usePagination = (
   const handleSortBy = (newSortBy) => {
     const nextSortDirection =
       pagination.sortBy === newSortBy
-        ? SORTS[(SORTS.indexOf(pagination.sortDirection) + 1) % 3]
+        ? SORTS[(SORTS.indexOf(pagination.sortDirection) + 1) % SORTS.length]
         : SORTS[0]
     setPagination({
       page: 1,

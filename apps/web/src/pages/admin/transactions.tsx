@@ -2,8 +2,6 @@ import {
   AdminPaymentBase,
   AdminPaymentList,
   FirebaseClaim,
-  PaymentSortField,
-  SortDirection,
 } from '@algomart/schemas'
 import { RefreshIcon } from '@heroicons/react/outline'
 import { GetServerSideProps } from 'next'
@@ -53,7 +51,7 @@ export default function AdminTransactionsPage() {
   }, [auth?.user, router])
 
   const { page, setPage, handleTableHeaderClick, sortBy, sortDirection } =
-    usePagination(1, 'status', 'desc')
+    usePagination(1, 'createdAt')
 
   const qp = getPaymentsFilterQuery({
     page,
@@ -105,7 +103,7 @@ export default function AdminTransactionsPage() {
     >
       <Panel
         fullWidth
-        title="Transactions"
+        title={t('common:pageTitles.Transactions')}
         contentRight={
           isValidating && <RefreshIcon className="w-5 h-5 animate-spin" />
         }
