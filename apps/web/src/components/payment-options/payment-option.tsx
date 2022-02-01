@@ -1,12 +1,12 @@
 import clsx from 'clsx'
 import { ReactNode } from 'react'
 
-import css from './card.module.css'
+import css from './payment-option.module.css'
 
 import AppLink from '@/components/app-link/app-link'
 import Heading from '@/components/heading'
 
-export interface CardProps {
+export interface PaymentOptionProps {
   helpText: string
   href: string | { pathname: string; query?: { [key: string]: string } }
   icon: ReactNode
@@ -14,13 +14,13 @@ export interface CardProps {
   title: string
 }
 
-export default function Card({
+export default function PaymentOption({
   helpText,
   href,
   icon,
   isDisabled,
   title,
-}: CardProps) {
+}: PaymentOptionProps) {
   return (
     <section className={css.root}>
       <AppLink

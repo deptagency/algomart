@@ -1,0 +1,43 @@
+.table {
+  @apply w-full;
+}
+.table.fixedLayout {
+  @apply table-fixed;
+}
+
+.thead {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+.th {
+  @apply px-6 py-4 overflow-x-hidden text-xs font-medium tracking-wider text-left uppercase text-base-textTertiary;
+}
+.th.sortable {
+  @apply cursor-pointer hover:underline;
+}
+.sortIcon {
+  @apply inline w-3 h-3 ml-1 transition-transform transform-gpu;
+}
+.sortIcon.sortAsc {
+  @apply rotate-180;
+}
+
+.tr {
+  @apply border-b border-base-border;
+}
+
+.tr:last-of-type {
+  @apply border-b-0;
+}
+
+.td {
+  @apply px-6 py-4 overflow-x-hidden text-sm text-base-textPrimary whitespace-nowrap;
+}
+
+.tbody {
+  @apply overflow-auto;
+}
+
+.nullish {
+  @apply text-base-textTertiary;
+}

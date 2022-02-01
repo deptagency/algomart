@@ -1,6 +1,14 @@
 import { Static, Type } from '@sinclair/typebox'
 
-import { BaseSchema, IdSchema, Nullable, Simplify } from './shared'
+import { PackWithIdSchema } from './packs'
+import {
+  BaseSchema,
+  IdSchema,
+  Nullable,
+  PaginationSchema,
+  Simplify,
+  SortDirection,
+} from './shared'
 
 // #region Enums
 
@@ -178,6 +186,12 @@ export enum CheckoutStatus {
   summary = 'summary',
 }
 
+export enum PaymentSortField {
+  CreatedAt = 'createdAt',
+  UpdatedAt = 'updatedAt',
+  Status = 'status',
+}
+
 // #endregion
 // #region Schemas
 
@@ -248,7 +262,6 @@ export const SendBankAccountInstructionsSchema = Type.Object({
   bankAccountId: IdSchema,
   ownerExternalId: Type.String(),
 })
-
 // #endregion
 // #region Circle
 
@@ -534,6 +547,42 @@ const CoinbaseErrorResponseSchema = Type.Object({
 // #endregion
 // #region Payment/card routes schemas
 
+export const AdminPaymentListQuerystringSchema = Type.Intersect([
+  PaginationSchema,
+  Type.Object({
+    locale: Type.Optional(Type.String()),
+    packId: Type.Optional(Type.String({ format: 'uuid' })),
+    packSlug: Type.Optional(Type.String()),
+    payerExternalId: Type.Optional(Type.String()),
+    payerUsername: Type.Optional(Type.String()),
+    sortBy: Type.Optional(
+      Type.Enum(PaymentSortField, { default: PaymentSortField.UpdatedAt })
+    ),
+    sortDirection: Type.Optional(
+      Type.Enum(SortDirection, { default: SortDirection.Ascending })
+    ),
+  }),
+])
+
+const AdminPaymentBaseSchema = Type.Intersect([
+  BaseSchema,
+  Type.Object({
+    packId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
+    pack: Type.Optional(PackWithIdSchema),
+    payerId: Type.String(),
+    paymentCardId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
+    paymentBankId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
+    destinationAddress: Type.Optional(Nullable(Type.String())),
+    status: Type.Optional(Type.Enum(PaymentStatus)),
+    transferId: Type.Optional(Nullable(Type.String())),
+  }),
+])
+
+export const AdminPaymentListSchema = Type.Object({
+  payments: Type.Array(AdminPaymentBaseSchema),
+  total: Type.Number(),
+})
+
 export const CurrencySchema = Type.Object({
   base: Type.Number(),
   code: Type.String(),
@@ -676,10 +725,13 @@ export const UpdatePaymentCardSchema = Type.Object({
   default: Type.Boolean(),
   ownerExternalId: Type.String(),
 })
-
 // #endregion
 // #region Types
 
+export type AdminPaymentList = Simplify<Static<typeof AdminPaymentListSchema>>
+export type AdminPaymentListQuerystring = Simplify<
+  Static<typeof AdminPaymentListQuerystringSchema>
+>
 export type BankAccountId = Simplify<Static<typeof BankAccountIdSchema>>
 export type CardId = Simplify<Static<typeof CardIdSchema>>
 export type CircleBlockchainAddress = Simplify<
@@ -756,6 +808,7 @@ export type GetPaymentBankAccountStatus = Simplify<
 export type GetPaymentCardStatus = Simplify<
   Static<typeof GetPaymentCardStatusSchema>
 >
+export type AdminPaymentBase = Simplify<Static<typeof AdminPaymentBaseSchema>>
 export type Payment = Simplify<Static<typeof PaymentSchema>>
 export type PaymentId = Simplify<Static<typeof PaymentIdSchema>>
 export type PaymentBankAccount = Simplify<

@@ -2,7 +2,7 @@ module.exports = {
   defaultLocale: 'en-US',
   locales: ['en-US'],
   pages: {
-    '*': ['auth', 'collection', 'common', 'forms', 'release'],
+    '*': ['admin', 'auth', 'collection', 'common', 'forms', 'release'],
     'rgx:/asset': ['asset'],
     'rgx:/my/profile': ['profile'],
     'rgx:/nft': ['nft'],

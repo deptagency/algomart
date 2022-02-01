@@ -1,4 +1,6 @@
 import {
+  AdminPaymentListQuerystringSchema,
+  AdminPaymentListSchema,
   BankAccountIdSchema,
   CardIdSchema,
   CircleBlockchainAddressSchema,
@@ -39,6 +41,7 @@ import {
   getCardStatus,
   getCurrency,
   getPaymentById,
+  getPayments,
   getPublicKey,
   getWireTransferInstructions,
   removeCard,
@@ -66,6 +69,20 @@ export async function paymentRoutes(app: FastifyInstance) {
 
   // Services/Routes
   app
+    .get(
+      '/',
+      {
+        schema: {
+          tags,
+          security,
+          querystring: AdminPaymentListQuerystringSchema,
+          response: {
+            200: AdminPaymentListSchema,
+          },
+        },
+      },
+      getPayments
+    )
     .get(
       '/:paymentId',
       {
