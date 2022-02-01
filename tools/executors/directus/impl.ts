@@ -48,6 +48,7 @@ async function runAction(
     directus.on('exit', (code) => {
       if (code !== 0) {
         reject(code)
+        return
       }
 
       resolve(true)
