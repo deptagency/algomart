@@ -1,4 +1,4 @@
-import { AdminPermissions } from '@algomart/schemas'
+import { AdminPermissions, Payment, UpdatePayment } from '@algomart/schemas'
 import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
@@ -7,6 +7,7 @@ import { urls } from '@/utils/urls'
 
 export interface AdminAPI {
   getLoggedInUserPermissions(): Promise<AdminPermissions>
+  updatePayment(paymentId: string, json: UpdatePayment): Promise<Payment | null>
 }
 
 export class AdminService implements AdminAPI {
@@ -40,6 +41,18 @@ export class AdminService implements AdminAPI {
       .get(urls.api.v1.adminGetClaims)
       .json<AdminPermissions>()
     return response
+  }
+
+  async updatePayment(
+    paymentId: string,
+    json: UpdatePayment
+  ): Promise<Payment | null> {
+    const payment = await this.http
+      .patch(urls.api.v1.admin.updatePayment, {
+        json: { ...json, paymentId },
+      })
+      .json<Payment | null>()
+    return payment
   }
 }
 

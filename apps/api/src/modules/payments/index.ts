@@ -1,4 +1,5 @@
 import {
+  AdminPaymentBaseSchema,
   AdminPaymentListQuerystringSchema,
   AdminPaymentListSchema,
   BankAccountIdSchema,
@@ -24,6 +25,7 @@ import {
   SendBankAccountInstructionsSchema,
   ToPaymentBaseSchema,
   UpdatePaymentCardSchema,
+  UpdatePaymentSchema,
 } from '@algomart/schemas'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
@@ -36,6 +38,8 @@ import {
   createTransferPayment,
   createWalletAddress,
   findTransferByAddress,
+  findWirePaymentsByBankId,
+  getAdminPaymentById,
   getBankAccountStatus,
   getCards,
   getCardStatus,
@@ -47,6 +51,7 @@ import {
   removeCard,
   sendWireTransferInstructions,
   updateCard,
+  updatePayment,
 } from './payments.routes'
 
 import bearerAuthOptions from '@/configuration/bearer-auth'
@@ -96,6 +101,20 @@ export async function paymentRoutes(app: FastifyInstance) {
         },
       },
       getPaymentById
+    )
+    .get(
+      '/:paymentId/admin',
+      {
+        schema: {
+          tags,
+          security,
+          params: PaymentIdSchema,
+          response: {
+            200: AdminPaymentBaseSchema,
+          },
+        },
+      },
+      getAdminPaymentById
     )
     .get(
       '/encryption-public-key',
@@ -166,6 +185,20 @@ export async function paymentRoutes(app: FastifyInstance) {
       },
       getWireTransferInstructions
     )
+    .get(
+      '/bank-accounts/:bankAccountId/payments',
+      {
+        schema: {
+          tags,
+          security,
+          params: BankAccountIdSchema,
+          response: {
+            200: Type.Array(PaymentSchema),
+          },
+        },
+      },
+      findWirePaymentsByBankId
+    )
     .post(
       '/',
       {
@@ -180,6 +213,21 @@ export async function paymentRoutes(app: FastifyInstance) {
         },
       },
       createPayment
+    )
+    .patch(
+      '/:paymentId',
+      {
+        schema: {
+          tags,
+          security,
+          params: PaymentIdSchema,
+          body: UpdatePaymentSchema,
+          response: {
+            201: PaymentSchema,
+          },
+        },
+      },
+      updatePayment
     )
     .post(
       '/transfers',

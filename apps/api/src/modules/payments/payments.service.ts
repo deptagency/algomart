@@ -22,6 +22,7 @@ import {
   SendBankAccountInstructions,
   SortDirection,
   ToPaymentBase,
+  UpdatePayment,
   UpdatePaymentCard,
   UserAccount,
 } from '@algomart/schemas'
@@ -703,22 +704,9 @@ export default class PaymentsService {
     trx?: Transaction
   ): Promise<ToPaymentBase | null> {
     if (!payment.id || !payment.paymentBankId || !payment.packId) return null
-    // Find bank account in database
-    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+    const payments = await this.searchAllWirePaymentsByBankId(
       payment.paymentBankId
     )
-    userInvariant(foundBankAccount, 'bank account was not found', 404)
-
-    // Last 24 hours
-    const newDate24HoursInPast = new Date(
-      new Date().setDate(new Date().getDate() - 1)
-    ).toISOString()
-
-    // Get recent payments of wire type
-    const payments = await this.circle.getPayments({
-      from: newDate24HoursInPast.toString(),
-      type: CirclePaymentQueryType.wire,
-    })
     if (!payments) return null
 
     // Retrieve exchange rates for app currency and USD
@@ -727,16 +715,19 @@ export default class PaymentsService {
     })
     invariant(exchangeRates, 'unable to find exchange rates')
 
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      payment.paymentBankId
+    )
+    userInvariant(foundBankAccount, 'bank account was not found', 404)
+
     // Find payment with matching source ID
     const sourcePayment = payments.find((currentPayment) => {
       // Convert price to USD for payment
       const amount = convertFromUSD(currentPayment.amount, exchangeRates.rates)
       invariant(amount !== null, 'unable to convert to currency')
       const amountInt = formatFloatToInt(amount)
-      return (
-        currentPayment.sourceId === foundBankAccount.externalId &&
-        amountInt === foundBankAccount.amount
-      )
+      return amountInt === foundBankAccount.amount
     })
     if (!sourcePayment) return null
     // Update payment details
@@ -749,9 +740,71 @@ export default class PaymentsService {
     return sourcePayment
   }
 
+  async searchAllWirePaymentsByBankId(bankAccountId: string) {
+    userInvariant(
+      bankAccountId,
+      'bank account identifier was not provided',
+      400
+    )
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      bankAccountId
+    )
+    userInvariant(foundBankAccount, 'bank account was not found', 404)
+
+    // Get payments of wire type, since the date when the payment was created
+    const dateCreated = new Date(foundBankAccount.createdAt).toISOString()
+    const matchingPayments = await this.circle.getPayments({
+      from: dateCreated.toString(),
+      type: CirclePaymentQueryType.wire,
+      source: foundBankAccount.externalId,
+    })
+    return matchingPayments
+  }
+
   async getPaymentById(paymentId: string) {
     const payment = await PaymentModel.query().findById(paymentId)
     userInvariant(payment, 'payment not found', 404)
+    return payment
+  }
+
+  async getAdminPaymentById(paymentId: string) {
+    const payment = await PaymentModel.query()
+      .findById(paymentId)
+      .withGraphFetched('pack')
+    userInvariant(payment, 'payment not found', 404)
+    const { pack } = payment
+    if (pack.templateId) {
+      const { packs: packTemplates } = await this.packs.getPublishedPacks({
+        templateIds: [pack.templateId],
+      })
+      const packTemplate = packTemplates[0]
+      return {
+        ...payment,
+        pack: {
+          ...packTemplate,
+          ...pack,
+        },
+      }
+    }
+    return payment
+  }
+
+  async updatePayment(
+    paymentId: string,
+    updatedDetails: UpdatePayment,
+    trx?: Transaction
+  ) {
+    const payment = await PaymentModel.query(trx).findById(paymentId)
+    userInvariant(payment, 'payment not found', 404)
+    // Update payment with new details
+    await PaymentModel.query(trx).findById(paymentId).patch(updatedDetails)
+
+    await EventModel.query(trx).insert({
+      action: EventAction.Update,
+      entityType: EventEntityType.Payment,
+      entityId: paymentId,
+    })
     return payment
   }
 

@@ -11,6 +11,7 @@ import {
   OwnerExternalId,
   PaymentId,
   SendBankAccountInstructions,
+  UpdatePayment,
   UpdatePaymentCard,
 } from '@algomart/schemas'
 import { FastifyReply, FastifyRequest } from 'fastify'
@@ -66,6 +67,21 @@ export async function getWireTransferInstructions(
   } else {
     reply.notFound()
   }
+}
+
+export async function findWirePaymentsByBankId(
+  request: FastifyRequest<{
+    Params: BankAccountId
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payments = await paymentService.searchAllWirePaymentsByBankId(
+    request.params.bankAccountId
+  )
+  reply.send(payments)
 }
 
 export async function sendWireTransferInstructions(
@@ -221,6 +237,27 @@ export async function createPayment(
   }
 }
 
+export async function updatePayment(
+  request: FastifyRequest<{
+    Params: PaymentId
+    Body: UpdatePayment
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payment = await paymentService.updatePayment(
+    request.params.paymentId,
+    request.body
+  )
+  if (payment) {
+    reply.status(201).send(payment)
+  } else {
+    reply.badRequest('Unable to update payment')
+  }
+}
+
 export async function createTransferPayment(
   request: FastifyRequest<{
     Body: CreateTransferPayment
@@ -238,6 +275,25 @@ export async function createTransferPayment(
     reply.status(201).send(payment)
   } else {
     reply.badRequest('Unable to create transfer payment')
+  }
+}
+
+export async function getAdminPaymentById(
+  request: FastifyRequest<{
+    Params: PaymentId
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payment = await paymentService.getAdminPaymentById(
+    request.params.paymentId
+  )
+  if (payment) {
+    reply.status(200).send(payment)
+  } else {
+    reply.notFound()
   }
 }
 

@@ -16,6 +16,7 @@
     "invalidName": "Invalid first and last name",
     "invalidPassphrase": "Invalid Passphrase",
     "invalidPassword": "Invalid password",
+    "invalidPayment": "Invalid Payment",
     "invalidState": "Invalid province/state code",
     "failedPayment": "Invalid payment details. Check your credit card and/or billing address details.",
     "minimumBid": "Your bid must be at least {{amount}}",
