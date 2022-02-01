@@ -578,24 +578,27 @@ export default class CollectiblesService {
 
   async transferToCreatorFromUser(
     id: string,
-    userId: string,
+    accountAddress?: string,
+    userId?: string,
     trx?: Transaction
   ) {
-    const collectible = await CollectibleModel.query(trx).findById(id)
-    const user = await UserAccountModel.query(trx)
-      .findById(userId)
-      .withGraphFetched('algorandAccount')
+    userInvariant(userId || accountAddress, 'identifier not provided', 400)
 
-    userInvariant(user, 'user account not found', 404)
+    const collectible = await CollectibleModel.query(trx).findById(id)
     userInvariant(collectible, 'collectible not found', 404)
 
-    const encryptedMnemonic = user.algorandAccount?.encryptedKey
-    const assetIndex = collectible.address
-
-    if (!encryptedMnemonic) {
-      throw new Error('User missing algorand account')
+    // Find the user to get the address IF the user ID was provided
+    let userAddress: string = accountAddress
+    if (userId) {
+      const user = await UserAccountModel.query(trx)
+        .findById(userId)
+        .withGraphFetched('algorandAccount')
+      userInvariant(user, 'user account not found', 404)
+      userAddress = user.algorandAccount.address
     }
+    userInvariant(userAddress, 'address not found for user', 400)
 
+    const assetIndex = collectible.address
     if (!assetIndex) {
       throw new Error('Collectible not yet minted')
     }
@@ -608,15 +611,11 @@ export default class CollectiblesService {
       )
     }
 
-    // @TODO: Get passphrase from creator account
-    const passphrase = ''
     const { signedTransactions, transactionIds } =
-      await this.algorand.generateClawbackTransactions({
+      await this.algorand.generateClawbackTransactionsFromUser({
         assetIndex,
-        encryptedMnemonic,
-        passphrase,
-        // fromAccountAddress: info.creator,
-        fromAccountAddress: user.algorandAccount.address,
+        fromAccountAddress: userAddress,
+        toAccountAddress: info.creator,
       })
 
     await this.algorand.submitTransaction(signedTransactions)
