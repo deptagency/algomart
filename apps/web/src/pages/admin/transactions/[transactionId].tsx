@@ -9,9 +9,9 @@ import DefaultLayout from '@/layouts/default-layout'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { urls } from '@/utils/urls'
 
-export default function AdminTransactionsPage() {
+export default function AdminTransactionPage() {
   useAdminGate()
-  const { t, lang } = useTranslation('admin')
+  const { t } = useTranslation('admin')
   const router = useRouter()
 
   return (
