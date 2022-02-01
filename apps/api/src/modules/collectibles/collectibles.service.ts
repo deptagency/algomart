@@ -576,6 +576,81 @@ export default class CollectiblesService {
     ])
   }
 
+  async transferToCreatorFromUser(
+    id: string,
+    userId: string,
+    trx?: Transaction
+  ) {
+    const collectible = await CollectibleModel.query(trx).findById(id)
+    const user = await UserAccountModel.query(trx)
+      .findById(userId)
+      .withGraphFetched('algorandAccount')
+
+    userInvariant(user, 'user account not found', 404)
+    userInvariant(collectible, 'collectible not found', 404)
+
+    const encryptedMnemonic = user.algorandAccount?.encryptedKey
+    const assetIndex = collectible.address
+
+    if (!encryptedMnemonic) {
+      throw new Error('User missing algorand account')
+    }
+
+    if (!assetIndex) {
+      throw new Error('Collectible not yet minted')
+    }
+
+    const info = await this.algorand.getAssetInfo(assetIndex)
+
+    if (!info) {
+      throw new Error(
+        `Collectible with asset index ${assetIndex} not found on blockchain`
+      )
+    }
+
+    // @TODO: Get passphrase from creator account
+    const passphrase = ''
+    const { signedTransactions, transactionIds } =
+      await this.algorand.generateClawbackTransactions({
+        assetIndex,
+        encryptedMnemonic,
+        passphrase,
+        // fromAccountAddress: info.creator,
+        fromAccountAddress: user.algorandAccount.address,
+      })
+
+    await this.algorand.submitTransaction(signedTransactions)
+
+    const transactions = await AlgorandTransactionModel.query(trx).insert(
+      transactionIds.map((id) => ({
+        address: id,
+        status: AlgorandTransactionStatus.Pending,
+      }))
+    )
+
+    // Remover ownership from collectible
+    await CollectibleModel.query(trx).where('id', collectible.id).patch({
+      ownerId: null,
+      latestTransferTransactionId: transactions[0].id,
+      claimedAt: new Date().toISOString(),
+    })
+
+    await EventModel.query(trx).insert([
+      ...transactions.map((t) => ({
+        action: EventAction.Create,
+        entityType: EventEntityType.AlgorandTransaction,
+        entityId: t.id,
+        userAccountId: userId,
+      })),
+      {
+        action: EventAction.Update,
+        entityId: collectible.id,
+        entityType: EventEntityType.Collectible,
+        userAccountId: userId,
+      },
+    ])
+  }
+
   async getCollectibles({
     page = 1,
     pageSize = 10,

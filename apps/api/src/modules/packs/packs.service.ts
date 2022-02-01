@@ -27,6 +27,7 @@ import {
   PackWithId,
   PublishedPack,
   PublishedPacksQuery,
+  RevokePack,
   SortDirection,
   TransferPack,
   TransferPackStatusList,
@@ -849,6 +850,70 @@ export default class PacksService {
       entityId: request.packId,
       entityType: EventEntityType.Pack,
       userAccountId: request.claimedById,
+    })
+
+    return pack
+  }
+
+  async revokePack(request: RevokePack, trx?: Transaction) {
+    const user = await UserAccountModel.query(trx)
+      .findOne('externalId', request.ownerId)
+      .withGraphJoined('algorandAccount.creationTransaction')
+
+    userInvariant(user, 'user not found', 404)
+
+    const pack = await PackModel.query(trx)
+      .where('id', request.packId)
+      .where('ownerId', user.id)
+      .select('id')
+      .withGraphFetched('collectibles')
+      .modifyGraph('collectibles', (builder) => {
+        builder.select('id')
+      })
+      .first()
+
+    userInvariant(pack, 'pack not found', 404)
+
+    if (!pack) {
+      return false
+    }
+
+    this.logger.info({ pack }, 'pack to be transferred')
+
+    if (user.algorandAccount?.creationTransactionId === null) {
+      // @TODO: How do we handle?
+      // await this.accounts.initializeAccount(user.id, request.passphrase, trx)
+    }
+
+    const collectibleIds = pack.collectibles?.map((c) => c.id) || []
+
+    // Transfer
+    await Promise.all(
+      collectibleIds.map(async (id) => {
+        await this.collectibles.transferToCreatorFromUser(id, user.id, trx)
+      })
+    )
+
+    // Create transfer success notification to be sent to user
+    const packWithBase = await this.getPackById(request.packId)
+    if (packWithBase) {
+      // @TODO: create notification for revoking the pack
+    }
+
+    // Remove claim from pack
+    await PackModel.query(trx)
+      .patch({
+        ownerId: null,
+        claimedAt: null,
+        updatedAt: new Date().toISOString(),
+      })
+      .where({ id: request.packId })
+
+    await EventModel.query(trx).insert({
+      action: EventAction.Update,
+      entityId: request.packId,
+      entityType: EventEntityType.Pack,
+      userAccountId: request.ownerId,
     })
 
     return pack
