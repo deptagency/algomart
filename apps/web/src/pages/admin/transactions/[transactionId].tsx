@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 
 import Breadcrumbs from '@/components/breadcrumbs'
+import { Flex } from '@/components/flex'
 import Panel from '@/components/panel'
 import useAdminGate from '@/hooks/use-admin-gate'
 import DefaultLayout from '@/layouts/default-layout'
@@ -26,7 +27,14 @@ export default function AdminTransactionPage() {
           { label: router.query.transactionId as string },
         ]}
       />
-      <Panel title={t('common:pageTitles.Transaction')}>todo</Panel>
+      <Flex gap={6}>
+        <Flex item flex="0 0 20rem">
+          <Panel />
+        </Flex>
+        <Flex flex="1" flexDirection="column">
+          <Panel title={t('common:pageTitles.Transaction')}>todo</Panel>
+        </Flex>
+      </Flex>
     </DefaultLayout>
   )
 }
