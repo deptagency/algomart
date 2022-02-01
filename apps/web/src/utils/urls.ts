@@ -34,6 +34,12 @@ export const urls = {
   privacyPolicy: '#',
   termsAndConditions: '#',
 
+  // Admin
+  admin: {
+    transactions: '/admin/transactions',
+    transaction: '/admin/transactions/:transactionId',
+  },
+
   api: {
     v1: {
       admin: {
