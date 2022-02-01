@@ -880,17 +880,18 @@ export default class PacksService {
 
     this.logger.info({ pack }, 'pack to be transferred')
 
-    if (user.algorandAccount?.creationTransactionId === null) {
-      // @TODO: How do we handle?
-      // await this.accounts.initializeAccount(user.id, request.passphrase, trx)
-    }
-
     const collectibleIds = pack.collectibles?.map((c) => c.id) || []
 
     // Transfer
     await Promise.all(
       collectibleIds.map(async (id) => {
-        await this.collectibles.transferToCreatorFromUser(id, user.id, trx)
+        // @TODO: Optionally accept an account address
+        await this.collectibles.transferToCreatorFromUser(
+          id,
+          null,
+          user.id,
+          trx
+        )
       })
     )
 
