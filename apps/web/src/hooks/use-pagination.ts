@@ -3,11 +3,11 @@ import { useState } from 'react'
 
 const SORTS = ['asc', 'desc', undefined]
 
-const usePagination = (
+function usePagination<T>(
   page = 1,
-  sortBy: string,
+  sortBy: T,
   sortDirection: SortDirection = SortDirection.Descending
-) => {
+) {
   const [pagination, _setPagination] = useState({ page, sortBy, sortDirection })
 
   const setPagination = (newPagination) => {

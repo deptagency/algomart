@@ -2,6 +2,7 @@ import {
   AdminPaymentBase,
   AdminPaymentList,
   FirebaseClaim,
+  PaymentSortField,
 } from '@algomart/schemas'
 import { RefreshIcon } from '@heroicons/react/outline'
 import { GetServerSideProps } from 'next'
@@ -51,12 +52,12 @@ export default function AdminTransactionsPage() {
   }, [auth?.user, router])
 
   const { page, setPage, handleTableHeaderClick, sortBy, sortDirection } =
-    usePagination(1, 'createdAt')
+    usePagination<PaymentSortField>(1, PaymentSortField.CreatedAt)
 
   const qp = getPaymentsFilterQuery({
     page,
     sortBy,
-    sortDirection: sortDirection as any,
+    sortDirection,
     pageSize: PAYMENTS_PER_PAGE,
   })
   const { data, isValidating } = useAuthApi<AdminPaymentList>(
