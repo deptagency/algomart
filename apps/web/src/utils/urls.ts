@@ -1,5 +1,7 @@
 export const urls = {
   // Main pages
+  adminTransactions: '/admin/transactions',
+  adminTransaction: '/admin/transactions/:transactionId',
   checkout: '/checkout',
   checkoutPack: '/checkout/:packSlug',
   checkoutPackWithMethod: '/checkout/:packSlug/:method',
@@ -37,6 +39,8 @@ export const urls = {
   api: {
     v1: {
       admin: {
+        getPaymentsForBankAccount:
+          '/api/v1/payments/get-payments-by-bank-account',
         getPayments: '/api/v1/payments/list-payments',
       },
       addToShowcase: '/api/v1/collection/add-showcase',

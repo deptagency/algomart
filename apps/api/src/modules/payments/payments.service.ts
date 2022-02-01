@@ -749,51 +749,33 @@ export default class PaymentsService {
     return sourcePayment
   }
 
-  async searchAllPaymentsBySourceId(sourceId: string) {
-    // Loop through pages => options?
-    // Type? wire? others?
-    //
-    // if (!payment.id || !payment.paymentBankId || !payment.packId) return null
-    // // Find bank account in database
-    // const foundBankAccount = await PaymentBankAccountModel.query().findById(
-    //   payment.paymentBankId
-    // )
-    // userInvariant(foundBankAccount, 'bank account was not found', 404)
-    // // Last 24 hours
-    // const newDate24HoursInPast = new Date(
-    //   new Date().setDate(new Date().getDate() - 1)
-    // ).toISOString()
-    // // Get recent payments of wire type
-    // const payments = await this.circle.getPayments({
-    //   from: newDate24HoursInPast.toString(),
-    //   type: CirclePaymentQueryType.wire,
-    // })
-    // if (!payments) return null
-    // // Retrieve exchange rates for app currency and USD
-    // const exchangeRates = await this.coinbase.getExchangeRates({
-    //   currency: currency.code,
-    // })
-    // invariant(exchangeRates, 'unable to find exchange rates')
-    // // Find payment with matching source ID
-    // const sourcePayment = payments.find((currentPayment) => {
-    //   // Convert price to USD for payment
-    //   const amount = convertFromUSD(currentPayment.amount, exchangeRates.rates)
-    //   invariant(amount !== null, 'unable to convert to currency')
-    //   const amountInt = formatFloatToInt(amount)
-    //   return (
-    //     currentPayment.sourceId === foundBankAccount.externalId &&
-    //     amountInt === foundBankAccount.amount
-    //   )
-    // })
-    // if (!sourcePayment) return null
-    // // Update payment details
-    // if (payment.status !== sourcePayment.status || !payment.externalId) {
-    //   await PaymentModel.query(trx).patchAndFetchById(payment.id, {
-    //     externalId: sourcePayment.externalId,
-    //     status: sourcePayment.status,
-    //   })
-    // }
-    // return sourcePayment
+  async searchAllWirePaymentsByBankId(bankAccountId: string) {
+    userInvariant(
+      bankAccountId,
+      'bank account identifier was not provided',
+      400
+    )
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      bankAccountId
+    )
+    userInvariant(foundBankAccount, 'bank account was not found', 404)
+
+    // Get payments of wire type, since the date when the payment was created
+    console.log('foundBankAccount.createdAt', foundBankAccount.createdAt)
+    const dateCreated = new Date(foundBankAccount.createdAt).toISOString()
+    console.log('dateCreated', dateCreated)
+    const payments = await this.circle.getPayments({
+      from: dateCreated.toString(),
+      type: CirclePaymentQueryType.wire,
+    })
+
+    // Find payments with a matching source ID
+    const matchingPayments = payments.filter(
+      (currentPayment) =>
+        currentPayment.sourceId === foundBankAccount.externalId
+    )
+    return matchingPayments
   }
 
   async getPaymentById(paymentId: string) {
@@ -803,22 +785,24 @@ export default class PaymentsService {
   }
 
   async getAdminPaymentById(paymentId: string) {
-    const payment = await PaymentModel.query().findById(paymentId)
-    // const packDetails = await this.packs.getPackById(packId)
-    //   const { packs: packTemplates } = await this.packs.getPublishedPacks({
-    //     templateIds: [packDetails.templateId],
-    //   })
-    //   const packTemplate = packTemplates.find(
-    //     (t) => t.templateId === packDetails.templateId
-    //   )
-    //   if (packTemplate) {
-    //     packIds.push(packId)
-    //     packLookup.set(packId, {
-    //       ...packTemplate,
-    //       ...packDetails,
-    //     })
-    //   }
+    const payment = await PaymentModel.query()
+      .findById(paymentId)
+      .withGraphFetched('pack')
     userInvariant(payment, 'payment not found', 404)
+    const { pack } = payment
+    if (pack.templateId) {
+      const { packs: packTemplates } = await this.packs.getPublishedPacks({
+        templateIds: [pack.templateId],
+      })
+      const packTemplate = packTemplates[0]
+      return {
+        ...payment,
+        pack: {
+          ...packTemplate,
+          ...pack,
+        },
+      }
+    }
     return payment
   }
 

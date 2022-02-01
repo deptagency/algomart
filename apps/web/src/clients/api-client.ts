@@ -1,4 +1,5 @@
 import {
+  AdminPaymentBase,
   AdminPaymentList,
   AdminPaymentListQuerystring,
   CircleBlockchainAddress,
@@ -319,6 +320,18 @@ export class ApiClient {
     return await this.http
       .get(`payments?${searchQuery}`)
       .json<AdminPaymentList>()
+  }
+
+  async getAdminPaymentById(paymentId: string) {
+    return await this.http
+      .get(`payments/${paymentId}/admin`)
+      .json<AdminPaymentBase>()
+  }
+
+  async getPaymentsByBankAccountId(bankAccountId: string) {
+    return await this.http
+      .get(`bank-accounts/${bankAccountId}/payments`)
+      .json<Payment[]>()
   }
   //#endregion
 

@@ -37,6 +37,7 @@ import {
   createTransferPayment,
   createWalletAddress,
   findTransferByAddress,
+  findWirePaymentsByBankId,
   getAdminPaymentById,
   getBankAccountStatus,
   getCards,
@@ -182,6 +183,20 @@ export async function paymentRoutes(app: FastifyInstance) {
       },
       getWireTransferInstructions
     )
+    .get(
+      '/bank-accounts/:bankAccountId/payments',
+      {
+        schema: {
+          tags,
+          security,
+          params: BankAccountIdSchema,
+          response: {
+            200: Type.Array(PaymentSchema),
+          },
+        },
+      },
+      findWirePaymentsByBankId
+    )
     .post(
       '/',
       {
@@ -220,7 +235,7 @@ export async function paymentRoutes(app: FastifyInstance) {
           security,
           querystring: FindTransferByAddressSchema,
           response: {
-            200: ToPaymentBaseSchema,
+            200: AdminPaymentListSchema,
           },
         },
       },

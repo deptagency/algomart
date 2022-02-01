@@ -68,6 +68,21 @@ export async function getWireTransferInstructions(
   }
 }
 
+export async function findWirePaymentsByBankId(
+  request: FastifyRequest<{
+    Params: BankAccountId
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payments = await paymentService.searchAllWirePaymentsByBankId(
+    request.params.bankAccountId
+  )
+  reply.send(payments)
+}
+
 export async function sendWireTransferInstructions(
   request: FastifyRequest<{
     Querystring: SendBankAccountInstructions
