@@ -3,7 +3,6 @@ import {
   AdminPaymentList,
   FirebaseClaim,
   PaymentSortField,
-  SortDirection,
 } from '@algomart/schemas'
 import { RefreshIcon } from '@heroicons/react/outline'
 import { GetServerSideProps } from 'next'
@@ -53,12 +52,12 @@ export default function AdminTransactionsPage() {
   }, [auth?.user, router])
 
   const { page, setPage, handleTableHeaderClick, sortBy, sortDirection } =
-    usePagination(1, 'status', 'desc')
+    usePagination<PaymentSortField>(1, PaymentSortField.CreatedAt)
 
   const qp = getPaymentsFilterQuery({
     page,
     sortBy,
-    sortDirection: sortDirection as any,
+    sortDirection,
     pageSize: PAYMENTS_PER_PAGE,
   })
   const { data, isValidating } = useAuthApi<AdminPaymentList>(
@@ -66,6 +65,7 @@ export default function AdminTransactionsPage() {
   )
 
   const columns: ColumnDefinitionType<AdminPaymentBase>[] = [
+    { key: 'pack.title', name: t('transactions.table.title') },
     {
       key: 'createdAt',
       name: t('transactions.table.date'),
@@ -73,13 +73,12 @@ export default function AdminTransactionsPage() {
         value ? new Date(value).toLocaleDateString(lang) : null,
       sortable: true,
     },
-    { key: 'status', name: t('transactions.table.status'), sortable: true },
-    { key: 'pack.title', name: t('transactions.table.title') },
     {
       key: 'pack.price',
       name: t('transactions.table.price'),
       renderer: ({ value }) => formatCurrency(value, lang),
     },
+    { key: 'status', name: t('transactions.table.status'), sortable: true },
   ]
 
   const footer = (
@@ -105,7 +104,7 @@ export default function AdminTransactionsPage() {
     >
       <Panel
         fullWidth
-        title="Transactions"
+        title={t('common:pageTitles.Transactions')}
         contentRight={
           isValidating && <RefreshIcon className="w-5 h-5 animate-spin" />
         }
