@@ -256,7 +256,7 @@ export const validateUpdatePayment = (t: Translate) =>
     paymentId: identifier(t),
     externalId: string(),
     status: oneOf(
-      Object.keys(PaymentStatus),
+      Object.values(PaymentStatus),
       t('forms:errors.invalidPayment') as string
     ),
   })
