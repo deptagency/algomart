@@ -7,6 +7,7 @@ import { RefreshIcon } from '@heroicons/react/outline'
 import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
 
+import AppLink from '@/components/app-link/app-link'
 import Pagination from '@/components/pagination/pagination'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
@@ -45,12 +46,11 @@ export default function AdminTransactionsPage() {
       key: 'pack.title',
       name: t('transactions.table.title'),
       renderer: ({ value, item }) => (
-        <a
-          className="underline"
+        <AppLink
           href={urls.admin.transaction.replace(':transactionId', item.id)}
         >
           {value}
-        </a>
+        </AppLink>
       ),
     },
     {

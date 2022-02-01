@@ -1,14 +1,18 @@
 import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 
+import Breadcrumbs from '@/components/breadcrumbs'
 import Panel from '@/components/panel'
 import useAdminGate from '@/hooks/use-admin-gate'
 import DefaultLayout from '@/layouts/default-layout'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
+import { urls } from '@/utils/urls'
 
 export default function AdminTransactionsPage() {
   useAdminGate()
   const { t, lang } = useTranslation('admin')
+  const router = useRouter()
 
   return (
     <DefaultLayout
@@ -16,6 +20,12 @@ export default function AdminTransactionsPage() {
       noPanel
       width="full"
     >
+      <Breadcrumbs
+        breadcrumbs={[
+          { label: 'Transactions', href: urls.admin.transactions },
+          { label: router.query.transactionId as string },
+        ]}
+      />
       <Panel title={t('common:pageTitles.Transaction')}>todo</Panel>
     </DefaultLayout>
   )

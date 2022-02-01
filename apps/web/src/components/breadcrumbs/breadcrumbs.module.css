@@ -1,0 +1,16 @@
+.breadcrumbs {
+  @apply flex flex-wrap mb-16;
+}
+
+.breadcrumb + .breadcrumb::before {
+  @apply px-3;
+  content: '/';
+}
+
+.link {
+  @apply inline-block leading-5 no-underline transition text-base-textTertiary hover:text-base-textPrimary;
+}
+
+.current {
+  @apply border-b-1 text-base-textPrimary border-action-accent;
+}
