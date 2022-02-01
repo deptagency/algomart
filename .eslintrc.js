@@ -4,7 +4,6 @@ const defaultRules = {
   'unicorn/filename-case': 'off',
   'unicorn/prefer-module': 'off',
   'unicorn/no-array-reduce': 'off',
-  'unicorn/no-array-callback-reference': 'off',
 
   // Allow some common abbreviations
   'unicorn/prevent-abbreviations': [
