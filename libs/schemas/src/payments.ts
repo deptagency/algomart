@@ -503,6 +503,8 @@ const CircleWalletSchema = Type.Object({
 })
 
 const CirclePaymentQuerySchema = Type.Object({
+  source: Type.Optional(Type.String()),
+  settlementId: Type.Optional(Type.String()),
   type: Type.Optional(Type.Enum(CirclePaymentQueryType)),
   from: Type.Optional(Type.String({ type: 'date-time' })),
   to: Type.Optional(Type.String({ type: 'date-time' })),

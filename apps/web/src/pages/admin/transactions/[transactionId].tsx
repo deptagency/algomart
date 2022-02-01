@@ -21,7 +21,7 @@ export default function AdminTransactionPage({
   const { data } = useAuthApi<Payment[]>(
     `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${payment.paymentBankId}`
   )
-  console.log('data:', data)
+  console.log('all payments for bank account:', data)
 
   return (
     <DefaultLayout
@@ -60,7 +60,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   // Retrieve payment
-  const payment = await ApiClient.instance.getAdminPaymentById(paymentId)
+  const payment = await ApiClient.instance
+    .getAdminPaymentById(paymentId)
+    .catch(() => null)
 
   // Redirect to Transactions page if payment not found
   if (!payment) {
