@@ -684,18 +684,17 @@ export default class PacksService {
       await this.accounts.initializeAccount(user.id, request.passphrase, trx)
     }
 
+    const collectibleIds = pack.collectibles?.map((c) => c.id) || []
+
     await Promise.all(
-      pack.collectibles?.map(
-        async (c) =>
-          c.ownerId &&
-          c.id &&
-          (await this.collectibles.transferToUserFromCreator(
-            c.id,
-            user.id,
-            request.passphrase,
-            trx
-          ))
-      )
+      collectibleIds.map(async (id) => {
+        await this.collectibles.transferToUserFromCreator(
+          id,
+          user.id,
+          request.passphrase,
+          trx
+        )
+      })
     )
 
     // Create transfer success notification to be sent to user
@@ -878,19 +877,19 @@ export default class PacksService {
 
     this.logger.info({ pack }, 'pack to be transferred')
 
-    const collectibleIds = pack.collectibles?.map((c) => c.id) || []
-
     // Transfer
     await Promise.all(
-      collectibleIds.map(async (id) => {
-        // @TODO: Optionally accept an account address
-        await this.collectibles.transferToCreatorFromUser(
-          id,
-          null,
-          user.id,
-          trx
-        )
-      })
+      pack.collectibles?.map(
+        async (c) =>
+          c.ownerId &&
+          c.id &&
+          (await this.collectibles.transferToCreatorFromUser(
+            c.id,
+            null,
+            user.id,
+            trx
+          ))
+      )
     )
 
     // Create transfer success notification to be sent to user
