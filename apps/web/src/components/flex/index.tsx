@@ -23,6 +23,8 @@ export interface FlexProps {
     | 'stretch'
   /** Container class name */
   className?: string
+  /** Element to render as (default: div) */
+  Element?: React.ElementType
   /** This is the shorthand for flexGrow, flexShrink and flexBasis combined.
   The second and third parameters (flexShrink and flexBasis) are optional.
   Default is `0 1 auto`. */
@@ -81,6 +83,7 @@ export const Flex: FC<FlexProps> = ({
   alignContent,
   alignItems,
   alignSelf,
+  Element = 'div',
   children,
   className,
   flex,
@@ -112,12 +115,12 @@ export const Flex: FC<FlexProps> = ({
     ...style,
   }
   return (
-    <div
+    <Element
       style={{ gap: `${gap * 0.25}rem`, ...style }}
       className={className}
       data-testid={testId}
     >
       {children}
-    </div>
+    </Element>
   )
 }
