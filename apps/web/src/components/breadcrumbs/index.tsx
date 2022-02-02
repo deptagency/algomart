@@ -10,11 +10,15 @@ export interface BreadcrumbsProps {
     label: string
     href?: string
   }[]
+  className?: string
 }
 
-export default function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
+export default function Breadcrumbs({
+  breadcrumbs,
+  className,
+}: BreadcrumbsProps) {
   return (
-    <nav>
+    <nav className={className}>
       <ol className={css.breadcrumbs}>
         {breadcrumbs.map(({ href, label }) => (
           <li className={css.breadcrumb} key={label}>
