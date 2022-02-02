@@ -576,6 +576,7 @@ export default class AlgorandAdapter {
     const suggestedParams = await this.algod.getTransactionParams().do()
 
     // Send funds to cover asset transfer transaction
+    // Signed by funding account
     const fundsTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
       suggestedParams,
       amount: 2000,
@@ -584,6 +585,7 @@ export default class AlgorandAdapter {
     })
 
     // Clear freeze and reserve addresses
+    // Signed by funding account (current manager address)
     const configureTxn =
       algosdk.makeAssetConfigTxnWithSuggestedParamsFromObject({
         suggestedParams,
@@ -594,6 +596,8 @@ export default class AlgorandAdapter {
         clawback: this.fundingAccount.addr,
       })
 
+    // Opt-in to asset in recipient's non-custodial wallet
+    // Signed by non-custodial wallet recipient
     const optInTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
       suggestedParams,
       amount: 0,
@@ -603,6 +607,7 @@ export default class AlgorandAdapter {
     })
 
     // Transfer asset to recipient and remove opt-in from sender
+    // Signed by the user's custodial wallet
     const transferAssetTxn =
       algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
         suggestedParams,
@@ -614,6 +619,7 @@ export default class AlgorandAdapter {
       })
 
     // Return min balance funds to funding account
+    // Signed by the user's custodial wallet
     const returnFundsTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
       suggestedParams,
       from: options.fromAccountAddress,
