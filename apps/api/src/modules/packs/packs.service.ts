@@ -687,7 +687,7 @@ export default class PacksService {
     await Promise.all(
       pack.collectibles?.map(
         async (c) =>
-          !c.ownerId &&
+          c.ownerId &&
           c.id &&
           (await this.collectibles.transferToUserFromCreator(
             c.id,
