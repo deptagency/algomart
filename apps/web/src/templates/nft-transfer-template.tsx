@@ -1,7 +1,7 @@
 import { CollectibleWithDetails } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 
-import css from '@/components/wallet-transfers/wallet-transfer.module.css'
+import css from '@/components/wallet-transfers/wallet-transfers.module.css'
 
 import CardPurchaseHeader from '@/components/purchase-form/cards/sections/card-header'
 import ConnectWalletStage from '@/components/wallet-transfers/connect-wallet-stage'

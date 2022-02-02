@@ -104,8 +104,8 @@ export default function MyImportNFTTemplate({
       {stage === 'success' ? (
         <SuccessStage
           key={stage}
-          linkText={t('nft:walletConnect.backToMyImport')}
-          linkUrl={urls.myProfileImportNFT}
+          linkText={t('nft:walletConnect.backToMyCollection')}
+          linkUrl={urls.myCollectibles}
         />
       ) : null}
 
@@ -113,8 +113,8 @@ export default function MyImportNFTTemplate({
         <ErrorStage
           key={stage}
           error={error}
-          linkText={t('nft:walletConnect.backToMyImport')}
-          linkUrl={urls.myProfileImportNFT}
+          linkText={t('nft:walletConnect.backToMyCollection')}
+          linkUrl={urls.myCollectibles}
         />
       ) : null}
     </div>
