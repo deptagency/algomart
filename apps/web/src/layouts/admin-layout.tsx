@@ -25,11 +25,9 @@ export default function DefaultLayout({
       <div className={common.backgroundGradient}>
         <EmailVerification />
         <UntransferredPacks />
-
         <section>
           <AppHeader />
-
-          <div className="px-4 py-16">{children}</div>
+          <div className="px-4 py-16 mx-auto max-w-wrapper">{children}</div>
         </section>
       </div>
       <AppFooter />
