@@ -48,14 +48,13 @@ export default function AdminTransactionPage({
   const { data } = useAuthApi<Payment[]>(
     `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${paymentBankId}`
   )
-  console.log('all payments for bank account:', data)
 
   const columns: ColumnDefinitionType<Payment>[] = [
     {
       key: 'createdAt',
       name: t('transactions.table.date'),
       renderer: ({ value }) =>
-        value ? new Date(value).toLocaleTimeString(lang) : null,
+        value ? new Date(value).toLocaleString(lang) : null,
     },
     {
       key: 'type',
@@ -126,7 +125,7 @@ export default function AdminTransactionPage({
               </Flex>
               <Flex item flex="1">
                 <small>Ended At</small>
-                <p>{pack.auctionUntil} </p>
+                <p>{new Date(pack.auctionUntil).toLocaleString(lang)} </p>
               </Flex>
             </Flex>
           </Panel>
@@ -159,10 +158,8 @@ export default function AdminTransactionPage({
 
           <Panel title={t('common:actions.Revoke Pack')}>
             <p className="pb-4 text-sm text-base-textTertiary">
-              Under the circumstance someone fails to pay you can revoke the
-              NFT. Re-selling/auctioning revoked NFT packs is not yet supported
-              so under this circumstance the simplest route would be to create a
-              new pack/NFT.
+              If someone fails to pay you can revoke the pack. Note:
+              Re-selling/auctioning revoked packs is not yet supported.
             </p>
             <Button onClick={handleRevokePack} size="small">
               {t('common:actions.Revoke Pack')}
