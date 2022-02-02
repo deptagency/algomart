@@ -1,9 +1,5 @@
-.root {
-  @apply border-gray-200 border flex items-center p-5 w-full mb-5;
-}
-
 .button {
-  @apply flex text-left gap-5 no-underline;
+  @apply flex items-center w-full gap-5 p-5 mb-5 text-left no-underline border bg-base-bgCard border-base-border hover:border-action-primary;
 }
 
 .button svg {
