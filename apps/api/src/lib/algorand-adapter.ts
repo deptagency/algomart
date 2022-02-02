@@ -465,37 +465,6 @@ export default class AlgorandAdapter {
   }) {
     const suggestedParams = await this.algod.getTransactionParams().do()
 
-    // Send enough money to the creator to cover the "opt-in" transaction and the minimum balance increase
-    const fundsTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-      suggestedParams,
-      amount:
-        100_000 /* minimum balance increase */ + 1000 /* opt-in txn fee */,
-      from: this.fundingAccount.addr, // System account acting as the global "funding account"
-      to: options.toAccountAddress,
-    })
-
-    // Find secret key for creator account
-    const creator = await AlgorandAccountModel.query()
-      .where('address', '=', options.toAccountAddress)
-      .select('encryptedKey')
-      .first()
-    if (!creator) {
-      throw new Error('No creator account found')
-    }
-
-    const toAccount = algosdk.mnemonicToSecretKey(
-      decrypt(creator.encryptedKey, Configuration.creatorPassphrase)
-    )
-
-    // Creator needs to "opt-in" to the asset by using a "zero-balance" transaction
-    const optInTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      suggestedParams,
-      amount: 0,
-      assetIndex: options.assetIndex,
-      from: options.toAccountAddress,
-      to: options.toAccountAddress,
-    })
-
     // Use a clawback to "revoke" ownership from current owner to the creator,
     const clawbackTxn =
       algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
@@ -508,16 +477,12 @@ export default class AlgorandAdapter {
       })
 
     // Adds a group id to each transaction object
-    algosdk.assignGroupID([fundsTxn, optInTxn, clawbackTxn])
+    algosdk.assignGroupID([clawbackTxn])
 
-    const signedTransactions = [
-      fundsTxn.signTxn(this.fundingAccount.sk),
-      optInTxn.signTxn(toAccount.sk),
-      clawbackTxn.signTxn(this.fundingAccount.sk),
-    ]
+    const signedTransactions = [clawbackTxn.signTxn(this.fundingAccount.sk)]
 
     return {
-      transactionIds: [fundsTxn.txID(), optInTxn.txID(), clawbackTxn.txID()],
+      transactionIds: [clawbackTxn.txID()],
       signedTransactions,
     }
   }
