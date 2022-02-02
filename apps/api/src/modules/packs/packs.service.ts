@@ -896,7 +896,6 @@ export default class PacksService {
     const packWithBase = await this.getPackById(request.packId)
     if (packWithBase) {
       // @TODO: create notification for revoking the pack
-      console.log('pack with base:', packWithBase)
     }
 
     // Remove claim from pack

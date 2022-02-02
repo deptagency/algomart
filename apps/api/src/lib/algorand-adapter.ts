@@ -2,6 +2,7 @@ import { CollectibleBase } from '@algomart/schemas'
 import algosdk from 'algosdk'
 
 import { Configuration } from '@/configuration'
+import { AlgorandAccountModel } from '@/models/algorand-account.model'
 import { CollectibleModel } from '@/models/collectible.model'
 import { decrypt, encrypt } from '@/utils/encryption'
 import { invariant } from '@/utils/invariant'
@@ -473,6 +474,19 @@ export default class AlgorandAdapter {
       to: options.toAccountAddress,
     })
 
+    // Find secret key for creator account
+    const creator = await AlgorandAccountModel.query()
+      .where('address', '=', options.toAccountAddress)
+      .select('encryptedKey')
+      .first()
+    if (!creator) {
+      throw new Error('No creator account found')
+    }
+
+    const toAccount = algosdk.mnemonicToSecretKey(
+      decrypt(creator.encryptedKey, Configuration.creatorPassphrase)
+    )
+
     // Creator needs to "opt-in" to the asset by using a "zero-balance" transaction
     const optInTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
       suggestedParams,
@@ -495,13 +509,6 @@ export default class AlgorandAdapter {
 
     // Adds a group id to each transaction object
     algosdk.assignGroupID([fundsTxn, optInTxn, clawbackTxn])
-
-    // Find secret key for creator account
-    const creator = await this.getCreatorAccount(0)
-    const toAccount = algosdk.mnemonicToSecretKey(
-      decrypt(creator.encryptedMnemonic, Configuration.creatorPassphrase)
-    )
-    console.log('toAccount:', toAccount)
 
     const signedTransactions = [
       fundsTxn.signTxn(this.fundingAccount.sk),

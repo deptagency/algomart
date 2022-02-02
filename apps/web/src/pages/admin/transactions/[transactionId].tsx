@@ -32,19 +32,27 @@ export default function AdminTransactionPage({
 
   const handleReset = useCallback(async () => {
     const paymentId = typeof transactionId === 'string' ? transactionId : null
-    const updatedPayment = await adminService.updatePayment(paymentId, {
-      externalId: '',
-      status: PaymentStatus.Pending,
-    })
-    console.log('reset payment:', updatedPayment)
+    try {
+      const updatedPayment = await adminService.updatePayment(paymentId, {
+        externalId: '',
+        status: PaymentStatus.Pending,
+      })
+      console.log('reset payment:', updatedPayment)
+    } catch (error) {
+      logger.error(error, 'Unable to reset pack')
+    }
   }, [transactionId])
 
   const markAsPaid = useCallback(async () => {
     const paymentId = typeof transactionId === 'string' ? transactionId : null
-    const updatedPayment = await adminService.updatePayment(paymentId, {
-      status: PaymentStatus.Paid,
-    })
-    console.log('marked payment as paid:', updatedPayment)
+    try {
+      const updatedPayment = await adminService.updatePayment(paymentId, {
+        status: PaymentStatus.Paid,
+      })
+      console.log('marked payment as paid:', updatedPayment)
+    } catch (error) {
+      logger.error(error, 'Unable to update pack as paid')
+    }
   }, [transactionId])
 
   const handleRevokePack = useCallback(async () => {
