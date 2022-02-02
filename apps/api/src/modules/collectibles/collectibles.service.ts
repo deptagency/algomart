@@ -11,12 +11,12 @@ import {
   DEFAULT_LOCALE,
   EventAction,
   EventEntityType,
-  ExportCollectible,
-  ImportCollectible,
-  InitializeImportCollectible,
+  InitializeTransferCollectible,
   IPFSStatus,
   SingleCollectibleQuerystring,
   SortDirection,
+  TransferCollectible,
+  TransferCollectibleResult,
 } from '@algomart/schemas'
 import { Transaction } from 'objection'
 
@@ -986,7 +986,10 @@ export default class CollectiblesService {
     )
   }
 
-  async exportCollectible(request: ExportCollectible, trx?: Transaction) {
+  async initializeExportCollectible(
+    request: InitializeTransferCollectible,
+    trx?: Transaction
+  ): Promise<TransferCollectibleResult> {
     const user = await UserAccountModel.query(trx)
       .findOne({
         externalId: request.externalId,
@@ -1025,38 +1028,118 @@ export default class CollectiblesService {
     const asset = await this.algorand.getAssetInfo(collectible.address)
     userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
 
-    const result = await this.algorand.generateExportTransactions({
+    const transactions = await this.algorand.generateExportTransactions({
       assetIndex: request.assetIndex,
-      encryptedMnemonic: user.algorandAccount.encryptedKey,
-      passphrase: request.passphrase,
       fromAccountAddress: user.algorandAccount.address,
       toAccountAddress: request.address,
     })
 
-    await AlgorandTransactionModel.query(trx).insert(
-      result.transactionIds.map((txId) => ({
-        address: txId,
-        status: AlgorandTransactionStatus.Pending,
-      }))
+    await AlgorandTransactionGroupModel.query(trx).insertGraph({
+      transactions: transactions.map((tx) => ({
+        address: tx.txnId,
+        // Note the Unsigned status
+        status: AlgorandTransactionStatus.Unsigned,
+        encodedTransaction: tx.txn,
+        signer: tx.signer,
+      })),
+    })
+
+    return transactions
+  }
+
+  async exportCollectible(
+    request: TransferCollectible,
+    trx?: Transaction
+  ): Promise<string> {
+    const user = await UserAccountModel.query(trx)
+      .findOne({
+        externalId: request.externalId,
+      })
+      .withGraphFetched('algorandAccount')
+
+    userInvariant(user, 'user not found', 404)
+    invariant(user.algorandAccount, 'algorand account not loaded')
+
+    const collectible = await CollectibleModel.query(trx)
+      .findOne({
+        address: request.assetIndex,
+      })
+      .withGraphFetched('[creationTransaction, pack.payment]')
+
+    userInvariant(collectible, 'collectible not found', 404)
+    userInvariant(
+      collectible.ownerId == user.id,
+      'not the owner of this collectible',
+      400
+    )
+    userInvariant(
+      collectible.creationTransaction?.createdAt,
+      'collectible not minted',
+      400
     )
 
-    await this.algorand.submitTransaction(result.signedTransactions)
+    const transferrableAt = this.getTransferrableAt(collectible)
+
+    userInvariant(
+      isBeforeNow(transferrableAt),
+      'collectible cannot yet be transferred',
+      400
+    )
+
+    const asset = await this.algorand.getAssetInfo(collectible.address)
+    userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
+
+    // Load transaction, the group, and related transactions
+    const transaction = await AlgorandTransactionModel.query(trx)
+      .findOne({
+        address: request.transactionId,
+        status: AlgorandTransactionStatus.Unsigned,
+      })
+      .withGraphFetched('group.transactions')
+    invariant(
+      transaction.group?.transactions?.length >= 1,
+      'failed to load transaction group'
+    )
+
+    const { group } = transaction
+
+    const result = await this.algorand.signExportTransactions({
+      passphrase: request.passphrase,
+      encryptedMnemonic: user.algorandAccount.encryptedKey,
+      transactions: group.transactions.map(
+        ({ signer, encodedTransaction, address }) => {
+          const signedTxn =
+            address === transaction.address ? request.signedTransaction : null
+          return {
+            signer,
+            txn: encodedTransaction,
+            txnId: address,
+            signedTxn,
+          }
+        }
+      ),
+    })
+
+    const txResult = await this.algorand.submitTransaction(
+      result.signedTransactions
+    )
+    const txId = txResult.txId
+
+    await AlgorandTransactionModel.query(trx)
+      .where({ groupId: group.id })
+      .patch({ status: AlgorandTransactionStatus.Pending })
 
     await CollectibleModel.query(trx)
-      .where({
-        id: collectible.id,
-      })
-      .patch({
-        ownerId: null,
-      })
+      .findOne({ id: collectible.id })
+      .patch({ ownerId: null })
 
-    return result.transferTxnId
+    return txId
   }
 
   async initializeImportCollectible(
-    request: InitializeImportCollectible,
+    request: InitializeTransferCollectible,
     trx?: Transaction
-  ): Promise<{ txn: string; txnId: string; signer: string }[]> {
+  ): Promise<TransferCollectibleResult> {
     // Find the user's custodial wallet
     const user = await UserAccountModel.query(trx)
       .findOne({
@@ -1102,13 +1185,13 @@ export default class CollectiblesService {
       })),
     })
 
-    // The transaction that needs to be signed by the non-custodial wallet will
-    // always be the last one in the list. Later, we will rely on its txnId to
-    // lookup the other transactions in the group.
     return transactions
   }
 
-  async importCollectible(request: ImportCollectible, trx?: Transaction) {
+  async importCollectible(
+    request: TransferCollectible,
+    trx?: Transaction
+  ): Promise<string> {
     // Find the user's custodial wallet
     const user = await UserAccountModel.query(trx)
       .findOne({

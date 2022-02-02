@@ -85,13 +85,13 @@ export const validateExportAsset = (t: Translate) =>
     assetIndex: number(required(t('forms:errors.required') as string)),
   })
 
-export const validateInitializeImportAsset = (t: Translate) =>
+export const validateInitializeTransferCollectible = (t: Translate) =>
   object({
     address: string(required(t('forms:errors.required') as string)),
     assetIndex: number(required(t('forms:errors.required') as string)),
   })
 
-export const validateImportAsset = (t: Translate) =>
+export const validateTransferCollectible = (t: Translate) =>
   object({
     address: string(required(t('forms:errors.required') as string)),
     passphrase: passphrase(t),

@@ -570,15 +570,9 @@ export default class AlgorandAdapter {
    */
   async generateExportTransactions(options: {
     assetIndex: number
-    encryptedMnemonic: string
-    passphrase: string
     fromAccountAddress: string
     toAccountAddress: string
   }) {
-    const fromAccount = algosdk.mnemonicToSecretKey(
-      decrypt(options.encryptedMnemonic, options.passphrase)
-    )
-
     const suggestedParams = await this.algod.getTransactionParams().do()
 
     // Send funds to cover asset transfer transaction
@@ -600,6 +594,14 @@ export default class AlgorandAdapter {
         clawback: this.fundingAccount.addr,
       })
 
+    const optInTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+      suggestedParams,
+      amount: 0,
+      assetIndex: options.assetIndex,
+      from: options.toAccountAddress,
+      to: options.toAccountAddress,
+    })
+
     // Transfer asset to recipient and remove opt-in from sender
     const transferAssetTxn =
       algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
@@ -619,21 +621,74 @@ export default class AlgorandAdapter {
       amount: 100_000,
     })
 
-    const txns = [fundsTxn, configureTxn, transferAssetTxn, returnFundsTxn]
-
-    algosdk.assignGroupID(txns)
-
-    const signedTxns = [
-      fundsTxn.signTxn(this.fundingAccount.sk),
-      configureTxn.signTxn(this.fundingAccount.sk),
-      transferAssetTxn.signTxn(fromAccount.sk),
-      returnFundsTxn.signTxn(fromAccount.sk),
+    const transactions = [
+      fundsTxn,
+      configureTxn,
+      optInTxn,
+      transferAssetTxn,
+      returnFundsTxn,
     ]
 
+    const signers = [
+      this.fundingAccount.addr,
+      this.fundingAccount.addr,
+      options.toAccountAddress,
+      options.fromAccountAddress,
+      options.fromAccountAddress,
+    ]
+
+    algosdk.assignGroupID(transactions)
+
+    return transactions.map((txn, index) => {
+      return {
+        txn: Buffer.from(algosdk.encodeUnsignedTransaction(txn)).toString(
+          'base64'
+        ),
+        txnId: txn.txID(),
+        signer: signers[index],
+      }
+    })
+  }
+
+  async signExportTransactions(options: {
+    passphrase: string
+    encryptedMnemonic: string
+    transactions: {
+      txn: string
+      txnId: string
+      signedTxn?: string
+      signer: string
+    }[]
+  }) {
+    const fromAccount = algosdk.mnemonicToSecretKey(
+      decrypt(options.encryptedMnemonic, options.passphrase)
+    )
+
+    const signedTransactions = options.transactions.map((transaction) => {
+      if (transaction.signedTxn)
+        return new Uint8Array(Buffer.from(transaction.signedTxn, 'base64'))
+
+      const txn = algosdk.decodeUnsignedTransaction(
+        Buffer.from(transaction.txn, 'base64')
+      )
+
+      const signer =
+        transaction.signer === fromAccount.addr
+          ? fromAccount
+          : transaction.signer === this.fundingAccount.addr
+          ? this.fundingAccount
+          : null
+
+      invariant(signer, 'unknown signer')
+
+      return txn.signTxn(signer.sk)
+    })
+
     return {
-      transferTxnId: transferAssetTxn.txID(),
-      transactionIds: txns.map((txn) => txn.txID()),
-      signedTransactions: signedTxns,
+      transactionIds: options.transactions.map(
+        (transaction) => transaction.txnId
+      ),
+      signedTransactions,
     }
   }
 

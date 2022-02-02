@@ -27,7 +27,7 @@ handler.post(
     const { address, assetIndex } = request.validResult
       .value as InitializeBodyType
 
-    const result = await ApiClient.instance.initializeImportCollectible({
+    const result = await ApiClient.instance.initializeExportCollectible({
       externalId,
       address,
       assetIndex,

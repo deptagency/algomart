@@ -121,6 +121,7 @@ def approval_program():
                 Gtxn[on_bid_txn_index].receiver()
                 == Global.current_application_address(),
                 Gtxn[on_bid_txn_index].amount() >= Global.min_txn_fee(),
+                # TODO: should we prevent bids less than reserve amount?
             )
         ),
         If(
@@ -163,6 +164,7 @@ def approval_program():
                 # if the auction contract account has opted into the nft, close it out
                 closeNFTTo(App.globalGet(nft_id_key), App.globalGet(seller_key)),
                 # if the auction contract still has funds, send them all to the seller
+                # TODO: should this be sent to the creator account instead?
                 closeAccountTo(App.globalGet(seller_key)),
                 Approve(),
             )
@@ -190,6 +192,7 @@ def approval_program():
                             closeNFTTo(
                                 App.globalGet(nft_id_key), App.globalGet(seller_key)
                             ),
+                            # TODO: should we prevent bids less than reserve amount?
                             repayPreviousLeadBidder(
                                 App.globalGet(lead_bid_account_key),
                                 App.globalGet(lead_bid_amount_key),
@@ -202,6 +205,7 @@ def approval_program():
                     closeNFTTo(App.globalGet(nft_id_key), App.globalGet(seller_key))
                 ),
                 # send remaining funds to the seller
+                # TODO: should this be sent to the creator account instead?
                 closeAccountTo(App.globalGet(seller_key)),
                 Approve(),
             )

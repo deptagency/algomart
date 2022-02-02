@@ -1,9 +1,10 @@
 import {
-  ImportCollectible,
-  InitializeImportCollectible,
+  InitializeTransferCollectible,
   MintPackStatus,
   MintPackStatusResponse,
   PackWithId,
+  TransferCollectible,
+  TransferCollectibleResult,
   TransferPackStatusList,
 } from '@algomart/schemas'
 import { getAuth } from 'firebase/auth'
@@ -26,17 +27,18 @@ export interface CollectibleAPI {
   transfer(packId: string, passphrase: string): Promise<boolean>
   transferStatus(packId: string): Promise<TransferPackStatusList>
   shareProfile(shareProfile: boolean): Promise<boolean>
+  initializeExportCollectible(
+    request: Omit<InitializeTransferCollectible, 'externalId'>
+  ): Promise<TransferCollectibleResult>
   exportCollectible(
-    assetIndex: number,
-    address: string,
-    passphrase: string
-  ): Promise<string>
+    request: Omit<TransferCollectible, 'externalId'>
+  ): Promise<{ txId: string }>
   initializeImportCollectible(
-    request: Omit<InitializeImportCollectible, 'externalId'>
-  ): Promise<{ txn: string; txnId: string; signer: string }[]>
+    request: Omit<InitializeTransferCollectible, 'externalId'>
+  ): Promise<TransferCollectibleResult>
   importCollectible(
-    request: Omit<ImportCollectible, 'externalId'>
-  ): Promise<{ txnId: string }>
+    request: Omit<TransferCollectible, 'externalId'>
+  ): Promise<{ txId: string }>
 }
 
 export class CollectibleService implements CollectibleAPI {
@@ -65,18 +67,8 @@ export class CollectibleService implements CollectibleAPI {
   }
 
   async importCollectible(
-    request: Omit<
-      {
-        assetIndex: number
-        address: string
-        externalId: string
-        transactionId: string
-        signedTransaction: string
-        passphrase: string
-      },
-      'externalId'
-    >
-  ): Promise<{ txnId: string }> {
+    request: Omit<TransferCollectible, 'externalId'>
+  ): Promise<{ txId: string }> {
     return await this.http
       .post(urls.api.v1.importCollectible, {
         json: request,
@@ -85,11 +77,8 @@ export class CollectibleService implements CollectibleAPI {
   }
 
   async initializeImportCollectible(
-    request: Omit<
-      { assetIndex: number; address: string; externalId: string },
-      'externalId'
-    >
-  ): Promise<{ txn: string; txnId: string; signer: string }[]> {
+    request: Omit<InitializeTransferCollectible, 'externalId'>
+  ): Promise<TransferCollectibleResult> {
     return await this.http
       .post(urls.api.v1.initializeImportCollectible, { json: request })
       .json()
@@ -169,19 +158,23 @@ export class CollectibleService implements CollectibleAPI {
     return response.ok
   }
 
+  async initializeExportCollectible(
+    request: Omit<InitializeTransferCollectible, 'externalId'>
+  ) {
+    return await this.http
+      .post(urls.api.v1.initializeExportCollectible, { json: request })
+      .json<TransferCollectibleResult>()
+  }
+
   async exportCollectible(
-    assetIndex: number,
-    address: string,
-    passphrase: string
-  ): Promise<string> {
-    const response = await this.http
+    request: Omit<TransferCollectible, 'externalId'>
+  ): Promise<{ txId: string }> {
+    return await this.http
       .post(urls.api.v1.exportCollectible, {
-        json: { assetIndex, address, passphrase },
+        json: request,
         throwHttpErrors: true,
       })
-      .json<{ txId: string }>()
-
-    return response.txId
+      .json()
   }
 }
 

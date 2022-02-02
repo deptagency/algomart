@@ -6,10 +6,9 @@ import {
   CollectibleListWithTotalSchema,
   CollectiblesByAlgoAddressQuerystringSchema,
   CollectibleShowcaseQuerystringSchema,
-  ExportCollectibleSchema,
-  ImportCollectibleSchema,
-  InitializeImportCollectibleSchema,
+  InitializeTransferCollectibleSchema,
   SingleCollectibleQuerystringSchema,
+  TransferCollectibleSchema,
 } from '@algomart/schemas'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
@@ -23,6 +22,7 @@ import {
   getCollectiblesByAlgoAddress,
   getShowcaseCollectibles,
   importCollectible,
+  initializeExportCollectible,
   initializeImportCollectible,
   removeCollectibleShowcase,
 } from './collectibles.routes'
@@ -142,7 +142,28 @@ export async function collectiblesRoutes(app: FastifyInstance) {
         schema: {
           tags,
           security,
-          body: ExportCollectibleSchema,
+          body: InitializeTransferCollectibleSchema,
+          response: {
+            200: Type.Array(
+              Type.Object({
+                txnId: Type.String(),
+                txn: Type.String(),
+                signer: Type.String(),
+              })
+            ),
+          },
+        },
+      },
+      initializeExportCollectible
+    )
+    .post(
+      '/export/sign',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: TransferCollectibleSchema,
           response: {
             200: Type.Object({
               txId: Type.String(),
@@ -159,7 +180,7 @@ export async function collectiblesRoutes(app: FastifyInstance) {
         schema: {
           tags,
           security,
-          body: InitializeImportCollectibleSchema,
+          body: InitializeTransferCollectibleSchema,
           response: {
             200: Type.Array(
               Type.Object({
@@ -180,7 +201,7 @@ export async function collectiblesRoutes(app: FastifyInstance) {
         schema: {
           tags,
           security,
-          body: ImportCollectibleSchema,
+          body: TransferCollectibleSchema,
           response: {
             200: Type.Object({
               txId: Type.String(),

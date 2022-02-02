@@ -2,7 +2,11 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { Environment } from '../environment'
 
-import { AlgorandAdapter, IConnector } from '@/libs/algorand-adapter'
+import {
+  AlgorandAdapter,
+  IConnector,
+  UnsignedTransaction,
+} from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
 import collectibleService from '@/services/collectible-service'
 
@@ -10,8 +14,8 @@ const algorand = new AlgorandAdapter(Environment.chainType)
 
 export type ExportStatus =
   | 'idle'
-  | 'opt-in'
-  | 'opting-in'
+  | 'generate-transactions'
+  | 'sign-transaction'
   | 'pending'
   | 'success'
   | 'error'
@@ -52,33 +56,47 @@ export function useExportCollectible(passphrase: string) {
         const connector = connectorReference.current
         if (!connector || !passphrase) return
 
-        const hasOptedIn = await algorand.hasOptedIn(
-          selectedAccount,
-          assetIndex
+        setExportStatus('generate-transactions')
+        const result = await collectibleService.initializeExportCollectible({
+          address: selectedAccount,
+          assetIndex,
+        })
+        let txnId = ''
+
+        const unsignedTransactions = await Promise.all(
+          result.map(async (txn): Promise<UnsignedTransaction> => {
+            return txn.signer === selectedAccount
+              ? (txnId = txn.txnId) && {
+                  txn: await algorand.decodeUnsignedTransaction(txn.txn),
+                }
+              : {
+                  txn: await algorand.decodeUnsignedTransaction(txn.txn),
+                  signers: [txn.signer],
+                }
+          })
         )
-        if (!hasOptedIn) {
-          setExportStatus('opting-in')
-          const txn = await algorand.makeAssetOptInTransaction(
-            assetIndex,
-            selectedAccount
-          )
-          await connector.signTransaction([
-            {
-              txn,
-            },
-          ])
-          setExportStatus('opt-in')
-          await algorand.waitForConfirmation(txn.txID())
-        }
+
+        setExportStatus('sign-transaction')
+        const signedTransactions = await connector.signTransaction(
+          unsignedTransactions,
+          undefined,
+          true
+        )
+        const signedTransaction = signedTransactions.find((txn) => !!txn)
 
         setExportStatus('pending')
-        const txId = await collectibleService.exportCollectible(
-          assetIndex,
-          selectedAccount,
-          passphrase
-        )
+        const encodedSignedTransaction =
+          algorand.encodeSignedTransaction(signedTransaction)
 
-        await algorand.waitForConfirmation(txId)
+        await collectibleService.exportCollectible({
+          address: selectedAccount,
+          assetIndex,
+          passphrase,
+          signedTransaction: encodedSignedTransaction,
+          transactionId: txnId,
+        })
+
+        await algorand.waitForConfirmation(txnId)
         await disconnect()
         setExportStatus('success')
       } catch (error) {

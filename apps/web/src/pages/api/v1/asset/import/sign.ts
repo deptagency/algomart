@@ -7,16 +7,16 @@ import userMiddleware from '@/middleware/user-middleware'
 import validateBodyMiddleware, {
   ExtractBodyType,
 } from '@/middleware/validate-body-middleware'
-import { validateImportAsset } from '@/utils/asset-validation'
+import { validateTransferCollectible } from '@/utils/asset-validation'
 
 const handler = createHandler()
 
 handler.use(authMiddleware()).use(userMiddleware())
 
-type ImportBodyType = ExtractBodyType<typeof validateImportAsset>
+type ImportBodyType = ExtractBodyType<typeof validateTransferCollectible>
 
 handler.post(
-  validateBodyMiddleware(validateImportAsset),
+  validateBodyMiddleware(validateTransferCollectible),
   async (
     request: NextApiRequestApp<ImportBodyType>,
     response: NextApiResponse

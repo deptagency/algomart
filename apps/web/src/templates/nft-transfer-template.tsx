@@ -51,8 +51,8 @@ export default function NFTTransferTemplate({
   const { t } = useTranslation()
   const exportStatusMessage = {
     idle: t('nft:exportStatus.idle'),
-    'opt-in': t('nft:exportStatus.optIn'),
-    'opting-in': t('nft:exportStatus.optingIn'),
+    'generating-transactions': t('nft:exportStatus.generatingTransactions'),
+    'sign-transaction': t('nft:exportStatus.optingIn'),
     pending: t('nft:exportStatus.pending'),
     success: t('nft:exportStatus.success'),
     error: t('nft:exportStatus.error'),

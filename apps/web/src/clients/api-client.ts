@@ -20,14 +20,12 @@ import {
   CreateTransferPayment,
   CreateUserAccountRequest,
   DEFAULT_LOCALE,
-  ExportCollectible,
   ExternalId,
   FindTransferByAddress,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
-  ImportCollectible,
-  InitializeImportCollectible,
+  InitializeTransferCollectible,
   Locale,
   LocaleAndExternalId,
   MintPack,
@@ -55,6 +53,8 @@ import {
   SetWithCollection,
   SingleCollectibleQuerystring,
   ToPaymentBase,
+  TransferCollectible,
+  TransferCollectibleResult,
   TransferPack,
   TransferPackStatusList,
   UpdatePayment,
@@ -211,19 +211,25 @@ export class ApiClient {
       .then((response) => response.ok)
   }
 
-  async exportCollectible(request: ExportCollectible) {
+  async initializeExportCollectible(request: InitializeTransferCollectible) {
     return await this.http
       .post('collectibles/export', { json: request })
+      .json<TransferCollectibleResult>()
+  }
+
+  async exportCollectible(request: TransferCollectible) {
+    return await this.http
+      .post('collectibles/export/sign', { json: request })
       .json<{ txId: string }>()
   }
 
-  async initializeImportCollectible(request: InitializeImportCollectible) {
+  async initializeImportCollectible(request: InitializeTransferCollectible) {
     return await this.http
       .post('collectibles/import', { json: request })
-      .json<{ txId: string; txn: string; signer: string }>()
+      .json<TransferCollectibleResult>()
   }
 
-  async importCollectible(request: ImportCollectible) {
+  async importCollectible(request: TransferCollectible) {
     return await this.http
       .post('collectibles/import/sign', { json: request })
       .json<{ txId: string }>()
