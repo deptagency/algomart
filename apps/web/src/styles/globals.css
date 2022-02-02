@@ -33,7 +33,7 @@
     --border: 218, 220, 223;
 
     --error: 172, 0, 0; /* red */
-    --price: 51, 197, 0; /* green */
+    --price: 5, 150, 105; /* green-600 */
   }
 
   /* Dark theme */
@@ -58,7 +58,7 @@
     --border: 62, 64, 67;
 
     --error: 255, 70, 70; /* red */
-    --price: 51, 197, 0; /* green */
+    --price: 35, 180, 135;
   }
 }
 
