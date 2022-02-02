@@ -13,7 +13,7 @@ import { urls } from '@/utils/urls'
 export interface AdminAPI {
   getLoggedInUserPermissions(): Promise<AdminPermissions>
   getPaymentsByBankAccountId(bankAccountId: string): Promise<Payments>
-  revokePack: (packId: string) => Promise<boolean>
+  revokePack: (packId: string, ownerId: string) => Promise<boolean>
   updatePayment(paymentId: string, json: UpdatePayment): Promise<Payment | null>
 }
 
@@ -58,10 +58,10 @@ export class AdminService implements AdminAPI {
       .json<Payments>()
   }
 
-  async revokePack(packId: string): Promise<boolean> {
+  async revokePack(packId: string, ownerId: string): Promise<boolean> {
     return await this.http
-      .patch(urls.api.v1.admin.revokePack, {
-        json: { packId },
+      .post(urls.api.v1.admin.revokePack, {
+        json: { packId, ownerId },
       })
       .then((response) => response.ok)
   }

@@ -763,22 +763,23 @@ export default class PaymentsService {
   }
 
   async getPaymentById(paymentId: string, isAdmin?: boolean) {
-    const payment = await PaymentModel.query().findById(paymentId)
+    const payment = await PaymentModel.query()
+      .findById(paymentId)
+      .withGraphFetched('pack')
     userInvariant(payment, 'payment not found', 404)
     if (isAdmin) {
       const { pack } = payment
-      if (pack.templateId) {
-        const { packs: packTemplates } = await this.packs.getPublishedPacks({
-          templateIds: [pack.templateId],
-        })
-        const packTemplate = packTemplates[0]
-        return {
-          ...payment,
-          pack: {
-            ...packTemplate,
-            ...pack,
-          },
-        }
+      invariant(pack?.templateId, 'pack template not found')
+      const { packs: packTemplates } = await this.packs.getPublishedPacks({
+        templateIds: [pack.templateId],
+      })
+      const packTemplate = packTemplates[0]
+      return {
+        ...payment,
+        pack: {
+          ...packTemplate,
+          ...pack,
+        },
       }
     }
     return payment

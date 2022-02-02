@@ -473,7 +473,7 @@ export default class AlgorandAdapter {
       to: options.toAccountAddress,
     })
 
-    // Receiver needs to "opt-in" to the asset by using a "zero-balance" transaction
+    // Creator needs to "opt-in" to the asset by using a "zero-balance" transaction
     const optInTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
       suggestedParams,
       amount: 0,
@@ -496,9 +496,16 @@ export default class AlgorandAdapter {
     // Adds a group id to each transaction object
     algosdk.assignGroupID([fundsTxn, optInTxn, clawbackTxn])
 
+    // Find secret key for creator account
+    const creator = await this.getCreatorAccount(0)
+    const toAccount = algosdk.mnemonicToSecretKey(
+      decrypt(creator.encryptedMnemonic, Configuration.creatorPassphrase)
+    )
+    console.log('toAccount:', toAccount)
+
     const signedTransactions = [
       fundsTxn.signTxn(this.fundingAccount.sk),
-      optInTxn.signTxn(this.fundingAccount.sk),
+      optInTxn.signTxn(toAccount.sk),
       clawbackTxn.signTxn(this.fundingAccount.sk),
     ]
 

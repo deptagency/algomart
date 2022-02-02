@@ -179,6 +179,7 @@ export const PackWithIdSchema = Type.Intersect([
   Type.Object({
     id: IdSchema,
     activeBidId: Type.Optional(IdSchema),
+    ownerId: Type.Optional(IdSchema),
   }),
 ])
 

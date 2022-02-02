@@ -19,12 +19,11 @@ type BodyType = ExtractBodyType<typeof validateRevokeAsset>
 handler.post(
   validateBodyMiddleware(validateRevokeAsset),
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
-    const { externalId } = request.user
-    const { packId } = request.validResult.value as BodyType
+    const { packId, ownerId } = request.validResult.value as BodyType
 
     const result = await ApiClient.instance.revokePack({
       packId,
-      ownerId: externalId,
+      ownerId,
     })
 
     response.json(result)

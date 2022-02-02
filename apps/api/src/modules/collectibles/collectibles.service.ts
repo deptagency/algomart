@@ -627,7 +627,7 @@ export default class CollectiblesService {
       }))
     )
 
-    // Remover ownership from collectible
+    // Remove ownership from collectible
     await CollectibleModel.query(trx).where('id', collectible.id).patch({
       ownerId: null,
       latestTransferTransactionId: transactions[0].id,

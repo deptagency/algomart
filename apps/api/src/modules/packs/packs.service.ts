@@ -856,10 +856,7 @@ export default class PacksService {
   }
 
   async revokePack(request: RevokePack, trx?: Transaction) {
-    const user = await UserAccountModel.query(trx)
-      .findOne('externalId', request.ownerId)
-      .withGraphJoined('algorandAccount.creationTransaction')
-
+    const user = await UserAccountModel.query(trx).findById(request.ownerId)
     userInvariant(user, 'user not found', 404)
 
     const pack = await PackModel.query(trx)
@@ -899,6 +896,7 @@ export default class PacksService {
     const packWithBase = await this.getPackById(request.packId)
     if (packWithBase) {
       // @TODO: create notification for revoking the pack
+      console.log('pack with base:', packWithBase)
     }
 
     // Remove claim from pack

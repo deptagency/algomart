@@ -9,6 +9,7 @@ import Button from '@/components/button'
 import DefaultLayout from '@/layouts/default-layout'
 import adminService from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
+import { logger } from '@/utils/logger'
 import { useAuthApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
 
@@ -47,8 +48,15 @@ export default function AdminTransactionPage({
   }, [transactionId])
 
   const handleRevokePack = useCallback(async () => {
-    // @TODO: Revoke pack API request
-  }, [])
+    try {
+      console.log('payment:', payment.pack)
+      if (!payment.pack.id) throw new Error('No pack id')
+      if (!payment.pack.ownerId) throw new Error('No pack owner ID')
+      await adminService.revokePack(payment.pack.id, payment.pack.ownerId)
+    } catch (error) {
+      logger.error(error, 'Unable to revoke pack')
+    }
+  }, [payment?.pack])
 
   return (
     <DefaultLayout pageTitle={t('common:pageTitles.Transaction')}>

@@ -323,13 +323,13 @@ export class ApiClient {
 
   async getAdminPaymentById(paymentId: string) {
     return await this.http
-      .get(`payments/${paymentId}?admin=true`)
+      .get(`payments/${paymentId}?isAdmin=${true}`)
       .json<Payment>()
   }
 
   async getPaymentsByBankAccountId(bankAccountId: string) {
     return await this.http
-      .get(`bank-accounts/${bankAccountId}/payments`)
+      .get(`payments/bank-accounts/${bankAccountId}/payments`)
       .json<Payment[]>()
   }
 
