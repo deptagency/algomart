@@ -106,12 +106,20 @@ export default function AdminTransactionPage({
       />
       <Flex gap={12}>
         <Flex item flex="0 0 250px">
-          <Image src={pack.image} width={250} height={250} alt="Pack image" />
+          <Panel fullWidth>
+            <Image
+              src={pack.image}
+              layout="responsive"
+              height="100%"
+              width="100%"
+              alt="Pack image"
+            />
+          </Panel>
         </Flex>
 
         <Flex flex="1" flexDirection="column" gap={6}>
           <header>
-            <Heading>{pack.title}</Heading>
+            <Heading inheritColor>{pack.title}</Heading>
             <p className={css.subtitle}>{pack.type}</p>
           </header>
 

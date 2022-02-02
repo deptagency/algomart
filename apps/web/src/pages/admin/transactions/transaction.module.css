@@ -1,3 +1,7 @@
+.subtitle {
+  @apply mt-1 capitalize text-base-textTertiary;
+}
+
 .packMeta {
   @apply flex-1 text-center;
 }
@@ -10,9 +14,6 @@
   @apply font-bold;
 }
 
-.subtitle {
-  @apply capitalize text-base-textTertiary;
-}
 .actionDescription {
   @apply pb-4 text-sm text-base-textTertiary;
 }
