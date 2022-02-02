@@ -96,26 +96,6 @@ export default function SelectAssetStage(props: SelectAssetStageProps) {
                   />
                 </>
               )}
-
-              {/* {({ checked }) => (
-              <div className={css.accountItem}>
-                <span
-                  className={clsx(
-                    css.accountItemRadio,
-                    checked && css.accountItemRadioChecked,
-                    !checked && css.accountItemRadioUnchecked
-                  )}
-                >
-                  {checked ? (
-                    <span className={css.accountItemRadioCheckedInner}></span>
-                  ) : null}
-                </span>
-                <span>
-                  {collectible.title} {collectible.edition}/
-                  {collectible.totalEditions} ({collectible.address})
-                </span>
-              </div>
-            )} */}
             </RadioGroup.Option>
           ))}
         </div>
