@@ -27,5 +27,5 @@
 }
 
 .completeSuccess {
-  @apply text-green-600;
+  @apply text-base-price;
 }
