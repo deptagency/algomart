@@ -2,10 +2,6 @@
   @apply overflow-hidden shadow-lg bg-base-bgCard;
 }
 
-.root + .root {
-  @apply mt-8;
-}
-
 .header {
   @apply flex px-5 pt-5 mb-5;
 }

@@ -29,7 +29,7 @@ export default function DefaultLayout({
         <section>
           <AppHeader />
 
-          <div className="px-4 pt-16">{children}</div>
+          <div className="px-4 py-16">{children}</div>
         </section>
       </div>
       <AppFooter />
