@@ -5,6 +5,8 @@ import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback } from 'react'
 
+import css from './transaction.module.css'
+
 import { ApiClient } from '@/clients/api-client'
 import Breadcrumbs from '@/components/breadcrumbs'
 import Button from '@/components/button'
@@ -108,25 +110,25 @@ export default function AdminTransactionPage({
         </Flex>
 
         <Flex flex="1" flexDirection="column" gap={6}>
-          <div>
+          <header>
             <Heading>{pack.title}</Heading>
-            <p className="capitalize text-base-textTertiary">{pack.type}</p>
-          </div>
+            <p className={css.subtitle}>{pack.type}</p>
+          </header>
 
           <Panel>
-            <Flex alignItems="stretch" gap={4}>
-              <Flex item flex="1">
-                <small>Winning Bid</small>
-                <p>{formatCurrency(pack.price, lang)} </p>
-              </Flex>
-              <Flex item flex="1">
-                <small>Winner</small>
-                <p>{payerId} </p>
-              </Flex>
-              <Flex item flex="1">
-                <small>Ended At</small>
-                <p>{new Date(pack.auctionUntil).toLocaleString(lang)} </p>
-              </Flex>
+            <Flex alignItems="stretch" gap={4} Element="dl">
+              <div className={css.packMeta}>
+                <dt>Winning Bid</dt>
+                <dd>{formatCurrency(pack.price, lang)} </dd>
+              </div>
+              <div className={css.packMeta}>
+                <dt>Winner</dt>
+                <dd>{payerId} </dd>
+              </div>
+              <div className={css.packMeta}>
+                <dt>Ended At</dt>
+                <dd>{new Date(pack.auctionUntil).toLocaleString(lang)} </dd>
+              </div>
             </Flex>
           </Panel>
 
@@ -135,7 +137,7 @@ export default function AdminTransactionPage({
           </Panel>
 
           <Panel title={t('common:actions.Reset Payment')}>
-            <p className="pb-4 text-sm text-base-textTertiary">
+            <p className={css.actionDescription}>
               Resetting the transaction puts it back into the pending state
               which allows the buyer to attept to make the payment again using
               the original wire instructions.
@@ -146,7 +148,7 @@ export default function AdminTransactionPage({
           </Panel>
 
           <Panel title={t('common:actions.Set Payment As Successful')}>
-            <p className="pb-4 text-sm text-base-textTertiary">
+            <p className={css.actionDescription}>
               Setting the payment as successful will mark the transaction as
               paid. Use this action when a payment is made through any means
               outside of the system.
@@ -157,7 +159,7 @@ export default function AdminTransactionPage({
           </Panel>
 
           <Panel title={t('common:actions.Revoke Pack')}>
-            <p className="pb-4 text-sm text-base-textTertiary">
+            <p className={css.actionDescription}>
               If someone fails to pay you can revoke the pack. Note:
               Re-selling/auctioning revoked packs is not yet supported.
             </p>

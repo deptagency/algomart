@@ -1,0 +1,18 @@
+.packMeta {
+  @apply flex-1 text-center;
+}
+
+.packMeta > dt {
+  @apply mb-2 text-sm text-base-textTertiary;
+}
+
+.packMeta > dd {
+  @apply font-bold;
+}
+
+.subtitle {
+  @apply capitalize text-base-textTertiary;
+}
+.actionDescription {
+  @apply pb-4 text-sm text-base-textTertiary;
+}
