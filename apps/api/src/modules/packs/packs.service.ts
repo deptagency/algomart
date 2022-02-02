@@ -684,17 +684,18 @@ export default class PacksService {
       await this.accounts.initializeAccount(user.id, request.passphrase, trx)
     }
 
-    const collectibleIds = pack.collectibles?.map((c) => c.id) || []
-
     await Promise.all(
-      collectibleIds.map(async (id) => {
-        await this.collectibles.transferToUserFromCreator(
-          id,
-          user.id,
-          request.passphrase,
-          trx
-        )
-      })
+      pack.collectibles?.map(
+        async (c) =>
+          !c.ownerId &&
+          c.id &&
+          (await this.collectibles.transferToUserFromCreator(
+            c.id,
+            user.id,
+            request.passphrase,
+            trx
+          ))
+      )
     )
 
     // Create transfer success notification to be sent to user
