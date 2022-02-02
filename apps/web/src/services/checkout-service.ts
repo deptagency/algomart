@@ -139,14 +139,6 @@ export class CheckoutService implements CheckoutAPI {
       .json<Payments>()
   }
 
-  async getPaymentsByBankAccountId(bankAccountId: string): Promise<Payments> {
-    return await this.http
-      .get(
-        `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${bankAccountId}`
-      )
-      .json<Payments>()
-  }
-
   async getPayment(paymentId: string): Promise<Payment> {
     const response = await this.http.get(
       `${urls.api.v1.getPayment}?paymentId=${paymentId}`
