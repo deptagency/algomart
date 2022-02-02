@@ -1,4 +1,4 @@
-import { CollectibleBase } from '@algomart/schemas'
+import { CollectibleBase, TransferCollectibleResult } from '@algomart/schemas'
 import algosdk from 'algosdk'
 
 import { Configuration } from '@/configuration'
@@ -656,15 +656,10 @@ export default class AlgorandAdapter {
     })
   }
 
-  async signExportTransactions(options: {
+  async signTransferTransactions(options: {
     passphrase: string
     encryptedMnemonic: string
-    transactions: {
-      txn: string
-      txnId: string
-      signedTxn?: string
-      signer: string
-    }[]
+    transactions: TransferCollectibleResult
   }) {
     const fromAccount = algosdk.mnemonicToSecretKey(
       decrypt(options.encryptedMnemonic, options.passphrase)
@@ -770,41 +765,5 @@ export default class AlgorandAdapter {
         signer: signers[index],
       }
     })
-  }
-
-  signImportTransactions(options: {
-    encodedUnsignedOptInTransaction: string
-    encodedUnsignedFundTransaction: string
-    encryptedMnemonic: string
-    passphrase: string
-  }) {
-    const fromAccount = algosdk.mnemonicToSecretKey(
-      decrypt(options.encryptedMnemonic, options.passphrase)
-    )
-    const unsignedFundTransaction = algosdk.decodeUnsignedTransaction(
-      new Uint8Array(
-        Buffer.from(options.encodedUnsignedFundTransaction, 'base64')
-      )
-    )
-    const unsignedOptInTransaction = algosdk.decodeUnsignedTransaction(
-      new Uint8Array(
-        Buffer.from(options.encodedUnsignedOptInTransaction, 'base64')
-      )
-    )
-
-    const transactionIds = [
-      unsignedFundTransaction.txID(),
-      unsignedOptInTransaction.txID(),
-    ]
-
-    const signedTransactions = [
-      unsignedFundTransaction.signTxn(this.fundingAccount.sk),
-      unsignedOptInTransaction.signTxn(fromAccount.sk),
-    ]
-
-    return {
-      transactionIds,
-      signedTransactions,
-    }
   }
 }

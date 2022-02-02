@@ -1103,7 +1103,7 @@ export default class CollectiblesService {
 
     const { group } = transaction
 
-    const result = await this.algorand.signExportTransactions({
+    const result = await this.algorand.signTransferTransactions({
       passphrase: request.passphrase,
       encryptedMnemonic: user.algorandAccount.encryptedKey,
       transactions: group.transactions.map(
@@ -1231,56 +1231,28 @@ export default class CollectiblesService {
     )
 
     const { group } = transaction
-    let txId = ''
 
-    // Decode signed transfer transaction
-    const signedTransferTxn = new Uint8Array(
-      Buffer.from(request.signedTransaction, 'base64')
+    const result = await this.algorand.signTransferTransactions({
+      passphrase: request.passphrase,
+      encryptedMnemonic: user.algorandAccount.encryptedKey,
+      transactions: group.transactions.map(
+        ({ signer, encodedTransaction, address }) => {
+          const signedTxn =
+            address === transaction.address ? request.signedTransaction : null
+          return {
+            signer,
+            txn: encodedTransaction,
+            txnId: address,
+            signedTxn,
+          }
+        }
+      ),
+    })
+
+    const txResult = await this.algorand.submitTransaction(
+      result.signedTransactions
     )
-
-    if (group.transactions.length > 1) {
-      // Also doing funding and opt-in transactions
-      const unsignedFundTransactionData = group.transactions.find(
-        (txn) => txn.signer !== user.algorandAccount.address
-      )
-      invariant(
-        unsignedFundTransactionData.encodedTransaction,
-        'missing encoded fund transaction'
-      )
-
-      const unsignedOptInTransactionData = group.transactions.find(
-        (txn) => txn.signer === user.algorandAccount.address
-      )
-      invariant(
-        unsignedFundTransactionData.encodedTransaction,
-        'missing encoded opt-in transaction'
-      )
-
-      // Sign the remaining transactions
-      const result = this.algorand.signImportTransactions({
-        encryptedMnemonic: user.algorandAccount.encryptedKey,
-        passphrase: request.passphrase,
-        encodedUnsignedFundTransaction:
-          unsignedFundTransactionData.encodedTransaction,
-        encodedUnsignedOptInTransaction:
-          unsignedOptInTransactionData.encodedTransaction,
-      })
-
-      // This should be a valid transaction group, so submit them all at once
-      const signedTransactions = [
-        ...result.signedTransactions,
-        signedTransferTxn,
-      ]
-
-      const txResult = await this.algorand.submitTransaction(signedTransactions)
-      txId = txResult.txId
-    } else {
-      // Only doing transfer transaction
-      const txResult = await this.algorand.submitTransaction([
-        signedTransferTxn,
-      ])
-      txId = txResult.txId
-    }
+    const txId = txResult.txId
 
     await AlgorandTransactionModel.query(trx)
       .where({ groupId: group.id })
