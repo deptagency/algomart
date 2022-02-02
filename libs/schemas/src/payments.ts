@@ -594,7 +594,7 @@ export const PaymentQuerystringSchema = Type.Object({
 export const PaymentSchema = Type.Intersect([
   BaseSchema,
   PaymentBaseSchema,
-  Type.Omit(ToPaymentBaseSchema, ['externalId', 'amount']),
+  Type.Omit(ToPaymentBaseSchema, ['externalId', 'amount', 'error']),
   Type.Object({
     externalId: Type.Optional(Type.String({ format: 'uuid' })),
     amount: Type.Optional(Type.String()),
