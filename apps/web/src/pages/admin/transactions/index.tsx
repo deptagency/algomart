@@ -14,7 +14,7 @@ import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
 import useAdminGate from '@/hooks/use-admin-gate'
 import usePagination from '@/hooks/use-pagination'
-import DefaultLayout from '@/layouts/default-layout'
+import AdminLayout from '@/layouts/admin-layout'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { getPaymentsFilterQuery } from '@/utils/filters'
 import { formatCurrency } from '@/utils/format-currency'
@@ -83,11 +83,7 @@ export default function AdminTransactionsPage() {
   )
 
   return (
-    <DefaultLayout
-      pageTitle={t('common:pageTitles.Transactions')}
-      noPanel
-      width="full"
-    >
+    <AdminLayout pageTitle={t('common:pageTitles.Transactions')}>
       <Panel
         fullWidth
         title={t('common:pageTitles.Transactions')}
@@ -106,7 +102,7 @@ export default function AdminTransactionsPage() {
           />
         </div>
       </Panel>
-    </DefaultLayout>
+    </AdminLayout>
   )
 }
 

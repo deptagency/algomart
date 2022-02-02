@@ -8,9 +8,10 @@ import { ApiClient } from '@/clients/api-client'
 import Breadcrumbs from '@/components/breadcrumbs'
 import Button from '@/components/button'
 import { Flex } from '@/components/flex'
+import Heading from '@/components/heading'
 import Panel from '@/components/panel'
 import useAdminGate from '@/hooks/use-admin-gate'
-import DefaultLayout from '@/layouts/default-layout'
+import AdminLayout from '@/layouts/admin-layout'
 import adminService from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { useAuthApi } from '@/utils/swr'
@@ -56,11 +57,7 @@ export default function AdminTransactionPage({
   }, [])
 
   return (
-    <DefaultLayout
-      pageTitle={t('common:pageTitles.Transaction')}
-      noPanel
-      width="full"
-    >
+    <AdminLayout pageTitle={t('common:pageTitles.Transaction')}>
       <Breadcrumbs
         breadcrumbs={[
           { label: 'Transactions', href: urls.admin.transactions },
@@ -72,21 +69,37 @@ export default function AdminTransactionPage({
           <Panel />
         </Flex>
         <Flex flex="1" flexDirection="column">
+          <Heading>{payment.pack.title}</Heading>
           <Panel title={t('common:pageTitles.Transaction')}>
             {/**** @TODO: Transaction template *****/}
-            <Button className="mb-5" onClick={handleReset} fullWidth>
+            <Button
+              className="mb-5"
+              onClick={handleReset}
+              fullWidth
+              size="small"
+            >
               {t('common:actions.Reset Payment')}
             </Button>
-            <Button className="mb-5" onClick={markAsPaid} fullWidth>
+            <Button
+              className="mb-5"
+              onClick={markAsPaid}
+              fullWidth
+              size="small"
+            >
               {t('common:actions.Set Payment As Successful')}
             </Button>
-            <Button className="mb-5" onClick={handleRevokePack} fullWidth>
+            <Button
+              className="mb-5"
+              onClick={handleRevokePack}
+              fullWidth
+              size="small"
+            >
               {t('common:actions.Revoke Pack')}
             </Button>
           </Panel>
         </Flex>
       </Flex>
-    </DefaultLayout>
+    </AdminLayout>
   )
 }
 
