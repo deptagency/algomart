@@ -1,5 +1,5 @@
 .breadcrumbs {
-  @apply flex flex-wrap mb-16;
+  @apply flex flex-wrap mb-8;
 }
 
 .breadcrumb + .breadcrumb::before {
