@@ -1,6 +1,4 @@
 import {
-  AdminPaymentList,
-  AdminPaymentListQuerystring,
   CirclePaymentQueryType,
   CirclePaymentSourceType,
   CreateBankAccount,
@@ -17,7 +15,9 @@ import {
   PackType,
   PaymentBankAccountStatus,
   PaymentCardStatus,
+  Payments,
   PaymentSortField,
+  PaymentsQuerystring,
   PaymentStatus,
   SendBankAccountInstructions,
   SortDirection,
@@ -79,7 +79,7 @@ export default class PaymentsService {
     payerUsername,
     sortBy = PaymentSortField.UpdatedAt,
     sortDirection = SortDirection.Ascending,
-  }: AdminPaymentListQuerystring): Promise<AdminPaymentList> {
+  }: PaymentsQuerystring): Promise<Payments> {
     let account: UserAccount
     userInvariant(page > 0, 'page must be greater than 0')
     userInvariant(
@@ -762,29 +762,23 @@ export default class PaymentsService {
     return matchingPayments
   }
 
-  async getPaymentById(paymentId: string) {
+  async getPaymentById(paymentId: string, isAdmin?: boolean) {
     const payment = await PaymentModel.query().findById(paymentId)
     userInvariant(payment, 'payment not found', 404)
-    return payment
-  }
-
-  async getAdminPaymentById(paymentId: string) {
-    const payment = await PaymentModel.query()
-      .findById(paymentId)
-      .withGraphFetched('pack')
-    userInvariant(payment, 'payment not found', 404)
-    const { pack } = payment
-    if (pack.templateId) {
-      const { packs: packTemplates } = await this.packs.getPublishedPacks({
-        templateIds: [pack.templateId],
-      })
-      const packTemplate = packTemplates[0]
-      return {
-        ...payment,
-        pack: {
-          ...packTemplate,
-          ...pack,
-        },
+    if (isAdmin) {
+      const { pack } = payment
+      if (pack.templateId) {
+        const { packs: packTemplates } = await this.packs.getPublishedPacks({
+          templateIds: [pack.templateId],
+        })
+        const packTemplate = packTemplates[0]
+        return {
+          ...payment,
+          pack: {
+            ...packTemplate,
+            ...pack,
+          },
+        }
       }
     }
     return payment
