@@ -48,6 +48,7 @@ import {
   PublishedPacks,
   PublishedPacksQuery,
   RedeemCode,
+  RevokePack,
   SendBankAccountInstructions,
   SetWithCollection,
   SingleCollectibleQuerystring,
@@ -392,6 +393,12 @@ export class ApiClient {
     return await this.http
       .get('packs/mint', { searchParams: params })
       .json<MintPackStatusResponse>()
+  }
+
+  async revokePack(json: RevokePack) {
+    return await this.http
+      .post('packs/revoke', { json })
+      .then((response) => response.ok)
   }
 
   async transferPack(json: TransferPack) {
