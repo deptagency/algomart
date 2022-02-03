@@ -1,5 +1,4 @@
 import {
-  AdminPaymentListQuerystring,
   BankAccountId,
   CardId,
   CreateBankAccount,
@@ -10,6 +9,8 @@ import {
   FindTransferByAddress,
   OwnerExternalId,
   PaymentId,
+  PaymentQuerystring,
+  PaymentsQuerystring,
   SendBankAccountInstructions,
   UpdatePayment,
   UpdatePaymentCard,
@@ -278,35 +279,20 @@ export async function createTransferPayment(
   }
 }
 
-export async function getAdminPaymentById(
-  request: FastifyRequest<{
-    Params: PaymentId
-  }>,
-  reply: FastifyReply
-) {
-  const paymentService = request
-    .getContainer()
-    .get<PaymentsService>(PaymentsService.name)
-  const payment = await paymentService.getAdminPaymentById(
-    request.params.paymentId
-  )
-  if (payment) {
-    reply.status(200).send(payment)
-  } else {
-    reply.notFound()
-  }
-}
-
 export async function getPaymentById(
   request: FastifyRequest<{
     Params: PaymentId
+    Querystring: PaymentQuerystring
   }>,
   reply: FastifyReply
 ) {
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const payment = await paymentService.getPaymentById(request.params.paymentId)
+  const payment = await paymentService.getPaymentById(
+    request.params.paymentId,
+    request.query.isAdmin
+  )
   if (payment) {
     reply.status(200).send(payment)
   } else {
@@ -316,7 +302,7 @@ export async function getPaymentById(
 
 export async function getPayments(
   request: FastifyRequest<{
-    Querystring: AdminPaymentListQuerystring
+    Querystring: PaymentsQuerystring
   }>,
   reply: FastifyReply
 ) {

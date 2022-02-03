@@ -1,4 +1,4 @@
-import { AdminPaymentBase, Payment, PaymentStatus } from '@algomart/schemas'
+import { Payment, PaymentStatus } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -20,6 +20,7 @@ import AdminLayout from '@/layouts/admin-layout'
 import adminService from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { formatCurrency } from '@/utils/format-currency'
+import { logger } from '@/utils/logger'
 import { useAuthApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
 
@@ -35,7 +36,7 @@ const getPaymentType = (payment: Payment) => {
 }
 
 interface AdminTransactionPageProps {
-  payment: AdminPaymentBase
+  payment: Payment
 }
 
 export default function AdminTransactionPage({
@@ -45,10 +46,9 @@ export default function AdminTransactionPage({
   const { t, lang } = useTranslation('admin')
   const { query } = useRouter()
   const { transactionId } = query
-  const { pack, paymentBankId, payerId } = payment
 
   const { data } = useAuthApi<Payment[]>(
-    `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${paymentBankId}`
+    `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${payment.paymentBankId}`
   )
 
   const columns: ColumnDefinitionType<Payment>[] = [
@@ -74,27 +74,42 @@ export default function AdminTransactionPage({
   const handleReset = useCallback(async () => {
     if (!confirm('Are you sure you want to reset this transaction?')) return
     const paymentId = typeof transactionId === 'string' ? transactionId : null
-    const updatedPayment = await adminService.updatePayment(paymentId, {
-      externalId: '',
-      status: PaymentStatus.Pending,
-    })
-    console.log('reset payment:', updatedPayment)
+    try {
+      const updatedPayment = await adminService.updatePayment(paymentId, {
+        externalId: '',
+        status: PaymentStatus.Pending,
+      })
+      console.log('reset payment:', updatedPayment)
+    } catch (error) {
+      logger.error(error, 'Unable to reset pack')
+    }
   }, [transactionId])
 
   const markAsPaid = useCallback(async () => {
     if (!confirm('Are you sure you want to mark this transaction as paid?'))
       return
     const paymentId = typeof transactionId === 'string' ? transactionId : null
-    const updatedPayment = await adminService.updatePayment(paymentId, {
-      status: PaymentStatus.Paid,
-    })
-    console.log('marked payment as paid:', updatedPayment)
+    try {
+      const updatedPayment = await adminService.updatePayment(paymentId, {
+        status: PaymentStatus.Paid,
+      })
+      console.log('marked payment as paid:', updatedPayment)
+    } catch (error) {
+      logger.error(error, 'Unable to update pack as paid')
+    }
   }, [transactionId])
 
   const handleRevokePack = useCallback(async () => {
     if (!confirm('Are you sure you want to revoke this pack?')) return
     // @TODO: Revoke pack API request
-  }, [])
+    try {
+      if (!payment.pack.id) throw new Error('No pack id')
+      if (!payment.pack.ownerId) throw new Error('No pack owner ID')
+      await adminService.revokePack(payment.pack.id, payment.pack.ownerId)
+    } catch (error) {
+      logger.error(error, 'Unable to revoke pack')
+    }
+  }, [payment.pack.id, payment.pack.ownerId])
 
   return (
     <AdminLayout pageTitle={t('common:pageTitles.Transaction')}>
@@ -108,7 +123,7 @@ export default function AdminTransactionPage({
         <Flex item flex="0 0 250px">
           <Panel fullWidth>
             <Image
-              src={pack.image}
+              src={payment.pack.image}
               layout="responsive"
               height="100%"
               width="100%"
@@ -119,23 +134,25 @@ export default function AdminTransactionPage({
 
         <Flex flex="1" flexDirection="column" gap={6}>
           <header>
-            <Heading inheritColor>{pack.title}</Heading>
-            <p className={css.subtitle}>{pack.type}</p>
+            <Heading inheritColor>{payment.pack.title}</Heading>
+            <p className={css.subtitle}>{payment.pack.type}</p>
           </header>
 
           <Panel>
             <Flex alignItems="stretch" gap={4} Element="dl">
               <div className={css.packMeta}>
                 <dt>Winning Bid</dt>
-                <dd>{formatCurrency(pack.price, lang)} </dd>
+                <dd>{formatCurrency(payment.pack.price, lang)} </dd>
               </div>
               <div className={css.packMeta}>
                 <dt>Winner</dt>
-                <dd>{payerId} </dd>
+                <dd>{payment.payerId} </dd>
               </div>
               <div className={css.packMeta}>
                 <dt>Ended At</dt>
-                <dd>{new Date(pack.auctionUntil).toLocaleString(lang)} </dd>
+                <dd>
+                  {new Date(payment.pack.auctionUntil).toLocaleString(lang)}{' '}
+                </dd>
               </div>
             </Flex>
           </Panel>

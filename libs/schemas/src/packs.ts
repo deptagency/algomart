@@ -79,6 +79,11 @@ export const ClaimPackSchema = Type.Object({
   claimedAt: Type.Optional(Nullable(Type.String({ format: 'date-time' }))),
 })
 
+export const RevokePackSchema = Type.Object({
+  packId: IdSchema,
+  ownerId: Type.Optional(Nullable(IdSchema)),
+})
+
 export const PackConfigSchema = Type.Object({
   collectibleDistribution: Type.Enum(PackCollectibleDistribution),
   collectibleOrder: Type.Enum(PackCollectibleOrder),
@@ -174,6 +179,7 @@ export const PackWithIdSchema = Type.Intersect([
   Type.Object({
     id: IdSchema,
     activeBidId: Type.Optional(IdSchema),
+    ownerId: Type.Optional(IdSchema),
   }),
 ])
 
@@ -267,6 +273,7 @@ export type PublishedPacksQuery = Simplify<
 export type PublishedPack = Simplify<Static<typeof PublishedPackSchema>>
 export type PublishedPacks = Simplify<Static<typeof PublishedPacksSchema>>
 export type RedeemCode = Simplify<Static<typeof RedeemCodeSchema>>
+export type RevokePack = Simplify<Static<typeof RevokePackSchema>>
 export type TransferPack = Simplify<Static<typeof TransferPackSchema>>
 export type MintPack = Simplify<Static<typeof MintPackSchema>>
 export type MintPackStatusResponse = Simplify<

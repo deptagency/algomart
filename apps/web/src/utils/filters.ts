@@ -1,9 +1,9 @@
 import {
-  AdminPaymentListQuerystring,
   CollectibleListQuerystring,
   PacksByOwnerQuery,
   PackStatus,
   PackType,
+  PaymentsQuerystring,
   PublishedPacksQuery,
   SortOptions,
 } from '@algomart/schemas'
@@ -101,7 +101,7 @@ export const getCollectiblesFilterQuery = (
 /**
  * Build a search parameter string to filter payments
  */
-export const getPaymentsFilterQuery = (query: AdminPaymentListQuerystring) => {
+export const getPaymentsFilterQuery = (query: PaymentsQuerystring) => {
   return stringify({
     page: query.page,
     pageSize: query.pageSize || PAGE_SIZE,

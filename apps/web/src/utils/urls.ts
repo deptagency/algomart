@@ -48,6 +48,7 @@ export const urls = {
         getPaymentsForBankAccount:
           '/api/v1/payments/get-payments-by-bank-account',
         getPayments: '/api/v1/payments/list-payments',
+        revokePack: '/api/v1/asset/revoke',
         updatePayment: '/api/v1/payments/update-payment',
       },
       addToShowcase: '/api/v1/collection/add-showcase',

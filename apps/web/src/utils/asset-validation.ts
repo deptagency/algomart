@@ -72,6 +72,12 @@ export const validateClaimAsset = (t: Translate) =>
     packTemplateId: packTemplateId(t),
   })
 
+export const validateRevokeAsset = (t: Translate) =>
+  object({
+    packId: packId(t),
+    ownerId: string(required(t('forms:errors.required') as string)),
+  })
+
 export const validateExportAsset = (t: Translate) =>
   object({
     address: string(required(t('forms:errors.required') as string)),

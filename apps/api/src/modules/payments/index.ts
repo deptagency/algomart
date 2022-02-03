@@ -1,7 +1,4 @@
 import {
-  AdminPaymentBaseSchema,
-  AdminPaymentListQuerystringSchema,
-  AdminPaymentListSchema,
   BankAccountIdSchema,
   CardIdSchema,
   CircleBlockchainAddressSchema,
@@ -20,7 +17,10 @@ import {
   PaymentBankAccountInstructionsSchema,
   PaymentCardsSchema,
   PaymentIdSchema,
+  PaymentQuerystringSchema,
   PaymentSchema,
+  PaymentsQuerystringSchema,
+  PaymentsSchema,
   PublicKeySchema,
   SendBankAccountInstructionsSchema,
   ToPaymentBaseSchema,
@@ -39,7 +39,6 @@ import {
   createWalletAddress,
   findTransferByAddress,
   findWirePaymentsByBankId,
-  getAdminPaymentById,
   getBankAccountStatus,
   getCards,
   getCardStatus,
@@ -80,9 +79,9 @@ export async function paymentRoutes(app: FastifyInstance) {
         schema: {
           tags,
           security,
-          querystring: AdminPaymentListQuerystringSchema,
+          querystring: PaymentsQuerystringSchema,
           response: {
-            200: AdminPaymentListSchema,
+            200: PaymentsSchema,
           },
         },
       },
@@ -95,26 +94,13 @@ export async function paymentRoutes(app: FastifyInstance) {
           tags,
           security,
           params: PaymentIdSchema,
+          querystring: PaymentQuerystringSchema,
           response: {
             200: PaymentSchema,
           },
         },
       },
       getPaymentById
-    )
-    .get(
-      '/:paymentId/admin',
-      {
-        schema: {
-          tags,
-          security,
-          params: PaymentIdSchema,
-          response: {
-            200: AdminPaymentBaseSchema,
-          },
-        },
-      },
-      getAdminPaymentById
     )
     .get(
       '/encryption-public-key',

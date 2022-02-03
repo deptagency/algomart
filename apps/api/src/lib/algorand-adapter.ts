@@ -457,6 +457,35 @@ export default class AlgorandAdapter {
     }
   }
 
+  async generateClawbackTransactionsFromUser(options: {
+    assetIndex: number
+    fromAccountAddress: string
+    toAccountAddress: string
+  }) {
+    const suggestedParams = await this.algod.getTransactionParams().do()
+
+    // Use a clawback to "revoke" ownership from current owner to the creator,
+    const clawbackTxn =
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        suggestedParams,
+        amount: 1,
+        assetIndex: options.assetIndex,
+        from: this.fundingAccount.addr, // Who is issuing the transaction
+        to: options.toAccountAddress,
+        revocationTarget: options.fromAccountAddress, // Who the asset is being revoked from
+      })
+
+    // Adds a group id to each transaction object
+    algosdk.assignGroupID([clawbackTxn])
+
+    const signedTransactions = [clawbackTxn.signTxn(this.fundingAccount.sk)]
+
+    return {
+      transactionIds: [clawbackTxn.txID()],
+      signedTransactions,
+    }
+  }
+
   async compileContract(source: string): Promise<Uint8Array> {
     const compiled = await this.algod.compile(source).do()
     return new Uint8Array(Buffer.from(compiled.result, 'base64'))

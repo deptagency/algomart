@@ -222,7 +222,7 @@ export const ToPaymentBaseSchema = Type.Object({
     ])
   ),
   amount: Type.String(),
-  sourceId: Type.Optional(Type.String({ format: 'uuid' })),
+  sourceId: Type.Optional(Type.String()),
 })
 
 const PaymentBaseSchema = Type.Object({
@@ -546,42 +546,6 @@ const CoinbaseErrorResponseSchema = Type.Object({
 // #endregion
 // #region Payment/card routes schemas
 
-export const AdminPaymentListQuerystringSchema = Type.Intersect([
-  PaginationSchema,
-  Type.Object({
-    locale: Type.Optional(Type.String()),
-    packId: Type.Optional(Type.String({ format: 'uuid' })),
-    packSlug: Type.Optional(Type.String()),
-    payerExternalId: Type.Optional(Type.String()),
-    payerUsername: Type.Optional(Type.String()),
-    sortBy: Type.Optional(
-      Type.Enum(PaymentSortField, { default: PaymentSortField.UpdatedAt })
-    ),
-    sortDirection: Type.Optional(
-      Type.Enum(SortDirection, { default: SortDirection.Ascending })
-    ),
-  }),
-])
-
-export const AdminPaymentBaseSchema = Type.Intersect([
-  BaseSchema,
-  Type.Object({
-    packId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
-    pack: Type.Optional(PackWithIdSchema),
-    payerId: Type.String(),
-    paymentCardId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
-    paymentBankId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
-    destinationAddress: Type.Optional(Nullable(Type.String())),
-    status: Type.Optional(Type.Enum(PaymentStatus)),
-    transferId: Type.Optional(Nullable(Type.String())),
-  }),
-])
-
-export const AdminPaymentListSchema = Type.Object({
-  payments: Type.Array(AdminPaymentBaseSchema),
-  total: Type.Number(),
-})
-
 export const CurrencySchema = Type.Object({
   base: Type.Number(),
   code: Type.String(),
@@ -623,18 +587,47 @@ export const GetPaymentCardStatusSchema = Type.Object({
   status: Type.Optional(Type.Enum(PaymentCardStatus)),
 })
 
+export const PaymentQuerystringSchema = Type.Object({
+  isAdmin: Type.Optional(Type.Boolean()),
+})
+
 export const PaymentSchema = Type.Intersect([
   BaseSchema,
   PaymentBaseSchema,
-  Type.Omit(ToPaymentBaseSchema, ['externalId', 'amount', 'sourceId']),
+  Type.Omit(ToPaymentBaseSchema, ['externalId', 'amount', 'error']),
   Type.Object({
-    externalId: Nullable(Type.String({ format: 'uuid' })),
+    externalId: Nullable(Type.Optional(Type.String({ format: 'uuid' }))),
+    amount: Type.Optional(Type.String()),
+    sourceId: Type.Optional(Type.String()),
+    pack: Type.Optional(PackWithIdSchema),
   }),
 ])
 
 export const PaymentIdSchema = Type.Object({
   paymentId: Type.String(),
 })
+
+export const PaymentsSchema = Type.Object({
+  payments: Type.Array(PaymentSchema),
+  total: Type.Number(),
+})
+
+export const PaymentsQuerystringSchema = Type.Intersect([
+  PaginationSchema,
+  Type.Object({
+    locale: Type.Optional(Type.String()),
+    packId: Type.Optional(Type.String({ format: 'uuid' })),
+    packSlug: Type.Optional(Type.String()),
+    payerExternalId: Type.Optional(Type.String()),
+    payerUsername: Type.Optional(Type.String()),
+    sortBy: Type.Optional(
+      Type.Enum(PaymentSortField, { default: PaymentSortField.UpdatedAt })
+    ),
+    sortDirection: Type.Optional(
+      Type.Enum(SortDirection, { default: SortDirection.Ascending })
+    ),
+  }),
+])
 
 export const PaymentCardSchema = Type.Intersect([
   BaseSchema,
@@ -732,10 +725,6 @@ export const UpdatePaymentCardSchema = Type.Object({
 // #endregion
 // #region Types
 
-export type AdminPaymentList = Simplify<Static<typeof AdminPaymentListSchema>>
-export type AdminPaymentListQuerystring = Simplify<
-  Static<typeof AdminPaymentListQuerystringSchema>
->
 export type BankAccountId = Simplify<Static<typeof BankAccountIdSchema>>
 export type CardId = Simplify<Static<typeof CardIdSchema>>
 export type CircleBlockchainAddress = Simplify<
@@ -812,7 +801,6 @@ export type GetPaymentBankAccountStatus = Simplify<
 export type GetPaymentCardStatus = Simplify<
   Static<typeof GetPaymentCardStatusSchema>
 >
-export type AdminPaymentBase = Simplify<Static<typeof AdminPaymentBaseSchema>>
 export type Payment = Simplify<Static<typeof PaymentSchema>>
 export type PaymentId = Simplify<Static<typeof PaymentIdSchema>>
 export type PaymentBankAccount = Simplify<
@@ -823,6 +811,13 @@ export type PaymentBankAccountInstructions = Simplify<
 >
 export type PaymentCard = Simplify<Static<typeof PaymentCardSchema>>
 export type PaymentCards = Simplify<Static<typeof PaymentCardsSchema>>
+export type PaymentQuerystring = Simplify<
+  Static<typeof PaymentQuerystringSchema>
+>
+export type Payments = Simplify<Static<typeof PaymentsSchema>>
+export type PaymentsQuerystring = Simplify<
+  Static<typeof PaymentsQuerystringSchema>
+>
 export type PublicKey = Simplify<Static<typeof PublicKeySchema>>
 export type SendBankAccountInstructions = Simplify<
   Static<typeof SendBankAccountInstructionsSchema>

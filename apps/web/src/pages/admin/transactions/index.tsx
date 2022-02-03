@@ -1,8 +1,4 @@
-import {
-  AdminPaymentBase,
-  AdminPaymentList,
-  PaymentSortField,
-} from '@algomart/schemas'
+import { Payment, Payments, PaymentSortField } from '@algomart/schemas'
 import { RefreshIcon } from '@heroicons/react/outline'
 import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
@@ -37,11 +33,11 @@ export default function AdminTransactionsPage() {
     sortDirection,
     pageSize: PAYMENTS_PER_PAGE,
   })
-  const { data, isValidating } = useAuthApi<AdminPaymentList>(
+  const { data, isValidating } = useAuthApi<Payments>(
     `${urls.api.v1.admin.getPayments}?${qp}`
   )
 
-  const columns: ColumnDefinitionType<AdminPaymentBase>[] = [
+  const columns: ColumnDefinitionType<Payment>[] = [
     {
       key: 'pack.title',
       name: t('transactions.table.title'),
@@ -93,7 +89,7 @@ export default function AdminTransactionsPage() {
         footer={footer}
       >
         <div className="overflow-x-auto">
-          <Table<AdminPaymentBase>
+          <Table<Payment>
             columns={columns}
             data={data?.payments}
             onHeaderClick={handleTableHeaderClick}
