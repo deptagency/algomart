@@ -20,15 +20,15 @@ interface AdminTransactionPageProps {
 export default function AdminTransactionPage({
   payment,
 }: AdminTransactionPageProps) {
+  logger.info(payment, 'Payment found')
   const { t } = useTranslation('admin')
   const { query } = useRouter()
   const { transactionId } = query
-  console.log('payment:', payment)
 
   const { data } = useAuthApi<Payment[]>(
     `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${payment.paymentBankId}`
   )
-  console.log('all payments for bank account:', data)
+  logger.info(data, 'Payments for bank account were retrieved')
 
   const handleReset = useCallback(async () => {
     const paymentId = typeof transactionId === 'string' ? transactionId : null
