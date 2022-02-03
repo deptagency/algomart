@@ -856,12 +856,25 @@ export default class PacksService {
   }
 
   async revokePack(request: RevokePack, trx?: Transaction) {
-    const user = await UserAccountModel.query(trx).findById(request.ownerId)
-    userInvariant(user, 'user not found', 404)
+    invariant(
+      request.fromAddress || request.ownerId,
+      'Pack owner ID or address is required.'
+    )
+    let userId
 
-    const pack = await PackModel.query(trx)
-      .where('id', request.packId)
-      .where('ownerId', user.id)
+    if (request.ownerId) {
+      const user = await UserAccountModel.query(trx).findById(request.ownerId)
+      userInvariant(user, 'user not found', 404)
+      userId = user.id
+    }
+
+    const pack = PackModel.query(trx).where('id', request.packId)
+
+    if (userId) {
+      pack.where('ownerId', userId)
+    }
+
+    await pack
       .select('id')
       .withGraphFetched('collectibles')
       .modifyGraph('collectibles', (builder) => {
@@ -879,14 +892,14 @@ export default class PacksService {
 
     // Transfer
     await Promise.all(
-      pack.collectibles?.map(
+      pack?.collectibles?.map(
         async (c) =>
           c.ownerId &&
           c.id &&
           (await this.collectibles.transferToCreatorFromUser(
             c.id,
-            null,
-            user.id,
+            request.fromAddress,
+            userId,
             trx
           ))
       )
