@@ -8,6 +8,8 @@ import { useCallback } from 'react'
 import css from './transaction.module.css'
 
 import { ApiClient } from '@/clients/api-client'
+import AppLink from '@/components/app-link/app-link'
+import Avatar from '@/components/avatar/avatar'
 import Breadcrumbs from '@/components/breadcrumbs'
 import Button from '@/components/button'
 import { Flex } from '@/components/flex'
@@ -120,7 +122,7 @@ export default function AdminTransactionPage({
         ]}
       />
       <Flex gap={12}>
-        <Flex item flex="0 0 250px">
+        <Flex item flex="0 0 250px" className="overflow-hidden" gap={2}>
           <Panel fullWidth>
             <Image
               src={payment.pack.image}
@@ -130,23 +132,57 @@ export default function AdminTransactionPage({
               alt="Pack image"
             />
           </Panel>
+
+          <Flex flex="1" flexDirection="column" gap={6}>
+            <Panel className={css.userInfoPanel}>
+              <dl>
+                <dt>Type</dt>
+                <dd>{payment.pack.type}</dd>
+                <dt>Title</dt>
+                <dd>{payment.pack.title}</dd>
+                <dt>Slug</dt>
+                <dd>
+                  <AppLink
+                    href={urls.release.replace(':packSlug', payment.pack.slug)}
+                  >
+                    {payment.pack.slug}
+                  </AppLink>
+                </dd>
+                <dt>Price</dt>
+                <dd>{formatCurrency(payment.pack.price, lang)}</dd>
+                <dt>Template ID</dt>
+                <dd>{payment.pack.templateId}</dd>
+              </dl>
+            </Panel>
+
+            <Panel className={css.userInfoPanel} title="Purchaser">
+              <Flex gap={2} className="overflow-hidden">
+                <Avatar username={payment.payer?.username} />
+              </Flex>
+              <dl>
+                <dt>Email</dt>
+                <dd>{payment.payer?.email}</dd>
+                <dt>ID</dt>
+                <dd>{payment.payer?.id}</dd>
+                <dt>External ID</dt>
+                <dd>{payment.payer?.externalId}</dd>
+                <dt>Algorand Account ID</dt>
+                <dd>{payment.payer?.algorandAccountId}</dd>
+              </dl>
+            </Panel>
+          </Flex>
         </Flex>
 
         <Flex flex="1" flexDirection="column" gap={6}>
-          <header>
-            <Heading inheritColor>{payment.pack.title}</Heading>
-            <p className={css.subtitle}>{payment.pack.type}</p>
-          </header>
-
           <Panel>
             <Flex alignItems="stretch" gap={4} Element="dl">
               <div className={css.packMeta}>
                 <dt>Winning Bid</dt>
-                <dd>{formatCurrency(payment.pack.price, lang)} </dd>
+                <dd>{formatCurrency(payment.amount, lang)} </dd>
               </div>
               <div className={css.packMeta}>
                 <dt>Winner</dt>
-                <dd>{payment.payerId} </dd>
+                <dd>{payment.payer?.username} </dd>
               </div>
               <div className={css.packMeta}>
                 <dt>Ended At</dt>
