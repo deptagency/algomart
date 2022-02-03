@@ -164,11 +164,18 @@ export enum PaymentBankAccountStatus {
 export enum CirclePaymentSourceType {
   card = 'card',
   ach = 'ach',
+  sepa = 'sepa',
+  wire = 'wire',
+}
+
+export enum CircleTransferSourceType {
+  wallet = 'wallet',
 }
 
 export enum CirclePaymentQueryType {
   card = 'card',
   ach = 'ach',
+  sepa = 'sepa',
   wire = 'wire',
 }
 
@@ -728,7 +735,11 @@ export const UpdatePaymentCardSchema = Type.Object({
 export const WirePaymentSchema = Type.Intersect([
   BaseSchema,
   ToPaymentBaseSchema,
+  Type.Object({
+    type: Type.Optional(Type.Enum(CheckoutMethod)),
+  }),
 ])
+
 // #endregion
 // #region Types
 

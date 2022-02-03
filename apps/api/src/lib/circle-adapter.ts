@@ -1,4 +1,5 @@
 import {
+  CheckoutMethod,
   CircleBankAccount,
   CircleBankAccountStatus,
   CircleBlockchainAddress,
@@ -11,11 +12,13 @@ import {
   CircleCreatePayment,
   CirclePaymentQuery,
   CirclePaymentResponse,
+  CirclePaymentSourceType,
   CirclePaymentStatus,
   CirclePublicKey,
   CircleResponse,
   CircleTransfer,
   CircleTransferQuery,
+  CircleTransferSourceType,
   CircleTransferStatus,
   CircleVerificationAVSFailureCode,
   CircleVerificationAVSSuccessCode,
@@ -48,6 +51,27 @@ function toPublicKeyBase(data: CirclePublicKey): PublicKey {
     keyId: data.keyId,
     publicKey: data.publicKey,
   }
+}
+
+function toPaymentType(
+  type: CirclePaymentSourceType | CircleTransferSourceType
+): CheckoutMethod | undefined {
+  let finalType
+  switch (type) {
+    case CirclePaymentSourceType.card:
+      finalType = CheckoutMethod.card
+      break
+    case CirclePaymentSourceType.wire:
+      finalType = CheckoutMethod.wire
+      break
+    case CircleTransferSourceType.wallet:
+      finalType = CheckoutMethod.crypto
+      break
+    default:
+      finalType = undefined
+      break
+  }
+  return finalType
 }
 
 function toBankAccountStatus(
@@ -409,11 +433,13 @@ export default class CircleAdapter {
     if (isCircleSuccessResponse(response)) {
       return response.data.map((payment) => {
         const base = toPaymentBase(payment)
+        const type = toPaymentType(payment.source.type)
         return {
           ...base,
           createdAt: payment.createDate,
           updatedAt: payment.updateDate,
           id: payment.id,
+          type,
         }
       })
     }
