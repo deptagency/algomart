@@ -81,7 +81,7 @@ export default function AdminTransactionPage({
         externalId: '',
         status: PaymentStatus.Pending,
       })
-      console.log('reset payment:', updatedPayment)
+      logger.info(updatedPayment, 'Payment was reset')
     } catch (error) {
       logger.error(error, 'Unable to reset pack')
     }
@@ -95,7 +95,7 @@ export default function AdminTransactionPage({
       const updatedPayment = await adminService.updatePayment(paymentId, {
         status: PaymentStatus.Paid,
       })
-      console.log('marked payment as paid:', updatedPayment)
+      logger.info(updatedPayment, 'Payment marked as paid')
     } catch (error) {
       logger.error(error, 'Unable to update pack as paid')
     }
@@ -107,7 +107,9 @@ export default function AdminTransactionPage({
     try {
       if (!payment.pack.id) throw new Error('No pack id')
       if (!payment.pack.ownerId) throw new Error('No pack owner ID')
+      // Revoke pack
       await adminService.revokePack(payment.pack.id, payment.pack.ownerId)
+      logger.info('Pack was revoked')
     } catch (error) {
       logger.error(error, 'Unable to revoke pack')
     }
@@ -203,7 +205,11 @@ export default function AdminTransactionPage({
               which allows the buyer to attept to make the payment again using
               the original wire instructions.
             </p>
-            <Button onClick={handleReset} size="small">
+            <Button
+              onClick={handleReset}
+              size="small"
+              disabled={payment?.status === PaymentStatus.Pending}
+            >
               {t('common:actions.Reset Payment')}
             </Button>
           </Panel>
@@ -214,7 +220,11 @@ export default function AdminTransactionPage({
               paid. Use this action when a payment is made through any means
               outside of the system.
             </p>
-            <Button onClick={markAsPaid} size="small">
+            <Button
+              onClick={markAsPaid}
+              size="small"
+              disabled={payment?.status === PaymentStatus.Paid}
+            >
               {t('common:actions.Set Payment As Successful')}
             </Button>
           </Panel>
@@ -224,7 +234,11 @@ export default function AdminTransactionPage({
               If someone fails to pay you can revoke the pack. Note:
               Re-selling/auctioning revoked packs is not yet supported.
             </p>
-            <Button onClick={handleRevokePack} size="small">
+            <Button
+              onClick={handleRevokePack}
+              size="small"
+              disabled={!payment?.pack?.ownerId}
+            >
               {t('common:actions.Revoke Pack')}
             </Button>
           </Panel>
