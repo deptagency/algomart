@@ -37,7 +37,7 @@ export default function AdminTransactionPage({
         externalId: '',
         status: PaymentStatus.Pending,
       })
-      console.log('reset payment:', updatedPayment)
+      logger.info(updatedPayment, 'Payment was reset')
     } catch (error) {
       logger.error(error, 'Unable to reset pack')
     }
@@ -49,7 +49,7 @@ export default function AdminTransactionPage({
       const updatedPayment = await adminService.updatePayment(paymentId, {
         status: PaymentStatus.Paid,
       })
-      console.log('marked payment as paid:', updatedPayment)
+      logger.info(updatedPayment, 'Payment marked as paid')
     } catch (error) {
       logger.error(error, 'Unable to update pack as paid')
     }
@@ -57,10 +57,11 @@ export default function AdminTransactionPage({
 
   const handleRevokePack = useCallback(async () => {
     try {
-      console.log('payment:', payment.pack)
       if (!payment.pack.id) throw new Error('No pack id')
       if (!payment.pack.ownerId) throw new Error('No pack owner ID')
+      // Revoke pack
       await adminService.revokePack(payment.pack.id, payment.pack.ownerId)
+      logger.info('Pack was revoked')
     } catch (error) {
       logger.error(error, 'Unable to revoke pack')
     }
