@@ -13,7 +13,6 @@ import Avatar from '@/components/avatar/avatar'
 import Breadcrumbs from '@/components/breadcrumbs'
 import Button from '@/components/button'
 import { Flex } from '@/components/flex'
-import Heading from '@/components/heading'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
@@ -36,6 +35,7 @@ export default function AdminTransactionPage({
   const { t, lang } = useTranslation('admin')
   const { query } = useRouter()
   const { transactionId } = query
+  const isAuction = !!payment.pack.auctionUntil
 
   // WIRE PAYMENTS
   const { data } = useAuthApi<WirePayment[]>(
@@ -143,7 +143,10 @@ export default function AdminTransactionPage({
               </dl>
             </Panel>
 
-            <Panel className={css.userInfoPanel} title="Purchaser">
+            <Panel
+              className={css.userInfoPanel}
+              title={t('transactions.Customer')}
+            >
               <Flex gap={2} className="overflow-hidden">
                 <Avatar username={payment.payer?.username} />
               </Flex>
@@ -162,70 +165,67 @@ export default function AdminTransactionPage({
         </Flex>
 
         <Flex flex="1" flexDirection="column" gap={6}>
-          <Panel>
-            <Flex alignItems="stretch" gap={4} Element="dl">
-              <div className={css.packMeta}>
-                <dt>Winning Bid</dt>
-                <dd>{formatCurrency(payment.amount, lang)} </dd>
-              </div>
-              <div className={css.packMeta}>
-                <dt>Winner</dt>
-                <dd>{payment.payer?.username} </dd>
-              </div>
-              <div className={css.packMeta}>
-                <dt>Ended At</dt>
-                <dd>
-                  {new Date(payment.pack.auctionUntil).toLocaleString(lang)}{' '}
-                </dd>
-              </div>
-            </Flex>
-          </Panel>
+          {isAuction && (
+            <Panel>
+              <Flex alignItems="stretch" gap={4} Element="dl">
+                <div className={css.packMeta}>
+                  <dt>Winning Bid</dt>
+                  <dd>{formatCurrency(payment.amount, lang)} </dd>
+                </div>
+                <div className={css.packMeta}>
+                  <dt>Winner</dt>
+                  <dd>@{payment.payer?.username} </dd>
+                </div>
+                <div className={css.packMeta}>
+                  <dt>Ended At</dt>
+                  <dd>
+                    {new Date(payment.pack.auctionUntil).toLocaleString(lang)}{' '}
+                  </dd>
+                </div>
+              </Flex>
+            </Panel>
+          )}
 
           <Panel title={t('common:pageTitles.Transactions')} fullWidth>
             <Table<WirePayment> columns={columns} data={data} />
           </Panel>
 
-          <Panel title={t('common:actions.Reset Payment')}>
+          <Panel title={t('transactions.resetPayment')}>
             <p className={css.actionDescription}>
-              Resetting the transaction puts it back into the pending state
-              which allows the buyer to attept to make the payment again using
-              the original wire instructions.
+              {t('transactions.resetPaymentDesc')}
             </p>
             <Button
               onClick={handleReset}
               size="small"
               disabled={payment?.status === PaymentStatus.Pending}
             >
-              {t('common:actions.Reset Payment')}
+              {t('transactions.resetPayment')}
             </Button>
           </Panel>
 
-          <Panel title={t('common:actions.Set Payment As Successful')}>
+          <Panel title={t('transactions.markAsPaid')}>
             <p className={css.actionDescription}>
-              Setting the payment as successful will mark the transaction as
-              paid. Use this action when a payment is made through any means
-              outside of the system.
+              {t('transactions.markAsPaidDesc')}
             </p>
             <Button
               onClick={markAsPaid}
               size="small"
               disabled={payment?.status === PaymentStatus.Paid}
             >
-              {t('common:actions.Set Payment As Successful')}
+              {t('transactions.markAsPaid')}
             </Button>
           </Panel>
 
-          <Panel title={t('common:actions.Revoke Pack')}>
+          <Panel title={t('transactions.revokePack')}>
             <p className={css.actionDescription}>
-              If someone fails to pay you can revoke the pack. Note:
-              Re-selling/auctioning revoked packs is not yet supported.
+              {t('transactions.revokePackDesc')}
             </p>
             <Button
               onClick={handleRevokePack}
               size="small"
               disabled={!payment?.pack?.ownerId}
             >
-              {t('common:actions.Revoke Pack')}
+              {t('transactions.revokePack')}
             </Button>
           </Panel>
         </Flex>
