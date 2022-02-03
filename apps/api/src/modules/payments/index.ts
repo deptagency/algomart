@@ -26,6 +26,7 @@ import {
   ToPaymentBaseSchema,
   UpdatePaymentCardSchema,
   UpdatePaymentSchema,
+  WirePaymentSchema,
 } from '@algomart/schemas'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
@@ -179,7 +180,7 @@ export async function paymentRoutes(app: FastifyInstance) {
           security,
           params: BankAccountIdSchema,
           response: {
-            200: Type.Array(ToPaymentBaseSchema),
+            200: Type.Array(WirePaymentSchema),
           },
         },
       },

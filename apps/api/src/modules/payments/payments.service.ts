@@ -25,6 +25,7 @@ import {
   UpdatePayment,
   UpdatePaymentCard,
   UserAccount,
+  WirePayment,
 } from '@algomart/schemas'
 import { Transaction } from 'objection'
 
@@ -742,7 +743,7 @@ export default class PaymentsService {
 
   async searchAllWirePaymentsByBankId(
     bankAccountId: string
-  ): Promise<ToPaymentBase[]> {
+  ): Promise<WirePayment[]> {
     userInvariant(
       bankAccountId,
       'bank account identifier was not provided',

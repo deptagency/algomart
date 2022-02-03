@@ -59,6 +59,7 @@ import {
   UpdatePaymentCard,
   UpdateUserAccount,
   Username,
+  WirePayment,
 } from '@algomart/schemas'
 import ky, { HTTPError } from 'ky'
 import pino from 'pino'
@@ -330,7 +331,7 @@ export class ApiClient {
   async getPaymentsByBankAccountId(bankAccountId: string) {
     return await this.http
       .get(`payments/bank-accounts/${bankAccountId}/payments`)
-      .json<ToPaymentBase[]>()
+      .json<WirePayment[]>()
   }
 
   async updatePaymentById(paymentId: string, json: UpdatePayment) {

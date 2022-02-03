@@ -1,8 +1,8 @@
 import {
   AdminPermissions,
   Payment,
-  ToPaymentBase,
   UpdatePayment,
+  WirePayment,
 } from '@algomart/schemas'
 import { getAuth } from 'firebase/auth'
 import ky from 'ky'
@@ -12,7 +12,7 @@ import { urls } from '@/utils/urls'
 
 export interface AdminAPI {
   getLoggedInUserPermissions(): Promise<AdminPermissions>
-  getPaymentsByBankAccountId(bankAccountId: string): Promise<ToPaymentBase[]>
+  getPaymentsByBankAccountId(bankAccountId: string): Promise<WirePayment[]>
   revokePack: (packId: string, ownerId: string) => Promise<boolean>
   updatePayment(paymentId: string, json: UpdatePayment): Promise<Payment | null>
 }
@@ -52,12 +52,12 @@ export class AdminService implements AdminAPI {
 
   async getPaymentsByBankAccountId(
     bankAccountId: string
-  ): Promise<ToPaymentBase[]> {
+  ): Promise<WirePayment[]> {
     return await this.http
       .get(
         `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${bankAccountId}`
       )
-      .json<ToPaymentBase[]>()
+      .json<WirePayment[]>()
   }
 
   async revokePack(packId: string, ownerId: string): Promise<boolean> {

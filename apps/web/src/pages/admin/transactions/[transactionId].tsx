@@ -1,4 +1,4 @@
-import { Payment, PaymentStatus, ToPaymentBase } from '@algomart/schemas'
+import { Payment, PaymentStatus, WirePayment } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -38,11 +38,11 @@ export default function AdminTransactionPage({
   const { transactionId } = query
 
   // WIRE PAYMENTS
-  const { data } = useAuthApi<ToPaymentBase[]>(
+  const { data } = useAuthApi<WirePayment[]>(
     `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${payment.paymentBankId}`
   )
 
-  const columns: ColumnDefinitionType<ToPaymentBase>[] = [
+  const columns: ColumnDefinitionType<WirePayment>[] = [
     {
       key: 'createdAt',
       name: t('transactions.table.date'),
@@ -182,7 +182,7 @@ export default function AdminTransactionPage({
           </Panel>
 
           <Panel title={t('common:pageTitles.Transactions')} fullWidth>
-            <Table<ToPaymentBase> columns={columns} data={data} />
+            <Table<WirePayment> columns={columns} data={data} />
           </Panel>
 
           <Panel title={t('common:actions.Reset Payment')}>

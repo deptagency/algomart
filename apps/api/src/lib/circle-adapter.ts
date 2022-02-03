@@ -1,4 +1,5 @@
 import {
+  CheckoutMethod,
   CircleBankAccount,
   CircleBankAccountStatus,
   CircleBlockchainAddress,
@@ -11,11 +12,13 @@ import {
   CircleCreatePayment,
   CirclePaymentQuery,
   CirclePaymentResponse,
+  CirclePaymentSourceType,
   CirclePaymentStatus,
   CirclePublicKey,
   CircleResponse,
   CircleTransfer,
   CircleTransferQuery,
+  CircleTransferSourceType,
   CircleTransferStatus,
   CircleVerificationAVSFailureCode,
   CircleVerificationAVSSuccessCode,
@@ -30,6 +33,7 @@ import {
   ToPaymentBankAccountBase,
   ToPaymentBase,
   ToPaymentCardBase,
+  WirePayment,
 } from '@algomart/schemas'
 import got, { Got } from 'got'
 import { URLSearchParams } from 'node:url'
@@ -47,6 +51,27 @@ function toPublicKeyBase(data: CirclePublicKey): PublicKey {
     keyId: data.keyId,
     publicKey: data.publicKey,
   }
+}
+
+function toPaymentType(
+  type: CirclePaymentSourceType | CircleTransferSourceType
+): CheckoutMethod | undefined {
+  let finalType
+  switch (type) {
+    case CirclePaymentSourceType.card:
+      finalType = CheckoutMethod.card
+      break
+    case CirclePaymentSourceType.wire:
+      finalType = CheckoutMethod.wire
+      break
+    case CircleTransferSourceType.wallet:
+      finalType = CheckoutMethod.crypto
+      break
+    default:
+      finalType = undefined
+      break
+  }
+  return finalType
 }
 
 function toBankAccountStatus(
@@ -396,9 +421,7 @@ export default class CircleAdapter {
     return null
   }
 
-  async getPayments(
-    query: CirclePaymentQuery
-  ): Promise<ToPaymentBase[] | null> {
+  async getPayments(query: CirclePaymentQuery): Promise<WirePayment[] | null> {
     const searchParams = new URLSearchParams()
     for (const [key, value] of Object.entries(query)) {
       searchParams.append(key, `${value}`)
@@ -408,7 +431,17 @@ export default class CircleAdapter {
       .json<CircleResponse<CirclePaymentResponse[]>>()
 
     if (isCircleSuccessResponse(response)) {
-      return response.data.map((payment) => toPaymentBase(payment))
+      return response.data.map((payment) => {
+        const base = toPaymentBase(payment)
+        const type = toPaymentType(payment.source.type)
+        return {
+          ...base,
+          createdAt: payment.createDate,
+          updatedAt: payment.updateDate,
+          id: payment.id,
+          type,
+        }
+      })
     }
 
     this.logger.error({ response }, 'Failed to get payments')
