@@ -881,7 +881,6 @@ export default class PacksService {
         builder.select('id')
       })
       .first()
-    console.log('pack', pack)
 
     userInvariant(pack, 'pack not found', 404)
 
