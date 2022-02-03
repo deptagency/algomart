@@ -30,6 +30,7 @@ import {
   ToPaymentBankAccountBase,
   ToPaymentBase,
   ToPaymentCardBase,
+  WirePayment,
 } from '@algomart/schemas'
 import got, { Got } from 'got'
 import { URLSearchParams } from 'node:url'
@@ -396,9 +397,7 @@ export default class CircleAdapter {
     return null
   }
 
-  async getPayments(
-    query: CirclePaymentQuery
-  ): Promise<ToPaymentBase[] | null> {
+  async getPayments(query: CirclePaymentQuery): Promise<WirePayment[] | null> {
     const searchParams = new URLSearchParams()
     for (const [key, value] of Object.entries(query)) {
       searchParams.append(key, `${value}`)
@@ -408,7 +407,15 @@ export default class CircleAdapter {
       .json<CircleResponse<CirclePaymentResponse[]>>()
 
     if (isCircleSuccessResponse(response)) {
-      return response.data.map((payment) => toPaymentBase(payment))
+      return response.data.map((payment) => {
+        const base = toPaymentBase(payment)
+        return {
+          ...base,
+          createdAt: payment.createDate,
+          updatedAt: payment.updateDate,
+          id: payment.id,
+        }
+      })
     }
 
     this.logger.error({ response }, 'Failed to get payments')

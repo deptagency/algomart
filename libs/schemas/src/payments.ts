@@ -724,6 +724,11 @@ export const UpdatePaymentCardSchema = Type.Object({
   default: Type.Boolean(),
   ownerExternalId: Type.String(),
 })
+
+export const WirePaymentSchema = Type.Intersect([
+  BaseSchema,
+  ToPaymentBaseSchema,
+])
 // #endregion
 // #region Types
 
@@ -831,6 +836,7 @@ export type ToPaymentBase = Simplify<Static<typeof ToPaymentBaseSchema>>
 export type ToPaymentCardBase = Simplify<Static<typeof ToPaymentCardBaseSchema>>
 export type UpdatePayment = Simplify<Static<typeof UpdatePaymentSchema>>
 export type UpdatePaymentCard = Simplify<Static<typeof UpdatePaymentCardSchema>>
+export type WirePayment = Simplify<Static<typeof WirePaymentSchema>>
 
 // #endregion
 // #region Success/error response
