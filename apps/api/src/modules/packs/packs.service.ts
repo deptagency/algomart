@@ -868,35 +868,31 @@ export default class PacksService {
       userId = user.id
     }
 
-    const pack = PackModel.query(trx).where('id', request.packId)
+    const packQuery = PackModel.query(trx).where('id', request.packId)
 
     if (userId) {
-      pack.where('ownerId', userId)
+      packQuery.where('ownerId', request.ownerId)
     }
 
     if (request.fromAddress) {
-      pack.where('address', request.fromAddress)
+      packQuery.where('address', request.fromAddress)
     }
 
-    const pack = await pack
+    const pack = await packQuery
       .select('id')
       .withGraphFetched('collectibles')
       .modifyGraph('collectibles', (builder) => {
-        builder.select('id').select('ownerId')
+        builder.select('id')
       })
       .first()
 
     userInvariant(pack, 'pack not found', 404)
 
-    if (!pack) {
-      return false
-    }
-
     this.logger.info({ pack }, 'pack to be transferred')
 
     // Transfer
     await Promise.all(
-      pack.collectibles?.map(
+      pack?.collectibles?.map(
         async (c) =>
           c.ownerId &&
           c.id &&
