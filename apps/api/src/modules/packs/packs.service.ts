@@ -868,12 +868,21 @@ export default class PacksService {
       userId = user.id
     }
 
-    const pack = PackModel.query(trx)
-      .where('id', '=', request.packId)
+    const pack = PackModel.query(trx).where('id', request.packId)
+
+    if (userId) {
+      pack.where('ownerId', userId)
+    }
+
+    if (request.fromAddress) {
+      pack.where('address', request.fromAddress)
+    }
+
+    const pack = await pack
       .select('id')
       .withGraphFetched('collectibles')
       .modifyGraph('collectibles', (builder) => {
-        builder.select('id', 'ownerId')
+        builder.select('id').select('ownerId')
       })
       .first()
 
