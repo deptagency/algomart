@@ -740,7 +740,9 @@ export default class PaymentsService {
     return sourcePayment
   }
 
-  async searchAllWirePaymentsByBankId(bankAccountId: string) {
+  async searchAllWirePaymentsByBankId(
+    bankAccountId: string
+  ): Promise<ToPaymentBase[]> {
     userInvariant(
       bankAccountId,
       'bank account identifier was not provided',
@@ -759,13 +761,14 @@ export default class PaymentsService {
       type: CirclePaymentQueryType.wire,
       source: foundBankAccount.externalId,
     })
-    return matchingPayments
+    return matchingPayments || []
   }
 
   async getPaymentById(paymentId: string, isAdmin?: boolean) {
     const payment = await PaymentModel.query()
       .findById(paymentId)
       .withGraphFetched('pack')
+      .withGraphFetched('payer')
     userInvariant(payment, 'payment not found', 404)
     if (isAdmin) {
       const { pack } = payment

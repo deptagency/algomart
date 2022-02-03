@@ -330,7 +330,7 @@ export class ApiClient {
   async getPaymentsByBankAccountId(bankAccountId: string) {
     return await this.http
       .get(`payments/bank-accounts/${bankAccountId}/payments`)
-      .json<Payment[]>()
+      .json<ToPaymentBase[]>()
   }
 
   async updatePaymentById(paymentId: string, json: UpdatePayment) {

@@ -82,6 +82,7 @@ export const ClaimPackSchema = Type.Object({
 export const RevokePackSchema = Type.Object({
   packId: IdSchema,
   ownerId: Type.Optional(Nullable(IdSchema)),
+  fromAddress: Type.Optional(Nullable(Type.String())),
 })
 
 export const PackConfigSchema = Type.Object({
