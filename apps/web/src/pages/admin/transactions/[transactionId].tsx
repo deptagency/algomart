@@ -45,17 +45,17 @@ export default function AdminTransactionPage({
   const columns: ColumnDefinitionType<WirePayment>[] = [
     {
       key: 'createdAt',
-      name: t('transactions.table.date'),
+      name: t('transactions.table.Date'),
       renderer: ({ value }) =>
         value ? new Date(value).toLocaleString(lang) : null,
     },
     {
       key: 'pack.price',
-      name: t('transactions.table.price'),
+      name: t('transactions.table.Amount'),
       renderer: ({ value }) => formatCurrency(value, lang),
     },
-    { key: 'status', name: t('transactions.table.status') },
-    { key: 'type', name: 'Type' },
+    { key: 'status', name: t('transactions.table.Status') },
+    { key: 'type', name: t('transactions.table.Type') },
   ]
 
   // CALLBACKS
@@ -67,8 +67,10 @@ export default function AdminTransactionPage({
         externalId: '',
         status: PaymentStatus.Pending,
       })
-      logger.info(updatedPayment, 'Payment was reset')
+      alert('Payment was reset')
+      logger.info(updatedPayment, 'Payment was reset.')
     } catch (error) {
+      alert('Unable to reset pack.')
       logger.error(error, 'Unable to reset pack')
     }
   }, [transactionId])
@@ -81,8 +83,10 @@ export default function AdminTransactionPage({
       const updatedPayment = await adminService.updatePayment(paymentId, {
         status: PaymentStatus.Paid,
       })
-      logger.info(updatedPayment, 'Payment marked as paid')
+      alert('Payment was marked as paid')
+      logger.info(updatedPayment, 'Payment marked as paid.')
     } catch (error) {
+      alert('Unable to update pack as paid.')
       logger.error(error, 'Unable to update pack as paid')
     }
   }, [transactionId])
@@ -95,8 +99,10 @@ export default function AdminTransactionPage({
       if (!payment.pack.ownerId) throw new Error('No pack owner ID')
       // Revoke pack
       await adminService.revokePack(payment.pack.id, payment.pack.ownerId)
+      alert('Pack successfully revoked.')
       logger.info('Pack was revoked')
     } catch (error) {
+      alert('Unable to revoke pack.')
       logger.error(error, 'Unable to revoke pack')
     }
   }, [payment.pack.id, payment.pack.ownerId])
