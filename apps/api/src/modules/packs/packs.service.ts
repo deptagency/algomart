@@ -874,10 +874,6 @@ export default class PacksService {
       packQuery.where('ownerId', request.ownerId)
     }
 
-    if (request.fromAddress) {
-      packQuery.where('address', request.fromAddress)
-    }
-
     const pack = await packQuery
       .select('id')
       .withGraphFetched('collectibles')
