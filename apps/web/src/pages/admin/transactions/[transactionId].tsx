@@ -1,4 +1,4 @@
-import { Payment, PaymentStatus } from '@algomart/schemas'
+import { Payment, PaymentStatus, ToPaymentBase } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -49,7 +49,7 @@ export default function AdminTransactionPage({
   const { query } = useRouter()
   const { transactionId } = query
 
-  const { data } = useAuthApi<Payment[]>(
+  const { data } = useAuthApi<ToPaymentBase[]>(
     `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${payment.paymentBankId}`
   )
 
