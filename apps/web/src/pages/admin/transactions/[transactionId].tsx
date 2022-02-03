@@ -70,13 +70,28 @@ export default function AdminTransactionPage({
   return (
     <DefaultLayout pageTitle={t('common:pageTitles.Transaction')}>
       {/**** @TODO: Transaction template *****/}
-      <Button className="mb-5" onClick={handleReset} fullWidth>
+      <Button
+        className="mb-5"
+        disabled={payment?.status === PaymentStatus.Pending}
+        fullWidth
+        onClick={handleReset}
+      >
         {t('common:actions.Reset Payment')}
       </Button>
-      <Button className="mb-5" onClick={markAsPaid} fullWidth>
+      <Button
+        className="mb-5"
+        disabled={payment?.status === PaymentStatus.Paid}
+        fullWidth
+        onClick={markAsPaid}
+      >
         {t('common:actions.Set Payment As Successful')}
       </Button>
-      <Button className="mb-5" onClick={handleRevokePack} fullWidth>
+      <Button
+        className="mb-5"
+        disabled={!payment?.pack?.ownerId}
+        fullWidth
+        onClick={handleRevokePack}
+      >
         {t('common:actions.Revoke Pack')}
       </Button>
     </DefaultLayout>
