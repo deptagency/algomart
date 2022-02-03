@@ -25,18 +25,6 @@ import { formatCurrency } from '@/utils/format-currency'
 import { logger } from '@/utils/logger'
 import { useAuthApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
-
-const getPaymentType = (payment: Payment) => {
-  if (payment.paymentBankId) {
-    return 'Wire Transfer'
-  } else if (payment.paymentCardId) {
-    return 'Credit Card'
-  } else if (payment.destinationAddress) {
-    return 'Crypto Transfer'
-  }
-  return 'Unknown'
-}
-
 interface AdminTransactionPageProps {
   payment: Payment
 }
@@ -49,11 +37,12 @@ export default function AdminTransactionPage({
   const { query } = useRouter()
   const { transactionId } = query
 
+  // WIRE PAYMENTS
   const { data } = useAuthApi<ToPaymentBase[]>(
     `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${payment.paymentBankId}`
   )
 
-  const columns: ColumnDefinitionType<Payment>[] = [
+  const columns: ColumnDefinitionType<ToPaymentBase>[] = [
     {
       key: 'createdAt',
       name: t('transactions.table.date'),
@@ -61,18 +50,15 @@ export default function AdminTransactionPage({
         value ? new Date(value).toLocaleString(lang) : null,
     },
     {
-      key: 'type',
-      name: 'Type',
-      renderer: ({ item }) => getPaymentType(item),
-    },
-    {
       key: 'pack.price',
       name: t('transactions.table.price'),
       renderer: ({ value }) => formatCurrency(value, lang),
     },
     { key: 'status', name: t('transactions.table.status') },
+    { key: 'type', name: 'Type' },
   ]
 
+  // CALLBACKS
   const handleReset = useCallback(async () => {
     if (!confirm('Are you sure you want to reset this transaction?')) return
     const paymentId = typeof transactionId === 'string' ? transactionId : null
@@ -196,7 +182,7 @@ export default function AdminTransactionPage({
           </Panel>
 
           <Panel title={t('common:pageTitles.Transactions')} fullWidth>
-            <Table columns={columns} data={data} />
+            <Table<ToPaymentBase> columns={columns} data={data} />
           </Panel>
 
           <Panel title={t('common:actions.Reset Payment')}>
