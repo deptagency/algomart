@@ -179,7 +179,7 @@ export async function paymentRoutes(app: FastifyInstance) {
           security,
           params: BankAccountIdSchema,
           response: {
-            200: Type.Array(PaymentSchema),
+            200: Type.Array(ToPaymentBaseSchema),
           },
         },
       },
