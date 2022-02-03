@@ -35,6 +35,11 @@ export enum DirectusStatus {
   Archived = 'archived',
 }
 
+export interface DirectusLanguage {
+  code: string
+  name: string
+}
+
 export interface DirectusTranslation {
   languages_code: string
 }
@@ -897,5 +902,16 @@ export default class DirectusAdapter {
     }
 
     return null
+  }
+
+  async getAllLanguages() {
+    const response = await this.http.get(`items/languages`)
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      const result: ItemsResponse<DirectusLanguage> = JSON.parse(response.body)
+      return result
+    }
+
+    return { data: [] }
   }
 }

@@ -90,6 +90,10 @@
     "404": {
       "title": "fr-FR.common.global.404.title",
       "body": "fr-FR.common.global.404.body"
+    },
+    "languages": {
+      "en_US": "English",
+      "fr_FR": "French"
     }
   },
   "localization": {
