@@ -73,6 +73,32 @@ collections:
       name: collections_translations
       schema: public
       comment: null
+  - collection: faqs
+    meta:
+      collection: faqs
+      icon: question_mark
+      note: null
+      display_template: null
+      hidden: false
+      singleton: false
+      translations:
+        - language: en-US
+          translation: FAQs
+      archive_field: status
+      archive_app_filter: true
+      archive_value: archived
+      unarchive_value: draft
+      sort_field: sort
+      accountability: all
+      color: null
+      item_duplication_fields: null
+      sort: 5
+      group: null
+      collapse: open
+    schema:
+      name: faqs
+      schema: public
+      comment: null
   - collection: homepage
     meta:
       collection: homepage
@@ -1527,6 +1553,384 @@ fields:
         collectible in the collection.
       conditions: null
       required: false
+      group: null
+  - collection: faqs
+    field: id
+    type: integer
+    schema:
+      name: id
+      table: faqs
+      data_type: integer
+      default_value: nextval('faqs_id_seq'::regclass)
+      generation_expression: null
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_generated: false
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      has_auto_increment: true
+      comment: null
+      schema: public
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: faqs
+      field: id
+      special: null
+      interface: input
+      options: null
+      display: null
+      display_options: null
+      readonly: true
+      hidden: true
+      sort: 1
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+  - collection: faqs
+    field: status
+    type: string
+    schema:
+      name: status
+      table: faqs
+      data_type: character varying
+      default_value: draft
+      generation_expression: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_generated: false
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      comment: null
+      schema: public
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: faqs
+      field: status
+      special: null
+      interface: select-dropdown
+      options:
+        choices:
+          - text: $t:published
+            value: published
+          - text: $t:draft
+            value: draft
+          - text: $t:archived
+            value: archived
+      display: labels
+      display_options:
+        showAsDot: true
+        choices:
+          - background: '#00C897'
+            value: published
+          - background: '#D3DAE4'
+            value: draft
+          - background: '#F7971C'
+            value: archived
+      readonly: false
+      hidden: false
+      sort: 2
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+  - collection: faqs
+    field: sort
+    type: integer
+    schema:
+      name: sort
+      table: faqs
+      data_type: integer
+      default_value: null
+      generation_expression: null
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_generated: false
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      comment: null
+      schema: public
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: faqs
+      field: sort
+      special: null
+      interface: input
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 5
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+  - collection: faqs
+    field: user_created
+    type: uuid
+    schema:
+      name: user_created
+      table: faqs
+      data_type: uuid
+      default_value: null
+      generation_expression: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_generated: false
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      comment: null
+      schema: public
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+    meta:
+      collection: faqs
+      field: user_created
+      special:
+        - user-created
+      interface: select-dropdown-m2o
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      display: user
+      display_options: null
+      readonly: true
+      hidden: true
+      sort: 6
+      width: half
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+  - collection: faqs
+    field: date_created
+    type: timestamp
+    schema:
+      name: date_created
+      table: faqs
+      data_type: timestamp with time zone
+      default_value: null
+      generation_expression: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_generated: false
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      comment: null
+      schema: public
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: faqs
+      field: date_created
+      special:
+        - date-created
+      interface: datetime
+      options: null
+      display: datetime
+      display_options:
+        relative: true
+      readonly: true
+      hidden: true
+      sort: 7
+      width: half
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+  - collection: faqs
+    field: user_updated
+    type: uuid
+    schema:
+      name: user_updated
+      table: faqs
+      data_type: uuid
+      default_value: null
+      generation_expression: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_generated: false
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      comment: null
+      schema: public
+      foreign_key_schema: public
+      foreign_key_table: directus_users
+      foreign_key_column: id
+    meta:
+      collection: faqs
+      field: user_updated
+      special:
+        - user-updated
+      interface: select-dropdown-m2o
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      display: user
+      display_options: null
+      readonly: true
+      hidden: true
+      sort: 8
+      width: half
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+  - collection: faqs
+    field: date_updated
+    type: timestamp
+    schema:
+      name: date_updated
+      table: faqs
+      data_type: timestamp with time zone
+      default_value: null
+      generation_expression: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_generated: false
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      comment: null
+      schema: public
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: faqs
+      field: date_updated
+      special:
+        - date-updated
+      interface: datetime
+      options: null
+      display: datetime
+      display_options:
+        relative: true
+      readonly: true
+      hidden: true
+      sort: 9
+      width: half
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+  - collection: faqs
+    field: question
+    type: string
+    schema:
+      name: question
+      table: faqs
+      data_type: character varying
+      default_value: null
+      generation_expression: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_generated: false
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      comment: null
+      schema: public
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: faqs
+      field: question
+      special: null
+      interface: input
+      options:
+        placeholder: Enter question value for FAQ
+        iconLeft: question_mark
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 3
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: true
+      group: null
+  - collection: faqs
+    field: answer
+    type: string
+    schema:
+      name: answer
+      table: faqs
+      data_type: character varying
+      default_value: null
+      generation_expression: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_generated: false
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      comment: null
+      schema: public
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: faqs
+      field: answer
+      special: null
+      interface: input
+      options:
+        placeholder: Enter answer for FAQ
+        iconLeft: lightbulb
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 4
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: true
       group: null
   - collection: homepage
     field: id
