@@ -39,8 +39,6 @@ export default function useAdmin({
     }
   }, [auth?.user, router])
 
-  console.log(claims)
-
   return {
     isAdmin: (claims || []).includes(FirebaseClaim.admin),
     claims: claims,
