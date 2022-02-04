@@ -4,11 +4,11 @@ import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
 
 import AppLink from '@/components/app-link/app-link'
+import Breadcrumbs from '@/components/breadcrumbs'
 import Pagination from '@/components/pagination/pagination'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
-import useAdminGate from '@/hooks/use-admin-gate'
 import usePagination from '@/hooks/use-pagination'
 import AdminLayout from '@/layouts/admin-layout'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
@@ -21,9 +21,6 @@ const PAYMENTS_PER_PAGE = 10
 
 export default function AdminTransactionsPage() {
   const { t, lang } = useTranslation('admin')
-
-  useAdminGate()
-
   const { page, setPage, handleTableHeaderClick, sortBy, sortDirection } =
     usePagination<PaymentSortField>(1, PaymentSortField.CreatedAt)
 
@@ -80,6 +77,12 @@ export default function AdminTransactionsPage() {
 
   return (
     <AdminLayout pageTitle={t('common:pageTitles.Transactions')}>
+      <Breadcrumbs
+        breadcrumbs={[
+          { label: 'Admin', href: urls.admin.index },
+          { label: 'Transactions' },
+        ]}
+      />
       <Panel
         fullWidth
         title={t('common:pageTitles.Transactions')}

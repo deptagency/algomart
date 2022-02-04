@@ -11,6 +11,7 @@ import AppLink from '@/components/app-link/app-link'
 import Select, { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useRedemption } from '@/contexts/redemption-context'
+import useAdmin from '@/hooks/use-admin'
 import { urls } from '@/utils/urls'
 
 interface ProfileNavProps {
@@ -19,6 +20,7 @@ interface ProfileNavProps {
 
 export default function ProfileNav({ screen }: ProfileNavProps) {
   const auth = useAuth()
+  const { isAdmin } = useAdmin()
   const { pathname, push } = useRouter()
   const { setRedeemable } = useRedemption()
   const { t } = useTranslation()
@@ -56,6 +58,10 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
     },
   ]
 
+  if (isAdmin) {
+    navItems.push({ id: urls.admin.index, label: t('common:pageTitles.Admin') })
+  }
+
   return (
     <nav
       className={clsx({
@@ -72,19 +78,17 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
       </div>
       <div className={css.desktopWrapper}>
         <ul className={css.listWrapper}>
-          {navItems.map(({ id, label }) => {
-            return (
-              <li
-                className={clsx(css.listItem, {
-                  [css.listItemActive]:
-                    id === pathname || `${id}/add` === pathname,
-                })}
-                key={id}
-              >
-                <AppLink href={id}>{label}</AppLink>
-              </li>
-            )
-          })}
+          {navItems.map(({ id, label }) => (
+            <li
+              className={clsx(css.listItem, {
+                [css.listItemActive]:
+                  id === pathname || `${id}/add` === pathname,
+              })}
+              key={id}
+            >
+              <AppLink href={id}>{label}</AppLink>
+            </li>
+          ))}
         </ul>
         <Button fullWidth onClick={signOut} size="small">
           {t('common:actions.Sign Out')}

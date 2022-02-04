@@ -38,6 +38,7 @@ export const urls = {
 
   // Admin
   admin: {
+    index: '/admin',
     transactions: '/admin/transactions',
     transaction: '/admin/transactions/:transactionId',
   },

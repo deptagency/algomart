@@ -7,6 +7,7 @@ import AppHeader from '@/components/app-header/app-header'
 import HeadTag from '@/components/head-tag/head-tag'
 import EmailVerification from '@/components/profile/email-verification'
 import UntransferredPacks from '@/components/profile/untransferred-packs'
+import useAdmin from '@/hooks/use-admin'
 
 export interface AdminLayoutProps {
   children?: ReactNode
@@ -19,6 +20,7 @@ export default function AdminLayout({
   pageDescription,
   pageTitle,
 }: AdminLayoutProps) {
+  useAdmin({ redirectIfNotAdmin: true })
   return (
     <>
       <HeadTag pageDescription={pageDescription} pageTitle={pageTitle} />

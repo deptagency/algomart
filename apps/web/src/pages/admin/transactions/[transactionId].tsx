@@ -16,7 +16,6 @@ import { Flex } from '@/components/flex'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
-import useAdminGate from '@/hooks/use-admin-gate'
 import AdminLayout from '@/layouts/admin-layout'
 import adminService from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
@@ -31,7 +30,6 @@ interface AdminTransactionPageProps {
 export default function AdminTransactionPage({
   payment,
 }: AdminTransactionPageProps) {
-  useAdminGate()
   const { t, lang } = useTranslation('admin')
   const { query } = useRouter()
   const { transactionId } = query
@@ -110,6 +108,7 @@ export default function AdminTransactionPage({
     <AdminLayout pageTitle={t('common:pageTitles.Transaction')}>
       <Breadcrumbs
         breadcrumbs={[
+          { label: 'Admin', href: urls.admin.index },
           { label: 'Transactions', href: urls.admin.transactions },
           { label: transactionId as string },
         ]}
