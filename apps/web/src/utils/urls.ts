@@ -4,6 +4,7 @@ export const urls = {
   checkoutPack: '/checkout/:packSlug',
   checkoutPackWithMethod: '/checkout/:packSlug/:method',
   home: '/',
+  faqs: '/faqs',
   myCollectibles: '/my/collectibles',
   myCollection: '/my/collections/:collectionSlug',
   myCollections: '/my/collections',

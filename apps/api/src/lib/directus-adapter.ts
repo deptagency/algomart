@@ -146,6 +146,16 @@ export interface DirectusPackTemplate {
   type: PackType
 }
 
+export interface DirectusFaqTemplate {
+  translations: {
+    language_code: string
+    question: string | null
+    answer: string | null
+  }[]
+  question: string
+  answer: string
+}
+
 // #endregion
 
 // #region Directus Helpers
@@ -914,6 +924,36 @@ export default class DirectusAdapter {
     if (response.data.length === 0) return null
     const set = response.data[0]
     return toSetWithCollection(set, this.getFileURL.bind(this))
+  }
+
+  async getFaqs(locale: string = DEFAULT_LOCALE) {
+    const defaultQuery: ItemQuery<DirectusFaqTemplate> = {
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+      deep: {
+        translations: {
+          _filter: {
+            languages_code: {
+              _eq: locale,
+            },
+          },
+        },
+      },
+      limit: -1,
+      fields: ['*.*'],
+    }
+
+    const response = await this.findMany<DirectusFaqTemplate>('faqs', {
+      ...defaultQuery,
+    })
+
+    // simplify response
+    return response.data.map((d) =>
+      d.translations.find((t) => t.languages_code === locale)
+    )
   }
 
   async findHomepage() {

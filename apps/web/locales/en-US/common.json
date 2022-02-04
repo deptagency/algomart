@@ -97,6 +97,7 @@
   },
   "pageTitles": {
     "404": "404",
+    "FAQS": "Frequently Asked Questions",
     "Add Payment Method": "Add Payment Method",
     "Algorand Address": "Algorand Address: {{algoAddress}}",
     "Checking Out": "Checkout for {{name}}",
