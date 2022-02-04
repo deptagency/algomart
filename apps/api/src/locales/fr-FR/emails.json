@@ -1,72 +1,72 @@
 {
     "auctionComplete": {
-      "subject": "emails.auctionComplete.subject",
+      "subject": "fr-FR.emails.auctionComplete.subject",
       "body": [
-        "emails.auctionComplete.body[0]",
-        "emails.auctionComplete.body[1]",
-        "emails.auctionComplete.body[2]"
+        "fr-FR.emails.auctionComplete.body[0]",
+        "fr-FR.emails.auctionComplete.body[1]",
+        "fr-FR.emails.auctionComplete.body[2]"
       ],
-      "expirationWarning": "emails.auctionComplete.expirationWarning"
+      "expirationWarning": "fr-FR.emails.auctionComplete.expirationWarning"
     },
     "bidExpired": {
-      "subject": "emails.bidExpired.subject",
+      "subject": "fr-FR.emails.bidExpired.subject",
       "body": [
-        "emails.bidExpired.body[0]"
+        "fr-FR.emails.bidExpired.body[0]"
       ]
     },
     "paymentSuccess": {
-      "subject": "emails.paymentSuccess.subject",
+      "subject": "fr-FR.emails.paymentSuccess.subject",
       "body": [
-        "emails.paymentSuccess.body[0]",
-        "emails.paymentSuccess.body[1]",
-        "emails.paymentSuccess.body[2]"
+        "fr-FR.emails.paymentSuccess.body[0]",
+        "fr-FR.emails.paymentSuccess.body[1]",
+        "fr-FR.emails.paymentSuccess.body[2]"
       ]
     },
     "transferSuccess": {
-      "subject": "emails.transferSuccess.subject",
+      "subject": "fr-FR.emails.transferSuccess.subject",
       "body": [
-        "emails.transferSuccess.body[0]",
-        "emails.transferSuccess.body[1]",
-        "emails.transferSuccess.body[2]"
+        "fr-FR.emails.transferSuccess.body[0]",
+        "fr-FR.emails.transferSuccess.body[1]",
+        "fr-FR.emails.transferSuccess.body[2]"
       ]
     },
     "userHighBid": {
-      "subject": "emails.userHighBid.subject",
+      "subject": "fr-FR.emails.userHighBid.subject",
       "body": [
-        "emails.userHighBid.body[0]",
-        "emails.userHighBid.body[1]",
-        "emails.userHighBid.body[2]"
+        "fr-FR.emails.userHighBid.body[0]",
+        "fr-FR.emails.userHighBid.body[1]",
+        "fr-FR.emails.userHighBid.body[2]"
       ]
     },
     "userOutbid": {
-      "subject": "emails.userOutbid.subject",
+      "subject": "fr-FR.emails.userOutbid.subject",
       "body": [
-        "emails.userOutbid.body[0]",
-        "emails.userOutbid.body[1]",
-        "emails.userOutbid.body[2]"
+        "fr-FR.emails.userOutbid.body[0]",
+        "fr-FR.emails.userOutbid.body[1]",
+        "fr-FR.emails.userOutbid.body[2]"
       ]
     },
     "wireTransfer": {
-      "subject": "emails.wireTransfer.subject",
+      "subject": "fr-FR.emails.wireTransfer.subject",
       "body": [
-        "emails.wireTransfer.body[0]",
-        "emails.wireTransfer.body[1]",
-        "emails.wireTransfer.body[2]",
-        "emails.wireTransfer.body[3]",
-        "emails.wireTransfer.body[4]",
-        "emails.wireTransfer.body[5]",
-        "emails.wireTransfer.body[6]",
-        "emails.wireTransfer.body[7]",
-        "emails.wireTransfer.body[8]",
-        "emails.wireTransfer.body[9]",
-        "emails.wireTransfer.body[10]",
-        "emails.wireTransfer.body[11]",
-        "emails.wireTransfer.body[12]",
-        "emails.wireTransfer.body[13]",
-        "emails.wireTransfer.body[14]",
-        "emails.wireTransfer.body[15]"
+        "fr-FR.emails.wireTransfer.body[0]",
+        "fr-FR.emails.wireTransfer.body[1]",
+        "fr-FR.emails.wireTransfer.body[2]",
+        "fr-FR.emails.wireTransfer.body[3]",
+        "fr-FR.emails.wireTransfer.body[4]",
+        "fr-FR.emails.wireTransfer.body[5]",
+        "fr-FR.emails.wireTransfer.body[6]",
+        "fr-FR.emails.wireTransfer.body[7]",
+        "fr-FR.emails.wireTransfer.body[8]",
+        "fr-FR.emails.wireTransfer.body[9]",
+        "fr-FR.emails.wireTransfer.body[10]",
+        "fr-FR.emails.wireTransfer.body[11]",
+        "fr-FR.emails.wireTransfer.body[12]",
+        "fr-FR.emails.wireTransfer.body[13]",
+        "fr-FR.emails.wireTransfer.body[14]",
+        "fr-FR.emails.wireTransfer.body[15]"
       ],
-      "expirationWarning": "emails.wireTransfer.expirationWarning"
+      "expirationWarning": "fr-FR.emails.wireTransfer.expirationWarning"
     }
   }
   
