@@ -115,6 +115,17 @@
       "label": "fr-FR.forms.fields.fullName.label",
       "helpText": "fr-FR.forms.fields.fullName.helpText"
     },
+    "languages": {
+      "label": "fr-FR.forms.fields.languages.label",
+      "options": {
+        "en-US": {
+          "label": "fr-FR.forms.fields.languages.options.en-US.label"
+        },
+        "fr-FR": {
+          "label": "fr-FR.forms.fields.languages.options.fr-FR.label"
+        }
+      }
+    },
     "password": {
       "label": "fr-FR.forms.fields.password.label"
     },

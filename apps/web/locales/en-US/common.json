@@ -90,10 +90,6 @@
     "404": {
       "title": "Uh oh! There's nothing to see here.",
       "body": "<0>Unfortunately this page doesn't exist. Sorry about that! <1>Click here</1> to go home, or browse some of our <2>latest releases</2>.</0>"
-    },
-    "languages": {
-      "en_US": "English",
-      "fr_FR": "French"
     }
   },
   "localization": {

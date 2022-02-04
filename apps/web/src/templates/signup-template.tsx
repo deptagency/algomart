@@ -4,6 +4,7 @@ import { FormEvent } from 'react'
 import AlertMessage from '@/components/alert-message/alert-message'
 import {
   Email,
+  Language,
   Passphrase,
   Password,
   ProfileImage,
@@ -19,6 +20,7 @@ export interface SignupTemplateProps {
   formErrors: Partial<{
     email?: unknown
     username?: unknown
+    language?: unknown
     password?: unknown
     passphrase?: unknown
   }>
@@ -58,13 +60,13 @@ export default function SignupTemplate({
         <Email error={formErrors.email} t={t} />
         <Username error={formErrors.username} t={t} />
         <Password error={formErrors.password} t={t} />
-        {/* <Language error={formErrors.language} t={t} /> */}
         <ProfileImage
           handleProfilePicAccept={handleProfilePicAccept}
           handleProfilePicClear={handleProfilePicClear}
           t={t}
           profilePic={profilePic}
         />
+        <Language error={formErrors.language} t={t} />
         <Passphrase error={formErrors.passphrase} t={t} />
         <Submit disabled={status === 'loading'} t={t} />
       </form>

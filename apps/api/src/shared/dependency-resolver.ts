@@ -13,6 +13,7 @@ import BidsService from '@/modules/bids/bids.service'
 import CollectiblesService from '@/modules/collectibles/collectibles.service'
 import CollectionsService from '@/modules/collections/collections.service'
 import HomepageService from '@/modules/homepage/homepage.service'
+import LanguagesService from '@/modules/languages/languages.service'
 import NotificationsService from '@/modules/notifications/notifications.service'
 import PacksService from '@/modules/packs/packs.service'
 import PaymentsService from '@/modules/payments/payments.service'
@@ -208,6 +209,10 @@ export function configureResolver() {
   resolver.set(
     AuctionsService.name,
     (c) => new AuctionsService(c.get<AlgorandAdapter>(AlgorandAdapter.name))
+  )
+  resolver.set(
+    LanguagesService.name,
+    (c) => new LanguagesService(c.get<DirectusAdapter>(DirectusAdapter.name))
   )
   return resolver
 }

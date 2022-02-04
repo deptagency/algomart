@@ -116,6 +116,17 @@
       "label": "Full Name",
       "helpText": "As it appears on your card"
     },
+    "languages": {
+      "label": "Languages",
+      "options": {
+        "en-US": {
+          "label": "English"
+        },
+        "fr-FR": {
+          "label": "French"
+        }
+      }
+    },
     "password": {
       "label": "Password"
     },

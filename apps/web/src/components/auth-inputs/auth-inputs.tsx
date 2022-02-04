@@ -7,11 +7,13 @@ import { useDropzone } from 'react-dropzone'
 
 import css from './auth-inputs.module.css'
 
+import { ApiClient } from '@/clients/api-client'
 import Button from '@/components/button'
 import FormField from '@/components/form-field'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
-import Select from '@/components/select/select'
+import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
+import languageService from '@/services/language-service'
 import { FileWithPreview } from '@/types/file'
 import { useApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
@@ -43,21 +45,35 @@ export function Email({ error, t }: AuthInputProps) {
 }
 
 export function Language({ error, t }: AuthInputProps) {
-  // Fetch language data
-  const languages: LanguageList = useApi<CollectibleListWithTotal>(
-    urls.api.v1.getLanguages
-  )
+  const [options, setOptions] = useState<SelectOption[]>([])
+
+  useEffect(() => {
+    const run = async () => {
+      const languages = await languageService.getLanguages()
+
+      setOptions(
+        languages.map((language) => ({
+          id: language.code,
+          label: t(`forms:fields.languages.options.${language.code}.label`),
+        }))
+      )
+    }
+
+    run()
+  })
 
   return (
     <FormField className={css.formField}>
-      <Select
-        defaultOption={languages[0]}
-        error={error as string}
-        label={t('forms:fields.language.label')}
-        id="code"
-        name="code"
-        options={languages}
-      />
+      {options.length > 0 && (
+        <Select
+          defaultOption={options[0]}
+          error={error as string}
+          label={t('forms:fields.languages.label')}
+          id="code"
+          name="code"
+          options={options}
+        />
+      )}
     </FormField>
   )
 }
