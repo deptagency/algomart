@@ -148,7 +148,7 @@ export interface DirectusPackTemplate {
 
 export interface DirectusFaqTemplate {
   translations: {
-    language_code: string
+    languages_code: string
     question: string | null
     answer: string | null
   }[]
