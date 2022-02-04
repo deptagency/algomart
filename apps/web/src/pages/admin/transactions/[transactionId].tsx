@@ -35,7 +35,7 @@ export default function AdminTransactionPage({
   const { t, lang } = useTranslation('admin')
   const { query } = useRouter()
   const { transactionId } = query
-  const isAuction = !!payment.pack.auctionUntil
+  const isAuction = !!payment.pack?.auctionUntil
 
   // WIRE PAYMENTS
   const { data } = useAuthApi<WirePayment[]>(
@@ -95,17 +95,17 @@ export default function AdminTransactionPage({
     if (!confirm('Are you sure you want to revoke this pack?')) return
     // @TODO: Revoke pack API request
     try {
-      if (!payment.pack.id) throw new Error('No pack id')
-      if (!payment.pack.ownerId) throw new Error('No pack owner ID')
+      if (!payment.pack?.id) throw new Error('No pack id')
+      if (!payment.pack?.ownerId) throw new Error('No pack owner ID')
       // Revoke pack
-      await adminService.revokePack(payment.pack.id, payment.pack.ownerId)
+      await adminService.revokePack(payment.pack?.id, payment.pack?.ownerId)
       alert('Pack successfully revoked.')
       logger.info('Pack was revoked')
     } catch (error) {
       alert('Unable to revoke pack.')
       logger.error(error, 'Unable to revoke pack')
     }
-  }, [payment.pack.id, payment.pack.ownerId])
+  }, [payment.pack?.id, payment.pack?.ownerId])
 
   return (
     <AdminLayout pageTitle={t('common:pageTitles.Transaction')}>
@@ -119,7 +119,7 @@ export default function AdminTransactionPage({
         <Flex item flex="0 0 250px" className="overflow-hidden" gap={2}>
           <Panel fullWidth>
             <Image
-              src={payment.pack.image}
+              src={payment.pack?.image}
               layout="responsive"
               height="100%"
               width="100%"
@@ -131,21 +131,21 @@ export default function AdminTransactionPage({
             <Panel className={css.userInfoPanel}>
               <dl>
                 <dt>Type</dt>
-                <dd>{payment.pack.type}</dd>
+                <dd>{payment.pack?.type}</dd>
                 <dt>Title</dt>
-                <dd>{payment.pack.title}</dd>
+                <dd>{payment.pack?.title}</dd>
                 <dt>Slug</dt>
                 <dd>
                   <AppLink
-                    href={urls.release.replace(':packSlug', payment.pack.slug)}
+                    href={urls.release.replace(':packSlug', payment.pack?.slug)}
                   >
-                    {payment.pack.slug}
+                    {payment.pack?.slug}
                   </AppLink>
                 </dd>
                 <dt>Price</dt>
-                <dd>{formatCurrency(payment.pack.price, lang)}</dd>
+                <dd>{formatCurrency(payment.pack?.price, lang)}</dd>
                 <dt>Template ID</dt>
-                <dd>{payment.pack.templateId}</dd>
+                <dd>{payment.pack?.templateId}</dd>
               </dl>
             </Panel>
 
@@ -176,7 +176,7 @@ export default function AdminTransactionPage({
               <Flex alignItems="stretch" gap={4} Element="dl">
                 <div className={css.packMeta}>
                   <dt>Winning Bid</dt>
-                  <dd>{formatCurrency(payment.pack.activeBid, lang)} </dd>
+                  <dd>{formatCurrency(payment.pack?.activeBid, lang)} </dd>
                 </div>
                 <div className={css.packMeta}>
                   <dt>Winner</dt>
@@ -185,7 +185,7 @@ export default function AdminTransactionPage({
                 <div className={css.packMeta}>
                   <dt>Ended At</dt>
                   <dd>
-                    {new Date(payment.pack.auctionUntil).toLocaleString(lang)}{' '}
+                    {new Date(payment.pack?.auctionUntil).toLocaleString(lang)}
                   </dd>
                 </div>
               </Flex>
