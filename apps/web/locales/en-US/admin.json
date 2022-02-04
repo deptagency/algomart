@@ -1,6 +1,7 @@
 {
   "transactions": {
     "table": {
+      "Title": "Title",
       "Type": "Type",
       "Date": "Date",
       "Amount": "Amount",

@@ -40,7 +40,7 @@ export default function AdminTransactionsPage() {
   const columns: ColumnDefinitionType<Payment>[] = [
     {
       key: 'pack.title',
-      name: t('transactions.table.title'),
+      name: t('transactions.table.Title'),
       renderer: ({ value, item }) => (
         <AppLink
           href={urls.admin.transaction.replace(':transactionId', item.id)}
@@ -51,17 +51,17 @@ export default function AdminTransactionsPage() {
     },
     {
       key: 'createdAt',
-      name: t('transactions.table.date'),
+      name: t('transactions.table.Date'),
       renderer: ({ value }) =>
         value ? new Date(value).toLocaleDateString(lang) : null,
       sortable: true,
     },
     {
       key: 'pack.price',
-      name: t('transactions.table.price'),
+      name: t('transactions.table.Amount'),
       renderer: ({ value }) => formatCurrency(value, lang),
     },
-    { key: 'status', name: t('transactions.table.status'), sortable: true },
+    { key: 'status', name: t('transactions.table.Status'), sortable: true },
   ]
 
   const footer = (
