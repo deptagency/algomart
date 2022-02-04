@@ -16,7 +16,6 @@ export interface StepLinksProps {
   }[]
 }
 
-/** */
 export default function StepLinks({ links }: StepLinksProps) {
   const { asPath } = useRouter()
   if (!links) return null
