@@ -1,3 +1,4 @@
+import { CollectibleListWithTotal, LanguageList } from '@algomart/schemas'
 import { ShieldExclamationIcon, UserCircleIcon } from '@heroicons/react/outline'
 import Image from 'next/image'
 import { Translate } from 'next-translate'
@@ -9,8 +10,11 @@ import css from './auth-inputs.module.css'
 import Button from '@/components/button'
 import FormField from '@/components/form-field'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
+import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import { FileWithPreview } from '@/types/file'
+import { useApi } from '@/utils/swr'
+import { urls } from '@/utils/urls'
 
 /**
  * Reused components found throughout sign-in, sign-up, and profile create/update flows
@@ -33,6 +37,26 @@ export function Email({ error, t }: AuthInputProps) {
         minLength={8}
         name="email"
         type="email"
+      />
+    </FormField>
+  )
+}
+
+export function Language({ error, t }: AuthInputProps) {
+  // Fetch language data
+  const languages: LanguageList = useApi<CollectibleListWithTotal>(
+    urls.api.v1.getLanguages
+  )
+
+  return (
+    <FormField className={css.formField}>
+      <Select
+        defaultOption={languages[0]}
+        error={error as string}
+        label={t('forms:fields.language.label')}
+        id="code"
+        name="code"
+        options={languages}
       />
     </FormField>
   )

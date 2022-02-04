@@ -904,7 +904,7 @@ export default class DirectusAdapter {
     return null
   }
 
-  async getAllLanguages() {
+  async getLanguages() {
     const response = await this.http.get(`items/languages`)
 
     if (response.statusCode >= 200 && response.statusCode < 300) {

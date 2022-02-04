@@ -58,6 +58,7 @@ export default function SignupTemplate({
         <Email error={formErrors.email} t={t} />
         <Username error={formErrors.username} t={t} />
         <Password error={formErrors.password} t={t} />
+        {/* <Language error={formErrors.language} t={t} /> */}
         <ProfileImage
           handleProfilePicAccept={handleProfilePicAccept}
           handleProfilePicClear={handleProfilePicClear}
