@@ -176,7 +176,7 @@ export default function AdminTransactionPage({
               <Flex alignItems="stretch" gap={4} Element="dl">
                 <div className={css.packMeta}>
                   <dt>Winning Bid</dt>
-                  <dd>{formatCurrency(payment.amount, lang)} </dd>
+                  <dd>{formatCurrency(payment.pack.activeBid, lang)} </dd>
                 </div>
                 <div className={css.packMeta}>
                   <dt>Winner</dt>
