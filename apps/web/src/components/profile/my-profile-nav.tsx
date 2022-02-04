@@ -56,7 +56,7 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
       id: urls.myProfileTransactions,
       label: t('common:pageTitles.Transactions'),
     },
-  ]
+  ] as SelectOption[]
 
   if (isAdmin) {
     navItems.push({ id: urls.admin.index, label: t('common:pageTitles.Admin') })
