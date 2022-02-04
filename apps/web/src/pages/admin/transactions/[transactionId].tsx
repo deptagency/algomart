@@ -93,7 +93,6 @@ export default function AdminTransactionPage({
 
   const handleRevokePack = useCallback(async () => {
     if (!confirm('Are you sure you want to revoke this pack?')) return
-    // @TODO: Revoke pack API request
     try {
       if (!payment.pack?.id) throw new Error('No pack id')
       if (!payment.pack?.ownerId) throw new Error('No pack owner ID')
