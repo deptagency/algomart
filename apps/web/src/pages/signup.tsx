@@ -31,6 +31,7 @@ export default function SignUpPage() {
       const body = {
         email: formData.get('email') as string,
         username: formData.get('username') as string,
+        locale: formData.get('locale') as string,
         password: formData.get('password') as string,
         passphrase: formData.get('passphrase') as string,
         profilePic: profilePic as FileWithPreview,

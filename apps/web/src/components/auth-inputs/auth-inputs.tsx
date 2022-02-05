@@ -72,8 +72,8 @@ export function Language({ error, t }: AuthInputProps) {
           defaultOption={options[0]}
           error={error as string}
           label={t('forms:fields.languages.label')}
-          id="code"
-          name="code"
+          id="locale"
+          name="locale"
           options={options}
         />
       )}
