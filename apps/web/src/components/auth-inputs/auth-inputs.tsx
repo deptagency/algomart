@@ -54,7 +54,7 @@ export function Language({ error, t }: AuthInputProps) {
       const languages = await languageService.getLanguages(locale)
 
       setOptions(
-        languages.map((language) => ({
+        languages?.map((language) => ({
           id: language.languages_code,
           label: language.label,
         }))
