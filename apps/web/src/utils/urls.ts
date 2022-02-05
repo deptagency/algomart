@@ -60,7 +60,7 @@ export const urls = {
       getRedeemable: '/api/v1/asset/get-redeemable',
       getTransfer: '/api/v1/payments/get-transfer-payment',
       getUntransferredPacks: '/api/v1/pack/untransferred',
-      getLanguages: '/api/v1/languages',
+      getLanguages: '/api/v1/languages/get-languages',
       profile: '/api/v1/profile',
       publicKey: '/api/v1/payments/public-key',
       removeCard: '/api/v1/payments/remove-card',

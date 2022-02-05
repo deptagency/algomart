@@ -13,6 +13,7 @@ import FormField from '@/components/form-field'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
 import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
+import { useLocale } from '@/hooks/use-locale'
 import languageService from '@/services/language-service'
 import { FileWithPreview } from '@/types/file'
 import { useApi } from '@/utils/swr'
@@ -46,26 +47,28 @@ export function Email({ error, t }: AuthInputProps) {
 
 export function Language({ error, t }: AuthInputProps) {
   const [options, setOptions] = useState<SelectOption[]>([])
+  const locale = useLocale()
 
   useEffect(() => {
     const run = async () => {
-      const languages = await languageService.getLanguages()
+      const languages = await languageService.getLanguages(locale)
 
       setOptions(
         languages.map((language) => ({
-          id: language.code,
-          label: t(`forms:fields.languages.options.${language.code}.label`),
+          id: language.languages_code,
+          label: language.label,
         }))
       )
     }
 
     run()
-  })
+  }, [locale])
 
   return (
     <FormField className={css.formField}>
       {options.length > 0 && (
         <Select
+          className="pl-8"
           defaultOption={options[0]}
           error={error as string}
           label={t('forms:fields.languages.label')}

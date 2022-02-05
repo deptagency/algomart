@@ -10,6 +10,6 @@ export async function getLanguages(
   const service = request
     .getContainer()
     .get<LanguagesService>(LanguagesService.name)
-  const languages = await service.getLanguages()
+  const languages = await service.getLanguages(request.query.locale)
   reply.send(languages)
 }

@@ -3,7 +3,8 @@ import { Static, Type } from '@sinclair/typebox'
 import { Simplify } from './shared'
 
 export const LanguageSchema = Type.Object({
-  code: Type.String(),
+  languages_code: Type.String(),
+  label: Type.String(),
 })
 
 export const LanguageListSchema = Type.Array(LanguageSchema)

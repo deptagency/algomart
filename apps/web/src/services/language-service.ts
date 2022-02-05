@@ -1,12 +1,10 @@
-import { LanguageList } from '@algomart/schemas'
-import { getAuth } from 'firebase/auth'
+import { DEFAULT_LOCALE, LanguageList } from '@algomart/schemas'
 import ky from 'ky'
 
-import loadFirebase from '@/clients/firebase-client'
 import { urls } from '@/utils/urls'
 
 export interface LanguageAPI {
-  getLanguages(): Promise<LanguageList>
+  getLanguages(locale: string): Promise<LanguageList>
 }
 
 export class LanguageService implements LanguageAPI {
@@ -16,27 +14,16 @@ export class LanguageService implements LanguageAPI {
     this.http = ky.create({
       timeout: 10_000,
       throwHttpErrors: false,
-      hooks: {
-        beforeRequest: [
-          async (request) => {
-            try {
-              const auth = getAuth(loadFirebase())
-              const token = await auth.currentUser?.getIdToken()
-              if (token) {
-                request.headers.set('Authorization', `Bearer ${token}`)
-              }
-            } catch {
-              // ignore, firebase probably not initialized
-            }
-          },
-        ],
-      },
     })
   }
 
-  async getLanguages(): Promise<LanguageList> {
+  async getLanguages(locale = DEFAULT_LOCALE): Promise<LanguageList> {
     const response = await this.http
-      .get(urls.api.v1.getLanguages)
+      .get(urls.api.v1.getLanguages, {
+        searchParams: {
+          locale,
+        },
+      })
       .json<LanguageList>()
 
     return response

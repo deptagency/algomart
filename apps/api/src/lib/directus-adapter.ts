@@ -35,11 +35,6 @@ export enum DirectusStatus {
   Archived = 'archived',
 }
 
-export interface DirectusLanguage {
-  code: string
-  name: string
-}
-
 export interface DirectusTranslation {
   languages_code: string
 }
@@ -149,6 +144,16 @@ export interface DirectusPackTemplate {
   status: DirectusStatus
   translations: number[] | DirectusPackTemplateTranslation[]
   type: PackType
+}
+
+export interface DirectusLanguageTemplate {
+  code: string
+  translations: DirectusLanguageTemplateTranslation[]
+}
+
+export interface DirectusLanguageTemplateTranslation
+  extends DirectusTranslation {
+  label: string
 }
 
 // #endregion
@@ -904,14 +909,26 @@ export default class DirectusAdapter {
     return null
   }
 
-  async getLanguages() {
-    const response = await this.http.get(`items/languages`)
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      const result: ItemsResponse<DirectusLanguage> = JSON.parse(response.body)
-      return result
+  async getLanguages(locale = DEFAULT_LOCALE) {
+    const defaultQuery: ItemQuery<DirectusLanguageTemplate> = {
+      limit: -1,
+      fields: ['*.*'],
     }
 
-    return { data: [] }
+    const response = await this.findMany<DirectusLanguageTemplate>(
+      `languages`,
+      {
+        ...defaultQuery,
+      }
+    )
+
+    return response.data.map((directusLanguageTemplate) => ({
+      languages_code: directusLanguageTemplate.code,
+      label: getDirectusTranslation<DirectusLanguageTemplateTranslation>(
+        directusLanguageTemplate.translations as DirectusLanguageTemplateTranslation[],
+        `language has no translations`,
+        locale
+      )?.label,
+    }))
   }
 }
