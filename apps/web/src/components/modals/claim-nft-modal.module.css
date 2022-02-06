@@ -68,7 +68,7 @@
 }
 
 .successIcon {
-  @apply mx-auto text-green-600;
+  @apply mx-auto text-base-price;
   width: 48px;
 }
 

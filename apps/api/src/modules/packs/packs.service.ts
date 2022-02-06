@@ -27,6 +27,7 @@ import {
   PackWithId,
   PublishedPack,
   PublishedPacksQuery,
+  RevokePack,
   SortDirection,
   TransferPack,
   TransferPackStatusList,
@@ -849,6 +850,77 @@ export default class PacksService {
       entityId: request.packId,
       entityType: EventEntityType.Pack,
       userAccountId: request.claimedById,
+    })
+
+    return pack
+  }
+
+  async revokePack(request: RevokePack, trx?: Transaction) {
+    invariant(
+      request.fromAddress || request.ownerId,
+      'Pack owner ID or address is required.'
+    )
+    let userId
+
+    if (request.ownerId) {
+      const user = await UserAccountModel.query(trx).findById(request.ownerId)
+      userInvariant(user, 'user not found', 404)
+      userId = user.id
+    }
+
+    const packQuery = PackModel.query(trx).where('id', request.packId)
+
+    if (userId) {
+      packQuery.where('ownerId', request.ownerId)
+    }
+
+    const pack = await packQuery
+      .select('id')
+      .withGraphFetched('collectibles')
+      .modifyGraph('collectibles', (builder) => {
+        builder.select('id')
+      })
+      .first()
+
+    userInvariant(pack, 'pack not found', 404)
+
+    this.logger.info({ pack }, 'pack to be transferred')
+
+    // Transfer
+    await Promise.all(
+      pack?.collectibles?.map(
+        async (c) =>
+          c.ownerId &&
+          c.id &&
+          (await this.collectibles.transferToCreatorFromUser(
+            c.id,
+            request.fromAddress,
+            userId,
+            trx
+          ))
+      )
+    )
+
+    // Create transfer success notification to be sent to user
+    const packWithBase = await this.getPackById(request.packId)
+    if (packWithBase) {
+      // @TODO: create notification for revoking the pack
+    }
+
+    // Remove claim from pack
+    await PackModel.query(trx)
+      .patch({
+        ownerId: null,
+        claimedAt: null,
+        updatedAt: new Date().toISOString(),
+      })
+      .where({ id: request.packId })
+
+    await EventModel.query(trx).insert({
+      action: EventAction.Update,
+      entityId: request.packId,
+      entityType: EventEntityType.Pack,
+      userAccountId: request.ownerId,
     })
 
     return pack

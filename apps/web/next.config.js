@@ -44,6 +44,13 @@ module.exports = withNx(
         process.env.NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED,
       NODE_ENV: process.env.NODE_ENV,
     },
+    redirects: async () => [
+      {
+        source: '/admin',
+        destination: '/admin/transactions',
+        permanent: false,
+      },
+    ],
   })
 )
 

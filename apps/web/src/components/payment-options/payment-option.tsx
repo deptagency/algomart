@@ -22,19 +22,17 @@ export default function PaymentOption({
   title,
 }: PaymentOptionProps) {
   return (
-    <section className={css.root}>
-      <AppLink
-        className={clsx(css.button, {
-          [css.disabled]: isDisabled,
-        })}
-        href={href}
-      >
-        {icon}
-        <div>
-          <Heading level={2}>{title}</Heading>
-          <p>{helpText}</p>
-        </div>
-      </AppLink>
-    </section>
+    <AppLink
+      className={clsx(css.button, {
+        [css.disabled]: isDisabled,
+      })}
+      href={href}
+    >
+      {icon}
+      <div>
+        <Heading level={2}>{title}</Heading>
+        <p>{helpText}</p>
+      </div>
+    </AppLink>
   )
 }

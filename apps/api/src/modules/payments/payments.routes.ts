@@ -1,5 +1,4 @@
 import {
-  AdminPaymentListQuerystring,
   BankAccountId,
   CardId,
   CreateBankAccount,
@@ -10,7 +9,10 @@ import {
   FindTransferByAddress,
   OwnerExternalId,
   PaymentId,
+  PaymentQuerystring,
+  PaymentsQuerystring,
   SendBankAccountInstructions,
+  UpdatePayment,
   UpdatePaymentCard,
 } from '@algomart/schemas'
 import { FastifyReply, FastifyRequest } from 'fastify'
@@ -66,6 +68,21 @@ export async function getWireTransferInstructions(
   } else {
     reply.notFound()
   }
+}
+
+export async function findWirePaymentsByBankId(
+  request: FastifyRequest<{
+    Params: BankAccountId
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payments = await paymentService.searchAllWirePaymentsByBankId(
+    request.params.bankAccountId
+  )
+  reply.send(payments)
 }
 
 export async function sendWireTransferInstructions(
@@ -221,6 +238,27 @@ export async function createPayment(
   }
 }
 
+export async function updatePayment(
+  request: FastifyRequest<{
+    Params: PaymentId
+    Body: UpdatePayment
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payment = await paymentService.updatePayment(
+    request.params.paymentId,
+    request.body
+  )
+  if (payment) {
+    reply.status(201).send(payment)
+  } else {
+    reply.badRequest('Unable to update payment')
+  }
+}
+
 export async function createTransferPayment(
   request: FastifyRequest<{
     Body: CreateTransferPayment
@@ -244,13 +282,17 @@ export async function createTransferPayment(
 export async function getPaymentById(
   request: FastifyRequest<{
     Params: PaymentId
+    Querystring: PaymentQuerystring
   }>,
   reply: FastifyReply
 ) {
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const payment = await paymentService.getPaymentById(request.params.paymentId)
+  const payment = await paymentService.getPaymentById(
+    request.params.paymentId,
+    request.query.isAdmin
+  )
   if (payment) {
     reply.status(200).send(payment)
   } else {
@@ -260,7 +302,7 @@ export async function getPaymentById(
 
 export async function getPayments(
   request: FastifyRequest<{
-    Querystring: AdminPaymentListQuerystring
+    Querystring: PaymentsQuerystring
   }>,
   reply: FastifyReply
 ) {

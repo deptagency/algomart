@@ -1,23 +1,16 @@
-import {
-  AdminPaymentBase,
-  AdminPaymentList,
-  FirebaseClaim,
-  PaymentSortField,
-} from '@algomart/schemas'
+import { Payment, Payments, PaymentSortField } from '@algomart/schemas'
 import { RefreshIcon } from '@heroicons/react/outline'
 import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useEffect } from 'react'
 
+import AppLink from '@/components/app-link/app-link'
+import Breadcrumbs from '@/components/breadcrumbs'
 import Pagination from '@/components/pagination/pagination'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
-import { useAuth } from '@/contexts/auth-context'
 import usePagination from '@/hooks/use-pagination'
-import DefaultLayout from '@/layouts/default-layout'
-import adminService from '@/services/admin-service'
+import AdminLayout from '@/layouts/admin-layout'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { getPaymentsFilterQuery } from '@/utils/filters'
 import { formatCurrency } from '@/utils/format-currency'
@@ -27,30 +20,7 @@ import { urls } from '@/utils/urls'
 const PAYMENTS_PER_PAGE = 10
 
 export default function AdminTransactionsPage() {
-  const auth = useAuth()
-  const router = useRouter()
   const { t, lang } = useTranslation('admin')
-
-  useEffect(() => {
-    const findUser = async () => {
-      try {
-        const { claims } = await adminService.getLoggedInUserPermissions()
-        // If there is no admin role, throw error
-        if (!claims || !claims.includes(FirebaseClaim.admin)) {
-          throw new Error('User is not admin')
-        }
-      } catch (error) {
-        console.error(error)
-        router.push(urls.home)
-      }
-    }
-
-    // Check permissions on page render, after auth token is refreshed so claims are fresh
-    if (auth.user) {
-      findUser()
-    }
-  }, [auth?.user, router])
-
   const { page, setPage, handleTableHeaderClick, sortBy, sortDirection } =
     usePagination<PaymentSortField>(1, PaymentSortField.CreatedAt)
 
@@ -60,32 +30,41 @@ export default function AdminTransactionsPage() {
     sortDirection,
     pageSize: PAYMENTS_PER_PAGE,
   })
-  const { data, isValidating } = useAuthApi<AdminPaymentList>(
+  const { data, isValidating } = useAuthApi<Payments>(
     `${urls.api.v1.admin.getPayments}?${qp}`
   )
 
-  const columns: ColumnDefinitionType<AdminPaymentBase>[] = [
-    { key: 'pack.title', name: t('transactions.table.title') },
+  const columns: ColumnDefinitionType<Payment>[] = [
+    {
+      key: 'pack.title',
+      name: t('transactions.table.Title'),
+      renderer: ({ value, item }) => (
+        <AppLink
+          href={urls.admin.transaction.replace(':transactionId', item.id)}
+        >
+          {value}
+        </AppLink>
+      ),
+    },
     {
       key: 'createdAt',
-      name: t('transactions.table.date'),
+      name: t('transactions.table.Date'),
       renderer: ({ value }) =>
         value ? new Date(value).toLocaleDateString(lang) : null,
       sortable: true,
     },
     {
       key: 'pack.price',
-      name: t('transactions.table.price'),
+      name: t('transactions.table.Amount'),
       renderer: ({ value }) => formatCurrency(value, lang),
     },
-    { key: 'status', name: t('transactions.table.status'), sortable: true },
+    { key: 'status', name: t('transactions.table.Status'), sortable: true },
   ]
 
   const footer = (
     <>
       <div>
         <Pagination
-          className="block"
           currentPage={page}
           total={data?.total || 0}
           pageSize={PAYMENTS_PER_PAGE}
@@ -97,11 +76,13 @@ export default function AdminTransactionsPage() {
   )
 
   return (
-    <DefaultLayout
-      pageTitle={t('common:pageTitles.Transactions')}
-      noPanel
-      width="full"
-    >
+    <AdminLayout pageTitle={t('common:pageTitles.Transactions')}>
+      <Breadcrumbs
+        breadcrumbs={[
+          { label: 'Admin', href: urls.admin.index },
+          { label: 'Transactions' },
+        ]}
+      />
       <Panel
         fullWidth
         title={t('common:pageTitles.Transactions')}
@@ -111,7 +92,7 @@ export default function AdminTransactionsPage() {
         footer={footer}
       >
         <div className="overflow-x-auto">
-          <Table<AdminPaymentBase>
+          <Table<Payment>
             columns={columns}
             data={data?.payments}
             onHeaderClick={handleTableHeaderClick}
@@ -120,7 +101,7 @@ export default function AdminTransactionsPage() {
           />
         </div>
       </Panel>
-    </DefaultLayout>
+    </AdminLayout>
   )
 }
 

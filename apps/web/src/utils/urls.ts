@@ -1,5 +1,7 @@
 export const urls = {
   // Main pages
+  adminTransactions: '/admin/transactions',
+  adminTransaction: '/admin/transactions/:transactionId',
   checkout: '/checkout',
   checkoutPack: '/checkout/:packSlug',
   checkoutPackWithMethod: '/checkout/:packSlug/:method',
@@ -34,10 +36,21 @@ export const urls = {
   privacyPolicy: '#',
   termsAndConditions: '#',
 
+  // Admin
+  admin: {
+    index: '/admin',
+    transactions: '/admin/transactions',
+    transaction: '/admin/transactions/:transactionId',
+  },
+
   api: {
     v1: {
       admin: {
+        getPaymentsForBankAccount:
+          '/api/v1/payments/get-payments-by-bank-account',
         getPayments: '/api/v1/payments/list-payments',
+        revokePack: '/api/v1/asset/revoke',
+        updatePayment: '/api/v1/payments/update-payment',
       },
       addToShowcase: '/api/v1/collection/add-showcase',
       adminGetClaims: '/api/v1/admin/get-claims',
@@ -66,7 +79,6 @@ export const urls = {
       getRedeemable: '/api/v1/asset/get-redeemable',
       getTransfer: '/api/v1/payments/get-transfer-payment',
       getUntransferredPacks: '/api/v1/pack/untransferred',
-      listPayments: '/api/v1/list-payments',
       profile: '/api/v1/profile',
       publicKey: '/api/v1/payments/public-key',
       removeCard: '/api/v1/payments/remove-card',
