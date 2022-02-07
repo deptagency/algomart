@@ -1,3 +1,5 @@
+import DirectusPageService from '../modules/pages/page.service'
+
 import { Configuration } from '@/configuration'
 import AlgoExplorerAdapter from '@/lib/algoexplorer-adapter'
 import AlgorandAdapter from '@/lib/algorand-adapter'
@@ -208,6 +210,11 @@ export function configureResolver() {
   resolver.set(
     AuctionsService.name,
     (c) => new AuctionsService(c.get<AlgorandAdapter>(AlgorandAdapter.name))
+  )
+
+  resolver.set(
+    DirectusPageService.name,
+    (c) => new DirectusPageService(c.get<DirectusAdapter>(DirectusAdapter.name))
   )
   return resolver
 }

@@ -22,6 +22,7 @@ const swaggerOptions: SwaggerOptions = {
       { name: 'collections', description: 'Collection endpoints' },
       { name: 'homepage', description: 'Homepage endpoints' },
       { name: 'packs', description: 'Pack endpoints' },
+      { name: 'page', description: 'Page endpoint' },
       { name: 'payments', description: 'Payment endpoints' },
       { name: 'sets', description: 'Set endpoints' },
     ],

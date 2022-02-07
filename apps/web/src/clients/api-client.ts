@@ -464,4 +464,17 @@ export class ApiClient {
       .json<Homepage>()
   }
   //#endregion
+
+  //#region page
+  async getDirectusPage(title: string, locale: string) {
+    return await this.http
+      .get('page', {
+        searchParams: {
+          locale,
+          title,
+        },
+      })
+      .json()
+  }
+  //#endregion
 }
