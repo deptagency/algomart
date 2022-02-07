@@ -173,3 +173,4 @@ Please see the detailed
 for instructions on how to use the included Terraform templates
 and Github Workflow to create a complete storefront environment
 on Google Cloud Platform.
+
