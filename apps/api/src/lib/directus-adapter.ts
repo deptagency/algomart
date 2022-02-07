@@ -862,7 +862,7 @@ export default class DirectusAdapter {
   }
 
   async getDirectusPage(title, locale = DEFAULT_LOCALE) {
-    const response = await this.http.get('items/Page', {
+    const response = await this.http.get('items/page', {
       searchParams: getParameters({
         filter: {
           title: {
