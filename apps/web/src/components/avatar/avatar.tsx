@@ -49,7 +49,7 @@ export default function Avatar({
         )}
         {!imageOnly && (
           <div className={css.textContent}>
-            <p className={css.text}>
+            <p>
               {prefix && <span>{prefix} </span>}
               <span className={css.username}>@{username}</span>
               {suffix && <span> {suffix}</span>}

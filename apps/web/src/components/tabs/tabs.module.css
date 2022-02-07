@@ -22,7 +22,15 @@
   /* Base: Focus and Hover */
   @apply focus:outline-none focus:bg-action-secondary hover:bg-action-secondary focus:bg-opacity-20 hover:bg-opacity-20;
   /* Tablet + */
-  @apply md:px-0 md:first:rounded-l-lg md:last:rounded-r-lg md:w-40;
+  @apply md:px-0 md:w-40;
+}
+
+.tab:first-of-type {
+  @apply md:rounded-l-lg;
+}
+
+.tab:last-of-type {
+  @apply md:rounded-r-lg;
 }
 
 .tab + .tab {

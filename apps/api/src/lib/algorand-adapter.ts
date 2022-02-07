@@ -192,6 +192,8 @@ export default class AlgorandAdapter {
       address: info.index as number,
       creator: info.params.creator as string,
       unitName: info.params['unit-name'] as string,
+      isFrozen: info['is-frozen'] as boolean,
+      defaultFrozen: info.params['default-frozen'] as boolean,
       url: info.params.url as string,
     }
   }
@@ -455,6 +457,35 @@ export default class AlgorandAdapter {
     }
   }
 
+  async generateClawbackTransactionsFromUser(options: {
+    assetIndex: number
+    fromAccountAddress: string
+    toAccountAddress: string
+  }) {
+    const suggestedParams = await this.algod.getTransactionParams().do()
+
+    // Use a clawback to "revoke" ownership from current owner to the creator,
+    const clawbackTxn =
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        suggestedParams,
+        amount: 1,
+        assetIndex: options.assetIndex,
+        from: this.fundingAccount.addr, // Who is issuing the transaction
+        to: options.toAccountAddress,
+        revocationTarget: options.fromAccountAddress, // Who the asset is being revoked from
+      })
+
+    // Adds a group id to each transaction object
+    algosdk.assignGroupID([clawbackTxn])
+
+    const signedTransactions = [clawbackTxn.signTxn(this.fundingAccount.sk)]
+
+    return {
+      transactionIds: [clawbackTxn.txID()],
+      signedTransactions,
+    }
+  }
+
   async compileContract(source: string): Promise<Uint8Array> {
     const compiled = await this.algod.compile(source).do()
     return new Uint8Array(Buffer.from(compiled.result, 'base64'))
@@ -526,6 +557,78 @@ export default class AlgorandAdapter {
         50_000 * numberGlobalByteSlices,
       optIn:
         100_000 + 28_500 * numberLocalInts + 50_000 * numberLocalByteSlices,
+    }
+  }
+
+  /**
+   * Only allows exporting non-frozen assets
+   */
+  async generateExportTransactions(options: {
+    assetIndex: number
+    encryptedMnemonic: string
+    passphrase: string
+    fromAccountAddress: string
+    toAccountAddress: string
+  }) {
+    const fromAccount = algosdk.mnemonicToSecretKey(
+      decrypt(options.encryptedMnemonic, options.passphrase)
+    )
+
+    const suggestedParams = await this.algod.getTransactionParams().do()
+
+    // Send funds to cover asset transfer transaction
+    const fundsTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      suggestedParams,
+      amount: 2000,
+      from: this.fundingAccount.addr,
+      to: options.fromAccountAddress,
+    })
+
+    // Clear freeze and reserve addresses
+    const configureTxn =
+      algosdk.makeAssetConfigTxnWithSuggestedParamsFromObject({
+        suggestedParams,
+        assetIndex: options.assetIndex,
+        from: this.fundingAccount.addr,
+        strictEmptyAddressChecking: false,
+        manager: this.fundingAccount.addr,
+        clawback: this.fundingAccount.addr,
+      })
+
+    // Transfer asset to recipient and remove opt-in from sender
+    const transferAssetTxn =
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        suggestedParams,
+        assetIndex: options.assetIndex,
+        from: options.fromAccountAddress,
+        to: options.toAccountAddress,
+        amount: 1,
+        closeRemainderTo: options.toAccountAddress,
+      })
+
+    // Return min balance funds to funding account
+    const returnFundsTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      suggestedParams,
+      from: options.fromAccountAddress,
+      to: this.fundingAccount.addr,
+      amount: 100_000,
+    })
+
+    const txns = [fundsTxn, configureTxn, transferAssetTxn, returnFundsTxn]
+
+    algosdk.assignGroupID(txns)
+
+    const signedTxns = [
+      fundsTxn.signTxn(this.fundingAccount.sk),
+      configureTxn.signTxn(this.fundingAccount.sk),
+      transferAssetTxn.signTxn(fromAccount.sk),
+      returnFundsTxn.signTxn(fromAccount.sk),
+    ]
+
+    return {
+      transferTxnId: transferAssetTxn.txID(),
+      transactionIds: txns.map((txn) => txn.txID()),
+      signedTransactions: signedTxns,
     }
   }
 }

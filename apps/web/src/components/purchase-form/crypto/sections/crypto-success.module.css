@@ -3,7 +3,7 @@
 }
 
 .icon {
-  @apply mb-5 mx-auto text-green-600;
+  @apply mb-5 mx-auto text-base-price;
 }
 
 .successHeading {

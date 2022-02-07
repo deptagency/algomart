@@ -174,7 +174,11 @@ function runAction(options, context) {
           directus.on('error', function (error) {
             reject(error)
           })
-          directus.on('exit', function () {
+          directus.on('exit', function (code) {
+            if (code !== 0) {
+              reject(code)
+              return
+            }
             resolve(true)
           })
         }),

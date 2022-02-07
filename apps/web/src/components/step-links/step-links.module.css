@@ -1,0 +1,23 @@
+.stepLinks {
+  @apply flex flex-wrap gap-2 mb-16;
+}
+
+.stepLink {
+  @apply flex justify-between gap-1;
+}
+
+.navLink {
+  @apply flex gap-6 no-underline transition duration-300 text-base-textTertiary hover:text-base-textPrimary;
+}
+
+.navLink.navLinkActive {
+  @apply font-semibold border-b-1 text-base-textPrimary border-action-accent;
+}
+
+.navLink.navLinkDisabled {
+  @apply opacity-60;
+}
+
+.icon {
+  @apply w-5;
+}

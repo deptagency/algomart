@@ -32,7 +32,7 @@
 }
 
 .priceValue {
-  @apply text-lg font-bold text-green-600;
+  @apply text-lg font-bold text-base-price;
 }
 
 .information {

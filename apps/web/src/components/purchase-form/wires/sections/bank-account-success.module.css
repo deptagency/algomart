@@ -1,17 +1,17 @@
 .root {
-  @apply max-w-sm text-center w-full;
+  @apply w-full max-w-sm text-center;
 }
 
 .icon {
-  @apply mb-5 mx-auto text-green-600;
+  @apply mx-auto mb-5 text-base-price;
 }
 
 .successHeading {
-  @apply font-bold mb-16 text-base-textPrimary text-2xl;
+  @apply mb-16 text-2xl font-bold text-base-textPrimary;
 }
 
 .bidPlacedHeading {
-  @apply font-bold text-base-textPrimary text-2xl;
+  @apply text-2xl font-bold text-base-textPrimary;
 }
 
 .button {
@@ -19,11 +19,11 @@
 }
 
 .bidPlacedNotice {
-  @apply text-center pt-6 pb-9;
+  @apply pt-6 text-center pb-9;
 }
 
 .bidPlacedNoticeText {
-  @apply m-auto w-3/4;
+  @apply w-3/4 m-auto;
 }
 
 .bankInstructions {
@@ -39,11 +39,11 @@
 }
 
 .header {
-  @apply font-bold mb-5 text-left;
+  @apply mb-5 font-bold text-left;
 }
 
 .subHeader {
-  @apply font-medium text-left my-5 uppercase;
+  @apply my-5 font-medium text-left uppercase;
 }
 
 .instructions {
@@ -63,9 +63,9 @@
 }
 
 .priceLabel {
-  @apply text-base text-base-gray-medium;
+  @apply text-base text-base-textSecondary;
 }
 
 .priceValue {
-  @apply text-lg font-bold text-green-600;
+  @apply text-lg font-bold text-base-price;
 }

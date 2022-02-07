@@ -63,6 +63,16 @@ To create an account:
 
 - Use the outputted mnemonic within the `.env` file within this project.
 
+### Connect to the CMS
+
+In order for the API to connect to the CMS, the Directus key needs to be inputted into the CMS:
+
+1. Go to your profile (the icon at the very bottom left)
+2. Scroll all the way down to Token, under Admin Options
+3. Paste in the desired API key (has to match `CMS_ACCESS_TOKEN` in apps/api/.env)
+
+### Start
+
 Once everything is configured, you can start everything in development/watch mode:
 
 ```bash

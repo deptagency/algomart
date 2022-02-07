@@ -143,3 +143,6 @@ config/firebase-config.json
 # Local data from CMS
 apps/cms/uploads/*
 !apps/cms/uploads/.gitkeep
+
+# Webstorm IDE folder
+.idea
