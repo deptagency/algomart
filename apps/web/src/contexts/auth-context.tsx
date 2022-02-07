@@ -102,6 +102,7 @@ async function mapUserToProfile(
     photo: user.photoURL,
     token: await user.getIdToken(),
     uid: user.uid,
+    locale: null,
     username: null,
   }
 }
@@ -155,6 +156,7 @@ export function useAuthProvider() {
           ...profile,
           username: profileResponse?.username || null,
           address: profileResponse?.address || null,
+          locale: profileResponse?.locale || null,
         })
       )
     }

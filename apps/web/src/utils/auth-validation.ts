@@ -79,6 +79,11 @@ export const validateUserRegistration = (t: Translate) =>
     locale: locale(),
   })
 
+export const validateLanguage = (t: Translate) =>
+  object({
+    locale: locale(),
+  })
+
 export const validateLogin = (t: Translate) =>
   object({
     email: emailAddress(t),

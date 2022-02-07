@@ -2,7 +2,13 @@ import { CollectibleListWithTotal, LanguageList } from '@algomart/schemas'
 import { ShieldExclamationIcon, UserCircleIcon } from '@heroicons/react/outline'
 import Image from 'next/image'
 import { Translate } from 'next-translate'
-import { ReactNode, useEffect, useState } from 'react'
+import {
+  ChangeEventHandler,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
 import { useDropzone } from 'react-dropzone'
 
 import css from './auth-inputs.module.css'
@@ -45,8 +51,26 @@ export function Email({ error, t }: AuthInputProps) {
   )
 }
 
-export function Language({ error, t }: AuthInputProps) {
+export interface AuthLanguageProps {
+  disabled?: boolean
+  error?: string | unknown
+  handleChange?(option: SelectOption): void
+  showLabel?: boolean
+  t: Translate
+  value: string
+}
+
+export function Language({
+  error,
+  disabled,
+  handleChange,
+  showLabel = true,
+  t,
+  value,
+}: AuthLanguageProps) {
   const [options, setOptions] = useState<SelectOption[]>([])
+  const [selectedValue, setSelectedValue] = useState<SelectOption>()
+
   const locale = useLocale()
 
   useEffect(() => {
@@ -60,9 +84,14 @@ export function Language({ error, t }: AuthInputProps) {
         }))
       )
     }
-
     run()
   }, [locale])
+
+  useEffect(() => {
+    setSelectedValue(
+      options && value ? options.find((option) => option.id === value) : null
+    )
+  }, [options, value])
 
   return (
     <FormField className={css.formField}>
@@ -71,10 +100,13 @@ export function Language({ error, t }: AuthInputProps) {
           className="pl-8"
           defaultOption={options[0]}
           error={error as string}
-          label={t('forms:fields.languages.label')}
+          disabled={disabled}
+          label={showLabel ? t('forms:fields.languages.label') : undefined}
           id="locale"
           name="locale"
           options={options}
+          selectedValue={selectedValue}
+          handleChange={handleChange}
         />
       )}
     </FormField>

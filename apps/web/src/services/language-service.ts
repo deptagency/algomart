@@ -17,6 +17,11 @@ export class LanguageService implements LanguageAPI {
     })
   }
 
+  /**
+   *
+   * @param locale - Locale sent for getting translated language label names
+   * @returns
+   */
   async getLanguages(locale = DEFAULT_LOCALE): Promise<LanguageList> {
     const response = await this.http
       .get(urls.api.v1.getLanguages, {

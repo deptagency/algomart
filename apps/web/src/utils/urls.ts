@@ -86,6 +86,7 @@ export const urls = {
       showcaseCollectible: '/api/v1/collection/collectibles-showcase',
       updateCard: '/api/v1/payments/update-card',
       updateEmail: '/api/v1/profile/update-email',
+      updateLanguage: '/api/v1/profile/update-language',
       updateUsername: '/api/v1/profile/update-username',
       verifyPassphrase: '/api/v1/profile/verify-passphrase',
       verifyUsername: '/api/v1/profile/verify-username',

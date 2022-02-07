@@ -33,6 +33,7 @@ export interface Profile {
   token: string
   uid: string
   username: string | null
+  locale: string | null
   address: string | null
 }
 
