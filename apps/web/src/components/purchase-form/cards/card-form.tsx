@@ -61,7 +61,7 @@ export default function CardForm({
 
   return (
     <section className={css.root}>
-      <CardPurchaseHeader release={release} />
+      <CardPurchaseHeader title={release.title} image={release.image} />
 
       <form
         className={clsx(

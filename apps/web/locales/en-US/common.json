@@ -98,6 +98,7 @@
   "pageTitles": {
     "404": "404",
     "FAQS": "Frequently Asked Questions",
+    "Admin": "Admin",
     "Add Payment Method": "Add Payment Method",
     "Algorand Address": "Algorand Address: {{algoAddress}}",
     "Checking Out": "Checkout for {{name}}",
@@ -118,6 +119,7 @@
     "Security": "Security",
     "Setup Profile": "Setup Profile",
     "Sign Up": "Sign Up",
+    "Transaction": "Transaction",
     "Transactions": "Transactions",
     "User Profile": "@{{name}} Profile"
   },

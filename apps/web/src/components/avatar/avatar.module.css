@@ -1,5 +1,5 @@
 .root {
-  @apply flex-shrink-0 block group;
+  @apply flex-shrink-0 block;
 }
 
 .container {
