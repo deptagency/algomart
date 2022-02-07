@@ -79,7 +79,7 @@ export const rarityFactory = Factory.define<DirectusRarity>('DirectusRarity')
   .attr('color', '#FF0000')
   .attr('translations', ['name'], (name) => [
     {
-      language_code: DEFAULT_LOCALE,
+      languages_code: DEFAULT_LOCALE,
       name,
     },
   ])
@@ -101,7 +101,7 @@ export const collectibleTemplateFactory =
       ['title', 'subtitle', 'body'],
       (title, subtitle, body) => [
         {
-          language_code: DEFAULT_LOCALE,
+          languages_code: DEFAULT_LOCALE,
           title,
           subtitle,
           body,
@@ -136,7 +136,7 @@ export const packTemplateFactory = Factory.define<DirectusPackTemplate>(
     ['title', 'subtitle', 'body'],
     (title, subtitle, body) => [
       {
-        language_code: DEFAULT_LOCALE,
+        languages_code: DEFAULT_LOCALE,
         title,
         subtitle,
         body,

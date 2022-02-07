@@ -35,8 +35,11 @@ export enum DirectusStatus {
   Archived = 'archived',
 }
 
-export interface DirectusPackTemplateTranslation {
-  language_code: string
+export interface DirectusTranslation {
+  languages_code: string
+}
+
+export interface DirectusPackTemplateTranslation extends DirectusTranslation {
   title: string
   subtitle: string | null
   body: string | null
@@ -55,8 +58,7 @@ export interface DirectusPackFile {
   directus_files_id: string
 }
 
-export interface DirectusRarityTranslation {
-  language_code: string
+export interface DirectusRarityTranslation extends DirectusTranslation {
   name: string
 }
 
@@ -67,8 +69,7 @@ export interface DirectusRarity {
   translations: number[] | DirectusRarityTranslation[]
 }
 
-export interface DirectusSetTranslation {
-  language_code: string
+export interface DirectusSetTranslation extends DirectusTranslation {
   name: string
 }
 
@@ -82,8 +83,7 @@ export interface DirectusSet {
   translations: number[] | DirectusSetTranslation[]
 }
 
-export interface DirectusCollectionTranslation {
-  language_code: string
+export interface DirectusCollectionTranslation extends DirectusTranslation {
   name: string
   description: string | null
   metadata: Record<string, string | number | boolean> | null
@@ -103,8 +103,8 @@ export interface DirectusCollection {
   reward_image: string | DirectusFile | null
 }
 
-export interface DirectusCollectibleTemplateTranslation {
-  language_code: string
+export interface DirectusCollectibleTemplateTranslation
+  extends DirectusTranslation {
   title: string
   subtitle: string | null
   body: string | null
@@ -238,6 +238,27 @@ function getParameters<TItem>(query?: ItemQuery<TItem>) {
   return parameters
 }
 
+function getDirectusTranslation<TItem extends DirectusTranslation>(
+  translations: TItem[] & DirectusTranslation[],
+  invariantLabel: string,
+  locale = DEFAULT_LOCALE
+): TItem {
+  invariant(
+    typeof translations != 'number' && translations?.length > 0,
+    `no translations found: ${invariantLabel}`
+  )
+
+  const translation =
+    translations.find((translation) => translation.languages_code === locale) ||
+    translations[0]
+  invariant(
+    translation !== undefined && typeof translation !== 'number',
+    invariantLabel
+  )
+
+  return translation as TItem
+}
+
 // #endregion
 
 // #region Mappers
@@ -268,16 +289,15 @@ export function toHomepageBase(homepage: DirectusHomepage): HomepageBase {
   }
 }
 
-export function toSetBase(set: DirectusSet): SetBase {
+export function toSetBase(set: DirectusSet, locale = DEFAULT_LOCALE): SetBase {
   const { id, slug, translations, nft_templates } = set
 
-  invariant(translations.length > 0, `collection ${id} has no translations`)
-  const translation = translations[0]
-  invariant(
-    translation !== undefined && typeof translation !== 'number',
-    'no translation found'
+  const { name } = getDirectusTranslation<DirectusSetTranslation>(
+    translations as DirectusSetTranslation[],
+    `set ${id} has no translations`,
+    locale
   )
-  const { name } = translation
+
   const collectibleTemplateIds = isStringArray(nft_templates)
     ? nft_templates
     : nft_templates.map((t) => t.id)
@@ -292,7 +312,8 @@ export function toSetBase(set: DirectusSet): SetBase {
 
 export function toCollectionBase(
   collection: DirectusCollection,
-  getFileURL: GetFileURL
+  getFileURL: GetFileURL,
+  locale: string
 ): CollectionBase {
   const {
     id,
@@ -304,12 +325,12 @@ export function toCollectionBase(
     collection_image,
   } = collection
 
-  invariant(translations.length > 0, `collection ${id} has no translations`)
-  const translation = translations[0]
-  invariant(
-    translation !== undefined && typeof translation !== 'number',
-    'no translation found'
+  const translation = getDirectusTranslation<DirectusCollectionTranslation>(
+    translations as DirectusCollectionTranslation[],
+    `collection ${id} has no translations`,
+    locale
   )
+
   invariant(
     !sets || !isStringArray(sets),
     'sets should not be an array of strings when provided'
@@ -343,23 +364,25 @@ export function toCollectionBase(
 
 export function toSetWithCollection(
   set: DirectusSet,
-  getFileURL: GetFileURL
+  getFileURL: GetFileURL,
+  locale = DEFAULT_LOCALE
 ): SetWithCollection {
-  const base = toSetBase(set)
+  const base = toSetBase(set, locale)
 
   invariant(typeof set.collection !== 'string', 'collection must be an object')
 
   return {
     ...base,
-    collection: toCollectionBase(set.collection, getFileURL),
+    collection: toCollectionBase(set.collection, getFileURL, locale),
   }
 }
 
 export function toCollectionWithSets(
   collection: DirectusCollection,
-  getFileURL: GetFileURL
+  getFileURL: GetFileURL,
+  locale = DEFAULT_LOCALE
 ): CollectionWithSets {
-  const base = toCollectionBase(collection, getFileURL)
+  const base = toCollectionBase(collection, getFileURL, locale)
 
   invariant(!isStringArray(collection.sets), 'sets must be an array of objects')
 
@@ -371,20 +394,24 @@ export function toCollectionWithSets(
 
 export function toCollectibleBase(
   template: DirectusCollectibleTemplate,
-  getFileURL: GetFileURL
+  getFileURL: GetFileURL,
+  locale = DEFAULT_LOCALE
 ): CollectibleBase {
-  const translation = template.translations[0]
-  invariant(
-    translation !== undefined && typeof translation !== 'number',
-    'no translation found'
-  )
+  const translation =
+    getDirectusTranslation<DirectusCollectibleTemplateTranslation>(
+      template.translations as DirectusCollectibleTemplateTranslation[],
+      `collectible ${template.id} has no translations`,
+      locale
+    )
 
   const rarity = template.rarity as DirectusRarity
-  const [rarityTranslation] = rarity?.translations || []
-  invariant(
-    rarityTranslation === undefined || typeof rarityTranslation !== 'number',
-    'expected rarity to include translations'
-  )
+  const rarityTranslation = rarity
+    ? getDirectusTranslation<DirectusRarityTranslation>(
+        rarity?.translations as DirectusRarityTranslation[],
+        'expected rarity to include translations',
+        locale
+      )
+    : undefined
 
   let collectionId =
     typeof template.collection === 'string'
@@ -428,10 +455,7 @@ export function toCollectibleBase(
       ? {
           code: rarity.code,
           color: rarity.color,
-          name:
-            typeof rarityTranslation !== 'number'
-              ? rarityTranslation?.name
-              : undefined,
+          name: rarityTranslation?.name,
         }
       : undefined,
   }
@@ -458,13 +482,13 @@ export function toStatus(template: DirectusPackTemplate) {
 
 export function toPackBase(
   template: DirectusPackTemplate,
-  getFileURL: GetFileURL
+  getFileURL: GetFileURL,
+  locale = DEFAULT_LOCALE
 ): PackBase {
-  const translation = template
-    .translations[0] as DirectusPackTemplateTranslation
-  invariant(
-    translation !== undefined && typeof translation !== 'number',
-    'no translation found'
+  const translation = getDirectusTranslation<DirectusPackTemplateTranslation>(
+    template.translations as DirectusPackTemplateTranslation[],
+    `pack ${template.id} has no translations`,
+    locale
   )
 
   return {
@@ -662,15 +686,6 @@ export default class DirectusAdapter {
       limit: pageSize,
       // Sort by released_at in descending order
       sort: ['-released_at'],
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: {
-              _eq: locale,
-            },
-          },
-        },
-      },
       filter: {
         ...filter,
       },
@@ -684,7 +699,7 @@ export default class DirectusAdapter {
 
     return {
       packs: response.data.map((template) =>
-        toPackBase(template, this.getFileURL.bind(this))
+        toPackBase(template, this.getFileURL.bind(this), locale)
       ),
       total: response.meta.filter_count,
     }
@@ -699,18 +714,11 @@ export default class DirectusAdapter {
         },
         ...filter,
       },
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: locale,
-          },
-        },
-      },
     })
 
     if (response.data.length === 0) return null
     const pack = response.data[0]
-    return toPackBase(pack, this.getFileURL.bind(this))
+    return toPackBase(pack, this.getFileURL.bind(this), locale)
   }
 
   async findAllCollectibles(
@@ -742,20 +750,6 @@ export default class DirectusAdapter {
         'set.collection.id',
         'collection',
       ],
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: locale,
-          },
-        },
-        rarity: {
-          translations: {
-            _filter: {
-              languages_code: locale,
-            },
-          },
-        },
-      },
       filterCount: true,
     })
 
@@ -766,7 +760,7 @@ export default class DirectusAdapter {
 
     return {
       collectibles: response.data.map((template) =>
-        toCollectibleBase(template, this.getFileURL.bind(this))
+        toCollectibleBase(template, this.getFileURL.bind(this), locale)
       ),
       total: response.meta.filter_count,
     }
@@ -786,24 +780,6 @@ export default class DirectusAdapter {
         'sets.slug',
         'sets.translations.*',
       ],
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: {
-              _eq: locale,
-            },
-          },
-        },
-        sets: {
-          translations: {
-            _filter: {
-              languages_code: {
-                _eq: locale,
-              },
-            },
-          },
-        },
-      },
       filterCount: true,
     })
 
@@ -814,7 +790,7 @@ export default class DirectusAdapter {
 
     return {
       collections: response.data.map((c) =>
-        toCollectionWithSets(c, this.getFileURL.bind(this))
+        toCollectionWithSets(c, this.getFileURL.bind(this), locale)
       ),
       total: response.meta.filter_count,
     }
@@ -843,29 +819,11 @@ export default class DirectusAdapter {
         'slug',
         'translations.*',
       ],
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: {
-              _eq: locale,
-            },
-          },
-        },
-        sets: {
-          translations: {
-            _filter: {
-              languages_code: {
-                _eq: locale,
-              },
-            },
-          },
-        },
-      },
     })
 
     if (response.data.length === 0) return null
     const collection = response.data[0]
-    return toCollectionWithSets(collection, this.getFileURL.bind(this))
+    return toCollectionWithSets(collection, this.getFileURL.bind(this), locale)
   }
 
   async findSetBySlug(slug: string, locale = DEFAULT_LOCALE) {
@@ -891,29 +849,11 @@ export default class DirectusAdapter {
         'translations.*',
       ],
       limit: 1,
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: {
-              _eq: locale,
-            },
-          },
-        },
-        sets: {
-          translations: {
-            _filter: {
-              languages_code: {
-                _eq: locale,
-              },
-            },
-          },
-        },
-      },
     })
 
     if (response.data.length === 0) return null
     const set = response.data[0]
-    return toSetWithCollection(set, this.getFileURL.bind(this))
+    return toSetWithCollection(set, this.getFileURL.bind(this), locale)
   }
 
   async findHomepage() {
