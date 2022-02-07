@@ -4,6 +4,7 @@ import { Model } from 'objection'
 import { BaseModel } from './base.model'
 import { BidModel } from './bid.model'
 import { CollectibleModel } from './collectible.model'
+import { PaymentModel } from './payment.model'
 import { UserAccountModel } from './user-account.model'
 
 export class PackModel extends BaseModel {
@@ -21,6 +22,7 @@ export class PackModel extends BaseModel {
   collectibles?: CollectibleModel[]
   bids?: BidModel[]
   activeBid?: BidModel
+  payment?: PaymentModel
 
   static relationMappings = () => ({
     owner: {
@@ -53,6 +55,14 @@ export class PackModel extends BaseModel {
       join: {
         from: 'Pack.activeBidId',
         to: 'Bid.id',
+      },
+    },
+    payment: {
+      relation: Model.HasOneRelation,
+      modelClass: PaymentModel,
+      join: {
+        from: 'Pack.id',
+        to: 'Payment.packId',
       },
     },
   })

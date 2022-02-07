@@ -1,6 +1,15 @@
 import { Static, Type } from '@sinclair/typebox'
 
-import { BaseSchema, IdSchema, Nullable, Simplify } from './shared'
+import { UserAccountSchema } from './accounts'
+import { PackWithIdSchema } from './packs'
+import {
+  BaseSchema,
+  IdSchema,
+  Nullable,
+  PaginationSchema,
+  Simplify,
+  SortDirection,
+} from './shared'
 
 // #region Enums
 
@@ -173,11 +182,18 @@ export enum PaymentBankAccountStatus {
 export enum CirclePaymentSourceType {
   card = 'card',
   ach = 'ach',
+  sepa = 'sepa',
+  wire = 'wire',
+}
+
+export enum CircleTransferSourceType {
+  wallet = 'wallet',
 }
 
 export enum CirclePaymentQueryType {
   card = 'card',
   ach = 'ach',
+  sepa = 'sepa',
   wire = 'wire',
 }
 
@@ -194,6 +210,12 @@ export enum CheckoutStatus {
   success = 'success',
   error = 'error',
   summary = 'summary',
+}
+
+export enum PaymentSortField {
+  CreatedAt = 'createdAt',
+  UpdatedAt = 'updatedAt',
+  Status = 'status',
 }
 
 // #endregion
@@ -226,8 +248,8 @@ export const ToPaymentBaseSchema = Type.Object({
     ])
   ),
   amount: Type.String(),
-  sourceId: Type.Optional(Type.String({ format: 'uuid' })),
   action: Type.Optional(Type.String({ format: 'uri' })),
+  sourceId: Type.Optional(Type.String()),
 })
 
 const PaymentBaseSchema = Type.Object({
@@ -267,7 +289,6 @@ export const SendBankAccountInstructionsSchema = Type.Object({
   bankAccountId: IdSchema,
   ownerExternalId: Type.String(),
 })
-
 // #endregion
 // #region Circle
 
@@ -513,6 +534,8 @@ const CircleWalletSchema = Type.Object({
 })
 
 const CirclePaymentQuerySchema = Type.Object({
+  source: Type.Optional(Type.String()),
+  settlementId: Type.Optional(Type.String()),
   type: Type.Optional(Type.Enum(CirclePaymentQueryType)),
   from: Type.Optional(Type.String({ type: 'date-time' })),
   to: Type.Optional(Type.String({ type: 'date-time' })),
@@ -523,9 +546,6 @@ const CirclePaymentQuerySchema = Type.Object({
 })
 
 const CircleTransferQuerySchema = Type.Object({
-  walletId: Type.Optional(Type.String()),
-  sourceWalletId: Type.Optional(Type.String()),
-  destinationWalletId: Type.Optional(Type.String()),
   from: Type.Optional(Type.String({ type: 'date-time' })),
   to: Type.Optional(Type.String({ type: 'date-time' })),
   pageBefore: Type.Optional(Type.String()),
@@ -598,18 +618,48 @@ export const GetPaymentCardStatusSchema = Type.Object({
   status: Type.Optional(Type.Enum(PaymentCardStatus)),
 })
 
+export const PaymentQuerystringSchema = Type.Object({
+  isAdmin: Type.Optional(Type.Boolean()),
+})
+
 export const PaymentSchema = Type.Intersect([
   BaseSchema,
   PaymentBaseSchema,
-  Type.Omit(ToPaymentBaseSchema, ['externalId', 'amount', 'sourceId']),
+  Type.Omit(ToPaymentBaseSchema, ['externalId', 'amount', 'error']),
   Type.Object({
-    externalId: Nullable(Type.String({ format: 'uuid' })),
+    externalId: Nullable(Type.Optional(Type.String({ format: 'uuid' }))),
+    amount: Type.Optional(Type.String()),
+    sourceId: Type.Optional(Type.String()),
+    pack: Type.Optional(PackWithIdSchema),
+    payer: Type.Optional(UserAccountSchema),
   }),
 ])
 
 export const PaymentIdSchema = Type.Object({
   paymentId: Type.String(),
 })
+
+export const PaymentsSchema = Type.Object({
+  payments: Type.Array(PaymentSchema),
+  total: Type.Number(),
+})
+
+export const PaymentsQuerystringSchema = Type.Intersect([
+  PaginationSchema,
+  Type.Object({
+    locale: Type.Optional(Type.String()),
+    packId: Type.Optional(Type.String({ format: 'uuid' })),
+    packSlug: Type.Optional(Type.String()),
+    payerExternalId: Type.Optional(Type.String()),
+    payerUsername: Type.Optional(Type.String()),
+    sortBy: Type.Optional(
+      Type.Enum(PaymentSortField, { default: PaymentSortField.UpdatedAt })
+    ),
+    sortDirection: Type.Optional(
+      Type.Enum(SortDirection, { default: SortDirection.Ascending })
+    ),
+  }),
+])
 
 export const PaymentCardSchema = Type.Intersect([
   BaseSchema,
@@ -695,10 +745,23 @@ export const PublicKeySchema = Type.Object({
   publicKey: Type.String(),
 })
 
+export const UpdatePaymentSchema = Type.Object({
+  externalId: Type.Optional(Type.String()),
+  status: Type.Enum(PaymentStatus),
+})
+
 export const UpdatePaymentCardSchema = Type.Object({
   default: Type.Boolean(),
   ownerExternalId: Type.String(),
 })
+
+export const WirePaymentSchema = Type.Intersect([
+  BaseSchema,
+  ToPaymentBaseSchema,
+  Type.Object({
+    type: Type.Optional(Type.Enum(CheckoutMethod)),
+  }),
+])
 
 // #endregion
 // #region Types
@@ -789,6 +852,13 @@ export type PaymentBankAccountInstructions = Simplify<
 >
 export type PaymentCard = Simplify<Static<typeof PaymentCardSchema>>
 export type PaymentCards = Simplify<Static<typeof PaymentCardsSchema>>
+export type PaymentQuerystring = Simplify<
+  Static<typeof PaymentQuerystringSchema>
+>
+export type Payments = Simplify<Static<typeof PaymentsSchema>>
+export type PaymentsQuerystring = Simplify<
+  Static<typeof PaymentsQuerystringSchema>
+>
 export type PublicKey = Simplify<Static<typeof PublicKeySchema>>
 export type SendBankAccountInstructions = Simplify<
   Static<typeof SendBankAccountInstructionsSchema>
@@ -798,7 +868,9 @@ export type ToPaymentBankAccountBase = Simplify<
 >
 export type ToPaymentBase = Simplify<Static<typeof ToPaymentBaseSchema>>
 export type ToPaymentCardBase = Simplify<Static<typeof ToPaymentCardBaseSchema>>
+export type UpdatePayment = Simplify<Static<typeof UpdatePaymentSchema>>
 export type UpdatePaymentCard = Simplify<Static<typeof UpdatePaymentCardSchema>>
+export type WirePayment = Simplify<Static<typeof WirePaymentSchema>>
 
 // #endregion
 // #region Success/error response

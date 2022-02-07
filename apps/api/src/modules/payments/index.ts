@@ -17,11 +17,16 @@ import {
   PaymentBankAccountInstructionsSchema,
   PaymentCardsSchema,
   PaymentIdSchema,
+  PaymentQuerystringSchema,
   PaymentSchema,
+  PaymentsQuerystringSchema,
+  PaymentsSchema,
   PublicKeySchema,
   SendBankAccountInstructionsSchema,
   ToPaymentBaseSchema,
   UpdatePaymentCardSchema,
+  UpdatePaymentSchema,
+  WirePaymentSchema,
 } from '@algomart/schemas'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
@@ -34,16 +39,19 @@ import {
   createTransferPayment,
   createWalletAddress,
   findTransferByAddress,
+  findWirePaymentsByBankId,
   getBankAccountStatus,
   getCards,
   getCardStatus,
   getCurrency,
   getPaymentById,
+  getPayments,
   getPublicKey,
   getWireTransferInstructions,
   removeCard,
   sendWireTransferInstructions,
   updateCard,
+  updatePayment,
 } from './payments.routes'
 
 import bearerAuthOptions from '@/configuration/bearer-auth'
@@ -67,12 +75,27 @@ export async function paymentRoutes(app: FastifyInstance) {
   // Services/Routes
   app
     .get(
+      '/',
+      {
+        schema: {
+          tags,
+          security,
+          querystring: PaymentsQuerystringSchema,
+          response: {
+            200: PaymentsSchema,
+          },
+        },
+      },
+      getPayments
+    )
+    .get(
       '/:paymentId',
       {
         schema: {
           tags,
           security,
           params: PaymentIdSchema,
+          querystring: PaymentQuerystringSchema,
           response: {
             200: PaymentSchema,
           },
@@ -149,6 +172,20 @@ export async function paymentRoutes(app: FastifyInstance) {
       },
       getWireTransferInstructions
     )
+    .get(
+      '/bank-accounts/:bankAccountId/payments',
+      {
+        schema: {
+          tags,
+          security,
+          params: BankAccountIdSchema,
+          response: {
+            200: Type.Array(WirePaymentSchema),
+          },
+        },
+      },
+      findWirePaymentsByBankId
+    )
     .post(
       '/',
       {
@@ -163,6 +200,21 @@ export async function paymentRoutes(app: FastifyInstance) {
         },
       },
       createPayment
+    )
+    .patch(
+      '/:paymentId',
+      {
+        schema: {
+          tags,
+          security,
+          params: PaymentIdSchema,
+          body: UpdatePaymentSchema,
+          response: {
+            201: PaymentSchema,
+          },
+        },
+      },
+      updatePayment
     )
     .post(
       '/transfers',

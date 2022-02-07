@@ -16,6 +16,8 @@ Key technologies used:
 
 ## Get started
 
+Create an `.env` file from `.env.example`
+
 Since the frontend relies heavily on the other packages within the monorepo, it is recommended to run the project in tandem with the packages it depends upon. Install all dependencies from the root of the monorepo:
 
 ```bash

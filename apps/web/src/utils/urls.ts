@@ -1,5 +1,7 @@
 export const urls = {
   // Main pages
+  adminTransactions: '/admin/transactions',
+  adminTransaction: '/admin/transactions/:transactionId',
   checkout: '/checkout',
   checkoutPack: '/checkout/:packSlug',
   checkoutPackWithMethod: '/checkout/:packSlug/:method',
@@ -15,6 +17,8 @@ export const urls = {
   myProfileTransactions: '/my/profile/transactions',
   mySet: '/my/sets/:setSlug',
   myShowcase: '/my/showcase',
+  nft: '/nft/:assetId',
+  nftTransfer: '/nft/:assetId/transfer',
   packOpening: '/pack-opening/:packId',
   redeem: '/redeem',
   release: '/releases/:packSlug',
@@ -32,8 +36,22 @@ export const urls = {
   privacyPolicy: '#',
   termsAndConditions: '#',
 
+  // Admin
+  admin: {
+    index: '/admin',
+    transactions: '/admin/transactions',
+    transaction: '/admin/transactions/:transactionId',
+  },
+
   api: {
     v1: {
+      admin: {
+        getPaymentsForBankAccount:
+          '/api/v1/payments/get-payments-by-bank-account',
+        getPayments: '/api/v1/payments/list-payments',
+        revokePack: '/api/v1/asset/revoke',
+        updatePayment: '/api/v1/payments/update-payment',
+      },
       addToShowcase: '/api/v1/collection/add-showcase',
       adminGetClaims: '/api/v1/admin/get-claims',
       adminUpdateClaims: '/api/v1/admin/update-claims',
@@ -47,6 +65,7 @@ export const urls = {
       createCard: '/api/v1/payments/create-card',
       createPayment: '/api/v1/payments/create-payment',
       createTransfer: '/api/v1/payments/create-transfer-payment',
+      exportCollectible: '/api/v1/asset/export',
       getAllCollections: '/api/v1/collection/get-all-collections',
       getAssetsByAlgoAddress: '/api/v1/asset/get-by-algo-address',
       getAssetsByOwner: '/api/v1/asset/get-by-owner',

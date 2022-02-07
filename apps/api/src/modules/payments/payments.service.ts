@@ -8,6 +8,7 @@ import {
   CreateTransferPayment,
   CreateWalletAddress,
   DEFAULT_CURRENCY,
+  DEFAULT_LOCALE,
   EventAction,
   EventEntityType,
   NotificationType,
@@ -15,10 +16,17 @@ import {
   PackType,
   PaymentBankAccountStatus,
   PaymentCardStatus,
+  Payments,
+  PaymentSortField,
+  PaymentsQuerystring,
   PaymentStatus,
   SendBankAccountInstructions,
+  SortDirection,
   ToPaymentBase,
+  UpdatePayment,
   UpdatePaymentCard,
+  UserAccount,
+  WirePayment,
 } from '@algomart/schemas'
 import { enc, SHA256 } from 'crypto-js'
 import { URL } from 'node:url'
@@ -29,6 +37,7 @@ import CircleAdapter from '@/lib/circle-adapter'
 import CoinbaseAdapter from '@/lib/coinbase-adapter'
 import { BidModel } from '@/models/bid.model'
 import { EventModel } from '@/models/event.model'
+import { PackModel } from '@/models/pack.model'
 import { PaymentModel } from '@/models/payment.model'
 import { PaymentBankAccountModel } from '@/models/payment-bank-account.model'
 import { PaymentCardModel } from '@/models/payment-card.model'
@@ -63,6 +72,118 @@ export default class PaymentsService {
     } catch {
       return null
     }
+  }
+
+  async getPayments({
+    locale = DEFAULT_LOCALE,
+    page = 1,
+    pageSize = 10,
+    packId,
+    packSlug,
+    payerExternalId,
+    payerUsername,
+    sortBy = PaymentSortField.UpdatedAt,
+    sortDirection = SortDirection.Ascending,
+  }: PaymentsQuerystring): Promise<Payments> {
+    let account: UserAccount
+    userInvariant(page > 0, 'page must be greater than 0')
+    userInvariant(
+      pageSize > 0 || pageSize === -1,
+      'pageSize must be greater than 0'
+    )
+    userInvariant(
+      [
+        PaymentSortField.UpdatedAt,
+        PaymentSortField.CreatedAt,
+        PaymentSortField.Status,
+      ].includes(sortBy),
+      'sortBy must be one of createdAt, updatedAt, or status'
+    )
+    userInvariant(
+      [SortDirection.Ascending, SortDirection.Descending].includes(
+        sortDirection
+      ),
+      'sortDirection must be one of asc or desc'
+    )
+
+    // Find payer
+    const userIdentifier = payerExternalId || payerUsername
+    const field = payerUsername ? 'username' : 'externalId'
+    if (userIdentifier) {
+      account = await UserAccountModel.query()
+        .findOne(field, '=', userIdentifier)
+        .select('id')
+      userInvariant(account, 'user not found', 404)
+    }
+
+    const packIds = []
+    const packLookup = new Map()
+
+    // Add pack ID to packs array if available
+    if (packId) {
+      const packDetails = await this.packs.getPackById(packId)
+      const { packs: packTemplates } = await this.packs.getPublishedPacks({
+        templateIds: [packDetails.templateId],
+      })
+      const packTemplate = packTemplates.find(
+        (t) => t.templateId === packDetails.templateId
+      )
+      if (packTemplate) {
+        packIds.push(packId)
+        packLookup.set(packId, {
+          ...packTemplate,
+          ...packDetails,
+        })
+      }
+    }
+
+    // Find packs and add pack IDs to array if available
+    const packQuery: { locale?: string; slug?: string } = {}
+    if (locale) packQuery.locale = locale
+    if (packSlug) packQuery.slug = packSlug
+    if (Object.keys(packQuery).length > 0) {
+      const { packs: packTemplates } = await this.packs.getPublishedPacks(
+        packQuery
+      )
+      const templateIds = packTemplates.map((p) => p.templateId)
+      const templateLookup = new Map(
+        packTemplates.map((p) => [p.templateId, p])
+      )
+      const packList = await PackModel.query()
+        .whereIn('templateId', templateIds)
+        .withGraphFetched('activeBid')
+      packList.map((p) => {
+        const template = templateLookup.get(p.templateId)
+        packIds.push(p.id)
+        packLookup.set(p.id, {
+          ...template,
+          ...p,
+          activeBid: p?.activeBid?.amount,
+        })
+      })
+    }
+
+    // Find payments in the database
+    const query = PaymentModel.query()
+    if (account?.id) query.where('payerId', '=', account.id)
+    if (packIds && packIds.length > 0) {
+      if (!account?.id) {
+        query.whereIn('packId', packIds)
+      } else {
+        query.orWhereIn('packId', packIds)
+      }
+    }
+
+    const { results, total } = await query
+      .orderBy(sortBy, sortDirection)
+      .page(page >= 1 ? page - 1 : page, pageSize)
+
+    const payments = results.map((payment) => ({
+      ...payment,
+      pack: packLookup.get(payment.packId),
+    }))
+
+    return { payments, total }
   }
 
   async getCardStatus(cardId: string) {
@@ -162,14 +283,11 @@ export default class PaymentsService {
         expYear: cardDetails.expirationYear,
         metadata: cardDetails.metadata,
       })
-      .catch((error) => {
-        this.logger.error(error, 'failed to create payment card')
+      .catch(() => {
         return null
       })
 
-    if (!card) {
-      return null
-    }
+    invariant(card, 'failed to create card')
 
     // Create new card in database
     if (cardDetails.saveCard && card) {
@@ -607,22 +725,9 @@ export default class PaymentsService {
     trx?: Transaction
   ): Promise<ToPaymentBase | null> {
     if (!payment.id || !payment.paymentBankId || !payment.packId) return null
-    // Find bank account in database
-    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+    const payments = await this.searchAllWirePaymentsByBankId(
       payment.paymentBankId
     )
-    userInvariant(foundBankAccount, 'bank account was not found', 404)
-
-    // Last 24 hours
-    const newDate24HoursInPast = new Date(
-      new Date().setDate(new Date().getDate() - 1)
-    ).toISOString()
-
-    // Get recent payments of wire type
-    const payments = await this.circle.getPayments({
-      from: newDate24HoursInPast.toString(),
-      type: CirclePaymentQueryType.wire,
-    })
     if (!payments) return null
 
     // Retrieve exchange rates for app currency and USD
@@ -631,16 +736,19 @@ export default class PaymentsService {
     })
     invariant(exchangeRates, 'unable to find exchange rates')
 
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      payment.paymentBankId
+    )
+    userInvariant(foundBankAccount, 'bank account was not found', 404)
+
     // Find payment with matching source ID
     const sourcePayment = payments.find((currentPayment) => {
       // Convert price to USD for payment
       const amount = convertFromUSD(currentPayment.amount, exchangeRates.rates)
       invariant(amount !== null, 'unable to convert to currency')
       const amountInt = formatFloatToInt(amount)
-      return (
-        currentPayment.sourceId === foundBankAccount.externalId &&
-        amountInt === foundBankAccount.amount
-      )
+      return amountInt === foundBankAccount.amount
     })
     if (!sourcePayment) return null
     // Update payment details
@@ -653,9 +761,69 @@ export default class PaymentsService {
     return sourcePayment
   }
 
-  async getPaymentById(paymentId: string) {
-    const payment = await PaymentModel.query().findById(paymentId)
+  async searchAllWirePaymentsByBankId(
+    bankAccountId: string
+  ): Promise<WirePayment[]> {
+    userInvariant(
+      bankAccountId,
+      'bank account identifier was not provided',
+      400
+    )
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      bankAccountId
+    )
+    userInvariant(foundBankAccount, 'bank account was not found', 404)
+
+    // Get payments of wire type, since the date when the payment was created
+    const dateCreated = new Date(foundBankAccount.createdAt).toISOString()
+    const matchingPayments = await this.circle.getPayments({
+      from: dateCreated.toString(),
+      type: CirclePaymentQueryType.wire,
+      source: foundBankAccount.externalId,
+    })
+    return matchingPayments || []
+  }
+
+  async getPaymentById(paymentId: string, isAdmin?: boolean) {
+    const payment = await PaymentModel.query()
+      .findById(paymentId)
+      .withGraphFetched('pack')
+      .withGraphFetched('payer')
     userInvariant(payment, 'payment not found', 404)
+    if (isAdmin) {
+      const { pack } = payment
+      invariant(pack?.templateId, 'pack template not found')
+      const { packs: packTemplates } = await this.packs.getPublishedPacks({
+        templateIds: [pack.templateId],
+      })
+      const packTemplate = packTemplates[0]
+      return {
+        ...payment,
+        pack: {
+          ...packTemplate,
+          ...pack,
+        },
+      }
+    }
+    return payment
+  }
+
+  async updatePayment(
+    paymentId: string,
+    updatedDetails: UpdatePayment,
+    trx?: Transaction
+  ) {
+    const payment = await PaymentModel.query(trx).findById(paymentId)
+    userInvariant(payment, 'payment not found', 404)
+    // Update payment with new details
+    await PaymentModel.query(trx).findById(paymentId).patch(updatedDetails)
+
+    await EventModel.query(trx).insert({
+      action: EventAction.Update,
+      entityType: EventEntityType.Payment,
+      entityId: paymentId,
+    })
     return payment
   }
 
