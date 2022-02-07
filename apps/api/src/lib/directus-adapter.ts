@@ -146,14 +146,13 @@ export interface DirectusPackTemplate {
   type: PackType
 }
 
+export interface DirectusFaqTemplateTranslation extends DirectusTranslation {
+  question: string | null
+  answer: string | null
+}
+
 export interface DirectusFaqTemplate {
-  translations: {
-    languages_code: string
-    question: string | null
-    answer: string | null
-  }[]
-  question: string
-  answer: string
+  translations: DirectusFaqTemplateTranslation[]
 }
 
 // #endregion
@@ -873,15 +872,6 @@ export default class DirectusAdapter {
           _eq: DirectusStatus.Published,
         },
       },
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: {
-              _eq: locale,
-            },
-          },
-        },
-      },
       limit: -1,
       fields: ['*.*'],
     }
@@ -892,7 +882,7 @@ export default class DirectusAdapter {
 
     // simplify response
     return response.data.map((d) =>
-      d.translations.find((t) => t.languages_code === locale)
+      getDirectusTranslation(d.translations, `faq has no translations`, locale)
     )
   }
 
