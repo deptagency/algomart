@@ -120,7 +120,8 @@
     "Sign Up": "Sign Up",
     "Transaction": "Transaction",
     "Transactions": "Transactions",
-    "User Profile": "@{{name}} Profile"
+    "User Profile": "@{{name}} Profile",
+    "Users": "Users"
   },
   "nav": {
     "aria": {

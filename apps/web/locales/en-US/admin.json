@@ -7,6 +7,13 @@
       "Amount": "Amount",
       "Status": "Status"
     },
+    "users": {
+      "table": {
+        "Username": "Username",
+        "Email": "Email",
+        "Created": "Created"
+      }
+    },
     "Customer": "Customer",
     "markAsPaid": "Mark as paid",
     "markAsPaidDesc": "Marking the transaction as paid removes the pending state from the transaction so the system will stop polling Circle. Use this action when a payment is made through any means outside of the system.",
