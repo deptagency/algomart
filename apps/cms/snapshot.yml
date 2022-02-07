@@ -2028,7 +2028,7 @@ fields:
       translations: null
       note: null
       conditions: null
-      required: false
+      required: true
       group: null
   - collection: faqs_translations
     field: answer
