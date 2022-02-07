@@ -85,7 +85,10 @@ export class WalletConnectAdapter extends EventEmitter implements IConnector {
     await this._connector.killSession()
   }
 
-  public async signTransaction(transaction: Transaction, message?: string) {
+  public async signTransaction(
+    transaction: Transaction,
+    message?: string
+  ): Promise<Uint8Array> {
     try {
       if (!this._connector) throw new Error('WalletConnect not initialized')
 

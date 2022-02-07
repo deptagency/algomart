@@ -284,6 +284,7 @@ export function usePaymentProvider({
         })
 
         if (expValidation.state === 'invalid') {
+          setPromptLeaving(false)
           setFormErrors(expValidation.errors)
           handleSetStatus(CheckoutStatus.form)
           return
@@ -323,6 +324,7 @@ export function usePaymentProvider({
           .catch(async (error) => {
             const response = await error.response.json()
             mapCircleErrors(response.code)
+            setPromptLeaving(false)
             handleSetStatus(CheckoutStatus.form)
             return null
           })
@@ -398,6 +400,7 @@ export function usePaymentProvider({
         })
 
         if (bankValidation.state === 'invalid') {
+          setPromptLeaving(false)
           setFormErrors(bankValidation.errors)
           handleSetStatus(CheckoutStatus.form)
           return
@@ -426,6 +429,7 @@ export function usePaymentProvider({
           .catch(async (error) => {
             const response = await error.response.json()
             mapCircleErrors(response.code)
+            setPromptLeaving(false)
             handleSetStatus(CheckoutStatus.form)
             return null
           })

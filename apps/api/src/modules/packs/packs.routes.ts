@@ -11,6 +11,7 @@ import {
   PackTemplateId,
   PublishedPacksQuery,
   RedeemCode,
+  RevokePack,
   TransferPack,
 } from '@algomart/schemas'
 import { FastifyReply, FastifyRequest } from 'fastify'
@@ -144,6 +145,19 @@ export async function mintPackStatus(
   reply.send({
     status,
   })
+}
+
+export async function revokePack(
+  request: FastifyRequest<{ Body: RevokePack }>,
+  reply: FastifyReply
+) {
+  const service = request.getContainer().get<PacksService>(PacksService.name)
+  const result = await service.revokePack(request.body, request.transaction)
+  if (!result) {
+    reply.badRequest('Unable to revoke pack')
+    return
+  }
+  reply.status(204).send()
 }
 
 export async function transferPack(

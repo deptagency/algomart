@@ -17,6 +17,7 @@ import {
   PublishedPacksQuerySchema,
   PublishedPacksSchema,
   RedeemCodeSchema,
+  RevokePackSchema,
   TransferPackSchema,
   TransferPackStatusListSchema,
 } from '@algomart/schemas'
@@ -34,6 +35,7 @@ import {
   getPublishedPacks,
   getRedeemablePack,
   mintPackStatus,
+  revokePack,
   transferPack,
   transferPackStatus,
   untransferredPacks,
@@ -206,6 +208,23 @@ export async function packsRoutes(app: FastifyInstance) {
       },
     },
     mintPackStatus
+  )
+
+  app.post(
+    '/revoke',
+    {
+      schema: {
+        tags,
+        security,
+        body: RevokePackSchema,
+        description:
+          'Used to revoke a pack and collectibles from a user back to the creator.',
+        response: {
+          204: Type.Null(),
+        },
+      },
+    },
+    revokePack
   )
 
   app.post(
