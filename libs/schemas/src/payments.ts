@@ -1,7 +1,7 @@
 import { Static, Type } from '@sinclair/typebox'
 
 import { UserAccountSchema } from './accounts'
-import { PackWithIdSchema } from './packs'
+import { PackSchema } from './packs'
 import {
   BaseSchema,
   IdSchema,
@@ -607,7 +607,7 @@ export const PaymentSchema = Type.Intersect([
     externalId: Nullable(Type.Optional(Type.String({ format: 'uuid' }))),
     amount: Type.Optional(Type.String()),
     sourceId: Type.Optional(Type.String()),
-    pack: Type.Optional(PackWithIdSchema),
+    pack: Type.Optional(PackSchema),
     payer: Type.Optional(UserAccountSchema),
   }),
 ])
