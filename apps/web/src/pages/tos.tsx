@@ -27,12 +27,17 @@ export default function TosPage({ page }: TosProps) {
 }
 
 export async function getStaticProps(context: GetStaticPropsContext) {
-  return {
-    props: {
-      page: await ApiClient.instance.getDirectusPage(
-        'tos',
-        context.locale || DEFAULT_LOCALE
-      ),
-    },
+  try {
+    const page = await ApiClient.instance.getDirectusPage(
+      'tos',
+      context.locale || DEFAULT_LOCALE
+    )
+    return {
+      props: {
+        page,
+      },
+    }
+  } catch {
+    return { notFound: true }
   }
 }

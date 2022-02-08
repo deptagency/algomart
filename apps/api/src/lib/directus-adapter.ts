@@ -877,9 +877,11 @@ export default class DirectusAdapter {
     })
 
     if (response.statusCode === 200) {
+      const data = JSON.parse(response.body).data
+      if (!Array.isArray(data) || (Array.isArray(data) && data.length === 0))
+        return null
       return getDirectusTranslation<DirectusPageTranslation>(
-        JSON.parse(response.body).data[0]
-          .translations as DirectusPageTranslation[],
+        data[0].translations as DirectusPageTranslation[],
         `No translations found for page ${title}`,
         locale
       )
