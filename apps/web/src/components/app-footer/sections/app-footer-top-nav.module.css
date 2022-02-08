@@ -2,7 +2,7 @@
   @apply md:bg-base-bgCard;
 }
 
-.topNavWrapper {
+@layer topNavWrapper {
   /* Base */
   @apply mx-auto max-w-wrapper;
   /* Tablet + */
