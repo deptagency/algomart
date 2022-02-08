@@ -26,6 +26,7 @@ import {
 
 import { Analytics } from '@/clients/firebase-analytics'
 import loadFirebase from '@/clients/firebase-client'
+import { useLocale } from '@/hooks/use-locale'
 import {
   AuthState,
   AuthUtils,
@@ -118,6 +119,8 @@ export function useAuth(throwError = true) {
 }
 
 export function useAuthProvider() {
+  const locale = useLocale()
+
   const reloadProfile = useCallback(async () => {
     const auth = getAuth(loadFirebase())
     const token = await auth.currentUser?.getIdToken(true)
@@ -142,6 +145,22 @@ export function useAuthProvider() {
       if (profileResponse.email !== auth.currentUser.email) {
         await fetch(urls.api.v1.updateEmail, {
           body: JSON.stringify({ email: auth.currentUser.email }),
+          headers: {
+            authorization: `bearer ${token}`,
+            'content-type': 'application/json',
+          },
+          method: 'PUT',
+        })
+      }
+
+      /**
+       * When a user not logged in changes their preferred language,
+       * we update the cookie. This takes precedence over their value in the DB,
+       * and as such we need to update the DB to reflect this
+       */
+      if (profileResponse.locale !== locale) {
+        await fetch(urls.api.v1.updateLanguage, {
+          body: JSON.stringify({ locale }),
           headers: {
             authorization: `bearer ${token}`,
             'content-type': 'application/json',

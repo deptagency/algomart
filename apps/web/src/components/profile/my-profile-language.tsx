@@ -13,6 +13,7 @@ import css from './my-profile-language.module.css'
 import Button from '@/components/button'
 import Heading from '@/components/heading'
 import { useAuth } from '@/contexts/auth-context'
+import { useLocale } from '@/hooks/use-locale'
 import authService from '@/services/auth-service'
 import { validateLanguage } from '@/utils/auth-validation'
 import { setCookie } from '@/utils/cookies-web'
@@ -21,9 +22,7 @@ export default function MyProfileLanguage() {
   const { user, reloadProfile } = useAuth()
   const [formErrors, setFormErrors] = useState<ExtractError<typeof validate>>()
   const [isEditing, setIsEditing] = useState<boolean>(false)
-  const [language, setLanguage] = useState<string>(
-    user.locale || DEFAULT_LOCALE
-  )
+  const [language, setLanguage] = useState<string>(useLocale())
   const [loading, setLoading] = useState<boolean>(false)
   const [updateError, setUpdateError] = useState<string>('')
   const [updateSuccess, setUpdateSuccess] = useState<boolean>(false)

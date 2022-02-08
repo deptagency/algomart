@@ -11,6 +11,7 @@ module.exports = withNx(
     images: {
       domains: process.env.IMAGE_DOMAINS?.split(',') || [],
     },
+    localeDetection: false,
     webpack: (config) => {
       config.experiments = {
         ...config.experiments,
