@@ -1,6 +1,6 @@
 import { DEFAULT_LOCALE } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useMemo, useState } from 'react'
 import { ExtractError } from 'validator-fns'
 
 import { Language } from '../auth-inputs/auth-inputs'
@@ -46,8 +46,6 @@ export default function MyProfileLanguage() {
         setLoading(false)
         return
       }
-
-      console.log(language)
 
       // Update language
       const updateLanguage = await authService.updateLanguage(body.language)
