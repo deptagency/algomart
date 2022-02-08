@@ -2,7 +2,7 @@
   @apply md:bg-base-bgCard;
 }
 
-@layer topNavWrapper {
+.topNavWrapper {
   /* Base */
   @apply mx-auto max-w-wrapper;
   /* Tablet + */
@@ -30,7 +30,7 @@
 }
 .topNavSocialMediaLinks {
   /* Base */
-  @apply topNavWrapper block mb-4 text-sm transition duration-300 outline-none text-base-gray-medium focus:text-black hover:text-base-textPrimary;
+  @apply mx-auto max-w-wrapper block mb-4 text-sm transition duration-300 outline-none text-base-gray-medium focus:text-black hover:text-base-textPrimary;
   /* Tablet + */
-  @apply md:inline md:mb-0;
+  @apply md:space-x-20 md:px-4 md:py-12 md:inline md:mb-0;
 }
