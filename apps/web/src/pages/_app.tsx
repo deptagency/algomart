@@ -1,3 +1,4 @@
+import { RTL_LOCALES } from '@algomart/schemas'
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
@@ -36,6 +37,12 @@ function MyApp({ Component, pageProps }: AppProps) {
       router.events.off('routeChangeComplete', Analytics.instance.screenView)
     }
   }, []) /* eslint-disable-line react-hooks/exhaustive-deps */
+
+  useEffect(() => {
+    document.documentElement.dir = RTL_LOCALES.includes(locale.split('-')[0])
+      ? 'rtl'
+      : 'ltr'
+  }, [locale])
 
   return (
     <SWRConfig value={{ fetcher }}>

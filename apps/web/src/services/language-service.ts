@@ -23,15 +23,19 @@ export class LanguageService implements LanguageAPI {
    * @returns
    */
   async getLanguages(locale = DEFAULT_LOCALE): Promise<LanguageList> {
-    const response = await this.http
-      .get(urls.api.v1.getLanguages, {
-        searchParams: {
-          locale,
-        },
-      })
-      .json<LanguageList>()
+    try {
+      const response = await this.http
+        .get(urls.api.v1.getLanguages, {
+          searchParams: {
+            locale,
+          },
+        })
+        .json<LanguageList>()
 
-    return response
+      return response
+    } catch {
+      return null
+    }
   }
 }
 

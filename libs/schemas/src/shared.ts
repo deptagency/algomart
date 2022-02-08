@@ -2,7 +2,22 @@ import { Static, TSchema, Type } from '@sinclair/typebox'
 
 export const DEFAULT_CURRENCY = 'USD'
 export const DEFAULT_LOCALE = 'en-US'
+
 export const LOCALE_COOKIE = 'locale'
+export const RTL_LOCALES: string[] = [
+  'ar',
+  'arc',
+  'dv',
+  'fa',
+  'ha',
+  'he',
+  'khw',
+  'ks',
+  'ku',
+  'ps',
+  'ur',
+  'yi',
+]
 
 export const AlgoAddressSchema = Type.Object({
   algoAddress: Type.String({ maxLength: 58, minLength: 58 }),

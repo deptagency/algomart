@@ -1,4 +1,8 @@
-import { CollectibleListWithTotal, LanguageList } from '@algomart/schemas'
+import {
+  CollectibleListWithTotal,
+  DEFAULT_LOCALE,
+  LanguageList,
+} from '@algomart/schemas'
 import { ShieldExclamationIcon, UserCircleIcon } from '@heroicons/react/outline'
 import Image from 'next/image'
 import { Translate } from 'next-translate'
@@ -75,17 +79,27 @@ export function Language({
 
   useEffect(() => {
     const run = async () => {
-      const languages = await languageService.getLanguages(locale)
+      try {
+        const languages = await languageService.getLanguages(locale)
 
-      setOptions(
-        languages?.map((language) => ({
-          id: language.languages_code,
-          label: language.label,
-        }))
-      )
+        setOptions(
+          languages.map((language) => ({
+            id: language.languages_code,
+            label: language.label,
+          }))
+        )
+      } catch {
+        // if service fails, at least let them set English
+        setOptions([
+          {
+            id: DEFAULT_LOCALE,
+            label: t('common:global.language'),
+          },
+        ])
+      }
     }
     run()
-  }, [locale])
+  }, [locale, t])
 
   useEffect(() => {
     setSelectedValue(
