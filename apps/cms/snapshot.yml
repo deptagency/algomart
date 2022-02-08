@@ -6090,92 +6090,136 @@ fields:
       required: false
       group: null
 relations:
-  - collection: faqs_translations
-    field: languages_code
-    related_collection: languages
+  - collection: collections
+    field: user_created
+    related_collection: directus_users
     schema:
-      table: faqs_translations
-      column: languages_code
-      foreign_key_table: languages
-      foreign_key_column: code
-      foreign_key_schema: public
-      constraint_name: faqs_translations_languages_code_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: faqs_translations
-      many_field: languages_code
-      one_collection: languages
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: faqs_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: faqs_translations
-    field: faqs_id
-    related_collection: faqs
-    schema:
-      table: faqs_translations
-      column: faqs_id
-      foreign_key_table: faqs
+      table: collections
+      column: user_created
+      foreign_key_table: directus_users
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: faqs_translations_faqs_id_foreign
+      constraint_name: collections_user_created_foreign
       on_update: NO ACTION
-      on_delete: SET NULL
+      on_delete: NO ACTION
     meta:
-      many_collection: faqs_translations
-      many_field: faqs_id
-      one_collection: faqs
-      one_field: translations
+      many_collection: collections
+      many_field: user_created
+      one_collection: directus_users
+      one_field: null
       one_collection_field: null
       one_allowed_collections: null
-      junction_field: languages_code
+      junction_field: null
       sort_field: null
       one_deselect_action: nullify
-  - collection: languages_translations
-    field: language_id
-    related_collection: languages
+  - collection: collections
+    field: user_updated
+    related_collection: directus_users
     schema:
-      table: languages_translations
-      column: language_id
-      foreign_key_table: languages
-      foreign_key_column: code
+      table: collections
+      column: user_updated
+      foreign_key_table: directus_users
+      foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: languages_translations_language_id_foreign
+      constraint_name: collections_user_updated_foreign
       on_update: NO ACTION
-      on_delete: SET NULL
+      on_delete: NO ACTION
     meta:
-      many_collection: languages_translations
-      many_field: language_id
-      one_collection: languages
+      many_collection: collections
+      many_field: user_updated
+      one_collection: directus_users
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: collections
+    field: collection_image
+    related_collection: directus_files
+    schema:
+      table: collections
+      column: collection_image
+      foreign_key_table: directus_files
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: collections_collection_image_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: collections
+      many_field: collection_image
+      one_collection: directus_files
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: collections
+    field: reward_image
+    related_collection: directus_files
+    schema:
+      table: collections
+      column: reward_image
+      foreign_key_table: directus_files
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: collections_reward_image_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: collections
+      many_field: reward_image
+      one_collection: directus_files
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: collections_translations
+    field: collections_id
+    related_collection: collections
+    schema:
+      table: collections_translations
+      column: collections_id
+      foreign_key_table: collections
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: collections_translations_collections_id_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: collections_translations
+      many_field: collections_id
+      one_collection: collections
       one_field: translations
       one_collection_field: null
       one_allowed_collections: null
       junction_field: languages_code
       sort_field: null
       one_deselect_action: nullify
-  - collection: languages_translations
+  - collection: collections_translations
     field: languages_code
     related_collection: languages
     schema:
-      table: languages_translations
+      table: collections_translations
       column: languages_code
       foreign_key_table: languages
       foreign_key_column: code
       foreign_key_schema: public
-      constraint_name: languages_translations_languages_code_foreign
+      constraint_name: collections_translations_languages_code_foreign
       on_update: NO ACTION
-      on_delete: SET NULL
+      on_delete: NO ACTION
     meta:
-      many_collection: languages_translations
+      many_collection: collections_translations
       many_field: languages_code
       one_collection: languages
       one_field: null
       one_collection_field: null
       one_allowed_collections: null
-      junction_field: language_id
+      junction_field: collections_id
       sort_field: null
       one_deselect_action: nullify
   - collection: homepage
@@ -6200,42 +6244,20 @@ relations:
       junction_field: null
       sort_field: null
       one_deselect_action: nullify
-  - collection: rarities
-    field: user_updated
-    related_collection: directus_users
-    schema:
-      table: rarities
-      column: user_updated
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: rarities_user_updated_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: rarities
-      many_field: user_updated
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: rarities
+  - collection: nft_templates
     field: user_created
     related_collection: directus_users
     schema:
-      table: rarities
+      table: nft_templates
       column: user_created
       foreign_key_table: directus_users
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: rarities_user_created_foreign
+      constraint_name: nft_templates_user_created_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
-      many_collection: rarities
+      many_collection: nft_templates
       many_field: user_created
       one_collection: directus_users
       one_field: null
@@ -6245,21 +6267,21 @@ relations:
       sort_field: null
       one_deselect_action: nullify
   - collection: nft_templates
-    field: asset_file
-    related_collection: directus_files
+    field: user_updated
+    related_collection: directus_users
     schema:
       table: nft_templates
-      column: asset_file
-      foreign_key_table: directus_files
+      column: user_updated
+      foreign_key_table: directus_users
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: nft_templates_asset_file_foreign
+      constraint_name: nft_templates_user_updated_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
       many_collection: nft_templates
-      many_field: asset_file
-      one_collection: directus_files
+      many_field: user_updated
+      one_collection: directus_users
       one_field: null
       one_collection_field: null
       one_allowed_collections: null
@@ -6267,130 +6289,20 @@ relations:
       sort_field: null
       one_deselect_action: nullify
   - collection: nft_templates
-    field: homepage
-    related_collection: homepage
-    schema:
-      table: nft_templates
-      column: homepage
-      foreign_key_table: homepage
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: nft_templates_homepage_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: nft_templates
-      many_field: homepage
-      one_collection: homepage
-      one_field: notable_collectibles
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: nft_templates
-    field: collection
-    related_collection: collections
-    schema:
-      table: nft_templates
-      column: collection
-      foreign_key_table: collections
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: nft_templates_collection_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: nft_templates
-      many_field: collection
-      one_collection: collections
-      one_field: nft_templates
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: nft_templates
-    field: set
-    related_collection: sets
-    schema:
-      table: nft_templates
-      column: set
-      foreign_key_table: sets
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: nft_templates_set_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: nft_templates
-      many_field: set
-      one_collection: sets
-      one_field: nft_templates
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: nft_templates
-    field: rarity
-    related_collection: rarities
-    schema:
-      table: nft_templates
-      column: rarity
-      foreign_key_table: rarities
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: nft_templates_rarity_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: nft_templates
-      many_field: rarity
-      one_collection: rarities
-      one_field: nft_templates
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: nft_templates
-    field: pack_template
-    related_collection: pack_templates
-    schema:
-      table: nft_templates
-      column: pack_template
-      foreign_key_table: pack_templates
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: nft_templates_pack_template_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: nft_templates
-      many_field: pack_template
-      one_collection: pack_templates
-      one_field: nft_templates
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: nft_templates
-    field: preview_audio
+    field: preview_image
     related_collection: directus_files
     schema:
       table: nft_templates
-      column: preview_audio
+      column: preview_image
       foreign_key_table: directus_files
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: nft_templates_preview_audio_foreign
+      constraint_name: nft_templates_preview_image_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
       many_collection: nft_templates
-      many_field: preview_audio
+      many_field: preview_image
       one_collection: directus_files
       one_field: null
       one_collection_field: null
@@ -6421,20 +6333,20 @@ relations:
       sort_field: null
       one_deselect_action: nullify
   - collection: nft_templates
-    field: preview_image
+    field: preview_audio
     related_collection: directus_files
     schema:
       table: nft_templates
-      column: preview_image
+      column: preview_audio
       foreign_key_table: directus_files
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: nft_templates_preview_image_foreign
+      constraint_name: nft_templates_preview_audio_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
       many_collection: nft_templates
-      many_field: preview_image
+      many_field: preview_audio
       one_collection: directus_files
       one_field: null
       one_collection_field: null
@@ -6443,87 +6355,175 @@ relations:
       sort_field: null
       one_deselect_action: nullify
   - collection: nft_templates
-    field: user_updated
-    related_collection: directus_users
+    field: pack_template
+    related_collection: pack_templates
     schema:
       table: nft_templates
-      column: user_updated
-      foreign_key_table: directus_users
+      column: pack_template
+      foreign_key_table: pack_templates
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: nft_templates_user_updated_foreign
+      constraint_name: nft_templates_pack_template_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
       many_collection: nft_templates
-      many_field: user_updated
-      one_collection: directus_users
-      one_field: null
+      many_field: pack_template
+      one_collection: pack_templates
+      one_field: nft_templates
       one_collection_field: null
       one_allowed_collections: null
       junction_field: null
       sort_field: null
       one_deselect_action: nullify
   - collection: nft_templates
-    field: user_created
-    related_collection: directus_users
+    field: rarity
+    related_collection: rarities
     schema:
       table: nft_templates
-      column: user_created
-      foreign_key_table: directus_users
+      column: rarity
+      foreign_key_table: rarities
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: nft_templates_user_created_foreign
+      constraint_name: nft_templates_rarity_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
       many_collection: nft_templates
-      many_field: user_created
-      one_collection: directus_users
-      one_field: null
+      many_field: rarity
+      one_collection: rarities
+      one_field: nft_templates
       one_collection_field: null
       one_allowed_collections: null
       junction_field: null
       sort_field: null
       one_deselect_action: nullify
-  - collection: pack_templates
+  - collection: nft_templates
+    field: set
+    related_collection: sets
+    schema:
+      table: nft_templates
+      column: set
+      foreign_key_table: sets
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: nft_templates_set_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: nft_templates
+      many_field: set
+      one_collection: sets
+      one_field: nft_templates
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: nft_templates
+    field: collection
+    related_collection: collections
+    schema:
+      table: nft_templates
+      column: collection
+      foreign_key_table: collections
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: nft_templates_collection_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: nft_templates
+      many_field: collection
+      one_collection: collections
+      one_field: nft_templates
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: nft_templates
     field: homepage
     related_collection: homepage
     schema:
-      table: pack_templates
+      table: nft_templates
       column: homepage
       foreign_key_table: homepage
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: pack_templates_homepage_foreign
+      constraint_name: nft_templates_homepage_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
-      many_collection: pack_templates
+      many_collection: nft_templates
       many_field: homepage
       one_collection: homepage
-      one_field: upcoming_packs
+      one_field: notable_collectibles
       one_collection_field: null
       one_allowed_collections: null
       junction_field: null
       sort_field: null
       one_deselect_action: nullify
-  - collection: pack_templates
-    field: pack_image
-    related_collection: directus_files
+  - collection: nft_templates_translations
+    field: nft_templates_id
+    related_collection: nft_templates
     schema:
-      table: pack_templates
-      column: pack_image
-      foreign_key_table: directus_files
+      table: nft_templates_translations
+      column: nft_templates_id
+      foreign_key_table: nft_templates
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: pack_templates_pack_image_foreign
+      constraint_name: nft_templates_translations_nft_templates_id_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: nft_templates_translations
+      many_field: nft_templates_id
+      one_collection: nft_templates
+      one_field: translations
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: languages_code
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: nft_templates_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      table: nft_templates_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: nft_templates_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: nft_templates_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: nft_templates_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: pack_templates
+    field: user_created
+    related_collection: directus_users
+    schema:
+      table: pack_templates
+      column: user_created
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: pack_templates_user_created_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
       many_collection: pack_templates
-      many_field: pack_image
-      one_collection: directus_files
+      many_field: user_created
+      one_collection: directus_users
       one_field: null
       one_collection_field: null
       one_allowed_collections: null
@@ -6553,109 +6553,109 @@ relations:
       sort_field: null
       one_deselect_action: nullify
   - collection: pack_templates
-    field: user_created
-    related_collection: directus_users
+    field: pack_image
+    related_collection: directus_files
     schema:
       table: pack_templates
-      column: user_created
-      foreign_key_table: directus_users
+      column: pack_image
+      foreign_key_table: directus_files
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: pack_templates_user_created_foreign
+      constraint_name: pack_templates_pack_image_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
       many_collection: pack_templates
-      many_field: user_created
-      one_collection: directus_users
+      many_field: pack_image
+      one_collection: directus_files
       one_field: null
       one_collection_field: null
       one_allowed_collections: null
       junction_field: null
       sort_field: null
       one_deselect_action: nullify
-  - collection: rarities_translations
-    field: languages_code
-    related_collection: languages
+  - collection: pack_templates
+    field: homepage
+    related_collection: homepage
     schema:
-      table: rarities_translations
-      column: languages_code
-      foreign_key_table: languages
-      foreign_key_column: code
+      table: pack_templates
+      column: homepage
+      foreign_key_table: homepage
+      foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: rarities_translations_languages_code_foreign
+      constraint_name: pack_templates_homepage_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
-      many_collection: rarities_translations
-      many_field: languages_code
-      one_collection: languages
+      many_collection: pack_templates
+      many_field: homepage
+      one_collection: homepage
+      one_field: upcoming_packs
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: pack_templates_directus_files
+    field: directus_files_id
+    related_collection: directus_files
+    schema:
+      table: pack_templates_directus_files
+      column: directus_files_id
+      foreign_key_table: directus_files
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: pack_templates_directus_files_directus_files_id_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: pack_templates_directus_files
+      many_field: directus_files_id
+      one_collection: directus_files
       one_field: null
       one_collection_field: null
       one_allowed_collections: null
-      junction_field: rarities_id
+      junction_field: pack_templates_id
       sort_field: null
       one_deselect_action: nullify
-  - collection: rarities_translations
-    field: rarities_id
-    related_collection: rarities
+  - collection: pack_templates_directus_files
+    field: pack_templates_id
+    related_collection: pack_templates
     schema:
-      table: rarities_translations
-      column: rarities_id
-      foreign_key_table: rarities
+      table: pack_templates_directus_files
+      column: pack_templates_id
+      foreign_key_table: pack_templates
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: rarities_translations_rarities_id_foreign
+      constraint_name: pack_templates_directus_files_pack_templates_id_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
-      many_collection: rarities_translations
-      many_field: rarities_id
-      one_collection: rarities
-      one_field: translations
+      many_collection: pack_templates_directus_files
+      many_field: pack_templates_id
+      one_collection: pack_templates
+      one_field: additional_images
       one_collection_field: null
       one_allowed_collections: null
-      junction_field: languages_code
-      sort_field: null
+      junction_field: directus_files_id
+      sort_field: sort
       one_deselect_action: nullify
-  - collection: nft_templates_translations
-    field: languages_code
-    related_collection: languages
+  - collection: pack_templates_translations
+    field: pack_templates_id
+    related_collection: pack_templates
     schema:
-      table: nft_templates_translations
-      column: languages_code
-      foreign_key_table: languages
-      foreign_key_column: code
-      foreign_key_schema: public
-      constraint_name: nft_templates_translations_languages_code_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: nft_templates_translations
-      many_field: languages_code
-      one_collection: languages
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: nft_templates_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: nft_templates_translations
-    field: nft_templates_id
-    related_collection: nft_templates
-    schema:
-      table: nft_templates_translations
-      column: nft_templates_id
-      foreign_key_table: nft_templates
+      table: pack_templates_translations
+      column: pack_templates_id
+      foreign_key_table: pack_templates
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: nft_templates_translations_nft_templates_id_foreign
+      constraint_name: pack_templates_translations_pack_templates_id_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
-      many_collection: nft_templates_translations
-      many_field: nft_templates_id
-      one_collection: nft_templates
+      many_collection: pack_templates_translations
+      many_field: pack_templates_id
+      one_collection: pack_templates
       one_field: translations
       one_collection_field: null
       one_allowed_collections: null
@@ -6684,152 +6684,20 @@ relations:
       junction_field: pack_templates_id
       sort_field: null
       one_deselect_action: nullify
-  - collection: pack_templates_translations
-    field: pack_templates_id
-    related_collection: pack_templates
-    schema:
-      table: pack_templates_translations
-      column: pack_templates_id
-      foreign_key_table: pack_templates
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: pack_templates_translations_pack_templates_id_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: pack_templates_translations
-      many_field: pack_templates_id
-      one_collection: pack_templates
-      one_field: translations
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: languages_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: pack_templates_directus_files
-    field: pack_templates_id
-    related_collection: pack_templates
-    schema:
-      table: pack_templates_directus_files
-      column: pack_templates_id
-      foreign_key_table: pack_templates
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: pack_templates_directus_files_pack_templates_id_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: pack_templates_directus_files
-      many_field: pack_templates_id
-      one_collection: pack_templates
-      one_field: additional_images
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: directus_files_id
-      sort_field: sort
-      one_deselect_action: nullify
-  - collection: pack_templates_directus_files
-    field: directus_files_id
-    related_collection: directus_files
-    schema:
-      table: pack_templates_directus_files
-      column: directus_files_id
-      foreign_key_table: directus_files
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: pack_templates_directus_files_directus_files_id_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: pack_templates_directus_files
-      many_field: directus_files_id
-      one_collection: directus_files
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: pack_templates_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: collections
-    field: reward_image
-    related_collection: directus_files
-    schema:
-      table: collections
-      column: reward_image
-      foreign_key_table: directus_files
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: collections_reward_image_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: collections
-      many_field: reward_image
-      one_collection: directus_files
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: collections
-    field: collection_image
-    related_collection: directus_files
-    schema:
-      table: collections
-      column: collection_image
-      foreign_key_table: directus_files
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: collections_collection_image_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: collections
-      many_field: collection_image
-      one_collection: directus_files
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: collections
-    field: user_updated
-    related_collection: directus_users
-    schema:
-      table: collections
-      column: user_updated
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: collections_user_updated_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: collections
-      many_field: user_updated
-      one_collection: directus_users
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: collections
+  - collection: rarities
     field: user_created
     related_collection: directus_users
     schema:
-      table: collections
+      table: rarities
       column: user_created
       foreign_key_table: directus_users
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: collections_user_created_foreign
+      constraint_name: rarities_user_created_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
-      many_collection: collections
+      many_collection: rarities
       many_field: user_created
       one_collection: directus_users
       one_field: null
@@ -6838,67 +6706,89 @@ relations:
       junction_field: null
       sort_field: null
       one_deselect_action: nullify
-  - collection: collections_translations
-    field: languages_code
-    related_collection: languages
+  - collection: rarities
+    field: user_updated
+    related_collection: directus_users
     schema:
-      table: collections_translations
-      column: languages_code
-      foreign_key_table: languages
-      foreign_key_column: code
+      table: rarities
+      column: user_updated
+      foreign_key_table: directus_users
+      foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: collections_translations_languages_code_foreign
+      constraint_name: rarities_user_updated_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
-      many_collection: collections_translations
-      many_field: languages_code
-      one_collection: languages
+      many_collection: rarities
+      many_field: user_updated
+      one_collection: directus_users
       one_field: null
       one_collection_field: null
       one_allowed_collections: null
-      junction_field: collections_id
+      junction_field: null
       sort_field: null
       one_deselect_action: nullify
-  - collection: collections_translations
-    field: collections_id
-    related_collection: collections
+  - collection: rarities_translations
+    field: rarities_id
+    related_collection: rarities
     schema:
-      table: collections_translations
-      column: collections_id
-      foreign_key_table: collections
+      table: rarities_translations
+      column: rarities_id
+      foreign_key_table: rarities
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: collections_translations_collections_id_foreign
+      constraint_name: rarities_translations_rarities_id_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
-      many_collection: collections_translations
-      many_field: collections_id
-      one_collection: collections
+      many_collection: rarities_translations
+      many_field: rarities_id
+      one_collection: rarities
       one_field: translations
       one_collection_field: null
       one_allowed_collections: null
       junction_field: languages_code
       sort_field: null
       one_deselect_action: nullify
+  - collection: rarities_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      table: rarities_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: rarities_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: rarities_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: rarities_id
+      sort_field: null
+      one_deselect_action: nullify
   - collection: sets
-    field: collection
-    related_collection: collections
+    field: user_created
+    related_collection: directus_users
     schema:
       table: sets
-      column: collection
-      foreign_key_table: collections
+      column: user_created
+      foreign_key_table: directus_users
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: sets_collection_foreign
+      constraint_name: sets_user_created_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
       many_collection: sets
-      many_field: collection
-      one_collection: collections
-      one_field: sets
+      many_field: user_created
+      one_collection: directus_users
+      one_field: null
       one_collection_field: null
       one_allowed_collections: null
       junction_field: null
@@ -6927,25 +6817,47 @@ relations:
       sort_field: null
       one_deselect_action: nullify
   - collection: sets
-    field: user_created
-    related_collection: directus_users
+    field: collection
+    related_collection: collections
     schema:
       table: sets
-      column: user_created
-      foreign_key_table: directus_users
+      column: collection
+      foreign_key_table: collections
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: sets_user_created_foreign
+      constraint_name: sets_collection_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
       many_collection: sets
-      many_field: user_created
-      one_collection: directus_users
-      one_field: null
+      many_field: collection
+      one_collection: collections
+      one_field: sets
       one_collection_field: null
       one_allowed_collections: null
       junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: sets_translations
+    field: sets_id
+    related_collection: sets
+    schema:
+      table: sets_translations
+      column: sets_id
+      foreign_key_table: sets
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: sets_translations_sets_id_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: sets_translations
+      many_field: sets_id
+      one_collection: sets
+      one_field: translations
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: languages_code
       sort_field: null
       one_deselect_action: nullify
   - collection: sets_translations
@@ -6970,22 +6882,110 @@ relations:
       junction_field: sets_id
       sort_field: null
       one_deselect_action: nullify
-  - collection: sets_translations
-    field: sets_id
-    related_collection: sets
+  - collection: nft_templates
+    field: asset_file
+    related_collection: directus_files
     schema:
-      table: sets_translations
-      column: sets_id
-      foreign_key_table: sets
+      table: nft_templates
+      column: asset_file
+      foreign_key_table: directus_files
       foreign_key_column: id
       foreign_key_schema: public
-      constraint_name: sets_translations_sets_id_foreign
+      constraint_name: nft_templates_asset_file_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
     meta:
-      many_collection: sets_translations
-      many_field: sets_id
-      one_collection: sets
+      many_collection: nft_templates
+      many_field: asset_file
+      one_collection: directus_files
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: faqs_translations
+    field: faqs_id
+    related_collection: faqs
+    schema:
+      table: faqs_translations
+      column: faqs_id
+      foreign_key_table: faqs
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: faqs_translations_faqs_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: faqs_translations
+      many_field: faqs_id
+      one_collection: faqs
+      one_field: translations
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: languages_code
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: faqs_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      table: faqs_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: faqs_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: faqs_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: faqs_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: languages_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      table: languages_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: languages_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: languages_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: language_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: languages_translations
+    field: language_id
+    related_collection: languages
+    schema:
+      table: languages_translations
+      column: language_id
+      foreign_key_table: languages
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: languages_translations_language_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: languages_translations
+      many_field: language_id
+      one_collection: languages
       one_field: translations
       one_collection_field: null
       one_allowed_collections: null
