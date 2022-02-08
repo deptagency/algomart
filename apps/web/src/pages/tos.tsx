@@ -8,6 +8,8 @@ import DefaultLayout from '@/layouts/default-layout'
  * This could probably be changed to a generic 'page' component where the page title is passed as a prop, but
  * next.js doesn't allow SSR on components
  */
+
+//TODO: Add css to this page
 interface TosProps {
   page: {
     title: string
