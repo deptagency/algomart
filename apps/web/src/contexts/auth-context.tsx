@@ -109,9 +109,9 @@ async function mapUserToProfile(
 
 export const AuthContext = createContext<AuthUtils | null>(null)
 
-export function useAuth() {
+export function useAuth(throwError = true) {
   const auth = useContext(AuthContext)
-  if (!auth) {
+  if (!auth && throwError) {
     throw new Error('AuthProvider missing')
   }
   return auth

@@ -10,14 +10,21 @@ import CookieConsent from '@/components/cookie-consent/cookie-consent'
 import { AuthProvider } from '@/contexts/auth-context'
 import { RedemptionProvider } from '@/contexts/redemption-context'
 import { ThemeProvider } from '@/contexts/theme-context'
+import { useLocale } from '@/hooks/use-locale'
 import { fetcher } from '@/utils/swr'
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
+  const locale = useLocale()
 
   useEffect(() => {
     // First page load
     Analytics.instance.screenView(window.location.pathname)
+    router.push(
+      { pathname: router.pathname, query: router.query },
+      router.asPath,
+      { locale }
+    )
 
     // Route changes
     router.events.on('routeChangeComplete', (event) => {

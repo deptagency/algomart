@@ -57,7 +57,7 @@ export interface AuthLanguageProps {
   handleChange?(option: SelectOption): void
   showLabel?: boolean
   t: Translate
-  value: string
+  value?: string
 }
 
 export function Language({
