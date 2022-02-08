@@ -781,8 +781,8 @@ export default class PaymentsService {
       return {
         ...payment,
         pack: {
-          ...packTemplate,
           ...pack,
+          template: packTemplate,
         },
       }
     }
