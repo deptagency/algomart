@@ -28,7 +28,6 @@ import {
 import { Analytics } from '@/clients/firebase-analytics'
 import loadFirebase from '@/clients/firebase-client'
 import { useCurrency } from '@/hooks/use-currency'
-import { useLocale } from '@/hooks/use-locale'
 import {
   AuthState,
   AuthUtils,
@@ -37,7 +36,7 @@ import {
   SignUpPayload,
 } from '@/types/auth'
 import { FileWithPreview } from '@/types/file'
-import { removeCookie, setCookie } from '@/utils/cookies-web'
+import { getCookie, removeCookie, setCookie } from '@/utils/cookies-web'
 import {
   ActionsUnion,
   createAction,
@@ -122,7 +121,6 @@ export function useAuth(throwError = true) {
 }
 
 export function useAuthProvider() {
-  const locale = useLocale()
   const currency = useCurrency()
 
   const reloadProfile = useCallback(async () => {
@@ -138,9 +136,6 @@ export function useAuthProvider() {
       })
         .then((response) => response.json())
         .catch(() => null)
-
-      setCookie(LOCALE_COOKIE, locale, 365)
-      setCookie(CURRENCY_COOKIE, currency, 365)
 
       /**
        * When an email user changes their email address,
@@ -165,9 +160,34 @@ export function useAuthProvider() {
        * we update the cookie. This takes precedence over their value in the DB,
        * and as such we need to update the DB to reflect this
        */
-      if (profileResponse.locale !== locale) {
+      const localeCookie = getCookie(LOCALE_COOKIE)
+      const parsedLocaleCookie =
+        localeCookie && localeCookie !== 'null' ? localeCookie : null
+      if (parsedLocaleCookie && profileResponse.locale !== parsedLocaleCookie) {
         await fetch(urls.api.v1.updateLanguage, {
-          body: JSON.stringify({ locale }),
+          body: JSON.stringify({ parsedLocaleCookie }),
+          headers: {
+            authorization: `bearer ${token}`,
+            'content-type': 'application/json',
+          },
+          method: 'PUT',
+        })
+      }
+
+      /**
+       * When a user not logged in changes their preferred currency,
+       * we update the cookie. This takes precedence over their value in the DB,
+       * and as such we need to update the DB to reflect this
+       */
+      const currencyCookie = getCookie(LOCALE_COOKIE)
+      const parsedCurrencyCookie =
+        currencyCookie && currencyCookie !== 'null' ? currencyCookie : null
+      if (
+        parsedCurrencyCookie &&
+        profileResponse.currency !== parsedCurrencyCookie
+      ) {
+        await fetch(urls.api.v1.updateLanguage, {
+          body: JSON.stringify({ parsedCurrencyCookie }),
           headers: {
             authorization: `bearer ${token}`,
             'content-type': 'application/json',
@@ -187,7 +207,7 @@ export function useAuthProvider() {
         })
       )
     }
-  }, [locale])
+  }, [])
 
   const getRedirectPath = useCallback(() => {
     return window.localStorage.getItem('redirect')

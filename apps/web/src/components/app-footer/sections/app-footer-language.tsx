@@ -36,6 +36,8 @@ export default function AppFooterLanguage() {
         return
       }
 
+      setCookie(LOCALE_COOKIE, locale, 365)
+
       if (user) {
         // Update language
         const updateLanguage = await authService.updateLanguage(body.language)
@@ -47,7 +49,6 @@ export default function AppFooterLanguage() {
         await reloadProfile()
       }
 
-      setCookie(LOCALE_COOKIE, locale, 365)
       setLoading(false)
       setLanguage(locale)
       router.push(

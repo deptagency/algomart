@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE } from '@algomart/schemas'
+import { DEFAULT_LOCALE, LOCALE_COOKIE } from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useMemo, useState } from 'react'
@@ -15,8 +15,10 @@ import { useAuth } from '@/contexts/auth-context'
 import { useLocale } from '@/hooks/use-locale'
 import authService from '@/services/auth-service'
 import { validateLanguage } from '@/utils/auth-validation'
+import { setCookie } from '@/utils/cookies-web'
 
 export default function MyProfileLanguage() {
+  const locale = useLocale()
   const { user, reloadProfile } = useAuth()
   const [formErrors, setFormErrors] = useState<ExtractError<typeof validate>>()
   const [isEditing, setIsEditing] = useState<boolean>(false)
@@ -54,6 +56,8 @@ export default function MyProfileLanguage() {
         setLoading(false)
         return
       }
+
+      setCookie(LOCALE_COOKIE, locale, 365)
       await reloadProfile()
       setLoading(false)
       setIsEditing(false)
@@ -69,7 +73,7 @@ export default function MyProfileLanguage() {
 
       return
     },
-    [reloadProfile, t, validate, language, router]
+    [reloadProfile, t, validate, language, router, locale]
   )
 
   const handleBeginEdit = useCallback(() => {
