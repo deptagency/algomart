@@ -217,28 +217,7 @@ export const PackByTemplateIdSchema = Type.Object({
 export const PackForPaymentSchema = Type.Intersect([
   PackSchema,
   Type.Object({
-    template: Type.Optional(
-      Nullable(
-        Type.Object({
-          activeBid: Type.Optional(Type.Number()),
-          allowBidExpiration: Type.Boolean(),
-          auctionUntil: Type.Optional(Type.String({ format: 'date-time' })),
-          body: Type.Optional(Type.String()),
-          collectibleTemplateIds: Type.Array(IdSchema),
-          config: PackConfigSchema,
-          image: Type.String({ format: 'uri' }),
-          onePackPerCustomer: Type.Boolean(),
-          price: Type.Number(),
-          releasedAt: Type.Optional(Type.String({ format: 'date-time' })),
-          slug: Type.String(),
-          status: Type.Enum(PackStatus),
-          subtitle: Type.Optional(Type.String()),
-          templateId: IdSchema,
-          title: Type.String(),
-          type: Type.Enum(PackType),
-        })
-      )
-    ),
+    template: Type.Optional(Nullable(PackBaseSchema)),
   }),
 ])
 
