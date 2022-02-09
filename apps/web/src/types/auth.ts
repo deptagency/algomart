@@ -33,6 +33,7 @@ export interface Profile {
   token: string
   uid: string
   username: string | null
+  locale: string | null
   address: string | null
 }
 
@@ -47,4 +48,5 @@ export interface SignUpPayload {
   passphrase: string
   profilePic: FileWithPreview | null
   username: string
+  locale: string
 }

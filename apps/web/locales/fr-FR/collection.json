@@ -1,0 +1,44 @@
+{
+  "sorting": {
+    "Brand": "FR Brand",
+    "Name": "FR Name",
+    "Newest": "FR Newest",
+    "Oldest": "FR Oldest"
+  },
+  "tabs": {
+    "NFTs": "FR NFTs",
+    "Collections": "FR Collections",
+    "Showcase": "FR Showcase"
+  },
+  "algoAddressPage": {
+    "Algorand Account": "FR Algorand Account",
+    "invalidAlgoAccount": "FR This address does not exist.",
+    "noCollectiblesInAccount": "FR This Algorand account does not have any collectibles."
+  },
+  "collectionPage": {
+    "A collection by": "FR <0>A collection by <1>{{brand}}</1></0>",
+    "Number of Total Collected": "FR {{number}} of {{total}} Collected",
+    "Other Collectibles": "FR Other Collectibles",
+    "Part of Collection": "FR <0>Part of <1>{{name}}</1></0>"
+  },
+  "viewer": {
+    "exclusiveText": "FR {{name}} Employee Exclusive",
+    "of": "FR of",
+    "ownedByText": "FR Owned by @{{name}} (that's you!)",
+    "ownedBy": "FR Owned by",
+    "thatsYou": "FR (that's you!)",
+    "Collectible_one": "FR Collectible",
+    "Collectible_0": "FR Collectibles",
+    "Collectible_other": "FR Collectibles",
+    "collected": "FR Collected",
+    "selectCollectibles": "FR Select the collectibles to include in your showcase",
+    "maxCollectibles": "FR You can only showcase up to 8 collectibles.",
+    "noCollectibles": "FR You haven't collected anything yet.",
+    "Your collection": "FR Your collection",
+    "Publish Showcase": "FR Publish Showcase",
+    "Find Something Cool": "FR Find Something Cool",
+    "startCollection": "FR Start your collection today.",
+    "emptyState": "FR Showcase is a publicly available gallery of your best collectibles. Add your favorites to share them with the world!",
+    "showcaseTitle": "FR @{{username}}'s showcase"
+  }
+}

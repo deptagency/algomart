@@ -1,0 +1,72 @@
+{
+    "auctionComplete": {
+      "subject": "fr-FR.emails.auctionComplete.subject",
+      "body": [
+        "fr-FR.emails.auctionComplete.body[0]",
+        "fr-FR.emails.auctionComplete.body[1]",
+        "fr-FR.emails.auctionComplete.body[2]"
+      ],
+      "expirationWarning": "fr-FR.emails.auctionComplete.expirationWarning"
+    },
+    "bidExpired": {
+      "subject": "fr-FR.emails.bidExpired.subject",
+      "body": [
+        "fr-FR.emails.bidExpired.body[0]"
+      ]
+    },
+    "paymentSuccess": {
+      "subject": "fr-FR.emails.paymentSuccess.subject",
+      "body": [
+        "fr-FR.emails.paymentSuccess.body[0]",
+        "fr-FR.emails.paymentSuccess.body[1]",
+        "fr-FR.emails.paymentSuccess.body[2]"
+      ]
+    },
+    "transferSuccess": {
+      "subject": "fr-FR.emails.transferSuccess.subject",
+      "body": [
+        "fr-FR.emails.transferSuccess.body[0]",
+        "fr-FR.emails.transferSuccess.body[1]",
+        "fr-FR.emails.transferSuccess.body[2]"
+      ]
+    },
+    "userHighBid": {
+      "subject": "fr-FR.emails.userHighBid.subject",
+      "body": [
+        "fr-FR.emails.userHighBid.body[0]",
+        "fr-FR.emails.userHighBid.body[1]",
+        "fr-FR.emails.userHighBid.body[2]"
+      ]
+    },
+    "userOutbid": {
+      "subject": "fr-FR.emails.userOutbid.subject",
+      "body": [
+        "fr-FR.emails.userOutbid.body[0]",
+        "fr-FR.emails.userOutbid.body[1]",
+        "fr-FR.emails.userOutbid.body[2]"
+      ]
+    },
+    "wireTransfer": {
+      "subject": "fr-FR.emails.wireTransfer.subject",
+      "body": [
+        "fr-FR.emails.wireTransfer.body[0]",
+        "fr-FR.emails.wireTransfer.body[1]",
+        "fr-FR.emails.wireTransfer.body[2]",
+        "fr-FR.emails.wireTransfer.body[3]",
+        "fr-FR.emails.wireTransfer.body[4]",
+        "fr-FR.emails.wireTransfer.body[5]",
+        "fr-FR.emails.wireTransfer.body[6]",
+        "fr-FR.emails.wireTransfer.body[7]",
+        "fr-FR.emails.wireTransfer.body[8]",
+        "fr-FR.emails.wireTransfer.body[9]",
+        "fr-FR.emails.wireTransfer.body[10]",
+        "fr-FR.emails.wireTransfer.body[11]",
+        "fr-FR.emails.wireTransfer.body[12]",
+        "fr-FR.emails.wireTransfer.body[13]",
+        "fr-FR.emails.wireTransfer.body[14]",
+        "fr-FR.emails.wireTransfer.body[15]"
+      ],
+      "expirationWarning": "fr-FR.emails.wireTransfer.expirationWarning"
+    }
+  }
+  

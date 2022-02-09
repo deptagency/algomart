@@ -1,6 +1,6 @@
 module.exports = {
   defaultLocale: 'en-US',
-  locales: ['en-US'],
+  locales: ['en-US', 'fr-FR'],
   pages: {
     '*': ['admin', 'auth', 'collection', 'common', 'forms', 'release'],
     'rgx:/asset': ['asset'],

@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE } from '@algomart/schemas'
 import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
@@ -7,6 +8,7 @@ export interface AuthAPI {
   isUsernameAvailable(username: string): Promise<boolean>
   updateUsername(username: string): Promise<boolean>
   verifyPassphrase(passphrase: string): Promise<boolean>
+  updateLanguage(locale: string): Promise<boolean>
 }
 
 export class AuthService implements AuthAPI {
@@ -62,6 +64,21 @@ export class AuthService implements AuthAPI {
       .json<{ isValid: boolean }>()
 
     return isValid
+  }
+
+  /**
+   *
+   * @param locale - locale to update user's preference to
+   */
+  async updateLanguage(locale = DEFAULT_LOCALE): Promise<boolean> {
+    try {
+      await this.http
+        .put(urls.api.v1.updateLanguage, { json: { locale } })
+        .json()
+      return true
+    } catch {
+      return false
+    }
   }
 }
 

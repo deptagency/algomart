@@ -1,14 +1,15 @@
 import useTranslation from 'next-translate/useTranslation'
 
+import AppFooterLanguage from './app-footer-language'
+
 import css from './app-footer-bottom-nav.module.css'
 
 import ExternalLink from '@/components/external-link'
 import Logo from '@/components/logo/logo'
-import { getLegalNavItems, getSocialNavItems } from '@/utils/navigation'
+import { getLegalNavItems } from '@/utils/navigation'
 
 export default function AppFooterBottomNav() {
   const { t } = useTranslation()
-  const socialNavItems = getSocialNavItems(t)
   const legalNavItems = getLegalNavItems(t)
 
   return (
@@ -16,21 +17,6 @@ export default function AppFooterBottomNav() {
       <div className={css.bottomNavWrapper}>
         <div className={css.bottomNavLeft}>
           <Logo className={css.bottomNavLeftImage} />
-          <nav
-            aria-label={t('common:nav.aria.Social Media')}
-            className={css.bottomNavSpace}
-          >
-            {socialNavItems.map(({ href, label }) => (
-              <ExternalLink
-                className={css.bottomNavLinks}
-                key={label}
-                href={href}
-                target="_blank"
-              >
-                {label}
-              </ExternalLink>
-            ))}
-          </nav>
         </div>
         <nav
           aria-label={t('common:nav.aria.Legal')}
@@ -52,6 +38,7 @@ export default function AppFooterBottomNav() {
               </span>
             )
           )}
+          <AppFooterLanguage />
         </nav>
       </div>
     </section>

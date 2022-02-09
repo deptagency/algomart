@@ -1,16 +1,33 @@
+import {
+  CollectibleListWithTotal,
+  DEFAULT_LOCALE,
+  LanguageList,
+} from '@algomart/schemas'
 import { ShieldExclamationIcon, UserCircleIcon } from '@heroicons/react/outline'
 import Image from 'next/image'
 import { Translate } from 'next-translate'
-import { ReactNode, useEffect, useState } from 'react'
+import {
+  ChangeEventHandler,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
 import { useDropzone } from 'react-dropzone'
 
 import css from './auth-inputs.module.css'
 
+import { ApiClient } from '@/clients/api-client'
 import Button from '@/components/button'
 import FormField from '@/components/form-field'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
+import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
+import { useLocale } from '@/hooks/use-locale'
+import languageService from '@/services/language-service'
 import { FileWithPreview } from '@/types/file'
+import { useApi } from '@/utils/swr'
+import { urls } from '@/utils/urls'
 
 /**
  * Reused components found throughout sign-in, sign-up, and profile create/update flows
@@ -34,6 +51,78 @@ export function Email({ error, t }: AuthInputProps) {
         name="email"
         type="email"
       />
+    </FormField>
+  )
+}
+
+export interface AuthLanguageProps {
+  disabled?: boolean
+  error?: string | unknown
+  handleChange?(option: SelectOption): void
+  showLabel?: boolean
+  t: Translate
+  value?: string
+}
+
+export function Language({
+  error,
+  disabled,
+  handleChange,
+  showLabel = true,
+  t,
+  value,
+}: AuthLanguageProps) {
+  const [options, setOptions] = useState<SelectOption[]>([])
+  const [selectedValue, setSelectedValue] = useState<SelectOption>()
+
+  const locale = useLocale()
+
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const languages = await languageService.getLanguages(locale)
+
+        setOptions(
+          languages.map((language) => ({
+            id: language.languages_code,
+            label: language.label,
+          }))
+        )
+      } catch {
+        // if service fails, at least let them set English
+        setOptions([
+          {
+            id: DEFAULT_LOCALE,
+            label: t('common:global.language'),
+          },
+        ])
+      }
+    }
+    run()
+  }, [locale, t])
+
+  useEffect(() => {
+    setSelectedValue(
+      options && value ? options.find((option) => option.id === value) : null
+    )
+  }, [options, value])
+
+  return (
+    <FormField className={css.formField}>
+      {options.length > 0 && (
+        <Select
+          className="pl-8"
+          defaultOption={options[0]}
+          error={error as string}
+          disabled={disabled}
+          label={showLabel ? t('forms:fields.languages.label') : undefined}
+          id="locale"
+          name="locale"
+          options={options}
+          selectedValue={selectedValue}
+          handleChange={handleChange}
+        />
+      )}
     </FormField>
   )
 }

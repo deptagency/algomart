@@ -14,6 +14,7 @@ import { collectiblesRoutes } from '@/modules/collectibles'
 import { collectionsRoutes } from '@/modules/collections'
 import { faqsRoutes } from '@/modules/faqs'
 import { homepageRoutes } from '@/modules/homepage'
+import { languagesRoutes } from '@/modules/languages'
 import { packsRoutes } from '@/modules/packs'
 import { paymentRoutes } from '@/modules/payments'
 import { setsRoutes } from '@/modules/sets'
@@ -79,6 +80,7 @@ export default async function buildApp(config: AppConfig) {
   await app.register(collectiblesRoutes, { prefix: '/collectibles' })
   await app.register(collectionsRoutes, { prefix: '/collections' })
   await app.register(homepageRoutes, { prefix: '/homepage' })
+  await app.register(languagesRoutes, { prefix: '/languages' })
   await app.register(faqsRoutes, { prefix: '/faqs' })
   await app.register(packsRoutes, { prefix: '/packs' })
   await app.register(paymentRoutes, { prefix: '/payments' })

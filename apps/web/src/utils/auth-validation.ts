@@ -18,6 +18,8 @@ export const emailAddress = (t: Translate) =>
     min(8, t('forms:errors.minCharacters') as string),
     email(t('forms:errors.emailValid') as string)
   )
+export const locale = () => string()
+
 export const username = (t: Translate) =>
   string(
     required(t('forms:errors.required') as string),
@@ -74,6 +76,12 @@ export const validateUserRegistration = (t: Translate) =>
     email: username(t),
     username: username(t),
     passphrase: passphrase(t),
+    locale: locale(),
+  })
+
+export const validateLanguage = (t: Translate) =>
+  object({
+    locale: locale(),
   })
 
 export const validateLogin = (t: Translate) =>
