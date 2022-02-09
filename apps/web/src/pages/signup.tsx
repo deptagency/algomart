@@ -1,3 +1,4 @@
+import { LOCALE_COOKIE } from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
@@ -10,6 +11,7 @@ import authService from '@/services/auth-service'
 import SignupTemplate from '@/templates/signup-template'
 import { FileWithPreview } from '@/types/file'
 import { validateEmailAndPasswordRegistration } from '@/utils/auth-validation'
+import { setCookie } from '@/utils/cookies-web'
 import { urls } from '@/utils/urls'
 
 export default function SignUpPage() {
@@ -31,6 +33,7 @@ export default function SignUpPage() {
       const body = {
         email: formData.get('email') as string,
         username: formData.get('username') as string,
+        locale: formData.get('locale') as string,
         password: formData.get('password') as string,
         passphrase: formData.get('passphrase') as string,
         profilePic: profilePic as FileWithPreview,
@@ -54,7 +57,10 @@ export default function SignUpPage() {
       const result = await auth.registerWithEmailAndPassword(body)
       if (result.isValid) {
         await auth.reloadProfile()
-        router.push(redeemable ? urls.login : urls.home)
+        setCookie(LOCALE_COOKIE, body.locale, 365)
+        router.push(redeemable ? urls.login : urls.home, router.asPath, {
+          locale: body.locale,
+        })
       }
     },
     [auth, redeemable, router, profilePic, t, validate]

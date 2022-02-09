@@ -23,3 +23,14 @@
 .topNavLinkActive {
   @apply border-t-base-border text-action-secondary;
 }
+
+.topNavSocialMediaSpace {
+  /* Tablet + */
+  @apply md:space-x-4;
+}
+.topNavSocialMediaLinks {
+  /* Base */
+  @apply mx-auto max-w-wrapper block mb-4 text-sm transition duration-300 outline-none text-base-gray-medium focus:text-black hover:text-base-textPrimary;
+  /* Tablet + */
+  @apply md:space-x-20 md:px-4 md:py-12 md:inline md:mb-0;
+}

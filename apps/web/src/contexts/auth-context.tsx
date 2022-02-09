@@ -26,6 +26,7 @@ import {
 
 import { Analytics } from '@/clients/firebase-analytics'
 import loadFirebase from '@/clients/firebase-client'
+import { useLocale } from '@/hooks/use-locale'
 import {
   AuthState,
   AuthUtils,
@@ -102,21 +103,24 @@ async function mapUserToProfile(
     photo: user.photoURL,
     token: await user.getIdToken(),
     uid: user.uid,
+    locale: null,
     username: null,
   }
 }
 
 export const AuthContext = createContext<AuthUtils | null>(null)
 
-export function useAuth() {
+export function useAuth(throwError = true) {
   const auth = useContext(AuthContext)
-  if (!auth) {
+  if (!auth && throwError) {
     throw new Error('AuthProvider missing')
   }
   return auth
 }
 
 export function useAuthProvider() {
+  const locale = useLocale()
+
   const reloadProfile = useCallback(async () => {
     const auth = getAuth(loadFirebase())
     const token = await auth.currentUser?.getIdToken(true)
@@ -149,12 +153,29 @@ export function useAuthProvider() {
         })
       }
 
+      /**
+       * When a user not logged in changes their preferred language,
+       * we update the cookie. This takes precedence over their value in the DB,
+       * and as such we need to update the DB to reflect this
+       */
+      if (profileResponse.locale !== locale) {
+        await fetch(urls.api.v1.updateLanguage, {
+          body: JSON.stringify({ locale }),
+          headers: {
+            authorization: `bearer ${token}`,
+            'content-type': 'application/json',
+          },
+          method: 'PUT',
+        })
+      }
+
       // Set user
       dispatch(
         authActions.setUser({
           ...profile,
           username: profileResponse?.username || null,
           address: profileResponse?.address || null,
+          locale: profileResponse?.locale || null,
         })
       )
     }
@@ -263,6 +284,7 @@ export function useAuthProvider() {
       passphrase,
       profilePic,
       username,
+      locale,
     }: SignUpPayload) => {
       dispatch(authActions.setLoading())
       try {
@@ -276,7 +298,7 @@ export function useAuthProvider() {
           // Set profile
           const token = await user.getIdToken()
           await fetch(urls.api.v1.profile, {
-            body: JSON.stringify({ email, passphrase, username }),
+            body: JSON.stringify({ email, passphrase, username, locale }),
             headers: {
               authorization: `bearer ${token}`,
               'content-type': 'application/json',
