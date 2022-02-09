@@ -760,6 +760,52 @@ fields:
       conditions: null
       required: false
       group: null
+  - collection: application
+    field: countries
+    type: json
+    schema:
+      name: countries
+      table: application
+      data_type: json
+      default_value:
+        - US
+      generation_expression: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_generated: false
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      comment: null
+      schema: public
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: application
+      field: countries
+      special:
+        - json
+      interface: select-multiple-dropdown
+      options:
+        choices:
+          - text: Canada
+            value: CA
+          - text: United States
+            value: US
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
   - collection: collections
     field: id
     type: uuid
