@@ -477,4 +477,16 @@ export class ApiClient {
       .json()
   }
   //#endregion
+
+  //#region FaqPage
+  async getFaqs(locale: string) {
+    return await this.http
+      .get('faqs', {
+        searchParams: {
+          locale,
+        },
+      })
+      .json()
+  }
+  //#endregion
 }

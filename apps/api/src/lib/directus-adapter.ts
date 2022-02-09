@@ -151,6 +151,15 @@ export interface DirectusPackTemplate {
   type: PackType
 }
 
+export interface DirectusFaqTemplateTranslation extends DirectusTranslation {
+  question: string | null
+  answer: string | null
+}
+
+export interface DirectusFaqTemplate {
+  translations: DirectusFaqTemplateTranslation[]
+}
+
 // #endregion
 
 // #region Directus Helpers
@@ -861,12 +870,12 @@ export default class DirectusAdapter {
     return toSetWithCollection(set, this.getFileURL.bind(this), locale)
   }
 
-  async getDirectusPage(title, locale = DEFAULT_LOCALE) {
+  async getDirectusPage(slug, locale = DEFAULT_LOCALE) {
     const response = await this.http.get('items/page', {
       searchParams: getParameters({
         filter: {
-          title: {
-            _eq: title,
+          slug: {
+            _eq: slug,
           },
           status: {
             _eq: DirectusStatus.Published,
@@ -879,14 +888,35 @@ export default class DirectusAdapter {
     if (response.statusCode === 200) {
       const data = JSON.parse(response.body).data
       if (!Array.isArray(data) || (Array.isArray(data) && data.length === 0))
-        return null
+        invariant(`Page data for slug "${slug}" not found`)
       return getDirectusTranslation<DirectusPageTranslation>(
         data[0].translations as DirectusPageTranslation[],
-        `No translations found for page ${title}`,
+        `No translations found for slug "${slug}"`,
         locale
       )
     }
     return null
+  }
+
+  async getFaqs(locale: string = DEFAULT_LOCALE) {
+    const defaultQuery: ItemQuery<DirectusFaqTemplate> = {
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+      limit: -1,
+      fields: ['*.*'],
+    }
+
+    const response = await this.findMany<DirectusFaqTemplate>('faqs', {
+      ...defaultQuery,
+    })
+
+    // simplify response
+    return response.data.map((d) =>
+      getDirectusTranslation(d.translations, `faq has no translations`, locale)
+    )
   }
 
   async findHomepage() {
