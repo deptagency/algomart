@@ -42,7 +42,7 @@ export const LocaleAndExternalIdSchema = Type.Intersect([
 export const DirectusPageAndLocaleSchema = Type.Intersect([
   LocaleSchema,
   Type.Object({
-    title: Type.String(),
+    slug: Type.String(),
   }),
 ])
 

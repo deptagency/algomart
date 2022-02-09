@@ -466,12 +466,12 @@ export class ApiClient {
   //#endregion
 
   //#region page
-  async getDirectusPage(title: string, locale: string) {
+  async getDirectusPage(slug: string, locale: string) {
     return await this.http
       .get('page', {
         searchParams: {
           locale,
-          title,
+          slug,
         },
       })
       .json()
