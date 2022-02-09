@@ -3,9 +3,8 @@ import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import React, { useCallback, useMemo, useState } from 'react'
 
-import { Language } from '../../auth-inputs/auth-inputs'
-import { SelectOption } from '../../select/select'
-
+import { Language } from '@/components/auth-inputs/auth-inputs'
+import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useLocale } from '@/hooks/use-locale'
 import authService from '@/services/auth-service'
