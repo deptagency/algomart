@@ -178,7 +178,7 @@ export default function AdminTransactionPage({
                 <div className={css.packMeta}>
                   <dt>Winning Bid</dt>
                   <dd>
-                    {formatCurrency(payment.pack?.template?.activeBid, lang)}{' '}
+                    {formatCurrency(payment.pack?.template?.activeBid, lang)}
                   </dd>
                 </div>
                 <div className={css.packMeta}>
