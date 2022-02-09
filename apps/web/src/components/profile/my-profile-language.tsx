@@ -4,14 +4,13 @@ import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useMemo, useState } from 'react'
 import { ExtractError } from 'validator-fns'
 
-import { Language } from '../auth-inputs/auth-inputs'
-import { SelectOption } from '../select/select'
-
 import common from './my-profile-common.module.css'
 import css from './my-profile-language.module.css'
 
+import { Language } from '@/components/auth-inputs/auth-inputs'
 import Button from '@/components/button'
 import Heading from '@/components/heading'
+import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useLocale } from '@/hooks/use-locale'
 import authService from '@/services/auth-service'
@@ -82,7 +81,6 @@ export default function MyProfileLanguage() {
   }, [])
 
   const handleCancelEdit = useCallback(() => {
-    console.log(user)
     setLanguage(user.locale || DEFAULT_LOCALE)
     setFormErrors({})
     setUpdateError('')

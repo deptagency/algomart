@@ -12,6 +12,7 @@ import AuctionsService from '@/modules/auctions/auctions.service'
 import BidsService from '@/modules/bids/bids.service'
 import CollectiblesService from '@/modules/collectibles/collectibles.service'
 import CollectionsService from '@/modules/collections/collections.service'
+import FaqsService from '@/modules/faqs/faqs.service'
 import HomepageService from '@/modules/homepage/homepage.service'
 import LanguagesService from '@/modules/languages/languages.service'
 import NotificationsService from '@/modules/notifications/notifications.service'
@@ -205,6 +206,10 @@ export function configureResolver() {
         c.get<PacksService>(PacksService.name),
         c.get<CollectiblesService>(CollectiblesService.name)
       )
+  )
+  resolver.set(
+    FaqsService.name,
+    (c) => new FaqsService(c.get<DirectusAdapter>(DirectusAdapter.name))
   )
   resolver.set(
     AuctionsService.name,
