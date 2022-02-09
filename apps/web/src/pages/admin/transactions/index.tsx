@@ -36,7 +36,7 @@ export default function AdminTransactionsPage() {
 
   const columns: ColumnDefinitionType<Payment>[] = [
     {
-      key: 'pack.title',
+      key: 'pack.template.title',
       name: t('transactions.table.Title'),
       renderer: ({ value, item }) => (
         <AppLink

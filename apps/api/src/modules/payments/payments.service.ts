@@ -149,10 +149,9 @@ export default class PaymentsService {
         .whereIn('templateId', templateIds)
         .withGraphFetched('activeBid')
       packList.map((p) => {
-        const template = templateLookup.get(p.templateId)
         packIds.push(p.id)
         packLookup.set(p.id, {
-          ...template,
+          template: templateLookup.get(p.templateId),
           ...p,
           activeBid: p?.activeBid?.amount,
         })

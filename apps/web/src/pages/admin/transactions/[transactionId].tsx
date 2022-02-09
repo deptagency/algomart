@@ -33,7 +33,7 @@ export default function AdminTransactionPage({
   const { t, lang } = useTranslation('admin')
   const { query } = useRouter()
   const { transactionId } = query
-  const isAuction = !!payment.pack?.template.auctionUntil
+  const isAuction = !!payment.pack?.template?.auctionUntil
 
   // WIRE PAYMENTS
   const { data } = useAuthApi<WirePayment[]>(
