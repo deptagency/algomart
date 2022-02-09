@@ -21,7 +21,6 @@ import {
 } from 'react'
 import { ExtractError } from 'validator-fns'
 
-import { Analytics } from '@/clients/firebase-analytics'
 import bidService from '@/services/bid-service'
 import checkoutService, {
   CreateBankAccountRequest,
@@ -195,11 +194,6 @@ export function usePaymentProvider({
       if (!cardId) {
         throw new Error('No card selected')
       }
-
-      Analytics.instance.addPaymentInfo({
-        itemName: release.title,
-        value: release.price,
-      })
 
       const encryptedCVV = await encryptCardDetails(
         { cvv: securityCode as string },
@@ -624,7 +618,7 @@ export function usePaymentProvider({
         }
 
         if (isPurchase) {
-          const { id, packId } = await handlePurchase(
+          const { packId } = await handlePurchase(
             securityCode,
             cardId,
             publicKeyRecord
@@ -635,13 +629,6 @@ export function usePaymentProvider({
 
           setPackId(packId)
           setStatus(CheckoutStatus.success)
-          if (release) {
-            Analytics.instance.purchase({
-              itemName: release.title,
-              value: release.price,
-              paymentId: id,
-            })
-          }
         } else {
           setStatus(CheckoutStatus.success)
           return
@@ -657,7 +644,6 @@ export function usePaymentProvider({
       handleAddCard,
       handlePurchase,
       handleSetStatus,
-      release,
       t,
       validateFormForPurchase,
       validateFormForPurchaseWithSavedCard,
