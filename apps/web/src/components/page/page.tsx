@@ -1,4 +1,4 @@
-import DefaultLayout from '../../layouts/default-layout'
+import DefaultLayout from '@/layouts/default-layout'
 
 export interface PageProps {
   title: string
