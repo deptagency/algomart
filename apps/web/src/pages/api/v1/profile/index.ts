@@ -23,7 +23,9 @@ handler.post(
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
     const body = request.validResult.value as BodyType
     const locale =
-      request.headers['accept-language']?.split(',')[0] || DEFAULT_LOCALE
+      body.locale ||
+      request.headers['accept-language']?.split(',')[0] ||
+      DEFAULT_LOCALE
 
     const user = await ApiClient.instance.getAccountByExternalId(
       request.token.uid

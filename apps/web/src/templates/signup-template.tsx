@@ -4,6 +4,7 @@ import { FormEvent } from 'react'
 import AlertMessage from '@/components/alert-message/alert-message'
 import {
   Email,
+  Language,
   Passphrase,
   Password,
   ProfileImage,
@@ -11,6 +12,7 @@ import {
   Username,
 } from '@/components/auth-inputs/auth-inputs'
 import Heading from '@/components/heading'
+import { useLocale } from '@/hooks/use-locale'
 import { AuthState } from '@/types/auth'
 import { FileWithPreview } from '@/types/file'
 
@@ -19,6 +21,7 @@ export interface SignupTemplateProps {
   formErrors: Partial<{
     email?: unknown
     username?: unknown
+    language?: unknown
     password?: unknown
     passphrase?: unknown
   }>
@@ -38,6 +41,7 @@ export default function SignupTemplate({
   profilePic,
   status,
 }: SignupTemplateProps) {
+  const locale = useLocale()
   const { t } = useTranslation()
   return (
     <>
@@ -64,6 +68,7 @@ export default function SignupTemplate({
           t={t}
           profilePic={profilePic}
         />
+        <Language error={formErrors.language} t={t} value={locale} />
         <Passphrase error={formErrors.passphrase} t={t} />
         <Submit disabled={status === 'loading'} t={t} />
       </form>

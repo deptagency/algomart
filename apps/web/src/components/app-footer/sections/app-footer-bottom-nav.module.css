@@ -25,10 +25,3 @@
   /* Tablet + */
   @apply md:space-x-4;
 }
-
-.bottomNavLinks {
-  /* Base */
-  @apply block mb-4 text-sm transition duration-300 outline-none text-base-gray-medium focus:text-black hover:text-base-textPrimary;
-  /* Tablet + */
-  @apply md:inline md:mb-0;
-}

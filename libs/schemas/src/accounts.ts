@@ -55,6 +55,7 @@ export const UpdateUserAccountSchema = Type.Object({
   email: Type.Optional(Type.String()),
   showProfile: Type.Optional(Type.Boolean()),
   username: Type.Optional(Type.String()),
+  locale: Type.Optional(Type.String()),
 })
 
 export const PublicUserAccountSchema = Type.Intersect([

@@ -117,6 +117,9 @@
       "label": "Full Name",
       "helpText": "As it appears on your card"
     },
+    "languages": {
+      "label": "Language"
+    },
     "password": {
       "label": "Password"
     },

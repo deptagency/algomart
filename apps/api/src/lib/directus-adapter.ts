@@ -146,6 +146,25 @@ export interface DirectusPackTemplate {
   type: PackType
 }
 
+export interface DirectusLanguageTemplate {
+  code: string
+  translations: DirectusLanguageTemplateTranslation[]
+}
+
+export interface DirectusLanguageTemplateTranslation
+  extends DirectusTranslation {
+  label: string
+}
+
+export interface DirectusFaqTemplateTranslation extends DirectusTranslation {
+  question: string | null
+  answer: string | null
+}
+
+export interface DirectusFaqTemplate {
+  translations: DirectusFaqTemplateTranslation[]
+}
+
 // #endregion
 
 // #region Directus Helpers
@@ -856,6 +875,27 @@ export default class DirectusAdapter {
     return toSetWithCollection(set, this.getFileURL.bind(this), locale)
   }
 
+  async getFaqs(locale: string = DEFAULT_LOCALE) {
+    const defaultQuery: ItemQuery<DirectusFaqTemplate> = {
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+      limit: -1,
+      fields: ['*.*'],
+    }
+
+    const response = await this.findMany<DirectusFaqTemplate>('faqs', {
+      ...defaultQuery,
+    })
+
+    // simplify response
+    return response.data.map((d) =>
+      getDirectusTranslation(d.translations, `faq has no translations`, locale)
+    )
+  }
+
   async findHomepage() {
     // Homepage is a singleton in the CMS, which makes this endpoint only return a single item.
     // Therefore we should avoid using the `findMany` method and instead act as if the result is
@@ -897,5 +937,28 @@ export default class DirectusAdapter {
     }
 
     return null
+  }
+
+  async getLanguages(locale = DEFAULT_LOCALE) {
+    const defaultQuery: ItemQuery<DirectusLanguageTemplate> = {
+      limit: -1,
+      fields: ['*.*'],
+    }
+
+    const response = await this.findMany<DirectusLanguageTemplate>(
+      `languages`,
+      {
+        ...defaultQuery,
+      }
+    )
+
+    return response.data.map((directusLanguageTemplate) => ({
+      languages_code: directusLanguageTemplate.code,
+      label: getDirectusTranslation<DirectusLanguageTemplateTranslation>(
+        directusLanguageTemplate.translations as DirectusLanguageTemplateTranslation[],
+        `language has no translations`,
+        locale
+      )?.label,
+    }))
   }
 }
