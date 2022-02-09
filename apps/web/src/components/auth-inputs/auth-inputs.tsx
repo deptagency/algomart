@@ -1,24 +1,12 @@
-import {
-  CollectibleListWithTotal,
-  CURRENCIES,
-  DEFAULT_LOCALE,
-  LanguageList,
-} from '@algomart/schemas'
+import { CURRENCIES, DEFAULT_LOCALE } from '@algomart/schemas'
 import { ShieldExclamationIcon, UserCircleIcon } from '@heroicons/react/outline'
 import Image from 'next/image'
 import { Translate } from 'next-translate'
-import {
-  ChangeEventHandler,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 
 import css from './auth-inputs.module.css'
 
-import { ApiClient } from '@/clients/api-client'
 import Button from '@/components/button'
 import FormField from '@/components/form-field'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
@@ -27,8 +15,6 @@ import TextInput from '@/components/text-input/text-input'
 import { useLocale } from '@/hooks/use-locale'
 import languageService from '@/services/language-service'
 import { FileWithPreview } from '@/types/file'
-import { useApi } from '@/utils/swr'
-import { urls } from '@/utils/urls'
 
 /**
  * Reused components found throughout sign-in, sign-up, and profile create/update flows
@@ -62,8 +48,7 @@ export function Currency({
   const [selectedValue, setSelectedValue] = useState<SelectOption>()
 
   useEffect(() => {
-    // TODO Replace with more robust const
-    const currencies = CURRENCIES;
+    const currencies = CURRENCIES
 
     setOptions(
       currencies.map((currency) => ({

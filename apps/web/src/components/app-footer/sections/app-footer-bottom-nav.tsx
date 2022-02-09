@@ -1,5 +1,6 @@
 import useTranslation from 'next-translate/useTranslation'
 
+import AppFooterCurrency from './app-footer-currency'
 import AppFooterLanguage from './app-footer-language'
 
 import css from './app-footer-bottom-nav.module.css'
@@ -39,6 +40,7 @@ export default function AppFooterBottomNav() {
             )
           )}
           <AppFooterLanguage />
+          <AppFooterCurrency />
         </nav>
       </div>
     </section>

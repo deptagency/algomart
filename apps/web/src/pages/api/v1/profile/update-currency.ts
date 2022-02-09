@@ -6,16 +6,18 @@ import createHandler, { NextApiRequestApp } from '@/middleware'
 import authMiddleware from '@/middleware/auth-middleware'
 import userMiddleware from '@/middleware/user-middleware'
 import { ExtractBodyType } from '@/middleware/validate-body-middleware'
-import { validateLanguage } from '@/utils/auth-validation'
+import { validateCurrency } from '@/utils/auth-validation'
 
 const handler = createHandler()
 
 handler.use(authMiddleware()).use(userMiddleware())
 
-type BodyType = ExtractBodyType<typeof validateLanguage>
+type BodyType = ExtractBodyType<typeof validateCurrency>
 
 handler.put(
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
+    console.log(request.body)
+
     if (!request.user.externalId) {
       throw new BadRequest('No externalId provided')
     }
@@ -23,7 +25,7 @@ handler.put(
     response.json({
       ok: await ApiClient.instance.updateAccount({
         externalId: request.user.externalId,
-        locale: request.body.locale,
+        currency: request.body.currency,
       }),
     })
   }

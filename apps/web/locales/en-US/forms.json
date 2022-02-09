@@ -99,7 +99,7 @@
       }
     },
     "currencies": {
-      "label": "Currencies"
+      "label": "Currency"
     },
     "defaultCard": {
       "label": "Default",

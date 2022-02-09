@@ -1,3 +1,4 @@
+import { CURRENCY_COOKIE, LOCALE_COOKIE } from '@algomart/schemas'
 import {
   Auth,
   createUserWithEmailAndPassword,
@@ -26,6 +27,7 @@ import {
 
 import { Analytics } from '@/clients/firebase-analytics'
 import loadFirebase from '@/clients/firebase-client'
+import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import {
   AuthState,
@@ -121,6 +123,7 @@ export function useAuth(throwError = true) {
 
 export function useAuthProvider() {
   const locale = useLocale()
+  const currency = useCurrency()
 
   const reloadProfile = useCallback(async () => {
     const auth = getAuth(loadFirebase())
@@ -135,6 +138,9 @@ export function useAuthProvider() {
       })
         .then((response) => response.json())
         .catch(() => null)
+
+      setCookie(LOCALE_COOKIE, locale, 365)
+      setCookie(CURRENCY_COOKIE, currency, 365)
 
       /**
        * When an email user changes their email address,
@@ -301,7 +307,13 @@ export function useAuthProvider() {
           // Set profile
           const token = await user.getIdToken()
           await fetch(urls.api.v1.profile, {
-            body: JSON.stringify({ currency, email, passphrase, username, locale }),
+            body: JSON.stringify({
+              currency,
+              email,
+              passphrase,
+              username,
+              locale,
+            }),
             headers: {
               authorization: `bearer ${token}`,
               'content-type': 'application/json',

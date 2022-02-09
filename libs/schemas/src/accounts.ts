@@ -53,6 +53,7 @@ export const CreateUserAccountRequestSchema = Type.Intersect([
 ])
 
 export const UpdateUserAccountSchema = Type.Object({
+  currency: Type.Optional(Type.String()),
   email: Type.Optional(Type.String()),
   showProfile: Type.Optional(Type.Boolean()),
   username: Type.Optional(Type.String()),

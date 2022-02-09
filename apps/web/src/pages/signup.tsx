@@ -58,7 +58,7 @@ export default function SignUpPage() {
       const result = await auth.registerWithEmailAndPassword(body)
       if (result.isValid) {
         await auth.reloadProfile()
-        setCookie(LOCALE_COOKIE, body.locale, 365)
+
         router.push(redeemable ? urls.login : urls.home, router.asPath, {
           locale: body.locale,
         })

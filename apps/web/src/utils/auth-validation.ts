@@ -12,17 +12,19 @@ import {
 } from 'validator-fns'
 
 // Fields
-export const currency = (t: Translate) => 
+export const currency = (t: Translate) =>
   string(
     required(t('forms:errors.required') as string),
-    oneOf(CURRENCIES, t('forms.errors.invalidCurrency') as string)
+    oneOf(CURRENCIES, t('forms:errors.invalidCurrency') as string)
   )
+
 export const emailAddress = (t: Translate) =>
   string(
     required(t('forms:errors.required') as string),
     min(8, t('forms:errors.minCharacters') as string),
     email(t('forms:errors.emailValid') as string)
   )
+
 export const locale = () => string()
 
 export const username = (t: Translate) =>
@@ -51,6 +53,11 @@ export const userExternalId = (t: Translate) =>
   string(required(t('forms:errors.required') as string))
 
 // Form Validations
+export const validateCurrency = (t: Translate) =>
+  object({
+    currency: currency(t),
+  })
+
 export const validateEmailAndPasswordRegistration = (t: Translate) =>
   object({
     currency: currency(t),
@@ -86,7 +93,7 @@ export const validateUserRegistration = (t: Translate) =>
     locale: locale(),
   })
 
-export const validateLanguage = (t: Translate) =>
+export const validateLanguage = () =>
   object({
     locale: locale(),
   })

@@ -19,7 +19,8 @@ export const RTL_LOCALES: string[] = [
   'yi',
 ]
 
-export const CURRENCIES = ['USD', 'EUR'];
+export const CURRENCY_COOKIE = 'currency'
+export const CURRENCIES = ['USD', 'EUR']
 
 export const AlgoAddressSchema = Type.Object({
   algoAddress: Type.String({ maxLength: 58, minLength: 58 }),

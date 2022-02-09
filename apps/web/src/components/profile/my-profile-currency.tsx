@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE } from '@algomart/schemas'
+import { DEFAULT_LOCALE, LOCALE_COOKIE } from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useMemo, useState } from 'react'
@@ -7,29 +7,30 @@ import { ExtractError } from 'validator-fns'
 import common from './my-profile-common.module.css'
 import css from './my-profile-language.module.css'
 
-import { Language } from '@/components/auth-inputs/auth-inputs'
+import { Currency } from '@/components/auth-inputs/auth-inputs'
 import Button from '@/components/button'
 import Heading from '@/components/heading'
 import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
-import { useLocale } from '@/hooks/use-locale'
+import { useCurrency } from '@/hooks/use-currency'
 import authService from '@/services/auth-service'
-import { validateLanguage } from '@/utils/auth-validation'
+import { validateCurrency } from '@/utils/auth-validation'
+import { setCookie } from '@/utils/cookies-web'
 
-export default function MyProfileLanguage() {
+export default function MyProfileCurrency() {
   const { user, reloadProfile } = useAuth()
   const [formErrors, setFormErrors] = useState<ExtractError<typeof validate>>()
   const [isEditing, setIsEditing] = useState<boolean>(false)
-  const [language, setLanguage] = useState<string>(useLocale())
+  const [currency, setCurrency] = useState<string>(useCurrency())
   const [loading, setLoading] = useState<boolean>(false)
   const [updateError, setUpdateError] = useState<string>('')
   const [updateSuccess, setUpdateSuccess] = useState<boolean>(false)
   const { t } = useTranslation()
   const router = useRouter()
 
-  const validate = useMemo(() => validateLanguage(), [])
+  const validate = useMemo(() => validateCurrency(t), [t])
 
-  const handleUpdateLanguage = useCallback(
+  const handleUpdateCurrency = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
       setLoading(true)
@@ -38,7 +39,7 @@ export default function MyProfileLanguage() {
 
       // Validate form body
       const body = {
-        language,
+        currency,
       }
       const bodyValidation = await validate(body)
       if (bodyValidation.state === 'invalid') {
@@ -48,12 +49,13 @@ export default function MyProfileLanguage() {
       }
 
       // Update language
-      const updateLanguage = await authService.updateLanguage(body.language)
-      if (!updateLanguage) {
+      const updateCurrency = await authService.updateCurrency(body.currency)
+      if (!updateCurrency) {
         setUpdateError(t('common:statuses.An Error has Occurred'))
         setLoading(false)
         return
       }
+
       await reloadProfile()
       setLoading(false)
       setIsEditing(false)
@@ -64,12 +66,12 @@ export default function MyProfileLanguage() {
       router.push(
         { pathname: router.pathname, query: router.query },
         router.asPath,
-        { locale: body?.language }
+        { locale: body?.currency }
       )
 
       return
     },
-    [reloadProfile, t, validate, language, router]
+    [reloadProfile, t, validate, currency, router]
   )
 
   const handleBeginEdit = useCallback(() => {
@@ -79,15 +81,15 @@ export default function MyProfileLanguage() {
   }, [])
 
   const handleCancelEdit = useCallback(() => {
-    setLanguage(user.locale || DEFAULT_LOCALE)
+    setCurrency(user.currency || DEFAULT_LOCALE)
     setFormErrors({})
     setUpdateError('')
     setUpdateSuccess(false)
     setIsEditing(false)
   }, [user])
 
-  const handleLanguageChange = useCallback((selectOption: SelectOption) => {
-    setLanguage(selectOption.id as string)
+  const handleCurrencyChange = useCallback((selectOption: SelectOption) => {
+    setCurrency(selectOption.id as string)
   }, [])
 
   return (
@@ -98,23 +100,23 @@ export default function MyProfileLanguage() {
         </Heading>
         {updateSuccess && (
           <div className={common.confirmation}>
-            {t('profile:resetLanguageConfirmation')}
+            {t('profile:resetCurrencyConfirmation')}
           </div>
         )}
-        {(formErrors?.locale || updateError) && (
+        {(formErrors?.currency || updateError) && (
           <div className={common.error}>
-            {(formErrors?.locale as string) || updateError}
+            {(formErrors?.currency as string) || updateError}
           </div>
         )}
       </div>
       <div className={common.sectionContent}>
-        <form className={common.form} onSubmit={handleUpdateLanguage}>
+        <form className={common.form} onSubmit={handleUpdateCurrency}>
           <div className={css.inputWrapper}>
-            <Language
+            <Currency
               disabled={!isEditing}
               showLabel={false}
-              value={language}
-              handleChange={handleLanguageChange}
+              value={currency}
+              handleChange={handleCurrencyChange}
               t={t}
             />
             {isEditing ? (
