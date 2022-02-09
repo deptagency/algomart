@@ -29,6 +29,7 @@ export default function BillingAddress({
   initialValues,
 }: BillingAddressProps) {
   const { t } = useTranslation()
+  // @TODO: Retrieve the country list from the API
   const countryOptions = [
     { id: 'CA', label: t('forms:fields.country.values.CA') },
     { id: 'US', label: t('forms:fields.country.values.US') },

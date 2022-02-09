@@ -43,6 +43,7 @@ export default function BankAccountForm({
     release?.type === PackType.Auction
       ? bid
       : formatIntToFloat(release?.price || 0)
+  // @TODO: Retrieve the country list from the API
   const countryOptions = [
     { id: 'CA', label: t('forms:fields.country.values.CA') },
     { id: 'US', label: t('forms:fields.country.values.US') },
