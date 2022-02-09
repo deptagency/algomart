@@ -99,21 +99,21 @@ const PackOpening = memo(function Scene({
   // Environment
   const environmentMap = useCubeTexture(
     [
-      'pack-texture.jpg',
-      'pack-texture.jpg',
-      'pack-texture.jpg',
-      'pack-texture.jpg',
-      'pack-texture.jpg',
-      'pack-texture.jpg',
+      'gold-env-map.jpg',
+      'gold-env-map.jpg',
+      'gold-env-map.jpg',
+      'gold-env-map.jpg',
+      'gold-env-map.jpg',
+      'gold-env-map.jpg',
     ],
     { path: '/images/textures/' }
   )
 
   //Pack Cover
-  const coverImage = useTexture(packPreview)
+  const coverImage = useTexture('/images/textures/wc-logo.png')
 
   // Model
-  const texture = useTexture('/images/textures/pack-texture.jpg')
+  const texture = useTexture('/images/textures/gold-texture.jpg')
   texture.generateMipmaps = true
   texture.minFilter = NearestFilter
   texture.magFilter = NearestFilter
@@ -201,11 +201,12 @@ const PackOpening = memo(function Scene({
         <group
           position-y={-30}
           rotation={[0, Math.PI * 0.5, 0]}
-          scale={[0.000_03, 0.000_03, 0.000_03]}
+          scale={[0.000_06, 0.000_06, 0.000_06]}
         >
           <primitive
             object={gltf.scene.children[0]}
             position={[0, Math.PI, 0]}
+            scale={[0.3, 0.5, 0.68]}
           />
         </group>
 
@@ -214,7 +215,7 @@ const PackOpening = memo(function Scene({
           args={[22, 22]}
           onPointerOver={() => setHover(true)}
           onPointerOut={() => setHover(false)}
-          position-y={8}
+          position-y={5}
           position-z={1.9}
           scale={[1, coverImage.image.height / coverImage.image.width, 1]}
         >
@@ -230,7 +231,7 @@ const PackOpening = memo(function Scene({
         </Plane>
 
         {/* Label Text */}
-        <group position-y={-12}>
+        {/* <group position-y={-12}>
           <TextBox
             boxDimensions={[22, 5, 1]}
             envMap={environmentMap}
@@ -251,7 +252,7 @@ const PackOpening = memo(function Scene({
             text={collectablesText}
             textDimensions={[12, 12, 10]}
           />
-        </group>
+        </group> */}
       </animated.mesh>
 
       {/* Open pack button */}
