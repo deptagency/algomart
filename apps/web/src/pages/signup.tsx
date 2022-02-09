@@ -31,6 +31,7 @@ export default function SignUpPage() {
       event.preventDefault()
       const formData = new FormData(event.currentTarget)
       const body = {
+        currency: formData.get('currency') as string,
         email: formData.get('email') as string,
         username: formData.get('username') as string,
         locale: formData.get('locale') as string,

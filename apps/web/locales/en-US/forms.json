@@ -12,6 +12,7 @@
     "invalidCredentials": "Invalid credentials",
     "invalidCreditCard": "Invalid credit card number",
     "invalidCountry": "Invalid country code",
+    "invalidCurrency": "Invalid currency",
     "invalidDetails": "Invalid details provided",
     "invalidName": "Invalid first and last name",
     "invalidPassphrase": "Invalid Passphrase",
@@ -96,6 +97,9 @@
         "CA": "Canada",
         "US": "United States"
       }
+    },
+    "currencies": {
+      "label": "Currencies"
     },
     "defaultCard": {
       "label": "Default",

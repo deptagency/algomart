@@ -35,6 +35,7 @@ export default class AccountsService {
 
     // 3. save account with encrypted mnemonic
     await UserAccountModel.query(trx).insertGraph({
+      currency: request.currency,
       username: request.username,
       email: request.email,
       locale: request.locale,

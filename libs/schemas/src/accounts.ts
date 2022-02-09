@@ -37,6 +37,7 @@ const BaseUserAccountSchema = Type.Intersect([
   ExternalIdSchema,
   UsernameSchema,
   Type.Object({
+    currency: Type.String(),
     email: Type.String({ format: 'email' }),
     locale: Type.String({
       minLength: 2,

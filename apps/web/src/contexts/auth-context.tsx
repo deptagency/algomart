@@ -97,13 +97,14 @@ async function mapUserToProfile(
 ): Promise<Profile> {
   return {
     address: null,
+    currency: null,
     email: user.email,
     emailVerified: user.emailVerified,
+    locale: null,
     name: user.displayName,
     photo: user.photoURL,
     token: await user.getIdToken(),
     uid: user.uid,
-    locale: null,
     username: null,
   }
 }
@@ -173,13 +174,14 @@ export function useAuthProvider() {
       dispatch(
         authActions.setUser({
           ...profile,
-          username: profileResponse?.username || null,
           address: profileResponse?.address || null,
+          currency: profileResponse?.currency || null,
           locale: profileResponse?.locale || null,
+          username: profileResponse?.username || null,
         })
       )
     }
-  }, [])
+  }, [locale])
 
   const getRedirectPath = useCallback(() => {
     return window.localStorage.getItem('redirect')
@@ -279,6 +281,7 @@ export function useAuthProvider() {
 
   const registerWithEmailAndPassword = useCallback(
     async ({
+      currency,
       email,
       password,
       passphrase,
@@ -298,7 +301,7 @@ export function useAuthProvider() {
           // Set profile
           const token = await user.getIdToken()
           await fetch(urls.api.v1.profile, {
-            body: JSON.stringify({ email, passphrase, username, locale }),
+            body: JSON.stringify({ currency, email, passphrase, username, locale }),
             headers: {
               authorization: `bearer ${token}`,
               'content-type': 'application/json',

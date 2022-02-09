@@ -1,4 +1,4 @@
-import { FirebaseClaim } from '@algomart/schemas'
+import { CURRENCIES, FirebaseClaim } from '@algomart/schemas'
 import { Translate } from 'next-translate'
 import {
   email,
@@ -12,6 +12,11 @@ import {
 } from 'validator-fns'
 
 // Fields
+export const currency = (t: Translate) => 
+  string(
+    required(t('forms:errors.required') as string),
+    oneOf(CURRENCIES, t('forms.errors.invalidCurrency') as string)
+  )
 export const emailAddress = (t: Translate) =>
   string(
     required(t('forms:errors.required') as string),
@@ -48,6 +53,7 @@ export const userExternalId = (t: Translate) =>
 // Form Validations
 export const validateEmailAndPasswordRegistration = (t: Translate) =>
   object({
+    currency: currency(t),
     email: emailAddress(t),
     username: username(t),
     password: password(t),
@@ -73,6 +79,7 @@ export const validatePasswordReset = (t: Translate) =>
 
 export const validateUserRegistration = (t: Translate) =>
   object({
+    currency: currency(t),
     email: username(t),
     username: username(t),
     passphrase: passphrase(t),

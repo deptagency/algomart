@@ -3,6 +3,7 @@ import { FormEvent } from 'react'
 
 import AlertMessage from '@/components/alert-message/alert-message'
 import {
+  Currency,
   Email,
   Language,
   Passphrase,
@@ -19,6 +20,7 @@ import { FileWithPreview } from '@/types/file'
 export interface SignupTemplateProps {
   error: string | null
   formErrors: Partial<{
+    currency?: unknown
     email?: unknown
     username?: unknown
     language?: unknown
@@ -69,6 +71,7 @@ export default function SignupTemplate({
           profilePic={profilePic}
         />
         <Language error={formErrors.language} t={t} value={locale} />
+        <Currency error={formErrors.currency} t={t} />
         <Passphrase error={formErrors.passphrase} t={t} />
         <Submit disabled={status === 'loading'} t={t} />
       </form>

@@ -1,5 +1,6 @@
 import {
   CollectibleListWithTotal,
+  CURRENCIES,
   DEFAULT_LOCALE,
   LanguageList,
 } from '@algomart/schemas'
@@ -38,6 +39,64 @@ export interface AuthInputProps {
   error?: string | unknown
   helpLink?: ReactNode
   t: Translate
+}
+
+export interface AuthCurrencyProps {
+  disabled?: boolean
+  error?: string | unknown
+  handleChange?(option: SelectOption): void
+  showLabel?: boolean
+  t: Translate
+  value?: string
+}
+
+export function Currency({
+  error,
+  disabled,
+  handleChange,
+  showLabel = true,
+  t,
+  value,
+}: AuthCurrencyProps) {
+  const [options, setOptions] = useState<SelectOption[]>([])
+  const [selectedValue, setSelectedValue] = useState<SelectOption>()
+
+  useEffect(() => {
+    // TODO Replace with more robust const
+    const currencies = CURRENCIES;
+
+    setOptions(
+      currencies.map((currency) => ({
+        id: currency,
+        label: currency,
+      }))
+    )
+  }, [])
+
+  useEffect(() => {
+    setSelectedValue(
+      options && value ? options.find((option) => option.id === value) : null
+    )
+  }, [options, value])
+
+  return (
+    <FormField className={css.formField}>
+      {options.length > 0 && (
+        <Select
+          className="pl-8"
+          defaultOption={options[0]}
+          error={error as string}
+          disabled={disabled}
+          label={showLabel ? t('forms:fields.currencies.label') : undefined}
+          id="currency"
+          name="currency"
+          options={options}
+          selectedValue={selectedValue}
+          handleChange={handleChange}
+        />
+      )}
+    </FormField>
+  )
 }
 
 export function Email({ error, t }: AuthInputProps) {
