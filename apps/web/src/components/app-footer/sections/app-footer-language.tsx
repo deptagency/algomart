@@ -16,6 +16,7 @@ export default function AppFooterLanguage() {
   const router = useRouter()
   const { user, reloadProfile } = useAuth()
   const [language, setLanguage] = useState<string>(useLocale())
+  const [loading, setLoading] = useState<boolean>(false)
 
   const validate = useMemo(() => validateLanguage(t), [t])
 
@@ -23,9 +24,7 @@ export default function AppFooterLanguage() {
     async (selectedOption: SelectOption) => {
       const locale = selectedOption?.id
 
-      // setLoading(true)
-      // setUpdateError('')
-      // setUpdateSuccess(false)
+      setLoading(true)
 
       // Validate form body
       const body = {
@@ -33,8 +32,7 @@ export default function AppFooterLanguage() {
       }
       const bodyValidation = await validate(body)
       if (bodyValidation.state === 'invalid') {
-        // setFormErrors(bodyValidation.errors)
-        // setLoading(false)
+        setLoading(false)
         return
       }
 
@@ -42,8 +40,7 @@ export default function AppFooterLanguage() {
         // Update language
         const updateLanguage = await authService.updateLanguage(body.language)
         if (!updateLanguage) {
-          // setUpdateError(t('common:statuses.An Error has Occurred'))
-          // setLoading(false)
+          setLoading(false)
           return
         }
 
@@ -51,11 +48,7 @@ export default function AppFooterLanguage() {
       }
 
       setCookie(LOCALE_COOKIE, locale, 365)
-      // setLoading(false)
-      // setIsEditing(false)
-      // setFormErrors({})
-      // setUpdateError('')
-      // setUpdateSuccess(true)
+      setLoading(false)
       setLanguage(locale)
       router.push(
         { pathname: router.pathname, query: router.query },
@@ -69,6 +62,7 @@ export default function AppFooterLanguage() {
 
   return (
     <Language
+      disabled={loading}
       showLabel={false}
       value={language}
       handleChange={handleLanguageChange}
