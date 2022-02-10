@@ -1,7 +1,7 @@
 import { DEFAULT_LOCALE, LOCALE_COOKIE } from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { FormEvent, useCallback, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { ExtractError } from 'validator-fns'
 
 import common from './my-profile-common.module.css'
@@ -93,6 +93,10 @@ export default function MyProfileLanguage() {
   const handleLanguageChange = useCallback((selectOption: SelectOption) => {
     setLanguage(selectOption.id as string)
   }, [])
+
+  useEffect(() => {
+    setLanguage(locale)
+  }, [locale])
 
   return (
     <section className={common.section}>

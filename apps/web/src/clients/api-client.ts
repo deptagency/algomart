@@ -466,6 +466,17 @@ export class ApiClient {
   }
   //#endregion
 
+  //#region page
+  async getDirectusPage(slug: string, locale: string) {
+    return await this.http
+      .get('page', {
+        searchParams: {
+          locale,
+          slug,
+        },
+      })
+      .json()
+  }
   //#region Languages
   async getLanguages(locale: string) {
     return await this.http

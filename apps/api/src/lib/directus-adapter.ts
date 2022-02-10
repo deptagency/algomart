@@ -91,6 +91,11 @@ export interface DirectusCollectionTranslation extends DirectusTranslation {
   reward_complete: string | null
 }
 
+export interface DirectusPageTranslation extends DirectusTranslation {
+  body: string
+  title: string
+}
+
 export interface DirectusCollection {
   id: string
   status: DirectusStatus
@@ -873,6 +878,31 @@ export default class DirectusAdapter {
     if (response.data.length === 0) return null
     const set = response.data[0]
     return toSetWithCollection(set, this.getFileURL.bind(this), locale)
+  }
+
+  async getDirectusPage(slug, locale = DEFAULT_LOCALE) {
+    const response = await this.http.get('items/page', {
+      searchParams: getParameters({
+        filter: {
+          slug: {
+            _eq: slug,
+          },
+        },
+        fields: ['*.*'],
+      }),
+    })
+
+    if (response.statusCode === 200) {
+      const data = JSON.parse(response.body).data
+      if (!Array.isArray(data) || (Array.isArray(data) && data.length === 0))
+        invariant(`Page data for slug "${slug}" not found`)
+      return getDirectusTranslation<DirectusPageTranslation>(
+        data[0].translations as DirectusPageTranslation[],
+        `No translations found for slug "${slug}"`,
+        locale
+      )
+    }
+    return null
   }
 
   async getFaqs(locale: string = DEFAULT_LOCALE) {
