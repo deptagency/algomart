@@ -1,7 +1,7 @@
 import { LOCALE_COOKIE } from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Language } from '@/components/auth-inputs/auth-inputs'
 import { SelectOption } from '@/components/select/select'
@@ -14,6 +14,7 @@ import { setCookie } from '@/utils/cookies-web'
 export default function AppFooterLanguage() {
   const { t } = useTranslation()
   const router = useRouter()
+  const locale = useLocale()
   const { user, reloadProfile } = useAuth()
   const [language, setLanguage] = useState<string>(useLocale())
   const [loading, setLoading] = useState<boolean>(false)
@@ -59,6 +60,10 @@ export default function AppFooterLanguage() {
     },
     [validate, user, router, reloadProfile]
   )
+
+  useEffect(() => {
+    setLanguage(locale)
+  }, [locale])
 
   return (
     <Language
