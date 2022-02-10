@@ -1,0 +1,44 @@
+{
+  "sorting": {
+    "Brand": "ES Brand",
+    "Name": "ES Name",
+    "Newest": "ES Newest",
+    "Oldest": "ES Oldest"
+  },
+  "tabs": {
+    "NFTs": "ES NFTs",
+    "Collections": "ES Collections",
+    "Showcase": "ES Showcase"
+  },
+  "algoAddressPage": {
+    "Algorand Account": "ES Algorand Account",
+    "invalidAlgoAccount": "ES This address does not exist.",
+    "noCollectiblesInAccount": "ES This Algorand account does not have any collectibles."
+  },
+  "collectionPage": {
+    "A collection by": "ES <0>A collection by <1>{{brand}}</1></0>",
+    "Number of Total Collected": "ES {{number}} of {{total}} Collected",
+    "Other Collectibles": "ES Other Collectibles",
+    "Part of Collection": "ES <0>Part of <1>{{name}}</1></0>"
+  },
+  "viewer": {
+    "exclusiveText": "ES {{name}} Employee Exclusive",
+    "of": "ES of",
+    "ownedByText": "ES Owned by @{{name}} (that's you!)",
+    "ownedBy": "ES Owned by",
+    "thatsYou": "ES (that's you!)",
+    "Collectible_one": "ES Collectible",
+    "Collectible_0": "ES Collectibles",
+    "Collectible_other": "ES Collectibles",
+    "collected": "ES Collected",
+    "selectCollectibles": "ES Select the collectibles to include in your showcase",
+    "maxCollectibles": "ES You can only showcase up to 8 collectibles.",
+    "noCollectibles": "ES You haven't collected anything yet.",
+    "Your collection": "ES Your collection",
+    "Publish Showcase": "ES Publish Showcase",
+    "Find Something Cool": "ES Find Something Cool",
+    "startCollection": "ES Start your collection today.",
+    "emptyState": "ES Showcase is a publicly available gallery of your best collectibles. Add your favorites to share them with the world!",
+    "showcaseTitle": "ES @{{username}}'s showcase"
+  }
+}
