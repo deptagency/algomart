@@ -151,6 +151,16 @@ export interface DirectusPackTemplate {
   type: PackType
 }
 
+export interface DirectusLanguageTemplate {
+  code: string
+  translations: DirectusLanguageTemplateTranslation[]
+}
+
+export interface DirectusLanguageTemplateTranslation
+  extends DirectusTranslation {
+  label: string
+}
+
 export interface DirectusFaqTemplateTranslation extends DirectusTranslation {
   question: string | null
   answer: string | null
@@ -960,5 +970,28 @@ export default class DirectusAdapter {
     }
 
     return null
+  }
+
+  async getLanguages(locale = DEFAULT_LOCALE) {
+    const defaultQuery: ItemQuery<DirectusLanguageTemplate> = {
+      limit: -1,
+      fields: ['*.*'],
+    }
+
+    const response = await this.findMany<DirectusLanguageTemplate>(
+      `languages`,
+      {
+        ...defaultQuery,
+      }
+    )
+
+    return response.data.map((directusLanguageTemplate) => ({
+      languages_code: directusLanguageTemplate.code,
+      label: getDirectusTranslation<DirectusLanguageTemplateTranslation>(
+        directusLanguageTemplate.translations as DirectusLanguageTemplateTranslation[],
+        `language has no translations`,
+        locale
+      )?.label,
+    }))
   }
 }

@@ -7,7 +7,7 @@ import Button from '@/components/button'
 import Heading from '@/components/heading'
 import { useAuth } from '@/contexts/auth-context'
 
-export default function MyProfileImage() {
+export default function MyProfilePassword() {
   const { t } = useTranslation()
   const { user, sendPasswordReset } = useAuth()
   const [loading, setLoading] = useState<boolean>(false)

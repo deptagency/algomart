@@ -26,6 +26,7 @@ import {
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
+  LanguageList,
   Locale,
   LocaleAndExternalId,
   MintPack,
@@ -475,6 +476,16 @@ export class ApiClient {
         },
       })
       .json()
+  }
+  //#region Languages
+  async getLanguages(locale: string) {
+    return await this.http
+      .get('languages', {
+        searchParams: {
+          locale: locale || DEFAULT_LOCALE,
+        },
+      })
+      .json<LanguageList>()
   }
   //#endregion
 

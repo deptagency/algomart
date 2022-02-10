@@ -112,6 +112,7 @@ export default class AccountsService {
       externalId,
       showProfile,
       username,
+      locale,
     }: UpdateUserAccount & ExternalId,
     trx?: Transaction
   ) {
@@ -121,6 +122,7 @@ export default class AccountsService {
         email,
         showProfile,
         username,
+        locale,
       })
     userInvariant(result === 1, 'user account not found', 404)
   }

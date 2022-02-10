@@ -1,3 +1,4 @@
+import { RTL_LOCALES } from '@algomart/schemas'
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
@@ -10,14 +11,21 @@ import CookieConsent from '@/components/cookie-consent/cookie-consent'
 import { AuthProvider } from '@/contexts/auth-context'
 import { RedemptionProvider } from '@/contexts/redemption-context'
 import { ThemeProvider } from '@/contexts/theme-context'
+import { useLocale } from '@/hooks/use-locale'
 import { fetcher } from '@/utils/swr'
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
+  const locale = useLocale()
 
   useEffect(() => {
     // First page load
     Analytics.instance.screenView(window.location.pathname)
+    router.push(
+      { pathname: router.pathname, query: router.query },
+      router.asPath,
+      { locale }
+    )
 
     // Route changes
     router.events.on('routeChangeComplete', (event) => {
@@ -29,6 +37,12 @@ function MyApp({ Component, pageProps }: AppProps) {
       router.events.off('routeChangeComplete', Analytics.instance.screenView)
     }
   }, []) /* eslint-disable-line react-hooks/exhaustive-deps */
+
+  useEffect(() => {
+    document.documentElement.dir = RTL_LOCALES.includes(locale.split('-')[0])
+      ? 'rtl'
+      : 'ltr'
+  }, [locale])
 
   return (
     <SWRConfig value={{ fetcher }}>

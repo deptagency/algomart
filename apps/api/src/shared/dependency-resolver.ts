@@ -16,6 +16,7 @@ import CollectiblesService from '@/modules/collectibles/collectibles.service'
 import CollectionsService from '@/modules/collections/collections.service'
 import FaqsService from '@/modules/faqs/faqs.service'
 import HomepageService from '@/modules/homepage/homepage.service'
+import LanguagesService from '@/modules/languages/languages.service'
 import NotificationsService from '@/modules/notifications/notifications.service'
 import PacksService from '@/modules/packs/packs.service'
 import PaymentsService from '@/modules/payments/payments.service'
@@ -220,6 +221,11 @@ export function configureResolver() {
   resolver.set(
     DirectusPageService.name,
     (c) => new DirectusPageService(c.get<DirectusAdapter>(DirectusAdapter.name))
+  )
+
+  resolver.set(
+    LanguagesService.name,
+    (c) => new LanguagesService(c.get<DirectusAdapter>(DirectusAdapter.name))
   )
   return resolver
 }
