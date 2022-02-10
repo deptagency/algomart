@@ -33,7 +33,7 @@ export default function AdminTransactionPage({
   const { t, lang } = useTranslation('admin')
   const { query } = useRouter()
   const { transactionId } = query
-  const isAuction = !!payment.pack?.auctionUntil
+  const isAuction = !!payment.pack?.template?.auctionUntil
 
   // WIRE PAYMENTS
   const { data } = useAuthApi<WirePayment[]>(
@@ -117,7 +117,7 @@ export default function AdminTransactionPage({
         <Flex item flex="0 0 250px" className="overflow-hidden" gap={2}>
           <Panel fullWidth>
             <Image
-              src={payment.pack?.image}
+              src={payment.pack?.template?.image}
               layout="responsive"
               height="100%"
               width="100%"
@@ -129,19 +129,22 @@ export default function AdminTransactionPage({
             <Panel className={css.userInfoPanel}>
               <dl>
                 <dt>Type</dt>
-                <dd>{payment.pack?.type}</dd>
+                <dd>{payment.pack?.template?.type}</dd>
                 <dt>Title</dt>
-                <dd>{payment.pack?.title}</dd>
+                <dd>{payment.pack?.template?.title}</dd>
                 <dt>Slug</dt>
                 <dd>
                   <AppLink
-                    href={urls.release.replace(':packSlug', payment.pack?.slug)}
+                    href={urls.release.replace(
+                      ':packSlug',
+                      payment.pack?.template?.slug
+                    )}
                   >
-                    {payment.pack?.slug}
+                    {payment.pack?.template?.slug}
                   </AppLink>
                 </dd>
                 <dt>Price</dt>
-                <dd>{formatCurrency(payment.pack?.price, lang)}</dd>
+                <dd>{formatCurrency(payment.pack?.template?.price, lang)}</dd>
                 <dt>Template ID</dt>
                 <dd>{payment.pack?.templateId}</dd>
               </dl>
@@ -174,7 +177,9 @@ export default function AdminTransactionPage({
               <Flex alignItems="stretch" gap={4} Element="dl">
                 <div className={css.packMeta}>
                   <dt>Winning Bid</dt>
-                  <dd>{formatCurrency(payment.pack?.activeBid, lang)} </dd>
+                  <dd>
+                    {formatCurrency(payment.pack?.template?.activeBid, lang)}
+                  </dd>
                 </div>
                 <div className={css.packMeta}>
                   <dt>Winner</dt>
@@ -183,7 +188,9 @@ export default function AdminTransactionPage({
                 <div className={css.packMeta}>
                   <dt>Ended At</dt>
                   <dd>
-                    {new Date(payment.pack?.auctionUntil).toLocaleString(lang)}
+                    {new Date(
+                      payment.pack?.template?.auctionUntil
+                    ).toLocaleString(lang)}
                   </dd>
                 </div>
               </Flex>

@@ -214,6 +214,13 @@ export const PackByTemplateIdSchema = Type.Object({
   templateId: IdSchema,
 })
 
+export const PackForPaymentSchema = Type.Intersect([
+  PackSchema,
+  Type.Object({
+    template: Type.Optional(Nullable(PackBaseSchema)),
+  }),
+])
+
 export const RedeemCodeSchema = Type.Object({
   redeemCode: Type.String({
     minLength: REDEMPTION_CODE_LENGTH,
