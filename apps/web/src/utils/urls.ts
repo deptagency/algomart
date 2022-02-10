@@ -33,9 +33,9 @@ export const urls = {
   signUp: '/signup',
 
   // Legal
-  communityGuidelines: '#',
-  privacyPolicy: '#',
-  termsAndConditions: '#',
+  communityGuidelines: '/community-guidelines',
+  privacyPolicy: '/privacy-policy',
+  termsAndConditions: '/tos',
 
   // Admin
   admin: {

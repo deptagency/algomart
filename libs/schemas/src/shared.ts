@@ -55,6 +55,13 @@ export const LocaleAndExternalIdSchema = Type.Intersect([
   ExternalIdSchema,
 ])
 
+export const DirectusPageAndLocaleSchema = Type.Intersect([
+  LocaleSchema,
+  Type.Object({
+    slug: Type.String(),
+  }),
+])
+
 export enum SortDirection {
   Ascending = 'asc',
   Descending = 'desc',
