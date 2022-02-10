@@ -10,6 +10,7 @@ import css from './featured-pack.module.css'
 import Button from '@/components/button'
 import Counter from '@/components/counter/counter'
 import Heading from '@/components/heading'
+import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/format-currency'
 
@@ -23,6 +24,7 @@ export default function HomeTemplate({
   onClickFeatured,
 }: FeaturedPackProps) {
   const locale = useLocale()
+  const currency = useCurrency()
   const { t, lang } = useTranslation()
 
   const highestBid = featuredPack?.activeBid || 0
@@ -132,7 +134,7 @@ export default function HomeTemplate({
                         [css.completeSuccess]: isExpired && isReserveMet,
                       })}
                     >
-                      {formatCurrency(highestBid, lang)}
+                      {formatCurrency(highestBid, lang, currency)}
                     </div>
                   </>
                 </div>
@@ -192,7 +194,8 @@ export default function HomeTemplate({
                     featuredPack.type === PackType.Purchase) &&
                     formatCurrency(
                       featuredPack.activeBid ?? featuredPack.price,
-                      locale
+                      locale,
+                      currency
                     )}
                 </p>
               </>

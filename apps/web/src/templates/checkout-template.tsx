@@ -9,10 +9,12 @@ import EmailVerification from '@/components/profile/email-verification'
 import { useAuth } from '@/contexts/auth-context'
 import { PaymentContextProps } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
+import { useCurrency } from '@/hooks/use-currency'
 import { isGreaterThanOrEqual } from '@/utils/format-currency'
 import { MAX_BID_FOR_CARD_PAYMENT } from '@/utils/purchase-validation'
 
 export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
+  const currency = useCurrency()
   const { t } = useTranslation()
   const { user } = useAuth()
   const { pathname, query } = useRouter()
@@ -21,9 +23,13 @@ export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
   const doesRequireNonCardPayment =
     (Environment.isWireEnabled || Environment.isCryptoEnabled) &&
     ((currentBid &&
-      isGreaterThanOrEqual(currentBid, MAX_BID_FOR_CARD_PAYMENT)) ||
+      isGreaterThanOrEqual(currentBid, MAX_BID_FOR_CARD_PAYMENT, currency)) ||
       (release?.price &&
-        isGreaterThanOrEqual(release.price, MAX_BID_FOR_CARD_PAYMENT)))
+        isGreaterThanOrEqual(
+          release.price,
+          MAX_BID_FOR_CARD_PAYMENT,
+          currency
+        )))
 
   const getCardList = (t: Translate) => {
     const baseCards = [

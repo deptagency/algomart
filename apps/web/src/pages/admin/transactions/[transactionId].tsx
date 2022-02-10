@@ -16,6 +16,7 @@ import { Flex } from '@/components/flex'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
+import { useCurrency } from '@/hooks/use-currency'
 import AdminLayout from '@/layouts/admin-layout'
 import adminService from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
@@ -31,6 +32,7 @@ export default function AdminTransactionPage({
   payment,
 }: AdminTransactionPageProps) {
   const { t, lang } = useTranslation('admin')
+  const currency = useCurrency()
   const { query } = useRouter()
   const { transactionId } = query
   const isAuction = !!payment.pack?.auctionUntil
@@ -50,7 +52,7 @@ export default function AdminTransactionPage({
     {
       key: 'pack.price',
       name: t('transactions.table.Amount'),
-      renderer: ({ value }) => formatCurrency(value, lang),
+      renderer: ({ value }) => formatCurrency(value, lang, currency),
     },
     { key: 'status', name: t('transactions.table.Status') },
     { key: 'type', name: t('transactions.table.Type') },
@@ -141,7 +143,7 @@ export default function AdminTransactionPage({
                   </AppLink>
                 </dd>
                 <dt>Price</dt>
-                <dd>{formatCurrency(payment.pack?.price, lang)}</dd>
+                <dd>{formatCurrency(payment.pack?.price, lang, currency)}</dd>
                 <dt>Template ID</dt>
                 <dd>{payment.pack?.templateId}</dd>
               </dl>

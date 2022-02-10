@@ -22,6 +22,7 @@ import {
 import { ExtractError } from 'validator-fns'
 
 import { Analytics } from '@/clients/firebase-analytics'
+import { useCurrency } from '@/hooks/use-currency'
 import bidService from '@/services/bid-service'
 import checkoutService, {
   CreateBankAccountRequest,
@@ -100,6 +101,7 @@ export function usePaymentProvider({
   release,
 }: PaymentProviderProps) {
   const { t } = useTranslation()
+  const currency = useCurrency()
   const { asPath, query, push, route } = useRouter()
   const { method } = query
 
@@ -107,7 +109,7 @@ export function usePaymentProvider({
   const [status, setStatus] = useState<CheckoutStatus>(CheckoutStatus.form)
   const [loadingText, setLoadingText] = useState<string>('')
   const highestBid = currentBid || 0
-  const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
+  const initialBid = currentBid ? formatIntToFloat(currentBid, currency) : '0'
   const [bid, setBid] = useState<string | null>(initialBid)
   const [address, setAddress] = useState<string | null>(null)
   const [promptLeaving, setPromptLeaving] = useState(false)
@@ -137,7 +139,7 @@ export function usePaymentProvider({
   const price =
     release?.type === PackType.Auction
       ? bid
-      : formatIntToFloat(release?.price || 0)
+      : formatIntToFloat(release?.price || 0, currency)
 
   const handleSetStatus = useCallback(
     (status: CheckoutStatus.form | CheckoutStatus.summary) => {
@@ -512,7 +514,7 @@ export function usePaymentProvider({
           confirmBid,
         } = body
 
-        const bid = formatFloatToInt(floatBid)
+        const bid = formatFloatToInt(floatBid, currency)
 
         // If the bid is within the maximum bid range, submit card details
         if (method === CheckoutMethod.card) {

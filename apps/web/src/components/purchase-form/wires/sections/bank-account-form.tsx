@@ -13,6 +13,7 @@ import FullName from '@/components/purchase-form/shared/full-name'
 import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import { FormValidation } from '@/contexts/payment-context'
+import { useCurrency } from '@/hooks/use-currency'
 import { isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 
@@ -35,6 +36,7 @@ export default function BankAccountForm({
   release,
   setBid,
 }: BankAccountFormProps) {
+  const currency = useCurrency()
   const { t, lang } = useTranslation()
   const isAuctionActive =
     release?.type === PackType.Auction &&
@@ -42,7 +44,7 @@ export default function BankAccountForm({
   const price =
     release?.type === PackType.Auction
       ? bid
-      : formatIntToFloat(release?.price || 0)
+      : formatIntToFloat(release?.price || 0, currency)
   const countryOptions = [
     { id: 'CA', label: t('forms:fields.country.values.CA') },
     { id: 'US', label: t('forms:fields.country.values.US') },
@@ -200,7 +202,9 @@ export default function BankAccountForm({
       {/* Price */}
       <div className={css.priceContainer}>
         <p className={css.priceLabel}>{t('release:Total')}</p>
-        <p className={css.priceValue}>{formatCurrency(price, lang)}</p>
+        <p className={css.priceValue}>
+          {formatCurrency(price, lang, currency)}
+        </p>
       </div>
 
       {/* Submit */}

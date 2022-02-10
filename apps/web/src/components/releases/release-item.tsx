@@ -6,6 +6,7 @@ import useTranslation from 'next-translate/useTranslation'
 import css from './release-item.module.css'
 
 import Counter from '@/components/counter/counter'
+import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { cmsImageLoader } from '@/utils/cms-image-loader'
 import { formatCurrency } from '@/utils/format-currency'
@@ -16,6 +17,7 @@ export interface ReleaseItemProps {
 
 export default function ReleaseItem({ pack }: ReleaseItemProps) {
   const locale = useLocale()
+  const currency = useCurrency()
   const { t } = useTranslation()
 
   const reserveMet =
@@ -51,7 +53,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
             </div>
             <div className={css.metadataValue}>
               {reserveMet
-                ? formatCurrency(pack.activeBid ?? 0, locale)
+                ? formatCurrency(pack.activeBid ?? 0, locale, currency)
                 : t('release:Not Met')}
             </div>
           </div>
@@ -78,7 +80,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
             </div>
             <div className={css.metadataValue}>
               {reserveMet
-                ? formatCurrency(pack.activeBid ?? 0, locale)
+                ? formatCurrency(pack.activeBid ?? 0, locale, currency)
                 : t('release:Not Met')}
             </div>
           </div>
@@ -111,7 +113,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
           <div>
             <div className={css.metadataLabel}>{t('release:Mint Cost')}</div>
             <div className={css.metadataValue}>
-              {formatCurrency(pack.price, locale)}
+              {formatCurrency(pack.price, locale, currency)}
             </div>
           </div>
           <div>

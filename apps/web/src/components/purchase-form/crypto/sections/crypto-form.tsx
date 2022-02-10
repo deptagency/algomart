@@ -16,6 +16,7 @@ import Checkbox from '@/components/checkbox'
 import Heading from '@/components/heading'
 import Bid from '@/components/purchase-form/shared/bid'
 import { FormValidation } from '@/contexts/payment-context'
+import { useCurrency } from '@/hooks/use-currency'
 import { formatCurrency } from '@/utils/format-currency'
 import { urls } from '@/utils/urls'
 
@@ -57,6 +58,7 @@ export default function CryptoForm({
   setStatus,
 }: CryptoFormProps) {
   const { t, lang } = useTranslation()
+  const currency = useCurrency()
   const { push } = useRouter()
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
 
@@ -125,7 +127,9 @@ export default function CryptoForm({
       {/* Price */}
       <div className={css.priceContainer}>
         <p className={css.priceLabel}>{t('release:Total')}</p>
-        <p className={css.priceValue}>{formatCurrency(price, lang)}</p>
+        <p className={css.priceValue}>
+          {formatCurrency(price, lang, currency)}
+        </p>
       </div>
 
       {!isAuctionActive ? (

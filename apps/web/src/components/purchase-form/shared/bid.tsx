@@ -2,6 +2,7 @@ import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 
 import CurrencyInput from '@/components/currency-input/currency-input'
+import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/format-currency'
 
@@ -14,6 +15,7 @@ export interface BidProps {
 
 export default function Bid({ bid, className, initialBid, setBid }: BidProps) {
   const locale = useLocale()
+  const currency = useCurrency()
   const { t, lang } = useTranslation()
   return (
     <>
@@ -24,7 +26,7 @@ export default function Bid({ bid, className, initialBid, setBid }: BidProps) {
         helpText={
           initialBid
             ? t('forms:fields.bid.helpTextCurrentBid', {
-                amount: formatCurrency(initialBid, lang),
+                amount: formatCurrency(initialBid, lang, currency),
               })
             : undefined
         }

@@ -11,11 +11,15 @@ import css from './crypto-form.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
+import { useCurrency } from '@/hooks/use-currency'
 import { AlgorandAdapter, ChainType, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
 import checkoutService from '@/services/checkout-service'
-import { formatToDecimal, isGreaterThanOrEqual } from '@/utils/format-currency'
-import { formatFloatToInt } from '@/utils/format-currency'
+import {
+  formatFloatToInt,
+  formatToDecimal,
+  isGreaterThanOrEqual,
+} from '@/utils/format-currency'
 import { poll } from '@/utils/poll'
 
 const algorand = new AlgorandAdapter(ChainType.TestNet)
@@ -43,6 +47,7 @@ export default function CryptoFormWalletConnect({
   setStatus,
 }: CryptoFormWalletConnectProps) {
   const { t } = useTranslation()
+  const currency = useCurrency()
   const [connected, setConnected] = useState(false)
   const [account, setAccount] = useState<string>('')
   const connectorReference = useRef<IConnector>()
@@ -90,10 +95,14 @@ export default function CryptoFormWalletConnect({
     }
 
     // Check USDC balance
-    const usdcBalance = formatToDecimal(usdcAsset.amount, usdcAsset.decimals)
-    const usdcBalanceInt = formatFloatToInt(usdcBalance)
-    const priceInt = formatFloatToInt(price)
-    if (!isGreaterThanOrEqual(usdcBalanceInt, priceInt)) {
+    const usdcBalance = formatToDecimal(
+      usdcAsset.amount,
+      usdcAsset.decimals,
+      currency
+    )
+    const usdcBalanceInt = formatFloatToInt(usdcBalance, currency)
+    const priceInt = formatFloatToInt(price, currency)
+    if (!isGreaterThanOrEqual(usdcBalanceInt, priceInt, currency)) {
       // Not enough USDC
       setError(t('forms:errors.minUSDC', { balance: usdcBalance, min: price }))
       setStatus(CheckoutStatus.error)

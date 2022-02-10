@@ -2,6 +2,7 @@ import { BadRequest, NotFound } from 'http-errors'
 import { NextApiResponse } from 'next'
 
 import { ApiClient } from '@/clients/api-client'
+import { useCurrency } from '@/hooks/use-currency'
 import createHandler, { NextApiRequestApp } from '@/middleware'
 import authMiddleware from '@/middleware/auth-middleware'
 import userMiddleware from '@/middleware/user-middleware'
@@ -21,6 +22,7 @@ handler.post(
   validateBodyMiddleware(validateBidForPack),
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
     const { amount, packId } = request.validResult.value as BodyType
+    const currency = useCurrency()
 
     // Get corresponding pack and its auction data
     const pack = await ApiClient.instance.packWithCollectibles({
@@ -34,7 +36,7 @@ handler.post(
     )
 
     // Validate the bid is higher than a previous active bid
-    if (activeBid && isGreaterThanOrEqual(activeBid.amount, amount)) {
+    if (activeBid && isGreaterThanOrEqual(activeBid.amount, amount, currency)) {
       throw new BadRequest('Bid is not higher than the previous bid')
     }
 

@@ -1,4 +1,5 @@
 import { CURRENCIES, DEFAULT_LOCALE } from '@algomart/schemas'
+import * as Currencies from '@dinero.js/currencies'
 import { ShieldExclamationIcon, UserCircleIcon } from '@heroicons/react/outline'
 import Image from 'next/image'
 import { Translate } from 'next-translate'
@@ -48,7 +49,7 @@ export function Currency({
   const [selectedValue, setSelectedValue] = useState<SelectOption>()
 
   useEffect(() => {
-    const currencies = CURRENCIES
+    const currencies = Currencies
 
     setOptions(
       currencies.map((currency) => ({
