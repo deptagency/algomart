@@ -8,6 +8,7 @@ import I18nAdapter from '@/lib/i18n-adapter'
 import MailerAdapter from '@/lib/mailer-adapter'
 import NFTStorageAdapter from '@/lib/nft-storage-adapter'
 import AccountsService from '@/modules/accounts/accounts.service'
+import ApplicationService from '@/modules/application/application.service'
 import AuctionsService from '@/modules/auctions/auctions.service'
 import BidsService from '@/modules/bids/bids.service'
 import CollectiblesService from '@/modules/collectibles/collectibles.service'
@@ -208,6 +209,10 @@ export function configureResolver() {
   resolver.set(
     AuctionsService.name,
     (c) => new AuctionsService(c.get<AlgorandAdapter>(AlgorandAdapter.name))
+  )
+  resolver.set(
+    ApplicationService.name,
+    (c) => new ApplicationService(c.get<DirectusAdapter>(DirectusAdapter.name))
   )
   return resolver
 }

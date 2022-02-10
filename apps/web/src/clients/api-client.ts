@@ -11,6 +11,7 @@ import {
   CollectibleShowcaseQuerystring,
   CollectibleWithDetails,
   CollectionWithSets,
+  Countries,
   CreateBankAccount,
   CreateBankAccountResponse,
   CreateBidRequest,
@@ -462,6 +463,12 @@ export class ApiClient {
         },
       })
       .json<Homepage>()
+  }
+  //#endregion
+
+  //#region Application
+  async getCountries() {
+    return await this.http.get('application/countries').json<Countries>()
   }
   //#endregion
 }

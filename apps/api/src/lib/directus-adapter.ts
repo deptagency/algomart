@@ -2,6 +2,7 @@ import {
   CollectibleBase,
   CollectionBase,
   CollectionWithSets,
+  Countries,
   DEFAULT_LOCALE,
   HomepageBase,
   PackBase,
@@ -144,6 +145,19 @@ export interface DirectusPackTemplate {
   status: DirectusStatus
   translations: number[] | DirectusPackTemplateTranslation[]
   type: PackType
+}
+
+export interface DirectusCountry {
+  code: string
+  translations: number[] | DirectusCountryTranslation[]
+}
+
+export interface DirectusCountryTranslation extends DirectusTranslation {
+  name: string | null
+}
+
+export interface DirectusApplication {
+  countries: DirectusCountry[]
 }
 
 // #endregion
@@ -513,6 +527,18 @@ export function toPackBase(
     templateId: template.id,
     title: translation.title,
     type: template.type,
+  }
+}
+
+export function toCountryBase(template: DirectusCountry, locale: string) {
+  const translation = getDirectusTranslation<DirectusCountryTranslation>(
+    template.translations as DirectusCountryTranslation[],
+    `country ${template.code} has no translations`,
+    locale
+  )
+  return {
+    code: template.code,
+    name: translation.name,
   }
 }
 
@@ -894,6 +920,27 @@ export default class DirectusAdapter {
         response.body
       )
       return toHomepageBase(result.data)
+    }
+
+    return null
+  }
+
+  async findCountries(locale = DEFAULT_LOCALE): Promise<Countries> {
+    // Application is a singleton in the CMS, which makes this endpoint only return a single item.
+    // Therefore we should avoid using the `findMany` method and instead act as if the result is
+    // from a `findById` call.
+    const response = await this.http.get('items/application', {
+      searchParams: getParameters({
+        fields: ['currency', 'countries'],
+      }),
+    })
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      const result: ItemByIdResponse<DirectusApplication> = JSON.parse(
+        response.body
+      )
+      const { countries } = result.data
+      return countries.map((country) => toCountryBase(country, locale))
     }
 
     return null

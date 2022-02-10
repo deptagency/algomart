@@ -54,6 +54,13 @@ export const SlugSchema = Type.Object({
   slug: Type.String(),
 })
 
+export const CountrySchema = Type.Object({
+  code: Type.String(),
+  name: Type.String(),
+})
+
+export const CountriesSchema = Type.Array(CountrySchema)
+
 export const Nullable = <T extends TSchema>(type: T) =>
   Type.Union([type, Type.Null()])
 
@@ -68,6 +75,8 @@ export type ExternalId = Simplify<Static<typeof ExternalIdSchema>>
 export type OwnerExternalId = Simplify<Static<typeof OwnerExternalIdSchema>>
 export type Pagination = Simplify<Static<typeof PaginationSchema>>
 export type Slug = Simplify<Static<typeof SlugSchema>>
+export type Country = Simplify<Static<typeof CountrySchema>>
+export type Countries = Simplify<Static<typeof CountriesSchema>>
 export type Locale = Simplify<Static<typeof LocaleSchema>>
 export type LocaleAndExternalId = Simplify<
   Static<typeof LocaleAndExternalIdSchema>
