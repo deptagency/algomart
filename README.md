@@ -92,13 +92,13 @@ You can either build and run each application manually or you can use `docker-co
    psql?> ALTER USER api_user CREATEDB;
 
    psql?> \q
-   ?> psql -U cms_user
+   ?> psql -U cms_user postgres
 
    # create the new database
    psql?> CREATE DATABASE fifa_algomart_cms;
 
    psql?> \q
-   ?> psql -U api_user
+   ?> psql -U api_user  postgres
    psql?> CREATE DATABASE fifa_algomart_api;
 
    # exit back to postgres container terminal
