@@ -3,14 +3,50 @@
 version: '2'
 
 services:
-  db:
-    container_name: algomart-db
+  db_api:
+    container_name: algomart-api-db
     image: postgres:13-alpine
     environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
-      - POSTGRES_DB=algomart
+      - POSTGRES_DB=fifa_algomart_api
+      - POSTGRES_USER=api_user
+      - POSTGRES_PASSWORD=api_pass
     healthcheck:
-      test: ['CMD', 'pg_isready', '-q', '-d', 'algomart', '-U', 'postgres']
+      test:
+        [
+          'CMD',
+          'pg_isready',
+          '-q',
+          '-d',
+          'fifa_algomart_api',
+          '-U',
+          'postgres'
+        ]
+      timeout: 10s
+      interval: 10s
+      retries: 10
+    ports:
+      - 5555:5432
+    volumes:
+      - ./docker/local/db/entrypoint:/docker-entrypoint-initdb.d/
+
+  db_cms:
+    container_name: algomart-cms-db
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_DB=fifa_algomart_cms
+      - POSTGRES_USER=cms_user
+      - POSTGRES_PASSWORD=cms_pass
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'pg_isready',
+          '-q',
+          '-d',
+          'fifa_algomart_cms',
+          '-U',
+          'postgres'
+        ]
       timeout: 10s
       interval: 10s
       retries: 10
@@ -25,7 +61,7 @@ services:
       context: .
       dockerfile: ./docker/local/api/Dockerfile
     depends_on:
-      db:
+      db_api:
         condition: service_healthy
     ports:
       - 3001:3001
@@ -63,7 +99,7 @@ services:
       context: .
       dockerfile: ./docker/local/cms/Dockerfile
     depends_on:
-      db:
+      db_api:
         condition: service_healthy
     ports:
       - 8055:8055
