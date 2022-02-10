@@ -887,9 +887,6 @@ export default class DirectusAdapter {
           slug: {
             _eq: slug,
           },
-          status: {
-            _eq: DirectusStatus.Published,
-          },
         },
         fields: ['*.*'],
       }),

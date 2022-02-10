@@ -155,7 +155,9 @@ collections:
       display_template: null
       hidden: false
       singleton: false
-      translations: null
+      translations:
+        - language: en-US
+          translation: Languages
       archive_field: null
       archive_app_filter: true
       archive_value: null
@@ -169,6 +171,30 @@ collections:
       collapse: open
     schema:
       name: languages
+      schema: public
+      comment: null
+  - collection: languages_translations
+    meta:
+      collection: languages_translations
+      icon: import_export
+      note: null
+      display_template: null
+      hidden: true
+      singleton: false
+      translations: null
+      archive_field: null
+      archive_app_filter: true
+      archive_value: null
+      unarchive_value: null
+      sort_field: null
+      accountability: all
+      color: null
+      item_duplication_fields: null
+      sort: null
+      group: null
+      collapse: open
+    schema:
+      name: languages_translations
       schema: public
       comment: null
   - collection: nft_templates
@@ -308,10 +334,10 @@ collections:
       hidden: false
       singleton: false
       translations: null
-      archive_field: status
+      archive_field: null
       archive_app_filter: true
-      archive_value: archived
-      unarchive_value: draft
+      archive_value: null
+      unarchive_value: null
       sort_field: null
       accountability: all
       color: null
@@ -345,30 +371,6 @@ collections:
       collapse: open
     schema:
       name: page_translations
-      schema: public
-      comment: null
-  - collection: page_translations_1
-    meta:
-      collection: page_translations_1
-      icon: import_export
-      note: null
-      display_template: null
-      hidden: true
-      singleton: false
-      translations: null
-      archive_field: null
-      archive_app_filter: true
-      archive_value: null
-      unarchive_value: null
-      sort_field: null
-      accountability: all
-      color: null
-      item_duplication_fields: null
-      sort: null
-      group: null
-      collapse: open
-    schema:
-      name: page_translations_1
       schema: public
       comment: null
   - collection: rarities
@@ -2100,7 +2102,7 @@ fields:
       translations: null
       note: null
       conditions: null
-      required: true
+      required: false
       group: null
   - collection: faqs_translations
     field: answer
@@ -2263,12 +2265,129 @@ fields:
       conditions: null
       required: false
       group: null
-  - collection: languages
-    field: name
+  - collection: languages_translations
+    field: id
+    type: integer
+    schema:
+      name: id
+      table: languages_translations
+      data_type: integer
+      default_value: nextval('languages_translations_id_seq'::regclass)
+      generation_expression: null
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_generated: false
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      has_auto_increment: true
+      comment: null
+      schema: public
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
+    meta:
+      collection: languages_translations
+      field: id
+      special: null
+      interface: null
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: true
+      sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+  - collection: languages_translations
+    field: language_id
     type: string
     schema:
-      name: name
-      table: languages
+      name: language_id
+      table: languages_translations
+      data_type: character varying
+      default_value: null
+      generation_expression: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_generated: false
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      comment: null
+      schema: public
+      foreign_key_schema: public
+      foreign_key_table: languages
+      foreign_key_column: code
+    meta:
+      collection: languages_translations
+      field: language_id
+      special: null
+      interface: null
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: true
+      sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+  - collection: languages_translations
+    field: languages_code
+    type: string
+    schema:
+      name: languages_code
+      table: languages_translations
+      data_type: character varying
+      default_value: null
+      generation_expression: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_generated: false
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+      comment: null
+      schema: public
+      foreign_key_schema: public
+      foreign_key_table: languages
+      foreign_key_column: code
+    meta:
+      collection: languages_translations
+      field: languages_code
+      special: null
+      interface: null
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: true
+      sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+  - collection: languages_translations
+    field: label
+    type: string
+    schema:
+      name: label
+      table: languages_translations
       data_type: character varying
       default_value: null
       generation_expression: null
@@ -2286,18 +2405,17 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
     meta:
-      collection: languages
-      field: name
+      collection: languages_translations
+      field: label
       special: null
       interface: input
-      options:
-        iconLeft: translate
+      options: null
       display: null
       display_options: null
       readonly: false
       hidden: false
       sort: null
-      width: half
+      width: full
       translations: null
       note: null
       conditions: null
@@ -4674,61 +4792,7 @@ fields:
       display_options: null
       readonly: true
       hidden: true
-      sort: 1
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-  - collection: page
-    field: status
-    type: string
-    schema:
-      name: status
-      table: page
-      data_type: character varying
-      default_value: draft
-      generation_expression: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_generated: false
-      is_nullable: false
-      is_unique: false
-      is_primary_key: false
-      has_auto_increment: false
-      comment: null
-      schema: public
-      foreign_key_schema: null
-      foreign_key_table: null
-      foreign_key_column: null
-    meta:
-      collection: page
-      field: status
-      special: null
-      interface: select-dropdown
-      options:
-        choices:
-          - text: $t:published
-            value: published
-          - text: $t:draft
-            value: draft
-          - text: $t:archived
-            value: archived
-      display: labels
-      display_options:
-        showAsDot: true
-        choices:
-          - background: '#00C897'
-            value: published
-          - background: '#D3DAE4'
-            value: draft
-          - background: '#F7971C'
-            value: archived
-      readonly: false
-      hidden: false
-      sort: 2
+      sort: null
       width: full
       translations: null
       note: null
@@ -4768,7 +4832,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 3
+      sort: null
       width: full
       translations: null
       note: null
@@ -4807,7 +4871,7 @@ fields:
       display_options: null
       readonly: false
       hidden: true
-      sort: 1
+      sort: null
       width: full
       translations: null
       note: null
@@ -4846,7 +4910,7 @@ fields:
       display_options: null
       readonly: false
       hidden: true
-      sort: 2
+      sort: null
       width: full
       translations: null
       note: null
@@ -4885,51 +4949,12 @@ fields:
       display_options: null
       readonly: false
       hidden: true
-      sort: 3
+      sort: null
       width: full
       translations: null
       note: null
       conditions: null
       required: false
-      group: null
-  - collection: page_translations
-    field: body
-    type: text
-    schema:
-      name: body
-      table: page_translations
-      data_type: text
-      default_value: null
-      generation_expression: null
-      max_length: null
-      numeric_precision: null
-      numeric_scale: null
-      is_generated: false
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      has_auto_increment: false
-      comment: null
-      schema: public
-      foreign_key_schema: null
-      foreign_key_table: null
-      foreign_key_column: null
-    meta:
-      collection: page_translations
-      field: body
-      special: null
-      interface: input-rich-text-html
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 5
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: true
       group: null
   - collection: page_translations
     field: title
@@ -4963,101 +4988,23 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 4
+      sort: null
       width: full
       translations: null
       note: null
       conditions: null
       required: true
       group: null
-  - collection: page_translations_1
-    field: id
-    type: integer
+  - collection: page_translations
+    field: body
+    type: text
     schema:
-      name: id
-      table: page_translations_1
-      data_type: integer
-      default_value: nextval('page_translations_1_id_seq'::regclass)
-      generation_expression: null
-      max_length: null
-      numeric_precision: 32
-      numeric_scale: 0
-      is_generated: false
-      is_nullable: false
-      is_unique: true
-      is_primary_key: true
-      has_auto_increment: true
-      comment: null
-      schema: public
-      foreign_key_schema: null
-      foreign_key_table: null
-      foreign_key_column: null
-    meta:
-      collection: page_translations_1
-      field: id
-      special: null
-      interface: null
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: true
-      sort: null
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-  - collection: page_translations_1
-    field: page_id
-    type: integer
-    schema:
-      name: page_id
-      table: page_translations_1
-      data_type: integer
+      name: body
+      table: page_translations
+      data_type: text
       default_value: null
       generation_expression: null
       max_length: null
-      numeric_precision: 32
-      numeric_scale: 0
-      is_generated: false
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      has_auto_increment: false
-      comment: null
-      schema: public
-      foreign_key_schema: public
-      foreign_key_table: page
-      foreign_key_column: id
-    meta:
-      collection: page_translations_1
-      field: page_id
-      special: null
-      interface: null
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: true
-      sort: null
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-  - collection: page_translations_1
-    field: languages_code
-    type: string
-    schema:
-      name: languages_code
-      table: page_translations_1
-      data_type: character varying
-      default_value: null
-      generation_expression: null
-      max_length: 255
       numeric_precision: null
       numeric_scale: null
       is_generated: false
@@ -5067,25 +5014,25 @@ fields:
       has_auto_increment: false
       comment: null
       schema: public
-      foreign_key_schema: public
-      foreign_key_table: languages
-      foreign_key_column: code
+      foreign_key_schema: null
+      foreign_key_table: null
+      foreign_key_column: null
     meta:
-      collection: page_translations_1
-      field: languages_code
+      collection: page_translations
+      field: body
       special: null
-      interface: null
+      interface: input-rich-text-html
       options: null
       display: null
       display_options: null
       readonly: false
-      hidden: true
+      hidden: false
       sort: null
       width: full
       translations: null
       note: null
       conditions: null
-      required: false
+      required: true
       group: null
   - collection: rarities
     field: id
@@ -6440,6 +6387,30 @@ fields:
       conditions: null
       required: false
       group: null
+  - collection: languages
+    field: translations
+    type: alias
+    schema: null
+    meta:
+      collection: languages
+      field: translations
+      special:
+        - translations
+      interface: translations
+      options: null
+      display: translations
+      display_options:
+        template: '{{label}}'
+        userLanguage: true
+      readonly: false
+      hidden: false
+      sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
   - collection: page
     field: translations
     type: alias
@@ -6455,7 +6426,7 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 4
+      sort: null
       width: full
       translations: null
       note: null
@@ -6769,28 +6740,6 @@ relations:
       one_collection_field: null
       one_allowed_collections: null
       junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: page_translations
-    field: languages_code
-    related_collection: languages
-    schema:
-      table: page_translations
-      column: languages_code
-      foreign_key_table: languages
-      foreign_key_column: code
-      foreign_key_schema: public
-      constraint_name: page_translations_languages_code_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: page_translations
-      many_field: languages_code
-      one_collection: languages
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: page_id
       sort_field: null
       one_deselect_action: nullify
   - collection: nft_templates
@@ -7343,6 +7292,72 @@ relations:
       junction_field: languages_code
       sort_field: null
       one_deselect_action: nullify
+  - collection: languages_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      table: languages_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: languages_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: languages_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: language_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: languages_translations
+    field: language_id
+    related_collection: languages
+    schema:
+      table: languages_translations
+      column: language_id
+      foreign_key_table: languages
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: languages_translations_language_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: languages_translations
+      many_field: language_id
+      one_collection: languages
+      one_field: translations
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: languages_code
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: page_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      table: page_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: page_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: page_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: page_id
+      sort_field: null
+      one_deselect_action: nullify
   - collection: page_translations
     field: page_id
     related_collection: page
@@ -7357,50 +7372,6 @@ relations:
       on_delete: SET NULL
     meta:
       many_collection: page_translations
-      many_field: page_id
-      one_collection: page
-      one_field: translations
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: languages_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: page_translations_1
-    field: languages_code
-    related_collection: languages
-    schema:
-      table: page_translations_1
-      column: languages_code
-      foreign_key_table: languages
-      foreign_key_column: code
-      foreign_key_schema: public
-      constraint_name: page_translations_1_languages_code_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: page_translations_1
-      many_field: languages_code
-      one_collection: languages
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: page_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: page_translations_1
-    field: page_id
-    related_collection: page
-    schema:
-      table: page_translations_1
-      column: page_id
-      foreign_key_table: page
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: page_translations_1_page_id_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: page_translations_1
       many_field: page_id
       one_collection: page
       one_field: translations
