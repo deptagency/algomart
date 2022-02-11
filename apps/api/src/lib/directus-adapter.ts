@@ -149,15 +149,14 @@ export interface DirectusPackTemplate {
 
 export interface DirectusCountry {
   code: string
-  translations: number[] | DirectusCountryTranslation[]
+  translations?: number[] | DirectusCountryTranslation[]
 }
 
 export interface DirectusCountryTranslation extends DirectusTranslation {
-  name: string | null
-}
-
-export interface DirectusApplication {
-  countries: DirectusCountry[]
+  id: number
+  countries_code: string
+  languages_code: string
+  title: string | null
 }
 
 // #endregion
@@ -538,7 +537,7 @@ export function toCountryBase(template: DirectusCountry, locale: string) {
   )
   return {
     code: template.code,
-    name: translation.name,
+    name: translation.title,
   }
 }
 
@@ -925,21 +924,22 @@ export default class DirectusAdapter {
     return null
   }
 
-  async findCountries(locale = DEFAULT_LOCALE): Promise<Countries> {
+  async findCountries(locale = DEFAULT_LOCALE): Promise<Countries | null> {
     // Application is a singleton in the CMS, which makes this endpoint only return a single item.
     // Therefore we should avoid using the `findMany` method and instead act as if the result is
     // from a `findById` call.
-    const response = await this.http.get('items/application', {
+    const response = await this.http.get('items/countries', {
       searchParams: getParameters({
-        fields: ['currency', 'countries'],
+        fields: ['*.*'],
+        limit: -1,
       }),
     })
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      const result: ItemByIdResponse<DirectusApplication> = JSON.parse(
+      const result: ItemByIdResponse<DirectusCountry[]> = JSON.parse(
         response.body
       )
-      const { countries } = result.data
+      const countries = result.data
       return countries.map((country) => toCountryBase(country, locale))
     }
 

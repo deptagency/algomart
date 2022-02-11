@@ -9,8 +9,7 @@ export default class ApplicationService {
   constructor(private readonly cms: DirectusAdapter) {}
 
   async getCountries(locale = DEFAULT_LOCALE): Promise<Countries> {
-    // @TODO: Get countries
-    const application = await this.cms.findCountries(locale)
-    return application
+    const countries = await this.cms.findCountries(locale)
+    return countries
   }
 }

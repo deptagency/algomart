@@ -17,12 +17,14 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react'
 import { ExtractError } from 'validator-fns'
 
 import { Analytics } from '@/clients/firebase-analytics'
+import { useAuth } from '@/contexts/auth-context'
 import bidService from '@/services/bid-service'
 import checkoutService, {
   CreateBankAccountRequest,
@@ -63,6 +65,7 @@ export interface PaymentContextProps {
   address: string | null
   auctionPackId?: string | null
   bid: string | null
+  countries: { label: string | null; id: string }[]
   currentBid: number | null
   formErrors?: FormValidation
   handleAddBankAccount(
@@ -103,6 +106,7 @@ export function usePaymentProvider({
   const { t } = useTranslation()
   const { asPath, query, push, route } = useRouter()
   const { method } = query
+  const auth = useAuth()
 
   const [packId, setPackId] = useState<string | null>(auctionPackId || null)
   const [status, setStatus] = useState<CheckoutStatus>(CheckoutStatus.form)
@@ -112,6 +116,9 @@ export function usePaymentProvider({
   const [bid, setBid] = useState<string | null>(initialBid)
   const [address, setAddress] = useState<string | null>(null)
   const [promptLeaving, setPromptLeaving] = useState(false)
+  const [countries, setCountries] = useState<
+    { label: string | null; id: string }[]
+  >([])
   const validateFormForBankAccount = useMemo(() => validateBankAccount(t), [t])
   const validateFormForPurchase = useMemo(() => validatePurchaseForm(t), [t])
   const validateFormForPurchaseWithSavedCard = useMemo(
@@ -139,6 +146,29 @@ export function usePaymentProvider({
     release?.type === PackType.Auction
       ? bid
       : formatIntToFloat(release?.price || 0)
+
+  const findCountries = useCallback(async () => {
+    try {
+      const countries = await checkoutService.getCountries()
+      if (countries) {
+        const list = countries.map(({ code, name }) => ({
+          label: name,
+          id: code,
+        }))
+        return setCountries(list)
+      }
+      return setCountries([])
+    } catch {
+      setCountries([])
+      setStatus(CheckoutStatus.error)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (auth.user) {
+      findCountries()
+    }
+  }, [auth?.user, findCountries])
 
   const handleSetStatus = useCallback(
     (status: CheckoutStatus.form | CheckoutStatus.summary) => {
@@ -678,6 +708,7 @@ export function usePaymentProvider({
       address,
       auctionPackId,
       bid,
+      countries,
       currentBid: currentBid || null,
       formErrors,
       handleAddBankAccount,
@@ -703,6 +734,7 @@ export function usePaymentProvider({
       address,
       auctionPackId,
       bid,
+      countries,
       currentBid,
       formErrors,
       handleAddBankAccount,

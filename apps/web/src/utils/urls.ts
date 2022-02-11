@@ -74,6 +74,7 @@ export const urls = {
       getBankAccountStatus: '/api/v1/payments/get-bank-account-status',
       getCardsByOwner: '/api/v1/payments/get-cards-by-owner',
       getCardStatus: '/api/v1/payments/get-card-status',
+      getCountries: '/api/v1/payments/get-countries',
       getPayment: '/api/v1/payments/get-payment',
       getPublishedPacks: '/api/v1/pack/get-published-packs',
       getRedeemable: '/api/v1/asset/get-redeemable',

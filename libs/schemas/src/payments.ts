@@ -577,6 +577,13 @@ const CoinbaseErrorResponseSchema = Type.Object({
 // #endregion
 // #region Payment/card routes schemas
 
+export const CountrySchema = Type.Object({
+  code: Type.String(),
+  name: Nullable(Type.Optional(Type.String())),
+})
+
+export const CountriesSchema = Type.Array(CountrySchema)
+
 export const CurrencySchema = Type.Object({
   base: Type.Number(),
   code: Type.String(),
@@ -829,6 +836,8 @@ export type CreateTransferPayment = Simplify<
 export type CreateWalletAddress = Simplify<
   Static<typeof CreateWalletAddressSchema>
 >
+export type Country = Simplify<Static<typeof CountrySchema>>
+export type Countries = Simplify<Static<typeof CountriesSchema>>
 export type Currency = Simplify<Static<typeof CurrencySchema>>
 export type FindTransferByAddress = Simplify<
   Static<typeof FindTransferByAddressSchema>
@@ -874,7 +883,6 @@ export type WirePayment = Simplify<Static<typeof WirePaymentSchema>>
 
 // #endregion
 // #region Success/error response
-
 interface CircleSuccessResponse<T = unknown> {
   data: T
 }

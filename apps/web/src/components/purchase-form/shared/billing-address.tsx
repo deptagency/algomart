@@ -8,6 +8,7 @@ import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 
 export interface BillingAddressProps {
+  countries: { label: string | null; id: string }[]
   formErrors?: {
     address1?: string
     city?: string
@@ -25,16 +26,11 @@ export interface BillingAddressProps {
 }
 
 export default function BillingAddress({
+  countries: countryOptions,
   formErrors,
   initialValues,
 }: BillingAddressProps) {
   const { t } = useTranslation()
-  // @TODO: Retrieve the country list from the API
-  const countryOptions = [
-    { id: 'CA', label: t('forms:fields.country.values.CA') },
-    { id: 'US', label: t('forms:fields.country.values.US') },
-  ]
-
   return (
     <div className={clsx(css.formSection, css.formSectionNoMargin)}>
       <Heading level={2}>{t('forms:sections.Billing Address')}</Heading>
@@ -66,15 +62,16 @@ export default function BillingAddress({
         />
       </div>
       <div className={css.formMultiRow}>
-        <Select
-          defaultOption={countryOptions[1]}
-          error={formErrors?.country}
-          label={t('forms:fields.country.label')}
-          id="country"
-          name="country"
-          options={countryOptions}
-          placeholder="US"
-        />
+        {countryOptions.length > 0 && (
+          <Select
+            error={formErrors?.country}
+            label={t('forms:fields.country.label')}
+            id="country"
+            name="country"
+            options={countryOptions}
+            placeholder="US"
+          />
+        )}
         <TextInput
           error={formErrors?.zipCode}
           label={t('forms:fields.zipCode.label')}

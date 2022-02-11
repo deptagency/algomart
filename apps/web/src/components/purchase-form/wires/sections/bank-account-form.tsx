@@ -19,6 +19,7 @@ import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 export interface BankAccountFormProps {
   bid: string | null
   className?: string
+  countries: { label: string | null; id: string }[]
   formErrors?: FormValidation
   handleContinue: () => void
   initialBid?: string
@@ -29,6 +30,7 @@ export interface BankAccountFormProps {
 export default function BankAccountForm({
   bid,
   className,
+  countries: countryOptions,
   formErrors,
   handleContinue,
   initialBid,
@@ -43,11 +45,6 @@ export default function BankAccountForm({
     release?.type === PackType.Auction
       ? bid
       : formatIntToFloat(release?.price || 0)
-  // @TODO: Retrieve the country list from the API
-  const countryOptions = [
-    { id: 'CA', label: t('forms:fields.country.values.CA') },
-    { id: 'US', label: t('forms:fields.country.values.US') },
-  ]
 
   return (
     <div className={className}>
@@ -103,6 +100,7 @@ export default function BankAccountForm({
             />
 
             <BillingAddress
+              countries={countryOptions}
               formErrors={{
                 address1:
                   formErrors && 'address1' in formErrors
@@ -181,19 +179,20 @@ export default function BankAccountForm({
                 variant="small"
               />
             </div>
-            <Select
-              defaultOption={countryOptions[1]}
-              error={
-                formErrors && 'bankCountry' in formErrors
-                  ? (formErrors.bankCountry as string)
-                  : ''
-              }
-              label={t('forms:fields.country.label')}
-              id="bankCountry"
-              name="bankCountry"
-              options={countryOptions}
-              placeholder="US"
-            />
+            {countryOptions.length > 0 && (
+              <Select
+                error={
+                  formErrors && 'bankCountry' in formErrors
+                    ? (formErrors.bankCountry as string)
+                    : ''
+                }
+                label={t('forms:fields.country.label')}
+                id="bankCountry"
+                name="bankCountry"
+                options={countryOptions}
+                placeholder="US"
+              />
+            )}
           </>
         )}
       </div>

@@ -19,6 +19,7 @@ import { isAfterNow } from '@/utils/date-time'
 
 export default function CardForm({
   bid,
+  countries,
   release,
   formErrors,
   handleRetry,
@@ -75,6 +76,7 @@ export default function CardForm({
         <CardPurchaseForm
           bid={bid}
           className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
+          countries={countries}
           formErrors={formErrors}
           isAuctionActive={isAuctionActive}
           setBid={setBid}
