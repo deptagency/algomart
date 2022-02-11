@@ -148,6 +148,18 @@ export interface DirectusPackTemplate {
 }
 
 export interface DirectusCountry {
+  id: string
+  application_id: string
+  countries_code: string
+}
+
+export interface DirectusApplication {
+  id: string
+  currency?: string | null
+  countries?: DirectusCountry[] | null
+}
+
+export interface DirectusCountryWithTranslations {
   code: string
   translations?: number[] | DirectusCountryTranslation[]
 }
@@ -529,7 +541,10 @@ export function toPackBase(
   }
 }
 
-export function toCountryBase(template: DirectusCountry, locale: string) {
+export function toCountryBase(
+  template: DirectusCountryWithTranslations,
+  locale: string
+) {
   const translation = getDirectusTranslation<DirectusCountryTranslation>(
     template.translations as DirectusCountryTranslation[],
     `country ${template.code} has no translations`,
@@ -685,6 +700,23 @@ export default class DirectusAdapter {
     }
 
     return await this.findMany<DirectusSet>('sets', {
+      ...defaultQuery,
+      ...query,
+    })
+  }
+
+  private async findCountries(query: ItemQuery<{ filter: ItemFilter }> = {}) {
+    const defaultQuery: ItemQuery<DirectusCountryWithTranslations> = {
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+      limit: -1,
+      fields: ['*.*'],
+    }
+
+    return await this.findMany<DirectusCountryWithTranslations>('countries', {
       ...defaultQuery,
       ...query,
     })
@@ -924,25 +956,33 @@ export default class DirectusAdapter {
     return null
   }
 
-  async findCountries(locale = DEFAULT_LOCALE): Promise<Countries | null> {
+  async findApplication(): Promise<DirectusApplication | null> {
     // Application is a singleton in the CMS, which makes this endpoint only return a single item.
     // Therefore we should avoid using the `findMany` method and instead act as if the result is
     // from a `findById` call.
-    const response = await this.http.get('items/countries', {
+    const response = await this.http.get('items/application', {
       searchParams: getParameters({
         fields: ['*.*'],
-        limit: -1,
       }),
     })
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      const result: ItemByIdResponse<DirectusCountry[]> = JSON.parse(
+      const result: ItemByIdResponse<DirectusApplication> = JSON.parse(
         response.body
       )
-      const countries = result.data
-      return countries.map((country) => toCountryBase(country, locale))
+      return result.data
     }
 
     return null
+  }
+
+  async findPublishedCountries(
+    filter: ItemFilter = {},
+    locale = DEFAULT_LOCALE
+  ): Promise<Countries | null> {
+    const response = await this.findCountries({ filter })
+    if (response.data.length === 0) return null
+    const countries = response.data
+    return countries.map((country) => toCountryBase(country, locale))
   }
 }
