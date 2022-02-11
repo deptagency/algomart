@@ -1,0 +1,38 @@
+{
+  "walletConnect": {
+    "title": "ES Algorand WalletConnect",
+    "connect": "ES Open WalletConnect",
+    "description": "ES Use WalletConnect to link your Algorand wallet to AlgoMart.",
+    "helpText": "ES Need a wallet? Get one here:",
+    "selectAccount": "ES Destination wallet:",
+    "transfer": "ES Transfer",
+    "orCancel": "ES or cancel and disconnect from wallet",
+    "transferring": "ES Transferring NFT...",
+    "sent": "ES Sent!",
+    "backToMyCollection": "ES Back to My Collection"
+  },
+  "actions": {
+    "sellNFT": "ES Sell NFT",
+    "transferNFT": "ES Transfer NFT"
+  },
+  "labels": {
+    "Owner": "ES Owner",
+    "Edition": "ES Edition",
+    "Rarity": "ES Rarity",
+    "Collection": "ES Collection",
+    "Address": "ES Address",
+    "editionX": "ES #{{edition}} of {{totalEditions}}",
+    "cannotTransfer": {
+      "frozen": "ES This NFT is frozen and cannot be transferred.",
+      "mintedRecently": "ES Cannot be transferred until {{date}}."
+    }
+  },
+  "exportStatus": {
+    "idle": "ES Loading...",
+    "optingIn": "ES Please confirm the transaction in your wallet to opt-in to the NFT.",
+    "optIn": "ES Verifying opt-in transaction...",
+    "pending": "ES Transferring NFT...",
+    "success": "ES NFT transferred!",
+    "error": "ES Error transferring NFT."
+  }
+}
