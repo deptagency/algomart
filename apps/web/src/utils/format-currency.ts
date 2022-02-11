@@ -10,8 +10,7 @@ import {
   toUnit,
 } from 'dinero.js'
 
-export function dineroCurrency(currency = DEFAULT_CURRENCY) {
-  const code = this.config('CURRENCY', currency)
+export function dineroCurrency(code = DEFAULT_CURRENCY) {
   return Currencies[code as keyof typeof Currencies]
 }
 

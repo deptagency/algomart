@@ -14,6 +14,7 @@ import AuctionsService from '@/modules/auctions/auctions.service'
 import BidsService from '@/modules/bids/bids.service'
 import CollectiblesService from '@/modules/collectibles/collectibles.service'
 import CollectionsService from '@/modules/collections/collections.service'
+import CurrenciesService from '@/modules/currencies/currencies.service'
 import FaqsService from '@/modules/faqs/faqs.service'
 import HomepageService from '@/modules/homepage/homepage.service'
 import LanguagesService from '@/modules/languages/languages.service'
@@ -217,15 +218,17 @@ export function configureResolver() {
     AuctionsService.name,
     (c) => new AuctionsService(c.get<AlgorandAdapter>(AlgorandAdapter.name))
   )
-
   resolver.set(
     DirectusPageService.name,
     (c) => new DirectusPageService(c.get<DirectusAdapter>(DirectusAdapter.name))
   )
-
   resolver.set(
     LanguagesService.name,
     (c) => new LanguagesService(c.get<DirectusAdapter>(DirectusAdapter.name))
+  )
+  resolver.set(
+    CurrenciesService.name,
+    (c) => new CurrenciesService(c.get<CoinbaseAdapter>(CoinbaseAdapter.name))
   )
   return resolver
 }

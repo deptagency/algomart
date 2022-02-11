@@ -49,7 +49,7 @@ export function Currency({
   const [selectedValue, setSelectedValue] = useState<SelectOption>()
 
   useEffect(() => {
-    const currencies = Currencies
+    const currencies = CURRENCIES
 
     setOptions(
       currencies.map((currency) => ({
