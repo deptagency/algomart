@@ -477,15 +477,30 @@ export class ApiClient {
       })
       .json()
   }
-  //#region Languages
+
+  //#region i18n
   async getLanguages(locale: string) {
     return await this.http
-      .get('languages', {
+      .get('i18n/languages', {
         searchParams: {
           locale: locale || DEFAULT_LOCALE,
         },
       })
       .json<LanguageList>()
+  }
+
+  async getCurrencyConversions() {
+    return await this.http.get('i18n/currencyConversions').json<LanguageList>()
+  }
+
+  async getI18n(locale: string) {
+    return await this.http
+      .get('i18n/i18n', {
+        searchParams: {
+          locale: locale || DEFAULT_LOCALE,
+        },
+      })
+      .json<I18nInfo>()
   }
   //#endregion
 

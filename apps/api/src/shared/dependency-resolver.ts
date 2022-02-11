@@ -14,10 +14,9 @@ import AuctionsService from '@/modules/auctions/auctions.service'
 import BidsService from '@/modules/bids/bids.service'
 import CollectiblesService from '@/modules/collectibles/collectibles.service'
 import CollectionsService from '@/modules/collections/collections.service'
-import CurrenciesService from '@/modules/currencies/currencies.service'
 import FaqsService from '@/modules/faqs/faqs.service'
 import HomepageService from '@/modules/homepage/homepage.service'
-import LanguagesService from '@/modules/languages/languages.service'
+import I18nService from '@/modules/i18n/i18n.service'
 import NotificationsService from '@/modules/notifications/notifications.service'
 import PacksService from '@/modules/packs/packs.service'
 import PaymentsService from '@/modules/payments/payments.service'
@@ -223,12 +222,12 @@ export function configureResolver() {
     (c) => new DirectusPageService(c.get<DirectusAdapter>(DirectusAdapter.name))
   )
   resolver.set(
-    LanguagesService.name,
-    (c) => new LanguagesService(c.get<DirectusAdapter>(DirectusAdapter.name))
-  )
-  resolver.set(
-    CurrenciesService.name,
-    (c) => new CurrenciesService(c.get<CoinbaseAdapter>(CoinbaseAdapter.name))
+    I18nService.name,
+    (c) =>
+      new I18nService(
+        c.get<DirectusAdapter>(DirectusAdapter.name),
+        c.get<CoinbaseAdapter>(CoinbaseAdapter.name)
+      )
   )
   return resolver
 }

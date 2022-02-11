@@ -21,6 +21,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     // First page load
     Analytics.instance.screenView(window.location.pathname)
+
     router.push(
       { pathname: router.pathname, query: router.query },
       router.asPath,

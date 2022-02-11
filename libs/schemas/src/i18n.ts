@@ -1,6 +1,14 @@
 import { Static, Type } from '@sinclair/typebox'
 
 import { BaseSchema, Simplify } from './shared'
+import { LocaleSchema } from '.'
+
+export const LanguageSchema = Type.Object({
+  languages_code: Type.String(),
+  label: Type.String(),
+})
+
+export const LanguageListSchema = Type.Array(LanguageSchema)
 
 export const CurrencySchema = Type.Object({
   base: Type.Number(),
@@ -24,6 +32,14 @@ export const GetCurrencyConversionSchema = Type.Object({
   targetCurrency: Type.Optional(Type.String()),
 })
 
+export const I18nInfoSchema = Type.Object({
+  languages: LanguageListSchema,
+  currencyConversions: CurrencyConversionListSchema,
+})
+
+export type Language = Simplify<Static<typeof LanguageSchema>>
+export type LanguageList = Simplify<Static<typeof LanguageListSchema>>
+
 export type Currency = Simplify<Static<typeof CurrencySchema>>
 export type CurrencyConversion = Simplify<
   Static<typeof CurrencyConversionSchema>
@@ -34,3 +50,5 @@ export type CurrencyConversionList = Simplify<
 export type GetCurrencyConversion = Simplify<
   Static<typeof GetCurrencyConversionSchema>
 >
+
+export type I18nInfo = Simplify<Static<typeof I18nInfoSchema>>

@@ -1,13 +1,24 @@
+import { DEFAULT_LOCALE, LanguageList } from '@algomart/schemas'
 import { Transaction } from 'objection'
 
 import CoinbaseAdapter from '@/lib/coinbase-adapter'
+import DirectusAdapter from '@/lib/directus-adapter'
 import { CurrencyConversionModel } from '@/models/currency.model'
-import { logger } from '@/utils/logger'
+import { currency } from '@/utils/format-currency'
+import { userInvariant } from '@/utils/invariant'
 
-export default class CurrenciesService {
-  logger = logger.child({ context: this.constructor.name })
+export default class LanguagesService {
+  constructor(
+    private readonly cms: DirectusAdapter,
+    private readonly coinbase: CoinbaseAdapter
+  ) {}
 
-  constructor(private readonly coinbase: CoinbaseAdapter) {}
+  async getLanguages(locale = DEFAULT_LOCALE): Promise<LanguageList> {
+    const languages = await this.cms.getLanguages(locale)
+    userInvariant(languages, 'languages not found', 404)
+
+    return languages
+  }
 
   async getCurrencyConversion(
     {
@@ -59,7 +70,7 @@ export default class CurrenciesService {
 
   async getCurrencyConversions(
     {
-      sourceCurrency,
+      sourceCurrency = currency.code,
     }: {
       sourceCurrency: string
     },

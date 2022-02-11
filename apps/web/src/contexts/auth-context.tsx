@@ -27,7 +27,6 @@ import {
 
 import { Analytics } from '@/clients/firebase-analytics'
 import loadFirebase from '@/clients/firebase-client'
-import { useCurrency } from '@/hooks/use-currency'
 import {
   AuthState,
   AuthUtils,
@@ -121,8 +120,6 @@ export function useAuth(throwError = true) {
 }
 
 export function useAuthProvider() {
-  const currency = useCurrency()
-
   const reloadProfile = useCallback(async () => {
     const auth = getAuth(loadFirebase())
     const token = await auth.currentUser?.getIdToken(true)

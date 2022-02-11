@@ -13,8 +13,9 @@ import FormField from '@/components/form-field'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
 import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
+import { I18nProvider, useI18nProvider } from '@/contexts/i18n-context'
 import { useLocale } from '@/hooks/use-locale'
-import languageService from '@/services/language-service'
+import languageService from '@/services/i18n-service'
 import { FileWithPreview } from '@/types/file'
 
 /**
@@ -47,17 +48,21 @@ export function Currency({
 }: AuthCurrencyProps) {
   const [options, setOptions] = useState<SelectOption[]>([])
   const [selectedValue, setSelectedValue] = useState<SelectOption>()
+  const { getCurrencyConversions } = useI18nProvider()
 
   useEffect(() => {
-    const currencies = CURRENCIES
+    const run = async () => {
+      const currencyConversions = await getCurrencyConversions()
+      setOptions(
+        currencyConversions.map((currencyConversion) => ({
+          id: currencyConversion.id,
+          label: currencyConversion.id,
+        }))
+      )
+    }
 
-    setOptions(
-      currencies.map((currency) => ({
-        id: currency,
-        label: currency,
-      }))
-    )
-  }, [])
+    run()
+  }, [getCurrencyConversions])
 
   useEffect(() => {
     setSelectedValue(
@@ -66,22 +71,24 @@ export function Currency({
   }, [options, value])
 
   return (
-    <FormField className={css.formField}>
-      {options.length > 0 && (
-        <Select
-          className="pl-8"
-          defaultOption={options[0]}
-          error={error as string}
-          disabled={disabled}
-          label={showLabel ? t('forms:fields.currencies.label') : undefined}
-          id="currency"
-          name="currency"
-          options={options}
-          selectedValue={selectedValue}
-          handleChange={handleChange}
-        />
-      )}
-    </FormField>
+    <I18nProvider>
+      <FormField className={css.formField}>
+        {options.length > 0 && (
+          <Select
+            className="pl-8"
+            defaultOption={options[0]}
+            error={error as string}
+            disabled={disabled}
+            label={showLabel ? t('forms:fields.currencies.label') : undefined}
+            id="currency"
+            name="currency"
+            options={options}
+            selectedValue={selectedValue}
+            handleChange={handleChange}
+          />
+        )}
+      </FormField>
+    </I18nProvider>
   )
 }
 
@@ -119,13 +126,12 @@ export function Language({
 }: AuthLanguageProps) {
   const [options, setOptions] = useState<SelectOption[]>([])
   const [selectedValue, setSelectedValue] = useState<SelectOption>()
-
-  const locale = useLocale()
+  const { getI18nInfo } = useI18nProvider()
 
   useEffect(() => {
     const run = async () => {
       try {
-        const languages = await languageService.getLanguages(locale)
+        const { languages } = await getI18nInfo()
 
         setOptions(
           languages.map((language) => ({
@@ -144,7 +150,7 @@ export function Language({
       }
     }
     run()
-  }, [locale, t])
+  }, [t, getI18nInfo])
 
   useEffect(() => {
     setSelectedValue(
@@ -153,22 +159,24 @@ export function Language({
   }, [options, value])
 
   return (
-    <FormField className={css.formField}>
-      {options.length > 0 && (
-        <Select
-          className="pl-8"
-          defaultOption={options[0]}
-          error={error as string}
-          disabled={disabled}
-          label={showLabel ? t('forms:fields.languages.label') : undefined}
-          id="locale"
-          name="locale"
-          options={options}
-          selectedValue={selectedValue}
-          handleChange={handleChange}
-        />
-      )}
-    </FormField>
+    <I18nProvider>
+      <FormField className={css.formField}>
+        {options.length > 0 && (
+          <Select
+            className="pl-8"
+            defaultOption={options[0]}
+            error={error as string}
+            disabled={disabled}
+            label={showLabel ? t('forms:fields.languages.label') : undefined}
+            id="locale"
+            name="locale"
+            options={options}
+            selectedValue={selectedValue}
+            handleChange={handleChange}
+          />
+        )}
+      </FormField>
+    </I18nProvider>
   )
 }
 

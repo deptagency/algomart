@@ -1,40 +1,46 @@
 import {
   CurrencyConversionListSchema,
   CurrencyConversionSchema,
+  LanguageListSchema,
 } from '@algomart/schemas'
 import { FastifyInstance } from 'fastify'
-import fastifyBearerAuth from 'fastify-bearer-auth'
 
 import {
   getCurrencyConversion,
   getCurrencyConversions,
-} from './currencies.routes'
+  getLanguages,
+} from './i18n.routes'
 
-import bearerAuthOptions from '@/configuration/bearer-auth'
 import { appErrorHandler } from '@/utils/errors'
 
-export async function currenciesRoutes(app: FastifyInstance) {
-  const tags = ['collections']
-  const security = [
-    {
-      'API Key': [],
-    },
-  ]
+export async function i18nRoutes(app: FastifyInstance) {
+  const tags = ['i18n']
 
   // Errors
   app.setErrorHandler(appErrorHandler(app))
 
-  // Plugins
-  await app.register(fastifyBearerAuth, bearerAuthOptions)
-
   // Services/Routes
   app
     .get(
-      '/getCurrencyConversion',
+      '/languages',
       {
         schema: {
           tags,
-          security,
+          description: 'Get list of languages',
+          response: {
+            200: LanguageListSchema,
+          },
+        },
+      },
+      getLanguages
+    )
+    .get(
+      '/currencyConversion',
+      {
+        schema: {
+          tags,
+          description:
+            'Get currency conversion from source currency to target currency',
           response: {
             200: CurrencyConversionSchema,
           },
@@ -43,11 +49,12 @@ export async function currenciesRoutes(app: FastifyInstance) {
       getCurrencyConversion
     )
     .get(
-      '/getCurrencyConversions',
+      '/currencyConversions',
       {
         schema: {
           tags,
-          security,
+          description:
+            'Get currency conversions for given source currency, defaulting to environment currency',
           response: {
             200: CurrencyConversionListSchema,
           },
