@@ -47,6 +47,8 @@ export interface DirectusPackTemplateTranslation extends DirectusTranslation {
 
 export interface DirectusFile {
   id: string
+  filename_disk: string
+  storage: string
   title: string
   type: string
   width: number
@@ -101,11 +103,11 @@ export interface DirectusCollection {
   status: DirectusStatus
   sort: number
   slug: string
-  collection_image: string | DirectusFile
+  collection_image: DirectusFile
   translations: number[] | DirectusCollectionTranslation[]
   sets: string[] | DirectusSet[]
   nft_templates: string[] | DirectusCollectibleTemplate[]
-  reward_image: string | DirectusFile | null
+  reward_image: DirectusFile | null
 }
 
 export interface DirectusCollectibleTemplateTranslation
@@ -119,10 +121,10 @@ export interface DirectusCollectibleTemplate {
   id: string
   status: DirectusStatus
   total_editions: number
-  preview_image: string | DirectusFile
-  preview_video: string | DirectusFile
-  preview_audio: string | DirectusFile
-  asset_file: string | DirectusFile
+  preview_image: DirectusFile
+  preview_video: DirectusFile | null
+  preview_audio: DirectusFile | null
+  asset_file: DirectusFile | null
   rarity: string | DirectusRarity | null
   unique_code: string
   pack_template: string | DirectusPackTemplate
@@ -141,7 +143,7 @@ export interface DirectusPackTemplate {
   nft_order: PackCollectibleOrder
   nft_templates: string[] | DirectusCollectibleTemplate[]
   nfts_per_pack: number
-  pack_image: string | DirectusFile
+  pack_image: DirectusFile
   price: number | null
   released_at: string | null
   show_nfts: boolean
@@ -287,7 +289,7 @@ function getDirectusTranslation<TItem extends DirectusTranslation>(
 
 // #region Mappers
 
-export type GetFileURL = (file: string | DirectusFile) => string
+export type GetFileURL = (file: DirectusFile) => string
 
 export function toHomepageBase(homepage: DirectusHomepage): HomepageBase {
   invariant(
@@ -543,7 +545,8 @@ export function toPackBase(
 // #endregion
 
 export interface DirectusAdapterOptions {
-  url: string
+  cmsUrl: string
+  gcpCdnUrl: string
   accessToken: string
 }
 
@@ -553,7 +556,7 @@ export default class DirectusAdapter {
 
   constructor(private readonly options: DirectusAdapterOptions) {
     this.http = got.extend({
-      prefixUrl: options.url,
+      prefixUrl: options.cmsUrl,
       headers: {
         Authorization: `Bearer ${options.accessToken}`,
       },
@@ -689,9 +692,16 @@ export default class DirectusAdapter {
     })
   }
 
-  private getFileURL(fileOrId: string | DirectusFile) {
-    const id = typeof fileOrId === 'string' ? fileOrId : fileOrId.id
-    return new URL(`/assets/${id}`, this.options.url).href
+  private getFileURL(file: DirectusFile | null) {
+    if (file === null) {
+      return null
+    }
+
+    if (file.storage == 'gcp' && this.options.gcpCdnUrl !== undefined) {
+      return new URL(`/${file.filename_disk}`, this.options.gcpCdnUrl).href
+    }
+
+    return new URL(`/assets/${file.id}`, this.options.cmsUrl).href
   }
 
   async findAllPacks({
@@ -793,10 +803,10 @@ export default class DirectusAdapter {
   async findAllCollections(locale = DEFAULT_LOCALE) {
     const response = await this.findCollections({
       fields: [
-        'collection_image',
+        'collection_image.*',
         'id',
         'nft_templates',
-        'reward_image',
+        'reward_image.*',
         'slug',
         'translations.*',
         'sets.id',
@@ -832,10 +842,10 @@ export default class DirectusAdapter {
         },
       },
       fields: [
-        'collection_image',
+        'collection_image.*',
         'id',
         'nft_templates',
-        'reward_image',
+        'reward_image.*',
         'sets.id',
         'sets.nft_templates',
         'sets.slug',
@@ -861,10 +871,10 @@ export default class DirectusAdapter {
         },
       },
       fields: [
-        'collection.collection_image',
+        'collection.collection_image.*',
         'collection.id',
         'collection.nft_templates',
-        'collection.reward_image',
+        'collection.reward_image.*',
         'collection.slug',
         'collection.translations.*',
         'id',
