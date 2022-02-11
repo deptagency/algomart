@@ -229,16 +229,16 @@ export interface ItemByIdResponse<T> {
 
 export interface ItemFilter {
   [key: string]:
-    | string
-    | string[]
-    | number
-    | number[]
-    | boolean
-    | boolean[]
-    | Date
-    | Date[]
-    | ItemFilter
-    | ItemFilter[]
+  | string
+  | string[]
+  | number
+  | number[]
+  | boolean
+  | boolean[]
+  | Date
+  | Date[]
+  | ItemFilter
+  | ItemFilter[]
 }
 
 export interface ItemQuery<TItem> {
@@ -295,8 +295,8 @@ function getParameters<TItem>(query?: ItemQuery<TItem>) {
       query.totalCount && query.filterCount
         ? '*'
         : query.totalCount
-        ? 'total_count'
-        : 'filter_count'
+          ? 'total_count'
+          : 'filter_count'
     )
   }
 
@@ -341,8 +341,8 @@ export function toHomepageBase(
   )
   invariant(
     homepage.featured_packs === null ||
-      homepage.featured_packs.length === 0 ||
-      isStringArray(homepage.featured_packs),
+    homepage.featured_packs.length === 0 ||
+    isStringArray(homepage.featured_packs),
     'featured_packs must be empty or an array of strings'
   )
 
@@ -434,10 +434,10 @@ export function toCollectionBase(
     reward:
       reward_complete && reward_prompt && reward_image
         ? {
-            complete: reward_complete,
-            prompt: reward_prompt,
-            image: getFileURL(reward_image),
-          }
+          complete: reward_complete,
+          prompt: reward_prompt,
+          image: getFileURL(reward_image),
+        }
         : undefined,
   }
 }
@@ -487,10 +487,10 @@ export function toCollectibleBase(
   const rarity = template.rarity as DirectusRarity
   const rarityTranslation = rarity
     ? getDirectusTranslation<DirectusRarityTranslation>(
-        rarity?.translations as DirectusRarityTranslation[],
-        'expected rarity to include translations',
-        locale
-      )
+      rarity?.translations as DirectusRarityTranslation[],
+      'expected rarity to include translations',
+      locale
+    )
     : undefined
 
   let collectionId =
@@ -533,10 +533,10 @@ export function toCollectibleBase(
     uniqueCode: template.unique_code,
     rarity: rarity
       ? {
-          code: rarity.code,
-          color: rarity.color,
-          name: rarityTranslation?.name,
-        }
+        code: rarity.code,
+        color: rarity.color,
+        name: rarityTranslation?.name,
+      }
       : undefined,
   }
 }
