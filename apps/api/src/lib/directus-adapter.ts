@@ -913,6 +913,16 @@ export default class DirectusAdapter {
     return toSetWithCollection(set, this.getFileURL.bind(this), locale)
   }
 
+  async findPublishedCountries(
+    filter: ItemFilter = {},
+    locale = DEFAULT_LOCALE
+  ): Promise<Countries | null> {
+    const response = await this.findCountries({ filter })
+    if (response.data.length === 0) return null
+    const countries = response.data
+    return countries.map((country) => toCountryBase(country, locale))
+  }
+
   async findHomepage() {
     // Homepage is a singleton in the CMS, which makes this endpoint only return a single item.
     // Therefore we should avoid using the `findMany` method and instead act as if the result is
@@ -974,15 +984,5 @@ export default class DirectusAdapter {
     }
 
     return null
-  }
-
-  async findPublishedCountries(
-    filter: ItemFilter = {},
-    locale = DEFAULT_LOCALE
-  ): Promise<Countries | null> {
-    const response = await this.findCountries({ filter })
-    if (response.data.length === 0) return null
-    const countries = response.data
-    return countries.map((country) => toCountryBase(country, locale))
   }
 }
