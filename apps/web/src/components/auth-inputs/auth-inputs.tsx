@@ -4,6 +4,7 @@ import {
   LanguageList,
 } from '@algomart/schemas'
 import { ShieldExclamationIcon, UserCircleIcon } from '@heroicons/react/outline'
+import { GlobeAltIcon } from '@heroicons/react/outline'
 import Image from 'next/image'
 import { Translate } from 'next-translate'
 import {
@@ -121,6 +122,7 @@ export function Language({
           options={options}
           selectedValue={selectedValue}
           handleChange={handleChange}
+          Icon={<GlobeAltIcon />}
         />
       )}
     </FormField>

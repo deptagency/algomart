@@ -19,8 +19,13 @@ module.exports = {
     ...createGlobPatternsForDependencies(__dirname, '**/*.{js,ts,jsx,tsx,css}'),
   ],
 
-  darkMode: 'class', // or false, 'media' or 'class'
+  darkMode: false, // or false, 'media' or 'class'
   theme: {
+    fontSize: {
+      lg: '1.25rem',
+      xl: '2.5rem',
+      xxl: '3.75rem',
+    },
     extend: {
       backgroundImage: {
         'pack-texture': "url('/images/textures/pack-texture.jpg')",

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import useTranslation from 'next-translate/useTranslation'
 
 import AppFooterLanguage from './app-footer-language'
@@ -16,30 +17,27 @@ export default function AppFooterBottomNav() {
     <section className={css.bottomNav}>
       <div className={css.bottomNavWrapper}>
         <div className={css.bottomNavLeft}>
-          <Logo className={css.bottomNavLeftImage} />
+          <nav aria-label={t('common:nav.aria.Legal')}>
+            {legalNavItems.map(({ href, label }) =>
+              href ? (
+                <Link href={href}>
+                  <a className={css.bottomNavLinks} key={label}>
+                    {label}
+                  </a>
+                </Link>
+              ) : (
+                <span className={css.bottomNavLinks} key={label}>
+                  {label}
+                </span>
+              )
+            )}
+          </nav>
+          <div>{t('common:nav.legal.copyright')}</div>
+          <div>Cookie Settings</div>
         </div>
-        <nav
-          aria-label={t('common:nav.aria.Legal')}
-          className={css.bottomNavSpace}
-        >
-          {legalNavItems.map(({ href, label }) =>
-            href ? (
-              <ExternalLink
-                className={css.bottomNavLinks}
-                key={label}
-                href={href}
-                target="_blank"
-              >
-                {label}
-              </ExternalLink>
-            ) : (
-              <span className={css.bottomNavLinks} key={label}>
-                {label}
-              </span>
-            )
-          )}
+        <div className={css.bottomNavSpace}>
           <AppFooterLanguage />
-        </nav>
+        </div>
       </div>
     </section>
   )

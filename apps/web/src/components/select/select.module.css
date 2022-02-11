@@ -24,7 +24,7 @@
 
 .selectButton {
   @apply relative w-full text-left bg-white border rounded-sm cursor-default border-base-border;
-  padding: 10px 50px 10px 10px;
+  padding: 10px 1rem 10px 10px;
 }
 
 .selectButtonDisabled {
@@ -36,15 +36,11 @@
 }
 
 .selectButtonText {
-  @apply block text-sm font-light truncate text-base-gray-dark;
+  @apply grid grid-flow-col grid-rows-1 text-base truncate text-base-gray-dark gap-4 font-bold;
 }
 
-.selectButtonIconContainer {
-  @apply absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none;
-}
-
-.selectButtonIcon {
-  @apply w-5 h-5 text-gray-400;
+.selectButtonText svg {
+  @apply h-full stroke-current text-base-gray-light;
 }
 
 .selectOptions {

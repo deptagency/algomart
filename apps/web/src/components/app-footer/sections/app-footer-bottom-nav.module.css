@@ -1,17 +1,21 @@
 .bottomNav {
-  @apply py-8 bg-base-bgCard;
+  @apply py-8 bg-base-bgCard border-t-2 border-t-base-border text-xs;
 }
 
 .bottomNavWrapper {
   /* Base */
-  @apply px-4 mx-auto text-center max-w-wrapper;
+  @apply px-4 mx-auto max-w-wrapper;
   /* Tablet + */
-  @apply md:flex md:items-center md:justify-between md:text-center;
+  @apply md:flex md:justify-between;
 }
 
 .bottomNavLeft {
   /* Tablet + */
-  @apply md:flex md:items-center md:space-x-14;
+  @apply md:grid gap-4;
+}
+
+.bottomNavLeft > nav {
+  @apply md:grid gap-10 grid-flow-col text-base-textSecondary;
 }
 
 .bottomNavLeftImage {
