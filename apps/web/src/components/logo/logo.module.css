@@ -2,6 +2,12 @@
   width: 126px;
   height: 40px;
 }
+
+.svg:global(.footer-logo) {
+  width: 70px;
+  @apply md:w-full;
+}
+
 .svg svg {
   @apply max-w-full max-h-full;
 }

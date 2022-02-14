@@ -1,6 +1,6 @@
 .topNav {
   /* Base */
-  @apply border-t-2 border-t-base-border;
+  @apply border-t-2 border-t-base-border bg-white;
 
   /* Tablet + */
   @apply md:bg-base-bgCard;
@@ -15,9 +15,9 @@
 
 .topNavNavWrapper {
   /* Base */
-  @apply grid gap-1 mt-5 grid-cols-1;
+  @apply grid gap-1 mt-10 grid-cols-1;
   /*  Tablet + */
-  @apply md:auto-cols-max md:grid-cols-2 md:grid-flow-col md:max-w-700;
+  @apply md:auto-cols-max md:grid-cols-2 md:grid-flow-col md:max-w-700 md:mt-5;
 }
 
 .topNavNav {

@@ -27,7 +27,7 @@ export default function AppFooterTopNav() {
   return (
     <section className={css.topNav}>
       <div className={css.topNavWrapper}>
-        <Logo />
+        <Logo className="footer-logo" />
 
         <div className={css.topNavNavWrapper}>
           <nav
