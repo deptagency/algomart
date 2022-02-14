@@ -1,25 +1,30 @@
-import { CheckCircleIcon } from '@heroicons/react/outline'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
+import { useCallback } from 'react'
 
-import css from './checkout-status-template.module.css'
-
-import Heading from '@/components/heading'
 import EmailVerification from '@/components/profile/email-verification'
+import Failure from '@/components/purchase-form/shared/failure'
 import { useAuth } from '@/contexts/auth-context'
+import { urls } from '@/utils/urls'
 
 export default function CheckoutFailureTemplate() {
   const { t } = useTranslation()
   const { user } = useAuth()
+  const { push } = useRouter()
+
+  const handleRetry = useCallback(() => {
+    push(urls.releases)
+  }, [push])
 
   if (!user?.emailVerified) {
     return <EmailVerification inline />
   }
   return (
-    <>
-      <CheckCircleIcon className={css.icon} height="48" width="48" />
-      <Heading className="mb-10" level={1}>
-        {t('common:statuses.Success!')}
-      </Heading>
-    </>
+    <Failure
+      buttonText={t('common:actions.Try Again')}
+      error={t('forms:errors.failedPayment')}
+      handleClick={handleRetry}
+      headingText={t('release:failedToClaim')}
+    />
   )
 }

@@ -1,28 +1,25 @@
-import { CheckCircleIcon } from '@heroicons/react/outline'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 
-import css from './checkout-status-template.module.css'
-
-import Heading from '@/components/heading'
 import EmailVerification from '@/components/profile/email-verification'
+import Success from '@/components/purchase-form/shared/success'
 import { useAuth } from '@/contexts/auth-context'
-import { PaymentContextProps } from '@/contexts/payment-context'
+import { urls } from '@/utils/urls'
 
-export default function CheckoutSuccessTemplate(
-  paymentProps: PaymentContextProps
-) {
+export default function CheckoutSuccessTemplate() {
   const { t } = useTranslation()
   const { user } = useAuth()
+  const { push } = useRouter()
 
   if (!user?.emailVerified) {
     return <EmailVerification inline />
   }
   return (
-    <>
-      <CheckCircleIcon className={css.icon} height="48" width="48" />
-      <Heading className="mb-10" level={1}>
-        {t('common:statuses.Success!')}
-      </Heading>
-    </>
+    <Success
+      buttonText={t('common:actions.View My Collection')}
+      handleClick={() => push(urls.myCollection)}
+      headingClassName="mb-16"
+      headingText={t('common:statuses.Success!')}
+    />
   )
 }
