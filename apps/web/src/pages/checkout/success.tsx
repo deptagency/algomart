@@ -38,9 +38,10 @@ export const getServerSideProps: GetServerSideProps<SuccessPageProps> = async (
   }
 
   // Get payment
+  const isExternalId = true
   const payment = await ApiClient.instance.getPaymentById(
     paymentExternalId,
-    true
+    isExternalId
   )
 
   // Check if payment is found

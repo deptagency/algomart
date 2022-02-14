@@ -4,18 +4,20 @@ import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useState } from 'react'
 
-import CardPurchaseError from './sections/card-error'
+import Failure from '../shared/failure'
+
 import CardPurchaseForm from './sections/card-form'
 import CardPurchaseHeader from './sections/card-header'
-import CardPurchaseSuccess from './sections/card-success'
 import CardPurchaseSummary from './sections/card-summary'
 
 import css from './card-form.module.css'
 
 import Loading from '@/components/loading/loading'
+import Success from '@/components/purchase-form/shared/success'
 import { PaymentContextProps } from '@/contexts/payment-context'
 import { useWarningOnExit } from '@/hooks/use-warning-on-exit'
 import { isAfterNow } from '@/utils/date-time'
+import { urls } from '@/utils/urls'
 
 export default function CardForm({
   bid,
@@ -60,6 +62,23 @@ export default function CardForm({
     ]
   )
 
+  const handlePackOpening = useCallback(() => {
+    const path = urls.packOpening.replace(':packId', packId)
+    if (typeof window !== 'undefined') {
+      window.location.assign(new URL(path, window.location.origin).href)
+    }
+  }, [packId])
+
+  const handleCompleteAuction = useCallback(
+    () =>
+      push(
+        isAuctionActive
+          ? urls.release.replace(':packSlug', release.slug)
+          : urls.myCollectibles
+      ),
+    [isAuctionActive, push, release?.slug]
+  )
+
   return (
     <section className={css.root}>
       <CardPurchaseHeader title={release.title} image={release.image} />
@@ -96,13 +115,39 @@ export default function CardForm({
       )}
 
       {status === CheckoutStatus.success && packId && (
-        <CardPurchaseSuccess release={release} packId={packId} />
+        <Success
+          buttonText={
+            release?.type === PackType.Auction && isAuctionActive
+              ? t('common:actions.Back to Listing')
+              : release?.type === PackType.Auction
+              ? t('common:actions.View My Collection')
+              : t('common:actions.Open Pack')
+          }
+          handleClick={
+            release?.type === PackType.Auction
+              ? handleCompleteAuction
+              : handlePackOpening
+          }
+          headingClassName={release?.type === PackType.Purchase && 'mb-16'}
+          headingText={
+            release?.type === PackType.Auction && isAuctionActive
+              ? t('common:statuses.Bid placed!')
+              : t('common:statuses.Success!')
+          }
+          notice={
+            release?.type === PackType.Auction &&
+            isAuctionActive &&
+            t('forms:fields.bid.success', { title: release.title })
+          }
+        />
       )}
 
       {status === CheckoutStatus.error && (
-        <CardPurchaseError
+        <Failure
+          buttonText={t('common:actions.Try Again')}
           error={t('forms:errors.failedPayment')}
-          handleRetry={handleRetry}
+          handleClick={handleRetry}
+          headingText={t('release:failedToClaim')}
         />
       )}
     </section>
