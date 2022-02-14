@@ -1,26 +1,30 @@
 .topNav {
-  @apply md:bg-base-bgCard border-t-2 border-t-base-border;
+  /* Base */
+  @apply border-t-2 border-t-base-border;
+
+  /* Tablet + */
+  @apply md:bg-base-bgCard;
 }
 
 .topNavWrapper {
   /* Base */
-  @apply mx-auto max-w-wrapper;
+  @apply mx-auto max-w-wrapper px-4 py-12 flex flex-col items-center;
   /* Tablet + */
-  @apply md:px-4 md:py-12;
+  @apply md:block;
 }
 
 .topNavNavWrapper {
   /* Base */
   @apply grid gap-1 mt-5 grid-cols-1;
   /*  Tablet + */
-  @apply md:grid-cols-2;
+  @apply md:auto-cols-max md:grid-cols-2 md:grid-flow-col md:max-w-700;
 }
 
 .topNavNav {
   /* Base */
-  @apply grid gap-1 mt-10 mb-9 grid-flow-row auto-rows-min text-center;
+  @apply grid gap-1 mb-9 grid-flow-row auto-rows-min text-center;
   /* Tablet + */
-  @apply md:text-left;
+  @apply md:text-left md:mt-10;
 }
 
 .topNavNav h3 {

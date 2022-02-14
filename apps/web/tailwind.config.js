@@ -22,6 +22,8 @@ module.exports = {
   darkMode: false, // or false, 'media' or 'class'
   theme: {
     fontSize: {
+      xs: '.75rem',
+      sm: '.85rem',
       lg: '1.25rem',
       xl: '2.5rem',
       xxl: '3.75rem',

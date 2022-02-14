@@ -5,8 +5,6 @@ import AppFooterLanguage from './app-footer-language'
 
 import css from './app-footer-bottom-nav.module.css'
 
-import ExternalLink from '@/components/external-link'
-import Logo from '@/components/logo/logo'
 import { getLegalNavItems } from '@/utils/navigation'
 
 export default function AppFooterBottomNav() {
@@ -33,7 +31,7 @@ export default function AppFooterBottomNav() {
             )}
           </nav>
           <div>{t('common:nav.legal.copyright')}</div>
-          <div>Cookie Settings</div>
+          <div>{t('common:nav.legal.Cookie Settings')}</div>
         </div>
         <div className={css.bottomNavSpace}>
           <AppFooterLanguage />

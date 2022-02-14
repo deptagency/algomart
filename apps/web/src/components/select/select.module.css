@@ -23,7 +23,7 @@
 }
 
 .selectButton {
-  @apply relative w-full text-left bg-white border rounded-sm cursor-default border-base-border;
+  @apply relative text-left bg-white border rounded-sm cursor-default border-base-border;
   padding: 10px 1rem 10px 10px;
 }
 
