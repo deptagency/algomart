@@ -16,7 +16,8 @@ handler.get(async (request: NextApiRequestApp, response: NextApiResponse) => {
   }
 
   const payment = await ApiClient.instance.getPaymentById(
-    request.query.paymentId
+    request.query.paymentId,
+    false
   )
 
   if (!payment) {

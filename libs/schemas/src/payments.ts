@@ -627,6 +627,7 @@ export const GetPaymentCardStatusSchema = Type.Object({
 
 export const PaymentQuerystringSchema = Type.Object({
   isAdmin: Type.Optional(Type.Boolean()),
+  isExternalId: Type.Optional(Type.Boolean()),
 })
 
 export const PaymentSchema = Type.Intersect([

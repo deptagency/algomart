@@ -16,6 +16,7 @@ import {
   PackType,
   PaymentBankAccountStatus,
   PaymentCardStatus,
+  PaymentQuerystring,
   Payments,
   PaymentSortField,
   PaymentsQuerystring,
@@ -785,14 +786,26 @@ export default class PaymentsService {
     return matchingPayments || []
   }
 
-  async getPaymentById(paymentId: string, isAdmin?: boolean) {
-    const payment = await PaymentModel.query()
-      .findById(paymentId)
-      .withGraphFetched('pack')
+  async getPaymentById(paymentId: string, args?: PaymentQuerystring) {
+    const { isAdmin, isExternalId } = args
+    // Find payment by ID or external ID
+    const query = PaymentModel.query()
+    if (isExternalId) {
+      query.where({ externalId: paymentId })
+    } else {
+      query.findById(paymentId)
+    }
+
+    // Search for matching payment
+    const payment = await query
       .withGraphFetched('payer')
+      .withGraphFetched('pack')
+      .first()
     userInvariant(payment, 'payment not found', 404)
+
+    // If admin, return additional pack details
     if (isAdmin) {
-      const { pack } = payment
+      const pack = payment.pack
       invariant(pack?.templateId, 'pack template not found')
       const { packs: packTemplates } = await this.packs.getPublishedPacks({
         templateIds: [pack.templateId],

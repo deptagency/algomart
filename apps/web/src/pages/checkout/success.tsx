@@ -22,10 +22,10 @@ export default function SuccessPage({ payment }: SuccessPageProps) {
 export const getServerSideProps: GetServerSideProps<SuccessPageProps> = async (
   context
 ) => {
-  const { paymentId } = context.query
+  const { paymentId: paymentExternalId } = context.query
 
   // Payment ID is required
-  if (!paymentId || typeof paymentId !== 'string') {
+  if (!paymentExternalId || typeof paymentExternalId !== 'string') {
     return {
       notFound: true,
     }
@@ -38,7 +38,10 @@ export const getServerSideProps: GetServerSideProps<SuccessPageProps> = async (
   }
 
   // Get payment
-  const payment = await ApiClient.instance.getPaymentById(paymentId)
+  const payment = await ApiClient.instance.getPaymentById(
+    paymentExternalId,
+    true
+  )
 
   // Check if payment is found
   if (!payment) {

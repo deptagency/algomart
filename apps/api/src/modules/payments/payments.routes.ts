@@ -291,7 +291,7 @@ export async function getPaymentById(
     .get<PaymentsService>(PaymentsService.name)
   const payment = await paymentService.getPaymentById(
     request.params.paymentId,
-    request.query.isAdmin
+    request.query
   )
   if (payment) {
     reply.status(200).send(payment)

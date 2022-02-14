@@ -228,8 +228,16 @@ export class ApiClient {
     return await this.http.post('payments', { json }).json<Payment>()
   }
 
-  async getPaymentById(paymentId: string) {
-    return await this.http.get(`payments/${paymentId}`).json<Payment>()
+  async getPaymentById(paymentId: string, isExternalId: boolean) {
+    const searchParams = new URLSearchParams()
+    if (isExternalId) searchParams.set('isExternalId', isExternalId.toString())
+    return await this.http
+      .get(`payments/${paymentId}`, { searchParams })
+      .json<Payment>()
+  }
+
+  async getPaymentByExternalId(paymentExternalId: string) {
+    return await this.http.get(`payments/${paymentExternalId}`).json<Payment>()
   }
 
   async getPublicKey() {
