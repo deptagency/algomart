@@ -26,13 +26,9 @@ module.exports = {
       sm: '.85rem',
       lg: '1.25rem',
       xl: '2.5rem',
-      xxl: '3.75rem',
-      '2xl': '1.5rem',
-      '3xl': '1.875rem',
-      '4xl': '2.25rem',
-      '5xl': '3rem',
-      '6xl': '4rem',
-      '7xl': '5rem',
+      '2xl': '3.75rem',
+      '3xl': '4rem',
+      '4xl': '5rem',
     },
     extend: {
       backgroundImage: {
