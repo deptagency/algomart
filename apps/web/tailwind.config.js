@@ -30,6 +30,9 @@ module.exports = {
       '2xl': '3.75rem',
       '3xl': '4rem',
       '4xl': '5rem',
+      '5xl': '6rem',
+      '6xl': '7rem',
+      '7xl': '8rem',
     },
     extend: {
       backgroundImage: {
