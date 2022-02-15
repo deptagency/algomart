@@ -1,4 +1,5 @@
 import { DEFAULT_LOCALE } from '@algomart/schemas'
+import * as DineroCurrencies from '@dinero.js/currencies'
 import { ShieldExclamationIcon, UserCircleIcon } from '@heroicons/react/outline'
 import Image from 'next/image'
 import { Translate } from 'next-translate'
@@ -49,12 +50,16 @@ export function Currency({
 
   useEffect(() => {
     if (currencyConversions) {
-      setOptions(
-        Object.keys(currencyConversions).map((targetCurrency) => ({
+      const intersection = Object.keys(DineroCurrencies)
+        .filter((dineroCurrencyKey) =>
+          Object.keys(currencyConversions).includes(dineroCurrencyKey)
+        )
+        .map((targetCurrency) => ({
           id: targetCurrency,
           label: targetCurrency,
         }))
-      )
+
+      setOptions(intersection)
     }
   }, [currencyConversions]) // eslint-disable-line react-hooks/exhaustive-deps
 

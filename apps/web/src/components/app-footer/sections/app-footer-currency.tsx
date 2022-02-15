@@ -34,6 +34,8 @@ export default function AppFooterLanguage() {
         return
       }
 
+      setCookie(CURRENCY_COOKIE, currency, 365)
+
       if (user) {
         // Update currency
         const updateCurrency = await authService.updateCurrency(body.currency)
@@ -45,9 +47,8 @@ export default function AppFooterLanguage() {
         await reloadProfile()
       }
 
-      setCookie(CURRENCY_COOKIE, currency, 365)
-      setCurrency(currency)
       setLoading(false)
+      setCurrency(currency)
 
       return
     },

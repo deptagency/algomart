@@ -139,8 +139,18 @@ export function useI18nProvider() {
 
   useEffect(() => {
     const run = async () => {
-      const { currencyConversions } = await getI18nInfo()
-      dispatch(i18nActions.setConversionRate(currencyConversions[currency]))
+      let currencyConversions: { [x: string]: number }
+
+      if (state.currencyConversions) {
+        currencyConversions = state.currencyConversions
+      } else {
+        const i18nInfo = await getI18nInfo()
+        currencyConversions = i18nInfo?.currencyConversions
+      }
+
+      if (currencyConversions[currency]) {
+        dispatch(i18nActions.setConversionRate(currencyConversions[currency]))
+      }
     }
 
     run()

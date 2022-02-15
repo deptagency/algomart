@@ -114,16 +114,18 @@ export default class AccountsService {
       showProfile,
       username,
       locale,
+      currency,
     }: UpdateUserAccount & ExternalId,
     trx?: Transaction
   ) {
     const result = await UserAccountModel.query(trx)
       .where({ externalId })
       .patch({
+        currency,
         email,
+        locale,
         showProfile,
         username,
-        locale,
       })
     userInvariant(result === 1, 'user account not found', 404)
   }

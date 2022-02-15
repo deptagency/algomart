@@ -89,7 +89,7 @@ export class AuthService implements AuthAPI {
   async updateCurrency(currency = DEFAULT_CURRENCY): Promise<boolean> {
     try {
       await this.http
-        .put(urls.api.v1.updateLanguage, { json: { currency } })
+        .put(urls.api.v1.updateCurrency, { json: { currency } })
         .json()
       return true
     } catch {
