@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        app: [api, cms, web]
+        app: [api, cms, scribe, web]
     steps:
       - uses: actions/checkout@v2
 
