@@ -4,6 +4,7 @@
     "api": "apps/api",
     "cms": "apps/cms",
     "schemas": "libs/schemas",
+    "scribe": "apps/scribe",
     "web": "apps/web",
     "web-e2e": "apps/web-e2e"
   }
