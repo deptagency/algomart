@@ -1,5 +1,5 @@
 import {
-  CurrencyConversionList,
+  CurrencyConversionDict,
   DEFAULT_LOCALE,
   I18nInfo,
   LanguageList,
@@ -11,7 +11,7 @@ import { urls } from '@/utils/urls'
 export interface I18nApi {
   getCurrencyConversions(
     sourceCurrency?: string
-  ): Promise<CurrencyConversionList>
+  ): Promise<CurrencyConversionDict>
   getI18nInfo(locale: string): Promise<I18nInfo>
   getLanguages(locale: string): Promise<LanguageList>
 }
@@ -33,20 +33,16 @@ export class I18nService implements I18nApi {
    */
   async getCurrencyConversions(
     sourceCurrency?: string
-  ): Promise<CurrencyConversionList> {
-    try {
-      const response = await this.http
-        .get(urls.api.v1.getCurrencyConversions, {
-          searchParams: {
-            sourceCurrency,
-          },
-        })
-        .json<CurrencyConversionList>()
+  ): Promise<CurrencyConversionDict> {
+    const response = await this.http
+      .get(urls.api.v1.getCurrencyConversions, {
+        searchParams: {
+          sourceCurrency,
+        },
+      })
+      .json<CurrencyConversionDict>()
 
-      return response
-    } catch {
-      return null
-    }
+    return response
   }
 
   /**
@@ -55,19 +51,15 @@ export class I18nService implements I18nApi {
    * @returns
    */
   async getI18nInfo(locale = DEFAULT_LOCALE): Promise<I18nInfo> {
-    try {
-      const response = await this.http
-        .get(urls.api.v1.getI18nInfo, {
-          searchParams: {
-            locale,
-          },
-        })
-        .json<I18nInfo>()
+    const response = await this.http
+      .get(urls.api.v1.getI18nInfo, {
+        searchParams: {
+          locale,
+        },
+      })
+      .json<I18nInfo>()
 
-      return response
-    } catch {
-      return null
-    }
+    return response
   }
 
   /**
@@ -76,19 +68,15 @@ export class I18nService implements I18nApi {
    * @returns
    */
   async getLanguages(locale = DEFAULT_LOCALE): Promise<LanguageList> {
-    try {
-      const response = await this.http
-        .get(urls.api.v1.getLanguages, {
-          searchParams: {
-            locale,
-          },
-        })
-        .json<LanguageList>()
+    const response = await this.http
+      .get(urls.api.v1.getLanguages, {
+        searchParams: {
+          locale,
+        },
+      })
+      .json<LanguageList>()
 
-      return response
-    } catch {
-      return null
-    }
+    return response
   }
 }
 

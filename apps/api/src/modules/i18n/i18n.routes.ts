@@ -46,7 +46,7 @@ export async function getI18nInfo(
   const service = request.getContainer().get<I18nService>(I18nService.name)
   const languages = await service.getLanguages(request.query.locale)
   const currencyConversions = await service.getCurrencyConversions(
-    null,
+    {},
     request.transaction
   )
 

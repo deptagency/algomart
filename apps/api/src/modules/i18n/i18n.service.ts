@@ -1,13 +1,13 @@
 import { DEFAULT_LOCALE, LanguageList } from '@algomart/schemas'
 import { Transaction } from 'objection'
 
+import { Configuration } from '@/configuration'
 import CoinbaseAdapter from '@/lib/coinbase-adapter'
 import DirectusAdapter from '@/lib/directus-adapter'
 import { CurrencyConversionModel } from '@/models/currency.model'
-import { currency } from '@/utils/format-currency'
-import { userInvariant } from '@/utils/invariant'
+import { invariant, userInvariant } from '@/utils/invariant'
 
-export default class LanguagesService {
+export default class I18nService {
   constructor(
     private readonly cms: DirectusAdapter,
     private readonly coinbase: CoinbaseAdapter
@@ -15,7 +15,7 @@ export default class LanguagesService {
 
   async getLanguages(locale = DEFAULT_LOCALE): Promise<LanguageList> {
     const languages = await this.cms.getLanguages(locale)
-    userInvariant(languages, 'languages not found', 404)
+    invariant(languages, 'languages not found')
 
     return languages
   }
@@ -31,7 +31,7 @@ export default class LanguagesService {
     trx?: Transaction
   ) {
     // 1st: grab all conversion for currency from db
-    const conversions = await CurrencyConversionModel.query(trx)
+    let conversions = await CurrencyConversionModel.query(trx)
       .groupBy('sourceCurrency')
       .where('sourceCurrency', sourceCurrency)
 
@@ -44,21 +44,24 @@ export default class LanguagesService {
     )
 
     // 3rd: if no conversion (or old) grab from coinbase and upsert ALL rows for given currency, returning the
-    if (!conversion) {
+    if (conversions.length === 0 || !conversion) {
       const { rates } = await this.coinbase.getExchangeRates({
         currency: sourceCurrency,
       })
       const now = new Date().toISOString()
-      const conversions = await CurrencyConversionModel.query(trx)
-        .groupBy('sourceCurrency')
-        .upsertGraphAndFetch(
-          Object.keys(rates).map((code) => ({
-            sourceCurrency,
-            targetCurrency: code,
-            exchangeRate: rates[code],
-            updatedAt: now,
-          }))
-        )
+      const upserts = Object.keys(rates).map((code) => ({
+        id: conversions?.find(
+          (conversion) => conversion?.targetCurrency === code
+        )?.id,
+        sourceCurrency,
+        targetCurrency: code,
+        exchangeRate: rates[code],
+        updatedAt: now,
+      }))
+
+      conversions = await CurrencyConversionModel.query(
+        trx
+      ).upsertGraphAndFetch(upserts)
 
       conversion = conversions.find(
         (conversion) => conversion.targetCurrency === targetCurrency
@@ -70,16 +73,20 @@ export default class LanguagesService {
 
   async getCurrencyConversions(
     {
-      sourceCurrency = currency.code,
+      sourceCurrency = Configuration.currency.code,
     }: {
-      sourceCurrency: string
+      sourceCurrency?: string
     },
     trx?: Transaction
   ) {
+    console.log('SOURCE CURRENCY:')
+    console.log(sourceCurrency)
+
     // 1st: grab all conversion for currency from db
-    let conversions = await CurrencyConversionModel.query(trx)
-      .groupBy('sourceCurrency')
-      .where('sourceCurrency', sourceCurrency)
+    let conversions = await CurrencyConversionModel.query(trx).where(
+      'sourceCurrency',
+      sourceCurrency
+    )
 
     // 2nd: find if any conversions are stale
     const past1Hour = new Date(new Date().setDate(new Date().getHours() - 1))
@@ -87,24 +94,47 @@ export default class LanguagesService {
       (conversion) => new Date(conversion?.updatedAt) > past1Hour
     )
 
-    // 3rd: if any are stale, regrab from coinbase and upsert ALL rows for given currency
-    if (staleConversion) {
+    // 3rd: if no conversions or any are stale, regrab from coinbase and upsert ALL rows for given currency
+    // eslint-disable-next-line no-extra-boolean-cast
+    // eslint-disable-next-line no-constant-condition
+    if (conversions.length === 0 || staleConversion) {
       const { rates } = await this.coinbase.getExchangeRates({
         currency: sourceCurrency,
       })
       const now = new Date().toISOString()
-      conversions = await CurrencyConversionModel.query(trx)
-        .groupBy('sourceCurrency')
-        .upsertGraphAndFetch(
-          Object.keys(rates).map((code) => ({
-            sourceCurrency,
-            targetCurrency: code,
-            exchangeRate: rates[code],
-            updatedAt: now,
-          }))
-        )
+      const upserts = Object.keys(rates).map((code) => ({
+        id: conversions?.find(
+          (conversion) => conversion?.targetCurrency === code
+        )?.id,
+        sourceCurrency,
+        targetCurrency: code,
+        exchangeRate: Number.parseFloat(rates[code]),
+        updatedAt: now,
+      }))
+
+      // push matching exchange rate, helpful for ui conversions
+      upserts.push({
+        id: conversions?.find(
+          (conversion) => conversion?.targetCurrency === sourceCurrency
+        )?.id,
+        sourceCurrency,
+        targetCurrency: sourceCurrency,
+        exchangeRate: 1,
+        updatedAt: now,
+      })
+
+      conversions = await CurrencyConversionModel.query(
+        trx
+      ).upsertGraphAndFetch(upserts)
     }
 
-    return conversions
+    invariant(conversions, 'conversions not found')
+
+    const conversionsDict = {}
+    for (const conversion of conversions) {
+      conversionsDict[conversion.targetCurrency] = conversion.exchangeRate
+    }
+
+    return conversionsDict
   }
 }

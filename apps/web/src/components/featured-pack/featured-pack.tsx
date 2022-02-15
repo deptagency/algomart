@@ -4,12 +4,14 @@ import Markdown from 'markdown-to-jsx'
 import Image from 'next/image'
 import Trans from 'next-translate/Trans'
 import useTranslation from 'next-translate/useTranslation'
+import { useEffect, useState } from 'react'
 
 import css from './featured-pack.module.css'
 
 import Button from '@/components/button'
 import Counter from '@/components/counter/counter'
 import Heading from '@/components/heading'
+import { useI18n } from '@/contexts/i18n-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/format-currency'
@@ -25,6 +27,7 @@ export default function HomeTemplate({
 }: FeaturedPackProps) {
   const locale = useLocale()
   const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const { t, lang } = useTranslation()
 
   const highestBid = featuredPack?.activeBid || 0
@@ -134,7 +137,11 @@ export default function HomeTemplate({
                         [css.completeSuccess]: isExpired && isReserveMet,
                       })}
                     >
-                      {formatCurrency(highestBid, lang, currency)}
+                      {formatCurrency(
+                        highestBid * conversionRate,
+                        lang,
+                        currency
+                      )}
                     </div>
                   </>
                 </div>
@@ -193,7 +200,8 @@ export default function HomeTemplate({
                   {(featuredPack.type === PackType.Auction ||
                     featuredPack.type === PackType.Purchase) &&
                     formatCurrency(
-                      featuredPack.activeBid ?? featuredPack.price,
+                      featuredPack.activeBid * conversionRate ??
+                        featuredPack.price * conversionRate,
                       locale,
                       currency
                     )}

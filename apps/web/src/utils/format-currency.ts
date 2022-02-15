@@ -20,7 +20,6 @@ export function formatCurrency(
   code = DEFAULT_CURRENCY
 ) {
   const currency = dineroCurrency(code)
-
   let amount = value
   if (amount === null || amount === undefined) {
     amount = 0
@@ -40,6 +39,8 @@ export function formatCurrency(
       currency: currency.code,
     })
   }
+
+  amount = Math.round(amount)
 
   return toFormat(dinero({ amount, currency }), transformer)
 }

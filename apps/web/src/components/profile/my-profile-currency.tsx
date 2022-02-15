@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, LOCALE_COOKIE } from '@algomart/schemas'
+import { CURRENCY_COOKIE, DEFAULT_LOCALE } from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useMemo, useState } from 'react'
@@ -26,7 +26,6 @@ export default function MyProfileCurrency() {
   const [updateError, setUpdateError] = useState<string>('')
   const [updateSuccess, setUpdateSuccess] = useState<boolean>(false)
   const { t } = useTranslation()
-  const router = useRouter()
 
   const validate = useMemo(() => validateCurrency(t), [t])
 
@@ -56,6 +55,7 @@ export default function MyProfileCurrency() {
         return
       }
 
+      setCookie(CURRENCY_COOKIE, currency, 365)
       await reloadProfile()
       setLoading(false)
       setIsEditing(false)
@@ -63,15 +63,9 @@ export default function MyProfileCurrency() {
       setUpdateError('')
       setUpdateSuccess(true)
 
-      router.push(
-        { pathname: router.pathname, query: router.query },
-        router.asPath,
-        { locale: body?.currency }
-      )
-
       return
     },
-    [reloadProfile, t, validate, currency, router]
+    [reloadProfile, t, validate, currency]
   )
 
   const handleBeginEdit = useCallback(() => {
@@ -96,7 +90,7 @@ export default function MyProfileCurrency() {
     <section className={common.section}>
       <div className={common.sectionHeader}>
         <Heading className={common.sectionHeading} level={2}>
-          {t('forms:fields.languages.label')}
+          {t('forms:fields.currencies.label')}
         </Heading>
         {updateSuccess && (
           <div className={common.confirmation}>

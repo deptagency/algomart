@@ -88,6 +88,7 @@ export const urls = {
       removeCard: '/api/v1/payments/remove-card',
       showcaseCollectible: '/api/v1/collection/collectibles-showcase',
       updateCard: '/api/v1/payments/update-card',
+      updateCurrency: '/api/v1/profile/update-currency',
       updateEmail: '/api/v1/profile/update-email',
       updateLanguage: '/api/v1/profile/update-language',
       updateUsername: '/api/v1/profile/update-username',

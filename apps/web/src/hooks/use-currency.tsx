@@ -11,5 +11,5 @@ export function useCurrency() {
   // 1st cookie
   // 2nd user config
   // 3rd USD
-  return parsedCookie || auth?.user?.locale || DEFAULT_CURRENCY
+  return parsedCookie || auth?.user?.currency || DEFAULT_CURRENCY
 }

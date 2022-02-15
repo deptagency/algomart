@@ -1,5 +1,4 @@
-import { CURRENCIES, DEFAULT_LOCALE } from '@algomart/schemas'
-import * as Currencies from '@dinero.js/currencies'
+import { DEFAULT_LOCALE } from '@algomart/schemas'
 import { ShieldExclamationIcon, UserCircleIcon } from '@heroicons/react/outline'
 import Image from 'next/image'
 import { Translate } from 'next-translate'
@@ -13,9 +12,7 @@ import FormField from '@/components/form-field'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
 import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
-import { I18nProvider, useI18nProvider } from '@/contexts/i18n-context'
-import { useLocale } from '@/hooks/use-locale'
-import languageService from '@/services/i18n-service'
+import { useI18n } from '@/contexts/i18n-context'
 import { FileWithPreview } from '@/types/file'
 
 /**
@@ -48,21 +45,18 @@ export function Currency({
 }: AuthCurrencyProps) {
   const [options, setOptions] = useState<SelectOption[]>([])
   const [selectedValue, setSelectedValue] = useState<SelectOption>()
-  const { getCurrencyConversions } = useI18nProvider()
+  const { currencyConversions } = useI18n()
 
   useEffect(() => {
-    const run = async () => {
-      const currencyConversions = await getCurrencyConversions()
+    if (currencyConversions) {
       setOptions(
-        currencyConversions.map((currencyConversion) => ({
-          id: currencyConversion.id,
-          label: currencyConversion.id,
+        Object.keys(currencyConversions).map((targetCurrency) => ({
+          id: targetCurrency,
+          label: targetCurrency,
         }))
       )
     }
-
-    run()
-  }, [getCurrencyConversions])
+  }, [currencyConversions]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setSelectedValue(
@@ -71,24 +65,22 @@ export function Currency({
   }, [options, value])
 
   return (
-    <I18nProvider>
-      <FormField className={css.formField}>
-        {options.length > 0 && (
-          <Select
-            className="pl-8"
-            defaultOption={options[0]}
-            error={error as string}
-            disabled={disabled}
-            label={showLabel ? t('forms:fields.currencies.label') : undefined}
-            id="currency"
-            name="currency"
-            options={options}
-            selectedValue={selectedValue}
-            handleChange={handleChange}
-          />
-        )}
-      </FormField>
-    </I18nProvider>
+    <FormField className={css.formField}>
+      {options.length > 0 && (
+        <Select
+          className="pl-8"
+          defaultOption={options[0]}
+          error={error as string}
+          disabled={disabled}
+          label={showLabel ? t('forms:fields.currencies.label') : undefined}
+          id="currency"
+          name="currency"
+          options={options}
+          selectedValue={selectedValue}
+          handleChange={handleChange}
+        />
+      )}
+    </FormField>
   )
 }
 
@@ -126,15 +118,19 @@ export function Language({
 }: AuthLanguageProps) {
   const [options, setOptions] = useState<SelectOption[]>([])
   const [selectedValue, setSelectedValue] = useState<SelectOption>()
-  const { getI18nInfo } = useI18nProvider()
+  const { languages, getI18nInfo } = useI18n()
 
   useEffect(() => {
     const run = async () => {
       try {
-        const { languages } = await getI18nInfo()
+        let i18nStateLanguages = languages
+        if (!i18nStateLanguages) {
+          const i18nInfo = await getI18nInfo()
+          i18nStateLanguages = i18nInfo.languages
+        }
 
         setOptions(
-          languages.map((language) => ({
+          i18nStateLanguages.map((language) => ({
             id: language.languages_code,
             label: language.label,
           }))
@@ -150,7 +146,7 @@ export function Language({
       }
     }
     run()
-  }, [t, getI18nInfo])
+  }, [t, languages]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setSelectedValue(
@@ -159,24 +155,22 @@ export function Language({
   }, [options, value])
 
   return (
-    <I18nProvider>
-      <FormField className={css.formField}>
-        {options.length > 0 && (
-          <Select
-            className="pl-8"
-            defaultOption={options[0]}
-            error={error as string}
-            disabled={disabled}
-            label={showLabel ? t('forms:fields.languages.label') : undefined}
-            id="locale"
-            name="locale"
-            options={options}
-            selectedValue={selectedValue}
-            handleChange={handleChange}
-          />
-        )}
-      </FormField>
-    </I18nProvider>
+    <FormField className={css.formField}>
+      {options.length > 0 && (
+        <Select
+          className="pl-8"
+          defaultOption={options[0]}
+          error={error as string}
+          disabled={disabled}
+          label={showLabel ? t('forms:fields.languages.label') : undefined}
+          id="locale"
+          name="locale"
+          options={options}
+          selectedValue={selectedValue}
+          handleChange={handleChange}
+        />
+      )}
+    </FormField>
   )
 }
 

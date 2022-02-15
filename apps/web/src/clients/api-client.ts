@@ -495,7 +495,7 @@ export class ApiClient {
 
   async getI18n(locale: string) {
     return await this.http
-      .get('i18n/i18n', {
+      .get('i18n/i18n-info', {
         searchParams: {
           locale: locale || DEFAULT_LOCALE,
         },
