@@ -12,6 +12,7 @@ import css from './bank-account-success.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
+import { useI18n } from '@/contexts/i18n-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
@@ -28,6 +29,7 @@ export default function BankAccountSuccess({
 }: BankAccountSuccessProps) {
   const { t, lang } = useTranslation()
   const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const router = useRouter()
   const price = bankAccountInstructions?.amount
     ? formatIntToFloat(bankAccountInstructions.amount, currency)
@@ -134,7 +136,7 @@ export default function BankAccountSuccess({
           <div className={css.priceContainer}>
             <p className={css.priceLabel}>{t('release:Total')}</p>
             <p className={css.priceValue}>
-              {formatCurrency(price, lang, currency)}
+              {formatCurrency(price, lang, currency, conversionRate)}
             </p>
           </div>
         ))}

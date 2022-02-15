@@ -9,6 +9,7 @@ import BidActivityEmoji from './sections/bid-activity-emoji'
 
 import css from './bid-activity.module.css'
 
+import { useI18n } from '@/contexts/i18n-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { isAfterNow, isNowBetweenDates } from '@/utils/date-time'
@@ -33,6 +34,7 @@ export default function BidActivity({
 }: BidActivityProps) {
   const locale = useLocale()
   const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const { t, lang } = useTranslation()
   const startDateTime = new Date(releasedAt)
   const endDateTime = new Date(auctionUntil)
@@ -92,7 +94,12 @@ export default function BidActivity({
           return (
             <React.Fragment key={bid.id}>
               <BidActivityDetails
-                amount={formatCurrency(bid.amount, lang, currency)}
+                amount={formatCurrency(
+                  bid.amount,
+                  lang,
+                  currency,
+                  conversionRate
+                )}
                 content={t('release:Bid placed by', { username: bid.username })}
                 date={t('release:packActivityDate', {
                   date: dateFormat.format(createdAtDateTime),

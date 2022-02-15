@@ -4,7 +4,6 @@ import Markdown from 'markdown-to-jsx'
 import Image from 'next/image'
 import Trans from 'next-translate/Trans'
 import useTranslation from 'next-translate/useTranslation'
-import { useEffect, useState } from 'react'
 
 import css from './featured-pack.module.css'
 
@@ -138,9 +137,10 @@ export default function HomeTemplate({
                       })}
                     >
                       {formatCurrency(
-                        highestBid * conversionRate,
+                        highestBid,
                         lang,
-                        currency
+                        currency,
+                        conversionRate
                       )}
                     </div>
                   </>
@@ -200,10 +200,10 @@ export default function HomeTemplate({
                   {(featuredPack.type === PackType.Auction ||
                     featuredPack.type === PackType.Purchase) &&
                     formatCurrency(
-                      featuredPack.activeBid * conversionRate ??
-                        featuredPack.price * conversionRate,
+                      featuredPack.activeBid ?? featuredPack.price,
                       locale,
-                      currency
+                      currency,
+                      conversionRate
                     )}
                 </p>
               </>

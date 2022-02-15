@@ -5,7 +5,7 @@ import { Configuration } from '@/configuration'
 import CoinbaseAdapter from '@/lib/coinbase-adapter'
 import DirectusAdapter from '@/lib/directus-adapter'
 import { CurrencyConversionModel } from '@/models/currency.model'
-import { invariant, userInvariant } from '@/utils/invariant'
+import { invariant } from '@/utils/invariant'
 
 export default class I18nService {
   constructor(
@@ -79,9 +79,6 @@ export default class I18nService {
     },
     trx?: Transaction
   ) {
-    console.log('SOURCE CURRENCY:')
-    console.log(sourceCurrency)
-
     // 1st: grab all conversion for currency from db
     let conversions = await CurrencyConversionModel.query(trx).where(
       'sourceCurrency',

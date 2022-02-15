@@ -56,9 +56,10 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
             <div className={css.metadataValue}>
               {reserveMet
                 ? formatCurrency(
-                    pack.activeBid * conversionRate ?? 0,
+                    pack.activeBid ?? 0,
                     locale,
-                    currency
+                    currency,
+                    conversionRate
                   )
                 : t('release:Not Met')}
             </div>
@@ -87,9 +88,10 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
             <div className={css.metadataValue}>
               {reserveMet
                 ? formatCurrency(
-                    pack.activeBid * conversionRate ?? 0,
+                    pack.activeBid ?? 0,
                     locale,
-                    currency
+                    currency,
+                    conversionRate
                   )
                 : t('release:Not Met')}
             </div>
@@ -123,7 +125,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
           <div>
             <div className={css.metadataLabel}>{t('release:Mint Cost')}</div>
             <div className={css.metadataValue}>
-              {formatCurrency(pack.price * conversionRate, locale, currency)}
+              {formatCurrency(pack.price, locale, currency, conversionRate)}
             </div>
           </div>
           <div>

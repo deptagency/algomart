@@ -16,6 +16,7 @@ import { Flex } from '@/components/flex'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
+import { useI18n } from '@/contexts/i18n-context'
 import { useCurrency } from '@/hooks/use-currency'
 import AdminLayout from '@/layouts/admin-layout'
 import adminService from '@/services/admin-service'
@@ -24,6 +25,7 @@ import { formatCurrency } from '@/utils/format-currency'
 import { logger } from '@/utils/logger'
 import { useAuthApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
+
 interface AdminTransactionPageProps {
   payment: Payment
 }
@@ -33,6 +35,7 @@ export default function AdminTransactionPage({
 }: AdminTransactionPageProps) {
   const { t, lang } = useTranslation('admin')
   const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const { query } = useRouter()
   const { transactionId } = query
   const isAuction = !!payment.pack?.template?.auctionUntil
@@ -52,7 +55,8 @@ export default function AdminTransactionPage({
     {
       key: 'pack.price',
       name: t('transactions.table.Amount'),
-      renderer: ({ value }) => formatCurrency(value, lang, currency),
+      renderer: ({ value }) =>
+        formatCurrency(value, lang, currency, conversionRate),
     },
     { key: 'status', name: t('transactions.table.Status') },
     { key: 'type', name: t('transactions.table.Type') },
@@ -150,7 +154,8 @@ export default function AdminTransactionPage({
                   {formatCurrency(
                     payment.pack?.template?.price,
                     lang,
-                    currency
+                    currency,
+                    conversionRate
                   )}
                 </dd>
                 <dt>Template ID</dt>
@@ -186,7 +191,12 @@ export default function AdminTransactionPage({
                 <div className={css.packMeta}>
                   <dt>Winning Bid</dt>
                   <dd>
-                    {formatCurrency(payment.pack?.template?.activeBid, lang)}
+                    {formatCurrency(
+                      payment.pack?.template?.activeBid,
+                      lang,
+                      currency,
+                      conversionRate
+                    )}
                   </dd>
                 </div>
                 <div className={css.packMeta}>

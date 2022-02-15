@@ -17,15 +17,18 @@ export function dineroCurrency(code = DEFAULT_CURRENCY) {
 export function formatCurrency(
   value?: string | number | null,
   locale = DEFAULT_LOCALE,
-  code = DEFAULT_CURRENCY
+  code = DEFAULT_CURRENCY,
+  conversionRate = 1
 ) {
   const currency = dineroCurrency(code)
   let amount = value
   if (amount === null || amount === undefined) {
     amount = 0
   } else if (typeof amount === 'string') {
-    amount = Math.round(Number.parseFloat(amount) * 100)
+    amount = Number.parseFloat(amount) * 100
   }
+
+  amount = Math.round(amount * conversionRate)
 
   function transformer({
     amount,
@@ -40,34 +43,47 @@ export function formatCurrency(
     })
   }
 
-  amount = Math.round(amount)
-
   return toFormat(dinero({ amount, currency }), transformer)
 }
 
 export function formatToDecimal(
   amount: number,
   decimalPlaces: number,
-  code = DEFAULT_CURRENCY
+  code = DEFAULT_CURRENCY,
+  conversionRate = 1
 ) {
   const currency = dineroCurrency(code)
-  const price = dinero({ amount, currency, scale: decimalPlaces })
+  const price = dinero({
+    amount: amount * conversionRate,
+    currency,
+    scale: decimalPlaces,
+  })
   return toUnit(price)
 }
 
 export function formatFloatToInt(
   float: number | string,
-  code = DEFAULT_CURRENCY
+  code = DEFAULT_CURRENCY,
+  conversionRate = 1
 ) {
   const currency = dineroCurrency(code)
-  const number = typeof float === 'string' ? Number.parseFloat(float) : float
+  const number =
+    typeof float === 'string'
+      ? Number.parseFloat(float) * conversionRate
+      : float * conversionRate
   const factor = currency.base ** currency.exponent
   const amount = Math.round(number * factor)
   const price = dinero({ amount, currency })
   return price.toJSON().amount
 }
 
-export function formatIntToFloat(amount: number, code = DEFAULT_CURRENCY) {
+export function formatIntToFloat(
+  amount: number,
+  code = DEFAULT_CURRENCY,
+  conversionRate = 1
+) {
+  amount = amount * conversionRate
+
   const currency = dineroCurrency(code)
   const price = dinero({ amount, currency })
   const float = toFormat(price, ({ amount, currency }) =>
@@ -79,11 +95,12 @@ export function formatIntToFloat(amount: number, code = DEFAULT_CURRENCY) {
 export function addAmount(
   originalAmount: number,
   newAmount: number,
-  code = DEFAULT_CURRENCY
+  code = DEFAULT_CURRENCY,
+  conversionRate = 1
 ) {
   const currency = dineroCurrency(code)
-  const price1 = dinero({ amount: originalAmount, currency })
-  const price2 = dinero({ amount: newAmount, currency })
+  const price1 = dinero({ amount: originalAmount * conversionRate, currency })
+  const price2 = dinero({ amount: newAmount * conversionRate, currency })
   return add(price1, price2)
 }
 

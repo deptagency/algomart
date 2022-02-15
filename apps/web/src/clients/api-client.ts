@@ -26,6 +26,7 @@ import {
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
+  I18nInfo,
   LanguageList,
   Locale,
   LocaleAndExternalId,

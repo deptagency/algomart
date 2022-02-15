@@ -12,6 +12,7 @@ import BillingAddress from '@/components/purchase-form/shared/billing-address'
 import FullName from '@/components/purchase-form/shared/full-name'
 import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
+import { useI18n } from '@/contexts/i18n-context'
 import { FormValidation } from '@/contexts/payment-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { isAfterNow } from '@/utils/date-time'
@@ -37,6 +38,7 @@ export default function BankAccountForm({
   setBid,
 }: BankAccountFormProps) {
   const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const { t, lang } = useTranslation()
   const isAuctionActive =
     release?.type === PackType.Auction &&
@@ -203,7 +205,7 @@ export default function BankAccountForm({
       <div className={css.priceContainer}>
         <p className={css.priceLabel}>{t('release:Total')}</p>
         <p className={css.priceValue}>
-          {formatCurrency(price, lang, currency)}
+          {formatCurrency(price, lang, currency, conversionRate)}
         </p>
       </div>
 

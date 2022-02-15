@@ -10,6 +10,7 @@ import CurrencyInput, {
   CurrencyInputProps,
 } from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
+import { useI18n } from '@/contexts/i18n-context'
 import { usePackFilterContext } from '@/contexts/pack-filter-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
@@ -19,13 +20,14 @@ import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 export default function ReleaseFilterPrice() {
   const locale = useLocale()
   const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const { t } = useTranslation()
   const { dispatch, state } = usePackFilterContext()
   const [priceLow, setPriceLow] = useState<string>(
-    formatIntToFloat(state.priceLow, currency)
+    formatIntToFloat(state.priceLow, currency, conversionRate)
   )
   const [priceHigh, setPriceHigh] = useState<string>(
-    formatIntToFloat(state.priceHigh, currency)
+    formatIntToFloat(state.priceHigh, currency, conversionRate)
   )
 
   const baseCurrencyInputProps: CurrencyInputProps = {
