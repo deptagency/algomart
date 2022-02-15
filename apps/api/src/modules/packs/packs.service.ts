@@ -904,7 +904,16 @@ export default class PacksService {
     // Create transfer success notification to be sent to user
     const packWithBase = await this.getPackById(request.packId)
     if (packWithBase) {
-      // @TODO: create notification for revoking the pack
+      await this.notifications.createNotification(
+        {
+          type: NotificationType.PackRevoked,
+          userAccountId: request.ownerId,
+          variables: {
+            packTitle: packWithBase.title,
+          },
+        },
+        trx
+      )
     }
 
     // Remove claim from pack

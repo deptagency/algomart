@@ -795,6 +795,7 @@ export default class PaymentsService {
   ) {
     const payment = await PaymentModel.query(trx).findById(paymentId)
     userInvariant(payment, 'payment not found', 404)
+
     // Update payment with new details
     await PaymentModel.query(trx).findById(paymentId).patch(updatedDetails)
 
@@ -803,6 +804,33 @@ export default class PaymentsService {
       entityType: EventEntityType.Payment,
       entityId: paymentId,
     })
+
+    const packTemplate = await this.packs.getPackById(payment.packId)
+
+    if (updatedDetails.status === PaymentStatus.Failed) {
+      await this.notifications.createNotification(
+        {
+          type: NotificationType.PaymentFailed,
+          userAccountId: payment.payerId,
+          variables: {
+            packTitle: packTemplate.title,
+          },
+        },
+        trx
+      )
+    } else if (updatedDetails.status === PaymentStatus.Paid) {
+      await this.notifications.createNotification(
+        {
+          type: NotificationType.PaymentSuccess,
+          userAccountId: payment.payerId,
+          variables: {
+            packTitle: packTemplate.title,
+          },
+        },
+        trx
+      )
+    }
+
     return payment
   }
 

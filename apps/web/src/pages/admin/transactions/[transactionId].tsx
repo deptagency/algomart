@@ -3,7 +3,7 @@ import { GetServerSideProps } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import css from './transaction.module.css'
 
@@ -37,7 +37,9 @@ export default function AdminTransactionPage({
 
   // WIRE PAYMENTS
   const { data } = useAuthApi<WirePayment[]>(
-    `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${payment.paymentBankId}`
+    payment.paymentBankId
+      ? `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${payment.paymentBankId}`
+      : null
   )
 
   const columns: ColumnDefinitionType<WirePayment>[] = [
@@ -66,10 +68,10 @@ export default function AdminTransactionPage({
         status: PaymentStatus.Pending,
       })
       alert('Payment was reset')
-      logger.info(updatedPayment, 'Payment was reset.')
+      logger.info('Payment was reset.', updatedPayment)
     } catch (error) {
       alert('Unable to reset pack.')
-      logger.error(error, 'Unable to reset pack')
+      logger.error('Unable to reset pack', error)
     }
   }, [transactionId])
 
@@ -82,15 +84,17 @@ export default function AdminTransactionPage({
         status: PaymentStatus.Paid,
       })
       alert('Payment was marked as paid')
-      logger.info(updatedPayment, 'Payment marked as paid.')
+      logger.info('Payment marked as paid.', updatedPayment)
     } catch (error) {
       alert('Unable to update pack as paid.')
-      logger.error(error, 'Unable to update pack as paid')
+      logger.error('Unable to update pack as paid', error)
     }
   }, [transactionId])
 
+  const [isRevoking, setIsRevoking] = useState(false)
   const handleRevokePack = useCallback(async () => {
     if (!confirm('Are you sure you want to revoke this pack?')) return
+    setIsRevoking(true)
     try {
       if (!payment.pack?.id) throw new Error('No pack id')
       if (!payment.pack?.ownerId) throw new Error('No pack owner ID')
@@ -98,9 +102,11 @@ export default function AdminTransactionPage({
       await adminService.revokePack(payment.pack?.id, payment.pack?.ownerId)
       alert('Pack successfully revoked.')
       logger.info('Pack was revoked')
+      setIsRevoking(false)
     } catch (error) {
       alert('Unable to revoke pack.')
-      logger.error(error, 'Unable to revoke pack')
+      logger.error('Unable to revoke pack', error)
+      setIsRevoking(false)
     }
   }, [payment.pack?.id, payment.pack?.ownerId])
 
@@ -114,7 +120,7 @@ export default function AdminTransactionPage({
         ]}
       />
       <Flex gap={12}>
-        <Flex item flex="0 0 250px" className="overflow-hidden" gap={2}>
+        <Flex item flex="0 0 auto" className={css.leftSide} gap={2}>
           <Panel fullWidth>
             <Image
               src={payment.pack?.template?.image}
@@ -235,6 +241,7 @@ export default function AdminTransactionPage({
               onClick={handleRevokePack}
               size="small"
               disabled={!payment?.pack?.ownerId}
+              busy={isRevoking}
             >
               {t('transactions.revokePack')}
             </Button>

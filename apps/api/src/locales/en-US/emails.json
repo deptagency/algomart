@@ -14,6 +14,14 @@
       "We're writing to let you know that your bid for “{{packTitle}}” has expired since no payment has been received."
     ]
   },
+  "packRevoked": {
+    "subject": "Pack revoked",
+    "body": "Your pack “{{packTitle}}” has been revoked. Please contact customer support if you believe this to be in error."
+  },
+  "paymentFailed": {
+    "subject": "Payment failed",
+    "body": "Your payment for “{{packTitle}}” failed. Please contact customer support."
+  },
   "paymentSuccess": {
     "subject": "Your collectibles are ready!",
     "body": [

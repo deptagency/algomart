@@ -28,6 +28,9 @@ export default class NotificationsService {
   } = {
     [NotificationType.AuctionComplete]:
       this.getAuctionCompleteNotification.bind(this),
+    [NotificationType.PackRevoked]: this.getPackRevokedNotification.bind(this),
+    [NotificationType.PaymentFailed]:
+      this.getPaymentFailedNotification.bind(this),
     [NotificationType.BidExpired]: this.getBidExpiredNotification.bind(this),
     [NotificationType.PaymentSuccess]:
       this.getPaymentSuccessNotification.bind(this),
@@ -317,6 +320,28 @@ export default class NotificationsService {
     }
 
     return message
+  }
+
+  getPaymentFailedNotification(n: NotificationModel, t: TFunction) {
+    const { userAccount, variables } = n
+    invariant(variables, 'no variables were provided for this notification')
+    invariant(typeof variables.packTitle === 'string', 'packTitle is required')
+    return {
+      to: userAccount?.email,
+      subject: t('paymentFailed.subject'),
+      html: t('paymentFailed.body', variables),
+    }
+  }
+
+  getPackRevokedNotification(n: NotificationModel, t: TFunction) {
+    const { userAccount, variables } = n
+    invariant(variables, 'no variables were provided for this notification')
+    invariant(typeof variables.packTitle === 'string', 'packTitle is required')
+    return {
+      to: userAccount?.email,
+      subject: t('packRevoked.subject'),
+      html: t('packRevoked.body', variables),
+    }
   }
 
   async sendNotification(
