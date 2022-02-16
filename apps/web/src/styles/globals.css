@@ -38,7 +38,7 @@
   :root {
     --darkText: 3, 16, 42;
     --text: 40, 51, 74;
-    --lightText: 116, 127, 143;
+    --lightText: 82, 91, 113;
     --logoBlue: 39, 86, 143;
     --shadeBlue: 45, 99, 182;
     --blue: 58, 119, 210;
@@ -54,8 +54,8 @@
 
     --actionPrimary: var(--blue);
     --actionPrimaryContrastText: 255, 255, 255;
-    --actionSecondary: var(--blue);
-    --actionSecondaryContrastText: 255, 255, 255;
+    --actionSecondary: 255, 255, 255;
+    --actionSecondaryContrastText: var(--blue);
     --actionAccent: var(--blue);
 
     --grayLight: 166, 172, 186;

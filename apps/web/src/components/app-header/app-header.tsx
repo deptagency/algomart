@@ -3,11 +3,12 @@ import clsx from 'clsx'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import css from './app-header.module.css'
 
 import AppLink from '@/components/app-link/app-link'
+import Button from '@/components/button'
 import Logo from '@/components/logo/logo'
 import { useAuth } from '@/contexts/auth-context'
 import { getMainNavItems } from '@/utils/navigation'
@@ -18,9 +19,18 @@ export default function AppHeader() {
   const [showMenu, setShowMenu] = useState<boolean>(false)
   const { t } = useTranslation()
   const navItems = getMainNavItems(t)
-  const { pathname } = useRouter()
+  const { pathname, push } = useRouter()
 
   const isAuthenticated = auth.status === 'authenticated'
+  const signOut = useCallback(async () => {
+    await auth.signOut()
+    push(urls.home)
+  }, [auth, push])
+
+  const signIn = () => {
+    setShowMenu(false)
+    push(urls.login)
+  }
 
   return (
     <header
@@ -32,7 +42,7 @@ export default function AppHeader() {
         <div className={css.utility}>
           <div className={css.hamburgerWrapper}>
             <button
-              className={css.hamburger}
+              className={showMenu ? css.hamburgerMenuOpen : css.hamburger}
               onClick={() => {
                 setShowMenu(!showMenu)
               }}
@@ -90,21 +100,44 @@ export default function AppHeader() {
             [css.mainNavHidden]: !showMenu,
           })}
         >
-          {navItems.map(({ href, label }) => {
-            const isCurrentNavItem = isRootPathMatch(pathname, href)
-            return (
-              <AppLink
-                className={clsx(css.mainNavLink, {
-                  [css.mainNavLinkActive]: isCurrentNavItem,
-                })}
-                href={href}
-                onClick={() => setShowMenu(false)}
-                key={href}
-              >
-                {label}
-              </AppLink>
-            )
-          })}
+          <div className={css.mainNavItems}>
+            {navItems.map(({ href, label }) => {
+              const isCurrentNavItem = isRootPathMatch(pathname, href)
+              return (
+                <AppLink
+                  className={clsx(css.mainNavLink, {
+                    [css.mainNavLinkActive]: isCurrentNavItem,
+                  })}
+                  href={href}
+                  onClick={() => setShowMenu(false)}
+                  key={href}
+                >
+                  {label}
+                </AppLink>
+              )
+            })}
+          </div>
+          <div className={css.mobileNavBottom}>
+            {isAuthenticated ? (
+              <>
+                <AppLink href={urls.settings}>
+                  {t('common:nav.main.Settings')}
+                </AppLink>
+                <AppLink href="#" onClick={signOut}>
+                  {t('common:actions.Sign Out')}
+                </AppLink>
+              </>
+            ) : (
+              <>
+                <Button onClick={signIn}>
+                  {t('common:actions.Create Account')}
+                </Button>
+                <Button variant="secondary" onClick={signIn}>
+                  {t('common:actions.Sign In')}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </nav>
     </header>

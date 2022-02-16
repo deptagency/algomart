@@ -6,10 +6,7 @@
 }
 
 .rootMobileVisible {
-  /* Base */
-  @apply h-full;
-  /* Tablet + */
-  @apply md:h-auto;
+  @apply h-screen;
 }
 
 .wrapper {
@@ -21,24 +18,29 @@
 
 .hamburgerWrapper {
   /* Base */
-  @apply flex items-center px-2;
+  @apply flex items-center absolute left-0 h-full;
   /* Tablet */
   @apply md:hidden;
 }
 
 .hamburger {
   /* Base */
-  @apply block text-base-gray-medium;
+  @apply text-base-textSecondary;
+  width: 24px;
+}
+
+.hamburgerMenuOpen {
+  @apply font-black;
   width: 24px;
 }
 
 .utilityWrapper {
   /* Base */
-  @apply bg-white py-4 w-full;
+  @apply bg-white p-4 w-full;
 }
 
 .utility {
-  @apply max-w-wrapper m-auto flex justify-between;
+  @apply max-w-wrapper m-auto flex relative;
 }
 
 .logo {
@@ -54,10 +56,32 @@
 
 .mainNav {
   /* Base */
-  @apply absolute left-0 w-full h-full px-10 pt-6 bg-base-bgCard border-base-bg border-t-1;
-  top: 68px;
+  @apply absolute flex flex-col left-0 w-full px-12 py-6 bg-base-bgCard border-base-bg border-t-1 overflow-y-auto;
+  top: 73px;
+  height: calc(100% - 73px);
   /* Tablet + */
-  @apply md:bg-base-bgCard md:border-0 md:col-span-2 md:grid md:grid-cols-2 md:h-auto md:justify-center md:overflow-hidden md:p-0 md:relative md:text-center md:top-0 md:w-auto;
+  @apply md:bg-base-bgCard md:border-0 md:col-span-2 md:grid-flow-col md:h-auto md:justify-center md:overflow-hidden md:p-0 md:relative md:text-center md:top-0 md:w-auto md:gap-9;
+}
+
+.mainNavItems {
+  /* Base */
+  @apply grid auto-rows-min flex-1 gap-7 pt-16;
+  /* Tablet + */
+  @apply md:grid-flow-col md:pt-0;
+}
+
+.mobileNavBottom {
+  @apply grid grid-flow-row gap-7 py-7;
+  /* Tablet + */
+  @apply md:hidden;
+}
+
+.mobileNavBottom a {
+  @apply border-b-1 pb-7;
+}
+
+.mobileNavBottom a:last-child {
+  @apply border-b-0;
 }
 
 .mainNavHidden {
@@ -69,13 +93,20 @@
 
 .mainNavLink {
   /* Base */
-  @apply uppercase font-display block py-5 text-3xl transition duration-300 focus:outline-none text-base-textPrimary hover:text-base-gray-dark;
+  @apply font-display text-xl pb-5 border-b-1 transition duration-300 focus:outline-none text-base-textPrimary hover:text-base-gray-dark;
   /* Tablet + */
-  @apply md:inline md:no-underline md:p-6 md:text-base md:hover:text-base-textPrimary;
+  @apply md:uppercase md:no-underline md:border-b-0 md:text-base md:hover:text-base-textPrimary md:py-5;
 }
 
 .mainNavLink:first-child {
-  border-top: none;
+  /* Base */
+  @apply hidden;
+  /* Tablet + */
+  @apply md:block;
+}
+
+.mainNavLink:last-child {
+  @apply border-b-0;
 }
 
 .mainNavLink.mainNavLinkActive {
@@ -86,6 +117,7 @@
 }
 
 .utilityNav {
+  @apply absolute right-0;
 }
 
 .utilityNavLink {
