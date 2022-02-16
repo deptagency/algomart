@@ -54,39 +54,52 @@ export default function AppHeader() {
             <Logo />
           </div>
           <div className={css.utilityNav}>
-            <AppLink
-              aria-label={
-                isAuthenticated
-                  ? t('common:pageTitles.My Profile')
-                  : t('common:nav.utility.Log In')
-              }
-              className={css.utilityNavLink}
-              href={isAuthenticated ? urls.myProfile : urls.login}
-              title={
-                isAuthenticated
-                  ? t('common:pageTitles.My Profile')
-                  : t('common:nav.utility.Log In')
-              }
-            >
-              <div className={css.utilityNavLabel}>
-                {t('common:nav.utility.My Account')}
-              </div>
-              {auth.user?.photo ? (
-                <Image
-                  alt={t('common:nav.utility.My profile picture')}
-                  src={auth.user.photo}
-                  layout="fixed"
-                  height={40}
-                  width={40}
-                />
-              ) : (
-                <UserCircleIcon
-                  className={css.avatarGeneric}
-                  height={40}
-                  width={40}
-                />
-              )}
-            </AppLink>
+            {isAuthenticated ? (
+              <>
+                <AppLink
+                  aria-label={
+                    isAuthenticated
+                      ? t('common:pageTitles.My Profile')
+                      : t('common:nav.utility.Log In')
+                  }
+                  className={css.utilityNavLink}
+                  href={isAuthenticated ? urls.myProfile : urls.login}
+                  title={
+                    isAuthenticated
+                      ? t('common:pageTitles.My Profile')
+                      : t('common:nav.utility.Log In')
+                  }
+                >
+                  <div className={css.utilityNavLabel}>
+                    {t('common:nav.utility.My Account')}
+                  </div>
+                  {auth.user?.photo ? (
+                    <Image
+                      alt={t('common:nav.utility.My profile picture')}
+                      src={auth.user.photo}
+                      layout="fixed"
+                      height={40}
+                      width={40}
+                    />
+                  ) : (
+                    <UserCircleIcon
+                      className={css.avatarGeneric}
+                      height={40}
+                      width={40}
+                    />
+                  )}
+                </AppLink>
+              </>
+            ) : (
+              <>
+                <AppLink className={css.utilityNavLink} href={urls.login}>
+                  {t('common:actions.Sign In')}
+                </AppLink>
+                <Button size="small" onClick={signIn}>
+                  Create Account
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

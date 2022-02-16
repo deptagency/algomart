@@ -117,7 +117,7 @@
 }
 
 .utilityNav {
-  @apply absolute right-0;
+  @apply absolute right-0 grid gap-4 grid-flow-col items-center;
 }
 
 .utilityNavLink {
