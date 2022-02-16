@@ -14,6 +14,7 @@ import {
   NotificationType,
   OwnerExternalId,
   PackType,
+  Payment,
   PaymentBankAccountStatus,
   PaymentCardStatus,
   PaymentQuerystring,
@@ -55,6 +56,7 @@ import {
 } from '@/utils/format-currency'
 import { invariant, userInvariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
+import { poll } from '@/utils/poll'
 
 export default class PaymentsService {
   logger = logger.child({ context: this.constructor.name })
@@ -511,6 +513,7 @@ export default class PaymentsService {
   }
 
   async createPayment(paymentDetails: CreatePayment, trx?: Transaction) {
+    console.log('paymentDetails', paymentDetails)
     const user = await UserAccountModel.query(trx)
       .where('externalId', paymentDetails.payerExternalId)
       .first()
@@ -549,20 +552,29 @@ export default class PaymentsService {
       ? 'https://demo.algomart.dev'
       : Configuration.webUrl
 
-    // Create payment using Circle API
+    // Base payment details
+    const basePayment = {
+      idempotencyKey: idempotencyKey,
+      metadata: {
+        ...metadata,
+        sessionId: SHA256(user.id).toString(enc.Base64),
+      },
+      amount: {
+        amount: priceInUSD,
+        currency: DEFAULT_CURRENCY,
+      },
+      description,
+      source: {
+        id: card?.externalId || cardId,
+        type: CirclePaymentSourceType.card, // @TODO: Update when support ACH
+      },
+    }
+
+    // Create 3DS payment
     const payment = await this.circle
       .createPayment({
-        idempotencyKey: idempotencyKey,
-        metadata: {
-          ...metadata,
-          sessionId: SHA256(user.id).toString(enc.Base64),
-        },
-        amount: {
-          amount: priceInUSD,
-          currency: DEFAULT_CURRENCY,
-        },
+        ...basePayment,
         verification: CirclePaymentVerificationOptions.three_d_secure,
-        // @TODO: make these urls configurable?
         verificationSuccessUrl: new URL(
           '/checkout/success',
           verificationHostname
@@ -571,18 +583,11 @@ export default class PaymentsService {
           '/checkout/failure',
           verificationHostname
         ).toString(),
-        description: description,
-        source: {
-          id: card?.externalId || cardId,
-          type: CirclePaymentSourceType.card, // @TODO: Update when support ACH
-        },
-        ...encryptedDetails,
       })
       .catch((error) => {
-        this.logger.error(error, 'failed to create payment')
+        this.logger.error(error, 'failed to create 3DS payment')
         return null
       })
-
     console.log('payment:', payment)
 
     if (!payment) {
@@ -599,7 +604,6 @@ export default class PaymentsService {
       return null
     }
 
-    // Create new payment in database
     // Circle may return the same payment ID if there's duplicate info
     const newPayment = await PaymentModel.query(trx)
       .insert({
@@ -612,6 +616,67 @@ export default class PaymentsService {
       })
       .onConflict('externalId')
       .ignore()
+    console.log('new payment', newPayment)
+
+    // Throw error if failed request
+    if (!payment || !payment.id) {
+      throw new Error('Payment not created')
+    }
+
+    // Search for payment status to confirm check is complete
+    const completeWhenNotPendingForPayments = (payment: ToPaymentBase | null) =>
+      !(payment?.status !== PaymentStatus.Pending)
+    const foundPayment = await poll<ToPaymentBase | null>(
+      async () =>
+        await this.circle.getPaymentById(payment.externalId as string),
+      completeWhenNotPendingForPayments,
+      1000
+    )
+    console.log('foundPayment', foundPayment)
+
+    if (!foundPayment) throw new Error('Payment failed')
+
+    // For failed status, try cvv payment verification
+    if (foundPayment.status === PaymentStatus.Failed) {
+      // Create cvv payment
+      const cvvPayment = await this.circle
+        .createPayment({
+          ...basePayment,
+          ...encryptedDetails,
+          verification: CirclePaymentVerificationOptions.cvv,
+        })
+        .catch((error) => {
+          this.logger.error(error, 'failed to create cvv payment')
+          return null
+        })
+      console.log('cvvPayment', cvvPayment)
+
+      if (!cvvPayment) {
+        // Remove claim from payment if payment doesn't go through
+        await this.packs.claimPack(
+          {
+            packId,
+            claimedById: null,
+            claimedAt: null,
+          },
+          trx
+        )
+
+        return null
+      }
+
+      // Circle may return the same payment ID if there's duplicate info
+      const updatedPayment = await PaymentModel.query(trx)
+        .findById(newPayment.id)
+        .patch({
+          externalId: cvvPayment.externalId,
+          status: cvvPayment.status,
+          error: cvvPayment.error,
+        })
+      console.log('updatedPayment', updatedPayment)
+
+      return updatedPayment
+    }
 
     // Create event for payment creation
     await EventModel.query(trx).insert({

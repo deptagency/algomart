@@ -1,4 +1,7 @@
-import { PaymentStatus } from '@algomart/schemas'
+import {
+  CirclePaymentVerificationOptions,
+  PaymentStatus,
+} from '@algomart/schemas'
 import { Translate } from 'next-translate'
 import {
   boolean,
@@ -240,6 +243,10 @@ export const validatePurchase = (t: Translate) =>
     cardId: identifier(t),
     verificationEncryptedData: encryptedData(t),
     packTemplateId: identifier(t),
+    verification: oneOf(
+      Object.values(CirclePaymentVerificationOptions),
+      t('forms:errors.invalidPayment') as string
+    ),
   })
 
 export const validateUpdateCard = (t: Translate) =>

@@ -170,4 +170,12 @@ export const Configuration = {
   get minimumDaysBeforeTransfer(): number {
     return env.get('MINIMUM_DAYS_BEFORE_TRANSFER').default(7).asInt()
   },
+
+  get successPath(): string {
+    return this.config('WEB_SUCCESS_PATH', '/checkout/success')
+  },
+
+  get failurePath(): string {
+    return this.config('WEB_FAILURE_PATH', '/checkout/failure')
+  },
 }

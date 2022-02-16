@@ -1,6 +1,7 @@
 import {
   CheckoutMethod,
   CheckoutStatus,
+  CirclePaymentVerificationOptions,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   PackType,
@@ -246,6 +247,7 @@ export function usePaymentProvider({
         cardId,
         description: `Purchase of ${release.title} release`,
         packTemplateId: release.templateId,
+        verification: CirclePaymentVerificationOptions.three_d_secure,
         verificationEncryptedData,
         verificationKeyId,
       })
@@ -257,7 +259,7 @@ export function usePaymentProvider({
 
       // Poll for payment status to confirm avs check is complete
       const completeWhenNotPendingForPayments = (payment: Payment | null) =>
-        !(payment?.status !== 'pending')
+        !(payment?.status !== PaymentStatus.Pending)
       const paymentResponse = await poll<Payment | null>(
         async () => await checkoutService.getPayment(payment.id as string),
         completeWhenNotPendingForPayments,
@@ -265,7 +267,7 @@ export function usePaymentProvider({
       )
 
       // Throw error if there was a failure code
-      if (!paymentResponse || paymentResponse.status === 'failed') {
+      if (!paymentResponse || paymentResponse.status === PaymentStatus.Failed) {
         throw new Error('Payment failed')
       }
 
@@ -277,7 +279,39 @@ export function usePaymentProvider({
         return null
       }
 
-      return payment
+      // Resend payment as cvv if failed
+      const cvvPayment = await checkoutService.createPayment({
+        cardId,
+        description: `Purchase of ${release.title} release`,
+        packTemplateId: release.templateId,
+        verification: CirclePaymentVerificationOptions.cvv,
+        verificationEncryptedData,
+        verificationKeyId,
+      })
+
+      // Throw error if failed request
+      if (!cvvPayment || !cvvPayment.id) {
+        throw new Error('Payment not created')
+      }
+
+      // Poll for payment status to confirm check is complete
+      const completeWhenNotPendingForCvvPayments = (payment: Payment | null) =>
+        !(payment?.status !== PaymentStatus.Pending)
+      const cvvPaymentResponse = await poll<Payment | null>(
+        async () => await checkoutService.getPayment(cvvPayment.id as string),
+        completeWhenNotPendingForCvvPayments,
+        1000
+      )
+
+      // Throw error if there was an error
+      if (
+        !cvvPaymentResponse ||
+        cvvPaymentResponse.status === PaymentStatus.Failed
+      ) {
+        throw new Error('Backup payment failed')
+      }
+
+      return cvvPayment
     },
     [release, t]
   )
