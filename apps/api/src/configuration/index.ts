@@ -136,6 +136,10 @@ export const Configuration = {
     return Currencies[code as keyof typeof Currencies]
   },
 
+  get customerServiceEmail() {
+    return env.get('CUSTOMER_SERVICE_EMAIL').asString()
+  },
+
   get mailer(): MailerAdapterOptions {
     const emailFrom =
       env.get('EMAIL_FROM').default('').asString() ||

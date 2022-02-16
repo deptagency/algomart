@@ -24,6 +24,9 @@ export enum NotificationType {
   UserHighBid = 'user-high-bid',
   UserOutbid = 'user-outbid',
   WireInstructions = 'wire-instructions',
+  CSWirePaymentFailed = 'cs-wire-payment-failed',
+  CSWirePaymentSuccess = 'cs-wire-payment-success',
+  CSAwaitingWirePayment = 'cs-awaiting-wire-payment',
 }
 
 export const CreateNotificationSchema = Type.Intersect([

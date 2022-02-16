@@ -75,5 +75,17 @@
       "<a href=\"{{ctaUrl}}\"><strong>View listing</strong></a>"
     ],
     "expirationWarning": "<em>Note: You have 72 hours before your winning bid expires and goes to the next highest bidder.</em>"
+  },
+  "csAwaitingWirePayment": {
+    "subject": "AWAITING wire payment for “{{packTitle}}”",
+    "body": "Awaiting wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}}."
+  },
+  "csWirePaymentFailed": {
+    "subject": "Wire payment FAILED for “{{packTitle}}”",
+    "body": "Wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}} failed."
+  },
+  "csWirePaymentSuccess": {
+    "subject": "Wire payment SUCCESS for “{{packTitle}}”",
+    "body": "Wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}} succeeded."
   }
 }
