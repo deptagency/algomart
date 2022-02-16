@@ -27,7 +27,7 @@ export const urls = {
   release: '/releases/:packSlug',
   releases: '/releases',
   teams: '/teams',
-  settings: '/settings',
+  settings: '/my/profile',
   about: '/about-fifa-nfts',
   support: '/support',
 
