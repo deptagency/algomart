@@ -5,6 +5,8 @@ export const urls = {
   checkout: '/checkout',
   checkoutPack: '/checkout/:packSlug',
   checkoutPackWithMethod: '/checkout/:packSlug/:method',
+  dataProtectionPortal: '/data-protection-portal',
+  downloads: '/downloads',
   home: '/',
   faqs: '/faqs',
   myCollectibles: '/my/collectibles',
@@ -24,6 +26,10 @@ export const urls = {
   redeem: '/redeem',
   release: '/releases/:packSlug',
   releases: '/releases',
+  teams: '/teams',
+  settings: '/my/profile',
+  about: '/about-fifa-nfts',
+  support: '/support',
 
   // Auth-related
   login: '/login',

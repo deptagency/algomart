@@ -29,9 +29,9 @@ export default function HeadTag({ pageDescription, pageTitle }: HeadTagProps) {
       <link
         as="style"
         rel="preload"
-        href="https://fonts.cdnfonts.com/css/inter"
+        href="https://fonts.cdnfonts.com/css/open-sans"
       />
-      <link href="https://fonts.cdnfonts.com/css/inter" rel="stylesheet" />
+      <link href="https://fonts.cdnfonts.com/css/open-sans" rel="stylesheet" />
     </Head>
   )
 }

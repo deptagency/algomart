@@ -1,5 +1,5 @@
 /* Common auth input styles */
-.formField {
+main .formField {
   @apply mb-6;
 }
 
