@@ -24,10 +24,10 @@ export default function ReleaseFilterPrice() {
   const { t } = useTranslation()
   const { dispatch, state } = usePackFilterContext()
   const [priceLow, setPriceLow] = useState<string>(
-    formatIntToFloat(state.priceLow, currency, conversionRate)
+    formatIntToFloat(state.priceLow, currency)
   )
   const [priceHigh, setPriceHigh] = useState<string>(
-    formatIntToFloat(state.priceHigh, currency, conversionRate)
+    formatIntToFloat(state.priceHigh, currency)
   )
 
   const baseCurrencyInputProps: CurrencyInputProps = {

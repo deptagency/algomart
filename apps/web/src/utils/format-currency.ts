@@ -82,7 +82,7 @@ export function formatIntToFloat(
   code = DEFAULT_CURRENCY,
   conversionRate = 1
 ) {
-  amount = amount * conversionRate
+  amount = Math.round(amount * conversionRate)
 
   const currency = dineroCurrency(code)
   const price = dinero({ amount, currency })

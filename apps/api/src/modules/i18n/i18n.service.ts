@@ -30,10 +30,11 @@ export default class I18nService {
     },
     trx?: Transaction
   ) {
-    // 1st: grab all conversion for currency from db
-    let conversions = await CurrencyConversionModel.query(trx)
-      .groupBy('sourceCurrency')
-      .where('sourceCurrency', sourceCurrency)
+    // 1st: grab all conversions for source currency from db
+    let conversions = await CurrencyConversionModel.query(trx).where(
+      'sourceCurrency',
+      sourceCurrency
+    )
 
     // 2nd: filter down to just the conversion we want if it exists and is fresh
     const past1Hour = new Date(new Date().setDate(new Date().getHours() - 1))
@@ -55,7 +56,7 @@ export default class I18nService {
         )?.id,
         sourceCurrency,
         targetCurrency: code,
-        exchangeRate: rates[code],
+        exchangeRate: Number.parseFloat(rates[code]),
         updatedAt: now,
       }))
 
