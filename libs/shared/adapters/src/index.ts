@@ -19,7 +19,7 @@ export { I18nAdapter }
 import MailerAdapter, { MailerAdapterOptions } from './mailer-adapter'
 export { MailerAdapter, MailerAdapterOptions }
 
-import DirectusAdapter, {
+import CMSCacheAdapter, {
   DirectusStatus,
   ItemFilter,
   toPackBase,
@@ -27,10 +27,9 @@ import DirectusAdapter, {
   DirectusFile,
   DirectusPackTemplate,
   DirectusRarity,
-  DirectusFile,
 } from './directus-adapter'
 export {
-  DirectusAdapter,
+  CMSCacheAdapter,
   DirectusStatus,
   ItemFilter,
   toPackBase,
@@ -38,5 +37,4 @@ export {
   DirectusFile,
   DirectusPackTemplate,
   DirectusRarity,
-  DirectusFile,
 }

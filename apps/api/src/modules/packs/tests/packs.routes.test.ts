@@ -1,5 +1,5 @@
 import { PackStatus, PackType } from '@algomart/schemas'
-import { DirectusAdapter, toPackBase } from '@algomart/shared/adapters'
+import { CMSCacheAdapter, toPackBase } from '@algomart/shared/adapters'
 import { randomRedemptionCode } from '@algomart/shared/utils'
 import { FastifyInstance } from 'fastify'
 
@@ -30,7 +30,7 @@ test('GET /packs OK', async () => {
       ? packTemplate.translations[0]
       : null
 
-  jest.spyOn(DirectusAdapter.prototype, 'findAllPacks').mockResolvedValue({
+  jest.spyOn(CMSCacheAdapter.prototype, 'findAllPacks').mockResolvedValue({
     packs: [toPackBase(packTemplate, () => 'http://localhost/image.jpg')],
     total: 1,
   })
@@ -102,7 +102,7 @@ test('GET /packs/redeemable/:redeemCode', async () => {
       : null
 
   jest
-    .spyOn(DirectusAdapter.prototype, 'findPack')
+    .spyOn(CMSCacheAdapter.prototype, 'findPack')
     .mockResolvedValue(
       toPackBase(packTemplate, () => 'http://localhost/image.jpg')
     )

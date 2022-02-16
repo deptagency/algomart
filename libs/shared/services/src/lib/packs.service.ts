@@ -41,7 +41,7 @@ import { raw, Transaction } from 'objection'
 import I18nService from './i18n.service'
 
 import {
-  DirectusAdapter,
+  CMSCacheAdapter,
   DirectusStatus,
   ItemFilter,
 } from '@algomart/shared/adapters'
@@ -95,13 +95,13 @@ function shouldIncludeAuctionPack(
   if (typeof filters.reserveMet === 'boolean') {
     include = filters.reserveMet
       ? include &&
-        typeof pack.activeBid === 'number' &&
-        pack.price !== null &&
-        pack.activeBid >= pack.price
+      typeof pack.activeBid === 'number' &&
+      pack.price !== null &&
+      pack.activeBid >= pack.price
       : include &&
-        (pack.price === null ||
-          pack.activeBid === undefined ||
-          pack.activeBid < pack.price)
+      (pack.price === null ||
+        pack.activeBid === undefined ||
+        pack.activeBid < pack.price)
   }
 
   return include
@@ -129,7 +129,7 @@ export default class PacksService {
   logger: pino.Logger<unknown>
 
   constructor(
-    private readonly cms: DirectusAdapter,
+    private readonly cms: CMSCacheAdapter,
     private readonly collectibles: CollectiblesService,
     private readonly i18nService: I18nService,
     private readonly notifications: NotificationsService,

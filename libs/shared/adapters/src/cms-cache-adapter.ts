@@ -1,9 +1,7 @@
-import pino from 'pino'
 import {
   CollectibleBase,
   CollectionBase,
   CollectionWithSets,
-  Countries,
   DEFAULT_LOCALE,
   HomepageBase,
   PackBase,
@@ -14,44 +12,39 @@ import {
   SetBase,
   SetWithCollection,
 } from '@algomart/schemas'
-import got, { Got } from 'got'
+import { json } from 'node:stream/consumers'
 import { URL, URLSearchParams } from 'node:url'
 
-import {
-  isStringArray,
-  isAfterNow,
-  isNowBetweenDates,
-  invariant,
-} from '@algomart/shared/utils'
+import { CMSCacheCollectibleTemplateModel } from '@/models/cms-cache-collectible-template.model'
+import { CMSCacheCollectionModel } from '@/models/cms-cache-collection.model'
+import { CMSCacheFaqModel } from '@/models/cms-cache-faq.model'
+import { CMSCacheHomepageModel } from '@/models/cms-cache-homepage.model'
+import { CMSCacheLanguageModel } from '@/models/cms-cache-language.model'
+import { CMSCachePackTemplateModel } from '@/models/cms-cache-pack-template.model'
+import { CMSCachePageModel } from '@/models/cms-cache-page.model'
+import { CMSCacheSetModel } from '@/models/cms-cache-set.model'
+import { isStringArray } from '@/utils/arrays'
+import { isAfterNow, isNowBetweenDates } from '@/utils/date-time'
+import { invariant } from '@/utils/invariant'
+import { logger } from '@/utils/logger'
 
 // #region CMS Types
 
-export interface DirectusTranslation {
-  languages_code: string
-}
-
-export interface DirectusHomepageTranslation extends DirectusTranslation {
-  featured_packs_subtitle?: string
-  featured_packs_title?: string
-  featured_nfts_title?: string
-  featured_nfts_subtitle?: string
-  hero_banner_title?: string
-  hero_banner_subtitle?: string
-}
-
 export interface DirectusHomepage {
   id: string
-  hero_banner: DirectusFile | null
-  hero_pack: null | string | DirectusPackTemplate
-  featured_packs: null | string[] | DirectusPackTemplate[]
-  featured_nfts: null | string[] | DirectusCollectibleTemplate[]
-  translations: DirectusHomepageTranslation[]
+  featured_pack: null | string | DirectusPackTemplate
+  upcoming_packs: null | string[] | DirectusPackTemplate[]
+  notable_collectibles: null | string[] | DirectusCollectibleTemplate[]
 }
 
 export enum DirectusStatus {
   Draft = 'draft',
   Published = 'published',
   Archived = 'archived',
+}
+
+export interface DirectusTranslation {
+  languages_code: string
 }
 
 export interface DirectusPackTemplateTranslation extends DirectusTranslation {
@@ -70,7 +63,8 @@ export interface DirectusFile {
   height: number
 }
 
-export interface DirectusPackFile extends DirectusFile {
+export interface DirectusPackFile {
+  id: string
   directus_files_id: string
 }
 
@@ -156,7 +150,6 @@ export interface DirectusPackTemplate {
   nft_distribution: PackCollectibleDistribution
   nft_order: PackCollectibleOrder
   nft_templates: string[] | DirectusCollectibleTemplate[]
-  nft_category: string
   nfts_per_pack: number
   pack_image: DirectusFile
   price: number | null
@@ -187,30 +180,6 @@ export interface DirectusFaqTemplate {
   translations: DirectusFaqTemplateTranslation[]
 }
 
-export interface DirectusCountry {
-  id: string
-  application_id: string
-  countries_code: string
-}
-
-export interface DirectusApplication {
-  id: string
-  currency?: string | null
-  countries?: DirectusCountry[] | null
-}
-
-export interface DirectusCountryWithTranslations {
-  code: string
-  translations?: number[] | DirectusCountryTranslation[]
-}
-
-export interface DirectusCountryTranslation extends DirectusTranslation {
-  id: number
-  countries_code: string
-  languages_code: string
-  title: string | null
-}
-
 // #endregion
 
 // #region Directus Helpers
@@ -229,20 +198,19 @@ export interface ItemByIdResponse<T> {
 
 export interface ItemFilter {
   [key: string]:
-  | string
-  | string[]
-  | number
-  | number[]
-  | boolean
-  | boolean[]
-  | Date
-  | Date[]
-  | ItemFilter
-  | ItemFilter[]
+    | string
+    | string[]
+    | number
+    | number[]
+    | boolean
+    | boolean[]
+    | Date
+    | Date[]
+    | ItemFilter
+    | ItemFilter[]
 }
 
 export interface ItemQuery<TItem> {
-  fields?: (keyof TItem | string)[]
   search?: string
   sort?: string[]
   filter?: ItemFilter
@@ -256,10 +224,6 @@ export interface ItemQuery<TItem> {
 
 function getParameters<TItem>(query?: ItemQuery<TItem>) {
   const parameters = new URLSearchParams()
-
-  if (query?.fields) {
-    parameters.set('fields', query.fields.join(','))
-  }
 
   if (query?.search) {
     parameters.set('search', query.search)
@@ -295,8 +259,8 @@ function getParameters<TItem>(query?: ItemQuery<TItem>) {
       query.totalCount && query.filterCount
         ? '*'
         : query.totalCount
-          ? 'total_count'
-          : 'filter_count'
+        ? 'total_count'
+        : 'filter_count'
     )
   }
 
@@ -328,44 +292,29 @@ function getDirectusTranslation<TItem extends DirectusTranslation>(
 
 // #region Mappers
 
-export type GetFileURL = (file: DirectusFile | string) => string
+export type GetFileURL = (file: DirectusFile) => string
 
-export function toHomepageBase(
-  homepage: DirectusHomepage,
-  getFileURL: GetFileURL,
-  locale = DEFAULT_LOCALE
-): HomepageBase {
+export function toHomepageBase(homepage: DirectusHomepage): HomepageBase {
   invariant(
-    homepage.hero_pack === null || typeof homepage.hero_pack === 'string',
-    'hero_pack must be null or a string'
+    homepage.featured_pack === null ||
+      typeof homepage.featured_pack === 'string',
+    'featured_pack must be null or a string'
   )
   invariant(
-    homepage.featured_packs === null ||
-    homepage.featured_packs.length === 0 ||
-    isStringArray(homepage.featured_packs),
-    'featured_packs must be empty or an array of strings'
-  )
-
-  const translation = getDirectusTranslation(
-    homepage.translations,
-    `homepage has no translations`,
-    locale
+    homepage.upcoming_packs === null ||
+      homepage.upcoming_packs.length === 0 ||
+      isStringArray(homepage.upcoming_packs),
+    'upcoming_packs must be empty or an array of strings'
   )
 
   return {
-    heroBanner: getFileURL(homepage.hero_banner),
-    heroBannerSubtitle: translation.hero_banner_subtitle,
-    heroBannerTitle: translation.hero_banner_title,
-    heroPackTemplateId:
-      typeof homepage.hero_pack === 'string'
-        ? homepage.hero_pack
-        : homepage.hero_pack?.id,
-    featuredNftsSubtitle: translation.featured_nfts_subtitle,
-    featuredNftsTitle: translation.featured_nfts_title,
-    featuredNftTemplateIds: (homepage.featured_nfts ?? []) as string[],
-    featuredPacksSubtitle: translation.featured_packs_subtitle,
-    featuredPacksTitle: translation.featured_packs_title,
-    featuredPackTemplateIds: (homepage.featured_packs ?? []) as string[],
+    featuredPackTemplateId:
+      typeof homepage.featured_pack === 'string'
+        ? homepage.featured_pack
+        : homepage.featured_pack?.id,
+    upcomingPackTemplateIds: (homepage.upcoming_packs ?? []) as string[],
+    notableCollectibleTemplateIds: (homepage.notable_collectibles ??
+      []) as string[],
   }
 }
 
@@ -434,10 +383,10 @@ export function toCollectionBase(
     reward:
       reward_complete && reward_prompt && reward_image
         ? {
-          complete: reward_complete,
-          prompt: reward_prompt,
-          image: getFileURL(reward_image),
-        }
+            complete: reward_complete,
+            prompt: reward_prompt,
+            image: getFileURL(reward_image),
+          }
         : undefined,
   }
 }
@@ -487,10 +436,10 @@ export function toCollectibleBase(
   const rarity = template.rarity as DirectusRarity
   const rarityTranslation = rarity
     ? getDirectusTranslation<DirectusRarityTranslation>(
-      rarity?.translations as DirectusRarityTranslation[],
-      'expected rarity to include translations',
-      locale
-    )
+        rarity?.translations as DirectusRarityTranslation[],
+        'expected rarity to include translations',
+        locale
+      )
     : undefined
 
   let collectionId =
@@ -533,10 +482,10 @@ export function toCollectibleBase(
     uniqueCode: template.unique_code,
     rarity: rarity
       ? {
-        code: rarity.code,
-        color: rarity.color,
-        name: rarityTranslation?.name,
-      }
+          code: rarity.code,
+          color: rarity.color,
+          name: rarityTranslation?.name,
+        }
       : undefined,
   }
 }
@@ -573,9 +522,6 @@ export function toPackBase(
 
   return {
     allowBidExpiration: template.allow_bid_expiration,
-    additionalImages: !isStringArray(template.additional_images)
-      ? template.additional_images.map((packFile) => getFileURL(packFile))
-      : undefined,
     auctionUntil: template.auction_until ?? undefined,
     body: translation.body ?? undefined,
     collectibleTemplateIds: isStringArray(template.nft_templates)
@@ -589,8 +535,6 @@ export function toPackBase(
     image: getFileURL(template.pack_image),
     onePackPerCustomer: template.one_pack_per_customer,
     price: template.price || 0,
-    nftCategory: template.nft_category ?? undefined,
-    nftsPerPack: template.nfts_per_pack,
     releasedAt: template.released_at ?? undefined,
     slug: template.slug,
     status: toStatus(template),
@@ -601,174 +545,110 @@ export function toPackBase(
   }
 }
 
-export function toCountryBase(
-  template: DirectusCountryWithTranslations,
-  locale: string
-) {
-  const translation = getDirectusTranslation<DirectusCountryTranslation>(
-    template.translations as DirectusCountryTranslation[],
-    `country ${template.code} has no translations`,
-    locale
-  )
-  return {
-    code: template.code,
-    name: translation.title,
-  }
-}
-
 // #endregion
 
-export interface DirectusAdapterOptions {
+export interface CMSCacheAdapterOptions {
   cmsUrl: string
   gcpCdnUrl: string
-  accessToken: string
 }
 
-export default class DirectusAdapter {
-  logger: pino.Logger<unknown>
-  http: Got
+export default class CMSCacheAdapter {
+  logger = logger.child({ context: this.constructor.name })
 
-  constructor(
-    private readonly options: DirectusAdapterOptions,
-    logger: pino.Logger<unknown>
-  ) {
-    this.logger = logger.child({ context: this.constructor.name })
-
-    this.http = got.extend({
-      prefixUrl: options.cmsUrl,
-      headers: {
-        Authorization: `Bearer ${options.accessToken}`,
-      },
-    })
-
-    this.testConnection()
-  }
-
-  async testConnection() {
-    try {
-      await this.ensureFilePermission()
-      this.logger.info('Successfully connected to CMS')
-    } catch (error) {
-      this.logger.error(error, 'Failed to connect to CMS')
-    }
-  }
-
-  async ensureFilePermission() {
-    const permissions = await this.http
-      .get('permissions', {
-        searchParams: {
-          fields: 'id,role,collection,action,fields',
-          'filter[collection][_eq]': 'directus_files',
-          'filter[fields][_in]': '*',
-          'filter[action][_eq]': 'read',
-        },
-      })
-      .json<{
-        data: Array<{
-          id: number
-          role: string | null
-          collection: string
-          action: 'create' | 'read' | 'update' | 'delete'
-          fields: string[]
-        }>
-      }>()
-
-    if (permissions.data.length === 0) {
-      await this.http.post('permissions', {
-        json: {
-          collection: 'directus_files',
-          fields: ['*'],
-          action: 'read',
-          role: null,
-        },
-      })
-    }
-  }
-
-  private async findMany<TItem>(
-    collection: string,
-    query: ItemQuery<TItem> = {}
-  ): Promise<ItemsResponse<TItem>> {
-    const response = await this.http.get(`items/${collection}`, {
-      searchParams: getParameters(query),
-    })
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      const result: ItemsResponse<TItem> = JSON.parse(response.body)
-      return result
-    }
-
-    return { data: [] }
-  }
+  constructor(private readonly options: CMSCacheAdapterOptions) {}
 
   private async findPackTemplates(query: ItemQuery<DirectusPackTemplate> = {}) {
     const defaultQuery: ItemQuery<DirectusPackTemplate> = {
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
+      filter: {},
       limit: -1,
-      fields: ['*.*'],
     }
 
-    return await this.findMany<DirectusPackTemplate>('pack_templates', {
+    const queryParams = {
       ...defaultQuery,
       ...query,
-    })
+    }
+
+    const queryResult = await CMSCachePackTemplateModel.query()
+      .limit(queryParams.limit)
+      .select('content')
+
+    const jsonResult = queryResult.map((result) => result.content)
+    const result: ItemsResponse<DirectusPackTemplate> = JSON.parse(
+      `[${jsonResult.join(', ')}]`
+    )
+
+    return result
   }
 
   private async findCollectibleTemplates(
     query: ItemQuery<DirectusCollectibleTemplate> = {}
   ) {
     const defaultQuery: ItemQuery<DirectusCollectibleTemplate> = {
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
+      filter: {},
       limit: -1,
-      fields: ['*.*'],
     }
 
-    return await this.findMany<DirectusCollectibleTemplate>('nft_templates', {
+    const queryParams = {
       ...defaultQuery,
       ...query,
-    })
+    }
+
+    const queryResult = await CMSCacheCollectibleTemplateModel.query()
+      .limit(queryParams.limit)
+      .select('content')
+
+    const jsonResult = queryResult.map((result) => result.content)
+    const result: ItemsResponse<DirectusCollectibleTemplate> = JSON.parse(
+      `[${jsonResult.join(', ')}]`
+    )
+
+    return result
   }
 
   private async findCollections(query: ItemQuery<DirectusCollection> = {}) {
     const defaultQuery: ItemQuery<DirectusCollection> = {
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
+      filter: {},
       limit: -1,
-      fields: ['*.*'],
     }
 
-    return await this.findMany<DirectusCollection>('collections', {
+    const queryParams = {
       ...defaultQuery,
       ...query,
-    })
+    }
+
+    const queryResult = await CMSCacheCollectionModel.query()
+      .limit(queryParams.limit)
+      .select('content')
+
+    const jsonResult = queryResult.map((result) => result.content)
+    const result: ItemsResponse<DirectusCollection> = JSON.parse(
+      `[${jsonResult.join(', ')}]`
+    )
+
+    return result
   }
 
   private async findSets(query: ItemQuery<DirectusSet> = {}) {
     const defaultQuery: ItemQuery<DirectusSet> = {
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
+      filter: {},
       limit: -1,
-      fields: ['*.*'],
     }
 
-    return await this.findMany<DirectusSet>('sets', {
+    const queryParams = {
       ...defaultQuery,
       ...query,
-    })
+    }
+
+    const queryResult = await CMSCacheSetModel.query()
+      .limit(queryParams.limit)
+      .select('content')
+
+    const jsonResult = queryResult.map((result) => result.content)
+    const result: ItemsResponse<DirectusSet> = JSON.parse(
+      `[${jsonResult.join(', ')}]`
+    )
+
+    return result
   }
 
   private getFileURL(file: DirectusFile | null) {
@@ -781,23 +661,6 @@ export default class DirectusAdapter {
     }
 
     return new URL(`/assets/${file.id}`, this.options.cmsUrl).href
-  }
-
-  private async findCountries(query: ItemQuery<{ filter: ItemFilter }> = {}) {
-    const defaultQuery: ItemQuery<DirectusCountryWithTranslations> = {
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
-      limit: -1,
-      fields: ['*.*'],
-    }
-
-    return await this.findMany<DirectusCountryWithTranslations>('countries', {
-      ...defaultQuery,
-      ...query,
-    })
   }
 
   async findAllPacks({
@@ -846,8 +709,8 @@ export default class DirectusAdapter {
       },
     })
 
-    if (response?.data?.length === 0) return null
-    const pack = response.data[response?.data?.length - 1]
+    if (response.data.length === 0) return null
+    const pack = response.data[0]
     return toPackBase(pack, this.getFileURL.bind(this), locale)
   }
 
@@ -864,22 +727,6 @@ export default class DirectusAdapter {
         ...filter,
       },
       limit,
-      fields: [
-        'id',
-        'total_editions',
-        'unique_code',
-        'preview_image.*',
-        'preview_video.*',
-        'preview_audio.*',
-        'asset_file.*',
-        'translations.*',
-        'rarity.code',
-        'rarity.color',
-        'rarity.translations.*',
-        'set.id',
-        'set.collection.id',
-        'collection',
-      ],
       filterCount: true,
     })
 
@@ -898,18 +745,6 @@ export default class DirectusAdapter {
 
   async findAllCollections(locale = DEFAULT_LOCALE) {
     const response = await this.findCollections({
-      fields: [
-        'collection_image.*',
-        'id',
-        'nft_templates',
-        'reward_image.*',
-        'slug',
-        'translations.*',
-        'sets.id',
-        'sets.nft_templates',
-        'sets.slug',
-        'sets.translations.*',
-      ],
       filterCount: true,
     })
 
@@ -926,100 +761,79 @@ export default class DirectusAdapter {
     }
   }
 
-  async getFaqs(locale: string = DEFAULT_LOCALE) {
-    const defaultQuery: ItemQuery<DirectusFaqTemplate> = {
+  async findCollectionBySlug(slug: string, locale = DEFAULT_LOCALE) {
+    const response = await this.findCollections({
+      limit: 1,
       filter: {
         status: {
           _eq: DirectusStatus.Published,
         },
+        slug: {
+          _eq: slug,
+        },
       },
-      limit: -1,
-      fields: ['*.*'],
-    }
-
-    const response = await this.findMany<DirectusFaqTemplate>('faqs', {
-      ...defaultQuery,
     })
 
-    // simplify response
-    return response.data.map((d) =>
+    if (response.data.length === 0) return null
+    const collection = response.data[0]
+    return toCollectionWithSets(collection, this.getFileURL.bind(this), locale)
+  }
+
+  async findSetBySlug(slug: string, locale = DEFAULT_LOCALE) {
+    const results = await CMSCacheSetModel.query().where('slug', slug)
+
+    if (results.length === 0) {
+      return null
+    }
+    const set: DirectusSet = JSON.parse(results[0].content)
+    return toSetWithCollection(set, this.getFileURL.bind(this), locale)
+  }
+
+  async getDirectusPage(slug, locale = DEFAULT_LOCALE) {
+    const results = await CMSCachePageModel.query().where('slug', slug)
+
+    if (results.length === 0) {
+      return null
+    }
+
+    const result = JSON.parse(results[0].content)
+
+    return getDirectusTranslation<DirectusPageTranslation>(
+      result.translations as DirectusPageTranslation[],
+      `No translations found for slug "${slug}"`,
+      locale
+    )
+  }
+
+  async getFaqs(locale: string = DEFAULT_LOCALE) {
+    const queryResult = await CMSCacheFaqModel.query().select('content')
+    const jsonResult = queryResult.map((result) => result.content)
+    const result: ItemsResponse<DirectusFaqTemplate> = JSON.parse(
+      `[${jsonResult.join(', ')}]`
+    )
+
+    return result.data.map((d) =>
       getDirectusTranslation(d.translations, `faq has no translations`, locale)
     )
   }
 
-  async findPublishedCountries(
-    filter: ItemFilter = {},
-    locale = DEFAULT_LOCALE
-  ): Promise<Countries | null> {
-    const response = await this.findCountries({ filter })
-    if (response.data.length === 0) return null
-    const countries = response.data
-    return countries.map((country) => toCountryBase(country, locale))
-  }
+  async findHomepage() {
+    const queryResult = await CMSCacheHomepageModel.query().select('content')
+    const result: ItemByIdResponse<DirectusHomepage> = JSON.parse(
+      queryResult[0].content
+    )
 
-  async findHomepage(locale: string = DEFAULT_LOCALE) {
-    // Homepage is a singleton in the CMS, which makes this endpoint only return a single item.
-    // Therefore we should avoid using the `findMany` method and instead act as if the result is
-    // from a `findById` call.
-    const response = await this.http.get('items/homepage', {
-      searchParams: getParameters({
-        fields: [
-          'hero_banner',
-          'hero_pack',
-          'featured_packs',
-          'featured_nfts',
-          'translations.*',
-        ],
-        deep: {
-          hero_pack: {
-            _filter: {
-              status: {
-                _eq: DirectusStatus.Published,
-              },
-            },
-          },
-          featured_packs: {
-            _filter: {
-              status: {
-                _eq: DirectusStatus.Published,
-              },
-            },
-          },
-          featured_nfts: {
-            _filter: {
-              status: {
-                _eq: DirectusStatus.Published,
-              },
-            },
-          },
-        },
-      }),
-    })
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      const result: ItemByIdResponse<DirectusHomepage> = JSON.parse(
-        response.body
-      )
-      return toHomepageBase(result.data, this.getFileURL.bind(this), locale)
-    }
-
-    return null
+    return toHomepageBase(result.data)
   }
 
   async getLanguages(locale = DEFAULT_LOCALE) {
-    const defaultQuery: ItemQuery<DirectusLanguageTemplate> = {
-      limit: -1,
-      fields: ['*.*'],
-    }
-
-    const response = await this.findMany<DirectusLanguageTemplate>(
-      `languages`,
-      {
-        ...defaultQuery,
-      }
+    const queryResult = await CMSCacheLanguageModel.query().select('content')
+    const jsonResult = queryResult.map((result) => result.content)
+    const result: ItemsResponse<DirectusLanguageTemplate> = JSON.parse(
+      `[${jsonResult.join(', ')}]`
     )
 
-    return response.data.map((directusLanguageTemplate) => ({
+    return result.data.map((directusLanguageTemplate) => ({
       languages_code: directusLanguageTemplate.code,
       label: getDirectusTranslation<DirectusLanguageTemplateTranslation>(
         directusLanguageTemplate.translations as DirectusLanguageTemplateTranslation[],
@@ -1027,25 +841,5 @@ export default class DirectusAdapter {
         locale
       )?.label,
     }))
-  }
-
-  async findApplication(): Promise<DirectusApplication | null> {
-    // Application is a singleton in the CMS, which makes this endpoint only return a single item.
-    // Therefore we should avoid using the `findMany` method and instead act as if the result is
-    // from a `findById` call.
-    const response = await this.http.get('items/application', {
-      searchParams: getParameters({
-        fields: ['*.*'],
-      }),
-    })
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      const result: ItemByIdResponse<DirectusApplication> = JSON.parse(
-        response.body
-      )
-      return result.data
-    }
-
-    return null
   }
 }

@@ -6,19 +6,19 @@ import {
   Homepage,
   PublishedPack,
 } from '@algomart/schemas'
-import { DirectusAdapter } from '@algomart/shared/adapters'
-import { userInvariant } from '@algomart/shared/utils'
 
+import { CMSCacheAdapter } from '@algomart/shared/adapters'
+import { userInvariant } from '@algomart/shared/utils'
 import PacksService from './packs.service'
 import CollectiblesService from './collectibles.service'
 import { Transaction } from 'objection'
 
 export default class HomepageService {
   constructor(
-    private readonly cms: DirectusAdapter,
+    private readonly cms: CMSCacheAdapter,
     private readonly packsService: PacksService,
     private readonly collectiblesService: CollectiblesService
-  ) {}
+  ) { }
 
   async getHomepage(
     trx: Transaction,
@@ -28,17 +28,16 @@ export default class HomepageService {
     const homepageBase = await this.cms.findHomepage(locale)
     userInvariant(homepageBase, 'homepage not found', 404)
 
-    const { packs } = await this.packsService.getPublishedPacks(
-      {
-        locale,
-        pageSize: 1 + homepageBase.featuredPackTemplateIds.length,
-        templateIds: homepageBase.heroPackTemplateId
-          ? [
-              ...homepageBase.featuredPackTemplateIds,
-              homepageBase.heroPackTemplateId,
-            ]
-          : homepageBase.featuredPackTemplateIds,
-      },
+    const { packs } = await this.packsService.getPublishedPacks({
+      locale,
+      pageSize: 1 + homepageBase.featuredPackTemplateIds.length,
+      templateIds: homepageBase.heroPackTemplateId
+        ? [
+          ...homepageBase.featuredPackTemplateIds,
+          homepageBase.heroPackTemplateId,
+        ]
+        : homepageBase.featuredPackTemplateIds,
+    },
       trx,
       knexRead
     )
@@ -62,7 +61,7 @@ export default class HomepageService {
       heroBannerTitle: homepageBase.heroBannerTitle,
       heroPack:
         homepageBase.heroPackTemplateId &&
-        packLookup.has(homepageBase.heroPackTemplateId)
+          packLookup.has(homepageBase.heroPackTemplateId)
           ? packLookup.get(homepageBase.heroPackTemplateId)
           : undefined,
       featuredPacksSubtitle: homepageBase.featuredPacksSubtitle,
