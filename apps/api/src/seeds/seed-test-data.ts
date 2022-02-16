@@ -18,6 +18,7 @@ import { v4 } from 'uuid'
 
 import {
   DirectusCollectibleTemplate,
+  DirectusFile,
   DirectusPackTemplate,
   DirectusRarity,
   DirectusStatus,
@@ -91,7 +92,7 @@ export const collectibleTemplateFactory =
     .option('subtitle', 'Test Collectible Subtitle')
     .option('body', 'Test Collectible Body')
     .attr('pack_template', () => packTemplateFactory.build())
-    .attr('preview_image', () => v4())
+    .attr('preview_image', () => fileFactory.build())
     .attr('rarity', () => rarityFactory.build())
     .attr('status', DirectusStatus.Published)
     .attr('total_editions', 10)
@@ -122,7 +123,7 @@ export const packTemplateFactory = Factory.define<DirectusPackTemplate>(
   .attr('nft_order', PackCollectibleOrder.Random)
   .attr('nft_templates', [])
   .attr('nfts_per_pack', 1)
-  .attr('pack_image', () => v4())
+  .attr('pack_image', () => fileFactory.build())
   .attr('price', 0)
   .attr('released_at', () => new Date().toISOString())
   .attr('slug', 'test-pack')
@@ -170,6 +171,13 @@ export const collectibleFactory = Factory.define<Collectible>('Collectible')
   .attr('assetMetadataHash', 'abc')
   .attr('assetUrl', 'abc')
   .attr('ipfsStatus', IPFSStatus.Stored)
+
+export const fileFactory = Factory.define<DirectusFile>('DirectusFile')
+  .sequence('id', () => v4())
+  .option('filename_disk', 'abc.jpg')
+  .option('storage', 'local')
+  .option('title', 'Test File Title')
+  .option('subtitle', 'Test File Subtitle')
 
 // #endregion
 
