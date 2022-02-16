@@ -35,7 +35,14 @@ export default function CardSummary({
           </tr>
           <tr>
             <th scope="row">{release?.title}</th>
-            <td>{formatCurrency(price, lang, currency, conversionRate)}</td>
+            <td>
+              {formatCurrency(
+                price,
+                lang,
+                currency,
+                isAuctionActive ? 1 : conversionRate
+              )}
+            </td>
           </tr>
         </tbody>
       </table>

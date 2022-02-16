@@ -19,6 +19,7 @@ export default function Bid({ bid, className, initialBid, setBid }: BidProps) {
   const currency = useCurrency()
   const { conversionRate } = useI18n()
   const { t, lang } = useTranslation()
+
   return (
     <>
       <CurrencyInput
@@ -38,7 +39,7 @@ export default function Bid({ bid, className, initialBid, setBid }: BidProps) {
             : undefined
         }
         id="bid-input"
-        intlConfig={{ locale, currency: DEFAULT_CURRENCY }}
+        intlConfig={{ locale, currency }}
         label={t('forms:fields.bid.label')}
         name="bid-input"
         value={bid || ''}

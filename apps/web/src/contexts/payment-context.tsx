@@ -676,7 +676,7 @@ export function usePaymentProvider({
         ? bid
         : formatIntToFloat(release?.price || 0, currency, conversionRate)
     )
-  }, [currency]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currency, bid]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const value = useMemo(
     () => ({
