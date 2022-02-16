@@ -105,6 +105,16 @@ resource "google_cloud_run_service" "api" {
         }
 
         env {
+          name  = "DATABASE_URL_READONLY"
+          value = "postgresql://${google_sql_user.api_user.name}:${google_sql_user.api_user.password}@${google_sql_database_instance.database_server.private_ip_address}:5432/${google_sql_database.api_database.name}"
+        }
+
+        env {
+          name  = "DATABASE_URL_WRITE"
+          value = "postgresql://${google_sql_user.api_user.name}:${google_sql_user.api_user.password}@${google_sql_database_instance.database_server.private_ip_address}:5432/${google_sql_database.api_database.name}"
+        }
+
+        env {
           name  = "DATABASE_SCHEMA"
           value = var.api_database_schema
         }
