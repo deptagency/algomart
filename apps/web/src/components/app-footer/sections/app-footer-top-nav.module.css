@@ -39,7 +39,7 @@
 }
 
 .topNavLinkActive {
-  @apply border-t-base-border text-action-secondary;
+  @apply border-t-base-border;
 }
 
 .topNavSocialMediaSpace {
