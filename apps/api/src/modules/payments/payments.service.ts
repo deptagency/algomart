@@ -547,9 +547,9 @@ export default class PaymentsService {
     // Attempt to find card (cardId could be source or db ID)
     const card = await PaymentCardModel.query(trx).findById(cardId)
 
-    // Temporary workaround as `localhost` is not allowed in Circle
+    // Circle only accepts loopback addresses
     const verificationHostname = Configuration.webUrl.includes('localhost')
-      ? 'https://demo.algomart.dev'
+      ? 'http://127.0.0.1:3000'
       : Configuration.webUrl
 
     // Base payment details
@@ -574,13 +574,14 @@ export default class PaymentsService {
     const payment = await this.circle
       .createPayment({
         ...basePayment,
+        ...encryptedDetails,
         verification: CirclePaymentVerificationOptions.three_d_secure,
         verificationSuccessUrl: new URL(
-          '/checkout/success',
+          Configuration.successPath,
           verificationHostname
         ).toString(),
         verificationFailureUrl: new URL(
-          '/checkout/failure',
+          Configuration.failurePath,
           verificationHostname
         ).toString(),
       })
@@ -617,11 +618,7 @@ export default class PaymentsService {
       .onConflict('externalId')
       .ignore()
     console.log('new payment', newPayment)
-
-    // Throw error if failed request
-    if (!payment || !payment.id) {
-      throw new Error('Payment not created')
-    }
+    invariant(newPayment, 'unable to create payment in database')
 
     // Search for payment status to confirm check is complete
     const completeWhenNotPendingForPayments = (payment: ToPaymentBase | null) =>
@@ -633,8 +630,7 @@ export default class PaymentsService {
       1000
     )
     console.log('foundPayment', foundPayment)
-
-    if (!foundPayment) throw new Error('Payment failed')
+    invariant(foundPayment, 'unable to find payment')
 
     // For failed status, try cvv payment verification
     if (foundPayment.status === PaymentStatus.Failed) {

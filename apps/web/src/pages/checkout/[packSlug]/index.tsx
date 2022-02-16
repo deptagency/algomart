@@ -11,7 +11,6 @@ import { useEffect } from 'react'
 import { ApiClient } from '@/clients/api-client'
 import { Analytics } from '@/clients/firebase-analytics'
 import { usePaymentProvider } from '@/contexts/payment-context'
-import { Environment } from '@/environment'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
@@ -66,18 +65,6 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
   const user = await getAuthenticatedUser(context)
   if (!user) {
     return handleUnauthenticatedRedirect(context.resolvedUrl)
-  }
-
-  // Redirect to the card page if the feature flags aren't enabled
-  if (!Environment.isWireEnabled && !Environment.isCryptoEnabled) {
-    return {
-      redirect: {
-        destination: urls.checkoutPackWithMethod
-          .replace(':packSlug', context?.params?.packSlug as string)
-          .replace(':method', 'card'),
-        permanent: false,
-      },
-    }
   }
 
   const { packs: packTemplates } = await ApiClient.instance.getPublishedPacks({

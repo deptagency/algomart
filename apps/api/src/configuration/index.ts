@@ -172,10 +172,10 @@ export const Configuration = {
   },
 
   get successPath(): string {
-    return this.config('WEB_SUCCESS_PATH', '/checkout/success')
+    return env.get('WEB_SUCCESS_PATH').default('/payments/success').asString()
   },
 
   get failurePath(): string {
-    return this.config('WEB_FAILURE_PATH', '/checkout/failure')
+    return env.get('WEB_FAILURE_PATH').default('/payments/failure').asString()
   },
 }

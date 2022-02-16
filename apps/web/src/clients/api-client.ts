@@ -236,10 +236,6 @@ export class ApiClient {
       .json<Payment>()
   }
 
-  async getPaymentByExternalId(paymentExternalId: string) {
-    return await this.http.get(`payments/${paymentExternalId}`).json<Payment>()
-  }
-
   async getPublicKey() {
     return await this.http
       .get('payments/encryption-public-key')

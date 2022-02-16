@@ -20,6 +20,8 @@ export const urls = {
   nft: '/nft/:assetId',
   nftTransfer: '/nft/:assetId/transfer',
   packOpening: '/pack-opening/:packId',
+  paymentFailure: '/payments/failure',
+  paymentSuccess: '/payments/success',
   redeem: '/redeem',
   release: '/releases/:packSlug',
   releases: '/releases',
