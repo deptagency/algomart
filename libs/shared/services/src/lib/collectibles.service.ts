@@ -24,7 +24,7 @@ import {
   AlgoExplorerAdapter,
   AlgorandAdapter,
   DEFAULT_INITIAL_BALANCE,
-  DirectusAdapter,
+  CMSCacheAdapter,
   ItemFilter,
   NFTStorageAdapter,
 } from '@algomart/shared/adapters'
@@ -53,7 +53,7 @@ export default class CollectiblesService {
   logger: pino.Logger<unknown>
 
   constructor(
-    private readonly cms: DirectusAdapter,
+    private readonly cms: CMSCacheAdapter,
     private readonly algorand: AlgorandAdapter,
     private readonly storage: NFTStorageAdapter,
     private readonly algoExplorer: AlgoExplorerAdapter,
@@ -120,9 +120,9 @@ export default class CollectiblesService {
 
     const transferrableAt = wasPaidWithCard
       ? addDays(
-          new Date(collectible.creationTransaction.createdAt),
-          this.minimumDaysBeforeTransfer
-        )
+        new Date(collectible.creationTransaction.createdAt),
+        this.minimumDaysBeforeTransfer
+      )
       : new Date(collectible.creationTransaction.createdAt)
 
     return transferrableAt
@@ -734,10 +734,10 @@ export default class CollectiblesService {
       ownerId: account.id,
       ...(templateIds
         ? {
-            id: {
-              _in: templateIds,
-            },
-          }
+          id: {
+            _in: templateIds,
+          },
+        }
         : {}),
     })
 
