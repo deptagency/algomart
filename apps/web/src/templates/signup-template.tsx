@@ -13,11 +13,13 @@ import {
   Username,
 } from '@/components/auth-inputs/auth-inputs'
 import Heading from '@/components/heading'
-import { useLocale } from '@/hooks/use-locale'
+import { SelectOption } from '@/components/select/select'
 import { AuthState } from '@/types/auth'
 import { FileWithPreview } from '@/types/file'
 
 export interface SignupTemplateProps {
+  dropdownCurrency: string
+  dropdownLanguage: string
   error: string | null
   formErrors: Partial<{
     currency?: unknown
@@ -28,6 +30,8 @@ export interface SignupTemplateProps {
     passphrase?: unknown
   }>
   handleCreateProfile: (event: FormEvent<HTMLFormElement>) => Promise<void>
+  handleCurrencyChange: (selectOption: SelectOption) => void
+  handleLanguageChange: (selectOption: SelectOption) => void
   handleProfilePicAccept: (files: File[]) => void
   handleProfilePicClear: () => void
   profilePic: FileWithPreview | null
@@ -35,16 +39,20 @@ export interface SignupTemplateProps {
 }
 
 export default function SignupTemplate({
+  dropdownCurrency,
+  dropdownLanguage,
   error,
   formErrors,
   handleCreateProfile,
+  handleCurrencyChange,
+  handleLanguageChange,
   handleProfilePicAccept,
   handleProfilePicClear,
   profilePic,
   status,
 }: SignupTemplateProps) {
-  const locale = useLocale()
   const { t } = useTranslation()
+
   return (
     <>
       <Heading className="mb-8 text-center">
@@ -70,8 +78,18 @@ export default function SignupTemplate({
           t={t}
           profilePic={profilePic}
         />
-        <Language error={formErrors.language} t={t} value={locale} />
-        <Currency error={formErrors.currency} t={t} />
+        <Language
+          error={formErrors.language}
+          t={t}
+          value={dropdownLanguage}
+          handleChange={handleLanguageChange}
+        />
+        <Currency
+          error={formErrors.currency}
+          t={t}
+          value={dropdownCurrency}
+          handleChange={handleCurrencyChange}
+        />
         <Passphrase error={formErrors.passphrase} t={t} />
         <Submit disabled={status === 'loading'} t={t} />
       </form>

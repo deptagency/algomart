@@ -137,6 +137,17 @@ export function useI18nProvider() {
     }
   }, [locale])
 
+  /**
+   * Runs on launch and any subsequent currency changes
+   *
+   * First run no conversions will exist, so it will getI18nInfo
+   * which includes Languages (translated) and
+   * Currency Conversions from CMS -> A multitude of currencies
+   *
+   * On currency changes it will grab from state instead and not call to getI18nInfo
+   *
+   * In both instances it will update the conversion rate on the state
+   */
   useEffect(() => {
     const run = async () => {
       let currencyConversions: { [x: string]: number }
@@ -155,6 +166,22 @@ export function useI18nProvider() {
 
     run()
   }, [currency])
+
+  /**
+   * Only runs on language changes - first run the languages won't be populated
+   * (they get populated in other useEffect)
+   *
+   * We need to grab languages on locale change because they come back translated
+   * Could refactor to have all translations returned
+   * to avoid this
+   */
+  useEffect(() => {
+    if (state.languages) {
+      const run = async () => await getLanguages()
+
+      run()
+    }
+  }, [locale])
 
   const [state, dispatch] = useReducer(i18nReducer, {
     conversionRate: 1,

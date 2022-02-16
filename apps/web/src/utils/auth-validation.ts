@@ -1,4 +1,5 @@
-import { CURRENCIES, FirebaseClaim } from '@algomart/schemas'
+import { FirebaseClaim } from '@algomart/schemas'
+import * as DineroCurrencies from '@dinero.js/currencies'
 import { Translate } from 'next-translate'
 import {
   email,
@@ -15,7 +16,10 @@ import {
 export const currency = (t: Translate) =>
   string(
     required(t('forms:errors.required') as string),
-    oneOf(CURRENCIES, t('forms:errors.invalidCurrency') as string)
+    oneOf(
+      Object.keys(DineroCurrencies),
+      t('forms:errors.invalidCurrency') as string
+    )
   )
 
 export const emailAddress = (t: Translate) =>

@@ -1,7 +1,7 @@
 import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import css from './release-filter.module.css'
 
@@ -20,7 +20,6 @@ import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 export default function ReleaseFilterPrice() {
   const locale = useLocale()
   const currency = useCurrency()
-  const { conversionRate } = useI18n()
   const { t } = useTranslation()
   const { dispatch, state } = usePackFilterContext()
   const [priceLow, setPriceLow] = useState<string>(

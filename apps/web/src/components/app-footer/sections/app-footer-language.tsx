@@ -16,12 +16,13 @@ export default function AppFooterLanguage() {
   const router = useRouter()
   const locale = useLocale()
   const { user, reloadProfile } = useAuth()
-  const [language, setLanguage] = useState<string>(useLocale())
+  const [dropdownLanguage, setDropdownLanguage] = useState<string>(useLocale())
   const [loading, setLoading] = useState<boolean>(false)
 
   const validate = useMemo(() => validateLanguage(t), [t])
 
-  const handleLanguageChange = useCallback(
+  // callback to handle dropdown changes
+  const handleDropdownLanguageChange = useCallback(
     async (selectedOption: SelectOption) => {
       const locale = selectedOption?.id
 
@@ -51,7 +52,7 @@ export default function AppFooterLanguage() {
       }
 
       setLoading(false)
-      setLanguage(locale)
+      setDropdownLanguage(locale)
       router.push(
         { pathname: router.pathname, query: router.query },
         router.asPath,
@@ -62,16 +63,17 @@ export default function AppFooterLanguage() {
     [validate, user, router, reloadProfile]
   )
 
+  // useEffect to handle global locale changes
   useEffect(() => {
-    setLanguage(locale)
+    setDropdownLanguage(locale)
   }, [locale])
 
   return (
     <Language
       disabled={loading}
       showLabel={false}
-      value={language}
-      handleChange={handleLanguageChange}
+      value={dropdownLanguage}
+      handleChange={handleDropdownLanguageChange}
       t={t}
     />
   )

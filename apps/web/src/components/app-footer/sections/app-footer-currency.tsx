@@ -1,6 +1,6 @@
 import { CURRENCY_COOKIE } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Currency } from '@/components/auth-inputs/auth-inputs'
 import { SelectOption } from '@/components/select/select'
@@ -13,12 +13,16 @@ import { setCookie } from '@/utils/cookies-web'
 export default function AppFooterLanguage() {
   const { t } = useTranslation()
   const { user, reloadProfile } = useAuth()
-  const [currency, setCurrency] = useState<string>(useCurrency())
+  const currency = useCurrency()
+  const [dropdownCurrency, setDropdownCurrency] = useState<string>(
+    useCurrency()
+  )
   const [loading, setLoading] = useState<boolean>(false)
 
   const validate = useMemo(() => validateCurrency(t), [t])
 
-  const handleCurrencyChange = useCallback(
+  // callback to handle dropdown changes
+  const handleDropdownCurrencyChange = useCallback(
     async (selectedOption: SelectOption) => {
       const currency = selectedOption?.id
 
@@ -48,19 +52,24 @@ export default function AppFooterLanguage() {
       }
 
       setLoading(false)
-      setCurrency(currency)
+      setDropdownCurrency(currency)
 
       return
     },
     [validate, user, reloadProfile]
   )
 
+  // useEffect to handle global currency changes
+  useEffect(() => {
+    setDropdownCurrency(currency)
+  }, [currency])
+
   return (
     <Currency
       disabled={loading}
       showLabel={false}
-      value={currency}
-      handleChange={handleCurrencyChange}
+      value={dropdownCurrency}
+      handleChange={handleDropdownCurrencyChange}
       t={t}
     />
   )

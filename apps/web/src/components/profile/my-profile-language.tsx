@@ -57,7 +57,7 @@ export default function MyProfileLanguage() {
         return
       }
 
-      setCookie(LOCALE_COOKIE, locale, 365)
+      setCookie(LOCALE_COOKIE, body.language, 365)
       await reloadProfile()
       setLoading(false)
       setIsEditing(false)
@@ -73,7 +73,7 @@ export default function MyProfileLanguage() {
 
       return
     },
-    [reloadProfile, t, validate, language, router, locale]
+    [reloadProfile, t, validate, language, router]
   )
 
   const handleBeginEdit = useCallback(() => {

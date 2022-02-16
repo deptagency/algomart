@@ -16,8 +16,6 @@ type BodyType = ExtractBodyType<typeof validateCurrency>
 
 handler.put(
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
-    console.log(request.body)
-
     if (!request.user.externalId) {
       throw new BadRequest('No externalId provided')
     }
