@@ -10,7 +10,7 @@ import AppLink from '@/components/app-link/app-link'
 import ExternalLink from '@/components/external-link'
 import Logo from '@/components/logo/logo'
 import {
-  getMainNavItems,
+  getFooterNavItems,
   getMoreNavItems,
   getSocialNavItems,
 } from '@/utils/navigation'
@@ -18,7 +18,7 @@ import { isRootPathMatch } from '@/utils/urls'
 
 export default function AppFooterTopNav() {
   const { t } = useTranslation()
-  const mainNavItems = getMainNavItems(t)
+  const mainNavItems = getFooterNavItems(t)
   const moreNavItems = getMoreNavItems(t)
   const socialNavItems = getSocialNavItems(t)
 

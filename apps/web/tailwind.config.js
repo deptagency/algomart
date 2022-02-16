@@ -21,9 +21,13 @@ module.exports = {
 
   darkMode: false, // or false, 'media' or 'class'
   theme: {
+    fontFamily: {
+      base: ['"Open Sans"', 'ui-sans-serif', 'system-ui', '-apple-system'],
+      display: ['"Open Sans Condensed"', 'ui-sans-serif', 'system-ui'],
+    },
     fontSize: {
       xs: '.75rem',
-      sm: '.85rem',
+      sm: '.875rem',
       base: '1rem',
       lg: '1.25rem',
       xl: '2.5rem',

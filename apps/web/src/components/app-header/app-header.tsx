@@ -28,27 +28,62 @@ export default function AppHeader() {
         [css.rootMobileVisible]: showMenu,
       })}
     >
+      <div className={css.utilityWrapper}>
+        <div className={css.utility}>
+          <div className={css.hamburgerWrapper}>
+            <button
+              className={css.hamburger}
+              onClick={() => {
+                setShowMenu(!showMenu)
+              }}
+            >
+              {showMenu ? <XIcon /> : <MenuIcon />}
+            </button>
+          </div>
+          <div className={css.logo}>
+            <Logo />
+          </div>
+          <div className={css.utilityNav}>
+            <AppLink
+              aria-label={
+                isAuthenticated
+                  ? t('common:pageTitles.My Profile')
+                  : t('common:nav.utility.Log In')
+              }
+              className={css.utilityNavLink}
+              href={isAuthenticated ? urls.myProfile : urls.login}
+              title={
+                isAuthenticated
+                  ? t('common:pageTitles.My Profile')
+                  : t('common:nav.utility.Log In')
+              }
+            >
+              <div className={css.utilityNavLabel}>
+                {t('common:nav.utility.My Account')}
+              </div>
+              {auth.user?.photo ? (
+                <Image
+                  alt={t('common:nav.utility.My profile picture')}
+                  src={auth.user.photo}
+                  layout="fixed"
+                  height={40}
+                  width={40}
+                />
+              ) : (
+                <UserCircleIcon
+                  className={css.avatarGeneric}
+                  height={40}
+                  width={40}
+                />
+              )}
+            </AppLink>
+          </div>
+        </div>
+      </div>
       <nav
         aria-label={t('common:nav.aria.Main Navigation')}
         className={css.wrapper}
       >
-        {/* Hamburger menu (only shown on smaller screens) */}
-        <div className={css.hamburgerWrapper}>
-          <button
-            className={css.hamburger}
-            onClick={() => {
-              setShowMenu(!showMenu)
-            }}
-          >
-            {showMenu ? <XIcon /> : <MenuIcon />}
-          </button>
-        </div>
-
-        {/* Logo */}
-        <div className={css.logo}>
-          <Logo linkClassName={css.logoLink} />
-        </div>
-
         {/* Main Nav */}
         <div
           className={clsx(css.mainNav, {
@@ -70,36 +105,6 @@ export default function AppHeader() {
               </AppLink>
             )
           })}
-        </div>
-
-        {/* Utility Nav */}
-        <div className={css.utilityNav}>
-          <AppLink
-            aria-label={
-              isAuthenticated
-                ? t('common:pageTitles.My Profile')
-                : t('common:nav.utility.Log In')
-            }
-            className={css.utilityNavLink}
-            href={isAuthenticated ? urls.myProfile : urls.login}
-            title={
-              isAuthenticated
-                ? t('common:pageTitles.My Profile')
-                : t('common:nav.utility.Log In')
-            }
-          >
-            {auth.user?.photo ? (
-              <Image
-                alt={t('common:nav.utility.My profile picture')}
-                src={auth.user.photo}
-                layout="responsive"
-                height="100%"
-                width="100%"
-              />
-            ) : (
-              <UserCircleIcon className={css.avatarGeneric} />
-            )}
-          </AppLink>
         </div>
       </nav>
     </header>

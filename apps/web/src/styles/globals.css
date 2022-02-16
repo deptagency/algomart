@@ -7,8 +7,7 @@
 @layer base {
   html,
   body {
-    @apply h-full text-base-textPrimary bg-base-bg;
-    font-family: 'Open Sans', ui-sans-serif, system-ui, -apple-system !important;
+    @apply h-full text-base-textPrimary bg-base-bg font-base;
   }
 
   h1,
@@ -17,8 +16,7 @@
   .h1,
   .h2,
   .h3 {
-    font-family: 'Open Sans Condensed', ui-sans-serif, system-ui;
-    font-weight: 700;
+    @apply font-display font-bold;
   }
 
   h1,
@@ -67,33 +65,7 @@
     --error: 172, 0, 0; /* red */
     --price: 5, 150, 105; /* green-600 */
   }
-
-  /* Dark theme */
-  .dark {
-    --textPrimary: 250, 250, 250;
-    --textSecondary: 216, 216, 216;
-    --textTertiary: 182, 182, 182;
-    --textDisabled: 128, 128, 128;
-
-    --bg: #f7f9fc;
-    --bgCard: 9, 12, 13;
-    --bgPanel: 28, 29, 33;
-    --bgNotice: 28, 29, 33;
-
-    --actionPrimary: 58, 119, 210; /* fifa blue */
-    --actionPrimaryContrastText: 255, 255, 255;
-    --actionSecondary: 58, 119, 210; /* fifa blue */
-    --actionSecondaryContrastText: 0, 0, 0;
-    --actionAccent: 58, 119, 210; /* fifa blue */
-
-    --grayDark: 10, 17, 29; /* DEPRECATED */
-    --border: 62, 64, 67;
-
-    --error: 255, 70, 70; /* red */
-    --price: 35, 180, 135;
-  }
 }
-
 /* Custom globals  */
 #__next {
   height: 100%;
