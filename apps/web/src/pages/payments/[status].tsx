@@ -13,8 +13,8 @@ export interface SuccessPageProps {
   payment: Payment
 }
 
-export default function SuccessPage({ payment }: SuccessPageProps) {
-  console.log('Success payment:', payment)
+export default function ResolvedPayment({ payment }: SuccessPageProps) {
+  console.log('ResolvedPayment payment:', payment)
   const { t } = useTranslation()
   return <DefaultLayout pageTitle="Success!" panelPadding></DefaultLayout>
 }
@@ -22,6 +22,7 @@ export default function SuccessPage({ payment }: SuccessPageProps) {
 export const getServerSideProps: GetServerSideProps<SuccessPageProps> = async (
   context
 ) => {
+  const { status } = context.params
   const { paymentId: paymentExternalId } = context.query
 
   // Payment ID is required
@@ -50,9 +51,8 @@ export const getServerSideProps: GetServerSideProps<SuccessPageProps> = async (
       notFound: true,
     }
   }
-
   // Confirm logged-in user is owner of pack
-  if (payment.payerId !== user.id) {
+  if (payment?.payer?.externalId !== user.externalId) {
     return {
       notFound: true,
     }
