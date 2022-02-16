@@ -2,9 +2,7 @@ import { CheckoutMethod, CheckoutStatus, PackType } from '@algomart/schemas'
 import clsx from 'clsx'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { FormEvent, useCallback, useState } from 'react'
-
-import Failure from '../shared/failure'
+import { FormEvent, useCallback } from 'react'
 
 import CardPurchaseForm from './sections/card-form'
 import CardPurchaseHeader from './sections/card-header'
@@ -13,6 +11,7 @@ import CardPurchaseSummary from './sections/card-summary'
 import css from './card-form.module.css'
 
 import Loading from '@/components/loading/loading'
+import Failure from '@/components/purchase-form/shared/failure'
 import Success from '@/components/purchase-form/shared/success'
 import { PaymentContextProps } from '@/contexts/payment-context'
 import { useWarningOnExit } from '@/hooks/use-warning-on-exit'
