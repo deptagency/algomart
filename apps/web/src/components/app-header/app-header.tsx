@@ -93,9 +93,20 @@ export default function AppHeader() {
             ) : (
               <>
                 <AppLink className={css.utilityNavLink} href={urls.login}>
-                  {t('common:actions.Sign In')}
+                  <span className="hidden md:inline">
+                    {t('common:actions.Sign In')}
+                  </span>
+                  <UserCircleIcon
+                    className={`${css.avatarGeneric} md:hidden`}
+                    height={40}
+                    width={40}
+                  />
                 </AppLink>
-                <Button size="small" onClick={signIn}>
+                <Button
+                  size="small"
+                  className="md:inline hidden"
+                  onClick={signIn}
+                >
                   Create Account
                 </Button>
               </>
