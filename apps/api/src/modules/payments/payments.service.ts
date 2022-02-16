@@ -583,6 +583,8 @@ export default class PaymentsService {
         return null
       })
 
+    console.log('payment:', payment)
+
     if (!payment) {
       // Remove claim from payment if payment doesn't go through
       await this.packs.claimPack(
