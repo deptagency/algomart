@@ -1,5 +1,5 @@
 import { CheckCircleIcon } from '@heroicons/react/outline'
-import clsx from 'classnames'
+import clsx from 'clsx'
 
 import css from './success-failure.module.css'
 
