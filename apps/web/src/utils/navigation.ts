@@ -22,27 +22,27 @@ export const getMoreNavItems = (t: Translate) => [
 
 export const getSocialNavItems = (t: Translate) => [
   {
-    href: '#',
+    href: 'https://instagram.com/fifaworldcup',
     label: t('common:nav.social.Instagram'),
     icon: '/images/logos/instagram.svg',
   },
   {
-    href: '#',
+    href: 'https://twitter.com/FIFAcom',
     label: t('common:nav.social.Twitter'),
     icon: '/images/logos/twitter.svg',
   },
   {
-    href: '#',
+    href: 'https://www.facebook.com/fifa',
     label: t('common:nav.social.Facebook'),
     icon: '/images/logos/facebook.svg',
   },
   {
-    href: '#',
+    href: 'https://www.youtube.com/FIFATV',
     label: t('common:nav.social.YouTube'),
     icon: '/images/logos/youtube.svg',
   },
   {
-    href: '#',
+    href: 'https://www.weibo.com/FIFAWorldCup?is_hot=1',
     label: t('common:nav.social.Weibo'),
     icon: '/images/logos/weibo.svg',
   },
