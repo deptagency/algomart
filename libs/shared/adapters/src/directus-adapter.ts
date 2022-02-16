@@ -731,7 +731,7 @@ export default class DirectusAdapter {
       return null
     }
 
-    if (this.options.gcpCdnUrl !== undefined) {
+    if (file.storage == 'gcp' && this.options.gcpCdnUrl !== undefined) {
       return new URL(`${this.options.gcpCdnUrl}/${file.filename_disk}`).href
     }
 
