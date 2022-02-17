@@ -1,6 +1,7 @@
 import { DEFAULT_LOCALE } from '@algomart/schemas'
 import * as DineroCurrencies from '@dinero.js/currencies'
 import { ShieldExclamationIcon, UserCircleIcon } from '@heroicons/react/outline'
+import { GlobeAltIcon } from '@heroicons/react/outline'
 import Image from 'next/image'
 import { Translate } from 'next-translate'
 import { ReactNode, useEffect, useState } from 'react'
@@ -173,6 +174,7 @@ export function Language({
           options={options}
           selectedValue={selectedValue}
           handleChange={handleChange}
+          Icon={<GlobeAltIcon />}
         />
       )}
     </FormField>

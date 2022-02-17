@@ -43,7 +43,7 @@ const ThemeContext = createContext<IThemeContext>({
 export const useThemeContext = () => useContext(ThemeContext)
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<string | null>()
+  const [theme, setTheme] = useState<string | null>('light')
 
   const toggleTheme = useCallback(() => {
     setTheme((theme) => {

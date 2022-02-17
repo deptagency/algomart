@@ -1,5 +1,5 @@
 import { Listbox } from '@headlessui/react'
-import { SelectorIcon } from '@heroicons/react/outline'
+import { ChevronDownIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
 import {
   DetailedHTMLProps,
@@ -27,6 +27,7 @@ export interface SelectProps
   label?: string
   options: SelectOption[]
   selectedValue?: SelectOption | null
+  Icon?: ReactNode
 }
 
 export default function Select({
@@ -39,6 +40,7 @@ export default function Select({
   label,
   options,
   selectedValue,
+  Icon,
 }: SelectProps) {
   const [selected, setSelected] = useState(defaultOption || options[0])
   const value = selectedValue || selected
@@ -66,13 +68,12 @@ export default function Select({
               [css.selectButtonError]: error,
             })}
           >
-            <span className={css.selectButtonText}>{value.label}</span>
-            <span className={css.selectButtonIconContainer}>
-              <SelectorIcon
-                className={css.selectButtonIcon}
-                aria-hidden="true"
-              />
-            </span>
+            <span></span>
+            <div className={css.selectButtonText}>
+              {!!Icon && Icon}
+              {value.label}
+              <ChevronDownIcon aria-hidden="true" />
+            </div>
           </Listbox.Button>
 
           <Listbox.Options className={css.selectOptions}>

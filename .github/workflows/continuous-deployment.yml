@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        app: [api, cms, web]
+        app: [api, cms, scribe, web]
     steps:
       - uses: actions/checkout@v2
 
@@ -116,6 +116,7 @@ jobs:
           TF_VAR_api_revision_name: algomart-api-terraform-${{ needs.tag.outputs.value }}
           TF_VAR_cms_revision_name: algomart-cms-terraform-${{ needs.tag.outputs.value }}
           TF_VAR_web_revision_name: algomart-web-terraform-${{ needs.tag.outputs.value }}
+          TF_VAR_scribe_revision_name: algomart-scribe-terraform-${{ needs.tag.outputs.value }}
 
           # Required
           TF_VAR_project: ${{ secrets.GCP_PROJECT_ID }}
@@ -166,6 +167,8 @@ jobs:
           TF_VAR_web_firebase_service_account: ${{ secrets.WEB_FIREBASE_SERVICE_ACCOUNT }}
           TF_VAR_web_image: '${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/web:${{ needs.tag.outputs.value }}'
           TF_VAR_web_next_public_firebase_config: ${{ secrets.WEB_NEXT_PUBLIC_FIREBASE_CONFIG }}
+  
+          TF_VAR_scribe_image: '${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/scribe:${{ needs.tag.outputs.value }}'
 
           # Optional
           TF_VAR_region: ${{ secrets.REGION }}

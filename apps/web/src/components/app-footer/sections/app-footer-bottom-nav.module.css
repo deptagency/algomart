@@ -1,17 +1,31 @@
 .bottomNav {
-  @apply py-8 bg-base-bgCard;
+  /* Base */
+  @apply bg-base-bgCard border-t-2 border-t-base-border text-xs py-4;
+
+  /* Tablet + */
+  @apply md:py-8;
 }
 
 .bottomNavWrapper {
   /* Base */
-  @apply px-4 mx-auto text-center max-w-wrapper;
+  @apply mx-auto max-w-wrapper flex flex-col;
   /* Tablet + */
-  @apply md:flex md:items-center md:justify-between md:text-center;
+  @apply md:justify-between md:flex-row md:px-4;
 }
 
 .bottomNavLeft {
+  /* Base */
+  @apply order-2 grid grid-flow-row gap-3 text-center;
   /* Tablet + */
-  @apply md:flex md:items-center md:space-x-14;
+  @apply md:order-1 md:gap-4 md:text-left;
+}
+
+.bottomNavLeft > nav {
+  /* Base */
+  @apply text-base-textSecondary grid grid-flow-row justify-center text-center gap-3 mb-5;
+
+  /* Tablet + */
+  @apply md:gap-10 md:grid-flow-col md:mb-0;
 }
 
 .bottomNavLeftImage {
@@ -22,6 +36,8 @@
 }
 
 .bottomNavSpace {
+  /* Base */
+  @apply order-1 items-center flex flex-col border-b-2 border-b-base-border pb-5 mb-8;
   /* Tablet + */
-  @apply md:space-x-4;
+  @apply md:space-x-4 md:block md:flex-none md:items-start md:border-b-0 md:pb-0 md:mb-0;
 }
