@@ -10,7 +10,7 @@ import authService from '@/services/auth-service'
 import { validateCurrency } from '@/utils/auth-validation'
 import { setCookie } from '@/utils/cookies-web'
 
-export default function AppFooterLanguage() {
+export default function AppFooterCurrency() {
   const { t } = useTranslation()
   const { user, reloadProfile } = useAuth()
   const currency = useCurrency()
