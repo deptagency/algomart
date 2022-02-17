@@ -19,7 +19,7 @@ export default function AppFooterLanguage() {
   const [dropdownLanguage, setDropdownLanguage] = useState<string>(useLocale())
   const [loading, setLoading] = useState<boolean>(false)
 
-  const validate = useMemo(() => validateLanguage(t), [t])
+  const validate = useMemo(() => validateLanguage(), [])
 
   // callback to handle dropdown changes
   const handleDropdownLanguageChange = useCallback(
