@@ -3,6 +3,7 @@ import {
   AlgorandTransaction,
   AlgorandTransactionStatus,
   Collectible,
+  DEFAULT_CURRENCY,
   DEFAULT_LOCALE,
   IPFSStatus,
   Pack,
@@ -70,7 +71,7 @@ export const userAccountFactory = Factory.define<UserAccount>('UserAccount')
   .attr('externalId', () => v4())
   .attr('username', () => 'test')
   .attr('email', ['username'], (username) => `${username}@test.local`)
-  .attr('locale', () => DEFAULT_LOCALE)
+  .attr('currency', () => DEFAULT_CURRENCY)
 
 export const rarityFactory = Factory.define<DirectusRarity>('DirectusRarity')
   .sequence('id', () => v4())

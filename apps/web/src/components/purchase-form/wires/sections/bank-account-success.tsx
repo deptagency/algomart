@@ -12,6 +12,8 @@ import css from './bank-account-success.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
 import { isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 import { urls } from '@/utils/urls'
@@ -26,9 +28,11 @@ export default function BankAccountSuccess({
   release,
 }: BankAccountSuccessProps) {
   const { t, lang } = useTranslation()
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const router = useRouter()
   const price = bankAccountInstructions?.amount
-    ? formatIntToFloat(bankAccountInstructions.amount)
+    ? formatIntToFloat(bankAccountInstructions.amount, currency)
     : '0'
   const isActiveAuction =
     release?.type === PackType.Auction &&
@@ -131,7 +135,9 @@ export default function BankAccountSuccess({
         (release?.type === PackType.Purchase && (
           <div className={css.priceContainer}>
             <p className={css.priceLabel}>{t('release:Total')}</p>
-            <p className={css.priceValue}>{formatCurrency(price, lang)}</p>
+            <p className={css.priceValue}>
+              {formatCurrency(price, lang, currency, conversionRate)}
+            </p>
           </div>
         ))}
       <Button className={css.button} onClick={handleReturnToListing}>

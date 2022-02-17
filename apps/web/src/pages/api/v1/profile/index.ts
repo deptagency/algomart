@@ -22,10 +22,7 @@ handler.post(
   validateBodyMiddleware(validateUserRegistration),
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
     const body = request.validResult.value as BodyType
-    const locale =
-      body.locale ||
-      request.headers['accept-language']?.split(',')[0] ||
-      DEFAULT_LOCALE
+    const locale = body.locale || DEFAULT_LOCALE
 
     const user = await ApiClient.instance.getAccountByExternalId(
       request.token.uid
@@ -37,6 +34,7 @@ handler.post(
 
     try {
       await ApiClient.instance.createAccount({
+        currency: body.currency,
         email: body.email,
         externalId: request.token.uid,
         locale,

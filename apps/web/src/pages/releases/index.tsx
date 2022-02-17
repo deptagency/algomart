@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import { PackFilterProvider } from '@/contexts/pack-filter-context'
+import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { usePackFilter } from '@/hooks/use-pack-filter'
 import DefaultLayout from '@/layouts/default-layout'
@@ -21,14 +22,15 @@ export const RELEASES_PER_PAGE = 9
 export default function Releases({ packs }: PublishedPacks) {
   const { t } = useTranslation()
   const locale = useLocale()
+  const currency = useCurrency()
   const { dispatch, state } = usePackFilter()
   const pageTop = useRef<HTMLDivElement | null>(null)
 
   const queryString = useMemo(() => {
-    const query = getPublishedPacksFilterQueryFromState(locale, state)
+    const query = getPublishedPacksFilterQueryFromState(locale, state, currency)
     query.pageSize = RELEASES_PER_PAGE
     return getPublishedPacksFilterQuery(query)
-  }, [locale, state])
+  }, [locale, state, currency])
 
   const { data, isValidating } = useApi<PublishedPacks>(
     `${urls.api.v1.getPublishedPacks}?${queryString}`

@@ -8,6 +8,7 @@ export class UserAccountModel extends BaseModel {
   static tableName = 'UserAccount'
   static jsonSchema = UserAccountSchema
 
+  currency!: string
   username!: string
   email!: string
   locale!: string

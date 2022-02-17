@@ -34,6 +34,9 @@ import {
 } from '@algomart/schemas'
 import { raw, Transaction } from 'objection'
 
+import I18nService from '../i18n/i18n.service'
+
+import { Configuration } from '@/configuration'
 import DirectusAdapter, {
   DirectusStatus,
   ItemFilter,
@@ -119,6 +122,7 @@ export default class PacksService {
   constructor(
     private readonly cms: DirectusAdapter,
     private readonly collectibles: CollectiblesService,
+    private readonly i18nService: I18nService,
     private readonly notifications: NotificationsService,
     private readonly accounts: AccountsService
   ) {}
@@ -222,6 +226,7 @@ export default class PacksService {
   // #endregion
 
   async getPublishedPacks({
+    currency = Configuration.currency.code,
     locale = DEFAULT_LOCALE,
     page = 1,
     pageSize = 10,
@@ -274,6 +279,16 @@ export default class PacksService {
     const packWithActiveBidsLookup = new Map(
       packsWithActiveBids.map((p) => [p.templateId, p])
     )
+
+    if (currency !== Configuration.currency.code) {
+      const { exchangeRate } = await this.i18nService.getCurrencyConversion({
+        sourceCurrency: currency,
+        targetCurrency: Configuration.currency.code,
+      })
+
+      priceHigh *= exchangeRate
+      priceLow *= exchangeRate
+    }
 
     const filterPack = this.createPackFilterFn({
       priceHigh,

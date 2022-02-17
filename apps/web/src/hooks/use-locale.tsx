@@ -7,15 +7,12 @@ import { getCookie } from '@/utils/cookies-web'
 export function useLocale() {
   const router = useRouter()
   const auth = useAuth(false)
+  const cookie = getCookie(LOCALE_COOKIE)
+  const parsedCookie = cookie && cookie !== 'null' ? cookie : null
 
   // 1st cookie
   // 2nd user config
   // 3rd browser language / router locale
   // 4th english
-  return (
-    getCookie(LOCALE_COOKIE) ||
-    auth?.user?.locale ||
-    router?.locale ||
-    DEFAULT_LOCALE
-  )
+  return parsedCookie || auth?.user?.locale || router?.locale || DEFAULT_LOCALE
 }

@@ -31,7 +31,6 @@ import { Transaction } from 'objection'
 
 import { Configuration } from '@/configuration'
 import CircleAdapter from '@/lib/circle-adapter'
-import CoinbaseAdapter from '@/lib/coinbase-adapter'
 import { BidModel } from '@/models/bid.model'
 import { EventModel } from '@/models/event.model'
 import { PackModel } from '@/models/pack.model'
@@ -39,6 +38,7 @@ import { PaymentModel } from '@/models/payment.model'
 import { PaymentBankAccountModel } from '@/models/payment-bank-account.model'
 import { PaymentCardModel } from '@/models/payment-card.model'
 import { UserAccountModel } from '@/models/user-account.model'
+import I18nService from '@/modules/i18n/i18n.service'
 import NotificationService from '@/modules/notifications/notifications.service'
 import PacksService from '@/modules/packs/packs.service'
 import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
@@ -56,7 +56,7 @@ export default class PaymentsService {
 
   constructor(
     private readonly circle: CircleAdapter,
-    private readonly coinbase: CoinbaseAdapter,
+    private readonly i18nService: I18nService,
     private readonly notifications: NotificationService,
     private readonly packs: PacksService
   ) {}
@@ -482,13 +482,16 @@ export default class PaymentsService {
     }
 
     // Retrieve exchange rates for app currency and USD
-    const exchangeRates = await this.coinbase.getExchangeRates({
-      currency: currency.code,
-    })
-    invariant(exchangeRates, 'unable to find exchange rates')
+    const currencyConversions = await this.i18nService.getCurrencyConversions(
+      {
+        sourceCurrency: currency.code,
+      },
+      trx
+    )
+    invariant(currencyConversions, 'unable to find exchange rates')
 
     // Convert price to USD for payment
-    const amount = convertToUSD(price, exchangeRates.rates)
+    const amount = convertToUSD(price, currencyConversions)
     invariant(amount !== null, 'unable to convert to currency')
 
     // Claim pack ASAP to ensure it's not claimed by someone else during this flow.
@@ -647,13 +650,16 @@ export default class PaymentsService {
     userInvariant(transfer, 'transfer not found', 404)
 
     // Retrieve exchange rates for app currency and USD
-    const exchangeRates = await this.coinbase.getExchangeRates({
-      currency: currency.code,
-    })
-    invariant(exchangeRates, 'unable to find exchange rates')
+    const currencyConversions = await this.i18nService.getCurrencyConversions(
+      {
+        sourceCurrency: currency.code,
+      },
+      trx
+    )
+    invariant(currencyConversions, 'unable to find exchange rates')
 
     // Convert from USD to native currency integer
-    const amount = convertFromUSD(transfer.amount, exchangeRates.rates)
+    const amount = convertFromUSD(transfer.amount, currencyConversions)
     invariant(amount !== null, 'unable to convert to currency')
     const amountInt = formatFloatToInt(amount)
 
@@ -710,10 +716,13 @@ export default class PaymentsService {
     if (!payments) return null
 
     // Retrieve exchange rates for app currency and USD
-    const exchangeRates = await this.coinbase.getExchangeRates({
-      currency: currency.code,
-    })
-    invariant(exchangeRates, 'unable to find exchange rates')
+    const currencyConversions = await this.i18nService.getCurrencyConversions(
+      {
+        sourceCurrency: currency.code,
+      },
+      trx
+    )
+    invariant(currencyConversions, 'unable to find exchange rates')
 
     // Find bank account in database
     const foundBankAccount = await PaymentBankAccountModel.query().findById(
@@ -724,7 +733,7 @@ export default class PaymentsService {
     // Find payment with matching source ID
     const sourcePayment = payments.find((currentPayment) => {
       // Convert price to USD for payment
-      const amount = convertFromUSD(currentPayment.amount, exchangeRates.rates)
+      const amount = convertFromUSD(currentPayment.amount, currencyConversions)
       invariant(amount !== null, 'unable to convert to currency')
       const amountInt = formatFloatToInt(amount)
       return amountInt === foundBankAccount.amount

@@ -9,6 +9,7 @@ import handlePackAuctionCompletionTask from './handle-pack-auction-completion.ta
 import handlePackAuctionExpirationTask from './handle-pack-auction-expiration.task'
 import mintCollectiblesTask from './mint-collectibles.task'
 import storeCollectiblesTask from './store-collectibles.task'
+import updateCurrencyConversions from './update-currency-conversions.task'
 import { updatePaymentBankStatusesTask } from './update-payment-bank-statuses.task'
 import { updatePaymentCardStatusesTask } from './update-payment-card-statuses.task'
 import { updatePaymentStatusesTask } from './update-payment-statuses.task'
@@ -137,6 +138,19 @@ export function configureTasks(app: FastifyInstance) {
       new AsyncTask(
         'check-pending-payments',
         async () => await updatePaymentStatusesTask(app.container),
+        (error) => app.log.error(error)
+      )
+    )
+  )
+  //#endregion
+
+  //#region Currency Rates
+  app.scheduler.addSimpleIntervalJob(
+    new SimpleIntervalJob(
+      { hours: 1 },
+      new AsyncTask(
+        'update-currency-conversions',
+        async () => await updateCurrencyConversions(app.container),
         (error) => app.log.error(error)
       )
     )

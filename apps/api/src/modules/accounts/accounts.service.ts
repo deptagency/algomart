@@ -35,6 +35,7 @@ export default class AccountsService {
 
     // 3. save account with encrypted mnemonic
     await UserAccountModel.query(trx).insertGraph({
+      currency: request.currency,
       username: request.username,
       email: request.email,
       locale: request.locale,
@@ -113,16 +114,18 @@ export default class AccountsService {
       showProfile,
       username,
       locale,
+      currency,
     }: UpdateUserAccount & ExternalId,
     trx?: Transaction
   ) {
     const result = await UserAccountModel.query(trx)
       .where({ externalId })
       .patch({
+        currency,
         email,
+        locale,
         showProfile,
         username,
-        locale,
       })
     userInvariant(result === 1, 'user account not found', 404)
   }
@@ -136,6 +139,7 @@ export default class AccountsService {
 
     return {
       address: userAccount.algorandAccount.address,
+      currency: userAccount.currency,
       externalId: userAccount.externalId,
       username: userAccount.username,
       email: userAccount.email,
