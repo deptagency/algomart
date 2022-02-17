@@ -101,11 +101,35 @@ async function main(args) {
   try {
     await createEntityRecords(
       'languages',
-      [{ code: 'en-US', name: 'English' }],
+      [
+        { code: 'en-US', name: 'English' },
+        { code: 'fr-FR', name: 'French' },
+        { code: 'es-ES', name: 'Spanish' }
+      ],
       token
     )
   } catch (err) {
     console.log('Language already exists.')
+  }
+
+  try {
+    await createEntityRecords(
+      'languages_translations',
+      [
+        { language_id: 'en-US', languages_code: 'en-US', label: 'English' },
+        { language_id: 'en-US', languages_code: 'fr-FR', label: 'FR English' },
+        { language_id: 'en-US', languages_code: 'es-ES', label: 'ES English' },
+        { language_id: 'fr-FR', languages_code: 'en-US', label: 'French' },
+        { language_id: 'fr-FR', languages_code: 'fr-FR', label: 'FR French' },
+        { language_id: 'fr-FR', languages_code: 'es-ES', label: 'ES French' },
+        { language_id: 'es-ES', languages_code: 'en-US', label: 'Spanish' },
+        { language_id: 'es-ES', languages_code: 'fr-FR', label: 'FR Spanish' },
+        { language_id: 'es-ES', languages_code: 'es-ES', label: 'ES Spanish' }
+      ],
+      token
+    )
+  } catch (err) {
+    console.log('Language translations already exist')
   }
 
   /**
