@@ -37,7 +37,9 @@ export default function ReleaseFilterPrice() {
   return (
     <div className={css.root}>
       <div className={clsx(css.filterRow, css.filterHeader)}>
-        <Heading level={2}>{t('release:filters.Price Range')}</Heading>
+        <Heading level={2} inheritColor className="uppercase">
+          {t('release:filters.Price Range')}
+        </Heading>
         <div className={css.badge}>{DEFAULT_CURRENCY}</div>
       </div>
       <div className={css.filterRow}>

@@ -1,8 +1,8 @@
 .rootPanel {
   /* Base */
-  @apply py-8 mx-auto mb-8 bg-base-bgPanel max-w-700;
+  @apply mx-auto mb-8 max-w-700;
   /* Tablet + */
-  @apply md:mt-6 md:py-16 md:rounded-lg;
+  @apply md:mt-6;
 }
 
 .rootNoPanel {

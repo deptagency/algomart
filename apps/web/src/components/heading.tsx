@@ -26,10 +26,10 @@ export default function Heading({
       className: clsx(
         {
           'text-base-textSecondary': !inheritColor,
-          'font-bold text-2xl': size === 1,
-          'text-xl': size === 2,
-          'text-lg': size === 3,
-          'text-md': size === 4,
+          'font-bold text-3xl': size === 1,
+          'text-2xl': size === 2,
+          'text-xl': size === 3,
+          'text-lg': size === 4,
           'font-bold': bold,
         },
         className
