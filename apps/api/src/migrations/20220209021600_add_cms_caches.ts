@@ -41,7 +41,6 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.schema.createTable('CmsCacheHomepage', (table) => {
     table.uuid('id').primary()
-    table.string('slug').notNullable()
     table.jsonb('content').defaultTo('{}').notNullable()
   })
 

@@ -12,7 +12,6 @@ import {
   SetBase,
   SetWithCollection,
 } from '@algomart/schemas'
-import { json } from 'node:stream/consumers'
 import { URL, URLSearchParams } from 'node:url'
 
 import { CMSCacheCollectibleTemplateModel } from '@/models/cms-cache-collectible-template.model'
