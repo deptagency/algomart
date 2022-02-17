@@ -7,47 +7,60 @@ export async function up(knex: Knex): Promise<void> {
     table.string('type').notNullable()
     table.dateTime('releasedAt')
     table.jsonb('content').notNullable()
+    table.timestamp('createdAt').defaultTo(knex.fn.now()).notNullable()
+    table.timestamp('updatedAt').defaultTo(knex.fn.now()).notNullable()
   })
 
   await knex.schema.createTable('CmsCacheCollectibleTemplates', (table) => {
     table.uuid('id').primary()
-    table.string('slug').notNullable()
     table.jsonb('content').defaultTo('{}').notNullable()
+    table.timestamp('createdAt').defaultTo(knex.fn.now()).notNullable()
+    table.timestamp('updatedAt').defaultTo(knex.fn.now()).notNullable()
   })
 
   await knex.schema.createTable('CmsCacheCollections', (table) => {
     table.uuid('id').primary()
     table.string('slug').notNullable()
     table.jsonb('content').defaultTo('{}').notNullable()
+    table.timestamp('createdAt').defaultTo(knex.fn.now()).notNullable()
+    table.timestamp('updatedAt').defaultTo(knex.fn.now()).notNullable()
   })
 
   await knex.schema.createTable('CmsCacheSets', (table) => {
     table.uuid('id').primary()
     table.string('slug').notNullable()
     table.jsonb('content').defaultTo('{}').notNullable()
+    table.timestamp('createdAt').defaultTo(knex.fn.now()).notNullable()
+    table.timestamp('updatedAt').defaultTo(knex.fn.now()).notNullable()
   })
 
   await knex.schema.createTable('CmsCachePages', (table) => {
     table.uuid('id').primary()
     table.string('slug').notNullable()
     table.jsonb('content').defaultTo('{}').notNullable()
+    table.timestamp('createdAt').defaultTo(knex.fn.now()).notNullable()
+    table.timestamp('updatedAt').defaultTo(knex.fn.now()).notNullable()
   })
 
   await knex.schema.createTable('CmsCacheFaqs', (table) => {
     table.uuid('id').primary()
-    table.string('slug').notNullable()
     table.jsonb('content').defaultTo('{}').notNullable()
+    table.timestamp('createdAt').defaultTo(knex.fn.now()).notNullable()
+    table.timestamp('updatedAt').defaultTo(knex.fn.now()).notNullable()
   })
 
   await knex.schema.createTable('CmsCacheHomepage', (table) => {
     table.uuid('id').primary()
     table.jsonb('content').defaultTo('{}').notNullable()
+    table.timestamp('createdAt').defaultTo(knex.fn.now()).notNullable()
+    table.timestamp('updatedAt').defaultTo(knex.fn.now()).notNullable()
   })
 
   await knex.schema.createTable('CmsCacheLanguages', (table) => {
-    table.uuid('id').primary()
-    table.string('slug').notNullable()
+    table.string('code').primary()
     table.jsonb('content').defaultTo('{}').notNullable()
+    table.timestamp('createdAt').defaultTo(knex.fn.now()).notNullable()
+    table.timestamp('updatedAt').defaultTo(knex.fn.now()).notNullable()
   })
 }
 

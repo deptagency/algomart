@@ -1,9 +1,14 @@
-import { BaseModel } from './base.model'
+import { Model } from 'objection'
 
-export class CMSCacheLanguageModel extends BaseModel {
-  static tableName = 'CmsCacheLanguage'
+export class CMSCacheLanguageModel extends Model {
+  static tableName = 'CmsCacheLanguages'
 
-  id!: string
-  slug!: string
+  code!: string
   content!: string
+  createdAt!: string
+  updatedAt!: string
+
+  $beforeUpdate() {
+    this.updatedAt = new Date().toISOString()
+  }
 }

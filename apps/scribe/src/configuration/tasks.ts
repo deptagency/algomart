@@ -156,6 +156,17 @@ export function configureTasks(
       )
     )
   )
+
+  app.scheduler.addIntervalJob(
+    new SimpleIntervalJob(
+      { minutes: 60, runImmediately: true },
+      new AsyncTask(
+        'sync-cms-cache',
+        async () => await syncCmsCache(app.container),
+        (error) => app.log.error(error)
+      )
+    )
+  )
   //#endregion
 
   //#region Currency Rates
