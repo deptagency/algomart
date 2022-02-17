@@ -1,6 +1,6 @@
 import Knex from 'knex'
 
-import config from './configuration/knex-config'
+import { buildKnexMainConfiguration } from './configuration/knex-config'
 
 type KnexMigrationCommand =
   | 'up'
@@ -13,7 +13,7 @@ type KnexMigrationCommand =
   | 'currentVersion'
 
 async function main(argv: string[]) {
-  const knex = Knex(config())
+  const knex = Knex(buildKnexMainConfiguration())
 
   try {
     const command = argv[2] as KnexMigrationCommand

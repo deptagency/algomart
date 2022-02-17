@@ -25,7 +25,8 @@ import fastifyTransaction from '@/plugins/transaction.plugin'
 import DependencyResolver from '@/shared/dependency-resolver'
 
 export interface AppConfig {
-  knex: Knex.Config
+  knexMain: Knex.Config
+  knexRead: Knex.Config
   fastify?: FastifyServerOptions
   container: DependencyResolver
 }
@@ -64,7 +65,8 @@ export default async function buildApp(config: AppConfig) {
   await app.register(fastifySensible)
 
   // Our Plugins
-  await app.register(fastifyKnex, { knex: config.knex })
+  await app.register(fastifyKnex, { knex: config.knexMain, name: 'knexMain' })
+  await app.register(fastifyKnex, { knex: config.knexRead, name: 'knexRead' })
   await app.register(fastifyContainer, { container: config.container })
   await app.register(fastifyTransaction)
 

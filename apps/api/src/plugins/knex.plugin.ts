@@ -11,20 +11,23 @@ declare module 'fastify' {
 
 export interface FastifyKnexOptions extends FastifyPluginOptions {
   knex: Knex.Config
+  name: string
 }
 
 export default fp(async function fastifyKnex(
   fastify: FastifyInstance,
   options: FastifyKnexOptions
 ) {
-  if (!fastify.knex) {
+  const name = options?.name || 'knex'
+
+  if (!fastify[name]) {
     const knexInstance = knex(options.knex)
 
     // Required to configure objection.js
     Model.knex(knexInstance)
 
     // Make knex available on the fastify instance
-    fastify.decorate('knex', knexInstance)
+    fastify.decorate(name, knexInstance)
 
     // Close connection when app shuts down
     fastify.addHook('onClose', async () => {
