@@ -96,8 +96,9 @@ export default function HomeTemplate({
           {featuredPack.body ? (
             <div className={css.featuredBody}>
               <Markdown options={{ forceBlock: true }}>
-                {featuredPack.body}
+                {featuredPack.body.slice(0, 500)}
               </Markdown>
+              <div className={css.mask} />
             </div>
           ) : null}
 

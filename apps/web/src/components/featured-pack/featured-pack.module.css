@@ -21,6 +21,11 @@
   /* Tablet */
   @apply sm:flex sm:flex-row;
 }
+@media (min-width: 768px) {
+  .featuredColumns {
+    height: calc(min(100vw, 1100px) * 3 / 5);
+  }
+}
 
 .featuredImage {
   /* Tablet */
@@ -40,11 +45,7 @@
 
 .featuredBody {
   /* Base */
-  @apply flex-1 overflow-hidden text-base-textPrimary line-clamp-6;
-  -webkit-line-clamp: 13;
-}
-h3 + .featuredBody {
-  -webkit-line-clamp: 11;
+  @apply relative flex-1 overflow-hidden text-base-textPrimary sm:hidden md:block;
 }
 .featuredBody p {
   @apply mb-3;
@@ -92,4 +93,8 @@ h3 + .featuredBody {
 .featuredPrice {
   /* Base */
   @apply mt-4 font-bold text-center text-base-textPrimary;
+}
+
+.mask {
+  @apply absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t to-transparent from-base-bgCard;
 }
