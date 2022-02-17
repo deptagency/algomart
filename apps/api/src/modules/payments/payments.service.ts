@@ -513,7 +513,6 @@ export default class PaymentsService {
   }
 
   async createPayment(paymentDetails: CreatePayment, trx?: Transaction) {
-    console.log('paymentDetails', paymentDetails)
     const user = await UserAccountModel.query(trx)
       .where('externalId', paymentDetails.payerExternalId)
       .first()
@@ -589,7 +588,6 @@ export default class PaymentsService {
         this.logger.error(error, 'failed to create 3DS payment')
         return null
       })
-    console.log('payment:', payment)
 
     if (!payment) {
       // Remove claim from payment if payment doesn't go through
@@ -617,7 +615,6 @@ export default class PaymentsService {
       })
       .onConflict('externalId')
       .ignore()
-    console.log('new payment', newPayment)
     invariant(newPayment, 'unable to create payment in database')
 
     // Search for payment status to confirm check is complete
@@ -629,7 +626,6 @@ export default class PaymentsService {
       completeWhenNotPendingForPayments,
       1000
     )
-    console.log('foundPayment', foundPayment)
     invariant(foundPayment, 'unable to find payment')
 
     // For failed status, try cvv payment verification
@@ -645,7 +641,6 @@ export default class PaymentsService {
           this.logger.error(error, 'failed to create cvv payment')
           return null
         })
-      console.log('cvvPayment', cvvPayment)
 
       if (!cvvPayment) {
         // Remove claim from payment if payment doesn't go through
@@ -669,7 +664,6 @@ export default class PaymentsService {
           status: cvvPayment.status,
           error: cvvPayment.error,
         })
-      console.log('updatedPayment', updatedPayment)
 
       return updatedPayment
     }

@@ -270,14 +270,6 @@ export function usePaymentProvider({
         throw new Error('Payment failed')
       }
 
-      if (
-        paymentResponse.status === PaymentStatus.ActionRequired &&
-        paymentResponse.action
-      ) {
-        window.location.assign(paymentResponse.action)
-        return null
-      }
-
       return paymentResponse
     },
     [release, t]
@@ -529,6 +521,7 @@ export function usePaymentProvider({
 
   const handleSubmitBid = useCallback(
     async (data: FormData, method: CheckoutMethod) => {
+      setPromptLeaving(true)
       setStatus(CheckoutStatus.loading)
       try {
         if (!auctionPackId) {
@@ -609,6 +602,7 @@ export function usePaymentProvider({
         setStatus(CheckoutStatus.error)
       }
 
+      setPromptLeaving(false)
       setLoadingText('')
     },
     [
@@ -624,6 +618,7 @@ export function usePaymentProvider({
 
   const handleSubmitPurchase = useCallback(
     async (data: FormData, isPurchase: boolean) => {
+      setPromptLeaving(true)
       setStatus(CheckoutStatus.loading)
       setLoadingText(t('common:statuses.Validating Payment Information'))
       try {
@@ -670,18 +665,23 @@ export function usePaymentProvider({
             publicKeyRecord
           )
 
+          // Check if the payment requires further action
+          if (
+            payment.status === PaymentStatus.ActionRequired &&
+            payment.action
+          ) {
+            // Do not prompt user to leave page, since redirect is expected
+            setPromptLeaving(false)
+            setStatus(CheckoutStatus.success)
+            return window.location.assign(payment.action)
+          }
+
           // Throw error if failed request
           if (!payment || !payment.packId) throw new Error('Pack not available')
 
           setPackId(payment.packId)
           setStatus(CheckoutStatus.success)
-          if (release) {
-            Analytics.instance.purchase({
-              itemName: release.title,
-              value: release.price,
-              paymentId: payment.id,
-            })
-          }
+          return
         } else {
           setStatus(CheckoutStatus.success)
           return
@@ -691,13 +691,13 @@ export function usePaymentProvider({
       }
 
       setLoadingText('')
+      setPromptLeaving(false)
       return
     },
     [
       handleAddCard,
       handlePurchase,
       handleSetStatus,
-      release,
       t,
       validateFormForPurchase,
       validateFormForPurchaseWithSavedCard,

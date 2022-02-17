@@ -135,7 +135,6 @@ function toPaymentStatus(
 function toPaymentBase(
   response: CirclePaymentResponse | CircleTransfer
 ): ToPaymentBase {
-  console.log('toPaymentBase response:', response)
   return {
     externalId: response.id,
     amount: response.amount.amount,
@@ -247,13 +246,11 @@ export default class CircleAdapter {
   async createPayment(
     request: CircleCreatePayment
   ): Promise<ToPaymentBase | null> {
-    console.log('createPayment request:', request)
     const response = await this.http
       .post('v1/payments', {
         json: request,
       })
       .json<CircleResponse<CirclePaymentResponse>>()
-    console.log('createPayment response:', response)
 
     if (isCircleSuccessResponse(response)) {
       return toPaymentBase(response.data)

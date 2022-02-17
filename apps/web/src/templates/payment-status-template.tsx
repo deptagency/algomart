@@ -13,7 +13,6 @@ export default function PaymentStatusTemplate({
   payment,
   status,
 }: StatusPageProps) {
-  console.log('PaymentStatusTemplate payment', payment)
   const { t } = useTranslation()
   const { user } = useAuth()
   const { push } = useRouter()
@@ -22,6 +21,13 @@ export default function PaymentStatusTemplate({
     push(urls.releases)
   }, [push])
 
+  const handlePackOpening = useCallback((packId: string) => {
+    const path = urls.packOpening.replace(':packId', packId)
+    if (typeof window !== 'undefined') {
+      window.location.assign(new URL(path, window.location.origin).href)
+    }
+  }, [])
+
   if (!user?.emailVerified) {
     return <EmailVerification inline />
   }
@@ -29,8 +35,18 @@ export default function PaymentStatusTemplate({
     <>
       {status === Status.success && (
         <Success
-          buttonText={t('common:actions.View My Collection')}
-          handleClick={() => push(urls.myCollection)}
+          buttonText={
+            payment.packId
+              ? t('common:actions.Open Pack')
+              : t('common:actions.View My Collection')
+          }
+          handleClick={() => {
+            if (payment.packId) {
+              handlePackOpening(payment.packId)
+            } else {
+              push(urls.myCollection)
+            }
+          }}
           headingClassName="mb-16"
           headingText={t('common:statuses.Success!')}
         />

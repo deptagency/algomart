@@ -22,7 +22,6 @@ export interface StatusPageProps {
 }
 
 export default function ResolvedPayment({ payment, status }: StatusPageProps) {
-  console.log('ResolvedPayment payment:', payment)
   const { t } = useTranslation()
   return (
     <DefaultLayout
@@ -83,11 +82,16 @@ export const getServerSideProps: GetServerSideProps<StatusPageProps> = async (
   }
 
   // Confirm the payment is in the correct status
+  const acceptableSuccessStatuses = new Set([
+    PaymentStatus.Confirmed,
+    PaymentStatus.ActionRequired,
+    PaymentStatus.Paid,
+  ])
+  const acceptableFailedStatuses = new Set([PaymentStatus.Failed])
   if (
     (status === Status.success &&
-      payment.status !== PaymentStatus.Confirmed &&
-      payment.status !== PaymentStatus.Paid) ||
-    (status === Status.failure && payment.status === PaymentStatus.Paid)
+      !acceptableSuccessStatuses.has(payment.status)) ||
+    (status === Status.failure && !acceptableFailedStatuses.has(payment.status))
   ) {
     return {
       redirect: {
