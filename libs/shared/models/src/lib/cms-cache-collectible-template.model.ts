@@ -1,9 +1,14 @@
-import { BaseModel } from './base.model'
+import { Model } from 'objection'
 
-export class CMSCacheCollectibleTemplateModel extends BaseModel {
+export class CMSCacheCollectibleTemplateModel extends Model {
   static tableName = 'CmsCacheCollectibleTemplates'
 
   id!: string
-  slug!: string
   content!: string
+  createdAt!: string
+  updatedAt!: string
+
+  $beforeUpdate() {
+    this.updatedAt = new Date().toISOString()
+  }
 }

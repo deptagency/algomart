@@ -1,9 +1,14 @@
-import { BaseModel } from './base.model'
+import { Model } from 'objection'
 
-export class CMSCacheFaqModel extends BaseModel {
+export class CMSCacheFaqModel extends Model {
   static tableName = 'CmsCacheFaqs'
 
   id!: string
-  slug!: string
   content!: string
+  createdAt!: string
+  updatedAt!: string
+
+  $beforeUpdate() {
+    this.updatedAt = new Date().toISOString()
+  }
 }

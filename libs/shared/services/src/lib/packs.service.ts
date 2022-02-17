@@ -8,6 +8,7 @@ import {
   ClaimRedeemPack,
   CollectibleWithDetails,
   DEFAULT_LOCALE,
+  DirectusStatus,
   EventAction,
   EventEntityType,
   IPFSStatus,
@@ -42,7 +43,6 @@ import I18nService from './i18n.service'
 
 import {
   CMSCacheAdapter,
-  DirectusStatus,
   ItemFilter,
 } from '@algomart/shared/adapters'
 
