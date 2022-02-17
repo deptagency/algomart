@@ -12,6 +12,7 @@ import css from './release-template.module.css'
 
 import Alert from '@/components/alert/alert'
 import AlertMessage from '@/components/alert-message/alert-message'
+import BidActivity from '@/components/bid-activity/bid-activity'
 import MediaGallery from '@/components/media-gallery/media-gallery'
 import ClaimNFTModal from '@/components/modals/claim-nft-modal'
 import ReleaseDetails from '@/components/release-details/release-details'
@@ -164,18 +165,30 @@ export default function ReleaseTemplate({
         />
 
         {/* Release Details */}
-        <section>
-          <ReleaseDetails
-            avatars={avatars}
-            disallowBuyOrClaim={disallowBuyOrClaim}
-            isOwner={isOwner}
-            isWinningBidder={isWinningBidder}
-            onCheckout={handleClaimNFTFlow}
-            packAuction={packAuction}
-            packTemplate={packTemplate}
-          />
-        </section>
+        <ReleaseDetails
+          disallowBuyOrClaim={disallowBuyOrClaim}
+          isOwner={isOwner}
+          isWinningBidder={isWinningBidder}
+          onCheckout={handleClaimNFTFlow}
+          packAuction={packAuction}
+          packTemplate={packTemplate}
+        />
       </div>
+
+      {/* Bidding activity */}
+      {packTemplate.status === PackStatus.Active &&
+        packTemplate.type === PackType.Auction &&
+        packTemplate.auctionUntil &&
+        packTemplate.releasedAt && (
+          <BidActivity
+            avatars={avatars}
+            auctionUntil={packTemplate.auctionUntil}
+            releasedAt={packTemplate.releasedAt}
+            bids={packAuction?.bids || []}
+            reservePrice={packTemplate.price}
+            winningBidUserName={packAuction?.activeBid?.username || null}
+          />
+        )}
 
       {/* Modal */}
       <ClaimNFTModal

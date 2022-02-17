@@ -12,11 +12,9 @@ import ReleaseMetadata from './sections/release-metadata'
 
 import css from './release-details.module.css'
 
-import BidActivity from '@/components/bid-activity/bid-activity'
 import { urls } from '@/utils/urls'
 
 export interface ReleaseDetailsProps {
-  avatars: { [key: string]: string | null }
   disallowBuyOrClaim: boolean | null
   isOwner: boolean | null
   isWinningBidder: boolean | null
@@ -26,7 +24,6 @@ export interface ReleaseDetailsProps {
 }
 
 export default function ReleaseDetails({
-  avatars,
   disallowBuyOrClaim,
   isOwner,
   isWinningBidder,
@@ -68,21 +65,6 @@ export default function ReleaseDetails({
       {packTemplate.body && (
         <ReleaseDescription description={packTemplate.body} />
       )}
-
-      {/* Bidding activity */}
-      {packTemplate.status === PackStatus.Active &&
-        packTemplate.type === PackType.Auction &&
-        packTemplate.auctionUntil &&
-        packTemplate.releasedAt && (
-          <BidActivity
-            avatars={avatars}
-            auctionUntil={packTemplate.auctionUntil}
-            releasedAt={packTemplate.releasedAt}
-            bids={packAuction?.bids || []}
-            reservePrice={packTemplate.price}
-            winningBidUserName={packAuction?.activeBid?.username || null}
-          />
-        )}
     </section>
   )
 }
