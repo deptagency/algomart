@@ -1,4 +1,4 @@
-import { Payment } from '@algomart/schemas'
+import { Payment, PaymentStatus } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
 
@@ -9,6 +9,7 @@ import {
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
 import PaymentStatusTemplate from '@/templates/payment-status-template'
+import { urls } from '@/utils/urls'
 
 export enum Status {
   success = 'success',
@@ -41,8 +42,7 @@ export const getServerSideProps: GetServerSideProps<StatusPageProps> = async (
   context
 ) => {
   const { status } = context.params
-
-  // Payment ID is required
+  // Status is required
   if (
     !status ||
     typeof status !== 'string' ||
@@ -81,10 +81,29 @@ export const getServerSideProps: GetServerSideProps<StatusPageProps> = async (
       notFound: true,
     }
   }
+
+  // Confirm the payment is in the correct status
+  if (
+    (status === Status.success &&
+      payment.status !== PaymentStatus.Confirmed &&
+      payment.status !== PaymentStatus.Paid) ||
+    (status === Status.failure && payment.status === PaymentStatus.Paid)
+  ) {
+    return {
+      redirect: {
+        destination: urls.releases,
+        permanent: false,
+      },
+    }
+  }
+
   // Confirm logged-in user is owner of pack
   if (payment?.payer?.externalId !== user.externalId) {
     return {
-      notFound: true,
+      redirect: {
+        destination: urls.releases,
+        permanent: false,
+      },
     }
   }
 
