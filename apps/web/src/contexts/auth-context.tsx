@@ -24,7 +24,6 @@ import {
   useReducer,
 } from 'react'
 
-import { Analytics } from '@/clients/firebase-analytics'
 import loadFirebase from '@/clients/firebase-client'
 import { useLocale } from '@/hooks/use-locale'
 import {
@@ -375,7 +374,6 @@ export function useAuthProvider() {
           ? 'email'
           : 'google'
       dispatch(authActions.setMethod(method))
-      Analytics.instance.login(method)
     })
     return () => {
       unsubscribe()
