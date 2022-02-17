@@ -1,5 +1,5 @@
 .mediaGalleryWrapper {
-  @apply w-full;
+  @apply w-full bg-base-bgCard;
 }
 
 .selectedImageWrapper {
