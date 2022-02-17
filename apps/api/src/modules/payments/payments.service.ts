@@ -14,7 +14,6 @@ import {
   NotificationType,
   OwnerExternalId,
   PackType,
-  Payment,
   PaymentBankAccountStatus,
   PaymentCardStatus,
   PaymentQuerystring,
@@ -31,7 +30,6 @@ import {
   WirePayment,
 } from '@algomart/schemas'
 import { enc, SHA256 } from 'crypto-js'
-import { URL } from 'node:url'
 import { Transaction } from 'objection'
 
 import { Configuration } from '@/configuration'
@@ -814,7 +812,54 @@ export default class PaymentsService {
         externalId: sourcePayment.externalId,
         status: sourcePayment.status,
       })
+      // Send Awaiting payment notification to customer service
+      if (Configuration.customerServiceEmail) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSAwaitingWirePayment,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      }
     }
+
+    // Send email notification to  Customer service
+    if (Configuration.customerServiceEmail) {
+      if (sourcePayment.status === PaymentStatus.Failed) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentFailed,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      } else if (sourcePayment.status === PaymentStatus.Paid) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentSuccess,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      }
+    }
+
     return sourcePayment
   }
 
@@ -885,6 +930,7 @@ export default class PaymentsService {
   ) {
     const payment = await PaymentModel.query(trx).findById(paymentId)
     userInvariant(payment, 'payment not found', 404)
+
     // Update payment with new details
     await PaymentModel.query(trx).findById(paymentId).patch(updatedDetails)
 
@@ -893,6 +939,7 @@ export default class PaymentsService {
       entityType: EventEntityType.Payment,
       entityId: paymentId,
     })
+
     return payment
   }
 
@@ -1005,6 +1052,7 @@ export default class PaymentsService {
     await Promise.all(
       pendingPayments.map(async (payment) => {
         let status: PaymentStatus | undefined
+
         // Card flow
         if (payment.externalId && payment.paymentCardId) {
           const circlePayment = await this.circle.getPaymentById(
@@ -1050,15 +1098,35 @@ export default class PaymentsService {
             updatedPayments++
           }
         }
+
         // If the new payment status is resolved as Paid:
         if (status === PaymentStatus.Paid && payment.packId) {
-          // @TODO: Take action if payment is successful
+          const packTemplate = await this.packs.getPackById(payment.packId)
+          await this.notifications.createNotification(
+            {
+              type: NotificationType.PaymentSuccess,
+              userAccountId: payment.payerId,
+              variables: {
+                packTitle: packTemplate.title,
+              },
+            },
+            trx
+          )
         }
         // If the new payment status is resolved as Failed:
         if (status === PaymentStatus.Failed) {
-          // @TODO: Take action if payment fails
+          const packTemplate = await this.packs.getPackById(payment.packId)
+          await this.notifications.createNotification(
+            {
+              type: NotificationType.PaymentFailed,
+              userAccountId: payment.payerId,
+              variables: {
+                packTitle: packTemplate.title,
+              },
+            },
+            trx
+          )
         }
-        return
       })
     )
 
