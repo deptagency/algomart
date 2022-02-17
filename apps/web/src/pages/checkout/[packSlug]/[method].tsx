@@ -13,7 +13,6 @@ import { useEffect } from 'react'
 import { v4 as uuid } from 'uuid'
 
 import { ApiClient } from '@/clients/api-client'
-import { Analytics } from '@/clients/firebase-analytics'
 import { usePaymentProvider } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
 import DefaultLayout from '@/layouts/default-layout'
@@ -61,13 +60,6 @@ export default function CheckoutMethodPage({
       setStatus(status)
     }
   }, [query.step, setStatus])
-
-  useEffect(() => {
-    Analytics.instance.beginCheckout({
-      itemName: release.title,
-      value: currentBid ?? release.price,
-    })
-  }, [currentBid, release])
 
   return (
     <DefaultLayout

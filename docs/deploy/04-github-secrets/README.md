@@ -133,10 +133,10 @@ like the database or storage bucket, etc.
 ## Optional
 
 Terraform has a number of
-[default variables](../../../terraform/variables.tf)
+[default variables](../../../terraform/envs/dev/variables.tf)
 that can be overridden at deploy time.
 See the
-[complete list](../../../terraform/README.md#input-variables)
+[complete list](../../../terraform/envs/dev/README.md#input-variables)
 of all input variables and descriptions,
 including which are optional, for further information.
 You may note that some of the required variables did not need corresponding

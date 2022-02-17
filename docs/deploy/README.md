@@ -1,7 +1,7 @@
 # Deploying
 
 The default Google Cloud Platform (GCP) infrastructural resources are managed with
-[Terraform](../../terraform/README.md),
+[Terraform](../../terraform/envs/dev/README.md),
 which can be automated via a
 [Github Actions workflow](../../.github/workflows/deploy.yml).
 
