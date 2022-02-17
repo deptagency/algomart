@@ -38,14 +38,13 @@
   @apply md:p-8;
 }
 
-.featuredHeading {
-  @apply text-2xl;
-}
-
 .featuredBody {
   /* Base */
   @apply flex-1 overflow-hidden text-base-textPrimary line-clamp-6;
   -webkit-line-clamp: 13;
+}
+h3 + .featuredBody {
+  -webkit-line-clamp: 11;
 }
 .featuredBody p {
   @apply mb-3;
@@ -62,7 +61,7 @@
 }
 
 .featuredControls {
-  @apply pt-6;
+  @apply mt-6;
 }
 
 /* Auction metadata */

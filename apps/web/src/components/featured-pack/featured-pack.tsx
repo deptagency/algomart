@@ -83,9 +83,16 @@ export default function HomeTemplate({
 
         {/* Content */}
         <div className={css.featuredContent}>
-          <Heading className={css.featuredHeading} level={2} bold>
+          <Heading size={1} level={2} bold>
             {featuredPack.title}
           </Heading>
+
+          {featuredPack.subtitle ? (
+            <Heading className={css.subtitle} level={3} size={4}>
+              {featuredPack.subtitle}
+            </Heading>
+          ) : null}
+
           {featuredPack.body ? (
             <div className={css.featuredBody}>
               <Markdown options={{ forceBlock: true }}>
