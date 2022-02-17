@@ -25,12 +25,12 @@ export default function ResolvedPayment({ payment }: SuccessPageProps) {
   console.log('ResolvedPayment payment:', payment)
   const { t } = useTranslation()
   return (
-    <DefaultLayout pageTitle="Success!" panelPadding>
-      {status === Status.success ? (
-        <PaymentSuccessTemplate />
-      ) : (
-        <PaymentFailureTemplate />
-      )}
+    <DefaultLayout
+      pageTitle={status === Status.success ? 'Success' : 'Failure'}
+      panelPadding
+    >
+      {status === Status.success && <PaymentSuccessTemplate />}
+      {status === Status.failure && <PaymentFailureTemplate />}
     </DefaultLayout>
   )
 }
