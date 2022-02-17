@@ -1,5 +1,5 @@
 import { PackStatus, PackType } from '@algomart/schemas'
-import { DirectusAdapter, toPackBase } from '@algomart/shared/services'
+import { DirectusAdapter, toPackBase } from '@algomart/shared/adapters'
 import { randomRedemptionCode } from '@algomart/shared/utils'
 import { FastifyInstance } from 'fastify'
 

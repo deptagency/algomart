@@ -15,7 +15,7 @@ module.exports = {
   },
   moduleNameMapper: {
     '@api/(.*)': '<rootDir>/src/$1',
-    'test/(.*)': '<rootDir>/test/$1',
+    '@api-tests/(.*)': '<rootDir>/test/$1',
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/apps/api',

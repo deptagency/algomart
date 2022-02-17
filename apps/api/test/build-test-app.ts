@@ -3,10 +3,10 @@ import {
   AlgorandAdapter,
   CircleAdapter,
   NFTStorageAdapter,
-} from '@algomart/shared/services'
+} from '@algomart/shared/adapters'
 
-import { configureResolver } from '../configure-resolver'
 import buildApp from '../src/api/build-app'
+import { configureResolver } from '../src/shared/configure-resolver'
 
 import { getTestDatabaseConfig } from './setup-tests'
 

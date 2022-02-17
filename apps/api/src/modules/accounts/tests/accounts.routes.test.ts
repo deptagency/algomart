@@ -1,5 +1,5 @@
 import { AlgorandTransactionStatus } from '@algomart/schemas'
-import { AlgorandAdapter } from '@algomart/shared/services'
+import { AlgorandAdapter } from '@algomart/shared/adapters'
 import { FastifyInstance } from 'fastify'
 
 import { buildTestApp } from '../../../../test/build-test-app'

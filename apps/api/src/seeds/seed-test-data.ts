@@ -16,7 +16,7 @@ import {
   DirectusPackTemplate,
   DirectusRarity,
   DirectusStatus,
-} from '@algomart/shared/services'
+} from '@algomart/shared/adapters'
 import { encrypt } from '@algomart/shared/utils'
 import { Knex } from 'knex'
 import { Factory } from 'rosie'
