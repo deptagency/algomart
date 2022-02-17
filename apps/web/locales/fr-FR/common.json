@@ -23,6 +23,7 @@
     "Connect to Algorand Wallet": "FR Connect to Algorand Wallet",
     "Continue to Summary": "FR Continue to Summary",
     "Copy to clipboard": "FR Copy to clipboard",
+    "Create Account": "FR Create Account",
     "Remove Payment Method?": "FR Remove Payment Method?",
     "Copy": "FR Copy",
     "Create Asset": "FR Create Asset",
@@ -51,6 +52,7 @@
     "Save Changes": "FR Save Changes",
     "Save to My Collection": "FR Save to My Collection",
     "Select Image": "FR Select Image",
+    "Sign In": "FR Sign In",
     "Sign Out": "FR Sign Out",
     "Sign": "FR Sign",
     "Submit Payment Info": "FR Submit Payment Info",
@@ -146,7 +148,8 @@
     "utility": {
       "Log In": "FR Log In",
       "Log Out": "FR Log Out",
-      "My profile picture": "FR My profile picture"
+      "My profile picture": "FR My profile picture",
+      "My Account": "FR My Account"
     },
     "social": {
       "Instagram": "FR Instagram",

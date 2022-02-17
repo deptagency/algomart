@@ -19,7 +19,7 @@
 }
 
 .selectContainer {
-  @apply relative z-20;
+  @apply relative;
 }
 
 .selectButton {

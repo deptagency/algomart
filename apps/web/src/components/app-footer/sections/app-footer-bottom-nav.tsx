@@ -16,15 +16,16 @@ export default function AppFooterBottomNav() {
       <div className={css.bottomNavWrapper}>
         <div className={css.bottomNavLeft}>
           <nav aria-label={t('common:nav.aria.Legal')}>
-            {legalNavItems.map(({ href, label }) =>
+            {legalNavItems.map(({ href, label }, index) =>
               href ? (
-                <Link href={href}>
-                  <a className={css.bottomNavLinks} key={label}>
-                    {label}
-                  </a>
+                <Link key={`footer-bottom-nav-${index}`} href={href}>
+                  <a className={css.bottomNavLinks}>{label}</a>
                 </Link>
               ) : (
-                <span className={css.bottomNavLinks} key={label}>
+                <span
+                  key={`footer-bottom-nav-${index}`}
+                  className={css.bottomNavLinks}
+                >
                   {label}
                 </span>
               )

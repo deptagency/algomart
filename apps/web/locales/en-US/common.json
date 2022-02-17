@@ -23,6 +23,7 @@
     "Connect to Algorand Wallet": "Connect to Algorand Wallet",
     "Continue to Summary": "Continue to Summary",
     "Copy to clipboard": "Copy to clipboard",
+    "Create Account": "Create Account",
     "Remove Payment Method?": "Remove Payment Method?",
     "Copy": "Copy",
     "Create Asset": "Create Asset",
@@ -51,6 +52,7 @@
     "Save Changes": "Save Changes",
     "Save to My Collection": "Save to My Collection",
     "Select Image": "Select Image",
+    "Sign In": "Sign In",
     "Sign Out": "Sign Out",
     "Sign": "Sign",
     "Submit Payment Info": "Submit Payment Info",
@@ -147,7 +149,8 @@
     "utility": {
       "Log In": "Log In",
       "Log Out": "Log Out",
-      "My profile picture": "My profile picture"
+      "My profile picture": "My profile picture",
+      "My Account": "My Account"
     },
     "social": {
       "Instagram": "Instagram",
