@@ -8,34 +8,36 @@ import {
   getAuthenticatedUser,
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
-import PaymentFailureTemplate from '@/templates/payment-failure-template'
-import PaymentSuccessTemplate from '@/templates/payment-success-template'
+import PaymentStatusTemplate from '@/templates/payment-status-template'
 
-enum Status {
+export enum Status {
   success = 'success',
   failure = 'failure',
 }
 
-export interface SuccessPageProps {
+export interface StatusPageProps {
   payment: Payment
   status: Status
 }
 
-export default function ResolvedPayment({ payment }: SuccessPageProps) {
+export default function ResolvedPayment({ payment, status }: StatusPageProps) {
   console.log('ResolvedPayment payment:', payment)
   const { t } = useTranslation()
   return (
     <DefaultLayout
-      pageTitle={status === Status.success ? 'Success' : 'Failure'}
+      pageTitle={
+        status === Status.success
+          ? t('common:statuses.Success!')
+          : t('common:statuses.An Error has Occurred')
+      }
       panelPadding
     >
-      {status === Status.success && <PaymentSuccessTemplate />}
-      {status === Status.failure && <PaymentFailureTemplate />}
+      <PaymentStatusTemplate payment={payment} status={status} />
     </DefaultLayout>
   )
 }
 
-export const getServerSideProps: GetServerSideProps<SuccessPageProps> = async (
+export const getServerSideProps: GetServerSideProps<StatusPageProps> = async (
   context
 ) => {
   const { status } = context.params
