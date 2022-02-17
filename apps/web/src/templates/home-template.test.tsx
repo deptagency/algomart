@@ -16,7 +16,7 @@ describe('HomeTemplate', () => {
       <I18nProvider>
         <HomeTemplate
           onClickFeatured={jest.fn()}
-          featuredPack={{
+          heroPack={{
             activeBid: undefined,
             allowBidExpiration: false,
             auctionUntil: undefined,
@@ -40,8 +40,8 @@ describe('HomeTemplate', () => {
             total: 100,
             type: PackType.Free,
           }}
-          upcomingPacks={[]}
-          notableCollectibles={[]}
+          featuredPacks={[]}
+          featuredCollectibles={[]}
         />
       </I18nProvider>
     )
