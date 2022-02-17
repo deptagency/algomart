@@ -1,3 +1,4 @@
+import { CURRENCY_COOKIE, LOCALE_COOKIE } from '@algomart/schemas'
 import {
   Auth,
   createUserWithEmailAndPassword,
@@ -25,7 +26,6 @@ import {
 } from 'react'
 
 import loadFirebase from '@/clients/firebase-client'
-import { useLocale } from '@/hooks/use-locale'
 import {
   AuthState,
   AuthUtils,
@@ -34,7 +34,7 @@ import {
   SignUpPayload,
 } from '@/types/auth'
 import { FileWithPreview } from '@/types/file'
-import { removeCookie, setCookie } from '@/utils/cookies-web'
+import { getCookie, removeCookie, setCookie } from '@/utils/cookies-web'
 import {
   ActionsUnion,
   createAction,
@@ -96,13 +96,14 @@ async function mapUserToProfile(
 ): Promise<Profile> {
   return {
     address: null,
+    currency: null,
     email: user.email,
     emailVerified: user.emailVerified,
+    locale: null,
     name: user.displayName,
     photo: user.photoURL,
     token: await user.getIdToken(),
     uid: user.uid,
-    locale: null,
     username: null,
   }
 }
@@ -118,8 +119,6 @@ export function useAuth(throwError = true) {
 }
 
 export function useAuthProvider() {
-  const locale = useLocale()
-
   const reloadProfile = useCallback(async () => {
     const auth = getAuth(loadFirebase())
     const token = await auth.currentUser?.getIdToken(true)
@@ -157,9 +156,34 @@ export function useAuthProvider() {
        * we update the cookie. This takes precedence over their value in the DB,
        * and as such we need to update the DB to reflect this
        */
-      if (profileResponse.locale !== locale) {
+      const localeCookie = getCookie(LOCALE_COOKIE)
+      const parsedLocaleCookie =
+        localeCookie && localeCookie !== 'null' ? localeCookie : null
+      if (parsedLocaleCookie && profileResponse.locale !== parsedLocaleCookie) {
         await fetch(urls.api.v1.updateLanguage, {
-          body: JSON.stringify({ locale }),
+          body: JSON.stringify({ parsedLocaleCookie }),
+          headers: {
+            authorization: `bearer ${token}`,
+            'content-type': 'application/json',
+          },
+          method: 'PUT',
+        })
+      }
+
+      /**
+       * When a user not logged in changes their preferred currency,
+       * we update the cookie. This takes precedence over their value in the DB,
+       * and as such we need to update the DB to reflect this
+       */
+      const currencyCookie = getCookie(LOCALE_COOKIE)
+      const parsedCurrencyCookie =
+        currencyCookie && currencyCookie !== 'null' ? currencyCookie : null
+      if (
+        parsedCurrencyCookie &&
+        profileResponse.currency !== parsedCurrencyCookie
+      ) {
+        await fetch(urls.api.v1.updateCurrency, {
+          body: JSON.stringify({ parsedCurrencyCookie }),
           headers: {
             authorization: `bearer ${token}`,
             'content-type': 'application/json',
@@ -172,9 +196,10 @@ export function useAuthProvider() {
       dispatch(
         authActions.setUser({
           ...profile,
-          username: profileResponse?.username || null,
           address: profileResponse?.address || null,
+          currency: profileResponse?.currency || null,
           locale: profileResponse?.locale || null,
+          username: profileResponse?.username || null,
         })
       )
     }
@@ -278,6 +303,7 @@ export function useAuthProvider() {
 
   const registerWithEmailAndPassword = useCallback(
     async ({
+      currency,
       email,
       password,
       passphrase,
@@ -297,7 +323,13 @@ export function useAuthProvider() {
           // Set profile
           const token = await user.getIdToken()
           await fetch(urls.api.v1.profile, {
-            body: JSON.stringify({ email, passphrase, username, locale }),
+            body: JSON.stringify({
+              currency,
+              email,
+              passphrase,
+              username,
+              locale,
+            }),
             headers: {
               authorization: `bearer ${token}`,
               'content-type': 'application/json',

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import useTranslation from 'next-translate/useTranslation'
 
+import AppFooterCurrency from './app-footer-currency'
 import AppFooterLanguage from './app-footer-language'
 
 import css from './app-footer-bottom-nav.module.css'
@@ -36,6 +37,7 @@ export default function AppFooterBottomNav() {
         </div>
         <div className={css.bottomNavSpace}>
           <AppFooterLanguage />
+          <AppFooterCurrency />
         </div>
       </div>
     </section>

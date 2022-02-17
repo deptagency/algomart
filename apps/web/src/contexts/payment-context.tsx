@@ -16,11 +16,14 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react'
 import { ExtractError } from 'validator-fns'
 
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
 import bidService from '@/services/bid-service'
 import checkoutService, {
   CreateBankAccountRequest,
@@ -99,6 +102,8 @@ export function usePaymentProvider({
   release,
 }: PaymentProviderProps) {
   const { t } = useTranslation()
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const { asPath, query, push, route } = useRouter()
   const { method } = query
 
@@ -106,7 +111,9 @@ export function usePaymentProvider({
   const [status, setStatus] = useState<CheckoutStatus>(CheckoutStatus.form)
   const [loadingText, setLoadingText] = useState<string>('')
   const highestBid = currentBid || 0
-  const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
+  const initialBid = currentBid
+    ? formatIntToFloat(currentBid, currency, conversionRate)
+    : '0'
   const [bid, setBid] = useState<string | null>(initialBid)
   const [address, setAddress] = useState<string | null>(null)
   const [promptLeaving, setPromptLeaving] = useState(false)
@@ -133,10 +140,7 @@ export function usePaymentProvider({
     [t]
   )
   const [formErrors, setFormErrors] = useState<FormValidation>()
-  const price =
-    release?.type === PackType.Auction
-      ? bid
-      : formatIntToFloat(release?.price || 0)
+  const [price, setPrice] = useState<string | null>()
 
   const handleSetStatus = useCallback(
     (status: CheckoutStatus.form | CheckoutStatus.summary) => {
@@ -506,7 +510,7 @@ export function usePaymentProvider({
           confirmBid,
         } = body
 
-        const bid = formatFloatToInt(floatBid)
+        const bid = formatFloatToInt(floatBid, currency)
 
         // If the bid is within the maximum bid range, submit card details
         if (method === CheckoutMethod.card) {
@@ -567,6 +571,7 @@ export function usePaymentProvider({
     },
     [
       auctionPackId,
+      currency,
       t,
       validateFormForBidsWithSavedCard,
       validateFormForBids,
@@ -650,6 +655,14 @@ export function usePaymentProvider({
     ]
   )
 
+  useEffect(() => {
+    setPrice(
+      release?.type === PackType.Auction
+        ? bid
+        : formatIntToFloat(release?.price || 0, currency, conversionRate)
+    )
+  }, [currency, bid]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const value = useMemo(
     () => ({
       address,
@@ -702,6 +715,7 @@ export function usePaymentProvider({
       status,
     ]
   )
+
   return value
 }
 
