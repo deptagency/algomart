@@ -38,10 +38,6 @@
   @apply md:p-8;
 }
 
-.featuredContent p {
-  @apply mb-3;
-}
-
 .featuredHeading {
   @apply text-2xl;
 }
@@ -49,7 +45,10 @@
 .featuredBody {
   /* Base */
   @apply flex-1 overflow-hidden text-base-textPrimary line-clamp-6;
-  -webkit-line-clamp: 12;
+  -webkit-line-clamp: 13;
+}
+.featuredBody p {
+  @apply mb-3;
 }
 
 .featuredAvailability {
@@ -63,7 +62,7 @@
 }
 
 .featuredControls {
-  @apply pt-8;
+  @apply pt-6;
 }
 
 /* Auction metadata */
