@@ -76,7 +76,7 @@ export default function ReleaseTemplate({
       Boolean(packTemplate.available)
     ) {
       return `${t('release:This release is open')}! ${t(
-        'release:N of N editions remaining',
+        'release:N of N remaining',
         {
           available: packTemplate.available,
           total: packTemplate.total,
@@ -159,7 +159,9 @@ export default function ReleaseTemplate({
         )}
 
         {/* Media Gallery */}
-        <MediaGallery media={[packTemplate.image]} />
+        <MediaGallery
+          media={[packTemplate.image, ...packTemplate.additionalImages]}
+        />
 
         {/* Release Details */}
         <section>

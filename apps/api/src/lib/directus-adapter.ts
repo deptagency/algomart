@@ -493,6 +493,9 @@ export function toPackBase(
 
   return {
     allowBidExpiration: template.allow_bid_expiration,
+    additionalImages: isStringArray(template.additional_images)
+      ? template.additional_images.map((id) => getFileURL(id))
+      : template.additional_images.map((t) => getFileURL(t.directus_files_id)),
     auctionUntil: template.auction_until ?? undefined,
     body: translation.body ?? undefined,
     collectibleTemplateIds: isStringArray(template.nft_templates)

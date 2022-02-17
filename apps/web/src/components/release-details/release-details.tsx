@@ -37,9 +37,12 @@ export default function ReleaseDetails({
   const { push } = useRouter()
   return (
     <section className={css.root}>
-      {/* Title */}
+      {/* Title & Subtitle */}
       <div className={css.header}>
         <h1 className={css.title}>{packTemplate.title}</h1>
+        {packTemplate.subtitle ? (
+          <h2 className={css.subtitle}>{packTemplate.subtitle}</h2>
+        ) : null}
       </div>
 
       {/* Metadata */}
