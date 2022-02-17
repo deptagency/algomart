@@ -28,7 +28,7 @@ export class I18nService implements I18nApi {
 
   /**
    *
-   * @param locale - Locale sent for getting translated language label names
+   * @param sourceCurrency - Source currency for conversion
    * @returns
    */
   async getCurrencyConversions(
