@@ -15,10 +15,16 @@ import { formatCurrency } from '@/utils/format-currency'
 
 export interface FeaturedPackProps {
   featuredPack: PublishedPack
+  banner?: string
+  subtitle?: string
+  title?: string
   onClickFeatured: () => void
 }
 
 export default function HomeTemplate({
+  banner,
+  subtitle,
+  title,
   featuredPack,
   onClickFeatured,
 }: FeaturedPackProps) {
@@ -32,6 +38,7 @@ export default function HomeTemplate({
   const isActive = featuredPack.status === PackStatus.Active
   const isExpired = featuredPack.status === PackStatus.Expired
   const isUpcoming = featuredPack.status === PackStatus.Upcoming
+  banner = undefined
 
   return (
     <section className={css.featured}>
@@ -68,143 +75,57 @@ export default function HomeTemplate({
         )}
       </div>
 
-      {/* Columns */}
-      <div className={css.featuredColumns}>
-        {/* Image */}
-        <div className={css.featuredImage}>
-          <Image
-            src={featuredPack.image}
-            width={512}
-            height={512}
-            layout="responsive"
-            objectFit="cover"
-          />
-        </div>
+      <section
+        className={css.banner}
+        style={{
+          backgroundImage: banner ? `url("${banner}")` : 'none',
+        }}
+      >
+        {/* Columns */}
+        <div className={css.featuredColumns}>
+          {/* Image */}
+          <div className={css.featuredImage}>
+            <Image
+              alt={featuredPack.title}
+              src={featuredPack.image}
+              width={512}
+              height={512}
+              layout="responsive"
+              objectFit="cover"
+            />
+          </div>
 
-        {/* Content */}
-        <div className={css.featuredContent}>
-          <Heading className={css.featuredHeading} level={2} bold>
-            {featuredPack.title}
-          </Heading>
-          {featuredPack.body ? (
-            <div className={css.featuredBody}>
-              <Markdown options={{ forceBlock: true }}>
-                {featuredPack.body}
-              </Markdown>
-            </div>
-          ) : null}
-
-          {/* Remaining */}
-          {featuredPack.type === PackType.Purchase ? (
-            <p className={css.featuredAvailability}>
-              <Trans
-                i18nKey="release:N remaining of M"
-                components={[
-                  <span
-                    key="available"
-                    className={css.featuredAvailableNumber}
-                  />,
-                ]}
-                values={{
-                  available: featuredPack.available,
-                  total: featuredPack.total,
-                }}
-              />
-            </p>
-          ) : null}
-
-          {/* Actions */}
-          <div className={css.featuredControls}>
-            {isAuction && !isUpcoming && (
-              <div className={css.columns}>
-                {/* Left Column */}
-                <div className={css.column}>
-                  <>
-                    <div className={css.metadataLabel}>
-                      {isActive
-                        ? t('release:Current Bid')
-                        : isReserveMet
-                        ? t('release:Winning Bid')
-                        : t('release:Highest Bid')}
-                    </div>
-                    <div
-                      className={clsx(css.metadataValue, {
-                        [css.completeSuccess]: isExpired && isReserveMet,
-                      })}
-                    >
-                      {formatCurrency(highestBid, lang)}
-                    </div>
-                  </>
-                </div>
-
-                {/* Center Column */}
-                <div className={css.column}>
-                  <>
-                    <div className={css.metadataLabel}>
-                      {t('release:Reserve Price')}
-                    </div>
-                    <div
-                      className={clsx(css.metadataValue, {
-                        [css.completeSuccess]: isReserveMet,
-                      })}
-                    >
-                      {isReserveMet ? t('release:Met') : t('release:Not Met')}
-                    </div>
-                  </>
-                </div>
-
-                {/* Right Column */}
-                <div className={css.column}>
-                  <>
-                    <div className={css.metadataLabel}>
-                      {isActive
-                        ? t('release:Ending In')
-                        : t('release:Auction Has')}
-                    </div>
-                    <div className={css.metadataValue}>
-                      {isActive ? (
-                        <Counter
-                          plainString
-                          target={new Date(featuredPack.auctionUntil as string)}
-                        />
-                      ) : (
-                        t('release:Ended')
-                      )}
-                    </div>
-                  </>
-                </div>
+          {/* Content */}
+          <div className={css.featuredContent}>
+            <Heading className={css.featuredHeading} level={2} bold>
+              {featuredPack.title}
+            </Heading>
+            {featuredPack.body ? (
+              <div className={css.featuredBody}>
+                <Markdown options={{ forceBlock: true }}>
+                  {featuredPack.body}
+                </Markdown>
               </div>
-            )}
-            {isAuction && (
-              <Button fullWidth onClick={onClickFeatured}>
-                {isActive
-                  ? t('common:actions.Place Bid')
-                  : t('common:actions.View Release')}
-              </Button>
-            )}
-            {isPurchase && (
-              <>
+            ) : null}
+
+            {/* Actions */}
+            <div className={css.featuredControls}>
+              {isPurchase && (
+                <>
+                  <Button fullWidth onClick={onClickFeatured}>
+                    {t('common:actions.Buy Now')}
+                  </Button>
+                </>
+              )}
+              {!isPurchase && (
                 <Button fullWidth onClick={onClickFeatured}>
-                  {t('common:actions.Buy Now')}
+                  {t('common:actions.Claim Now')}
                 </Button>
-                <p className={css.featuredPrice}>
-                  {(featuredPack.type === PackType.Auction ||
-                    featuredPack.type === PackType.Purchase) &&
-                    formatCurrency(
-                      featuredPack.activeBid ?? featuredPack.price,
-                      locale
-                    )}
-                </p>
-              </>
-            )}
-            {!isAuction && !isPurchase && (
-              <Button fullWidth onClick={onClickFeatured}>
-                {t('common:actions.Claim Now')}
-              </Button>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </section>
     </section>
   )
 }

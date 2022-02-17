@@ -19,25 +19,25 @@ export default class HomepageService {
   ) {}
 
   async getHomepage(locale = DEFAULT_LOCALE): Promise<Homepage> {
-    const homepageBase = await this.cms.findHomepage()
+    const homepageBase = await this.cms.findHomepage(locale)
     userInvariant(homepageBase, 'homepage not found', 404)
 
     const { packs } = await this.packsService.getPublishedPacks({
       locale,
-      pageSize: 1 + homepageBase.upcomingPackTemplateIds.length,
-      templateIds: homepageBase.featuredPackTemplateId
+      pageSize: 1 + homepageBase.featuredPackTemplateIds.length,
+      templateIds: homepageBase.heroPackTemplateId
         ? [
-            ...homepageBase.upcomingPackTemplateIds,
-            homepageBase.featuredPackTemplateId,
+            ...homepageBase.featuredPackTemplateIds,
+            homepageBase.heroPackTemplateId,
           ]
-        : homepageBase.upcomingPackTemplateIds,
+        : homepageBase.featuredPackTemplateIds,
     })
 
     const collectibles = await this.collectiblesService.getCollectibleTemplates(
       {
         locale,
-        pageSize: 1 + homepageBase.notableCollectibleTemplateIds.length,
-        templateIds: homepageBase.notableCollectibleTemplateIds,
+        pageSize: 1 + homepageBase.featuredNftTemplateIds.length,
+        templateIds: homepageBase.featuredNftTemplateIds,
       }
     )
 
@@ -47,15 +47,22 @@ export default class HomepageService {
     )
 
     return {
-      featuredPack:
-        homepageBase.featuredPackTemplateId &&
-        packLookup.has(homepageBase.featuredPackTemplateId)
-          ? packLookup.get(homepageBase.featuredPackTemplateId)
+      heroBanner: homepageBase.heroBanner,
+      heroBannerSubtitle: homepageBase.heroBannerSubtitle,
+      heroBannerTitle: homepageBase.heroBannerTitle,
+      heroPack:
+        homepageBase.heroPackTemplateId &&
+        packLookup.has(homepageBase.heroPackTemplateId)
+          ? packLookup.get(homepageBase.heroPackTemplateId)
           : undefined,
-      upcomingPacks: homepageBase.upcomingPackTemplateIds
+      featuredPacksSubtitle: homepageBase.featuredPacksSubtitle,
+      featuredPacksTitle: homepageBase.featuredPacksTitle,
+      featuredPacks: homepageBase.featuredPackTemplateIds
         .filter((id) => packLookup.has(id))
         .map((id) => packLookup.get(id) as PublishedPack),
-      notableCollectibles: homepageBase.notableCollectibleTemplateIds.map(
+      featuredNftsSubtitle: homepageBase.featuredNftsSubtitle,
+      featuredNftsTitle: homepageBase.featuredPacksTitle,
+      featuredNfts: homepageBase.featuredNftTemplateIds.map(
         (id) => collectibleLookup.get(id) as CollectibleBase
       ),
     }

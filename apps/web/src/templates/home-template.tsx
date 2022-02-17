@@ -12,68 +12,79 @@ import ReleaseItem from '@/components/releases/release-item'
 import { urls } from '@/utils/urls'
 
 export interface HomeTemplateProps {
-  featuredPack: PublishedPack | undefined
-  upcomingPacks: PublishedPack[]
-  notableCollectibles: CollectibleBase[]
+  heroBannerTitle?: string
+  heroBannerSubtitle?: string
+  heroBanner?: string
+  heroPack: PublishedPack | undefined
+  featuredPacks: PublishedPack[]
+  featuredCollectibles: CollectibleBase[]
   onClickFeatured: () => void
 }
 
 export default function HomeTemplate({
-  featuredPack,
-  upcomingPacks,
-  notableCollectibles,
+  heroPack,
+  heroBannerTitle,
+  heroBannerSubtitle,
+  heroBanner,
+  featuredPacks,
+  featuredCollectibles,
   onClickFeatured,
 }: HomeTemplateProps) {
   const { t } = useTranslation()
 
   return (
     <>
-      {featuredPack ? (
+      {heroPack ? (
         <FeaturedPack
-          featuredPack={featuredPack}
+          banner={heroBanner}
+          featuredPack={heroPack}
           onClickFeatured={onClickFeatured}
+          subtitle={heroBannerSubtitle}
+          title={heroBannerTitle}
         />
       ) : null}
 
-      {upcomingPacks.length > 0 ? (
-        <>
-          <Heading level={2} size={1} bold className={css.sectionTitle}>
-            {t('release:Active & Upcoming Drops')}
-          </Heading>
+      <div className="mx-auto max-w-wrapper">
+        {featuredPacks.length > 0 ? (
+          <>
+            <Heading level={2} size={1} bold className={css.sectionTitle}>
+              {t('release:Active & Upcoming Drops')}
+            </Heading>
 
-          <div className={css.upcomingPacks}>
-            <Grid columns={3}>
-              {upcomingPacks.map((pack) => (
-                <AppLink
-                  key={pack.templateId}
-                  href={urls.release.replace(':packSlug', pack.slug)}
-                >
-                  <ReleaseItem pack={pack} />
-                </AppLink>
-              ))}
-            </Grid>
-          </div>
-        </>
-      ) : null}
+            <div className={css.featuredPacks}>
+              <Grid columns={3}>
+                {featuredPacks.map((pack) => (
+                  <AppLink
+                    key={pack.templateId}
+                    href={urls.release.replace(':packSlug', pack.slug)}
+                  >
+                    <ReleaseItem pack={pack} />
+                  </AppLink>
+                ))}
+              </Grid>
+            </div>
+          </>
+        ) : null}
 
-      {notableCollectibles.length > 0 ? (
-        <>
-          <Heading level={2} size={1} bold className={css.sectionTitle}>
-            {t('release:Notable Collectibles')}
-          </Heading>
+        {featuredCollectibles.length > 0 ? (
+          <>
+            <Heading level={2} size={1} bold className={css.sectionTitle}>
+              {t('release:Notable Collectibles')}
+            </Heading>
 
-          <div className={css.notableCollectibles}>
-            <Grid columns={4}>
-              {notableCollectibles.map((collectible) => (
-                <NotableCollectible
-                  collectible={collectible}
-                  key={collectible.templateId}
-                />
-              ))}
-            </Grid>
-          </div>
-        </>
-      ) : null}
+            <div className={css.featuredCollectibles}>
+              <Grid columns={4}>
+                {featuredCollectibles.map((collectible) => (
+                  <NotableCollectible
+                    collectible={collectible}
+                    key={collectible.templateId}
+                  />
+                ))}
+              </Grid>
+            </div>
+          </>
+        ) : null}
+      </div>
     </>
   )
 }

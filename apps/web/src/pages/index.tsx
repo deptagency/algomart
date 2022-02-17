@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
-import DefaultLayout from '@/layouts/default-layout'
+import FullBleedLayout from '@/layouts/full-bleed-layout'
 import HomeTemplate from '@/templates/home-template'
 import { urls } from '@/utils/urls'
 
@@ -16,20 +16,23 @@ export default function Home({ page }: HomeProps) {
   const { push } = useRouter()
 
   const onClickFeatured = useCallback(() => {
-    if (page.featuredPack) {
-      push(urls.release.replace(':packSlug', page.featuredPack.slug))
+    if (page.heroPack) {
+      push(urls.release.replace(':packSlug', page.heroPack.slug))
     }
-  }, [page.featuredPack, push])
+  }, [page.heroPack, push])
 
   return (
-    <DefaultLayout noPanel>
+    <FullBleedLayout>
       <HomeTemplate
+        featuredCollectibles={page.featuredNfts}
+        featuredPacks={page.featuredPacks}
+        heroBanner={page.heroBanner}
+        heroBannerSubtitle={page.heroBannerSubtitle}
+        heroBannerTitle={page.heroBannerTitle}
+        heroPack={page.heroPack}
         onClickFeatured={onClickFeatured}
-        featuredPack={page.featuredPack}
-        upcomingPacks={page.upcomingPacks}
-        notableCollectibles={page.notableCollectibles}
       />
-    </DefaultLayout>
+    </FullBleedLayout>
   )
 }
 
