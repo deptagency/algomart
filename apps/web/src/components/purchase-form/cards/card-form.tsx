@@ -31,6 +31,7 @@ export default function CardForm({
   price,
   promptLeaving,
   setBid,
+  setPromptLeaving,
   status,
 }: PaymentContextProps) {
   const { t } = useTranslation()
@@ -43,13 +44,21 @@ export default function CardForm({
   const handleSubmitPurchase = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
+      setPromptLeaving(true)
       const data = new FormData(event.currentTarget)
       await (release?.type === PackType.Auction &&
       isAfterNow(new Date(release.auctionUntil as string))
         ? onSubmitBid(data, CheckoutMethod.card)
         : onSubmitPurchase(data, true))
+      setPromptLeaving(false)
     },
-    [release?.type, release.auctionUntil, onSubmitBid, onSubmitPurchase]
+    [
+      release?.type,
+      release.auctionUntil,
+      onSubmitBid,
+      onSubmitPurchase,
+      setPromptLeaving,
+    ]
   )
 
   const handlePackOpening = useCallback(() => {

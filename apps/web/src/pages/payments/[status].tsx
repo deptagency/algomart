@@ -87,7 +87,10 @@ export const getServerSideProps: GetServerSideProps<StatusPageProps> = async (
     PaymentStatus.ActionRequired,
     PaymentStatus.Paid,
   ])
-  const acceptableFailedStatuses = new Set([PaymentStatus.Failed])
+  const acceptableFailedStatuses = new Set([
+    PaymentStatus.ActionRequired,
+    PaymentStatus.Failed,
+  ])
   if (
     (status === Status.success &&
       !acceptableSuccessStatuses.has(payment.status)) ||

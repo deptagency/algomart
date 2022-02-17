@@ -1,9 +1,9 @@
 .successRoot {
-  @apply w-full max-w-xs text-center;
+  @apply w-full max-w-xs mx-auto text-center;
 }
 
 .failureRoot {
-  @apply max-w-xs text-center;
+  @apply max-w-xs mx-auto text-center;
 }
 
 .icon {

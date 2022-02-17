@@ -1,7 +1,6 @@
 import {
   CheckoutMethod,
   CheckoutStatus,
-  CirclePaymentVerificationOptions,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   PackType,
@@ -521,7 +520,6 @@ export function usePaymentProvider({
 
   const handleSubmitBid = useCallback(
     async (data: FormData, method: CheckoutMethod) => {
-      setPromptLeaving(true)
       setStatus(CheckoutStatus.loading)
       try {
         if (!auctionPackId) {
@@ -602,7 +600,6 @@ export function usePaymentProvider({
         setStatus(CheckoutStatus.error)
       }
 
-      setPromptLeaving(false)
       setLoadingText('')
     },
     [
@@ -618,7 +615,6 @@ export function usePaymentProvider({
 
   const handleSubmitPurchase = useCallback(
     async (data: FormData, isPurchase: boolean) => {
-      setPromptLeaving(true)
       setStatus(CheckoutStatus.loading)
       setLoadingText(t('common:statuses.Validating Payment Information'))
       try {
@@ -691,7 +687,6 @@ export function usePaymentProvider({
       }
 
       setLoadingText('')
-      setPromptLeaving(false)
       return
     },
     [
