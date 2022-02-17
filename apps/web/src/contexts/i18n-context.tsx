@@ -88,7 +88,7 @@ export const I18nContext = createContext<I18nUtils | null>(null)
 export function useI18n() {
   const i18n = useContext(I18nContext)
   if (!i18n) {
-    throw new Error('AuthProvider missing')
+    throw new Error('I18nProvider missing')
   }
   return i18n
 }
@@ -159,7 +159,7 @@ export function useI18nProvider() {
         currencyConversions = i18nInfo?.currencyConversions
       }
 
-      if (currencyConversions[currency]) {
+      if (currencyConversions && currencyConversions[currency]) {
         dispatch(i18nActions.setConversionRate(currencyConversions[currency]))
       }
     }
