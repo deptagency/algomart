@@ -24,6 +24,16 @@ module.exports = {
     fontFamily: {
       base: ['"Open Sans"', 'ui-sans-serif', 'system-ui', '-apple-system'],
       display: ['"Open Sans Condensed"', 'ui-sans-serif', 'system-ui'],
+      mono: [
+        'ui-monospace',
+        'SFMono-Regular',
+        'Menlo',
+        'Monaco',
+        'Consolas',
+        '"Liberation Mono"',
+        '"Courier New"',
+        'monospace',
+      ],
     },
     fontSize: {
       xs: '.75rem',
