@@ -14,7 +14,7 @@ module.exports = {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleNameMapper: {
-    '@/(.*)': '<rootDir>/src/$1',
+    '@api/(.*)': '<rootDir>/src/$1',
     'test/(.*)': '<rootDir>/test/$1',
   },
   moduleFileExtensions: ['ts', 'js', 'html'],

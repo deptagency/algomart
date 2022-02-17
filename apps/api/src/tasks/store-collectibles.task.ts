@@ -1,8 +1,8 @@
+import { CollectiblesService } from '@algomart/shared/services'
+import { DependencyResolver } from '@algomart/shared/utils'
 import { Model } from 'objection'
 
-import CollectiblesService from '@/modules/collectibles/collectibles.service'
-import DependencyResolver from '@/shared/dependency-resolver'
-import { logger } from '@/utils/logger'
+import { logger } from '../configuration/logger'
 
 export default async function storeCollectiblesTask(
   registry: DependencyResolver

@@ -1,8 +1,8 @@
+import { PacksService } from '@algomart/shared/services'
+import { DependencyResolver } from '@algomart/shared/utils'
 import { Model } from 'objection'
 
-import PacksService from '@/modules/packs/packs.service'
-import DependencyResolver from '@/shared/dependency-resolver'
-import { logger } from '@/utils/logger'
+import { logger } from '../configuration/logger'
 
 export default async function generatePacksTask(registry: DependencyResolver) {
   const log = logger.child({ task: 'generate-packs' })

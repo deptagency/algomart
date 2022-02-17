@@ -1,8 +1,8 @@
+import { NotificationsService } from '@algomart/shared/services'
+import { DependencyResolver } from '@algomart/shared/utils'
 import { Model } from 'objection'
 
-import NotificationsService from '@/modules/notifications/notifications.service'
-import DependencyResolver from '@/shared/dependency-resolver'
-import { logger } from '@/utils/logger'
+import { logger } from '../configuration/logger'
 
 export default async function dispatchNotificationsTask(
   registry: DependencyResolver

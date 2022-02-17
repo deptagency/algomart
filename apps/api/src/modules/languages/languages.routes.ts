@@ -1,7 +1,6 @@
 import { Locale } from '@algomart/schemas'
+import { LanguagesService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import LanguagesService from './languages.service'
 
 export async function getLanguages(
   request: FastifyRequest<{ Querystring: Locale }>,

@@ -1,11 +1,11 @@
 import { SetWithCollectionSchema, SlugSchema } from '@algomart/schemas'
+import { appErrorHandler } from '@algomart/shared/utils'
 import { FastifyInstance } from 'fastify'
 import fastifyBearerAuth from 'fastify-bearer-auth'
 
-import { getSet } from './sets.routes'
+import bearerAuthOptions from '../../configuration/bearer-auth'
 
-import bearerAuthOptions from '@/configuration/bearer-auth'
-import { appErrorHandler } from '@/utils/errors'
+import { getSet } from './sets.routes'
 
 export async function setsRoutes(app: FastifyInstance) {
   const tags = ['sets']

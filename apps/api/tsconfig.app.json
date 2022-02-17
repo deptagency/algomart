@@ -3,11 +3,7 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
-    "types": ["node"],
-    "paths": {
-      "@/*": ["apps/api/src/*"],
-      "@algomart/schemas": ["libs/schemas/src/index.ts"]
-    }
+    "types": ["node"]
   },
   "exclude": ["**/*.spec.ts", "**/*.test.ts", "test/**/*.ts", "**/seeds/*.ts"],
   "include": ["**/*.ts"]

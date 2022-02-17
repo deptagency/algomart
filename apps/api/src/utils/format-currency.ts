@@ -1,3 +1,15 @@
+/**
+ * THIS FILE IS DEPRECATED and should exist only until this branch gets merged
+ * You should be using the format-currency.ts file in the libs/shared/utils
+ * directory.  This one remains for backwards compatability but is deprecated.
+ * The new version of these functions require you to pass in the currency rather
+ * than taking it from a module-level global variable.
+ *
+ * TODO: TJ has a PR that will affect this file.  Make sure those changes get propagated
+ * to the libs/shared/utils/format-currency.ts, which is now the authoritative file.
+ *
+ */
+
 import { USD } from '@dinero.js/currencies'
 import {
   add,
@@ -8,7 +20,7 @@ import {
   toFormat,
 } from 'dinero.js'
 
-import { Configuration } from '@/configuration'
+import { Configuration } from '../configuration'
 
 export const currency = Configuration.currency
 

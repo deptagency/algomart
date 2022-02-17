@@ -1,9 +1,9 @@
-import buildApp from '@/api/build-app'
-import { Configuration } from '@/configuration'
-import buildKnexConfiguration from '@/configuration/knex-config'
-import { configureResolver } from '@/shared/dependency-resolver'
-import { configureTasks } from '@/tasks'
-import { logger } from '@/utils/logger'
+import buildApp from './api/build-app'
+import buildKnexConfiguration from './configuration/knex-config'
+import { logger } from './configuration/logger'
+import { configureResolver } from './shared/configure-resolver'
+import { Configuration } from './configuration'
+import { configureTasks } from './tasks'
 
 buildApp({
   fastify: {

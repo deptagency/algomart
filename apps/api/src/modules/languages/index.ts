@@ -1,9 +1,8 @@
 import { LanguageListSchema } from '@algomart/schemas'
+import { appErrorHandler } from '@algomart/shared/utils'
 import { FastifyInstance } from 'fastify'
 
 import { getLanguages } from './languages.routes'
-
-import { appErrorHandler } from '@/utils/errors'
 
 export async function languagesRoutes(app: FastifyInstance) {
   const tags = ['languages']
