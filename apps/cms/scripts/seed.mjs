@@ -108,6 +108,29 @@ async function main(args) {
     console.log('Language already exists.')
   }
 
+  try {
+    await createEntityRecords(
+      'countries',
+      [{ code: 'US' }, { code: 'CA' }],
+      token
+    )
+  } catch (err) {
+    console.log('Countries already exist.')
+  }
+
+  try {
+    await createEntityRecords(
+      'countries_translations',
+      [
+        { id: 1, countries_code: 'US', languages_code: 'en-US', title: 'United States' },
+        { id: 2, countries_code: 'CA', languages_code: 'en-US', title: 'Canada' },
+      ],
+      token
+    )
+  } catch (err) {
+    console.log('Country translations already exist.')
+  }
+
   /**
    * These numbers can be adjusted, just be mindful of the implications.
    * Disproportional values can break the cascade of how assets are divy'd up.
