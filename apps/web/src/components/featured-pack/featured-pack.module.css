@@ -10,7 +10,7 @@
 }
 
 .featuredNotice {
-  @apply p-4 text-sm font-bold text-center text-white uppercase bg-action-secondary;
+  @apply p-4 text-sm font-bold tracking-wide text-center uppercase text-action-secondaryContrastText bg-action-secondary;
 }
 
 .featuredNotice span {
@@ -31,11 +31,15 @@
 
 .featuredContent {
   /* Base */
-  @apply flex flex-col float-left w-full gap-4 p-5 text-center;
+  @apply flex flex-col w-full h-full gap-4 p-5 text-center;
   /* Tablet */
   @apply sm:flex-1 sm:text-left;
   /* Desktop */
   @apply md:p-8;
+}
+
+.featuredContent p {
+  @apply mb-3;
 }
 
 .featuredHeading {
@@ -44,7 +48,8 @@
 
 .featuredBody {
   /* Base */
-  @apply text-base-textPrimary;
+  @apply flex-1 overflow-hidden text-base-textPrimary line-clamp-6;
+  -webkit-line-clamp: 12;
 }
 
 .featuredAvailability {
@@ -54,7 +59,7 @@
 
 .featuredAvailableNumber {
   /* Base */
-  @apply font-bold text-base-gray-dark;
+  @apply font-bold text-base-textPrimary;
 }
 
 .featuredControls {
@@ -88,5 +93,5 @@
 
 .featuredPrice {
   /* Base */
-  @apply mt-4 font-bold text-center text-base-gray-dark;
+  @apply mt-4 font-bold text-center text-base-textPrimary;
 }
