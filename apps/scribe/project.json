@@ -8,8 +8,9 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/scribe",
-        "main": "apps/scribe/src/main.ts",
+        "main": "apps/scribe/src/index.ts",
         "tsConfig": "apps/scribe/tsconfig.app.json",
+        "traceResolution":true,
         "assets": ["apps/scribe/src/assets"]
       },
       "configurations": {

@@ -4,6 +4,7 @@ import {
   I18nInfoSchema,
   LanguageListSchema,
 } from '@algomart/schemas'
+import { appErrorHandler } from '@algomart/shared/utils'
 import { FastifyInstance } from 'fastify'
 
 import {
@@ -12,8 +13,6 @@ import {
   getI18nInfo,
   getLanguages,
 } from './i18n.routes'
-
-import { appErrorHandler } from '@/utils/errors'
 
 export async function i18nRoutes(app: FastifyInstance) {
   const tags = ['i18n']

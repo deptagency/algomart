@@ -2,13 +2,13 @@ import {
   DirectusPageAndLocaleSchema,
   DirectusPageSchema,
 } from '@algomart/schemas'
+import { appErrorHandler } from '@algomart/shared/utils'
 import { FastifyInstance } from 'fastify'
 import fastifyBearerAuth from 'fastify-bearer-auth'
 
-import { getDirectusPage } from './page.routes'
+import bearerAuthOptions from '../../configuration/bearer-auth'
 
-import bearerAuthOptions from '@/configuration/bearer-auth'
-import { appErrorHandler } from '@/utils/errors'
+import { getDirectusPage } from './page.routes'
 
 export async function pageRoute(app: FastifyInstance) {
   const tags = ['page']

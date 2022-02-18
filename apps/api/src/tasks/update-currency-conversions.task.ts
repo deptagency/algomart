@@ -1,10 +1,10 @@
 import { DEFAULT_CURRENCY } from '@algomart/schemas'
+import { I18nService } from '@algomart/shared/services'
+import { DependencyResolver } from '@algomart/shared/utils'
 import { Model } from 'objection'
 
-import { Configuration } from '@/configuration'
-import I18nService from '@/modules/i18n/i18n.service'
-import DependencyResolver from '@/shared/dependency-resolver'
-import { logger } from '@/utils/logger'
+import { Configuration } from '../configuration'
+import { logger } from '../configuration/logger'
 
 export default async function updateCurrencyConversions(
   registry: DependencyResolver

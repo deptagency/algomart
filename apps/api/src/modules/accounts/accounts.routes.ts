@@ -2,12 +2,11 @@ import {
   CreateUserAccountRequest,
   ExternalId,
   Passphrase,
+  UpdateUserAccount,
   Username,
 } from '@algomart/schemas'
-import { UpdateUserAccount } from '@algomart/schemas'
+import { AccountsService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import AccountsService from '@/modules/accounts/accounts.service'
 
 export async function createAccount(
   request: FastifyRequest<{ Body: CreateUserAccountRequest }>,
