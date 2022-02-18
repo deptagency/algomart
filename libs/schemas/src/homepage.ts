@@ -1,7 +1,7 @@
 import { Static, Type } from '@sinclair/typebox'
 
 import { CollectibleBaseSchema } from './collectibles'
-import { PublishedPackSchema } from './packs'
+import { PackBaseSchema, PublishedPackSchema } from './packs'
 import { Simplify } from './shared'
 
 export const HomepageTranslationsSchema = Type.Object({
@@ -12,6 +12,12 @@ export const HomepageTranslationsSchema = Type.Object({
   heroBannerSubtitle: Type.Optional(Type.String()),
   heroBannerTitle: Type.Optional(Type.String()),
 })
+
+// export const HomepageBaseSchema = Type.Object({
+//   featuredPack: Type.Optional(PackBaseSchema),
+//   upcomingPacks: Type.Array(PackBaseSchema),
+//   notableCollectibles: Type.Array(CollectibleBaseSchema),
+// })
 
 export const HomepageBaseSchema = Type.Intersect([
   Type.Object({
