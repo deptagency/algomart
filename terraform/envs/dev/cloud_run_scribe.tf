@@ -117,14 +117,9 @@ resource "google_cloud_run_service" "scribe" {
 
         env {
           name  = "HOST"
-          value = "127.0.0.1"
+          value = "0.0.0.0"
         }
-  
-        env {
-          name = "PORT"
-          value = "8080"
-        }
-
+ 
         env {
           name  = "NODE_ENV"
           value = var.api_node_env
