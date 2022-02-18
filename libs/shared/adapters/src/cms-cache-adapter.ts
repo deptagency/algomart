@@ -14,6 +14,7 @@ import {
   DirectusLanguageTemplateTranslation,
   DirectusPackTemplate,
   DirectusPackTemplateTranslation,
+  DirectusPage,
   DirectusPageTranslation,
   DirectusRarity,
   DirectusRarityTranslation,
@@ -417,25 +418,13 @@ export default class CMSCacheAdapter {
   constructor(private readonly options: CMSCacheAdapterOptions) {}
 
   private async findPackTemplates(query: ItemQuery<DirectusPackTemplate> = {}) {
-    const defaultQuery: ItemQuery<DirectusPackTemplate> = {
-      filter: {},
-      limit: -1,
-    }
-
-    const queryParams = {
-      ...defaultQuery,
-      ...query,
-    }
-
-    const queryResult = await CMSCachePackTemplateModel.query()
-      // .limit(queryParams.limit)
-      .select('content')
-
+    const queryResult = await CMSCachePackTemplateModel.query().select(
+      'content'
+    )
     const data = queryResult.map(
       (result: CMSCachePackTemplateModel): DirectusPackTemplate =>
         result.content as unknown as DirectusPackTemplate
     )
-
     const result: ItemsResponse<DirectusPackTemplate> = {
       data: data,
       meta: {
@@ -450,25 +439,13 @@ export default class CMSCacheAdapter {
   private async findCollectibleTemplates(
     query: ItemQuery<DirectusCollectibleTemplate> = {}
   ) {
-    const defaultQuery: ItemQuery<DirectusCollectibleTemplate> = {
-      filter: {},
-      limit: -1,
-    }
-
-    const queryParams = {
-      ...defaultQuery,
-      ...query,
-    }
-
     const queryResult = await CMSCacheCollectibleTemplateModel.query().select(
       'content'
     )
-
     const data = queryResult.map(
       (result: CMSCacheCollectibleTemplateModel): DirectusCollectibleTemplate =>
         result.content as unknown as DirectusCollectibleTemplate
     )
-
     const result: ItemsResponse<DirectusCollectibleTemplate> = {
       data: data,
       meta: {
@@ -481,47 +458,35 @@ export default class CMSCacheAdapter {
   }
 
   private async findCollections(query: ItemQuery<DirectusCollection> = {}) {
-    const defaultQuery: ItemQuery<DirectusCollection> = {
-      filter: {},
-      limit: -1,
-    }
-
-    const queryParams = {
-      ...defaultQuery,
-      ...query,
-    }
-
-    const queryResult = await CMSCacheCollectionModel.query()
-      // .limit(queryParams.limit)
-      .select('content')
-
-    const jsonResult = queryResult.map((result) => result.content)
-    const result: ItemsResponse<DirectusCollection> = JSON.parse(
-      `[${jsonResult.join(', ')}]`
+    const queryResult = await CMSCacheCollectionModel.query().select('content')
+    const data = queryResult.map(
+      (result: CMSCacheCollectionModel): DirectusCollection =>
+        result.content as unknown as DirectusCollection
     )
+    const result: ItemsResponse<DirectusCollection> = {
+      data: data,
+      meta: {
+        filter_count: 1,
+        total_count: 1,
+      },
+    }
 
     return result
   }
 
   private async findSets(query: ItemQuery<DirectusSet> = {}) {
-    const defaultQuery: ItemQuery<DirectusSet> = {
-      filter: {},
-      limit: -1,
-    }
-
-    const queryParams = {
-      ...defaultQuery,
-      ...query,
-    }
-
-    const queryResult = await CMSCacheSetModel.query()
-      // .limit(queryParams.limit)
-      .select('content')
-
-    const jsonResult = queryResult.map((result) => result.content)
-    const result: ItemsResponse<DirectusSet> = JSON.parse(
-      `[${jsonResult.join(', ')}]`
+    const queryResult = await CMSCacheSetModel.query().select('content')
+    const data = queryResult.map(
+      (result: CMSCacheSetModel): DirectusSet =>
+        result.content as unknown as DirectusSet
     )
+    const result: ItemsResponse<DirectusSet> = {
+      data: data,
+      meta: {
+        filter_count: 1,
+        total_count: 1,
+      },
+    }
 
     return result
   }
@@ -637,57 +602,56 @@ export default class CMSCacheAdapter {
   }
 
   async findCollectionBySlug(slug: string, locale = DEFAULT_LOCALE) {
-    const response = await this.findCollections({
-      limit: 1,
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-        slug: {
-          _eq: slug,
-        },
-      },
-    })
+    const result = await CMSCacheCollectionModel.query().findOne('slug', slug)
 
-    if (response.data.length === 0) return null
-    const collection = response.data[0]
-    return toCollectionWithSets(collection, this.getFileURL.bind(this), locale)
+    if (result) {
+      const collection: DirectusCollection =
+        result.content as unknown as DirectusCollection
+      return toCollectionWithSets(
+        collection,
+        this.getFileURL.bind(this),
+        locale
+      )
+    }
+
+    return null
   }
 
   async findSetBySlug(slug: string, locale = DEFAULT_LOCALE) {
-    const results = await CMSCacheSetModel.query().where('slug', slug)
+    const result = await CMSCacheSetModel.query().findOne('slug', slug)
 
-    if (results.length === 0) {
-      return null
+    if (result) {
+      const set: DirectusSet = result.content as unknown as DirectusSet
+      return toSetWithCollection(set, this.getFileURL.bind(this), locale)
     }
-    const set: DirectusSet = JSON.parse(results[0].content)
-    return toSetWithCollection(set, this.getFileURL.bind(this), locale)
+
+    return null
   }
 
   async getPage(slug, locale = DEFAULT_LOCALE) {
-    const results = await CMSCachePageModel.query().where('slug', slug)
+    const result = await CMSCachePageModel.query().findOne('slug', slug)
 
-    if (results.length === 0) {
-      return null
+    if (result) {
+      const page: DirectusPage = result.content as unknown as DirectusPage
+
+      return getDirectusTranslation<DirectusPageTranslation>(
+        page.translations as DirectusPageTranslation[],
+        `No translations found for slug "${slug}"`,
+        locale
+      )
     }
 
-    const result = JSON.parse(results[0].content)
-
-    return getDirectusTranslation<DirectusPageTranslation>(
-      result.translations as DirectusPageTranslation[],
-      `No translations found for slug "${slug}"`,
-      locale
-    )
+    return null
   }
 
   async getFaqs(locale: string = DEFAULT_LOCALE) {
     const queryResult = await CMSCacheFaqModel.query().select('content')
-    const jsonResult = queryResult.map((result) => result.content)
-    const result: DirectusFaqTemplate[] = JSON.parse(
-      `[${jsonResult.join(', ')}]`
+    const data = queryResult.map(
+      (result: CMSCacheFaqModel): DirectusFaqTemplate =>
+        result.content as unknown as DirectusFaqTemplate
     )
 
-    return result.map((d) =>
+    return data.map((d) =>
       getDirectusTranslation(d.translations, `faq has no translations`, locale)
     )
   }
@@ -704,12 +668,12 @@ export default class CMSCacheAdapter {
 
   async getLanguages(locale = DEFAULT_LOCALE) {
     const queryResult = await CMSCacheLanguageModel.query().select('content')
-    const jsonResult = queryResult.map((result) => result.content)
-    const result: DirectusLanguageTemplate[] = JSON.parse(
-      `[${jsonResult.join(', ')}]`
+    const data = queryResult.map(
+      (result: CMSCacheLanguageModel): DirectusLanguageTemplate =>
+        result.content as unknown as DirectusLanguageTemplate
     )
 
-    return result.map((directusLanguageTemplate) => ({
+    return data.map((directusLanguageTemplate) => ({
       languages_code: directusLanguageTemplate.code,
       label: getDirectusTranslation<DirectusLanguageTemplateTranslation>(
         directusLanguageTemplate.translations as DirectusLanguageTemplateTranslation[],
