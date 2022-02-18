@@ -16,8 +16,8 @@ export default class AuctionsService {
 
   constructor(private readonly algorand: AlgorandAdapter) {}
 
-  async createAuction(request: CreateAuctionBody, trx?: Transaction) {
-    const user = await UserAccountModel.query(trx)
+  async createAuction(request: CreateAuctionBody, knexRead?: Knex) {
+    const user = await UserAccountModel.query(knexRead)
       .where({
         externalId: request.externalId,
       })
@@ -30,7 +30,7 @@ export default class AuctionsService {
     )
     userInvariant(mnemonic, 'Invalid passphrase', 400)
 
-    const collectible = await CollectibleModel.query(trx)
+    const collectible = await CollectibleModel.query(knexRead)
       .where({
         id: request.collectibleId,
         ownerId: user.id,

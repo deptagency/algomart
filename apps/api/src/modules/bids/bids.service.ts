@@ -27,9 +27,13 @@ export default class BidsService {
     private readonly packService: PacksService
   ) {}
 
-  async createBid(bid: CreateBidRequest, trx?: Transaction): Promise<boolean> {
+  async createBid(
+    bid: CreateBidRequest,
+    trx?: Transaction,
+    knexRead?: Knex
+  ): Promise<boolean> {
     // Get and verify corresponding pack
-    const pack = await PackModel.query(trx)
+    const pack = await PackModel.query(knexRead)
       .where('id', bid.packId)
       .withGraphFetched('activeBid')
       .first()
@@ -53,7 +57,7 @@ export default class BidsService {
     )
 
     // Get user by externalId
-    const newHighBidder = await UserAccountModel.query(trx).findOne({
+    const newHighBidder = await UserAccountModel.query(knexRead).findOne({
       externalId: bid.externalId || null,
     })
 
@@ -86,7 +90,7 @@ export default class BidsService {
     })
 
     // Get the previous highest bidder
-    const previousHighBidder = await UserAccountModel.query(trx).findOne({
+    const previousHighBidder = await UserAccountModel.query(knexRead).findOne({
       id: pack.activeBid?.userAccountId || null,
     })
 

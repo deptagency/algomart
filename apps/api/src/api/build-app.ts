@@ -66,7 +66,11 @@ export default async function buildApp(config: AppConfig) {
 
   // Our Plugins
   await app.register(fastifyKnex, { knex: config.knexMain, name: 'knexMain' })
-  await app.register(fastifyKnex, { knex: config.knexRead, name: 'knexRead' })
+  await app.register(fastifyKnex, {
+    knex: config.knexRead,
+    name: 'knexRead',
+    readReplica: true,
+  })
   await app.register(fastifyContainer, { container: config.container })
   await app.register(fastifyTransaction)
 

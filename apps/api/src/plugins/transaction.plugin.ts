@@ -5,6 +5,7 @@ import {
   preHandlerAsyncHookHandler,
 } from 'fastify'
 import fp from 'fastify-plugin'
+import { Knex } from 'knex'
 import { Model, Transaction } from 'objection'
 
 declare module 'fastify' {
@@ -18,6 +19,8 @@ declare module 'fastify' {
      * Indicates that the transaction was rolled back.
      */
     transactionFailed?: boolean
+
+    knexRead: Knex
   }
 
   interface RouteOptions {
@@ -35,7 +38,7 @@ declare module 'fastify' {
   }
 }
 
-function addHandler(existingHandler: unknown, newHandler: unknown) {
+export function addHandler(existingHandler: unknown, newHandler: unknown) {
   if (Array.isArray(existingHandler)) {
     return [...existingHandler, newHandler]
   } else if (typeof existingHandler === 'function') {

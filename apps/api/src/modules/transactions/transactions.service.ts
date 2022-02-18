@@ -16,8 +16,12 @@ export default class TransactionsService {
 
   constructor(private readonly algorand: AlgorandAdapter) {}
 
-  async confirmPendingTransactions(limit = 16, trx?: Transaction) {
-    const transactions = await AlgorandTransactionModel.query(trx)
+  async confirmPendingTransactions(
+    limit = 16,
+    trx?: Transaction,
+    knexRead?: Knex
+  ) {
+    const transactions = await AlgorandTransactionModel.query(knexRead)
       .where('status', AlgorandTransactionStatus.Pending)
       .select('id', 'address')
       .limit(limit)
@@ -75,7 +79,7 @@ export default class TransactionsService {
       })
 
       if (updateCollectible) {
-        const collectible = await CollectibleModel.query(trx)
+        const collectible = await CollectibleModel.query(knexRead)
           .where('creationTransactionId', transaction.id)
           .first()
 

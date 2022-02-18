@@ -1,14 +1,19 @@
+import { Knex } from 'knex'
 import { Model } from 'objection'
 
 import CollectiblesService from '@/modules/collectibles/collectibles.service'
 import DependencyResolver from '@/shared/dependency-resolver'
 import { logger } from '@/utils/logger'
 
-export default async function mintCollectibles(registry: DependencyResolver) {
+export default async function mintCollectibles(
+  registry: DependencyResolver,
+  knexMain: Knex
+) {
   const log = logger.child({ task: 'mint-collectibles' })
   const collectibles = registry.get<CollectiblesService>(
     CollectiblesService.name
   )
+
   const trx = await Model.startTransaction()
   try {
     const result = await collectibles.mintCollectibles(trx)

@@ -8,6 +8,7 @@ import {
 } from '@algomart/schemas'
 import { ResponseError } from '@sendgrid/mail'
 import { TFunction } from 'i18next'
+import { Knex } from 'knex'
 import { Transaction } from 'objection'
 
 import { Configuration } from '@/configuration'
@@ -60,9 +61,9 @@ export default class NotificationsService {
     })
   }
 
-  async dispatchNotifications(trx?: Transaction) {
+  async dispatchNotifications(trx?: Transaction, knexRead?: Knex) {
     // Get pending notifications
-    const pendingNotifications = await NotificationModel.query(trx)
+    const pendingNotifications = await NotificationModel.query(knexRead)
       .where('status', NotificationStatus.Pending)
       .withGraphJoined('userAccount')
 

@@ -65,14 +65,14 @@ export function configureTasks(app: FastifyInstance) {
       { seconds: 10 },
       new AsyncTask(
         'mint-collectibles',
-        async () => await mintCollectiblesTask(app.container),
+        async () => await mintCollectiblesTask(app.container, app.knexMain),
         (error) => app.log.error(error)
       )
     )
   )
   //#endregion
 
-  //#region Notifications
+  // //#region Notifications
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
       { minutes: 1 },

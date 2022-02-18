@@ -11,6 +11,7 @@ export default async function dispatchNotificationsTask(
   const notifications = registry.get<NotificationsService>(
     NotificationsService.name
   )
+
   const trx = await Model.startTransaction()
   try {
     await notifications.dispatchNotifications(trx)
