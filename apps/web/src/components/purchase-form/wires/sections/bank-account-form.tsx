@@ -135,7 +135,7 @@ export default function BankAccountForm({
                   : ''
               }
               label={t('forms:fields.bankAddress.bankName.label')}
-              name="address1"
+              name="bankName"
               variant="small"
             />
             <TextInput
