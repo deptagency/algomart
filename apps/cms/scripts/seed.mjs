@@ -77,7 +77,8 @@ async function main(args) {
     nft_templates, nft_templates_translations,
     pack_templates, pack_templates_translations, pack_templates_directus_files,
     collections, collections_translations,
-    sets, sets_translations
+    sets, sets_translations,
+    languages, languages_translations
     CASCADE`)
 
   /**

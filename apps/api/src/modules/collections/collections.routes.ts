@@ -1,7 +1,6 @@
 import { Slug } from '@algomart/schemas'
+import { CollectionsService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import CollectionsService from './collections.service'
 
 export async function getAllCollections(
   request: FastifyRequest,

@@ -1,7 +1,6 @@
 import { DEFAULT_LOCALE, DirectusPage } from '@algomart/schemas'
-
-import DirectusAdapter from '@/lib/directus-adapter'
-import { userInvariant } from '@/utils/invariant'
+import { DirectusAdapter } from '@algomart/shared/adapters'
+import { userInvariant } from '@algomart/shared/utils'
 
 export default class DirectusPageService {
   constructor(private readonly cms: DirectusAdapter) {}

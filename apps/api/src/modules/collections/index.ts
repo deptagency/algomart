@@ -1,12 +1,12 @@
 import { CollectionWithSetsSchema, SlugSchema } from '@algomart/schemas'
+import { appErrorHandler } from '@algomart/shared/utils'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
 import fastifyBearerAuth from 'fastify-bearer-auth'
 
-import { getAllCollections, getCollection } from './collections.routes'
+import bearerAuthOptions from '../../configuration/bearer-auth'
 
-import bearerAuthOptions from '@/configuration/bearer-auth'
-import { appErrorHandler } from '@/utils/errors'
+import { getAllCollections, getCollection } from './collections.routes'
 
 export async function collectionsRoutes(app: FastifyInstance) {
   const tags = ['collections']
