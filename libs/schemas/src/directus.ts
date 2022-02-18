@@ -91,6 +91,12 @@ export interface DirectusPageTranslation extends DirectusTranslation {
   title: string
 }
 
+export interface DirectusPage {
+  id: string
+  slug: string
+  translations: DirectusPageTranslation[]
+}
+
 export interface DirectusCollection {
   id: string
   status: DirectusStatus

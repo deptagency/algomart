@@ -1,32 +1,15 @@
 import pino from 'pino'
 import {
-  CollectibleBase,
-  CollectionBase,
-  CollectionWithSets,
-  Countries,
   DEFAULT_LOCALE,
   DirectusCollectibleTemplate,
-  DirectusCollectibleTemplateTranslation,
   DirectusCollection,
-  DirectusCollectionTranslation,
   DirectusFaqTemplate,
-  DirectusFile,
   DirectusHomepage,
   DirectusLanguageTemplate,
   DirectusPackTemplate,
-  DirectusPackTemplateTranslation,
-  DirectusRarity,
-  DirectusRarityTranslation,
+  DirectusPage,
   DirectusSet,
-  DirectusSetTranslation,
   DirectusStatus,
-  DirectusTranslation,
-  HomepageBase,
-  PackBase,
-  PackStatus,
-  PackType,
-  SetBase,
-  SetWithCollection,
 } from '@algomart/schemas'
 import got, { Got } from 'got'
 import { URL, URLSearchParams } from 'node:url'
@@ -596,6 +579,19 @@ export default class DirectusAdapter {
     })
   }
 
+  private async findPages(query: ItemQuery<DirectusPage> = {}) {
+    const defaultQuery: ItemQuery<DirectusPage> = {
+      filter: {},
+      limit: -1,
+      fields: ['*.*'],
+    }
+
+    return await this.findMany<DirectusPage>('pages', {
+      ...defaultQuery,
+      ...query,
+    })
+  }
+
   private getFileURL(file: DirectusFile | null) {
     if (file === null) {
       return null
@@ -758,6 +754,20 @@ export default class DirectusAdapter {
     return response.data
   }
 
+  async findAllPages() {
+    const response = await this.findPages({
+      fields: ['id', 'slug', 'translations.*'],
+      filterCount: true,
+    })
+
+    invariant(
+      typeof response.meta?.filter_count === 'number',
+      'filter_count missing from response'
+    )
+
+    return response.data
+  }
+
   async getFaqs() {
     const defaultQuery: ItemQuery<DirectusFaqTemplate> = {
       filter: {
@@ -773,7 +783,6 @@ export default class DirectusAdapter {
       ...defaultQuery,
     })
 
-    // simplify response
     return response.data
   }
 
@@ -793,12 +802,41 @@ export default class DirectusAdapter {
     // from a `findById` call.
     const response = await this.http.get('items/homepage', {
       searchParams: getParameters({
+        // TODO: update these to return the full objects rather than just the ids
         fields: [
+          'id',
           'hero_banner',
           'hero_pack',
           'featured_packs',
           'featured_nfts',
           'translations.*',
+
+          // 'featured_pack.*',
+          // 'featured_pack.pack_image.*',
+          // 'featured_pack.translations.*',
+          // 'featured_pack.nft_templates.*',
+          // 'featured_pack.nft_templates.asset_file.*',
+          // 'featured_pack.nft_templates.translations.*',
+          // 'featured_pack.nft_templates.preview_audio.*',
+          // 'featured_pack.nft_templates.preview_image.*',
+          // 'featured_pack.nft_templates.preview_video.*',
+
+          // 'upcoming_packs.*',
+          // 'upcoming_packs.pack_image.*',
+          // 'upcoming_packs.translations.*',
+          // 'upcoming_packs.nft_templates.*',
+          // 'featured_pack.nft_templates.asset_file.*',
+          // 'featured_pack.nft_templates.translations.*',
+          // 'featured_pack.nft_templates.preview_audio.*',
+          // 'featured_pack.nft_templates.preview_image.*',
+          // 'featured_pack.nft_templates.preview_video.*',
+
+          // 'notable_collectibles.*',
+          // 'notable_collectibles.asset_file.*',
+          // 'notable_collectibles.translations.*',
+          // 'notable_collectibles.preview_audio.*',
+          // 'notable_collectibles.preview_image.*',
+          // 'notable_collectibles.preview_video.*',
         ],
         deep: {
           hero_pack: {

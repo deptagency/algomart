@@ -57,7 +57,7 @@ export const LocaleAndExternalIdSchema = Type.Intersect([
   ExternalIdSchema,
 ])
 
-export const DirectusPageAndLocaleSchema = Type.Intersect([
+export const PageAndLocaleSchema = Type.Intersect([
   LocaleSchema,
   Type.Object({
     slug: Type.String(),

@@ -286,7 +286,8 @@ export default class CollectiblesService {
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
     const { collectibles: templates } = await this.cms.findAllCollectibles(
       locale,
-      { id: { _in: templateIds } }
+      { id: { _in: templateIds } },
+      templateIds.length
     )
 
     // Map and sort collectibles
@@ -413,7 +414,8 @@ export default class CollectiblesService {
         id: {
           _in: templateIds,
         },
-      }
+      },
+      templateIds.length
     )
 
     invariant(templates.length > 0, 'templates not found')
@@ -751,7 +753,8 @@ export default class CollectiblesService {
 
     const { collectibles: templates } = await this.cms.findAllCollectibles(
       locale,
-      cmsFilter
+      cmsFilter,
+      foundTemplateIds.length
     )
 
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
@@ -828,15 +831,11 @@ export default class CollectiblesService {
 
     const { collectibles: templates } = await this.cms.findAllCollectibles(
       locale,
-      filter
+      filter,
+      pageSize
     )
 
-    const collectibles =
-      pageSize === -1
-        ? templates
-        : templates.slice((page - 1) * pageSize, page * pageSize)
-
-    return collectibles
+    return templates
   }
 
   async getShowcaseCollectibles(
@@ -875,7 +874,8 @@ export default class CollectiblesService {
         id: {
           _in: templateIds,
         },
-      }
+      },
+      templateIds.length
     )
 
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
