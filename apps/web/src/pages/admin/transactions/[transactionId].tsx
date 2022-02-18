@@ -1,6 +1,5 @@
 import { Payment, PaymentStatus, WirePayment } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useState } from 'react'
@@ -122,13 +121,7 @@ export default function AdminTransactionPage({
       <Flex gap={12}>
         <Flex item flex="0 0 auto" className={css.leftSide} gap={2}>
           <Panel fullWidth>
-            <Image
-              src={payment.pack?.template?.image}
-              layout="responsive"
-              height="100%"
-              width="100%"
-              alt="Pack image"
-            />
+            <img src={payment.pack?.template?.image} alt="Pack image" />
           </Panel>
 
           <Flex flex="1" flexDirection="column" gap={6}>
