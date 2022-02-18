@@ -16,6 +16,10 @@ buildApp({
     configureTasks(app)
     return app.listen(Configuration.port, Configuration.host)
   })
+  .then(() => {
+    const addr = `${Configuration.host}:${Configuration.port}`
+    logger.info(`API service is listening at ${addr}`)
+  })
   .catch((error) => {
     logger.error(error)
     throw error

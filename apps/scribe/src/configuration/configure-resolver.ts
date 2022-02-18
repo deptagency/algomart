@@ -1,7 +1,7 @@
 import { DependencyResolver } from '@algomart/shared/utils'
 import { Configuration } from './'
 import { MailerAdapter } from '@algomart/shared/adapters'
-import { logger } from '../utils/logger'
+import { logger } from './logger'
 
 export function configureResolver() {
   const resolver = new DependencyResolver()
