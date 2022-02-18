@@ -1,34 +1,24 @@
+import {
+  fastifyContainerPlugin,
+  fastifyKnexPlugin,
+  fastifyTransactionPlugin,
+} from '@algomart/shared/plugins'
+import { FastifyReply, FastifyRequest } from 'fastify'
+import { DependencyResolver } from '@algomart/shared/utils'
 import ajvCompiler from '@fastify/ajv-compiler'
 import ajvFormats from 'ajv-formats'
 import fastify, { FastifyServerOptions } from 'fastify'
 import { fastifySchedule } from 'fastify-schedule'
 import fastifySensible from 'fastify-sensible'
 import fastifySwagger from 'fastify-swagger'
+import { Knex } from 'knex'
+import { appErrorHandler } from '@algomart/shared/utils'
 
-import swaggerOptions from './configuration/swagger'
-// import { accountsRoutes } from '@scribe/modules/accounts'
-// import { auctionsRoutes } from '@scribe/modules/auctions'
-// import { bidsRoutes } from '@scribe/modules/bids'
-// import { collectiblesRoutes } from '@scribe/modules/collectibles'
-// import { collectionsRoutes } from '@scribe/modules/collections'
-// import { faqsRoutes } from '@scribe/modules/faqs'
-// import { homepageRoutes } from '@scribe/modules/homepage'
-// import { languagesRoutes } from '@scribe/modules/languages'
-// import { packsRoutes } from '@scribe/modules/packs'
-// import { pageRoute } from '@scribe/modules/pages'
-// import { paymentRoutes } from '@scribe/modules/payments'
-// import { setsRoutes } from '@scribe/modules/sets'
-// import fastifyKnex from '@scribe/plugins/knex.plugin'
-
-import {
-  fastifyContainerPlugin,
-  fastifyTransactionPlugin,
-} from '@algomart/shared/plugins'
-
-import { DependencyResolver } from '@algomart/shared/utils'
+import swaggerOptions from '../configuration/swagger'
+import { generateHealthRoutes } from '@algomart/shared/modules'
 
 export interface AppConfig {
-  //// knex: Knex.Config
+  // knex: Knex.Config
   fastify?: FastifyServerOptions
   container: DependencyResolver
 }
@@ -67,7 +57,6 @@ export default async function buildApp(config: AppConfig) {
   await app.register(fastifySensible)
 
   // Our Plugins
-  /////await app.register(fastifyKnex, { knex: config.knex })
   await app.register(fastifyContainerPlugin, { container: config.container })
   await app.register(fastifyTransactionPlugin)
 
@@ -78,7 +67,7 @@ export default async function buildApp(config: AppConfig) {
   // no hooks yet
 
   // Services
-  // TODO: implement routes to handle data changed callbacks from CMS
+  await app.register(generateHealthRoutes(), { prefix: '/health' })
 
   return app
 }
