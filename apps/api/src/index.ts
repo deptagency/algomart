@@ -1,7 +1,7 @@
 import buildApp from './api/build-app'
+import { configureResolver } from './configuration/configure-resolver'
 import buildKnexConfiguration from './configuration/knex-config'
 import { logger } from './configuration/logger'
-import { configureResolver } from './shared/configure-resolver'
 import { Configuration } from './configuration'
 import { configureTasks } from './tasks'
 

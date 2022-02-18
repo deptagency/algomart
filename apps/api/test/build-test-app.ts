@@ -6,7 +6,7 @@ import {
 } from '@algomart/shared/adapters'
 
 import buildApp from '../src/api/build-app'
-import { configureResolver } from '../src/shared/configure-resolver'
+import { configureResolver } from '../src/configuration/configure-resolver'
 
 import { getTestDatabaseConfig } from './setup-tests'
 
