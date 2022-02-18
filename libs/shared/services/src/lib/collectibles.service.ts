@@ -57,6 +57,7 @@ export default class CollectiblesService {
     private readonly storage: NFTStorageAdapter,
     private readonly algoExplorer: AlgoExplorerAdapter,
     private readonly minimumDaysBeforeTransfer: number,
+    private readonly creatorPassphrase: string,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
@@ -422,11 +423,9 @@ export default class CollectiblesService {
       // 1000 microAlgos per create transaction
       collectibles.length * 1000
 
-    const creatorPassphrase = ''
-    throw new Error('TODO this value needs to be populated via config')
     const creator = await this.algorand.getCreatorAccount(
       initialBalance,
-      creatorPassphrase
+      this.creatorPassphrase
     )
 
     const transactions = await AlgorandTransactionModel.query(trx).insert([
@@ -463,7 +462,7 @@ export default class CollectiblesService {
         collectibles,
         templates,
         creator,
-        creatorPassphrase
+        this.creatorPassphrase
       )
 
     this.logger.info('Using creator account %s', creator?.address || '-')
@@ -473,7 +472,7 @@ export default class CollectiblesService {
     } catch (error) {
       if (creator) {
         this.logger.info('Closing creator account %s', creator.address)
-        await this.algorand.closeCreatorAccount(creator, creatorPassphrase)
+        await this.algorand.closeCreatorAccount(creator, this.creatorPassphrase)
       }
       throw error
     }
