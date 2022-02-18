@@ -61,7 +61,7 @@ export default class HomepageService {
         .filter((id) => packLookup.has(id))
         .map((id) => packLookup.get(id) as PublishedPack),
       featuredNftsSubtitle: homepageBase.featuredNftsSubtitle,
-      featuredNftsTitle: homepageBase.featuredPacksTitle,
+      featuredNftsTitle: homepageBase.featuredNftsTitle,
       featuredNfts: homepageBase.featuredNftTemplateIds.map(
         (id) => collectibleLookup.get(id) as CollectibleBase
       ),

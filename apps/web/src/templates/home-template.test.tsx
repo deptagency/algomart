@@ -15,7 +15,9 @@ describe('HomeTemplate', () => {
     render(
       <I18nProvider>
         <HomeTemplate
+          authenticated={true}
           onClickFeatured={jest.fn()}
+          onClickReleases={jest.fn()}
           heroPack={{
             activeBid: undefined,
             allowBidExpiration: false,

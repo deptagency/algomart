@@ -1,5 +1,5 @@
 .root {
-  @apply relative flex flex-col h-full overflow-hidden text-center rounded-md bg-base-bgCard shadow-large;
+  @apply relative flex flex-col h-full overflow-hidden text-center rounded-lg bg-base-bgCard shadow-large;
 }
 
 .imageWrapper {
@@ -11,5 +11,9 @@
 }
 
 .title {
-  @apply px-4 text-lg font-bold;
+  @apply px-4 text-base font-bold;
+}
+
+.rarity {
+  @apply inline-block px-6 py-1 mt-2 mb-1 text-xs text-white uppercase rounded-full;
 }

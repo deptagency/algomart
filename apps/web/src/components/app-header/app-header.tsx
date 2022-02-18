@@ -104,10 +104,11 @@ export default function AppHeader() {
                 </AppLink>
                 <Button
                   size="small"
-                  className="md:inline hidden"
+                  className={css.createAccountButton}
                   onClick={signIn}
+                  rounded={false}
                 >
-                  Create Account
+                  {t('common:actions.Create Account')}
                 </Button>
               </>
             )}

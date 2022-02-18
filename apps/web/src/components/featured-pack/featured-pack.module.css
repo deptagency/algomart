@@ -49,9 +49,7 @@
 }
 
 .featuredBody {
-  @apply mt-6 mb-0 text-lg font-bold;
-  /* Base */
-  /* @apply text-base-textPrimary; */
+  @apply mt-4 mb-0 text-lg font-bold;
 }
 
 .featuredControls {
