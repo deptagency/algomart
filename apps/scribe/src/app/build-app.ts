@@ -3,7 +3,6 @@ import {
   fastifyKnexPlugin,
   fastifyTransactionPlugin,
 } from '@algomart/shared/plugins'
-import { FastifyReply, FastifyRequest } from 'fastify'
 import { DependencyResolver } from '@algomart/shared/utils'
 import ajvCompiler from '@fastify/ajv-compiler'
 import ajvFormats from 'ajv-formats'
@@ -11,8 +10,6 @@ import fastify, { FastifyServerOptions } from 'fastify'
 import { fastifySchedule } from 'fastify-schedule'
 import fastifySensible from 'fastify-sensible'
 import fastifySwagger from 'fastify-swagger'
-import { Knex } from 'knex'
-import { appErrorHandler } from '@algomart/shared/utils'
 
 import swaggerOptions from '../configuration/swagger'
 import { generateHealthRoutes } from '@algomart/shared/modules'

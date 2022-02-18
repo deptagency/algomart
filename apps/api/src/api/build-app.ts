@@ -1,3 +1,4 @@
+import { generateHealthRoutes } from '@algomart/shared/modules'
 import {
   fastifyContainerPlugin,
   fastifyKnexPlugin,
@@ -77,6 +78,7 @@ export default async function buildApp(config: AppConfig) {
   // no hooks yet
 
   // Services
+  await app.register(generateHealthRoutes(), { prefix: '/health' })
   await app.register(accountsRoutes, { prefix: '/accounts' })
   await app.register(auctionsRoutes, { prefix: '/auctions' })
   await app.register(bidsRoutes, { prefix: '/bids' })
