@@ -428,13 +428,21 @@ export default class CMSCacheAdapter {
     }
 
     const queryResult = await CMSCachePackTemplateModel.query()
-      .limit(queryParams.limit)
+      // .limit(queryParams.limit)
       .select('content')
 
-    const jsonResult = queryResult.map((result) => result.content)
-    const result: ItemsResponse<DirectusPackTemplate> = JSON.parse(
-      `[${jsonResult.join(', ')}]`
+    const data = queryResult.map(
+      (result: CMSCachePackTemplateModel): DirectusPackTemplate =>
+        result.content as unknown as DirectusPackTemplate
     )
+
+    const result: ItemsResponse<DirectusPackTemplate> = {
+      data: data,
+      meta: {
+        filter_count: 1,
+        total_count: 1,
+      },
+    }
 
     return result
   }
@@ -452,14 +460,22 @@ export default class CMSCacheAdapter {
       ...query,
     }
 
-    const queryResult = await CMSCacheCollectibleTemplateModel.query()
-      .limit(queryParams.limit)
-      .select('content')
-
-    const jsonResult = queryResult.map((result) => result.content)
-    const result: ItemsResponse<DirectusCollectibleTemplate> = JSON.parse(
-      `[${jsonResult.join(', ')}]`
+    const queryResult = await CMSCacheCollectibleTemplateModel.query().select(
+      'content'
     )
+
+    const data = queryResult.map(
+      (result: CMSCacheCollectibleTemplateModel): DirectusCollectibleTemplate =>
+        result.content as unknown as DirectusCollectibleTemplate
+    )
+
+    const result: ItemsResponse<DirectusCollectibleTemplate> = {
+      data: data,
+      meta: {
+        filter_count: 1,
+        total_count: 1,
+      },
+    }
 
     return result
   }
@@ -476,7 +492,7 @@ export default class CMSCacheAdapter {
     }
 
     const queryResult = await CMSCacheCollectionModel.query()
-      .limit(queryParams.limit)
+      // .limit(queryParams.limit)
       .select('content')
 
     const jsonResult = queryResult.map((result) => result.content)
@@ -499,7 +515,7 @@ export default class CMSCacheAdapter {
     }
 
     const queryResult = await CMSCacheSetModel.query()
-      .limit(queryParams.limit)
+      // .limit(queryParams.limit)
       .select('content')
 
     const jsonResult = queryResult.map((result) => result.content)
@@ -648,7 +664,7 @@ export default class CMSCacheAdapter {
     return toSetWithCollection(set, this.getFileURL.bind(this), locale)
   }
 
-  async getDirectusPage(slug, locale = DEFAULT_LOCALE) {
+  async getPage(slug, locale = DEFAULT_LOCALE) {
     const results = await CMSCachePageModel.query().where('slug', slug)
 
     if (results.length === 0) {
@@ -667,32 +683,33 @@ export default class CMSCacheAdapter {
   async getFaqs(locale: string = DEFAULT_LOCALE) {
     const queryResult = await CMSCacheFaqModel.query().select('content')
     const jsonResult = queryResult.map((result) => result.content)
-    const result: ItemsResponse<DirectusFaqTemplate> = JSON.parse(
+    const result: DirectusFaqTemplate[] = JSON.parse(
       `[${jsonResult.join(', ')}]`
     )
 
-    return result.data.map((d) =>
+    return result.map((d) =>
       getDirectusTranslation(d.translations, `faq has no translations`, locale)
     )
   }
 
   async findHomepage() {
-    const queryResult = await CMSCacheHomepageModel.query().select('content')
-    const result: ItemByIdResponse<DirectusHomepage> = JSON.parse(
-      queryResult[0].content
-    )
+    const queryResult = await CMSCacheHomepageModel.query()
+      .select('content')
+      .first()
+    const result: DirectusHomepage =
+      queryResult.content as unknown as DirectusHomepage
 
-    return toHomepageBase(result.data)
+    return toHomepageBase(result)
   }
 
   async getLanguages(locale = DEFAULT_LOCALE) {
     const queryResult = await CMSCacheLanguageModel.query().select('content')
     const jsonResult = queryResult.map((result) => result.content)
-    const result: ItemsResponse<DirectusLanguageTemplate> = JSON.parse(
+    const result: DirectusLanguageTemplate[] = JSON.parse(
       `[${jsonResult.join(', ')}]`
     )
 
-    return result.data.map((directusLanguageTemplate) => ({
+    return result.map((directusLanguageTemplate) => ({
       languages_code: directusLanguageTemplate.code,
       label: getDirectusTranslation<DirectusLanguageTemplateTranslation>(
         directusLanguageTemplate.translations as DirectusLanguageTemplateTranslation[],

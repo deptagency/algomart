@@ -274,7 +274,7 @@ export default class PacksService {
       locale,
       // need to load all packs into memory
       // TODO: optimize when/if this becomes a problem
-      pageSize: -1,
+      pageSize: 20,
       filter,
     })
 
@@ -490,12 +490,17 @@ export default class PacksService {
     )
     invariant(packTemplate, 'pack template missing in cms')
 
+    const templateIds = pack.collectibles.map((c) => c.templateId)
     const { collectibles: collectibleTemplates } =
-      await this.cms.findAllCollectibles(locale, {
-        id: {
-          _in: pack.collectibles.map((c) => c.templateId),
+      await this.cms.findAllCollectibles(
+        locale,
+        {
+          id: {
+            _in: templateIds,
+          },
         },
-      })
+        templateIds.length
+      )
 
     const collectibleTemplateLookup = new Map(
       collectibleTemplates.map((t) => [t.templateId, t])
@@ -1018,11 +1023,15 @@ export default class PacksService {
     const { collectibleTemplateIds, templateId, config } = template
     const collectibleTemplateIdsCount = collectibleTemplateIds.length
     const { collectibles: collectibleTemplates } =
-      await this.cms.findAllCollectibles(undefined, {
-        id: {
-          _in: collectibleTemplateIds,
+      await this.cms.findAllCollectibles(
+        undefined,
+        {
+          id: {
+            _in: collectibleTemplateIds,
+          },
         },
-      })
+        collectibleTemplateIdsCount
+      )
 
     const totalCollectibles = collectibleTemplates.reduce(
       (sum, t) => sum + t.totalEditions,
