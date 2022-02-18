@@ -1,7 +1,7 @@
 import { DEFAULT_LOCALE, LOCALE_COOKIE } from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { FormEvent, useCallback, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { ExtractError } from 'validator-fns'
 
 import common from './my-profile-common.module.css'
@@ -18,6 +18,7 @@ import { validateLanguage } from '@/utils/auth-validation'
 import { setCookie } from '@/utils/cookies-web'
 
 export default function MyProfileLanguage() {
+  const locale = useLocale()
   const { user, reloadProfile } = useAuth()
   const [formErrors, setFormErrors] = useState<ExtractError<typeof validate>>()
   const [isEditing, setIsEditing] = useState<boolean>(false)
@@ -28,7 +29,7 @@ export default function MyProfileLanguage() {
   const { t } = useTranslation()
   const router = useRouter()
 
-  const validate = useMemo(() => validateLanguage(t), [t])
+  const validate = useMemo(() => validateLanguage(), [])
 
   const handleUpdateLanguage = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -55,6 +56,8 @@ export default function MyProfileLanguage() {
         setLoading(false)
         return
       }
+
+      setCookie(LOCALE_COOKIE, body.language, 365)
       await reloadProfile()
       setLoading(false)
       setIsEditing(false)
@@ -62,7 +65,6 @@ export default function MyProfileLanguage() {
       setUpdateError('')
       setUpdateSuccess(true)
 
-      setCookie(LOCALE_COOKIE, body?.language, 365)
       router.push(
         { pathname: router.pathname, query: router.query },
         router.asPath,
@@ -91,6 +93,10 @@ export default function MyProfileLanguage() {
   const handleLanguageChange = useCallback((selectOption: SelectOption) => {
     setLanguage(selectOption.id as string)
   }, [])
+
+  useEffect(() => {
+    setLanguage(locale)
+  }, [locale])
 
   return (
     <section className={common.section}>

@@ -30,6 +30,7 @@ export async function updateAccount(
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
+
   await accounts.updateAccount(
     {
       ...request.body,

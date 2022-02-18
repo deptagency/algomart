@@ -11,5 +11,5 @@
     "**/*.spec.ts",
     "**/*.d.ts",
     "test/**/*.ts",
-    "**/seeds/*.ts"]
+    "**/seeds/*.ts", "../../libs/shared/services/src/lib/i18n.service.ts"]
 }

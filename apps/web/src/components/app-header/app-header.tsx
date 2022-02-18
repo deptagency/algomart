@@ -3,11 +3,12 @@ import clsx from 'clsx'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import css from './app-header.module.css'
 
 import AppLink from '@/components/app-link/app-link'
+import Button from '@/components/button'
 import Logo from '@/components/logo/logo'
 import { useAuth } from '@/contexts/auth-context'
 import { getMainNavItems } from '@/utils/navigation'
@@ -18,9 +19,18 @@ export default function AppHeader() {
   const [showMenu, setShowMenu] = useState<boolean>(false)
   const { t } = useTranslation()
   const navItems = getMainNavItems(t)
-  const { pathname } = useRouter()
+  const { pathname, push } = useRouter()
 
   const isAuthenticated = auth.status === 'authenticated'
+  const signOut = useCallback(async () => {
+    await auth.signOut()
+    push(urls.home)
+  }, [auth, push])
+
+  const signIn = () => {
+    setShowMenu(false)
+    push(urls.login)
+  }
 
   return (
     <header
@@ -28,78 +38,130 @@ export default function AppHeader() {
         [css.rootMobileVisible]: showMenu,
       })}
     >
+      <div className={css.utilityWrapper}>
+        <div className={css.utility}>
+          <div className={css.hamburgerWrapper}>
+            <button
+              className={showMenu ? css.hamburgerMenuOpen : css.hamburger}
+              onClick={() => {
+                setShowMenu(!showMenu)
+              }}
+            >
+              {showMenu ? <XIcon /> : <MenuIcon />}
+            </button>
+          </div>
+          <div className={css.logo}>
+            <Logo />
+          </div>
+          <div className={css.utilityNav}>
+            {isAuthenticated ? (
+              <>
+                <AppLink
+                  aria-label={
+                    isAuthenticated
+                      ? t('common:pageTitles.My Profile')
+                      : t('common:nav.utility.Log In')
+                  }
+                  className={css.utilityNavLink}
+                  href={isAuthenticated ? urls.myProfile : urls.login}
+                  title={
+                    isAuthenticated
+                      ? t('common:pageTitles.My Profile')
+                      : t('common:nav.utility.Log In')
+                  }
+                >
+                  <div className={css.utilityNavLabel}>
+                    {t('common:nav.utility.My Account')}
+                  </div>
+                  {auth.user?.photo ? (
+                    <Image
+                      alt={t('common:nav.utility.My profile picture')}
+                      src={auth.user.photo}
+                      layout="fixed"
+                      height={40}
+                      width={40}
+                    />
+                  ) : (
+                    <UserCircleIcon
+                      className={css.avatarGeneric}
+                      height={40}
+                      width={40}
+                    />
+                  )}
+                </AppLink>
+              </>
+            ) : (
+              <>
+                <AppLink className={css.utilityNavLink} href={urls.login}>
+                  <span className="hidden md:inline">
+                    {t('common:actions.Sign In')}
+                  </span>
+                  <UserCircleIcon
+                    className={`${css.avatarGeneric} md:hidden`}
+                    height={40}
+                    width={40}
+                  />
+                </AppLink>
+                <Button
+                  size="small"
+                  className="md:inline hidden"
+                  onClick={signIn}
+                >
+                  Create Account
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
       <nav
         aria-label={t('common:nav.aria.Main Navigation')}
         className={css.wrapper}
       >
-        {/* Hamburger menu (only shown on smaller screens) */}
-        <div className={css.hamburgerWrapper}>
-          <button
-            className={css.hamburger}
-            onClick={() => {
-              setShowMenu(!showMenu)
-            }}
-          >
-            {showMenu ? <XIcon /> : <MenuIcon />}
-          </button>
-        </div>
-
-        {/* Logo */}
-        <div className={css.logo}>
-          <Logo linkClassName={css.logoLink} />
-        </div>
-
         {/* Main Nav */}
         <div
           className={clsx(css.mainNav, {
             [css.mainNavHidden]: !showMenu,
           })}
         >
-          {navItems.map(({ href, label }) => {
-            const isCurrentNavItem = isRootPathMatch(pathname, href)
-            return (
-              <AppLink
-                className={clsx(css.mainNavLink, {
-                  [css.mainNavLinkActive]: isCurrentNavItem,
-                })}
-                href={href}
-                onClick={() => setShowMenu(false)}
-                key={href}
-              >
-                {label}
-              </AppLink>
-            )
-          })}
-        </div>
-
-        {/* Utility Nav */}
-        <div className={css.utilityNav}>
-          <AppLink
-            aria-label={
-              isAuthenticated
-                ? t('common:pageTitles.My Profile')
-                : t('common:nav.utility.Log In')
-            }
-            className={css.utilityNavLink}
-            href={isAuthenticated ? urls.myProfile : urls.login}
-            title={
-              isAuthenticated
-                ? t('common:pageTitles.My Profile')
-                : t('common:nav.utility.Log In')
-            }
-          >
-            {auth.user?.photo ? (
-              <Image
-                alt={t('common:nav.utility.My profile picture')}
-                src={auth.user.photo}
-                layout="responsive"
-                height="100%"
-                width="100%"
-              />
+          <div className={css.mainNavItems}>
+            {navItems.map(({ href, label }) => {
+              const isCurrentNavItem = isRootPathMatch(pathname, href)
+              return (
+                <AppLink
+                  className={clsx(css.mainNavLink, {
+                    [css.mainNavLinkActive]: isCurrentNavItem,
+                  })}
+                  href={href}
+                  onClick={() => setShowMenu(false)}
+                  key={href}
+                >
+                  {label}
+                </AppLink>
+              )
+            })}
+          </div>
+          <div className={css.mobileNavBottom}>
+            {isAuthenticated ? (
+              <>
+                <AppLink href={urls.settings}>
+                  {t('common:nav.main.Settings')}
+                </AppLink>
+                <AppLink href="#" onClick={signOut}>
+                  {t('common:actions.Sign Out')}
+                </AppLink>
+              </>
             ) : (
-              <UserCircleIcon className={css.avatarGeneric} />
+              <>
+                <Button onClick={signIn}>
+                  {t('common:actions.Create Account')}
+                </Button>
+                <Button variant="secondary" onClick={signIn}>
+                  {t('common:actions.Sign In')}
+                </Button>
+              </>
             )}
-          </AppLink>
+          </div>
         </div>
       </nav>
     </header>

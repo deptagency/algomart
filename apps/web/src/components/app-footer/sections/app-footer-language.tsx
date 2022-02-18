@@ -1,7 +1,7 @@
 import { LOCALE_COOKIE } from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Language } from '@/components/auth-inputs/auth-inputs'
 import { SelectOption } from '@/components/select/select'
@@ -14,13 +14,15 @@ import { setCookie } from '@/utils/cookies-web'
 export default function AppFooterLanguage() {
   const { t } = useTranslation()
   const router = useRouter()
+  const locale = useLocale()
   const { user, reloadProfile } = useAuth()
-  const [language, setLanguage] = useState<string>(useLocale())
+  const [dropdownLanguage, setDropdownLanguage] = useState<string>(useLocale())
   const [loading, setLoading] = useState<boolean>(false)
 
-  const validate = useMemo(() => validateLanguage(t), [t])
+  const validate = useMemo(() => validateLanguage(), [])
 
-  const handleLanguageChange = useCallback(
+  // callback to handle dropdown changes
+  const handleDropdownLanguageChange = useCallback(
     async (selectedOption: SelectOption) => {
       const locale = selectedOption?.id
 
@@ -36,6 +38,8 @@ export default function AppFooterLanguage() {
         return
       }
 
+      setCookie(LOCALE_COOKIE, locale, 365)
+
       if (user) {
         // Update language
         const updateLanguage = await authService.updateLanguage(body.language)
@@ -47,9 +51,8 @@ export default function AppFooterLanguage() {
         await reloadProfile()
       }
 
-      setCookie(LOCALE_COOKIE, locale, 365)
       setLoading(false)
-      setLanguage(locale)
+      setDropdownLanguage(locale)
       router.push(
         { pathname: router.pathname, query: router.query },
         router.asPath,
@@ -60,12 +63,17 @@ export default function AppFooterLanguage() {
     [validate, user, router, reloadProfile]
   )
 
+  // useEffect to handle global locale changes
+  useEffect(() => {
+    setDropdownLanguage(locale)
+  }, [locale])
+
   return (
     <Language
       disabled={loading}
       showLabel={false}
-      value={language}
-      handleChange={handleLanguageChange}
+      value={dropdownLanguage}
+      handleChange={handleDropdownLanguageChange}
       t={t}
     />
   )

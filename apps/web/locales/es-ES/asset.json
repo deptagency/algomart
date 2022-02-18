@@ -1,0 +1,12 @@
+{
+  "Asset Name": "ES Asset Name",
+  "createFail": "ES Failed to create assets.",
+  "createSuccess": "ES Success! Created asset(s).",
+  "Description": "ES Description",
+  "Editions": "ES Editions",
+  "editionsDescription": "ES 1 unique item or an edition of items",
+  "Release Description": "ES Release Description",
+  "Release Slug": "ES Release Slug",
+  "Release Title": "ES Release Title",
+  "Unit Name": "ES Unit Name"
+}

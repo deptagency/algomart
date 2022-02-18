@@ -6,10 +6,8 @@ import {
 } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
-import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
-import { Analytics } from '@/clients/firebase-analytics'
 import { usePaymentProvider } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
 import DefaultLayout from '@/layouts/default-layout'
@@ -37,13 +35,6 @@ export default function Checkout({
     currentBid,
     release,
   })
-
-  useEffect(() => {
-    Analytics.instance.beginCheckout({
-      itemName: release.title,
-      value: currentBid ?? release.price,
-    })
-  }, [currentBid, release])
 
   return (
     <DefaultLayout

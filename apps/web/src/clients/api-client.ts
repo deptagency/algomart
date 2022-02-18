@@ -26,6 +26,7 @@ import {
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
+  I18nInfo,
   LanguageList,
   Locale,
   LocaleAndExternalId,
@@ -477,15 +478,30 @@ export class ApiClient {
       })
       .json()
   }
-  //#region Languages
+
+  //#region i18n
   async getLanguages(locale: string) {
     return await this.http
-      .get('languages', {
+      .get('i18n/languages', {
         searchParams: {
           locale: locale || DEFAULT_LOCALE,
         },
       })
       .json<LanguageList>()
+  }
+
+  async getCurrencyConversions() {
+    return await this.http.get('i18n/currencyConversions').json<LanguageList>()
+  }
+
+  async getI18n(locale: string) {
+    return await this.http
+      .get('i18n/i18n-info', {
+        searchParams: {
+          locale: locale || DEFAULT_LOCALE,
+        },
+      })
+      .json<I18nInfo>()
   }
   //#endregion
 

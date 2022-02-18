@@ -19,8 +19,35 @@ module.exports = {
     ...createGlobPatternsForDependencies(__dirname, '**/*.{js,ts,jsx,tsx,css}'),
   ],
 
-  darkMode: 'class', // or false, 'media' or 'class'
+  darkMode: false, // or false, 'media' or 'class'
   theme: {
+    fontFamily: {
+      base: ['"Open Sans"', 'ui-sans-serif', 'system-ui', '-apple-system'],
+      display: ['"Open Sans Condensed"', 'ui-sans-serif', 'system-ui'],
+      mono: [
+        'ui-monospace',
+        'SFMono-Regular',
+        'Menlo',
+        'Monaco',
+        'Consolas',
+        '"Liberation Mono"',
+        '"Courier New"',
+        'monospace',
+      ],
+    },
+    fontSize: {
+      xs: '.75rem',
+      sm: '.875rem',
+      base: '1rem',
+      lg: '1.25rem',
+      xl: '1.75rem',
+      '2xl': '3.75rem',
+      '3xl': '4rem',
+      '4xl': '5rem',
+      '5xl': '6rem',
+      '6xl': '7rem',
+      '7xl': '8rem',
+    },
     extend: {
       backgroundImage: {
         'pack-texture': "url('/images/textures/pack-texture.jpg')",

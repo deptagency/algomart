@@ -18,11 +18,22 @@ import {
 import PacksService from './packs.service'
 import NotificationsService from './notifications.service'
 import { isGreaterThan, userInvariant } from '@algomart/shared/utils'
+import I18nService from './i18n.service'
+
+// import { BidModel } from '@/models/bid.model'
+// import { EventModel } from '@/models/event.model'
+// import { PackModel } from '@/models/pack.model'
+// import { UserAccountModel } from '@/models/user-account.model'
+// import NotificationsService from '@/modules/notifications/notifications.service'
+// import PacksService from '@/modules/packs/packs.service'
+// import { currency, isGreaterThan } from '@/utils/format-currency'
+// import { userInvariant } from '@/utils/invariant'
 
 export default class BidsService {
   logger: pino.Logger<unknown>
 
   constructor(
+    private readonly i18nService: I18nService,
     private readonly notifications: NotificationsService,
     private readonly packService: PacksService,
     private currency: Currencies.Currency<number>,
@@ -47,6 +58,15 @@ export default class BidsService {
       )
     }
 
+    // Bids are stored in currency of environment variable
+    const { exchangeRate } = await this.i18nService.getCurrencyConversion(
+      {
+        sourceCurrency: bid.currency,
+        targetCurrency: this.currency.code,
+      },
+      trx
+    )
+
     // Get user by externalId
     const newHighBidder = await UserAccountModel.query(trx).findOne({
       externalId: bid.externalId || null,
@@ -60,7 +80,7 @@ export default class BidsService {
 
     // Create new bid
     const { id: bidId } = await BidModel.query(trx).insert({
-      amount: bid.amount,
+      amount: bid.amount * exchangeRate,
       packId: bid.packId,
       userAccountId: newHighBidder.id,
     })

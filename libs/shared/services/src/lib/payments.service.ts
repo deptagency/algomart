@@ -33,6 +33,7 @@ import {
 } from '@algomart/schemas'
 
 import PacksService from './packs.service'
+import I18nService from './i18n.service'
 import NotificationsService from './notifications.service'
 import { CircleAdapter, CoinbaseAdapter } from '@algomart/shared/adapters'
 
@@ -47,20 +48,32 @@ import {
 } from '@algomart/shared/models'
 
 import { formatFloatToInt, formatIntToFloat } from '@algomart/shared/utils'
+// import { Configuration } from '@/configuration'
+// import CircleAdapter from '@/lib/circle-adapter'
+// import { BidModel } from '@/models/bid.model'
+// import { EventModel } from '@/models/event.model'
+// import { PackModel } from '@/models/pack.model'
+// import { PaymentModel } from '@/models/payment.model'
+// import { PaymentBankAccountModel } from '@/models/payment-bank-account.model'
+// import { PaymentCardModel } from '@/models/payment-card.model'
+// import { UserAccountModel } from '@/models/user-account.model'
+// import NotificationService from '@/modules/notifications/notifications.service'
+// import PacksService from '@/modules/packs/packs.service'
+// import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 import {
   convertFromUSD,
   convertToUSD,
   isGreaterThanOrEqual,
+  invariant,
+  userInvariant,
 } from '@algomart/shared/utils'
-
-import { invariant, userInvariant } from '@algomart/shared/utils'
 
 export default class PaymentsService {
   logger: pino.Logger<unknown>
 
   constructor(
     private readonly circle: CircleAdapter,
-    private readonly coinbase: CoinbaseAdapter,
+    private readonly i18nService: I18nService,
     private readonly notifications: NotificationsService,
     private readonly packs: PacksService,
     private currency: Currencies.Currency<number>,
@@ -491,13 +504,16 @@ export default class PaymentsService {
     }
 
     // Retrieve exchange rates for app currency and USD
-    const exchangeRates = await this.coinbase.getExchangeRates({
-      currency: this.currency.code,
-    })
-    invariant(exchangeRates, 'unable to find exchange rates')
+    const currencyConversions = await this.i18nService.getCurrencyConversions(
+      {
+        sourceCurrency: this.currency.code,
+      },
+      trx
+    )
+    invariant(currencyConversions, 'unable to find exchange rates')
 
     // Convert price to USD for payment
-    const amount = convertToUSD(price, exchangeRates.rates, this.currency)
+    const amount = convertToUSD(price, currencyConversions, this.currency)
     invariant(amount !== null, 'unable to convert to currency')
 
     // Claim pack ASAP to ensure it's not claimed by someone else during this flow.
@@ -656,15 +672,18 @@ export default class PaymentsService {
     userInvariant(transfer, 'transfer not found', 404)
 
     // Retrieve exchange rates for app currency and USD
-    const exchangeRates = await this.coinbase.getExchangeRates({
-      currency: this.currency.code,
-    })
-    invariant(exchangeRates, 'unable to find exchange rates')
+    const currencyConversions = await this.i18nService.getCurrencyConversions(
+      {
+        sourceCurrency: this.currency.code,
+      },
+      trx
+    )
+    invariant(currencyConversions, 'unable to find exchange rates')
 
     // Convert from USD to native currency integer
     const amount = convertFromUSD(
       transfer.amount,
-      exchangeRates.rates,
+      currencyConversions,
       this.currency
     )
     invariant(amount !== null, 'unable to convert to currency')
@@ -723,10 +742,13 @@ export default class PaymentsService {
     if (!payments) return null
 
     // Retrieve exchange rates for app currency and USD
-    const exchangeRates = await this.coinbase.getExchangeRates({
-      currency: this.currency.code,
-    })
-    invariant(exchangeRates, 'unable to find exchange rates')
+    const currencyConversions = await this.i18nService.getCurrencyConversions(
+      {
+        sourceCurrency: this.currency.code,
+      },
+      trx
+    )
+    invariant(currencyConversions, 'unable to find exchange rates')
 
     // Find bank account in database
     const foundBankAccount = await PaymentBankAccountModel.query().findById(
@@ -739,7 +761,7 @@ export default class PaymentsService {
       // Convert price to USD for payment
       const amount = convertFromUSD(
         currentPayment.amount,
-        exchangeRates.rates,
+        currencyConversions,
         this.currency
       )
       invariant(amount !== null, 'unable to convert to currency')

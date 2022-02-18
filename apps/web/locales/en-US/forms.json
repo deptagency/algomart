@@ -12,6 +12,7 @@
     "invalidCredentials": "Invalid credentials",
     "invalidCreditCard": "Invalid credit card number",
     "invalidCountry": "Invalid country code",
+    "invalidCurrency": "Invalid currency",
     "invalidDetails": "Invalid details provided",
     "invalidName": "Invalid first and last name",
     "invalidPassphrase": "Invalid Passphrase",
@@ -24,10 +25,10 @@
     "bidLessThanHighestBid": "Your bid was lower than the current high bid.",
     "maxCharacters": "Must be less than {max} characters",
     "minCharacters": "Must be at least {min} characters",
-    "minUSDC": "Found balance of {{balance}} USD, but the minimum needed is {{min}} USD",
+    "minUSDC": "Found balance of {{balance}} {{currency}}, but the minimum needed is {{min}} {{currency}}",
     "maxItems": "Must pick at most {max} items",
     "minImageFileSize": "Image must be {{fileSize}} or smaller",
-    "noUSDC": "No USDC found in wallet",
+    "noUSDC": "No {{currency}} found in wallet",
     "onlyLetters": "Must contain only letters",
     "onlyLettersAndNumbers": "Must contain only letters and numbers",
     "onlyNumbers": "Must contain only numbers",
@@ -97,6 +98,9 @@
         "US": "United States"
       }
     },
+    "currencies": {
+      "label": "Currency"
+    },
     "defaultCard": {
       "label": "Default",
       "helpText": "Make card my default for purchases"
@@ -163,7 +167,7 @@
         "label": "If you already have a wallet",
         "1": "Click to connect and scan the QR code using your wallet's mobile app, OR copy the blockchain address to your clipboard.",
         "2": "Initiate the purchase, either by clicking the Purchase button or manually transferring funds to the copied address.",
-        "3": "Submit your payment of {{price}} in USDC.",
+        "3": "Submit your payment of {{price}} in {{currency}}.",
         "4": "Check for payment. Once we receive your payment, you will be the new owner of the NFT."
       },
       "Connected account": "Connected account",

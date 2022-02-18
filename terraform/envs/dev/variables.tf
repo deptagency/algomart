@@ -47,6 +47,11 @@ variable "cms_service_name" {
   sensitive = true
 }
 
+variable "scribe_service_name" {
+  default   = "algomart-scribe"
+  sensitive = true
+}
+
 variable "database_server_name" {
   default   = "algomart"
   sensitive = true
@@ -271,6 +276,14 @@ variable "cms_secret" {
 }
 
 variable "cms_storage_bucket" {
+  sensitive = true
+}
+
+variable "scribe_image" {
+  sensitive = true
+}
+
+variable "scribe_revision_name" {
   sensitive = true
 }
 

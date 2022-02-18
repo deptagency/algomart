@@ -31,8 +31,8 @@ export { TransactionsService }
 import HomepageService from './homepage.service'
 export { HomepageService }
 
-import LanguagesService from './languages.service'
-export { LanguagesService }
+import I18nService from './i18n.service'
+export { I18nService }
 
 import FaqsService from './faqs.service'
 export { FaqsService }

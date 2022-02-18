@@ -9,12 +9,11 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "start": "nx run-many --target=serve --projects=scribe,api,cms,web --parallel --maxParallel=10",
-    "build": "nx run-many --target=build --all --maxParallel=10",
-    "test": "nx run-many --target=test --all --maxParallel=10",
-    "lint": "nx run-many --target=lint --all --maxParallel=10",
-    "lint-fix": "nx run-many --target=lint --all --maxParallel=10",
-    "e2e": "nx run-many --target=serve --all --watch --maxParallel=10"
+    "start": "nx run-many --target=serve --projects=scribe,api,cms,web --parallel --maxParallel=100",
+    "build": "nx run-many --target=build --all",
+    "test": "nx run-many --target=test --all",
+    "lint": "nx run-many --target=lint --all",
+    "e2e": "nx run-many --target=serve --all --watch"
   },
   "dependencies": {
     "@dinero.js/currencies": "2.0.0-alpha.8",
