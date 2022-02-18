@@ -29,7 +29,7 @@ import {
   SetBase,
   SetWithCollection,
 } from '@algomart/schemas'
-import { URL, URLSearchParams } from 'node:url'
+import { URL } from 'node:url'
 
 import { CMSCacheCollectibleTemplateModel } from '@/models/cms-cache-collectible-template.model'
 import { CMSCacheCollectionModel } from '@/models/cms-cache-collection.model'
@@ -58,16 +58,16 @@ export interface ItemByIdResponse<T> {
 
 export interface ItemFilter {
   [key: string]:
-    | string
-    | string[]
-    | number
-    | number[]
-    | boolean
-    | boolean[]
-    | Date
-    | Date[]
-    | ItemFilter
-    | ItemFilter[]
+  | string
+  | string[]
+  | number
+  | number[]
+  | boolean
+  | boolean[]
+  | Date
+  | Date[]
+  | ItemFilter
+  | ItemFilter[]
 }
 
 export interface ItemQuery<TItem> {
@@ -80,51 +80,6 @@ export interface ItemQuery<TItem> {
   deep?: ItemFilter
   totalCount?: boolean
   filterCount?: boolean
-}
-
-function getParameters<TItem>(query?: ItemQuery<TItem>) {
-  const parameters = new URLSearchParams()
-
-  if (query?.search) {
-    parameters.set('search', query.search)
-  }
-
-  if (query?.sort) {
-    parameters.set('sort', query.sort.join(','))
-  }
-
-  if (query?.limit) {
-    parameters.set('limit', query.limit.toString())
-  }
-
-  if (query?.offset) {
-    parameters.set('offset', query.offset.toString())
-  }
-
-  if (query?.page) {
-    parameters.set('page', query.page.toString())
-  }
-
-  if (query?.filter) {
-    parameters.set('filter', JSON.stringify(query.filter))
-  }
-
-  if (query?.deep) {
-    parameters.set('deep', JSON.stringify(query.deep))
-  }
-
-  if (query?.totalCount || query?.filterCount) {
-    parameters.set(
-      'meta',
-      query.totalCount && query.filterCount
-        ? '*'
-        : query.totalCount
-        ? 'total_count'
-        : 'filter_count'
-    )
-  }
-
-  return parameters
 }
 
 function getDirectusTranslation<TItem extends DirectusTranslation>(
@@ -154,27 +109,42 @@ function getDirectusTranslation<TItem extends DirectusTranslation>(
 
 export type GetFileURL = (file: DirectusFile) => string
 
-export function toHomepageBase(homepage: DirectusHomepage): HomepageBase {
+export function toHomepageBase(
+  homepage: DirectusHomepage,
+  getFileURL: GetFileURL,
+  locale = DEFAULT_LOCALE
+): HomepageBase {
   invariant(
-    homepage.featured_pack === null ||
-      typeof homepage.featured_pack === 'string',
-    'featured_pack must be null or a string'
+    homepage.hero_pack === null || typeof homepage.hero_pack === 'string',
+    'hero_pack must be null or a string'
   )
   invariant(
-    homepage.upcoming_packs === null ||
-      homepage.upcoming_packs.length === 0 ||
-      isStringArray(homepage.upcoming_packs),
-    'upcoming_packs must be empty or an array of strings'
+    homepage.featured_packs === null ||
+    homepage.featured_packs.length === 0 ||
+    isStringArray(homepage.featured_packs),
+    'featured_packs must be empty or an array of strings'
+  )
+
+  const translation = getDirectusTranslation(
+    homepage.translations,
+    `homepage has no translations`,
+    locale
   )
 
   return {
-    featuredPackTemplateId:
-      typeof homepage.featured_pack === 'string'
-        ? homepage.featured_pack
-        : homepage.featured_pack?.id,
-    upcomingPackTemplateIds: (homepage.upcoming_packs ?? []) as string[],
-    notableCollectibleTemplateIds: (homepage.notable_collectibles ??
-      []) as string[],
+    heroBanner: getFileURL(homepage.hero_banner),
+    heroBannerSubtitle: translation.hero_banner_subtitle,
+    heroBannerTitle: translation.hero_banner_title,
+    heroPackTemplateId:
+      typeof homepage.hero_pack === 'string'
+        ? homepage.hero_pack
+        : homepage.hero_pack?.id,
+    featuredNftsSubtitle: translation.featured_nfts_subtitle,
+    featuredNftsTitle: translation.featured_nfts_title,
+    featuredNftTemplateIds: (homepage.featured_nfts ?? []) as string[],
+    featuredPacksSubtitle: translation.featured_packs_subtitle,
+    featuredPacksTitle: translation.featured_packs_title,
+    featuredPackTemplateIds: (homepage.featured_packs ?? []) as string[],
   }
 }
 
@@ -243,10 +213,10 @@ export function toCollectionBase(
     reward:
       reward_complete && reward_prompt && reward_image
         ? {
-            complete: reward_complete,
-            prompt: reward_prompt,
-            image: getFileURL(reward_image),
-          }
+          complete: reward_complete,
+          prompt: reward_prompt,
+          image: getFileURL(reward_image),
+        }
         : undefined,
   }
 }
@@ -296,10 +266,10 @@ export function toCollectibleBase(
   const rarity = template.rarity as DirectusRarity
   const rarityTranslation = rarity
     ? getDirectusTranslation<DirectusRarityTranslation>(
-        rarity?.translations as DirectusRarityTranslation[],
-        'expected rarity to include translations',
-        locale
-      )
+      rarity?.translations as DirectusRarityTranslation[],
+      'expected rarity to include translations',
+      locale
+    )
     : undefined
 
   let collectionId =
@@ -342,10 +312,10 @@ export function toCollectibleBase(
     uniqueCode: template.unique_code,
     rarity: rarity
       ? {
-          code: rarity.code,
-          color: rarity.color,
-          name: rarityTranslation?.name,
-        }
+        code: rarity.code,
+        color: rarity.color,
+        name: rarityTranslation?.name,
+      }
       : undefined,
   }
 }
@@ -415,7 +385,7 @@ export interface CMSCacheAdapterOptions {
 export default class CMSCacheAdapter {
   logger = logger.child({ context: this.constructor.name })
 
-  constructor(private readonly options: CMSCacheAdapterOptions) {}
+  constructor(private readonly options: CMSCacheAdapterOptions) { }
 
   private async findPackTemplates(query: ItemQuery<DirectusPackTemplate> = {}) {
     const queryResult = await CMSCachePackTemplateModel.query().select(
