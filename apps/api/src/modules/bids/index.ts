@@ -1,12 +1,12 @@
 import { CreateBidRequestSchema } from '@algomart/schemas'
+import { appErrorHandler } from '@algomart/shared/utils'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
 import fastifyBearerAuth from 'fastify-bearer-auth'
 
-import { createBid } from './bids.routes'
+import bearerAuthOptions from '../../configuration/bearer-auth'
 
-import bearerAuthOptions from '@/configuration/bearer-auth'
-import { appErrorHandler } from '@/utils/errors'
+import { createBid } from './bids.routes'
 
 export async function bidsRoutes(app: FastifyInstance) {
   const tags = ['bids']

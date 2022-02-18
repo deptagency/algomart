@@ -1,11 +1,11 @@
 import { CreateAuctionBodySchema } from '@algomart/schemas'
+import { appErrorHandler } from '@algomart/shared/utils'
 import { FastifyInstance } from 'fastify'
 import fastifyBearerAuth from 'fastify-bearer-auth'
 
-import { createAuction } from './auctions.routes'
+import bearerAuthOptions from '../../configuration/bearer-auth'
 
-import bearerAuthOptions from '@/configuration/bearer-auth'
-import { appErrorHandler } from '@/utils/errors'
+import { createAuction } from './auctions.routes'
 
 export async function auctionsRoutes(app: FastifyInstance) {
   // Helps with organization in the Swagger docs

@@ -1,11 +1,13 @@
+import { CollectiblesService } from '@algomart/shared/services'
+import { DependencyResolver } from '@algomart/shared/utils'
+import { Knex } from 'knex'
 import { Model } from 'objection'
 
-import CollectiblesService from '@/modules/collectibles/collectibles.service'
-import DependencyResolver from '@/shared/dependency-resolver'
-import { logger } from '@/utils/logger'
+import { logger } from '../configuration/logger'
 
 export default async function storeCollectiblesTask(
-  registry: DependencyResolver
+  registry: DependencyResolver,
+  knexRead?: Knex
 ) {
   const log = logger.child({ task: 'store-collectibles' })
   const collectibles = registry.get<CollectiblesService>(
@@ -13,7 +15,11 @@ export default async function storeCollectiblesTask(
   )
   const trx = await Model.startTransaction()
   try {
-    const result = await collectibles.storeCollectibles(undefined, trx)
+    const result = await collectibles.storeCollectibles(
+      undefined,
+      trx,
+      knexRead
+    )
     log.info('stored %d collectibles on IPFS', result)
     await trx.commit()
   } catch (error) {

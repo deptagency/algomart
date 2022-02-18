@@ -1,3 +1,10 @@
+import { generateHealthRoutes } from '@algomart/shared/adapters'
+import {
+  fastifyContainerPlugin,
+  fastifyKnexPlugin,
+  fastifyTransactionPlugin,
+} from '@algomart/shared/plugins'
+import { DependencyResolver } from '@algomart/shared/utils'
 import ajvCompiler from '@fastify/ajv-compiler'
 import ajvFormats from 'ajv-formats'
 import fastify, { FastifyServerOptions } from 'fastify'
@@ -6,27 +13,23 @@ import fastifySensible from 'fastify-sensible'
 import fastifySwagger from 'fastify-swagger'
 import { Knex } from 'knex'
 
-import swaggerOptions from '@/configuration/swagger'
-import { accountsRoutes } from '@/modules/accounts'
-import { auctionsRoutes } from '@/modules/auctions'
-import { bidsRoutes } from '@/modules/bids'
-import { collectiblesRoutes } from '@/modules/collectibles'
-import { collectionsRoutes } from '@/modules/collections'
-import { faqsRoutes } from '@/modules/faqs'
-import { homepageRoutes } from '@/modules/homepage'
-import { i18nRoutes } from '@/modules/i18n'
-import { packsRoutes } from '@/modules/packs'
-import { pageRoute } from '@/modules/pages'
-import { paymentRoutes } from '@/modules/payments'
-import { setsRoutes } from '@/modules/sets'
-import fastifyContainer from '@/plugins/container.plugin'
-import fastifyKnex from '@/plugins/knex.plugin'
-import fastifyTransaction from '@/plugins/transaction.plugin'
-import DependencyResolver from '@/shared/dependency-resolver'
+import swaggerOptions from '../configuration/swagger'
+import { accountsRoutes } from '../modules/accounts'
+import { auctionsRoutes } from '../modules/auctions'
+import { bidsRoutes } from '../modules/bids'
+import { collectiblesRoutes } from '../modules/collectibles'
+import { collectionsRoutes } from '../modules/collections'
+import { faqsRoutes } from '../modules/faqs'
+import { homepageRoutes } from '../modules/homepage'
+import { i18nRoutes } from '../modules/i18n'
+import { packsRoutes } from '../modules/packs'
+import { pageRoute } from '../modules/pages'
+import { paymentRoutes } from '../modules/payments'
+import { setsRoutes } from '../modules/sets'
 
 export interface AppConfig {
   knexMain: Knex.Config
-  knexRead: Knex.Config
+  knexRead?: Knex.Config
   fastify?: FastifyServerOptions
   container: DependencyResolver
 }
@@ -65,14 +68,17 @@ export default async function buildApp(config: AppConfig) {
   await app.register(fastifySensible)
 
   // Our Plugins
-  await app.register(fastifyKnex, { knex: config.knexMain, name: 'knexMain' })
-  await app.register(fastifyKnex, {
-    knex: config.knexRead,
-    name: 'knexRead',
-    readReplica: true,
-  })
-  await app.register(fastifyContainer, { container: config.container })
-  await app.register(fastifyTransaction)
+  await app.register(fastifyKnexPlugin, {
+    knex: config.knexMain,
+    name: 'knexMain',
+  }),
+    await app.register(fastifyKnexPlugin, {
+      knex: config.knexRead,
+      name: 'knexRead',
+      readReplica: true,
+    })
+  await app.register(fastifyContainerPlugin, { container: config.container })
+  await app.register(fastifyTransactionPlugin)
 
   // Decorators
   // no decorators yet
@@ -81,6 +87,7 @@ export default async function buildApp(config: AppConfig) {
   // no hooks yet
 
   // Services
+  await app.register(generateHealthRoutes(), { prefix: '/health' })
   await app.register(accountsRoutes, { prefix: '/accounts' })
   await app.register(auctionsRoutes, { prefix: '/auctions' })
   await app.register(bidsRoutes, { prefix: '/bids' })

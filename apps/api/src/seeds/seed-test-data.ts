@@ -12,18 +12,19 @@ import {
   PackType,
   UserAccount,
 } from '@algomart/schemas'
-import { Knex } from 'knex'
-import { Factory } from 'rosie'
-import { fakeAddressFor } from 'test/setup-tests'
-import { v4 } from 'uuid'
-
 import {
   DirectusCollectibleTemplate,
   DirectusPackTemplate,
   DirectusRarity,
   DirectusStatus,
-} from '@/lib/directus-adapter'
-import { encrypt } from '@/utils/encryption'
+} from '@algomart/shared/adapters'
+import { encrypt } from '@algomart/shared/utils'
+import { Knex } from 'knex'
+import { Factory } from 'rosie'
+import { v4 } from 'uuid'
+
+import { fakeAddressFor } from '../../test/setup-tests'
+import { Configuration } from '../configuration'
 
 // #region Factories
 
@@ -54,7 +55,7 @@ export const algorandAccountFactory = Factory.define<AlgorandAccount>(
     (creationTransaction) => creationTransaction.id
   )
   .attr('encryptedKey', ['mnemonic', 'passphrase'], (mnemonic, passphrase) =>
-    encrypt(mnemonic, passphrase)
+    encrypt(mnemonic, passphrase, Configuration.secret)
   )
 
 export const userAccountFactory = Factory.define<UserAccount>('UserAccount')

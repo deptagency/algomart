@@ -1,11 +1,13 @@
+import { TransactionsService } from '@algomart/shared/services'
+import { DependencyResolver } from '@algomart/shared/utils'
+import { Knex } from 'knex'
 import { Model } from 'objection'
 
-import TransactionsService from '@/modules/transactions/transactions.service'
-import DependencyResolver from '@/shared/dependency-resolver'
-import { logger } from '@/utils/logger'
+import { logger } from '../configuration/logger'
 
 export default async function confirmTransactionsTask(
-  registry: DependencyResolver
+  registry: DependencyResolver,
+  knexRead?: Knex
 ) {
   const log = logger.child({ task: 'confirm-transactions' })
   const transactions = registry.get<TransactionsService>(
@@ -13,7 +15,11 @@ export default async function confirmTransactionsTask(
   )
   const trx = await Model.startTransaction()
   try {
-    const result = await transactions.confirmPendingTransactions(undefined, trx)
+    const result = await transactions.confirmPendingTransactions(
+      undefined,
+      trx,
+      knexRead
+    )
     await trx.commit()
     log.info(result, 'updated transactions')
   } catch (error) {

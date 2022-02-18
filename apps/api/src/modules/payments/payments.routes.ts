@@ -15,9 +15,8 @@ import {
   UpdatePayment,
   UpdatePaymentCard,
 } from '@algomart/schemas'
+import { PaymentsService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import PaymentsService from './payments.service'
 
 export async function getPublicKey(
   request: FastifyRequest,
@@ -43,7 +42,10 @@ export async function getCardStatus(
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const card = await paymentService.getCardStatus(request.params.cardId)
+  const card = await paymentService.getCardStatus(
+    request.params.cardId,
+    request.knexRead
+  )
   if (card) {
     reply.send(card)
   } else {
@@ -61,7 +63,8 @@ export async function getWireTransferInstructions(
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
   const bankAccount = await paymentService.getWireTransferInstructions(
-    request.params.bankAccountId
+    request.params.bankAccountId,
+    request.knexRead
   )
   if (bankAccount) {
     reply.send(bankAccount)
@@ -80,7 +83,8 @@ export async function findWirePaymentsByBankId(
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
   const payments = await paymentService.searchAllWirePaymentsByBankId(
-    request.params.bankAccountId
+    request.params.bankAccountId,
+    request.knexRead
   )
   reply.send(payments)
 }
@@ -94,7 +98,11 @@ export async function sendWireTransferInstructions(
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  await paymentService.sendWireInstructions(request.query)
+  await paymentService.sendWireInstructions(
+    request.query,
+    request.transaction,
+    request.knexRead
+  )
   reply.status(204).send()
 }
 
@@ -108,7 +116,8 @@ export async function getBankAccountStatus(
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
   const bankAccount = await paymentService.getBankAccountStatus(
-    request.params.bankAccountId
+    request.params.bankAccountId,
+    request.knexRead
   )
   if (bankAccount) {
     reply.send(bankAccount)
@@ -130,7 +139,7 @@ export async function getCards(
     reply.badRequest('ownerExternalId must be set')
     return
   }
-  const cards = await paymentService.getCards(request.query)
+  const cards = await paymentService.getCards(request.query, request.knexRead)
   if (cards) {
     reply.send(cards)
   } else {
@@ -149,7 +158,8 @@ export async function createBankAccount(
     .get<PaymentsService>(PaymentsService.name)
   const bankAccount = await paymentService.createBankAccount(
     request.body,
-    request.transaction
+    request.transaction,
+    request.knexRead
   )
   if (bankAccount) {
     reply.status(201).send(bankAccount)
@@ -169,7 +179,8 @@ export async function createCard(
     .get<PaymentsService>(PaymentsService.name)
   const card = await paymentService.createCard(
     request.body,
-    request.transaction
+    request.transaction,
+    request.knexRead
   )
   reply.status(201).send(card)
 }
@@ -201,7 +212,12 @@ export async function updateCard(
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  await paymentService.updateCard(request.params.cardId, request.body)
+  await paymentService.updateCard(
+    request.params.cardId,
+    request.body,
+    request.transaction,
+    request.knexRead
+  )
   reply.status(204).send()
 }
 
@@ -214,7 +230,11 @@ export async function removeCard(
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  await paymentService.removeCardById(request.params.cardId)
+  await paymentService.removeCardById(
+    request.params.cardId,
+    request.transaction,
+    request.knexRead
+  )
   reply.status(204).send()
 }
 
@@ -229,7 +249,8 @@ export async function createPayment(
     .get<PaymentsService>(PaymentsService.name)
   const payment = await paymentService.createPayment(
     request.body,
-    request.transaction
+    request.transaction,
+    request.knexRead
   )
   if (payment) {
     reply.status(201).send(payment)
@@ -250,7 +271,9 @@ export async function updatePayment(
     .get<PaymentsService>(PaymentsService.name)
   const payment = await paymentService.updatePayment(
     request.params.paymentId,
-    request.body
+    request.body,
+    request.transaction,
+    request.knexRead
   )
   if (payment) {
     reply.status(201).send(payment)
@@ -270,7 +293,8 @@ export async function createTransferPayment(
     .get<PaymentsService>(PaymentsService.name)
   const payment = await paymentService.createTransferPayment(
     request.body,
-    request.transaction
+    request.transaction,
+    request.knexRead
   )
   if (payment) {
     reply.status(201).send(payment)
@@ -309,7 +333,11 @@ export async function getPayments(
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const payments = await paymentService.getPayments(request.query)
+  const payments = await paymentService.getPayments(
+    request.query,
+    request.transaction,
+    request.knexRead
+  )
   reply.status(200).send(payments)
 }
 
