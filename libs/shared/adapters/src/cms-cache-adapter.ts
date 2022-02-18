@@ -145,6 +145,19 @@ export function toHomepageBase(
     featuredPacksSubtitle: translation.featured_packs_subtitle,
     featuredPacksTitle: translation.featured_packs_title,
     featuredPackTemplateIds: (homepage.featured_packs ?? []) as string[],
+
+    // return {
+    //   featuredPack: toPackBase(
+    //     homepage.featured_pack,
+    //     this.getFileURL.bind(this),
+    //     locale
+    //   ),
+    //   upcomingPacks: homepage.upcoming_packs.map((template) =>
+    //     toPackBase(template, this.getFileURL.bind(this), locale)
+    //   ),
+    //   notableCollectibles: homepage.notable_collectibles.map((template) =>
+    //     toCollectibleBase(template, this.getFileURL.bind(this), locale)
+    //   ),    
   }
 }
 
@@ -626,14 +639,14 @@ export default class CMSCacheAdapter {
     )
   }
 
-  async findHomepage() {
+  async findHomepage(locale: string = DEFAULT_LOCALE) {
     const queryResult = await CMSCacheHomepageModel.query()
       .select('content')
       .first()
     const result: DirectusHomepage =
       queryResult.content as unknown as DirectusHomepage
 
-    return toHomepageBase(result)
+    return toHomepageBase(result, this.getFileURL.bind(this), locale)
   }
 
   async getLanguages(locale = DEFAULT_LOCALE) {
