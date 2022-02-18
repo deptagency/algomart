@@ -3,17 +3,17 @@ import { DEFAULT_LOCALE, LanguageList } from '@algomart/schemas'
 import { Knex } from 'knex'
 import { Transaction } from 'objection'
 
-import { CoinbaseAdapter, DirectusAdapter } from '@algomart/shared/adapters'
+import { CoinbaseAdapter, CMSCacheAdapter } from '@algomart/shared/adapters'
 
 import { CurrencyConversionModel } from '@algomart/shared/models'
 import { invariant } from '@algomart/shared/utils'
 
 export default class I18nService {
   constructor(
-    private readonly cms: DirectusAdapter,
+    private readonly cms: CMSCacheAdapter,
     private readonly coinbase: CoinbaseAdapter,
     private currency: Currencies.Currency<number>
-  ) {}
+  ) { }
 
   async getLanguages(locale = DEFAULT_LOCALE): Promise<LanguageList> {
     const languages = await this.cms.getLanguages(locale)
