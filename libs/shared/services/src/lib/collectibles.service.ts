@@ -64,45 +64,6 @@ export default class CollectiblesService {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  async generateCollectibles(limit = 5, trx?: Transaction, knexRead?: Knex) {
-    const existingTemplates = await CollectibleModel.query(knexRead)
-      .groupBy('templateId')
-      .select('templateId')
-    const filter: ItemFilter = {}
-    if (existingTemplates.length > 0) {
-      filter.id = {
-        _nin: existingTemplates.map((c) => c.templateId),
-      }
-    }
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      undefined,
-      filter,
-      limit
-    )
-    if (templates.length === 0) {
-      return 0
-    }
-
-    const collectibles = await CollectibleModel.query(trx).insert(
-      templates.flatMap((t) =>
-        Array.from({ length: t.totalEditions }, (_, index) => ({
-          edition: index + 1,
-          templateId: t.templateId,
-        }))
-      )
-    )
-
-    await EventModel.query(trx).insert(
-      collectibles.flatMap((c) => ({
-        action: EventAction.Create,
-        entityType: EventEntityType.Collectible,
-        entityId: c.id,
-      }))
-    )
-
-    return collectibles.length
-  }
-
   getTransferrableAt(collectible: CollectibleModel): Date {
     invariant(collectible.pack, 'must load collectible with its pack')
     invariant(
@@ -211,9 +172,9 @@ export default class CollectiblesService {
     )
 
     // Get corresponding templates from CMS
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
+    const templates = await this.cms.findCollectiblesById(
       undefined,
-      { id: { _in: [...collectiblesLookupByTemplate.keys()] } },
+      collectiblesLookupByTemplate.keys(),
       limit
     )
 
