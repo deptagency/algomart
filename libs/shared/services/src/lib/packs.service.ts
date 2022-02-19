@@ -1005,7 +1005,7 @@ export default class PacksService {
 
     if (existingTemplates.length > 0) {
       filter.id = {
-        _nin: existingTemplates.map((c) => c.templateId),
+        _nin: ids,
       }
     }
 
@@ -1139,7 +1139,7 @@ export default class PacksService {
       return 0
     }
 
-    await PackModel.query(trx).upsertGraph(
+    const packs = await PackModel.query(trx).upsertGraphAndFetch(
       balancedPacks.map((p) => ({
         templateId: p.templateId,
         redeemCode: p.redeemCode,
@@ -1149,11 +1149,6 @@ export default class PacksService {
       })),
       { relate: true }
     )
-
-    // Find newly created packs
-    const packs = await PackModel.query(knexRead)
-      .where('templateId', templateId)
-      .select('id')
 
     // Create events for pack creation
     await EventModel.query(trx).insert(
