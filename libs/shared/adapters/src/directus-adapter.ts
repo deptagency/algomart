@@ -32,16 +32,16 @@ export interface ItemByIdResponse<T> {
 
 export interface ItemFilter {
   [key: string]:
-  | string
-  | string[]
-  | number
-  | number[]
-  | boolean
-  | boolean[]
-  | Date
-  | Date[]
-  | ItemFilter
-  | ItemFilter[]
+    | string
+    | string[]
+    | number
+    | number[]
+    | boolean
+    | boolean[]
+    | Date
+    | Date[]
+    | ItemFilter
+    | ItemFilter[]
 }
 
 export interface ItemQuery<TItem> {
@@ -98,8 +98,8 @@ function getParameters<TItem>(query?: ItemQuery<TItem>) {
       query.totalCount && query.filterCount
         ? '*'
         : query.totalCount
-          ? 'total_count'
-          : 'filter_count'
+        ? 'total_count'
+        : 'filter_count'
     )
   }
 
@@ -199,7 +199,20 @@ export default class DirectusAdapter {
         },
       },
       limit: -1,
-      fields: ['*.*'],
+      fields: [
+        '*',
+        'pack_image.*',
+        'translations.*',
+        'nft_templates.*',
+        'nft_templates.translations.*',
+        'nft_templates.asset_file.*',
+        'nft_templates.translations.*',
+        'nft_templates.preview_audio.*',
+        'nft_templates.preview_image.*',
+        'nft_templates.preview_video.*',
+        'nft_templates.rarity.*',
+        'nft_templates.rarity.translations.*',
+      ],
     }
 
     return await this.findMany<DirectusPackTemplate>('pack_templates', {
@@ -442,38 +455,43 @@ export default class DirectusAdapter {
         // TODO: update these to return the full objects rather than just the ids
         fields: [
           'id',
-          'hero_banner',
-          'hero_pack',
-          'featured_packs',
-          'featured_nfts',
+
+          'hero_banner.*',
           'translations.*',
 
-          // 'featured_pack.*',
-          // 'featured_pack.pack_image.*',
-          // 'featured_pack.translations.*',
-          // 'featured_pack.nft_templates.*',
-          // 'featured_pack.nft_templates.asset_file.*',
-          // 'featured_pack.nft_templates.translations.*',
-          // 'featured_pack.nft_templates.preview_audio.*',
-          // 'featured_pack.nft_templates.preview_image.*',
-          // 'featured_pack.nft_templates.preview_video.*',
+          'hero_pack.*',
+          'hero_pack.pack_image.*',
+          'hero_pack.translations.*',
+          'hero_pack.nft_templates.*',
+          'hero_pack.nft_templates.asset_file.*',
+          'hero_pack.nft_templates.translations.*',
+          'hero_pack.nft_templates.preview_audio.*',
+          'hero_pack.nft_templates.preview_image.*',
+          'hero_pack.nft_templates.preview_video.*',
+          'hero_pack.nft_templates.rarity.*',
+          'hero_pack.nft_templates.rarity.translations.*',
 
-          // 'upcoming_packs.*',
-          // 'upcoming_packs.pack_image.*',
-          // 'upcoming_packs.translations.*',
-          // 'upcoming_packs.nft_templates.*',
-          // 'featured_pack.nft_templates.asset_file.*',
-          // 'featured_pack.nft_templates.translations.*',
-          // 'featured_pack.nft_templates.preview_audio.*',
-          // 'featured_pack.nft_templates.preview_image.*',
-          // 'featured_pack.nft_templates.preview_video.*',
+          'featured_packs.*',
+          'featured_packs.pack_image.*',
+          'featured_packs.translations.*',
+          'featured_packs.nft_templates.*',
+          'featured_packs.nft_templates.asset_file.*',
+          'featured_packs.nft_templates.translations.*',
+          'featured_packs.nft_templates.preview_audio.*',
+          'featured_packs.nft_templates.preview_image.*',
+          'featured_packs.nft_templates.preview_video.*',
+          'featured_packs.nft_templates.rarity.*',
+          'featured_packs.nft_templates.rarity.translations.*',
 
-          // 'notable_collectibles.*',
-          // 'notable_collectibles.asset_file.*',
-          // 'notable_collectibles.translations.*',
-          // 'notable_collectibles.preview_audio.*',
-          // 'notable_collectibles.preview_image.*',
-          // 'notable_collectibles.preview_video.*',
+          'featured_nfts.*',
+          'featured_nfts.*',
+          'featured_nfts.asset_file.*',
+          'featured_nfts.translations.*',
+          'featured_nfts.preview_audio.*',
+          'featured_nfts.preview_image.*',
+          'featured_nfts.preview_video.*',
+          'featured_nfts.rarity.*',
+          'featured_nfts.rarity.translations.*',
         ],
         deep: {
           hero_pack: {
@@ -505,7 +523,8 @@ export default class DirectusAdapter {
       const result: ItemByIdResponse<DirectusHomepage> = JSON.parse(
         response.body
       )
-      return toHomepageBase(result.data, this.getFileURL.bind(this), locale)
+
+      return JSON.parse(response.body).data as DirectusHomepage
     }
 
     return null

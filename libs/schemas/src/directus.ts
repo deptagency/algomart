@@ -16,9 +16,9 @@ export interface DirectusHomepageTranslation extends DirectusTranslation {
 export interface DirectusHomepage {
   id: string
   hero_banner: DirectusFile | null
-  hero_pack: null | string | DirectusPackTemplate
-  featured_packs: null | string[] | DirectusPackTemplate[]
-  featured_nfts: null | string[] | DirectusCollectibleTemplate[]
+  hero_pack: null | DirectusPackTemplate
+  featured_packs: null | DirectusPackTemplate[]
+  featured_nfts: null | DirectusCollectibleTemplate[]
   translations: DirectusHomepageTranslation[]
 }
 
