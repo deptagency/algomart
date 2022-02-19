@@ -558,6 +558,27 @@ export default class CMSCacheAdapter {
     }
   }
 
+  async findCollectiblesById(locale = DEFAULT_LOCALE, ids, limit) {
+    const queryResult = await CMSCacheCollectibleTemplateModel.query()
+      .whereIn('id', ids)
+      .limit(limit)
+      .select('content')
+
+    const data = queryResult.map(
+      (result: CMSCacheCollectibleTemplateModel): CollectibleBase => {
+        const collectibleTemplate =
+          result.content as unknown as DirectusCollectibleTemplate
+        return toCollectibleBase(
+          collectibleTemplate,
+          this.getFileURL.bind(this),
+          locale
+        )
+      }
+    )
+
+    return data
+  }
+
   async findAllCollections(locale = DEFAULT_LOCALE) {
     const response = await this.findCollections({
       filterCount: true,

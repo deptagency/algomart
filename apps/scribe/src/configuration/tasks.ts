@@ -37,17 +37,6 @@ export function configureTasks(
 
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
-      { minutes: 1, runImmediately: true },
-      new AsyncTask(
-        'generate-collectibles',
-        async () => await generateCollectiblesTask(app.container, logger, app.knexRead),
-        (error) => app.log.error(error)
-      )
-    )
-  )
-
-  app.scheduler.addSimpleIntervalJob(
-    new SimpleIntervalJob(
       { minutes: 1 },
       new AsyncTask(
         'store-collectibles',
@@ -169,7 +158,7 @@ export function configureTasks(
   )
   //#endregion
 
-  //#region Currency Rates
+  // #region Currency Rates
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
       { hours: 1 },

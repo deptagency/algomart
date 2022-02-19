@@ -7,6 +7,7 @@ import { CMSCacheLanguageModel } from '@/models/cms-cache-language.model'
 import { CMSCachePackTemplateModel } from '@/models/cms-cache-pack-template.model'
 import { CMSCachePageModel } from '@/models/cms-cache-page.model'
 import { CMSCacheSetModel } from '@/models/cms-cache-set.model'
+import { CollectibleModel } from '@/models/collectible.model'
 import DependencyResolver from '@/shared/dependency-resolver'
 import { logger } from '@/utils/logger'
 
@@ -157,14 +158,27 @@ async function syncCollectibleTemplates(cms: DirectusAdapter) {
         collectibleTemplate.id
       )
 
-    await (currentRecord
-      ? CMSCacheCollectibleTemplateModel.query()
-          .where({ id: collectibleTemplate.id })
-          .update({ content: JSON.stringify(collectibleTemplate) })
-      : CMSCacheCollectibleTemplateModel.query().insert({
-          id: collectibleTemplate.id,
-          content: JSON.stringify(collectibleTemplate),
-        }))
+    if (currentRecord) {
+      await CMSCacheCollectibleTemplateModel.query()
+        .where({ id: collectibleTemplate.id })
+        .update({ content: JSON.stringify(collectibleTemplate) })
+    } else {
+      await CMSCacheCollectibleTemplateModel.query().insert({
+        id: collectibleTemplate.id,
+        content: JSON.stringify(collectibleTemplate),
+      })
+
+      // Insert a new collectible
+      await CollectibleModel.query().insert(
+        Array.from(
+          { length: collectibleTemplate.total_editions },
+          (_, index) => ({
+            edition: index + 1,
+            templateId: collectibleTemplate.id,
+          })
+        )
+      )
+    }
   }
 }
 
