@@ -245,6 +245,7 @@ export default class PacksService {
       locale = DEFAULT_LOCALE,
       page = 1,
       pageSize = 10,
+      templates = [],
       templateIds = [],
       slug,
       type = [],
@@ -255,31 +256,39 @@ export default class PacksService {
       sortBy = PackSortField.Title,
       sortDirection = SortDirection.Ascending,
     }: PublishedPacksQuery,
-    trx?: Transaction,
+    trx: Transaction,
     knexRead?: Knex
   ): Promise<{ packs: PublishedPack[]; total: number }> {
     invariant(page > 0, 'page must be greater than 0')
 
-    const filter: ItemFilter = {
-      status: {
-        _eq: DirectusStatus.Published,
-      },
+    let packTemplates = []
+
+    if (templates.length > 0) {
+      packTemplates = templates
+    } else if (templateIds.length > 0) {
+      const filter: ItemFilter = {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      }
+
+      if (slug) filter.slug = { _eq: slug }
+      if (templateIds.length > 0) filter.id = { _in: templateIds }
+      if (type.length > 0) filter.type = { _in: type }
+
+      const { packs: packs } = await this.cms.findAllPacks({
+        locale,
+        // need to load all packs into memory
+        // TODO: optimize when/if this becomes a problem
+        pageSize: 20,
+        filter,
+      })
+
+      packTemplates = packs
     }
 
-    if (slug) filter.slug = { _eq: slug }
-    if (templateIds.length > 0) filter.id = { _in: templateIds }
-    if (type.length > 0) filter.type = { _in: type }
-
-    const { packs: templates } = await this.cms.findAllPacks({
-      locale,
-      // need to load all packs into memory
-      // TODO: optimize when/if this becomes a problem
-      pageSize: 20,
-      filter,
-    })
-
     const packCounts = await this.getPackCounts(
-      templates.map((t) => t.templateId),
+      packTemplates.map((t) => t.templateId),
       knexRead
     )
 
@@ -337,7 +346,7 @@ export default class PacksService {
       .sort(sortPack)
 
     return {
-      packs: allPublicPacks.slice((page - 1) * pageSize, page * pageSize),
+      packs: allPublicPacks,
       total: allPublicPacks.length,
     }
   }

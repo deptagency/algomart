@@ -13,18 +13,12 @@ export const HomepageTranslationsSchema = Type.Object({
   heroBannerTitle: Type.Optional(Type.String()),
 })
 
-// export const HomepageBaseSchema = Type.Object({
-//   featuredPack: Type.Optional(PackBaseSchema),
-//   upcomingPacks: Type.Array(PackBaseSchema),
-//   notableCollectibles: Type.Array(CollectibleBaseSchema),
-// })
-
 export const HomepageBaseSchema = Type.Intersect([
   Type.Object({
-    featuredNftTemplateIds: Type.Array(Type.String({ format: 'uuid' })),
-    featuredPackTemplateIds: Type.Array(Type.String({ format: 'uuid' })),
     heroBanner: Type.Optional(Type.String()),
-    heroPackTemplateId: Type.Optional(Type.String({ format: 'uuid' })),
+    featuredNftTemplates: Type.Array(CollectibleBaseSchema),
+    featuredPackTemplates: Type.Array(PackBaseSchema),
+    heroPackTemplate: Type.Optional(PackBaseSchema),
   }),
   HomepageTranslationsSchema,
 ])

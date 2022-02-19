@@ -58,16 +58,16 @@ export interface ItemByIdResponse<T> {
 
 export interface ItemFilter {
   [key: string]:
-  | string
-  | string[]
-  | number
-  | number[]
-  | boolean
-  | boolean[]
-  | Date
-  | Date[]
-  | ItemFilter
-  | ItemFilter[]
+    | string
+    | string[]
+    | number
+    | number[]
+    | boolean
+    | boolean[]
+    | Date
+    | Date[]
+    | ItemFilter
+    | ItemFilter[]
 }
 
 export interface ItemQuery<TItem> {
@@ -114,16 +114,16 @@ export function toHomepageBase(
   getFileURL: GetFileURL,
   locale = DEFAULT_LOCALE
 ): HomepageBase {
-  invariant(
-    homepage.hero_pack === null || typeof homepage.hero_pack === 'string',
-    'hero_pack must be null or a string'
-  )
-  invariant(
-    homepage.featured_packs === null ||
-    homepage.featured_packs.length === 0 ||
-    isStringArray(homepage.featured_packs),
-    'featured_packs must be empty or an array of strings'
-  )
+  // invariant(
+  //   homepage.hero_pack === null || typeof homepage.hero_pack === 'string',
+  //   'hero_pack must be null or a string'
+  // )
+  // invariant(
+  //   homepage.featured_packs === null ||
+  //   homepage.featured_packs.length === 0 ||
+  //   isStringArray(homepage.featured_packs),
+  //   'featured_packs must be empty or an array of strings'
+  // )
 
   const translation = getDirectusTranslation(
     homepage.translations,
@@ -135,29 +135,17 @@ export function toHomepageBase(
     heroBanner: getFileURL(homepage.hero_banner),
     heroBannerSubtitle: translation.hero_banner_subtitle,
     heroBannerTitle: translation.hero_banner_title,
-    heroPackTemplateId:
-      typeof homepage.hero_pack === 'string'
-        ? homepage.hero_pack
-        : homepage.hero_pack?.id,
+    heroPackTemplate: toPackBase(homepage.hero_pack, getFileURL, locale),
     featuredNftsSubtitle: translation.featured_nfts_subtitle,
     featuredNftsTitle: translation.featured_nfts_title,
-    featuredNftTemplateIds: (homepage.featured_nfts ?? []) as string[],
+    featuredNftTemplates: (homepage.featured_nfts ?? []).map((collectible) =>
+      toCollectibleBase(collectible, getFileURL, locale)
+    ),
     featuredPacksSubtitle: translation.featured_packs_subtitle,
     featuredPacksTitle: translation.featured_packs_title,
-    featuredPackTemplateIds: (homepage.featured_packs ?? []) as string[],
-
-    // return {
-    //   featuredPack: toPackBase(
-    //     homepage.featured_pack,
-    //     this.getFileURL.bind(this),
-    //     locale
-    //   ),
-    //   upcomingPacks: homepage.upcoming_packs.map((template) =>
-    //     toPackBase(template, this.getFileURL.bind(this), locale)
-    //   ),
-    //   notableCollectibles: homepage.notable_collectibles.map((template) =>
-    //     toCollectibleBase(template, this.getFileURL.bind(this), locale)
-    //   ),    
+    featuredPackTemplates: (homepage.featured_packs ?? []).map((collectible) =>
+      toPackBase(collectible, getFileURL, locale)
+    ),
   }
 }
 
@@ -226,10 +214,10 @@ export function toCollectionBase(
     reward:
       reward_complete && reward_prompt && reward_image
         ? {
-          complete: reward_complete,
-          prompt: reward_prompt,
-          image: getFileURL(reward_image),
-        }
+            complete: reward_complete,
+            prompt: reward_prompt,
+            image: getFileURL(reward_image),
+          }
         : undefined,
   }
 }
@@ -277,12 +265,13 @@ export function toCollectibleBase(
     )
 
   const rarity = template.rarity as DirectusRarity
+
   const rarityTranslation = rarity
     ? getDirectusTranslation<DirectusRarityTranslation>(
-      rarity?.translations as DirectusRarityTranslation[],
-      'expected rarity to include translations',
-      locale
-    )
+        rarity?.translations as DirectusRarityTranslation[],
+        'expected rarity to include translations',
+        locale
+      )
     : undefined
 
   let collectionId =
@@ -325,10 +314,10 @@ export function toCollectibleBase(
     uniqueCode: template.unique_code,
     rarity: rarity
       ? {
-        code: rarity.code,
-        color: rarity.color,
-        name: rarityTranslation?.name,
-      }
+          code: rarity.code,
+          color: rarity.color,
+          name: rarityTranslation?.name,
+        }
       : undefined,
   }
 }
@@ -367,9 +356,12 @@ export function toPackBase(
     allowBidExpiration: template.allow_bid_expiration,
     auctionUntil: template.auction_until ?? undefined,
     body: translation.body ?? undefined,
-    collectibleTemplateIds: isStringArray(template.nft_templates)
-      ? template.nft_templates
-      : template.nft_templates.map((t) => t.id),
+    collectibleTemplateIds: template.nft_templates.map(
+      (nft_template) => nft_template.id
+    ),
+    collectibleTemplates: template.nft_templates.map((nft_template) =>
+      toCollectibleBase(nft_template, getFileURL, locale)
+    ),
     config: {
       collectibleDistribution: template.nft_distribution,
       collectibleOrder: template.nft_order,
@@ -398,7 +390,7 @@ export interface CMSCacheAdapterOptions {
 export default class CMSCacheAdapter {
   logger = logger.child({ context: this.constructor.name })
 
-  constructor(private readonly options: CMSCacheAdapterOptions) { }
+  constructor(private readonly options: CMSCacheAdapterOptions) {}
 
   private async findPackTemplates(query: ItemQuery<DirectusPackTemplate> = {}) {
     const queryResult = await CMSCachePackTemplateModel.query().select(

@@ -12,6 +12,7 @@ import {
   SortDirection,
 } from './shared'
 import { AlgorandTransactionStatus } from './transactions'
+import { CollectibleSchema } from '.'
 
 export enum PackType {
   Auction = 'auction',
@@ -96,6 +97,7 @@ export const PackBaseSchema = Type.Object({
   allowBidExpiration: Type.Boolean(),
   auctionUntil: Type.Optional(Type.String({ format: 'date-time' })),
   body: Type.Optional(Type.String()),
+  collectibleTemplates: Type.Array(CollectibleSchema),
   collectibleTemplateIds: Type.Array(IdSchema),
   config: PackConfigSchema,
   image: Type.String({ format: 'uri' }),
@@ -144,6 +146,7 @@ export const PublishedPacksQuerySchema = Type.Intersect([
     currency: Type.Optional(Type.String()),
     locale: Type.Optional(Type.String()),
     slug: Type.Optional(Type.String()),
+    templates: Type.Optional(Type.Array(PackBaseSchema)),
     templateIds: Type.Optional(Type.Array(IdSchema)),
     priceLow: Type.Optional(Type.Number()),
     priceHigh: Type.Optional(Type.Number()),
