@@ -919,6 +919,7 @@ export default class PaymentsService {
         variables: {
           amount: formatIntToFloat(foundBankAccount.amount),
           packTitle: packTemplate.title,
+          packSlug: packTemplate.slug,
           trackingRef: bankAccountInstructions.trackingRef,
           beneficiaryName: bankAccountInstructions.beneficiary.name,
           beneficiaryAddress1: bankAccountInstructions.beneficiary.address1,
