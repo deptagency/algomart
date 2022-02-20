@@ -174,7 +174,7 @@ export default class CollectiblesService {
     // Get corresponding templates from CMS
     const templates = await this.cms.findCollectiblesById(
       undefined,
-      collectiblesLookupByTemplate.keys(),
+      [...collectiblesLookupByTemplate.keys()],
       limit
     )
 
@@ -369,13 +369,9 @@ export default class CollectiblesService {
 
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
 
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
+    const templates = await this.cms.findCollectiblesById(
       undefined,
-      {
-        id: {
-          _in: templateIds,
-        },
-      },
+      templateIds,
       templateIds.length
     )
 
