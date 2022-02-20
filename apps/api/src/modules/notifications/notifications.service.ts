@@ -25,10 +25,7 @@ const isResponseError = (error: unknown): error is ResponseError => {
 const requireVariables = (variables, variableNames: string[]) => {
   invariant(variables, 'no variables were provided for this notification')
   for (const key of variableNames) {
-    invariant(
-      typeof variables[key] === 'string',
-      `variable '${key}' is required`
-    )
+    invariant(variables[key] !== undefined, `variable '${key}' is required`)
   }
 }
 
@@ -240,6 +237,7 @@ export default class NotificationsService {
     const { userAccount, variables } = n
     requireVariables(variables, [
       'packTitle',
+      'packSlug',
       'amount',
       'beneficiaryName',
       'beneficiaryAddress1',
@@ -253,7 +251,6 @@ export default class NotificationsService {
       'beneficiaryBankPostalCode',
       'beneficiaryBankCountry',
       'trackingRef',
-      'ctaUrl',
     ])
 
     // Build notification
