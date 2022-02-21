@@ -1023,6 +1023,7 @@ export default class PacksService {
       }
     }
 
+    // TODO: Convert this to a loop
     const template = await this.cms.findPack(filter)
 
     if (!template) {
@@ -1031,16 +1032,11 @@ export default class PacksService {
 
     const { collectibleTemplateIds, templateId, config } = template
     const collectibleTemplateIdsCount = collectibleTemplateIds.length
-    const { collectibles: collectibleTemplates } =
-      await this.cms.findAllCollectibles(
-        undefined,
-        {
-          id: {
-            _in: collectibleTemplateIds,
-          },
-        },
-        collectibleTemplateIdsCount
-      )
+    const collectibleTemplates = await this.cms.findCollectiblesById(
+      undefined,
+      collectibleTemplateIds,
+      collectibleTemplateIdsCount
+    )
 
     const totalCollectibles = collectibleTemplates.reduce(
       (sum, t) => sum + t.totalEditions,
