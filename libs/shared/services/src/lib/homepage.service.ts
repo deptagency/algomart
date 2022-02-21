@@ -37,8 +37,6 @@ export default class HomepageService {
 
     const packLookup = new Map(packs.map((pack) => [pack.templateId, pack]))
 
-    // console.log(homepageBase.heroPackTemplate)
-
     return {
       heroBanner: homepageBase.heroBanner,
       heroBannerSubtitle: homepageBase.heroBannerSubtitle,
