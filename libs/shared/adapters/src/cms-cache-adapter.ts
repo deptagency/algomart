@@ -541,7 +541,7 @@ export default class CMSCacheAdapter {
     }
   }
 
-  async findPacksByTemplateIds(locale = DEFAULT_LOCALE, templateIds) {
+  async findPacksByTemplateIds(templateIds, locale = DEFAULT_LOCALE) {
     const queryResult = await CMSCachePackTemplateModel.query()
       .whereIn('templateId', templateIds)
       .select('content')
@@ -556,7 +556,7 @@ export default class CMSCacheAdapter {
     return data
   }
 
-  async findPacksByType(locale = DEFAULT_LOCALE, type, limit) {
+  async findPacksByType(type, limit, locale = DEFAULT_LOCALE) {
     const queryResult = await CMSCachePackTemplateModel.query()
       .whereIn('type', type)
       .limit(limit)
@@ -572,7 +572,7 @@ export default class CMSCacheAdapter {
     return data
   }
 
-  async findPackBySlug(locale = DEFAULT_LOCALE, slug) {
+  async findPackBySlug(slug, locale = DEFAULT_LOCALE) {
     const queryResult = await CMSCachePackTemplateModel.query()
       .findOne('slug', slug)
       .select('content')

@@ -48,23 +48,12 @@ import {
   PaymentCardModel,
 } from '@algomart/shared/models'
 
-import { formatFloatToInt, formatIntToFloat } from '@algomart/shared/utils'
-// import { Configuration } from '@/configuration'
-// import CircleAdapter from '@/lib/circle-adapter'
-// import { BidModel } from '@/models/bid.model'
-// import { EventModel } from '@/models/event.model'
-// import { PackModel } from '@/models/pack.model'
-// import { PaymentModel } from '@/models/payment.model'
-// import { PaymentBankAccountModel } from '@/models/payment-bank-account.model'
-// import { PaymentCardModel } from '@/models/payment-card.model'
-// import { UserAccountModel } from '@/models/user-account.model'
-// import NotificationService from '@/modules/notifications/notifications.service'
-// import PacksService from '@/modules/packs/packs.service'
-// import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 import {
   convertFromUSD,
   convertToUSD,
   isGreaterThanOrEqual,
+  formatFloatToInt,
+  formatIntToFloat,
   invariant,
   userInvariant,
 } from '@algomart/shared/utils'
@@ -143,11 +132,10 @@ export default class PaymentsService {
 
     // Add pack ID to packs array if available
     if (packId) {
-      const packDetails = await this.packs.getPackById(packId, knexRead)
-      const { packs: packTemplates } = await this.packs.getPublishedPacks(
-        {
-          templateIds: [packDetails.templateId],
-        },
+      const packDetails = await this.packs.getPackById(packId)
+      const packTemplates = await this.packs.getPublishedPacksByTemplateIds(
+        [packDetails.templateId],
+        locale,
         trx,
         knexRead
       )
@@ -164,31 +152,25 @@ export default class PaymentsService {
     }
 
     // Find packs and add pack IDs to array if available
-    const packQuery: { locale?: string; slug?: string } = {}
-    if (locale) packQuery.locale = locale
-    if (packSlug) packQuery.slug = packSlug
-    if (Object.keys(packQuery).length > 0) {
-      const { packs: packTemplates } = await this.packs.getPublishedPacks(
-        packQuery,
-        trx,
-        knexRead
-      )
-      const templateIds = packTemplates.map((p) => p.templateId)
-      const templateLookup = new Map(
-        packTemplates.map((p) => [p.templateId, p])
-      )
-      const packList = await PackModel.query()
-        .whereIn('templateId', templateIds)
-        .withGraphFetched('activeBid')
-      packList.map((p) => {
-        packIds.push(p.id)
-        packLookup.set(p.id, {
-          template: templateLookup.get(p.templateId),
-          ...p,
-          activeBid: p?.activeBid?.amount,
-        })
+    const packTemplate = await this.packs.getPublishedPackBySlug(
+      packSlug,
+      locale,
+      trx,
+      knexRead
+    )
+    const templateLookup = new Map([[packTemplate.templateId, packTemplate]])
+    const packList = await PackModel.query()
+      .where('templateId', packTemplate.templateId)
+      .withGraphFetched('activeBid')
+
+    packList.map((p) => {
+      packIds.push(p.id)
+      packLookup.set(p.id, {
+        template: templateLookup.get(p.templateId),
+        ...p,
+        activeBid: p?.activeBid?.amount,
       })
-    }
+    })
 
     // Find payments in the database
     const query = PaymentModel.query(knexRead)
@@ -513,8 +495,8 @@ export default class PaymentsService {
     // Check price is available
     const bid = randomPack.activeBidId
       ? await BidModel.query(knexRead)
-          .select('amount')
-          .findById(randomPack.activeBidId)
+        .select('amount')
+        .findById(randomPack.activeBidId)
       : null
 
     const price =
@@ -524,7 +506,7 @@ export default class PaymentsService {
     if (randomPack.type === PackType.Auction) {
       userInvariant(
         bid &&
-          isGreaterThanOrEqual(bid.amount, randomPack.price, this.currency),
+        isGreaterThanOrEqual(bid.amount, randomPack.price, this.currency),
         'active bid must be higher than the price of the item'
       )
     }

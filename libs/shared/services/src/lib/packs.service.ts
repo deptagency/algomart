@@ -92,13 +92,13 @@ function shouldIncludeAuctionPack(
   if (typeof filters.reserveMet === 'boolean') {
     include = filters.reserveMet
       ? include &&
-        typeof pack.activeBid === 'number' &&
-        pack.price !== null &&
-        pack.activeBid >= pack.price
+      typeof pack.activeBid === 'number' &&
+      pack.price !== null &&
+      pack.activeBid >= pack.price
       : include &&
-        (pack.price === null ||
-          pack.activeBid === undefined ||
-          pack.activeBid < pack.price)
+      (pack.price === null ||
+        pack.activeBid === undefined ||
+        pack.activeBid < pack.price)
   }
 
   return include
@@ -190,20 +190,28 @@ export default class PacksService {
       const packWithActiveBid = packWithActiveBidsLookup.get(
         template.templateId
       )
-      const available = packCount ? Number.parseInt(packCount.available, 10) : 0
-      const total = packCount ? Number.parseInt(packCount.total, 10) : 0
-      const status =
-        template.type !== PackType.Auction && !available
-          ? PackStatus.Expired
-          : template.status
-      return {
-        ...template,
-        status,
-        available,
-        total,
-        activeBid:
-          (packWithActiveBid?.activeBid?.amount as number) ?? undefined,
-      }
+
+      return this.createPublishedPack(template, packCount, packWithActiveBid)
+    }
+  }
+
+  private createPublishedPack(
+    template: PackBase,
+    packCount,
+    packWithActiveBid
+  ) {
+    const available = packCount ? Number.parseInt(packCount.available, 10) : 0
+    const total = packCount ? Number.parseInt(packCount.total, 10) : 0
+    const status =
+      template.type !== PackType.Auction && !available
+        ? PackStatus.Expired
+        : template.status
+    return {
+      ...template,
+      status,
+      available,
+      total,
+      activeBid: (packWithActiveBid?.activeBid?.amount as number) ?? undefined,
     }
   }
 
@@ -236,26 +244,70 @@ export default class PacksService {
 
   // #endregion
 
-  async getPublishedPacks(
-    {
-      currency = this.currency.code,
-      locale = DEFAULT_LOCALE,
-      page = 1,
-      pageSize = 10,
-      templates = [],
-      templateIds = [],
-      slug,
-      type = [],
-      status = [],
-      priceHigh = Number.POSITIVE_INFINITY,
-      priceLow = 0,
-      reserveMet,
-      sortBy = PackSortField.Title,
-      sortDirection = SortDirection.Ascending,
-    }: PublishedPacksQuery,
+  async getPublishedPacksByTemplateIds(
+    templateIds,
+    locale = DEFAULT_LOCALE,
     trx: Transaction,
     knexRead?: Knex
-  ): Promise<{ packs: PublishedPack[]; total: number }> {
+  ) {
+    const templates = await this.cms.findPacksByTemplateIds(templateIds, locale, trx, knexRead)
+    const packCounts = await this.getPackCounts(
+      templates.map((t) => t.templateId)
+    )
+    const assemblePack = this.createPublishedPackFn(
+      new Map(packCounts.map((p) => [p.templateId, p])),
+      new Map()
+    )
+
+    return templates.map((pack) => assemblePack(pack))
+  }
+
+  async getPublishedPacksByTemplates(
+    templates,
+    trx: Transaction,
+    knexRead?: Knex
+  ) {
+    const packCounts = await this.getPackCounts(
+      templates.map((t) => t.templateId),
+      trx,
+      knexRead
+    )
+    const assemblePack = this.createPublishedPackFn(
+      new Map(packCounts.map((p) => [p.templateId, p])),
+      new Map()
+    )
+
+    return templates.map((pack) => assemblePack(pack))
+  }
+
+  async getPublishedPackBySlug(
+    slug,
+    locale = DEFAULT_LOCALE,
+    trx: Transaction,
+    knexRead?: Knex
+  ) {
+    const template = await this.cms.findPackBySlug(slug, locale, trx, knexRead)
+    const packCount = await this.getPackCounts([template.templateId], trx, knexRead)[0]
+
+    return this.createPublishedPack(template, packCount, null)
+  }
+
+  async getPublishedPacks({
+    currency = this.currency.code,
+    locale = DEFAULT_LOCALE,
+    page = 1,
+    pageSize = 10,
+    templates = [],
+    templateIds = [],
+    slug,
+    type = [],
+    status = [],
+    priceHigh = Number.POSITIVE_INFINITY,
+    priceLow = 0,
+    reserveMet,
+    sortBy = PackSortField.Title,
+    sortDirection = SortDirection.Ascending,
+  }: PublishedPacksQuery): Promise<{ packs: PublishedPack[]; total: number }> {
     invariant(page > 0, 'page must be greater than 0')
 
     let packTemplates = []
@@ -263,11 +315,17 @@ export default class PacksService {
     if (templates.length > 0) {
       packTemplates = templates
     } else if (slug) {
-      packTemplates = [await this.cms.findPackBySlug(locale, slug)]
+      packTemplates = [await this.cms.findPackBySlug(slug, locale)]
     } else if (templateIds.length > 0) {
-      packTemplates = await this.cms.findPacksByTemplateIds(locale, templateIds)
+      packTemplates = await this.cms.findPacksByTemplateIds(templateIds, locale)
     } else if (type.length > 0) {
-      packTemplates = await this.cms.findPacksByType(locale, type, 20)
+      packTemplates = await this.cms.findPacksByType(type, pageSize, locale)
+    } else {
+      const { packs: templates } = await this.cms.findAllPacks({
+        locale: locale,
+        pageSize: pageSize,
+      })
+      packTemplates = templates
     }
 
     const packCounts = await this.getPackCounts(
@@ -280,7 +338,7 @@ export default class PacksService {
     if (type.length === 0 || type.includes(PackType.Auction)) {
       // only load bids when searching for auction packs
       packsWithActiveBids = await this.getPacksWithActiveBids(
-        templates
+        packTemplates
           .filter((t) => t.type === PackType.Auction)
           .map((t) => t.templateId),
         knexRead
@@ -323,7 +381,7 @@ export default class PacksService {
       packWithActiveBidsLookup
     )
 
-    const allPublicPacks = templates
+    const allPublicPacks = packTemplates
       .map((pack) => assemblePack(pack))
       .filter((pack) => filterPack(pack))
       .sort(sortPack)

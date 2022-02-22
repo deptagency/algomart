@@ -100,7 +100,7 @@ test('GET /packs/redeemable/:redeemCode', async () => {
       : null
 
   jest
-    .spyOn(CMSCacheAdapter.prototype, 'findPack')
+    .spyOn(CMSCacheAdapter.prototype, 'findPackByTemplateId')
     .mockResolvedValue(
       toPackBase(packTemplate, () => 'http://localhost/image.jpg')
     )

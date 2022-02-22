@@ -47,6 +47,7 @@ import {
   PaymentsQuerystring,
   PublicAccount,
   PublicKey,
+  PublishedPack,
   PublishedPacks,
   PublishedPacksQuery,
   RedeemCode,
@@ -347,6 +348,13 @@ export class ApiClient {
   async getPublishedPacks(query: PublishedPacksQuery) {
     const searchQuery = getPublishedPacksFilterQuery(query)
     return await this.http.get(`packs?${searchQuery}`).json<PublishedPacks>()
+  }
+
+  async getPublishedPackBySlug(slug, locale) {
+    const searchQuery = getPublishedPacksFilterQuery({ locale: locale })
+    return await this.http
+      .get(`packs/by-slug/${slug}?${searchQuery}`)
+      .json<PublishedPack>()
   }
 
   async getPacksByOwnerId(ownerExternalId: string, query: PacksByOwnerQuery) {
