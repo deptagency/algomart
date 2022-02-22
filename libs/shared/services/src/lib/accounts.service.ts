@@ -58,7 +58,7 @@ export default class AccountsService {
     })
 
     // 4. return "public" user account
-    const userAccount = await UserAccountModel.query(knexRead)
+    const userAccount = await UserAccountModel.query(trx)
       .findOne({
         username: request.username,
       })
