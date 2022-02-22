@@ -5,7 +5,7 @@ import css from './grid.module.css'
 
 export interface GridProps {
   children: ReactNode
-  columns?: 2 | 3 | 4
+  columns?: 2 | 3 | 4 | 5
 }
 
 export default function Grid({ children, columns = 4 }: GridProps) {
@@ -15,6 +15,7 @@ export default function Grid({ children, columns = 4 }: GridProps) {
         [css.columns2]: columns === 2,
         [css.columns3]: columns === 3,
         [css.columns4]: columns === 4,
+        [css.columns5]: columns === 5,
       })}
     >
       {children}

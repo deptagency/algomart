@@ -25,21 +25,32 @@ import {
 
 // #region CMS Types
 
+export interface DirectusTranslation {
+  languages_code: string
+}
+
+export interface DirectusHomepageTranslation extends DirectusTranslation {
+  featured_packs_subtitle?: string
+  featured_packs_title?: string
+  featured_nfts_title?: string
+  featured_nfts_subtitle?: string
+  hero_banner_title?: string
+  hero_banner_subtitle?: string
+}
+
 export interface DirectusHomepage {
   id: string
-  featured_pack: null | string | DirectusPackTemplate
-  upcoming_packs: null | string[] | DirectusPackTemplate[]
-  notable_collectibles: null | string[] | DirectusCollectibleTemplate[]
+  hero_banner: DirectusFile | null
+  hero_pack: null | string | DirectusPackTemplate
+  featured_packs: null | string[] | DirectusPackTemplate[]
+  featured_nfts: null | string[] | DirectusCollectibleTemplate[]
+  translations: DirectusHomepageTranslation[]
 }
 
 export enum DirectusStatus {
   Draft = 'draft',
   Published = 'published',
   Archived = 'archived',
-}
-
-export interface DirectusTranslation {
-  languages_code: string
 }
 
 export interface DirectusPackTemplateTranslation extends DirectusTranslation {
@@ -294,27 +305,42 @@ function getDirectusTranslation<TItem extends DirectusTranslation>(
 
 export type GetFileURL = (file: DirectusFile) => string
 
-export function toHomepageBase(homepage: DirectusHomepage): HomepageBase {
+export function toHomepageBase(
+  homepage: DirectusHomepage,
+  getFileURL: GetFileURL,
+  locale = DEFAULT_LOCALE
+): HomepageBase {
   invariant(
-    homepage.featured_pack === null ||
-      typeof homepage.featured_pack === 'string',
-    'featured_pack must be null or a string'
+    homepage.hero_pack === null || typeof homepage.hero_pack === 'string',
+    'hero_pack must be null or a string'
   )
   invariant(
-    homepage.upcoming_packs === null ||
-      homepage.upcoming_packs.length === 0 ||
-      isStringArray(homepage.upcoming_packs),
-    'upcoming_packs must be empty or an array of strings'
+    homepage.featured_packs === null ||
+      homepage.featured_packs.length === 0 ||
+      isStringArray(homepage.featured_packs),
+    'featured_packs must be empty or an array of strings'
+  )
+
+  const translation = getDirectusTranslation(
+    homepage.translations,
+    `homepage has no translations`,
+    locale
   )
 
   return {
-    featuredPackTemplateId:
-      typeof homepage.featured_pack === 'string'
-        ? homepage.featured_pack
-        : homepage.featured_pack?.id,
-    upcomingPackTemplateIds: (homepage.upcoming_packs ?? []) as string[],
-    notableCollectibleTemplateIds: (homepage.notable_collectibles ??
-      []) as string[],
+    heroBanner: getFileURL(homepage.hero_banner),
+    heroBannerSubtitle: translation.hero_banner_subtitle,
+    heroBannerTitle: translation.hero_banner_title,
+    heroPackTemplateId:
+      typeof homepage.hero_pack === 'string'
+        ? homepage.hero_pack
+        : homepage.hero_pack?.id,
+    featuredNftsSubtitle: translation.featured_nfts_subtitle,
+    featuredNftsTitle: translation.featured_nfts_title,
+    featuredNftTemplateIds: (homepage.featured_nfts ?? []) as string[],
+    featuredPacksSubtitle: translation.featured_packs_subtitle,
+    featuredPacksTitle: translation.featured_packs_title,
+    featuredPackTemplateIds: (homepage.featured_packs ?? []) as string[],
   }
 }
 
@@ -944,29 +970,35 @@ export default class DirectusAdapter {
     )
   }
 
-  async findHomepage() {
+  async findHomepage(locale: string = DEFAULT_LOCALE) {
     // Homepage is a singleton in the CMS, which makes this endpoint only return a single item.
     // Therefore we should avoid using the `findMany` method and instead act as if the result is
     // from a `findById` call.
     const response = await this.http.get('items/homepage', {
       searchParams: getParameters({
-        fields: ['featured_pack', 'upcoming_packs', 'notable_collectibles'],
+        fields: [
+          'hero_banner',
+          'hero_pack',
+          'featured_packs',
+          'featured_nfts',
+          'translations.*',
+        ],
         deep: {
-          featured_pack: {
+          hero_pack: {
             _filter: {
               status: {
                 _eq: DirectusStatus.Published,
               },
             },
           },
-          upcoming_packs: {
+          featured_packs: {
             _filter: {
               status: {
                 _eq: DirectusStatus.Published,
               },
             },
           },
-          notable_collectibles: {
+          featured_nfts: {
             _filter: {
               status: {
                 _eq: DirectusStatus.Published,
@@ -981,7 +1013,7 @@ export default class DirectusAdapter {
       const result: ItemByIdResponse<DirectusHomepage> = JSON.parse(
         response.body
       )
-      return toHomepageBase(result.data)
+      return toHomepageBase(result.data, this.getFileURL.bind(this), locale)
     }
 
     return null

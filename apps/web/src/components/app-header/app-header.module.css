@@ -11,14 +11,14 @@
 
 .wrapper {
   /* Base */
-  @apply flex flex-row items-center flex-nowrap bg-white border-y-1 border-base-border;
+  @apply flex flex-row items-center bg-white flex-nowrap border-y-1 border-base-border;
   /* Tablet + */
   @apply md:justify-center;
 }
 
 .hamburgerWrapper {
   /* Base */
-  @apply flex items-center absolute left-0 h-full;
+  @apply absolute left-0 flex items-center h-full;
   /* Tablet */
   @apply md:hidden;
 }
@@ -36,15 +36,15 @@
 
 .utilityWrapper {
   /* Base */
-  @apply bg-white p-4 w-full;
+  @apply w-full p-4 bg-white;
 }
 
 .utility {
-  @apply max-w-wrapper m-auto flex relative;
+  @apply relative flex m-auto max-w-wrapper;
 }
 
 .logo {
-  @apply flex-1 flex items-center justify-center;
+  @apply flex items-center justify-center flex-1;
 }
 
 .logoLink {
@@ -56,7 +56,7 @@
 
 .mainNav {
   /* Base */
-  @apply absolute flex flex-col left-0 w-full px-12 py-6 bg-base-bgCard border-base-bg border-t-1 overflow-y-auto;
+  @apply absolute left-0 flex flex-col w-full px-12 py-6 overflow-y-auto bg-base-bgCard border-base-bg border-t-1;
   top: 73px;
   height: calc(100% - 73px);
   /* Tablet + */
@@ -65,7 +65,7 @@
 
 .mainNavItems {
   /* Base */
-  @apply grid auto-rows-min flex-1 gap-7 pt-16;
+  @apply grid flex-1 pt-16 auto-rows-min gap-7;
   /* Tablet + */
   @apply md:grid-flow-col md:pt-0;
 }
@@ -93,7 +93,7 @@
 
 .mainNavLink {
   /* Base */
-  @apply font-display text-xl pb-5 border-b-1 transition duration-300 focus:outline-none text-base-textPrimary hover:text-base-gray-dark;
+  @apply pb-5 text-xl transition duration-300 font-display border-b-1 focus:outline-none text-base-textPrimary hover:text-base-gray-dark;
   /* Tablet + */
   @apply md:uppercase md:no-underline md:border-b-0 md:text-base md:hover:text-base-textPrimary md:py-5;
 }
@@ -117,12 +117,12 @@
 }
 
 .utilityNav {
-  @apply absolute right-0 grid gap-4 grid-flow-col items-center;
+  @apply absolute right-0 grid items-center grid-flow-col gap-4;
 }
 
 .utilityNavLink {
   /* Base */
-  @apply grid items-center grid-flow-col gap-2 no-underline text-sm;
+  @apply grid items-center grid-flow-col gap-2 text-sm no-underline;
   /* Tablet + */
 }
 
@@ -137,6 +137,13 @@
   @apply block transition duration-300 rounded-full outline-none bg-base-bgCard text-base-textPrimary focus:ring-2 focus:ring-action-secondary focus:ring-offset-2 focus:ring-opacity-50 hover:bg-action-secondary hover:bg-opacity-50;
   height: 36px;
   width: 36px;
+}
+
+.createAccountButton {
+  /* Base */
+  @apply hidden px-3 py-2 text-xs uppercase;
+  /* Tablet */
+  @apply md:inline;
 }
 
 .avatarGeneric {
