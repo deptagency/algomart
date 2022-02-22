@@ -6,6 +6,7 @@ import {
   PackType,
   Payment,
   PaymentBankAccountInstructions,
+  PaymentStatus,
   PublicKey,
   PublishedPack,
 } from '@algomart/schemas'
@@ -16,12 +17,14 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react'
 import { ExtractError } from 'validator-fns'
 
 import { Analytics } from '@/clients/firebase-analytics'
+import { useAuth } from '@/contexts/auth-context'
 import bidService from '@/services/bid-service'
 import checkoutService, {
   CreateBankAccountRequest,
@@ -62,6 +65,7 @@ export interface PaymentContextProps {
   address: string | null
   auctionPackId?: string | null
   bid: string | null
+  countries: { label: string | null; id: string }[]
   currentBid: number | null
   formErrors?: FormValidation
   handleAddBankAccount(
@@ -102,6 +106,7 @@ export function usePaymentProvider({
   const { t } = useTranslation()
   const { asPath, query, push, route } = useRouter()
   const { method } = query
+  const auth = useAuth()
 
   const [packId, setPackId] = useState<string | null>(auctionPackId || null)
   const [status, setStatus] = useState<CheckoutStatus>(CheckoutStatus.form)
@@ -111,6 +116,9 @@ export function usePaymentProvider({
   const [bid, setBid] = useState<string | null>(initialBid)
   const [address, setAddress] = useState<string | null>(null)
   const [promptLeaving, setPromptLeaving] = useState(false)
+  const [countries, setCountries] = useState<
+    { label: string | null; id: string }[]
+  >([])
   const validateFormForBankAccount = useMemo(() => validateBankAccount(t), [t])
   const validateFormForPurchase = useMemo(() => validatePurchaseForm(t), [t])
   const validateFormForPurchaseWithSavedCard = useMemo(
@@ -138,6 +146,29 @@ export function usePaymentProvider({
     release?.type === PackType.Auction
       ? bid
       : formatIntToFloat(release?.price || 0)
+
+  const findCountries = useCallback(async () => {
+    try {
+      const countries = await checkoutService.getCountries()
+      if (countries) {
+        const list = countries.map(({ code, name }) => ({
+          label: name,
+          id: code,
+        }))
+        return setCountries(list)
+      }
+      return setCountries([])
+    } catch {
+      setCountries([])
+      setStatus(CheckoutStatus.error)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (auth.user) {
+      findCountries()
+    }
+  }, [auth?.user, findCountries])
 
   const handleSetStatus = useCallback(
     (status: CheckoutStatus.form | CheckoutStatus.summary) => {
@@ -226,7 +257,7 @@ export function usePaymentProvider({
 
       // Poll for payment status to confirm avs check is complete
       const completeWhenNotPendingForPayments = (payment: Payment | null) =>
-        !(payment?.status !== 'pending')
+        !(payment?.status !== PaymentStatus.Pending)
       const paymentResponse = await poll<Payment | null>(
         async () => await checkoutService.getPayment(payment.id as string),
         completeWhenNotPendingForPayments,
@@ -234,11 +265,11 @@ export function usePaymentProvider({
       )
 
       // Throw error if there was a failure code
-      if (!paymentResponse || paymentResponse.status === 'failed') {
+      if (!paymentResponse || paymentResponse.status === PaymentStatus.Failed) {
         throw new Error('Payment failed')
       }
 
-      return payment
+      return paymentResponse
     },
     [release, t]
   )
@@ -624,24 +655,29 @@ export function usePaymentProvider({
         }
 
         if (isPurchase) {
-          const { id, packId } = await handlePurchase(
+          const payment = await handlePurchase(
             securityCode,
             cardId,
             publicKeyRecord
           )
 
-          // Throw error if failed request
-          if (!packId) throw new Error('Pack not available')
-
-          setPackId(packId)
-          setStatus(CheckoutStatus.success)
-          if (release) {
-            Analytics.instance.purchase({
-              itemName: release.title,
-              value: release.price,
-              paymentId: id,
-            })
+          // Check if the payment requires further action
+          if (
+            payment.status === PaymentStatus.ActionRequired &&
+            payment.action
+          ) {
+            // Do not prompt user to leave page, since redirect is expected
+            setPromptLeaving(false)
+            setStatus(CheckoutStatus.success)
+            return window.location.assign(payment.action)
           }
+
+          // Throw error if failed request
+          if (!payment || !payment.packId) throw new Error('Pack not available')
+
+          setPackId(payment.packId)
+          setStatus(CheckoutStatus.success)
+          return
         } else {
           setStatus(CheckoutStatus.success)
           return
@@ -657,7 +693,6 @@ export function usePaymentProvider({
       handleAddCard,
       handlePurchase,
       handleSetStatus,
-      release,
       t,
       validateFormForPurchase,
       validateFormForPurchaseWithSavedCard,
@@ -669,6 +704,7 @@ export function usePaymentProvider({
       address,
       auctionPackId,
       bid,
+      countries,
       currentBid: currentBid || null,
       formErrors,
       handleAddBankAccount,
@@ -694,6 +730,7 @@ export function usePaymentProvider({
       address,
       auctionPackId,
       bid,
+      countries,
       currentBid,
       formErrors,
       handleAddBankAccount,

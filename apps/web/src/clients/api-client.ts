@@ -11,6 +11,7 @@ import {
   CollectibleShowcaseQuerystring,
   CollectibleWithDetails,
   CollectionWithSets,
+  Countries,
   CreateBankAccount,
   CreateBankAccountResponse,
   CreateBidRequest,
@@ -227,8 +228,12 @@ export class ApiClient {
     return await this.http.post('payments', { json }).json<Payment>()
   }
 
-  async getPaymentById(paymentId: string) {
-    return await this.http.get(`payments/${paymentId}`).json<Payment>()
+  async getPaymentById(paymentId: string, isExternalId: boolean) {
+    const searchParams = new URLSearchParams()
+    if (isExternalId) searchParams.set('isExternalId', isExternalId.toString())
+    return await this.http
+      .get(`payments/${paymentId}`, { searchParams })
+      .json<Payment>()
   }
 
   async getPublicKey() {
@@ -462,6 +467,12 @@ export class ApiClient {
         },
       })
       .json<Homepage>()
+  }
+  //#endregion
+
+  //#region Application
+  async getCountries() {
+    return await this.http.get('application/countries').json<Countries>()
   }
   //#endregion
 }

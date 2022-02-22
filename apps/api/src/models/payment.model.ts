@@ -15,6 +15,7 @@ export class PaymentModel extends BaseModel {
   externalId!: string | null
   status!: PaymentStatus | null
   error!: string | null
+  action!: string | null
 
   paymentBankId?: string | null
   destinationAddress?: string | null

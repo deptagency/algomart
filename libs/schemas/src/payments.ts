@@ -54,39 +54,51 @@ export enum CircleVerificationCvvStatus {
   Pending = 'pending',
 }
 
+export enum CircleVerificationThreeDSecureStatus {
+  Pass = 'pass',
+  Fail = 'fail',
+}
+
 export enum CirclePaymentVerificationOptions {
   none = 'none',
   cvv = 'cvv',
+  three_d_secure = 'three_d_secure',
 }
 
+// You can see descriptions for these errors at https://developers.circle.com/docs/entity-errors
+
 export enum CirclePaymentErrorCode {
-  payment_failed = 'payment_failed',
-  payment_fraud_detected = 'payment_fraud_detected',
-  payment_denied = 'payment_denied',
-  payment_not_supported_by_issuer = 'payment_not_supported_by_issuer',
-  payment_not_funded = 'payment_not_funded',
-  payment_unprocessable = 'payment_unprocessable',
-  payment_stopped_by_issuer = 'payment_stopped_by_issuer',
-  payment_canceled = 'payment_canceled',
-  payment_returned = 'payment_returned',
-  payment_failed_balance_check = 'payment_failed_balance_check',
-  card_failed = 'card_failed',
-  card_invalid = 'card_invalid',
-  card_address_mismatch = 'card_address_mismatch',
-  card_zip_mismatch = 'card_zip_mismatch',
-  card_cvv_invalid = 'card_cvv_invalid',
-  card_expired = 'card_expired',
-  card_limit_violated = 'card_limit_violated',
-  card_not_honored = 'card_not_honored',
-  card_cvv_required = 'card_cvv_required',
-  credit_card_not_allowed = 'credit_card_not_allowed',
-  card_account_ineligible = 'card_account_ineligible',
-  unauthorized_transaction = 'unauthorized_transaction',
+  account_ineligible = 'account_ineligible',
+  account_name_mismatch = 'account_name_mismatch',
+  account_number_mismatch = 'account_number_mismatch',
   bank_account_ineligible = 'bank_account_ineligible',
   bank_transaction_error = 'bank_transaction_error',
+  card_account_ineligible = 'card_account_ineligible',
+  card_cvv_invalid = 'card_cvv_invalid',
+  card_expired = 'card_expired',
+  card_failed = 'card_failed',
+  card_invalid = 'card_invalid',
+  card_limit_violated = 'card_limit_violated',
+  card_not_honored = 'card_not_honored',
+  card_restricted = 'card_restricted',
+  customer_name_mismatch = 'customer_name_mismatch',
+  institution_name_mismatch = 'institution_name_mismatch',
   invalid_account_number = 'invalid_account_number',
-  invalid_wire_rtn = 'invalid_wire_rtn',
   invalid_ach_rtn = 'invalid_ach_rtn',
+  invalid_wire_rtn = 'invalid_wire_rtn',
+  payment_canceled = 'payment_canceled',
+  payment_denied = 'payment_denied',
+  payment_failed = 'payment_failed',
+  payment_failed_balance_check = 'payment_failed_balance_check',
+  payment_fraud_detected = 'payment_fraud_detected',
+  payment_not_funded = 'payment_not_funded',
+  payment_not_supported_by_issuer = 'payment_not_supported_by_issuer',
+  payment_returned = 'payment_returned',
+  payment_stopped_by_issuer = 'payment_stopped_by_issuer',
+  payment_unprocessable = 'payment_unprocessable',
+  reference_id_invalid = 'ref_id_invalid',
+  unauthorized_transaction = 'unauthorized_transaction',
+  wallet_address_mismatch = 'wallet_address_mismatch',
 }
 
 export enum CircleCardErrorCode {
@@ -100,8 +112,12 @@ export enum CircleCardErrorCode {
   card_limit_violated = 'card_limit_violated',
   card_not_honored = 'card_not_honored',
   card_zip_mismatch = 'card_zip_mismatch',
-  credit_card_not_allowed = 'credit_card_not_allowed',
-  verification_denied = 'verification_denied',
+  risk_denied = 'risk_denied',
+  three_d_secure_action_expired = 'three_d_secure_action_expired',
+  three_d_secure_failure = 'three_d_secure_failure',
+  three_d_secure_invalid_request = 'three_d_secure_invalid_request',
+  three_d_secure_not_supported = 'three_d_secure_not_supported',
+  three_d_secure_required = 'three_d_secure_required',
   verification_failed = 'verification_failed',
   verification_fraud_detected = 'verification_fraud_detected',
   verification_not_supported_by_issuer = 'verification_not_supported_by_issuer',
@@ -119,6 +135,7 @@ export enum CirclePaymentStatus {
   Pending = 'pending',
   Failed = 'failed',
   Confirmed = 'confirmed',
+  ActionRequired = 'action_required',
   Paid = 'paid',
 }
 
@@ -144,6 +161,7 @@ export enum PaymentStatus {
   Pending = 'pending',
   Failed = 'failed',
   Confirmed = 'confirmed',
+  ActionRequired = 'action_required',
   Paid = 'paid',
 }
 
@@ -230,6 +248,7 @@ export const ToPaymentBaseSchema = Type.Object({
     ])
   ),
   amount: Type.String(),
+  action: Type.Optional(Type.String({ format: 'uri' })),
   sourceId: Type.Optional(Type.String()),
 })
 
@@ -273,7 +292,7 @@ export const SendBankAccountInstructionsSchema = Type.Object({
 // #endregion
 // #region Circle
 
-const CircleVerificationAVSCode = Type.Intersect([
+const CircleVerificationAVSCode = Type.Union([
   Type.Enum(CircleVerificationAVSCodeOptions),
   Type.Enum(CircleVerificationAVSSuccessCode),
   Type.Enum(CircleVerificationAVSFailureCode),
@@ -351,15 +370,19 @@ const CircleCreatePaymentSchema = Type.Object({
   metadata: CircleMetadataSchema,
   amount: CirclePaymentAmountSchema,
   verification: Type.Enum(CirclePaymentVerificationOptions),
+  verificationSuccessUrl: Type.Optional(Type.String({ format: 'uri' })),
+  verificationFailureUrl: Type.Optional(Type.String({ format: 'uri' })),
   source: CirclePaymentSourceSchema,
   description: Type.String({ nullable: true }),
   encryptedData: Type.Optional(Type.String({ nullable: true })),
 })
 
 const CirclePaymentVerificationSchema = Type.Object({
-  avs: CircleVerificationAVSCode,
-  cvv: Type.Enum(CircleVerificationCvvStatus),
-  three_d_secure: Type.String(),
+  avs: Type.Optional(CircleVerificationAVSCode),
+  cvv: Type.Optional(Type.Enum(CircleVerificationCvvStatus)),
+  three_d_secure: Type.Optional(
+    Type.Enum(CircleVerificationThreeDSecureStatus)
+  ),
 })
 
 const CircleCardVerificationSchema = Type.Object({
@@ -554,6 +577,13 @@ const CoinbaseErrorResponseSchema = Type.Object({
 // #endregion
 // #region Payment/card routes schemas
 
+export const CountrySchema = Type.Object({
+  code: Type.String(),
+  name: Nullable(Type.Optional(Type.String())),
+})
+
+export const CountriesSchema = Type.Array(CountrySchema)
+
 export const CurrencySchema = Type.Object({
   base: Type.Number(),
   code: Type.String(),
@@ -597,6 +627,7 @@ export const GetPaymentCardStatusSchema = Type.Object({
 
 export const PaymentQuerystringSchema = Type.Object({
   isAdmin: Type.Optional(Type.Boolean()),
+  isExternalId: Type.Optional(Type.Boolean()),
 })
 
 export const PaymentSchema = Type.Intersect([
@@ -806,6 +837,8 @@ export type CreateTransferPayment = Simplify<
 export type CreateWalletAddress = Simplify<
   Static<typeof CreateWalletAddressSchema>
 >
+export type Country = Simplify<Static<typeof CountrySchema>>
+export type Countries = Simplify<Static<typeof CountriesSchema>>
 export type Currency = Simplify<Static<typeof CurrencySchema>>
 export type FindTransferByAddress = Simplify<
   Static<typeof FindTransferByAddressSchema>
@@ -851,7 +884,6 @@ export type WirePayment = Simplify<Static<typeof WirePaymentSchema>>
 
 // #endregion
 // #region Success/error response
-
 interface CircleSuccessResponse<T = unknown> {
   data: T
 }

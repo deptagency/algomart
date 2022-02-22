@@ -7,6 +7,7 @@ import PaymentMethodsForm from '@/components/purchase-form/cards/add-card'
 import { FormValidation } from '@/contexts/payment-context'
 
 export interface MyProfilePaymentMethodsAddProps {
+  countries: { label: string | null; id: string }[]
   formErrors?: FormValidation
   handleRetry: () => void
   loadingText: string
@@ -15,6 +16,7 @@ export interface MyProfilePaymentMethodsAddProps {
 }
 
 export default function MyProfilePaymentMethodsAddTemplate({
+  countries,
   handleRetry,
   formErrors,
   loadingText,
@@ -24,6 +26,7 @@ export default function MyProfilePaymentMethodsAddTemplate({
   return (
     <div className={common.sectionContent}>
       <PaymentMethodsForm
+        countries={countries}
         formErrors={formErrors}
         handleRetry={handleRetry}
         loadingText={loadingText}

@@ -1,0 +1,47 @@
+.successRoot {
+  @apply w-full max-w-xs mx-auto text-center;
+}
+
+.failureRoot {
+  @apply max-w-xs mx-auto text-center;
+}
+
+.icon {
+  @apply relative mx-auto;
+}
+
+.successIcon {
+  @apply text-base-price;
+}
+
+.errorIcon {
+  @apply text-base-error;
+}
+
+.heading {
+  @apply text-2xl font-bold text-base-textPrimary;
+}
+
+.notice {
+  @apply w-3/4 m-auto;
+}
+
+.noticeWrapper {
+  @apply pt-6 text-center pb-9;
+}
+
+.button {
+  @apply w-full;
+}
+
+.errorButton {
+  @apply mt-8;
+}
+
+.error {
+  @apply text-sm text-base-textPrimary;
+}
+
+.errorHeading {
+  @apply my-4 text-lg font-bold text-base-textPrimary;
+}

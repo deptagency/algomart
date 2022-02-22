@@ -2,6 +2,7 @@ import {
   CollectibleBase,
   CollectionBase,
   CollectionWithSets,
+  Countries,
   DEFAULT_LOCALE,
   HomepageBase,
   PackBase,
@@ -144,6 +145,30 @@ export interface DirectusPackTemplate {
   status: DirectusStatus
   translations: number[] | DirectusPackTemplateTranslation[]
   type: PackType
+}
+
+export interface DirectusCountry {
+  id: string
+  application_id: string
+  countries_code: string
+}
+
+export interface DirectusApplication {
+  id: string
+  currency?: string | null
+  countries?: DirectusCountry[] | null
+}
+
+export interface DirectusCountryWithTranslations {
+  code: string
+  translations?: number[] | DirectusCountryTranslation[]
+}
+
+export interface DirectusCountryTranslation extends DirectusTranslation {
+  id: number
+  countries_code: string
+  languages_code: string
+  title: string | null
 }
 
 // #endregion
@@ -521,6 +546,21 @@ export function toPackBase(
   }
 }
 
+export function toCountryBase(
+  template: DirectusCountryWithTranslations,
+  locale: string
+) {
+  const translation = getDirectusTranslation<DirectusCountryTranslation>(
+    template.translations as DirectusCountryTranslation[],
+    `country ${template.code} has no translations`,
+    locale
+  )
+  return {
+    code: template.code,
+    name: translation.title,
+  }
+}
+
 // #endregion
 
 export interface DirectusAdapterOptions {
@@ -665,6 +705,23 @@ export default class DirectusAdapter {
     }
 
     return await this.findMany<DirectusSet>('sets', {
+      ...defaultQuery,
+      ...query,
+    })
+  }
+
+  private async findCountries(query: ItemQuery<{ filter: ItemFilter }> = {}) {
+    const defaultQuery: ItemQuery<DirectusCountryWithTranslations> = {
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+      limit: -1,
+      fields: ['*.*'],
+    }
+
+    return await this.findMany<DirectusCountryWithTranslations>('countries', {
       ...defaultQuery,
       ...query,
     })
@@ -861,6 +918,16 @@ export default class DirectusAdapter {
     return toSetWithCollection(set, this.getFileURL.bind(this), locale)
   }
 
+  async findPublishedCountries(
+    filter: ItemFilter = {},
+    locale = DEFAULT_LOCALE
+  ): Promise<Countries | null> {
+    const response = await this.findCountries({ filter })
+    if (response.data.length === 0) return null
+    const countries = response.data
+    return countries.map((country) => toCountryBase(country, locale))
+  }
+
   async findHomepage() {
     // Homepage is a singleton in the CMS, which makes this endpoint only return a single item.
     // Therefore we should avoid using the `findMany` method and instead act as if the result is
@@ -899,6 +966,26 @@ export default class DirectusAdapter {
         response.body
       )
       return toHomepageBase(result.data)
+    }
+
+    return null
+  }
+
+  async findApplication(): Promise<DirectusApplication | null> {
+    // Application is a singleton in the CMS, which makes this endpoint only return a single item.
+    // Therefore we should avoid using the `findMany` method and instead act as if the result is
+    // from a `findById` call.
+    const response = await this.http.get('items/application', {
+      searchParams: getParameters({
+        fields: ['*.*'],
+      }),
+    })
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      const result: ItemByIdResponse<DirectusApplication> = JSON.parse(
+        response.body
+      )
+      return result.data
     }
 
     return null
