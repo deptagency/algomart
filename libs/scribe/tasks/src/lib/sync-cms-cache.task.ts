@@ -139,6 +139,7 @@ async function syncPackTemplates(cms: DirectusAdapter) {
           .update({
             type: packTemplate.type,
             releasedAt: packTemplate.released_at,
+            auctionUntil: packTemplate.auction_until,
             content: JSON.stringify(packTemplate),
           })
       : CMSCachePackTemplateModel.query().insert({
@@ -146,6 +147,7 @@ async function syncPackTemplates(cms: DirectusAdapter) {
           slug: packTemplate.slug,
           type: packTemplate.type,
           releasedAt: packTemplate.released_at,
+          auctionUntil: packTemplate.auction_until,
           content: JSON.stringify(packTemplate),
         }))
   }

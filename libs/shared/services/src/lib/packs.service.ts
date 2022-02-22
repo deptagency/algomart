@@ -41,10 +41,7 @@ import { raw, Transaction } from 'objection'
 
 import I18nService from './i18n.service'
 
-import {
-  CMSCacheAdapter,
-  ItemFilter,
-} from '@algomart/shared/adapters'
+import { CMSCacheAdapter, ItemFilter } from '@algomart/shared/adapters'
 
 import NotificationsService from './notifications.service'
 import CollectiblesService from './collectibles.service'
@@ -95,13 +92,13 @@ function shouldIncludeAuctionPack(
   if (typeof filters.reserveMet === 'boolean') {
     include = filters.reserveMet
       ? include &&
-      typeof pack.activeBid === 'number' &&
-      pack.price !== null &&
-      pack.activeBid >= pack.price
+        typeof pack.activeBid === 'number' &&
+        pack.price !== null &&
+        pack.activeBid >= pack.price
       : include &&
-      (pack.price === null ||
-        pack.activeBid === undefined ||
-        pack.activeBid < pack.price)
+        (pack.price === null ||
+          pack.activeBid === undefined ||
+          pack.activeBid < pack.price)
   }
 
   return include
@@ -1000,9 +997,13 @@ export default class PacksService {
   async generatePacks(trx?: Transaction, knexRead?: Knex) {
     const packTemplates = await this.cms.findPacksPendingGeneration(trx, knexRead)
 
+    let total = 0
+
     for (const template of packTemplates) {
-      this.generatePack(template, trx)
+      total += await this.generatePack(template, trx)
     }
+
+    return total
   }
 
   private async generatePack(template, trx?: Transaction, knexRead?: Knex) {
@@ -1029,6 +1030,7 @@ export default class PacksService {
         'still generating collectibles for pack template %s',
         templateId
       )
+
       return 0
     }
 

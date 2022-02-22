@@ -6,6 +6,7 @@ export async function up(knex: Knex): Promise<void> {
     table.string('slug').notNullable()
     table.string('type').notNullable()
     table.dateTime('releasedAt')
+    table.dateTime('auctionUntil')
     table.jsonb('content').notNullable()
     table.timestamp('createdAt').defaultTo(knex.fn.now()).notNullable()
     table.timestamp('updatedAt').defaultTo(knex.fn.now()).notNullable()
