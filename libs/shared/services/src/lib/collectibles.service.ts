@@ -25,7 +25,6 @@ import {
   AlgorandAdapter,
   DEFAULT_INITIAL_BALANCE,
   CMSCacheAdapter,
-  ItemFilter,
   NFTStorageAdapter,
 } from '@algomart/shared/adapters'
 
@@ -101,14 +100,9 @@ export default class CollectiblesService {
 
     const transferrableAt = this.getTransferrableAt(collectible)
 
-    const {
-      collectibles: [template],
-    } = await this.cms.findAllCollectibles(
+    const template = await this.cms.findCollectibleByTemplateId(
       query.locale,
-      {
-        id: { _eq: collectible.templateId },
-      },
-      1
+      collectible.templateId
     )
 
     invariant(template, `NFT Template ${collectible.templateId} not found`)
@@ -172,11 +166,9 @@ export default class CollectiblesService {
     )
 
     // Get corresponding templates from CMS
-    const templates = await this.cms.findCollectiblesById(
-      undefined,
-      [...collectiblesLookupByTemplate.keys()],
-      limit
-    )
+    const templates = await this.cms.findCollectiblesByTemplateIds(undefined, [
+      ...collectiblesLookupByTemplate.keys(),
+    ])
 
     if (templates.length === 0) {
       return 0
@@ -245,10 +237,9 @@ export default class CollectiblesService {
 
     // Get corresponding templates from CMS
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
+    const templates = await this.cms.findCollectiblesByTemplateIds(
       locale,
-      { id: { _in: templateIds } },
-      templateIds.length
+      templateIds
     )
 
     // Map and sort collectibles
@@ -369,10 +360,9 @@ export default class CollectiblesService {
 
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
 
-    const templates = await this.cms.findCollectiblesById(
+    const templates = await this.cms.findCollectiblesByTemplateIds(
       undefined,
-      templateIds,
-      templateIds.length
+      templateIds
     )
 
     invariant(templates.length > 0, 'templates not found')
@@ -701,19 +691,10 @@ export default class CollectiblesService {
     })
 
     const foundTemplateIds = [...new Set(collectibles.map((c) => c.templateId))]
-
-    const cmsFilter: ItemFilter = {
-      id: {
-        _in: foundTemplateIds,
-      },
-    }
-
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
+    const templates = await this.cms.findCollectiblesByTemplateIds(
       locale,
-      cmsFilter,
-      foundTemplateIds.length
+      foundTemplateIds
     )
-
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
     const mappedCollectibles = collectibles
       .map((c) => {
@@ -753,50 +734,11 @@ export default class CollectiblesService {
     }
   }
 
-  async getCollectibleTemplates({
-    page = 1,
-    pageSize = 10,
-    locale = DEFAULT_LOCALE,
-    sortBy = CollectibleSortField.Title,
-    sortDirection = SortDirection.Ascending,
-    templateIds = [],
-    setId,
-    collectionId,
-  }: CollectibleListQuerystring): Promise<CollectibleBase[]> {
-    userInvariant(page > 0, 'page must be greater than 0')
-    userInvariant(
-      pageSize > 0 || pageSize === -1,
-      'pageSize must be greater than 0'
-    )
-    userInvariant(
-      [CollectibleSortField.ClaimedAt, CollectibleSortField.Title].includes(
-        sortBy
-      ),
-      'sortBy must be one of claimedAt or title'
-    )
-    userInvariant(
-      [SortDirection.Ascending, SortDirection.Descending].includes(
-        sortDirection
-      ),
-      'sortDirection must be one of asc or desc'
-    )
-
-    const filter: ItemFilter = {}
-    if (templateIds.length > 0) filter.id = { _in: templateIds }
-    if (setId) filter.set = { id: { _eq: setId } }
-    if (collectionId) filter.collection = { id: { _eq: collectionId } }
-
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      locale,
-      filter,
-      pageSize
-    )
-
-    return templates
-  }
-
   async getShowcaseCollectibles(
-    { locale = DEFAULT_LOCALE, ownerUsername }: CollectibleShowcaseQuerystring,
+    {
+      locale = DEFAULT_LOCALE,
+      ownerUsername,
+    }: CollectibleShowcaseQuerystring,
     knexRead?: Knex
   ) {
     const user = await UserAccountModel.query()

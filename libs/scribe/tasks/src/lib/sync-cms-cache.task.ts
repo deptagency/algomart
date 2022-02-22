@@ -65,7 +65,7 @@ async function syncHomepage(cms: DirectusAdapter) {
 }
 
 async function syncPages(cms: DirectusAdapter) {
-  const results = await cms.findAllPages()
+  const results = await cms.findAllPages({ page: 1, pageSize: -1 })
 
   for (const page of results) {
     const currentRecord = await CMSCachePageModel.query().findOne('id', page.id)
@@ -82,7 +82,7 @@ async function syncPages(cms: DirectusAdapter) {
 }
 
 async function syncFaqs(cms: DirectusAdapter) {
-  const results = await cms.getFaqs()
+  const results = await cms.getFaqs({ page: 1, pageSize: -1 })
 
   for (const faq of results) {
     const currentRecord = await CMSCacheFaqModel.query().findOne('id', faq.id)
@@ -99,7 +99,7 @@ async function syncFaqs(cms: DirectusAdapter) {
 }
 
 async function syncLanguages(cms: DirectusAdapter) {
-  const results = await cms.getLanguages()
+  const results = await cms.getLanguages({ page: 1, pageSize: -1 })
 
   for (const language of results) {
     const currentRecord = await CMSCacheLanguageModel.query().findOne(
@@ -149,7 +149,7 @@ async function syncPackTemplates(cms: DirectusAdapter) {
 }
 
 async function syncCollectibleTemplates(cms: DirectusAdapter) {
-  const results = await cms.findAllCollectibles()
+  const results = await cms.findAllCollectibles({ page: 1, pageSize: -1 })
 
   for (const collectibleTemplate of results) {
     const currentRecord =
@@ -183,7 +183,7 @@ async function syncCollectibleTemplates(cms: DirectusAdapter) {
 }
 
 async function syncCollections(cms: DirectusAdapter) {
-  const results = await cms.findAllCollections()
+  const results = await cms.findAllCollections({ page: 1, pageSize: -1 })
 
   for (const collection of results) {
     const currentRecord = await CMSCacheCollectionModel.query().findOne(
@@ -204,7 +204,7 @@ async function syncCollections(cms: DirectusAdapter) {
 }
 
 async function syncSets(cms: DirectusAdapter) {
-  const results = await cms.findAllSets()
+  const results = await cms.findAllSets({ page: 1, pageSize: -1 })
 
   for (const set of results) {
     const currentRecord = await CMSCacheSetModel.query().findOne('id', set.id)
