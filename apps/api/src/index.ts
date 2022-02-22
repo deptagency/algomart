@@ -17,7 +17,7 @@ buildApp({
   container: configureResolver(),
 })
   .then((app) => {
-    configureTasks(app)
+    configureTasks(app, logger)
     return app.listen(Configuration.port, Configuration.host)
   })
   .then(() => {

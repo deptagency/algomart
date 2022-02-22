@@ -21,15 +21,6 @@ import { isGreaterThan, userInvariant } from '@algomart/shared/utils'
 import I18nService from './i18n.service'
 import { Knex } from 'knex'
 
-// import { BidModel } from '@/models/bid.model'
-// import { EventModel } from '@/models/event.model'
-// import { PackModel } from '@/models/pack.model'
-// import { UserAccountModel } from '@/models/user-account.model'
-// import NotificationsService from '@/modules/notifications/notifications.service'
-// import PacksService from '@/modules/packs/packs.service'
-// import { currency, isGreaterThan } from '@/utils/format-currency'
-// import { userInvariant } from '@/utils/invariant'
-
 export default class BidsService {
   logger: pino.Logger<unknown>
 
