@@ -51,10 +51,8 @@ export default function BidActivity({
     time: timeFormat.format(endDateTime),
   })
   return (
-    <>
-      <div className={css.titleWrapper}>
-        <h1 className={css.title}>{t('release:Activity')}</h1>
-      </div>
+    <section className={css.bidActivity}>
+      <h1 className={css.title}>{t('release:Activity')}</h1>
       <ul className={css.list}>
         {isClosed && auctionUntil && (
           <BidActivityDetails
@@ -136,6 +134,6 @@ export default function BidActivity({
           </BidActivityDetails>
         )}
       </ul>
-    </>
+    </section>
   )
 }

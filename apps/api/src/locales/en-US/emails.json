@@ -55,9 +55,9 @@
     ]
   },
   "wireTransfer": {
-    "subject": "Congratulations on your purchase!",
+    "subject": "Please complete your purchase",
     "body": [
-      "Congratulations on your purchase of {{packTitle}}!",
+      "Please complete your purchase of {{packTitle}}!",
       "Here's the bank account information for the wire transfer of ${{amount}}:",
       "<strong>Beneficiary:</strong>",
       "Name: {{beneficiaryName}}",
@@ -78,14 +78,14 @@
   },
   "csAwaitingWirePayment": {
     "subject": "AWAITING wire payment for “{{packTitle}}”",
-    "body": "Awaiting wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}}."
+    "body": "Awaiting wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}}. <a href=\"{{ctaUrl}}\"><strong>View transaction</strong></a>"
   },
   "csWirePaymentFailed": {
     "subject": "Wire payment FAILED for “{{packTitle}}”",
-    "body": "Wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}} failed."
+    "body": "Wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}} failed. <a href=\"{{ctaUrl}}\"><strong>View transaction</strong></a>"
   },
   "csWirePaymentSuccess": {
     "subject": "Wire payment SUCCESS for “{{packTitle}}”",
-    "body": "Wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}} succeeded."
+    "body": "Wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}} succeeded. <a href=\"{{ctaUrl}}\"><strong>View transaction</strong></a>"
   }
 }

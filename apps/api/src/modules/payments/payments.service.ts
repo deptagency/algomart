@@ -330,7 +330,7 @@ export default class PaymentsService {
       .first()
     userInvariant(user, 'no user found', 404)
 
-    const { price, packId } = await this.selectPackAndAssignToUser(
+    const { price, packId, priceInUSD } = await this.selectPackAndAssignToUser(
       bankDetails.packTemplateId,
       user.id,
       trx
@@ -411,6 +411,22 @@ export default class PaymentsService {
       entityId: newBankAccount.id,
       userAccountId: user.id,
     })
+
+    if (Configuration.customerServiceEmail) {
+      const packTemplate = await this.packs.getPackById(packId)
+      await this.notifications.createNotification(
+        {
+          type: NotificationType.CSAwaitingWirePayment,
+          userAccountId: user.id,
+          variables: {
+            packTitle: packTemplate.title,
+            paymentId: newPayment.id,
+            amount: priceInUSD,
+          },
+        },
+        trx
+      )
+    }
 
     return { id: newBankAccount.id, status: bankAccount.status }
   }
@@ -731,9 +747,10 @@ export default class PaymentsService {
       return amountInt === foundBankAccount.amount
     })
     if (!sourcePayment) return null
+
     // Update payment details
     if (payment.status !== sourcePayment.status || !payment.externalId) {
-      await PaymentModel.query(trx).patchAndFetchById(payment.id, {
+      await PaymentModel.query(trx).findById(payment.id).patch({
         externalId: sourcePayment.externalId,
         status: sourcePayment.status,
       })
@@ -777,6 +794,42 @@ export default class PaymentsService {
             userAccountId: payment.payerId,
             variables: {
               packTitle: packTemplate.title,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      }
+    }
+
+    // STATUS CHANGED
+    if (
+      payment.status !== sourcePayment.status && // Automated notifications to customer service
+      Configuration.customerServiceEmail
+    ) {
+      if (sourcePayment.status === PaymentStatus.Failed) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentFailed,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              paymentId: payment.id,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      } else if (sourcePayment.status === PaymentStatus.Paid) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentSuccess,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              paymentId: payment.id,
               amount: sourcePayment.amount,
             },
           },
@@ -919,6 +972,7 @@ export default class PaymentsService {
         variables: {
           amount: formatIntToFloat(foundBankAccount.amount),
           packTitle: packTemplate.title,
+          packSlug: packTemplate.slug,
           trackingRef: bankAccountInstructions.trackingRef,
           beneficiaryName: bankAccountInstructions.beneficiary.name,
           beneficiaryAddress1: bankAccountInstructions.beneficiary.address1,

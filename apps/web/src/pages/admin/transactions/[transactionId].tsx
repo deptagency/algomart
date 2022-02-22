@@ -1,6 +1,5 @@
 import { Payment, PaymentStatus, WirePayment } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useState } from 'react'
@@ -13,6 +12,7 @@ import Avatar from '@/components/avatar/avatar'
 import Breadcrumbs from '@/components/breadcrumbs'
 import Button from '@/components/button'
 import { Flex } from '@/components/flex'
+import Heading from '@/components/heading'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
@@ -34,6 +34,7 @@ export default function AdminTransactionPage({
   const { query } = useRouter()
   const { transactionId } = query
   const isAuction = !!payment.pack?.template?.auctionUntil
+  const isWire = !!payment.paymentBankId
 
   // WIRE PAYMENTS
   const { data } = useAuthApi<WirePayment[]>(
@@ -50,7 +51,7 @@ export default function AdminTransactionPage({
         value ? new Date(value).toLocaleString(lang) : null,
     },
     {
-      key: 'pack.price',
+      key: 'amount',
       name: t('transactions.table.Amount'),
       renderer: ({ value }) => formatCurrency(value, lang),
     },
@@ -122,13 +123,7 @@ export default function AdminTransactionPage({
       <Flex gap={12}>
         <Flex item flex="0 0 auto" className={css.leftSide} gap={2}>
           <Panel fullWidth>
-            <Image
-              src={payment.pack?.template?.image}
-              layout="responsive"
-              height="100%"
-              width="100%"
-              alt="Pack image"
-            />
+            <img src={payment.pack?.template?.image} alt="Pack image" />
           </Panel>
 
           <Flex flex="1" flexDirection="column" gap={6}>
@@ -178,6 +173,14 @@ export default function AdminTransactionPage({
         </Flex>
 
         <Flex flex="1" flexDirection="column" gap={6}>
+          <Heading className="capitalize">
+            {payment.status}{' '}
+            {formatCurrency(
+              payment?.pack?.template.activeBid ??
+                payment?.pack?.template.price,
+              lang
+            )}
+          </Heading>
           {isAuction && (
             <Panel>
               <Flex alignItems="stretch" gap={4} Element="dl">
@@ -203,9 +206,11 @@ export default function AdminTransactionPage({
             </Panel>
           )}
 
-          <Panel title={t('common:pageTitles.Transactions')} fullWidth>
-            <Table<WirePayment> columns={columns} data={data} />
-          </Panel>
+          {isWire && (
+            <Panel title={t('transactions.Wire Payments')} fullWidth>
+              <Table<WirePayment> columns={columns} data={data} />
+            </Panel>
+          )}
 
           <Panel title={t('transactions.resetPayment')}>
             <p className={css.actionDescription}>
@@ -214,7 +219,7 @@ export default function AdminTransactionPage({
             <Button
               onClick={handleReset}
               size="small"
-              disabled={payment?.status === PaymentStatus.Pending}
+              disabled={!isWire || payment?.status === PaymentStatus.Pending}
             >
               {t('transactions.resetPayment')}
             </Button>
