@@ -754,41 +754,89 @@ export default class PaymentsService {
         externalId: sourcePayment.externalId,
         status: sourcePayment.status,
       })
+      // Send Awaiting payment notification to customer service
+      if (Configuration.customerServiceEmail) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSAwaitingWirePayment,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      }
+    }
+
+    // Send email notification to  Customer service
+    if (Configuration.customerServiceEmail) {
+      if (sourcePayment.status === PaymentStatus.Failed) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentFailed,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      } else if (sourcePayment.status === PaymentStatus.Paid) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentSuccess,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      }
     }
 
     // STATUS CHANGED
-    if (payment.status !== sourcePayment.status && // Automated notifications to customer service
-      Configuration.customerServiceEmail) {
-        if (sourcePayment.status === PaymentStatus.Failed) {
-          const packTemplate = await this.packs.getPackById(payment.packId)
-          await this.notifications.createNotification(
-            {
-              type: NotificationType.CSWirePaymentFailed,
-              userAccountId: payment.payerId,
-              variables: {
-                packTitle: packTemplate.title,
-                paymentId: payment.id,
-                amount: sourcePayment.amount,
-              },
+    if (
+      payment.status !== sourcePayment.status && // Automated notifications to customer service
+      Configuration.customerServiceEmail
+    ) {
+      if (sourcePayment.status === PaymentStatus.Failed) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentFailed,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              paymentId: payment.id,
+              amount: sourcePayment.amount,
             },
-            trx
-          )
-        } else if (sourcePayment.status === PaymentStatus.Paid) {
-          const packTemplate = await this.packs.getPackById(payment.packId)
-          await this.notifications.createNotification(
-            {
-              type: NotificationType.CSWirePaymentSuccess,
-              userAccountId: payment.payerId,
-              variables: {
-                packTitle: packTemplate.title,
-                paymentId: payment.id,
-                amount: sourcePayment.amount,
-              },
+          },
+          trx
+        )
+      } else if (sourcePayment.status === PaymentStatus.Paid) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentSuccess,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              paymentId: payment.id,
+              amount: sourcePayment.amount,
             },
-            trx
-          )
-        }
+          },
+          trx
+        )
       }
+    }
 
     return sourcePayment
   }
