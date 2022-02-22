@@ -8,6 +8,7 @@ import Button from '@/components/button'
 import Dialog from '@/components/dialog/dialog'
 import ReleaseFilterPrice from '@/components/releases/release-filter-price'
 import ReleaseFilterType from '@/components/releases/release-filter-type'
+import { Environment } from '@/environment'
 
 export default function ReleaseFiltersMobile() {
   const [showFilters, setShowFilters] = useState(false)
@@ -33,7 +34,7 @@ export default function ReleaseFiltersMobile() {
             </Button>
           </div>
           <ReleaseFilterPrice />
-          <ReleaseFilterType />
+          {Environment.isBiddingEnabled && <ReleaseFilterType />}
         </div>
       </Dialog>
 

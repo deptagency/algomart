@@ -5,14 +5,17 @@
 
 .selectWrapper {
   /* Base */
-  @apply relative z-10 mx-auto mb-8 transform -translate-y-1/2 border-b border-base-border max-w-520;
+  @apply relative mx-auto mb-8 z-10;
   /* Tablet + */
   @apply md:mb-12;
 }
 
 .selectWrapper label {
-  @apply mx-auto transform translate-y-1/2 shadow-large;
-  max-width: 175px;
+  @apply mx-auto flex justify-center;
+}
+
+.selectWrapper button {
+  @apply shadow-large;
 }
 
 .columns {

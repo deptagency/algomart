@@ -71,4 +71,9 @@ export const Environment = {
     const isEnabled = this.config('NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED', '')
     return isEnabled.toLowerCase() === 'true'
   },
+
+  get isBiddingEnabled() {
+    const isEnabled = this.config('IS_BIDDING_ENABLED', '')
+    return isEnabled.toLowerCase() === 'true'
+  },
 }
