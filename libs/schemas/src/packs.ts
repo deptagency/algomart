@@ -9,6 +9,7 @@ import {
   Nullable,
   PaginationSchema,
   Simplify,
+  SlugSchema,
   SortDirection,
 } from './shared'
 import { AlgorandTransactionStatus } from './transactions'
@@ -196,6 +197,10 @@ export const PackIdSchema = Type.Object({
   packId: IdSchema,
 })
 
+export const PackSlugSchema = Type.Object({
+  packSlug: SlugSchema,
+})
+
 export const PackAuctionSchema = Type.Intersect([
   PackIdSchema,
   Type.Object({
@@ -275,6 +280,7 @@ export type PackAuction = Simplify<Static<typeof PackAuctionSchema>>
 export type PackBase = Simplify<Static<typeof PackBaseSchema>>
 export type PackByTemplateId = Simplify<Static<typeof PackByTemplateIdSchema>>
 export type PackId = Simplify<Static<typeof PackIdSchema>>
+export type PackSlug = Simplify<Static<typeof PackSlugSchema>>
 export type PackTemplateId = Simplify<Static<typeof PackTemplateIdSchema>>
 export type PackWithCollectibles = Simplify<
   Static<typeof PackWithCollectiblesSchema>

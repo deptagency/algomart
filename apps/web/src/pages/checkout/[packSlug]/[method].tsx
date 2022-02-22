@@ -118,10 +118,11 @@ export const getServerSideProps: GetServerSideProps<
   }
 
   // Find pack templates
-  const { packs: packTemplates } = await ApiClient.instance.getPublishedPacks({
-    locale: context.locale,
-    slug: params?.packSlug as string,
-  })
+  const { packs: packTemplates } =
+    await ApiClient.instance.getPublishedPackBySlug(
+      params?.packSlug as string,
+      context.locale
+    )
 
   // If no pack templates were found, return 404
   if (!packTemplates || packTemplates.length === 0) {

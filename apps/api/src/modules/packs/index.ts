@@ -11,6 +11,7 @@ import {
   PackIdSchema,
   PacksByOwnerQuerySchema,
   PacksByOwnerSchema,
+  PackSlugSchema,
   PackTemplateIdSchema,
   PackWithCollectiblesSchema,
   PackWithIdSchema,
@@ -34,6 +35,7 @@ import {
   getAuctionPackByTemplateId,
   getPacksByOwner,
   getPackWithCollectiblesById,
+  getPublishedPackBySlug,
   getPublishedPacks,
   getRedeemablePack,
   mintPackStatus,
@@ -72,6 +74,23 @@ export async function packsRoutes(app: FastifyInstance) {
       },
     },
     getPublishedPacks
+  )
+
+  app.get(
+    '/by-slug/:packSlug',
+    {
+      schema: {
+        tags,
+        security,
+        description: 'Get a pack by slug with its collectibles.',
+        querystring: LocaleSchema,
+        params: PackSlugSchema,
+        response: {
+          200: PackWithCollectiblesSchema,
+        },
+      },
+    },
+    getPublishedPackBySlug
   )
 
   app.get(

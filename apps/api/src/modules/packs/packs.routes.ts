@@ -8,6 +8,7 @@ import {
   OwnerExternalId,
   PackId,
   PacksByOwnerQuery,
+  PackSlug,
   PackTemplateId,
   PublishedPacksQuery,
   RedeemCode,
@@ -28,6 +29,21 @@ export async function getPublishedPacks(
     request.query,
     request.transaction,
     request.knexRead
+  )
+  reply.send(result)
+}
+
+export async function getPublishedPackBySlug(
+  request: FastifyRequest<{
+    Params: PackSlug
+    Querystring: Locale
+  }>,
+  reply: FastifyReply
+) {
+  const service = request.getContainer().get<PacksService>(PacksService.name)
+  const result = await service.getPublishedPackBySlug(
+    request.params.packSlug,
+    request.query.locale
   )
   reply.send(result)
 }
