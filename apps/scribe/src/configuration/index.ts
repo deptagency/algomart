@@ -18,7 +18,7 @@ export const Configuration = {
   },
 
   get port() {
-    return env.get('PORT').default(3001).asPortNumber()
+    return env.get('PORT').default(3002).asPortNumber()
   },
 
   get apiKey() {
