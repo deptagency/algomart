@@ -2484,15 +2484,6 @@ fields:
       conditions: null
       required: false
       group: null
-      conditions:
-        - name: No editing after publish
-          rule:
-            _and:
-              - status:
-                  _eq: published
-              - id:
-                  _nnull: true
-          readonly: true
   - collection: nft_templates
     field: preview_video
     type: uuid
