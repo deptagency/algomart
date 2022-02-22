@@ -12,6 +12,7 @@ import Avatar from '@/components/avatar/avatar'
 import Breadcrumbs from '@/components/breadcrumbs'
 import Button from '@/components/button'
 import { Flex } from '@/components/flex'
+import Heading from '@/components/heading'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
@@ -49,7 +50,7 @@ export default function AdminTransactionPage({
         value ? new Date(value).toLocaleString(lang) : null,
     },
     {
-      key: 'pack.price',
+      key: 'amount',
       name: t('transactions.table.Amount'),
       renderer: ({ value }) => formatCurrency(value, lang),
     },
@@ -171,6 +172,14 @@ export default function AdminTransactionPage({
         </Flex>
 
         <Flex flex="1" flexDirection="column" gap={6}>
+          <Heading className="capitalize">
+            {payment.status}{' '}
+            {formatCurrency(
+              payment?.pack?.template.activeBid ??
+                payment?.pack?.template.price,
+              lang
+            )}
+          </Heading>
           {isAuction && (
             <Panel>
               <Flex alignItems="stretch" gap={4} Element="dl">
