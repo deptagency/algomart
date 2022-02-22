@@ -34,12 +34,14 @@ const isResponseError = (error: unknown): error is ResponseError => {
  *   to not sending one at all.
  */
 const expectVariables = (variables, variableNames: string[]) => {
-  // Use error & trace because it's easier to read the error message.
-  logger.error('No variables were provided for this notification.')
-  console.trace('No variables were provided for this notification.')
+  // Use warn & trace because it's easier to read the error message.
+  if (!variables) {
+    logger.warn('No variables were provided for this notification.')
+    console.trace('No variables were provided for this notification.')
+  }
   for (const key of variableNames) {
     if (variables[key] === undefined) {
-      logger.error(`Variable '${key}' is required for this email template.`)
+      logger.warn(`Variable '${key}' is required for this email template.`)
       console.trace(`Variable '${key}' is required for this email template.`)
     }
   }
