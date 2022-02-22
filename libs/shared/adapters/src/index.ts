@@ -19,17 +19,21 @@ export { I18nAdapter }
 import MailerAdapter, { MailerAdapterOptions } from './mailer-adapter'
 export { MailerAdapter, MailerAdapterOptions }
 
-import CMSCacheAdapter, {
+import CMSCacheAdapter, { ItemFilter, toPackBase } from './cms-cache-adapter'
+
+import {
   DirectusStatus,
-  ItemFilter,
-  toPackBase,
   DirectusCollectibleTemplate,
   DirectusFile,
   DirectusPackTemplate,
   DirectusRarity,
-} from './directus-adapter'
+} from '@algomart/schemas'
+
+import DirectusAdapter from './directus-adapter'
+
 export {
   CMSCacheAdapter,
+  DirectusAdapter,
   DirectusStatus,
   ItemFilter,
   toPackBase,

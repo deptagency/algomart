@@ -2,6 +2,7 @@ import {
   AlgoExplorerAdapter,
   AlgorandAdapter,
   CircleAdapter,
+  CMSCacheAdapter,
   CoinbaseAdapter,
   DirectusAdapter,
   I18nAdapter,
@@ -51,13 +52,24 @@ export function configureResolver() {
     () => new AlgoExplorerAdapter(Configuration.algodEnv, logger)
   )
   resolver.set(
+    CMSCacheAdapter.name,
+    () =>
+      new CMSCacheAdapter(
+        {
+          cmsUrl: Configuration.cmsUrl,
+          gcpCdnUrl: Configuration.gcpCdnUrl,
+        },
+        logger
+      )
+  )
+  resolver.set(
     DirectusAdapter.name,
     () =>
       new DirectusAdapter(
         {
-          accessToken: Configuration.cmsAccessToken,
           cmsUrl: Configuration.cmsUrl,
           gcpCdnUrl: Configuration.gcpCdnUrl,
+          accessToken: Configuration.cmsAccessToken,
         },
         logger
       )
@@ -117,7 +129,7 @@ export function configureResolver() {
     PacksService.name,
     (c) =>
       new PacksService(
-        c.get<DirectusAdapter>(DirectusAdapter.name),
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
         c.get<CollectiblesService>(CollectiblesService.name),
         c.get<I18nService>(I18nService.name),
         c.get<NotificationsService>(NotificationsService.name),
@@ -130,7 +142,7 @@ export function configureResolver() {
     CollectiblesService.name,
     (c) =>
       new CollectiblesService(
-        c.get<DirectusAdapter>(DirectusAdapter.name),
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
         c.get<AlgorandAdapter>(AlgorandAdapter.name),
         c.get<NFTStorageAdapter>(NFTStorageAdapter.name),
         c.get<AlgoExplorerAdapter>(AlgoExplorerAdapter.name),
@@ -174,13 +186,13 @@ export function configureResolver() {
   )
   resolver.set(
     SetsService.name,
-    (c) => new SetsService(c.get<DirectusAdapter>(DirectusAdapter.name), logger)
+    (c) => new SetsService(c.get<CMSCacheAdapter>(CMSCacheAdapter.name), logger)
   )
   resolver.set(
     CollectionsService.name,
     (c) =>
       new CollectionsService(
-        c.get<DirectusAdapter>(DirectusAdapter.name),
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
         logger
       )
   )
@@ -188,14 +200,13 @@ export function configureResolver() {
     HomepageService.name,
     (c) =>
       new HomepageService(
-        c.get<DirectusAdapter>(DirectusAdapter.name),
-        c.get<PacksService>(PacksService.name),
-        c.get<CollectiblesService>(CollectiblesService.name)
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
+        c.get<PacksService>(PacksService.name)
       )
   )
   resolver.set(
     FaqsService.name,
-    (c) => new FaqsService(c.get<DirectusAdapter>(DirectusAdapter.name), logger)
+    (c) => new FaqsService(c.get<CMSCacheAdapter>(CMSCacheAdapter.name), logger)
   )
   resolver.set(
     AuctionsService.name,
@@ -208,13 +219,13 @@ export function configureResolver() {
   )
   resolver.set(
     DirectusPageService.name,
-    (c) => new DirectusPageService(c.get<DirectusAdapter>(DirectusAdapter.name))
+    (c) => new DirectusPageService(c.get<CMSCacheAdapter>(CMSCacheAdapter.name))
   )
   resolver.set(
     I18nService.name,
     (c) =>
       new I18nService(
-        c.get<DirectusAdapter>(DirectusAdapter.name),
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
         c.get<CoinbaseAdapter>(CoinbaseAdapter.name),
         Configuration.currency
       )

@@ -1,3 +1,4 @@
+import pino from 'pino'
 import {
   CollectibleBase,
   CollectionBase,
@@ -31,18 +32,23 @@ import {
 } from '@algomart/schemas'
 import { URL } from 'node:url'
 
-import { CMSCacheCollectibleTemplateModel } from '@/models/cms-cache-collectible-template.model'
-import { CMSCacheCollectionModel } from '@/models/cms-cache-collection.model'
-import { CMSCacheFaqModel } from '@/models/cms-cache-faq.model'
-import { CMSCacheHomepageModel } from '@/models/cms-cache-homepage.model'
-import { CMSCacheLanguageModel } from '@/models/cms-cache-language.model'
-import { CMSCachePackTemplateModel } from '@/models/cms-cache-pack-template.model'
-import { CMSCachePageModel } from '@/models/cms-cache-page.model'
-import { CMSCacheSetModel } from '@/models/cms-cache-set.model'
-import { isStringArray } from '@/utils/arrays'
-import { isAfterNow, isNowBetweenDates } from '@/utils/date-time'
-import { invariant } from '@/utils/invariant'
-import { logger } from '@/utils/logger'
+import {
+  CMSCacheCollectibleTemplateModel,
+  CMSCacheCollectionModel,
+  CMSCacheFaqModel,
+  CMSCacheHomepageModel,
+  CMSCacheLanguageModel,
+  CMSCachePackTemplateModel,
+  CMSCachePageModel,
+  CMSCacheSetModel,
+} from '@algomart/shared/models'
+
+import {
+  isStringArray,
+  isAfterNow,
+  isNowBetweenDates,
+  invariant,
+} from '@algomart/shared/utils'
 
 export interface ItemsResponse<T> {
   data: T[]
@@ -388,9 +394,14 @@ export interface CMSCacheAdapterOptions {
 }
 
 export default class CMSCacheAdapter {
-  logger = logger.child({ context: this.constructor.name })
+  logger: pino.Logger<unknown>
 
-  constructor(private readonly options: CMSCacheAdapterOptions) {}
+  constructor(
+    private readonly options: CMSCacheAdapterOptions,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
+  }
 
   private async findPackTemplates(query: ItemQuery<DirectusPackTemplate> = {}) {
     const queryResult = await CMSCachePackTemplateModel.query().select(

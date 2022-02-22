@@ -1,15 +1,18 @@
-import DirectusAdapter from '@/lib/directus-adapter'
-import { CMSCacheCollectibleTemplateModel } from '@/models/cms-cache-collectible-template.model'
-import { CMSCacheCollectionModel } from '@/models/cms-cache-collection.model'
-import { CMSCacheFaqModel } from '@/models/cms-cache-faq.model'
-import { CMSCacheHomepageModel } from '@/models/cms-cache-homepage.model'
-import { CMSCacheLanguageModel } from '@/models/cms-cache-language.model'
-import { CMSCachePackTemplateModel } from '@/models/cms-cache-pack-template.model'
-import { CMSCachePageModel } from '@/models/cms-cache-page.model'
-import { CMSCacheSetModel } from '@/models/cms-cache-set.model'
-import { CollectibleModel } from '@/models/collectible.model'
-import DependencyResolver from '@/shared/dependency-resolver'
-import { logger } from '@/utils/logger'
+import { DirectusAdapter } from '@algomart/shared/adapters'
+import {
+  CMSCacheCollectibleTemplateModel,
+  CMSCacheCollectionModel,
+  CMSCacheFaqModel,
+  CMSCacheHomepageModel,
+  CMSCacheLanguageModel,
+  CMSCachePackTemplateModel,
+  CMSCachePageModel,
+  CMSCacheSetModel,
+  CollectibleModel,
+} from '@algomart/shared/models'
+import { DependencyResolver } from '@algomart/shared/utils'
+
+import { logger } from '../configuration/logger'
 
 export default async function syncCMSCacheTask(registry: DependencyResolver) {
   const log = logger.child({ task: 'confirm-transactions' })
