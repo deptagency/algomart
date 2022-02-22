@@ -563,7 +563,7 @@ export default class PaymentsService {
       description,
       source: {
         id: card?.externalId || cardId,
-        type: CirclePaymentSourceType.card, // @TODO: Update when support ACH
+        type: CirclePaymentSourceType.card,
       },
     }
 
