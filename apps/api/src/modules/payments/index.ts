@@ -29,11 +29,10 @@ import {
   WirePaymentSchema,
 } from '@algomart/schemas'
 import { appErrorHandler } from '@algomart/shared/utils'
+import bearerAuthOptions from '@api/configuration/bearer-auth'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
 import fastifyBearerAuth from 'fastify-bearer-auth'
-
-import bearerAuthOptions from '../../configuration/bearer-auth'
 
 import {
   createBankAccount,
