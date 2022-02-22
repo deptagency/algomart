@@ -34,6 +34,7 @@ export default function AdminTransactionPage({
   const { query } = useRouter()
   const { transactionId } = query
   const isAuction = !!payment.pack?.template?.auctionUntil
+  const isWire = !!payment.paymentBankId
 
   // WIRE PAYMENTS
   const { data } = useAuthApi<WirePayment[]>(
@@ -205,9 +206,11 @@ export default function AdminTransactionPage({
             </Panel>
           )}
 
-          <Panel title={t('transactions.Wire Payments')} fullWidth>
-            <Table<WirePayment> columns={columns} data={data} />
-          </Panel>
+          {isWire && (
+            <Panel title={t('transactions.Wire Payments')} fullWidth>
+              <Table<WirePayment> columns={columns} data={data} />
+            </Panel>
+          )}
 
           <Panel title={t('transactions.resetPayment')}>
             <p className={css.actionDescription}>
@@ -216,7 +219,7 @@ export default function AdminTransactionPage({
             <Button
               onClick={handleReset}
               size="small"
-              disabled={payment?.status === PaymentStatus.Pending}
+              disabled={!isWire || payment?.status === PaymentStatus.Pending}
             >
               {t('transactions.resetPayment')}
             </Button>
