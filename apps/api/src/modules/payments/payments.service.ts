@@ -551,7 +551,7 @@ export default class PaymentsService {
 
     // Base payment details
     const basePayment = {
-      idempotencyKey: idempotencyKey,
+      idempotencyKey,
       metadata: {
         ...metadata,
         sessionId: SHA256(user.id).toString(enc.Base64),
@@ -568,7 +568,7 @@ export default class PaymentsService {
     }
 
     // Create 3DS payment
-    const payment = await this.circle
+    const paymentResponse = await this.circle
       .createPayment({
         ...basePayment,
         ...encryptedDetails,
@@ -582,24 +582,36 @@ export default class PaymentsService {
           verificationHostname
         ).toString(),
       })
-      .catch((error) => {
-        this.logger.error(error, 'failed to create 3DS payment')
-        return null
-      })
+      .catch(() => null)
 
-    if (!payment) {
+    let payment: ToPaymentBase | undefined
+    if (!paymentResponse) {
+      // Create cvv payment
+      const cvvPayment = await this.circle
+        .createPayment({
+          ...basePayment,
+          ...encryptedDetails,
+          verification: CirclePaymentVerificationOptions.cvv,
+        })
+        .catch(() => null)
       // Remove claim from payment if payment doesn't go through
-      await this.packs.claimPack(
-        {
-          packId,
-          claimedById: null,
-          claimedAt: null,
-        },
-        trx
-      )
+      if (!cvvPayment) {
+        await this.packs.revokePack(
+          {
+            packId,
+            ownerId: user.id,
+          },
+          trx
+        )
 
-      return null
+        return null
+      }
+      payment = cvvPayment
+    } else {
+      payment = paymentResponse
     }
+
+    invariant(payment, 'unable to create payment')
 
     // Circle may return the same payment ID if there's duplicate info
     const newPayment = await PaymentModel.query(trx)
@@ -625,46 +637,6 @@ export default class PaymentsService {
       1000
     )
     invariant(foundPayment, 'unable to find payment')
-
-    // For failed status, try cvv payment verification
-    if (foundPayment.status === PaymentStatus.Failed) {
-      // Create cvv payment
-      const cvvPayment = await this.circle
-        .createPayment({
-          ...basePayment,
-          ...encryptedDetails,
-          verification: CirclePaymentVerificationOptions.cvv,
-        })
-        .catch((error) => {
-          this.logger.error(error, 'failed to create cvv payment')
-          return null
-        })
-
-      if (!cvvPayment) {
-        // Remove claim from payment if payment doesn't go through
-        await this.packs.claimPack(
-          {
-            packId,
-            claimedById: null,
-            claimedAt: null,
-          },
-          trx
-        )
-
-        return null
-      }
-
-      // Circle may return the same payment ID if there's duplicate info
-      const updatedPayment = await PaymentModel.query(trx)
-        .findById(newPayment.id)
-        .patch({
-          externalId: cvvPayment.externalId,
-          status: cvvPayment.status,
-          error: cvvPayment.error,
-        })
-
-      return updatedPayment
-    }
 
     // Create event for payment creation
     await EventModel.query(trx).insert({
@@ -1069,6 +1041,15 @@ export default class PaymentsService {
               action: circlePayment.action,
               error: circlePayment.error,
             })
+            if (circlePayment.status === PaymentStatus.Failed) {
+              await this.packs.revokePack(
+                {
+                  packId: payment.packId,
+                  ownerId: payment.payerId,
+                },
+                trx
+              )
+            }
             status = circlePayment.status
             updatedPayments++
           }

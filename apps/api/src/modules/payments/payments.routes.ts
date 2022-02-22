@@ -231,11 +231,7 @@ export async function createPayment(
     request.body,
     request.transaction
   )
-  if (payment) {
-    reply.status(201).send(payment)
-  } else {
-    reply.badRequest('Unable to create payment')
-  }
+  reply.send(payment)
 }
 
 export async function updatePayment(
