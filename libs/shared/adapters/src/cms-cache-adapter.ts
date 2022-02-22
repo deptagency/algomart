@@ -604,9 +604,6 @@ export default class CMSCacheAdapter {
       }
     )
 
-    console.log('findPacksPendingGeneration')
-    console.log(data)
-
     return data
   }
 
