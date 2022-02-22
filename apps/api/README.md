@@ -20,7 +20,7 @@ Install all dependencies from the root of the monorepo:
 npm install
 ```
 
-In the `api` service, you'll want to ensure that you've configured your `.env` file and set up a database. Make sure you've created a Postgres databases that matches what's set in the `DATABASE_URL` key in your `.env` file.
+In the `api` service, you'll want to ensure that you've configured your `.env` file and set up a database. Make sure you've created a Postgres databases that matches what's set in the `DATABASE_URL_READONLY` and `DATABASE_URL_WRITE` keys in your `.env` file. There are two keys to mimic the two types of connections the api has on the hosted environment
 
 If you're not using the default `DATABASE_SCHEMA=public` in your `.env` file, then you'll need to make sure to create the schema you choose:
 
