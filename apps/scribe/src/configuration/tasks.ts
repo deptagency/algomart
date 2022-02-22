@@ -4,18 +4,20 @@ import { AsyncTask, SimpleIntervalJob } from 'toad-scheduler'
 
 import { Configuration } from '../configuration'
 
-import confirmTransactionsTask from './confirm-transactions.task'
-import dispatchNotificationsTask from './dispatch-notifications.task'
-import generateCollectiblesTask from './generate-collectibles.task'
-import generatePacksTask from './generate-packs.task'
-import handlePackAuctionCompletionTask from './handle-pack-auction-completion.task'
-import handlePackAuctionExpirationTask from './handle-pack-auction-expiration.task'
-import mintCollectiblesTask from './mint-collectibles.task'
-import storeCollectiblesTask from './store-collectibles.task'
-import updateCurrencyConversions from './update-currency-conversions.task'
-import { updatePaymentBankStatusesTask } from './update-payment-bank-statuses.task'
-import { updatePaymentCardStatusesTask } from './update-payment-card-statuses.task'
-import { updatePaymentStatusesTask } from './update-payment-statuses.task'
+import {
+  confirmTransactionsTask,
+  dispatchNotificationsTask,
+  generateCollectiblesTask,
+  generatePacksTask,
+  handlePackAuctionCompletionTask,
+  handlePackAuctionExpirationTask,
+  mintCollectiblesTask,
+  storeCollectiblesTask,
+  updateCurrencyConversionsTask,
+  updatePaymentBankStatusesTask,
+  updatePaymentCardStatusesTask,
+  updatePaymentStatusesTask,
+} from '@algomart/scribe/tasks'
 
 export function configureTasks(
   app: FastifyInstance,
@@ -163,7 +165,12 @@ export function configureTasks(
       new AsyncTask(
         'update-currency-conversions',
         async () =>
-          await updateCurrencyConversions(app.container, Configuration.currency, logger, app.knexRead),
+          await updateCurrencyConversionsTask(
+            app.container,
+            Configuration.currency,
+            logger,
+            app.knexRead
+          ),
         (error) => app.log.error(error)
       )
     )

@@ -6,7 +6,7 @@ import { Currency } from '@dinero.js/currencies'
 import { Model } from 'objection'
 import pino from 'pino'
 
-export default async function updateCurrencyConversions(
+export async function updateCurrencyConversionsTask(
   registry: DependencyResolver,
   currency: Currency<number> | undefined,
   logger: pino.Logger<unknown>,

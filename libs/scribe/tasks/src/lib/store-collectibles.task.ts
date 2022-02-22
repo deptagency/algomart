@@ -4,26 +4,26 @@ import { Knex } from 'knex'
 import { Model } from 'objection'
 import pino from 'pino'
 
-export default async function generateCollectiblesTask(
+export async function storeCollectiblesTask(
   registry: DependencyResolver,
   logger: pino.Logger<unknown>,
   knexRead?: Knex
 ) {
-  const log = logger.child({ task: 'generate-collectibles' })
+  const log = logger.child({ task: 'store-collectibles' })
   const collectibles = registry.get<CollectiblesService>(
     CollectiblesService.name
   )
   const trx = await Model.startTransaction()
   try {
-    const result = await collectibles.generateCollectibles(
+    const result = await collectibles.storeCollectibles(
       undefined,
       trx,
       knexRead
     )
-    log.info('generated %d collectibles', result)
+    log.info('stored %d collectibles on IPFS', result)
     await trx.commit()
   } catch (error) {
     await trx.rollback()
-    log.error(error as Error, 'failed to generate collectibles')
+    log.error(error as Error, 'failed to store collectibles')
   }
 }

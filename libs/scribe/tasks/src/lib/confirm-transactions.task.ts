@@ -4,7 +4,7 @@ import { Knex } from 'knex'
 import { Model } from 'objection'
 import pino from 'pino'
 
-export default async function confirmTransactionsTask(
+export async function confirmTransactionsTask(
   registry: DependencyResolver,
   logger: pino.Logger<unknown>,
   knexRead?: Knex

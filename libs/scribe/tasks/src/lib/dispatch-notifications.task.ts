@@ -4,7 +4,7 @@ import { Knex } from 'knex'
 import { Model } from 'objection'
 import pino from 'pino'
 
-export default async function dispatchNotificationsTask(
+export async function dispatchNotificationsTask(
   registry: DependencyResolver,
   logger: pino.Logger<unknown>,
   knexRead?: Knex
