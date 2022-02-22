@@ -2,11 +2,14 @@ import { PublishedPack } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 
+import { Environment } from '../environment'
+
 import css from './releases-template.module.css'
 
 import AlertMessage from '@/components/alert-message/alert-message'
 import AppLink from '@/components/app-link/app-link'
 import Grid from '@/components/grid/grid'
+import Heading from '@/components/heading'
 import Loading from '@/components/loading/loading'
 import Pagination from '@/components/pagination/pagination'
 import ReleaseFilterPrice from '@/components/releases/release-filter-price'
@@ -36,6 +39,9 @@ export default function ReleasesTemplate({
   return (
     <div className={css.root}>
       {/* Sorting */}
+      <Heading level={2} inheritColor className="text-center mb-6">
+        {t('Browse FIFA NFT Releases')}
+      </Heading>
       <div className={css.selectWrapper}>
         <Select
           className={css.select}
@@ -50,7 +56,7 @@ export default function ReleasesTemplate({
         <ReleaseFiltersMobile />
         <section className={css.filterColumn}>
           <ReleaseFilterPrice />
-          <ReleaseFilterType />
+          {Environment.isBiddingEnabled && <ReleaseFilterType />}
         </section>
 
         {/* Release Packs */}

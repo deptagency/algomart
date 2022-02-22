@@ -28,7 +28,7 @@
 }
 
 .label {
-  @apply w-1/2;
+  @apply w-1/2 font-display;
 }
 
 .labelSmall {

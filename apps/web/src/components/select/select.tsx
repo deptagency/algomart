@@ -55,11 +55,15 @@ export default function Select({
 
   return (
     <label className={css.root} data-input="select" htmlFor={id}>
-      <div className={css.labelContainer}>
-        {label && <span className={css.label}>{label}</span>}
-        {error && <span className={css.errorText}>{error}</span>}
-        {!error && helpText && <span className={css.helpText}>{helpText}</span>}
-      </div>
+      {(label || error || helpText) && (
+        <div className={css.labelContainer}>
+          {label && <span className={css.label}>{label}</span>}
+          {error && <span className={css.errorText}>{error}</span>}
+          {!error && helpText && (
+            <span className={css.helpText}>{helpText}</span>
+          )}
+        </div>
+      )}
       <Listbox disabled={disabled} onChange={onChange} value={value}>
         <div className={css.selectContainer}>
           <Listbox.Button
