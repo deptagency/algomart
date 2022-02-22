@@ -12,6 +12,7 @@ export async function updatePaymentStatusesTask(
   const log = logger.child({ task: 'update-payment-statuses' })
   const payments = registry.get<PaymentsService>(PaymentsService.name)
   const trx = await Model.startTransaction()
+
   try {
     const updatedPayments = await payments.updatePaymentStatuses(trx, knexRead)
     log.info('updated %d payment statuses', updatedPayments)

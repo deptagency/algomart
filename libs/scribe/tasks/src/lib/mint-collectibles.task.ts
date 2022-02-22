@@ -1,10 +1,10 @@
+import pino from 'pino'
 import { CollectiblesService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
 import { Knex } from 'knex'
 import { Model } from 'objection'
-import pino from 'pino'
 
-export default async function mintCollectibles(
+export async function mintCollectiblesTask(
   registry: DependencyResolver,
   logger: pino.Logger<unknown>,
   knexRead?: Knex

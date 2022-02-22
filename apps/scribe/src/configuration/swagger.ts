@@ -17,7 +17,6 @@ const swaggerOptions: SwaggerOptions = {
     tags: [],
     components: {
       securitySchemes: {
-        // TODO: will the scribe service have it's own api key?
         'API Key': {
           description: 'API key bearer token',
           type: 'http',
