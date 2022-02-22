@@ -1,8 +1,7 @@
 import { DEFAULT_CURRENCY } from '@algomart/schemas'
+import { MailerAdapterOptions } from '@algomart/shared/adapters'
 import * as Currencies from '@dinero.js/currencies'
 import env from 'env-var'
-
-import { MailerAdapterOptions } from '../lib/mailer-adapter'
 
 export const Configuration = {
   get env() {
@@ -82,6 +81,10 @@ export const Configuration = {
 
   get cmsUrl() {
     return env.get('CMS_URL').default('http://localhost:8055').asUrlString()
+  },
+
+  get gcpCdnUrl() {
+    return env.get('GCP_CDN_URL').asUrlString()
   },
 
   get cmsAccessToken() {

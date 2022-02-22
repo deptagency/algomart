@@ -1,11 +1,10 @@
 import { HomepageSchema, LocaleSchema } from '@algomart/schemas'
+import { appErrorHandler } from '@algomart/shared/utils'
+import bearerAuthOptions from '@api/configuration/bearer-auth'
 import { FastifyInstance } from 'fastify'
 import fastifyBearerAuth from 'fastify-bearer-auth'
 
 import { getHomepage } from './homepage.routes'
-
-import bearerAuthOptions from '@/configuration/bearer-auth'
-import { appErrorHandler } from '@/utils/errors'
 
 export async function homepageRoutes(app: FastifyInstance) {
   const tags = ['homepage']

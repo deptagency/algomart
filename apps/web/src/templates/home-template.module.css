@@ -1,24 +1,22 @@
+.whiteBackground {
+  @apply bg-white;
+}
+
+.section {
+  /* Base */
+  @apply px-6 py-16 mx-auto max-w-wrapper;
+  /* Tablet */
+  @apply sm:px-0;
+}
+
 .sectionTitle {
-  /* Base */
-  @apply mt-8 mb-5 text-center underline;
-  /* Tablet */
-  @apply sm:mt-16 sm:mb-6;
+  @apply mt-0 mb-8 text-2xl text-center text-base-textPrimary;
 }
 
-.upcomingPacks {
-  /* Base */
-  @apply px-5;
-  /* Tablet */
-  @apply sm:px-0;
+.sectionSubtitle {
+  @apply mb-0 text-center text-base-textPrimary;
 }
 
-.notableCollectibles {
-  /* Base */
-  @apply px-5;
-  /* Tablet */
-  @apply sm:px-0;
-}
-
-.upcomingPacks a {
-  @apply no-underline;
+.sectionButton {
+  @apply relative block mx-auto mt-12;
 }

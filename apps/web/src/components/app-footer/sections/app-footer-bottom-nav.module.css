@@ -32,12 +32,12 @@
   /* Base */
   @apply relative inline-block mx-auto mb-8 text-base-textTertiary;
   /* Tablet + */
-  @apply md:m-0 md:relative;
+  /* @apply md:m-0 md:relative; */
 }
 
 .bottomNavSpace {
   /* Base */
-  @apply order-1 items-center flex flex-col border-b-2 border-b-base-border pb-5 mb-8;
+  @apply order-1 items-center flex flex-row border-b-2 justify-center border-b-base-border pb-5 mb-8 space-x-4;
   /* Tablet + */
-  @apply md:space-x-4 md:block md:flex-none md:items-start md:border-b-0 md:pb-0 md:mb-0;
+  @apply md:items-start md:border-b-0;
 }

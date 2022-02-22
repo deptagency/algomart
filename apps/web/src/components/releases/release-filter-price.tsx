@@ -1,7 +1,7 @@
 import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import css from './release-filter.module.css'
 
@@ -10,25 +10,28 @@ import CurrencyInput, {
   CurrencyInputProps,
 } from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
+import { useI18n } from '@/contexts/i18n-context'
 import { usePackFilterContext } from '@/contexts/pack-filter-context'
+import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { packFilterActions } from '@/hooks/use-pack-filter'
 import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 
 export default function ReleaseFilterPrice() {
   const locale = useLocale()
+  const currency = useCurrency()
   const { t } = useTranslation()
   const { dispatch, state } = usePackFilterContext()
   const [priceLow, setPriceLow] = useState<string>(
-    formatIntToFloat(state.priceLow)
+    formatIntToFloat(state.priceLow, currency)
   )
   const [priceHigh, setPriceHigh] = useState<string>(
-    formatIntToFloat(state.priceHigh)
+    formatIntToFloat(state.priceHigh, currency)
   )
 
   const baseCurrencyInputProps: CurrencyInputProps = {
     decimalsLimit: 2,
-    intlConfig: { locale, currency: DEFAULT_CURRENCY },
+    intlConfig: { locale, currency },
     placeholder: 'Please enter a number',
     step: 1,
     variant: 'small',
@@ -37,10 +40,8 @@ export default function ReleaseFilterPrice() {
   return (
     <div className={css.root}>
       <div className={clsx(css.filterRow, css.filterHeader)}>
-        <Heading level={2} inheritColor className="uppercase">
-          {t('release:filters.Price Range')}
-        </Heading>
-        <div className={css.badge}>{DEFAULT_CURRENCY}</div>
+        <Heading level={2}>{t('release:filters.Price Range')}</Heading>
+        <div className={css.badge}>{currency}</div>
       </div>
       <div className={css.filterRow}>
         <div className={css.filterItem}>
@@ -73,8 +74,8 @@ export default function ReleaseFilterPrice() {
             }
             fullWidth
             onClick={() => {
-              const low = formatFloatToInt(priceLow)
-              const high = formatFloatToInt(priceHigh)
+              const low = formatFloatToInt(priceLow, currency)
+              const high = formatFloatToInt(priceHigh, currency)
               dispatch(
                 packFilterActions.setPrice({ priceLow: low, priceHigh: high })
               )

@@ -1,3 +1,4 @@
+import MyProfileCurrency from '@/components/profile/my-profile-currency'
 import MyProfileImage from '@/components/profile/my-profile-image'
 import MyProfileLanguage from '@/components/profile/my-profile-language'
 import MyProfileUsername from '@/components/profile/my-profile-username'
@@ -8,6 +9,7 @@ export default function MyProfileTemplate() {
     <>
       <MyProfileUsername />
       <MyProfileLanguage />
+      <MyProfileCurrency />
       <MyProfileImage />
       <MyProfileWallet />
     </>

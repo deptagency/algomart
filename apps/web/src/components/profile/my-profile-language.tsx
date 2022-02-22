@@ -29,7 +29,7 @@ export default function MyProfileLanguage() {
   const { t } = useTranslation()
   const router = useRouter()
 
-  const validate = useMemo(() => validateLanguage(t), [t])
+  const validate = useMemo(() => validateLanguage(), [])
 
   const handleUpdateLanguage = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -56,6 +56,8 @@ export default function MyProfileLanguage() {
         setLoading(false)
         return
       }
+
+      setCookie(LOCALE_COOKIE, body.language, 365)
       await reloadProfile()
       setLoading(false)
       setIsEditing(false)
@@ -63,7 +65,6 @@ export default function MyProfileLanguage() {
       setUpdateError('')
       setUpdateSuccess(true)
 
-      setCookie(LOCALE_COOKIE, body?.language, 365)
       router.push(
         { pathname: router.pathname, query: router.query },
         router.asPath,

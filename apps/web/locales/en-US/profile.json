@@ -5,6 +5,7 @@
   "googleSecurity": "<0>Your profile is authenticated through <1>your Google account</1>.</0>",
   "My Profile": "My Profile",
   "Payment Methods": "Payment Methods",
+  "resetCurrencyConfirmation": "Your currency has been updated!",
   "resetEmailPrompt": "<0>If you would like to change the email address associated with your account, please confirm your new email address below. <1>Note: this action cannot be undone.</1></0>",
   "resetLanguageConfirmation": "Your language has been updated!",
   "resetPasswordConfirmation": "Check your email!",

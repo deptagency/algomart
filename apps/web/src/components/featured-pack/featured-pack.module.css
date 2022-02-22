@@ -10,14 +10,22 @@
 }
 
 .featuredNotice {
-  @apply p-4 text-sm font-bold text-center text-white uppercase bg-action-secondary;
+  @apply p-4 text-sm font-bold text-center text-white uppercase bg-action-primary;
 }
 
 .featuredNotice span {
   @apply lowercase;
 }
 
+.banner {
+  /* Base */
+  @apply bg-cover bg-base-textPrimary;
+  /* Tablet */
+  @apply sm:py-16;
+}
+
 .featuredColumns {
+  @apply mx-auto max-w-wrapper;
   /* Tablet */
   @apply sm:flex sm:flex-row;
 }
@@ -25,68 +33,25 @@
 .featuredImage {
   /* Tablet */
   @apply sm:w-1/2;
-  /* Desktop */
-  @apply md:w-3/5;
 }
 
 .featuredContent {
   /* Base */
-  @apply flex flex-col float-left w-full gap-4 p-5 text-center;
+  @apply flex flex-col justify-center w-full p-12 text-center text-action-primaryContrastText;
   /* Tablet */
-  @apply sm:flex-1 sm:text-left;
+  @apply sm:flex-1 sm:text-left md:px-6;
   /* Desktop */
-  @apply md:p-8;
+  @apply md:pl-20 md:pr-12;
 }
 
 .featuredHeading {
-  @apply text-2xl;
+  @apply mb-0 text-2xl font-normal text-action-primaryContrastText;
 }
 
 .featuredBody {
-  /* Base */
-  @apply text-base-textPrimary;
-}
-
-.featuredAvailability {
-  /* Base */
-  @apply mt-4 text-base-gray-medium;
-}
-
-.featuredAvailableNumber {
-  /* Base */
-  @apply font-bold text-base-gray-dark;
+  @apply mt-4 mb-0 text-lg font-bold;
 }
 
 .featuredControls {
-  @apply pt-8;
-}
-
-/* Auction metadata */
-.columns {
-  @apply grid grid-cols-3 border-t border-base-border;
-}
-
-.column {
-  @apply p-3 text-center border-r border-base-border;
-}
-
-.column:first-child {
-  @apply border-l;
-}
-
-.metadataLabel {
-  @apply text-xs capitalize text-base-textPrimary;
-}
-
-.metadataValue {
-  @apply text-base font-bold;
-}
-
-.completeSuccess {
-  @apply text-base-price;
-}
-
-.featuredPrice {
-  /* Base */
-  @apply mt-4 font-bold text-center text-base-gray-dark;
+  @apply mt-12;
 }

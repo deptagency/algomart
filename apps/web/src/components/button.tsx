@@ -9,6 +9,7 @@ export interface ButtonBaseProps {
   variant?: 'primary' | 'secondary' | 'tertiary' | 'link'
   fullWidth?: boolean
   group?: 'left' | 'right' | 'middle'
+  rounded?: boolean
 }
 
 export type ButtonProps = ButtonBaseProps &
@@ -25,27 +26,30 @@ export function buttonClasses(
     fullWidth,
     disabled,
     className,
+    rounded = true,
     group,
   } = props
   return clsx(
-    'duration-300 transition text-base-primaryText',
+    'duration-300 transition text-base-primaryText font-normal',
     {
       'rounded-sm': !group,
       'rounded-l-sm': group === 'left',
       'rounded-r-sm': group === 'right',
-      'bg-action-primary tracking-wide font-display uppercase border-none shadow-large hover:bg-opacity-90 text-action-primaryContrastText':
+      'bg-action-primary tracking-wide font-display border-none shadow-large hover:bg-opacity-90 text-action-primaryContrastText':
         !disabled && variant === 'primary',
-      'bg-action-secondary tracking-wide font-display uppercase text-action-secondaryContrastText shadow-large hover:bg-opacity-90':
+      'bg-action-secondary tracking-wide font-display text-action-secondaryContrastText shadow-large hover:bg-opacity-90':
         variant === 'secondary',
       // TODO: This should be a "ghost" variant
       'bg-transparent border-none hover:border-none': variant === 'tertiary',
       'bg-transparent border-none float-left mb-5': variant === 'link',
+      'text-lg': size === 'small',
       'text-xl': size === 'medium',
       'px-10 py-5': size === 'medium' && !disablePadding,
-      'px-6 py-2': size === 'small' && !disablePadding,
+      'px-10 py-3': size === 'small' && !disablePadding,
       'bg-gray-400 cursor-not-allowed pointer-events-none focus:ring-secondary opacity-30':
         disabled,
       'block w-full': fullWidth,
+      'rounded-full': rounded,
     },
     className
   )
@@ -58,10 +62,11 @@ export default function Button({
   disablePadding = false,
   onClick,
   fullWidth,
-  size = 'medium',
+  size = 'small',
   variant = 'primary',
   type = 'button',
   group,
+  rounded,
   ...props
 }: ButtonProps) {
   return (
@@ -74,6 +79,7 @@ export default function Button({
         fullWidth,
         variant,
         group,
+        rounded,
       })}
       disabled={disabled}
       onClick={onClick}

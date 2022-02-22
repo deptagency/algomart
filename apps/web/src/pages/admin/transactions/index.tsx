@@ -9,6 +9,8 @@ import Pagination from '@/components/pagination/pagination'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
 import usePagination from '@/hooks/use-pagination'
 import AdminLayout from '@/layouts/admin-layout'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
@@ -21,6 +23,8 @@ const PAYMENTS_PER_PAGE = 10
 
 export default function AdminTransactionsPage() {
   const { t, lang } = useTranslation('admin')
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const { page, setPage, handleTableHeaderClick, sortBy, sortDirection } =
     usePagination<PaymentSortField>(1, PaymentSortField.CreatedAt)
 
@@ -56,7 +60,8 @@ export default function AdminTransactionsPage() {
     {
       key: 'pack.price',
       name: t('transactions.table.Amount'),
-      renderer: ({ value }) => formatCurrency(value, lang),
+      renderer: ({ value }) =>
+        formatCurrency(value, lang, currency, conversionRate),
     },
     { key: 'status', name: t('transactions.table.Status'), sortable: true },
   ]
