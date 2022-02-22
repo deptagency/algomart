@@ -2578,10 +2578,10 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 6
+      sort: 7
       width: full
       translations: null
-      note: Brief subtitle that appears above the featured packs title
+      note: Subtitle that appears above the featured packs title
       conditions: null
       required: false
       group: null
@@ -2617,10 +2617,10 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 7
+      sort: 6
       width: full
       translations: null
-      note: Brief title that appears above featured packs
+      note: Title that appears above list of featured packs
       conditions: null
       required: false
       group: null
@@ -2656,10 +2656,10 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 9
+      sort: 8
       width: full
       translations: null
-      note: Brief subtitle that appears above featured NFTs
+      note: Title that appears above list of featured NFTs
       conditions: null
       required: false
       group: null
@@ -2695,10 +2695,10 @@ fields:
       display_options: null
       readonly: false
       hidden: false
-      sort: 8
+      sort: 9
       width: full
       translations: null
-      note: Brief subtitle that appears above the featured NFTs title
+      note: Subtitle that appears above the featured NFTs title
       conditions: null
       required: false
       group: null
