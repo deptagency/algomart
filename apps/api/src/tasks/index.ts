@@ -1,5 +1,8 @@
 import { FastifyInstance } from 'fastify'
+import pino from 'pino'
 import { AsyncTask, SimpleIntervalJob } from 'toad-scheduler'
+
+import { Configuration } from '../configuration'
 
 import confirmTransactionsTask from './confirm-transactions.task'
 import dispatchNotificationsTask from './dispatch-notifications.task'
@@ -14,14 +17,17 @@ import { updatePaymentBankStatusesTask } from './update-payment-bank-statuses.ta
 import { updatePaymentCardStatusesTask } from './update-payment-card-statuses.task'
 import { updatePaymentStatusesTask } from './update-payment-statuses.task'
 
-export function configureTasks(app: FastifyInstance) {
+export function configureTasks(
+  app: FastifyInstance,
+  logger: pino.Logger<unknown>
+) {
   //#region Pack & Collectible generation/storage/minting
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
       { seconds: 10 },
       new AsyncTask(
         'confirm-transactions',
-        async () => await confirmTransactionsTask(app.container, app.knexRead),
+        async () => await confirmTransactionsTask(app.container, logger, app.knexRead),
         (error) => app.log.error(error)
       )
     )
@@ -32,7 +38,7 @@ export function configureTasks(app: FastifyInstance) {
       { minutes: 1, runImmediately: true },
       new AsyncTask(
         'generate-collectibles',
-        async () => await generateCollectiblesTask(app.container, app.knexRead),
+        async () => await generateCollectiblesTask(app.container, logger, app.knexRead),
         (error) => app.log.error(error)
       )
     )
@@ -43,7 +49,7 @@ export function configureTasks(app: FastifyInstance) {
       { minutes: 1 },
       new AsyncTask(
         'store-collectibles',
-        async () => await storeCollectiblesTask(app.container, app.knexRead),
+        async () => await storeCollectiblesTask(app.container, logger, app.knexRead),
         (error) => app.log.error(error)
       )
     )
@@ -54,7 +60,7 @@ export function configureTasks(app: FastifyInstance) {
       { minutes: 1 },
       new AsyncTask(
         'generate-packs',
-        async () => await generatePacksTask(app.container, app.knexRead),
+        async () => await generatePacksTask(app.container, logger, app.knexRead),
         (error) => app.log.error(error)
       )
     )
@@ -65,7 +71,7 @@ export function configureTasks(app: FastifyInstance) {
       { seconds: 10 },
       new AsyncTask(
         'mint-collectibles',
-        async () => await mintCollectiblesTask(app.container, app.knexRead),
+        async () => await mintCollectiblesTask(app.container, logger, app.knexRead),
         (error) => app.log.error(error)
       )
     )
@@ -79,7 +85,7 @@ export function configureTasks(app: FastifyInstance) {
       new AsyncTask(
         'dispatch-notifications',
         async () =>
-          await dispatchNotificationsTask(app.container, app.knexRead),
+          await dispatchNotificationsTask(app.container, logger, app.knexRead),
         (error) => app.log.error(error)
       )
     )
@@ -93,7 +99,7 @@ export function configureTasks(app: FastifyInstance) {
       new AsyncTask(
         'handle-pack-auction-completion',
         async () =>
-          await handlePackAuctionCompletionTask(app.container, app.knexRead),
+          await handlePackAuctionCompletionTask(app.container, logger, app.knexRead),
         (error) => app.log.error(error)
       )
     )
@@ -105,7 +111,7 @@ export function configureTasks(app: FastifyInstance) {
       new AsyncTask(
         'handle-pack-auction-expiration',
         async () =>
-          await handlePackAuctionExpirationTask(app.container, app.knexRead),
+          await handlePackAuctionExpirationTask(app.container, logger, app.knexRead),
         (error) => app.log.error(error)
       )
     )
@@ -119,7 +125,7 @@ export function configureTasks(app: FastifyInstance) {
       new AsyncTask(
         'check-pending-banks',
         async () =>
-          await updatePaymentBankStatusesTask(app.container, app.knexRead),
+          await updatePaymentBankStatusesTask(app.container, logger, app.knexRead),
         (error) => app.log.error(error)
       )
     )
@@ -131,7 +137,7 @@ export function configureTasks(app: FastifyInstance) {
       new AsyncTask(
         'check-pending-cards',
         async () =>
-          await updatePaymentCardStatusesTask(app.container, app.knexRead),
+          await updatePaymentCardStatusesTask(app.container, logger, app.knexRead),
         (error) => app.log.error(error)
       )
     )
@@ -143,7 +149,7 @@ export function configureTasks(app: FastifyInstance) {
       new AsyncTask(
         'check-pending-payments',
         async () =>
-          await updatePaymentStatusesTask(app.container, app.knexRead),
+          await updatePaymentStatusesTask(app.container, logger, app.knexRead),
         (error) => app.log.error(error)
       )
     )
@@ -157,7 +163,7 @@ export function configureTasks(app: FastifyInstance) {
       new AsyncTask(
         'update-currency-conversions',
         async () =>
-          await updateCurrencyConversions(app.container, app.knexRead),
+          await updateCurrencyConversions(app.container, Configuration.currency, logger, app.knexRead),
         (error) => app.log.error(error)
       )
     )

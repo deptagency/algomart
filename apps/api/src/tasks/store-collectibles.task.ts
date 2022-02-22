@@ -2,11 +2,11 @@ import { CollectiblesService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
 import { Knex } from 'knex'
 import { Model } from 'objection'
-
-import { logger } from '../configuration/logger'
+import pino from 'pino'
 
 export default async function storeCollectiblesTask(
   registry: DependencyResolver,
+  logger: pino.Logger<unknown>,
   knexRead?: Knex
 ) {
   const log = logger.child({ task: 'store-collectibles' })
