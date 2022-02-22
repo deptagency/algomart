@@ -43,7 +43,7 @@ test('GET /packs OK', async () => {
     }
   )
 
-  await app.knex('Pack').insert(packs)
+  await app.knexMain('Pack').insert(packs)
 
   // Act
   const { body, statusCode, headers } = await app.inject({
@@ -114,7 +114,7 @@ test('GET /packs/redeemable/:redeemCode', async () => {
     }
   )
 
-  await app.knex('Pack').insert(pack)
+  await app.knexMain('Pack').insert(pack)
 
   // Act
   const { body, statusCode, headers } = await app.inject({
