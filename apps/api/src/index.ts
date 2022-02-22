@@ -1,9 +1,9 @@
-import buildApp from '@/api/build-app'
-import { Configuration } from '@/configuration'
-import buildKnexConfiguration from '@/configuration/knex-config'
-import { configureResolver } from '@/shared/dependency-resolver'
-import { configureTasks } from '@/tasks'
-import { logger } from '@/utils/logger'
+import buildApp from './api/build-app'
+import { configureResolver } from './configuration/configure-resolver'
+import buildKnexConfiguration from './configuration/knex-config'
+import { logger } from './configuration/logger'
+import { Configuration } from './configuration'
+import { configureTasks } from './tasks'
 
 buildApp({
   fastify: {
@@ -15,6 +15,10 @@ buildApp({
   .then((app) => {
     configureTasks(app)
     return app.listen(Configuration.port, Configuration.host)
+  })
+  .then(() => {
+    const addr = `${Configuration.host}:${Configuration.port}`
+    logger.info(`API service is listening at ${addr}`)
   })
   .catch((error) => {
     logger.error(error)

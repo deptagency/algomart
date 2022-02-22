@@ -9,6 +9,8 @@ import css from './bank-account-summary.module.css'
 import Button from '@/components/button'
 import Checkbox from '@/components/checkbox'
 import Heading from '@/components/heading'
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
 import { formatCurrency } from '@/utils/format-currency'
 
 interface BankAccountSummaryProps {
@@ -23,6 +25,8 @@ export default function BankAccountSummary({
   release,
 }: BankAccountSummaryProps) {
   const { t, lang } = useTranslation()
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
   return (
     <div className={css.root}>
@@ -47,7 +51,7 @@ export default function BankAccountSummary({
         <tbody>
           <tr>
             <th scope="row">{release?.title}</th>
-            <td>{formatCurrency(price, lang)}</td>
+            <td>{formatCurrency(price, lang, currency, conversionRate)}</td>
           </tr>
         </tbody>
       </table>

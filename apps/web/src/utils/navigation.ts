@@ -7,6 +7,10 @@ export const getMainNavItems = (t: Translate) => [
   { href: urls.releases, label: t('common:nav.main.Releases') },
   { href: urls.teams, label: t('common:nav.main.Teams') },
   { href: urls.myCollectibles, label: t('common:nav.main.My Collection') },
+]
+
+export const getFooterNavItems = (t: Translate) => [
+  ...getMainNavItems(t),
   { href: urls.settings, label: t('common:nav.main.Settings') },
 ]
 

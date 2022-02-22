@@ -16,12 +16,14 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react'
 import { ExtractError } from 'validator-fns'
 
-import { Analytics } from '@/clients/firebase-analytics'
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
 import bidService from '@/services/bid-service'
 import checkoutService, {
   CreateBankAccountRequest,
@@ -100,6 +102,8 @@ export function usePaymentProvider({
   release,
 }: PaymentProviderProps) {
   const { t } = useTranslation()
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const { asPath, query, push, route } = useRouter()
   const { method } = query
 
@@ -107,7 +111,9 @@ export function usePaymentProvider({
   const [status, setStatus] = useState<CheckoutStatus>(CheckoutStatus.form)
   const [loadingText, setLoadingText] = useState<string>('')
   const highestBid = currentBid || 0
-  const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
+  const initialBid = currentBid
+    ? formatIntToFloat(currentBid, currency, conversionRate)
+    : '0'
   const [bid, setBid] = useState<string | null>(initialBid)
   const [address, setAddress] = useState<string | null>(null)
   const [promptLeaving, setPromptLeaving] = useState(false)
@@ -134,10 +140,7 @@ export function usePaymentProvider({
     [t]
   )
   const [formErrors, setFormErrors] = useState<FormValidation>()
-  const price =
-    release?.type === PackType.Auction
-      ? bid
-      : formatIntToFloat(release?.price || 0)
+  const [price, setPrice] = useState<string | null>()
 
   const handleSetStatus = useCallback(
     (status: CheckoutStatus.form | CheckoutStatus.summary) => {
@@ -195,11 +198,6 @@ export function usePaymentProvider({
       if (!cardId) {
         throw new Error('No card selected')
       }
-
-      Analytics.instance.addPaymentInfo({
-        itemName: release.title,
-        value: release.price,
-      })
 
       const encryptedCVV = await encryptCardDetails(
         { cvv: securityCode as string },
@@ -512,7 +510,7 @@ export function usePaymentProvider({
           confirmBid,
         } = body
 
-        const bid = formatFloatToInt(floatBid)
+        const bid = formatFloatToInt(floatBid, currency)
 
         // If the bid is within the maximum bid range, submit card details
         if (method === CheckoutMethod.card) {
@@ -573,6 +571,7 @@ export function usePaymentProvider({
     },
     [
       auctionPackId,
+      currency,
       t,
       validateFormForBidsWithSavedCard,
       validateFormForBids,
@@ -624,7 +623,7 @@ export function usePaymentProvider({
         }
 
         if (isPurchase) {
-          const { id, packId } = await handlePurchase(
+          const { packId } = await handlePurchase(
             securityCode,
             cardId,
             publicKeyRecord
@@ -635,13 +634,6 @@ export function usePaymentProvider({
 
           setPackId(packId)
           setStatus(CheckoutStatus.success)
-          if (release) {
-            Analytics.instance.purchase({
-              itemName: release.title,
-              value: release.price,
-              paymentId: id,
-            })
-          }
         } else {
           setStatus(CheckoutStatus.success)
           return
@@ -657,12 +649,19 @@ export function usePaymentProvider({
       handleAddCard,
       handlePurchase,
       handleSetStatus,
-      release,
       t,
       validateFormForPurchase,
       validateFormForPurchaseWithSavedCard,
     ]
   )
+
+  useEffect(() => {
+    setPrice(
+      release?.type === PackType.Auction
+        ? bid
+        : formatIntToFloat(release?.price || 0, currency, conversionRate)
+    )
+  }, [currency, bid]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const value = useMemo(
     () => ({
@@ -716,6 +715,7 @@ export function usePaymentProvider({
       status,
     ]
   )
+
   return value
 }
 

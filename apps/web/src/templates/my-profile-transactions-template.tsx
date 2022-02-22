@@ -6,6 +6,9 @@ import css from './my-profile-transactions-template.module.css'
 
 import Heading from '@/components/heading'
 import Pagination from '@/components/pagination/pagination'
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
+import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 
 export interface MyProfileTransactionsTemplateProps {
@@ -24,6 +27,9 @@ export default function MyProfileTransactionsTemplate({
   total,
 }: MyProfileTransactionsTemplateProps) {
   const { t, lang } = useTranslation()
+  const locale = useLocale()
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const groupByPage = (packs: PackByOwner[] = [], page: number) => {
     const start = (page - 1) * pageSize
     const end = start + pageSize
@@ -49,7 +55,9 @@ export default function MyProfileTransactionsTemplate({
               : type === PackType.Purchase
               ? releasePrice
               : 0
-          const price = priceInt ? formatIntToFloat(priceInt) : 0
+          const price = priceInt
+            ? formatIntToFloat(priceInt, currency, conversionRate)
+            : 0
 
           // Handle pack type
           const wasFree = type === PackType.Free
@@ -75,7 +83,8 @@ export default function MyProfileTransactionsTemplate({
                 <p className={css.itemPrice}>
                   {wasFree && t('common:statuses.Free')}
                   {wasRedeem && t('common:statuses.Redeemable')}
-                  {wasMonetary && formatCurrency(price)}
+                  {wasMonetary &&
+                    formatCurrency(price, locale, currency, conversionRate)}
                 </p>
                 <p>
                   {wasMonetary

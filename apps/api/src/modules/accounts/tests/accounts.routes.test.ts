@@ -1,18 +1,18 @@
 import { AlgorandTransactionStatus } from '@algomart/schemas'
+import { AlgorandAdapter } from '@algomart/shared/adapters'
 import { FastifyInstance } from 'fastify'
-import { buildTestApp } from 'test/build-test-app'
+
+import { buildTestApp } from '../../../../test/build-test-app'
 import {
   fakeAddressFor,
   setupTestDatabase,
   teardownTestDatabase,
-} from 'test/setup-tests'
-
-import AlgorandAdapter from '@/lib/algorand-adapter'
+} from '../../../../test/setup-tests'
 import {
   algorandAccountFactory,
   algorandTransactionFactory,
   userAccountFactory,
-} from '@/seeds/seed-test-data'
+} from '../../../seeds/seed-test-data'
 
 let app: FastifyInstance
 
@@ -53,6 +53,7 @@ test('POST /accounts OK', async () => {
     },
     payload: {
       username,
+      currency: userAccount.currency,
       externalId: userAccount.externalId,
       email: userAccount.email,
       locale: userAccount.locale,
@@ -66,6 +67,7 @@ test('POST /accounts OK', async () => {
   const json = JSON.parse(body)
   expect(json).toEqual({
     address,
+    currency: userAccount.currency,
     username,
     externalId: userAccount.externalId,
     showProfile: false,
@@ -118,6 +120,7 @@ test('GET /accounts/:externalId OK', async () => {
     externalId: userAccount.externalId,
     showProfile: false,
     email: userAccount.email,
+    currency: userAccount.currency,
     locale: userAccount.locale,
     status: AlgorandTransactionStatus.Confirmed,
   })

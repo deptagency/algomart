@@ -2,38 +2,49 @@
   /* Base */
   @apply sticky top-0 z-20 w-full bg-base-bgCard shadow-medium;
   /* Tablet + */
-  @apply md:bg-transparent md:pt-4 md:relative md:shadow-none;
+  @apply md:bg-transparent md:relative md:shadow-none;
 }
 
 .rootMobileVisible {
-  /* Base */
-  @apply h-full;
-  /* Tablet + */
-  @apply md:h-auto;
+  @apply h-screen;
 }
 
 .wrapper {
   /* Base */
-  @apply flex flex-row items-center justify-between p-4 mx-auto flex-nowrap max-w-wrapper;
+  @apply flex flex-row items-center flex-nowrap bg-white border-y-1 border-base-border;
+  /* Tablet + */
+  @apply md:justify-center;
 }
 
 .hamburgerWrapper {
+  /* Base */
+  @apply flex items-center absolute left-0 h-full;
   /* Tablet */
   @apply md:hidden;
-  width: 36px;
 }
 
 .hamburger {
   /* Base */
-  @apply block text-base-gray-medium;
+  @apply text-base-textSecondary;
   width: 24px;
 }
 
-.logo {
+.hamburgerMenuOpen {
+  @apply font-black;
+  width: 24px;
+}
+
+.utilityWrapper {
   /* Base */
-  @apply flex flex-row items-center self-center justify-center flex-1 w-8 h-8;
-  /* Tablet + */
-  @apply w-10 h-10 md:text-left md:flex-none md:justify-start;
+  @apply bg-white p-4 w-full;
+}
+
+.utility {
+  @apply max-w-wrapper m-auto flex relative;
+}
+
+.logo {
+  @apply flex-1 flex items-center justify-center;
 }
 
 .logoLink {
@@ -45,65 +56,89 @@
 
 .mainNav {
   /* Base */
-  @apply absolute left-0 w-full h-full px-10 pt-6 bg-base-bgCard border-base-bg border-t-1;
-  top: 68px;
+  @apply absolute flex flex-col left-0 w-full px-12 py-6 bg-base-bgCard border-base-bg border-t-1 overflow-y-auto;
+  top: 73px;
+  height: calc(100% - 73px);
   /* Tablet + */
-  @apply md:bg-base-bgCard md:border-0 md:col-span-2 md:grid md:grid-cols-2 md:h-auto md:justify-center md:overflow-hidden md:p-0 md:relative md:rounded-md md:shadow-large md:text-center md:top-0 md:w-auto;
+  @apply md:bg-base-bgCard md:border-0 md:col-span-2 md:grid-flow-col md:h-auto md:justify-center md:overflow-hidden md:p-0 md:relative md:text-center md:top-0 md:w-auto md:gap-9;
+}
+
+.mainNavItems {
+  /* Base */
+  @apply grid auto-rows-min flex-1 gap-7 pt-16;
+  /* Tablet + */
+  @apply md:grid-flow-col md:pt-0;
+}
+
+.mobileNavBottom {
+  @apply grid grid-flow-row gap-7 py-7;
+  /* Tablet + */
+  @apply md:hidden;
+}
+
+.mobileNavBottom a {
+  @apply border-b-1 pb-7;
+}
+
+.mobileNavBottom a:last-child {
+  @apply border-b-0;
 }
 
 .mainNavHidden {
   /* Base */
   @apply hidden;
   /* Tablet + */
-  @apply md:grid;
+  @apply md:flex;
 }
 
 .mainNavLink {
   /* Base */
-  @apply block py-5 text-3xl font-bold transition duration-300 border-t focus:outline-none border-t-base-border text-base-textPrimary hover:text-base-gray-dark;
+  @apply font-display text-xl pb-5 border-b-1 transition duration-300 focus:outline-none text-base-textPrimary hover:text-base-gray-dark;
   /* Tablet + */
-  @apply md:border-b-6 md:border-action-secondary md:border-opacity-0 md:border-t-0 md:inline md:no-underline md:p-6 md:text-base md:focus:border-opacity-50 md:hover:border-opacity-50 md:hover:text-base-textPrimary;
+  @apply md:uppercase md:no-underline md:border-b-0 md:text-base md:hover:text-base-textPrimary md:py-5;
 }
 
 .mainNavLink:first-child {
-  border-top: none;
+  /* Base */
+  @apply hidden;
+  /* Tablet + */
+  @apply md:block;
+}
+
+.mainNavLink:last-child {
+  @apply border-b-0;
 }
 
 .mainNavLink.mainNavLinkActive {
   /* Base */
   @apply text-action-secondary;
   /* Tablet + */
-  @apply md:border-opacity-100 md:text-base-textPrimary;
+  @apply md:text-action-primary;
 }
 
 .utilityNav {
-  @apply self-center justify-self-end;
-  @apply md:flex md:flex-1 md:justify-end;
+  @apply absolute right-0 grid gap-4 grid-flow-col items-center;
 }
 
 .utilityNavLink {
   /* Base */
-  @apply block overflow-hidden transition duration-300 rounded-full outline-none bg-base-bgCard text-base-textPrimary focus:ring-2 focus:ring-action-secondary focus:ring-offset-2 focus:ring-opacity-50 hover:bg-action-secondary hover:bg-opacity-50;
+  @apply grid items-center grid-flow-col gap-2 no-underline text-sm;
   /* Tablet + */
-  @apply md:shadow-medium;
+}
+
+.utilityNavLabel {
+  /* Base */
+  @apply hidden;
+  /* Tablet + */
+  @apply md:block;
+}
+
+.utilityNavLink img {
+  @apply block transition duration-300 rounded-full outline-none bg-base-bgCard text-base-textPrimary focus:ring-2 focus:ring-action-secondary focus:ring-offset-2 focus:ring-opacity-50 hover:bg-action-secondary hover:bg-opacity-50;
   height: 36px;
   width: 36px;
 }
 
-.utilityNavLink img {
-  @apply object-cover;
-}
-
 .avatarGeneric {
   @apply w-full p-2;
-}
-
-/* To keep nav centered, set logo and utility nav link to be same width */
-@screen md {
-  .logo {
-    width: 106px;
-  }
-  .utilityNav {
-    max-width: 106px;
-  }
 }

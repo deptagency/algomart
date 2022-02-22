@@ -33,15 +33,14 @@ export function buttonClasses(
       'rounded-sm': !group,
       'rounded-l-sm': group === 'left',
       'rounded-r-sm': group === 'right',
-      'bg-action-primary border-none shadow-large hover:bg-opacity-90 text-action-primaryContrastText':
+      'bg-action-primary tracking-wide font-display uppercase border-none shadow-large hover:bg-opacity-90 text-action-primaryContrastText':
         !disabled && variant === 'primary',
-      // TODO: secondary variant should map to bg-action-secondary
-      'bg-white shadow-large hover:bg-opacity-90 dark:text-gray-900':
+      'bg-action-secondary tracking-wide font-display uppercase text-action-secondaryContrastText shadow-large hover:bg-opacity-90':
         variant === 'secondary',
       // TODO: This should be a "ghost" variant
       'bg-transparent border-none hover:border-none': variant === 'tertiary',
       'bg-transparent border-none float-left mb-5': variant === 'link',
-      'font-bold text-xl': size === 'medium',
+      'text-xl': size === 'medium',
       'px-10 py-5': size === 'medium' && !disablePadding,
       'px-6 py-2': size === 'small' && !disablePadding,
       'bg-gray-400 cursor-not-allowed pointer-events-none focus:ring-secondary opacity-30':

@@ -12,6 +12,7 @@
     "invalidCredentials": "FR Invalid credentials",
     "invalidCreditCard": "FR Invalid credit card number",
     "invalidCountry": "FR Invalid country code",
+    "invalidCurrency": "FR Invalid currency",
     "invalidDetails": "FR Invalid details provided",
     "invalidName": "FR Invalid first and last name",
     "invalidPassphrase": "FR Invalid Passphrase",
@@ -96,6 +97,9 @@
         "CA": "FR Canada",
         "US": "FR United States"
       }
+    },
+    "currencies": {
+      "label": "FR Currency"
     },
     "defaultCard": {
       "label": "FR Default",

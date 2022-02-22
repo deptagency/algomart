@@ -1,11 +1,14 @@
-import { getTestDatabaseConfig } from './setup-tests'
+import { DirectusAdapter } from '@algomart/shared/adapters'
+import {
+  AlgorandAdapter,
+  CircleAdapter,
+  NFTStorageAdapter,
+} from '@algomart/shared/adapters'
 
-import buildApp from '@/api/build-app'
-import AlgorandAdapter from '@/lib/algorand-adapter'
-import CircleAdapter from '@/lib/circle-adapter'
-import DirectusAdapter from '@/lib/directus-adapter'
-import NFTStorageAdapter from '@/lib/nft-storage-adapter'
-import { configureResolver } from '@/shared/dependency-resolver'
+import buildApp from '../src/api/build-app'
+import { configureResolver } from '../src/configuration/configure-resolver'
+
+import { getTestDatabaseConfig } from './setup-tests'
 
 export async function buildTestApp(database: string) {
   jest

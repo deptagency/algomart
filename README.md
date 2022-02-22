@@ -10,7 +10,7 @@ This project is developed to be a foundational starter for creating your own NFT
 - A [back-end API](./apps/api) (Fastify)
 - A [front-end](./apps/web) sample implementation (NextJS)
 - Shared Typescript [interfaces and enums](./libs/schemas)
-- [Terraform templates](./terraform) for setting up infrastructure on Google Cloud Platform
+- [Terraform templates](./terraform/envs/dev/) for setting up infrastructure on Google Cloud Platform
 - [Github Workflows](./.github/workflows) for linting, type-checking, building, dockerizing, and deploying
 
 ## 📚 General Project Overview

@@ -554,12 +554,6 @@ const CoinbaseErrorResponseSchema = Type.Object({
 // #endregion
 // #region Payment/card routes schemas
 
-export const CurrencySchema = Type.Object({
-  base: Type.Number(),
-  code: Type.String(),
-  exponent: Type.Number(),
-})
-
 export const GetPaymentBankAccountInstructionsSchema = Type.Object({
   trackingRef: Type.String(),
   beneficiary: Type.Object({
@@ -806,7 +800,6 @@ export type CreateTransferPayment = Simplify<
 export type CreateWalletAddress = Simplify<
   Static<typeof CreateWalletAddressSchema>
 >
-export type Currency = Simplify<Static<typeof CurrencySchema>>
 export type FindTransferByAddress = Simplify<
   Static<typeof FindTransferByAddressSchema>
 >

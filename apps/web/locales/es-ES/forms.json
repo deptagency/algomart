@@ -12,6 +12,7 @@
     "invalidCredentials": "ES Invalid credentials",
     "invalidCreditCard": "ES Invalid credit card number",
     "invalidCountry": "ES Invalid country code",
+    "invalidCurrency": "ES Invalid currency",
     "invalidDetails": "ES Invalid details provided",
     "invalidName": "ES Invalid first and last name",
     "invalidPassphrase": "ES Invalid Passphrase",
@@ -96,6 +97,9 @@
         "CA": "ES Canada",
         "US": "ES United States"
       }
+    },
+    "currencies": {
+      "label": "ES Currency"
     },
     "defaultCard": {
       "label": "ES Default",

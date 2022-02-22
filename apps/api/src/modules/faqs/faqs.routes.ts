@@ -1,7 +1,6 @@
 import { Locale } from '@algomart/schemas'
+import { FaqsService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import FaqsService from './faqs.service'
 
 export async function getFaqs(
   request: FastifyRequest<{ Querystring: Locale }>,

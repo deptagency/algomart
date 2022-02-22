@@ -19,7 +19,7 @@
 }
 
 .selectContainer {
-  @apply relative z-20;
+  @apply relative;
 }
 
 .selectButton {
@@ -44,7 +44,7 @@
 }
 
 .selectOptions {
-  @apply absolute w-full py-1 mt-1 overflow-auto text-sm bg-white border rounded-sm shadow-md border-base-border max-h-60;
+  @apply absolute w-full py-1 mt-1 overflow-auto text-sm bg-white border rounded-sm shadow-md border-base-border max-h-60 z-50;
 }
 
 .selectOption {
