@@ -196,7 +196,7 @@ export default function AdminTransactionPage({
             </Panel>
           )}
 
-          <Panel title={t('common:pageTitles.Transactions')} fullWidth>
+          <Panel title={t('transactions.Wire Payments')} fullWidth>
             <Table<WirePayment> columns={columns} data={data} />
           </Panel>
 
