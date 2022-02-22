@@ -44,6 +44,7 @@ module.exports = withNx(
       NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED:
         process.env.NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED,
       NODE_ENV: process.env.NODE_ENV,
+      IS_BIDDING_ENABLED: process.env.IS_BIDDING_ENABLED,
     },
     redirects: async () => [
       {

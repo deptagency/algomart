@@ -21,12 +21,12 @@
 
   h1,
   .h1 {
-    @apply text-xl;
+    @apply text-3xl;
   }
 
   h2,
   .h2 {
-    @apply text-lg;
+    @apply text-2xl;
   }
 
   h3,
@@ -51,7 +51,7 @@
 
     --bg: 247, 249, 252;
     --bgCard: 255, 255, 255;
-    --bgPanel: 255, 255, 255;
+    --bgPanel: var(--bg);
     --bgNotice: 249, 249, 249;
 
     --actionPrimary: var(--blue);
