@@ -58,10 +58,11 @@ export default function ReleaseTemplate({
     !isAfterNow(new Date(startDateTime)) &&
     !isEnded
   const isInFuture = startDateTime && isAfterNow(new Date(startDateTime))
-  const isAlertDisplayed =
-    user &&
-    ((packType === PackType.Purchase && isActive) ||
-      (packType === PackType.Auction && !isOwner))
+  // const isAlertDisplayed =
+  //   user &&
+  //   ((packType === PackType.Purchase && isActive) ||
+  //     (packType === PackType.Auction && !isOwner))
+  const isAlertDisplayed = false // For FIFA only
 
   const handleClaimNFTFlow = () => {
     packType === PackType.Purchase || packType === PackType.Auction

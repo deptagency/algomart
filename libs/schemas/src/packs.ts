@@ -99,6 +99,8 @@ export const PackBaseSchema = Type.Object({
   collectibleTemplateIds: Type.Array(IdSchema),
   config: PackConfigSchema,
   image: Type.String({ format: 'uri' }),
+  nftCategory: Type.Optional(Type.String()),
+  nftsPerPack: Type.Integer(),
   onePackPerCustomer: Type.Boolean(),
   price: Type.Number(),
   releasedAt: Type.Optional(Type.String({ format: 'date-time' })),

@@ -114,7 +114,11 @@ export default function ReleaseMetadata({
             </div>
           </>
         ) : (
-          <div className={css.metadataValue}>
+          <div
+            className={clsx(css.metadataValue, {
+              [css.metadataActive]: isActive,
+            })}
+          >
             {packTemplate.subtitle
               ? packTemplate.subtitle
               : isActive

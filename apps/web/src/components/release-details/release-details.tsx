@@ -9,6 +9,7 @@ import { useRouter } from 'next/router'
 import ReleaseCTA from './sections/release-cta'
 import ReleaseDescription from './sections/release-description'
 import ReleaseMetadata from './sections/release-metadata'
+import ReleasePackContents from './sections/release-packContents'
 
 import css from './release-details.module.css'
 
@@ -58,6 +59,14 @@ export default function ReleaseDetails({
           releaseIsAvailable={Boolean(packTemplate.available)}
           status={packTemplate.status}
           type={packTemplate.type}
+        />
+      )}
+
+      {/* Number of NFTs in this pack */}
+      {packTemplate.nftsPerPack && (
+        <ReleasePackContents
+          nftsPerPack={packTemplate.nftsPerPack}
+          nftCategory={packTemplate.nftCategory}
         />
       )}
 

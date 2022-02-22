@@ -156,6 +156,7 @@ export interface DirectusPackTemplate {
   nft_distribution: PackCollectibleDistribution
   nft_order: PackCollectibleOrder
   nft_templates: string[] | DirectusCollectibleTemplate[]
+  nft_category: string
   nfts_per_pack: number
   pack_image: DirectusFile
   price: number | null
@@ -561,6 +562,8 @@ export function toPackBase(
     image: getFileURL(template.pack_image),
     onePackPerCustomer: template.one_pack_per_customer,
     price: template.price || 0,
+    nftCategory: template.nft_category ?? undefined,
+    nftsPerPack: template.nfts_per_pack,
     releasedAt: template.released_at ?? undefined,
     slug: template.slug,
     status: toStatus(template),

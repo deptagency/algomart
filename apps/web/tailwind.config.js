@@ -89,6 +89,9 @@ module.exports = {
           textTertiary: generateColorClass('textTertiary'),
           textDisabled: generateColorClass('textDisabled'),
 
+          gradientFrom: generateColorClass('gradient-from'),
+          gradientTo: generateColorClass('gradient-to'),
+
           // DEPRECATED
           gray: {
             dark: generateColorClass('grayDark'),

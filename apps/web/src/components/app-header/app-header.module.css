@@ -141,7 +141,7 @@
 
 .createAccountButton {
   /* Base */
-  @apply hidden px-3 py-2 text-xs uppercase;
+  @apply hidden px-3 py-2;
   /* Tablet */
   @apply md:inline;
 }

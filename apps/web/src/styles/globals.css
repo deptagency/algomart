@@ -46,6 +46,8 @@
     --textSecondary: var(--lightText);
     --textTertiary: var(--darkText);
     --textDisabled: 102, 102, 102;
+    --gradient-from: 63, 98, 145;
+    --gradient-to: 94, 147, 201, 1;
 
     --bg: 247, 249, 252;
     --bgCard: 255, 255, 255;
@@ -54,8 +56,8 @@
 
     --actionPrimary: var(--blue);
     --actionPrimaryContrastText: 255, 255, 255;
-    --actionSecondary: 255, 255, 255;
-    --actionSecondaryContrastText: var(--blue);
+    --actionSecondary: var(--blue);
+    --actionSecondaryContrastText: 255, 255, 255;
     --actionAccent: var(--blue);
 
     --grayLight: 166, 172, 186;

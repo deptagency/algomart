@@ -1,0 +1,17 @@
+.root {
+  @apply border-t-1 font-display text-lg;
+}
+
+.header {
+  @apply bg-base-bg py-3 flex justify-center;
+}
+
+.items {
+  @apply grid grid-flow-col gap-3 auto-cols-min justify-center py-6 border-t-1;
+}
+
+.item {
+  @apply from-base-gradientFrom to-base-gradientTo bg-gradient-to-r flex items-center justify-center text-white rounded-sm;
+  width: 70px;
+  height: 70px;
+}
