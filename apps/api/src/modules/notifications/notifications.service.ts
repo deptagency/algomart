@@ -22,10 +22,26 @@ const isResponseError = (error: unknown): error is ResponseError => {
   return typeof (error as ResponseError).response?.body === 'string'
 }
 
-const requireVariables = (variables, variableNames: string[]) => {
-  invariant(variables, 'no variables were provided for this notification')
+/** Freak out if the notification is missing any variables.
+ *
+ * NOTES
+ * - This does NOT prevent the email notification from being sent.
+ * - We don't use types because variables are pulled from the notifications table.
+ * - We don't use an invariant here anymore because it will throw an error causing the
+ *   email to be sent without updating the "pending" status of the notifaction,
+ *   this causes the email to be resent over and over again.
+ * - For now this is good enough since sending a poorly interpolated email is preferable
+ *   to not sending one at all.
+ */
+const expectVariables = (variables, variableNames: string[]) => {
+  // Use error & trace because it's easier to read the error message.
+  logger.error('No variables were provided for this notification.')
+  console.trace('No variables were provided for this notification.')
   for (const key of variableNames) {
-    invariant(variables[key] !== undefined, `variable '${key}' is required`)
+    if (variables[key] === undefined) {
+      logger.error(`Variable '${key}' is required for this email template.`)
+      console.trace(`Variable '${key}' is required for this email template.`)
+    }
   }
 }
 
@@ -124,12 +140,7 @@ export default class NotificationsService {
 
   getAuctionCompleteNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
-    requireVariables(variables, [
-      'amount',
-      'canExpire',
-      'packSlug',
-      'packTitle',
-    ])
+    expectVariables(variables, ['amount', 'canExpire', 'packSlug', 'packTitle'])
 
     // Build notification
     const body = (
@@ -153,7 +164,7 @@ export default class NotificationsService {
 
   getBidExpiredNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
-    requireVariables(variables, ['packTitle'])
+    expectVariables(variables, ['packTitle'])
 
     return {
       to: userAccount?.email as string,
@@ -167,7 +178,7 @@ export default class NotificationsService {
 
   getPaymentSuccessNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
-    requireVariables(variables, ['packTitle'])
+    expectVariables(variables, ['packTitle'])
 
     const html = t<string[]>('paymentSuccess.body', {
       returnObjects: true,
@@ -184,7 +195,7 @@ export default class NotificationsService {
 
   getTransferSuccessNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
-    requireVariables(variables, ['packTitle'])
+    expectVariables(variables, ['packTitle'])
 
     const html = t<string[]>('transferSuccess.body', {
       returnObjects: true,
@@ -201,7 +212,7 @@ export default class NotificationsService {
 
   getUserHighBidNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
-    requireVariables(variables, ['packTitle', 'packSlug'])
+    expectVariables(variables, ['packTitle', 'packSlug'])
 
     return {
       to: userAccount?.email as string,
@@ -218,7 +229,7 @@ export default class NotificationsService {
 
   getUserOutbidNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    requireVariables(variables, ['packTitle', 'packSlug'])
+    expectVariables(variables, ['packTitle', 'packSlug'])
 
     return {
       to: userAccount?.email as string,
@@ -235,7 +246,7 @@ export default class NotificationsService {
 
   getWireInstructionsNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    requireVariables(variables, [
+    expectVariables(variables, [
       'packTitle',
       'packSlug',
       'amount',
@@ -275,7 +286,7 @@ export default class NotificationsService {
 
   getPaymentFailedNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    requireVariables(variables, ['packTitle'])
+    expectVariables(variables, ['packTitle'])
     return {
       to: userAccount?.email,
       subject: t('paymentFailed.subject'),
@@ -285,7 +296,7 @@ export default class NotificationsService {
 
   getPackRevokedNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    requireVariables(variables, ['packTitle'])
+    expectVariables(variables, ['packTitle'])
     return {
       to: userAccount?.email,
       subject: t('packRevoked.subject'),
@@ -297,37 +308,46 @@ export default class NotificationsService {
 
   getCSWirePaymentFailedNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    const variables_ = { ...variables, userEmail: userAccount?.email }
-    requireVariables(variables_, ['packTitle', 'userEmail', 'amount'])
+    expectVariables(variables, ['packTitle', 'paymentId', 'amount'])
+    const fields = {
+      ...variables,
+      userEmail: userAccount?.email,
+      ctaUrl: `${Configuration.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
+    }
     return {
       to: Configuration.customerServiceEmail,
-      subject: t('csWirePaymentFailed.subject', variables_),
-      html: t('csWirePaymentFailed.body', variables_),
+      subject: t('csWirePaymentFailed.subject', fields),
+      html: t('csWirePaymentFailed.body', fields),
     }
   }
 
   getCSWirePaymentSuccessNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    const variables_ = { ...variables, userEmail: userAccount?.email }
-    requireVariables(variables_, ['packTitle', 'userEmail', 'amount'])
+    expectVariables(variables, ['packTitle', 'paymentId', 'amount'])
+    const fields = {
+      ...variables,
+      userEmail: userAccount?.email,
+      ctaUrl: `${Configuration.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
+    }
     return {
       to: Configuration.customerServiceEmail,
-      subject: t('csWirePaymentSuccess.subject', variables_),
-      html: t('csWirePaymentSuccess.body', variables_),
+      subject: t('csWirePaymentSuccess.subject', fields),
+      html: t('csWirePaymentSuccess.body', fields),
     }
   }
 
   getCSAwaitingWirePaymentNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    const variables_ = {
+    expectVariables(variables, ['packTitle', 'paymentId', 'amount'])
+    const fields = {
       ...variables,
       userEmail: userAccount?.email,
+      ctaUrl: `${Configuration.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
     }
-    requireVariables(variables_, ['packTitle', 'userEmail', 'amount'])
     return {
       to: Configuration.customerServiceEmail,
-      subject: t('csAwaitingWirePayment.subject', variables_),
-      html: t('csAwaitingWirePayment.body', variables_),
+      subject: t('csAwaitingWirePayment.subject', fields),
+      html: t('csAwaitingWirePayment.body', fields),
     }
   }
 

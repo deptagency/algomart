@@ -78,14 +78,14 @@
   },
   "csAwaitingWirePayment": {
     "subject": "AWAITING wire payment for “{{packTitle}}”",
-    "body": "Awaiting wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}}."
+    "body": "Awaiting wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}}. <a href=\"{{ctaUrl}}\"><strong>View transaction</strong></a>"
   },
   "csWirePaymentFailed": {
     "subject": "Wire payment FAILED for “{{packTitle}}”",
-    "body": "Wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}} failed."
+    "body": "Wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}} failed. <a href=\"{{ctaUrl}}\"><strong>View transaction</strong></a>"
   },
   "csWirePaymentSuccess": {
     "subject": "Wire payment SUCCESS for “{{packTitle}}”",
-    "body": "Wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}} succeeded."
+    "body": "Wire payment of ${{amount}} for “{{packTitle}}” by {{userEmail}} succeeded. <a href=\"{{ctaUrl}}\"><strong>View transaction</strong></a>"
   }
 }
