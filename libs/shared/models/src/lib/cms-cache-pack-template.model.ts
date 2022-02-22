@@ -8,6 +8,7 @@ export class CMSCachePackTemplateModel extends Model {
   type!: string
   content!: string
   releasedAt!: string | null
+  auctionUntil!: string | null
   createdAt!: string
   updatedAt!: string
 

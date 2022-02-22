@@ -492,9 +492,9 @@ export default class CMSCacheAdapter {
   async findAllPacksAuctionCompletion(startDate, locale = DEFAULT_LOCALE) {
     const queryResult = await CMSCachePackTemplateModel.query()
       .where('type', PackType.Auction)
-      .where('auction_until', '>', startDate)
+      .where('auctionUntil', '>', startDate)
       .select('content')
-      .orderBy('released_at', 'desc')
+      .orderBy('releasedAt', 'desc')
 
     const data = queryResult.map(
       (result: CMSCachePackTemplateModel): DirectusPackTemplate =>
@@ -593,7 +593,7 @@ export default class CMSCacheAdapter {
   async findPacksPendingGeneration(locale = DEFAULT_LOCALE) {
     const queryResult = await CMSCachePackTemplateModel.query()
       .leftJoin('Pack', 'Pack.templateId', 'CmsCachePackTemplates.id')
-      .whereNotNull('Pack.templateId')
+      .whereNull('Pack.templateId')
       .distinctOn('CmsCachePackTemplates.id')
       .select('content')
 
@@ -603,6 +603,9 @@ export default class CMSCacheAdapter {
         return toPackBase(packTemplate, this.getFileURL.bind(this), locale)
       }
     )
+
+    console.log('findPacksPendingGeneration')
+    console.log(data)
 
     return data
   }
