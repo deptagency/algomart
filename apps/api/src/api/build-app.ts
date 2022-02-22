@@ -1,4 +1,4 @@
-import { generateHealthRoutes } from '@algomart/shared/adapters'
+import { generateHealthRoutes } from '@algomart/shared/modules'
 import {
   fastifyContainerPlugin,
   fastifyKnexPlugin,
