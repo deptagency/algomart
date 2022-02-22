@@ -478,6 +478,23 @@ export default class CMSCacheAdapter {
     return new URL(`/assets/${file.id}`, this.options.cmsUrl).href
   }
 
+  async findAllPacksAuctionCompletion(startDate, locale = DEFAULT_LOCALE) {
+    const queryResult = await CMSCachePackTemplateModel.query()
+      .where('type', PackType.Auction)
+      .where('auction_until', '>', startDate)
+      .select('content')
+      .orderBy('released_at', 'desc')
+
+    const data = queryResult.map(
+      (result: CMSCachePackTemplateModel): DirectusPackTemplate =>
+        result.content as unknown as DirectusPackTemplate
+    )
+
+    return data.map((template) =>
+      toPackBase(template, this.getFileURL.bind(this), locale)
+    )
+  }
+
   async findAllPacks({
     locale = DEFAULT_LOCALE,
     page = 1,
@@ -513,20 +530,70 @@ export default class CMSCacheAdapter {
     }
   }
 
-  async findPack(filter: ItemFilter = {}, locale = DEFAULT_LOCALE) {
-    const response = await this.findPackTemplates({
-      limit: 1,
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-        ...filter,
-      },
-    })
+  async findPacksByTemplateIds(locale = DEFAULT_LOCALE, templateIds) {
+    const queryResult = await CMSCachePackTemplateModel.query()
+      .whereIn('templateId', templateIds)
+      .select('content')
 
-    if (response.data.length === 0) return null
-    const pack = response.data[0]
-    return toPackBase(pack, this.getFileURL.bind(this), locale)
+    const data = queryResult.map(
+      (result: CMSCachePackTemplateModel): PackBase => {
+        const packTemplate = result.content as unknown as DirectusPackTemplate
+        return toPackBase(packTemplate, this.getFileURL.bind(this), locale)
+      }
+    )
+
+    return data
+  }
+
+  async findPacksByType(locale = DEFAULT_LOCALE, type, limit) {
+    const queryResult = await CMSCachePackTemplateModel.query()
+      .whereIn('type', type)
+      .limit(limit)
+      .select('content')
+
+    const data = queryResult.map(
+      (result: CMSCachePackTemplateModel): PackBase => {
+        const packTemplate = result.content as unknown as DirectusPackTemplate
+        return toPackBase(packTemplate, this.getFileURL.bind(this), locale)
+      }
+    )
+
+    return data
+  }
+
+  async findPackBySlug(locale = DEFAULT_LOCALE, slug) {
+    const queryResult = await CMSCachePackTemplateModel.query()
+      .findOne('slug', slug)
+      .select('content')
+
+    const packTemplate = queryResult.content as unknown as DirectusPackTemplate
+    return toPackBase(packTemplate, this.getFileURL.bind(this), locale)
+  }
+
+  async findPackByTemplateId(templateId, locale = DEFAULT_LOCALE) {
+    const queryResult = await CMSCachePackTemplateModel.query()
+      .findOne('templateId', templateId)
+      .select('content')
+
+    const packTemplate = queryResult.content as unknown as DirectusPackTemplate
+    return toPackBase(packTemplate, this.getFileURL.bind(this), locale)
+  }
+
+  async findPacksPendingGeneration(locale = DEFAULT_LOCALE) {
+    const queryResult = await CMSCachePackTemplateModel.query()
+      .leftJoin('Pack', 'Pack.templateId', 'CmsCachePackTemplates.id')
+      .whereNotNull('Pack.templateId')
+      .distinctOn('CmsCachePackTemplates.id')
+      .select('content')
+
+    const data = queryResult.map(
+      (result: CMSCachePackTemplateModel): PackBase => {
+        const packTemplate = result.content as unknown as DirectusPackTemplate
+        return toPackBase(packTemplate, this.getFileURL.bind(this), locale)
+      }
+    )
+
+    return data
   }
 
   async findAllCollectibles(
@@ -558,10 +625,9 @@ export default class CMSCacheAdapter {
     }
   }
 
-  async findCollectiblesById(locale = DEFAULT_LOCALE, ids, limit) {
+  async findCollectiblesByTemplateIds(locale = DEFAULT_LOCALE, ids) {
     const queryResult = await CMSCacheCollectibleTemplateModel.query()
       .whereIn('id', ids)
-      .limit(limit)
       .select('content')
 
     const data = queryResult.map(
@@ -577,6 +643,20 @@ export default class CMSCacheAdapter {
     )
 
     return data
+  }
+
+  async findCollectibleByTemplateId(locale = DEFAULT_LOCALE, id) {
+    const queryResult = await CMSCacheCollectibleTemplateModel.query()
+      .findOne('templateId', id)
+      .select('content')
+
+    const collectibleTemplate =
+      queryResult.content as unknown as DirectusCollectibleTemplate
+    return toCollectibleBase(
+      collectibleTemplate,
+      this.getFileURL.bind(this),
+      locale
+    )
   }
 
   async findAllCollections(locale = DEFAULT_LOCALE) {

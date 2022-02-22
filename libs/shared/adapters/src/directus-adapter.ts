@@ -32,16 +32,16 @@ export interface ItemByIdResponse<T> {
 
 export interface ItemFilter {
   [key: string]:
-    | string
-    | string[]
-    | number
-    | number[]
-    | boolean
-    | boolean[]
-    | Date
-    | Date[]
-    | ItemFilter
-    | ItemFilter[]
+  | string
+  | string[]
+  | number
+  | number[]
+  | boolean
+  | boolean[]
+  | Date
+  | Date[]
+  | ItemFilter
+  | ItemFilter[]
 }
 
 export interface ItemQuery<TItem> {
@@ -98,8 +98,8 @@ function getParameters<TItem>(query?: ItemQuery<TItem>) {
       query.totalCount && query.filterCount
         ? '*'
         : query.totalCount
-        ? 'total_count'
-        : 'filter_count'
+          ? 'total_count'
+          : 'filter_count'
     )
   }
 
@@ -288,15 +288,11 @@ export default class DirectusAdapter {
   }
 
   async findAllPacks({
-    locale = DEFAULT_LOCALE,
     page = 1,
     pageSize = 10,
-    filter = {},
   }: {
-    locale?: string
     page?: number
     pageSize?: number
-    filter?: ItemFilter
   }) {
     const response = await this.findPackTemplates({
       page,
@@ -304,7 +300,9 @@ export default class DirectusAdapter {
       // Sort by released_at in descending order
       sort: ['-released_at'],
       filter: {
-        ...filter,
+        status: {
+          _eq: DirectusStatus.Published,
+        },
       },
       filterCount: true,
     })
@@ -317,19 +315,21 @@ export default class DirectusAdapter {
     return response.data
   }
 
-  async findAllCollectibles(
-    locale = DEFAULT_LOCALE,
-    filter: ItemFilter = {},
-    limit = -1
-  ) {
+  async findAllCollectibles({
+    page = 1,
+    pageSize = 10,
+  }: {
+    page?: number
+    pageSize?: number
+  }) {
     const response = await this.findCollectibleTemplates({
+      page,
+      limit: pageSize,
       filter: {
         status: {
           _eq: DirectusStatus.Published,
         },
-        ...filter,
       },
-      limit,
       fields: [
         'id',
         'total_editions',
@@ -357,8 +357,21 @@ export default class DirectusAdapter {
     return response.data
   }
 
-  async findAllCollections() {
+  async findAllCollections({
+    page = 1,
+    pageSize = 10,
+  }: {
+    page?: number
+    pageSize?: number
+  }) {
     const response = await this.findCollections({
+      page,
+      limit: pageSize,
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
       fields: [
         'collection_image.*',
         'id',
@@ -382,8 +395,21 @@ export default class DirectusAdapter {
     return response.data
   }
 
-  async findAllSets() {
+  async findAllSets({
+    page = 1,
+    pageSize = 10,
+  }: {
+    page?: number
+    pageSize?: number
+  }) {
     const response = await this.findSets({
+      page,
+      limit: pageSize,
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
       fields: [
         'id',
         'status',
@@ -404,8 +430,21 @@ export default class DirectusAdapter {
     return response.data
   }
 
-  async findAllPages() {
+  async findAllPages({
+    page = 1,
+    pageSize = 10,
+  }: {
+    page?: number
+    pageSize?: number
+  }) {
     const response = await this.findPages({
+      page,
+      limit: pageSize,
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
       fields: ['id', 'slug', 'translations.*'],
       filterCount: true,
     })
@@ -418,14 +457,21 @@ export default class DirectusAdapter {
     return response.data
   }
 
-  async getFaqs() {
+  async getFaqs({
+    page = 1,
+    pageSize = 10,
+  }: {
+    page?: number
+    pageSize?: number
+  }) {
     const defaultQuery: ItemQuery<DirectusFaqTemplate> = {
+      page,
+      limit: pageSize,
       filter: {
         status: {
           _eq: DirectusStatus.Published,
         },
       },
-      limit: -1,
       fields: ['*.*'],
     }
 
@@ -436,23 +482,35 @@ export default class DirectusAdapter {
     return response.data
   }
 
-  async findPublishedCountries(
-    filter: ItemFilter = {},
-    locale = DEFAULT_LOCALE
-  ): Promise<Countries | null> {
-    const response = await this.findCountries({ filter })
-    if (response.data.length === 0) return null
-    const countries = response.data
-    return countries.map((country) => toCountryBase(country, locale))
+  async getLanguages({
+    page = 1,
+    pageSize = 10,
+  }: {
+    page?: number
+    pageSize?: number
+  }) {
+    const defaultQuery: ItemQuery<DirectusLanguageTemplate> = {
+      page,
+      limit: pageSize,
+      fields: ['*.*'],
+    }
+
+    const response = await this.findMany<DirectusLanguageTemplate>(
+      `languages`,
+      {
+        ...defaultQuery,
+      }
+    )
+
+    return response.data
   }
 
-  async findHomepage(locale: string = DEFAULT_LOCALE) {
+  async findHomepage() {
     // Homepage is a singleton in the CMS, which makes this endpoint only return a single item.
     // Therefore we should avoid using the `findMany` method and instead act as if the result is
     // from a `findById` call.
     const response = await this.http.get('items/homepage', {
       searchParams: getParameters({
-        // TODO: update these to return the full objects rather than just the ids
         fields: [
           'id',
 
@@ -525,42 +583,6 @@ export default class DirectusAdapter {
       )
 
       return JSON.parse(response.body).data as DirectusHomepage
-    }
-
-    return null
-  }
-
-  async getLanguages() {
-    const defaultQuery: ItemQuery<DirectusLanguageTemplate> = {
-      limit: -1,
-      fields: ['*.*'],
-    }
-
-    const response = await this.findMany<DirectusLanguageTemplate>(
-      `languages`,
-      {
-        ...defaultQuery,
-      }
-    )
-
-    return response.data
-  }
-
-  async findApplication(): Promise<DirectusApplication | null> {
-    // Application is a singleton in the CMS, which makes this endpoint only return a single item.
-    // Therefore we should avoid using the `findMany` method and instead act as if the result is
-    // from a `findById` call.
-    const response = await this.http.get('items/application', {
-      searchParams: getParameters({
-        fields: ['*.*'],
-      }),
-    })
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      const result: ItemByIdResponse<DirectusApplication> = JSON.parse(
-        response.body
-      )
-      return result.data
     }
 
     return null
