@@ -59,6 +59,8 @@
     --actionSecondary: var(--blue);
     --actionSecondaryContrastText: 255, 255, 255;
     --actionAccent: var(--blue);
+    --actionTertiary: 255, 255, 255;
+    --actionTertiaryContrastText: var(--blue);
 
     --grayLight: 166, 172, 186;
     --grayDark: 10, 17, 29;

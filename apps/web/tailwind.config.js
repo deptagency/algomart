@@ -73,6 +73,10 @@ module.exports = {
             'actionSecondaryContrastText'
           ),
           accent: generateColorClass('actionAccent'),
+          tertiary: generateColorClass('actionTertiary'),
+          tertiaryContrastText: generateColorClass(
+            'actionTertiaryContrastText'
+          ),
         },
         base: {
           error: generateColorClass('error'),

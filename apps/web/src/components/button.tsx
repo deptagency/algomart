@@ -37,15 +37,16 @@ export function buttonClasses(
       'rounded-r-sm': group === 'right',
       'bg-action-primary tracking-wide font-600 border-none shadow-large hover:bg-opacity-90 text-action-primaryContrastText':
         !disabled && variant === 'primary',
-      'bg-action-secondary uppercase tracking-wide font-display text-action-secondaryContrastText shadow-large hover:bg-opacity-90':
+      'bg-action-secondary uppercase tracking-wide font-light font-display text-action-secondaryContrastText shadow-large hover:bg-opacity-90':
         variant === 'secondary',
       // TODO: This should be a "ghost" variant
-      'bg-transparent border-none hover:border-none': variant === 'tertiary',
+      'bg-action-tertiary uppercase tracking-wide font-light font-display text-action-tertiaryContrastText shadow-large hover:bg-opacity-90':
+        variant === 'tertiary',
       'bg-transparent border-none float-left mb-5': variant === 'link',
       'text-base': size === 'small',
       'text-lg': size === 'medium',
       'px-20 py-4': size === 'medium' && !disablePadding,
-      'px-20 py-2': size === 'small' && !disablePadding,
+      'px-20 py-3': size === 'small' && !disablePadding,
       'bg-gray-400 cursor-not-allowed pointer-events-none focus:ring-secondary opacity-30':
         disabled,
       'block w-full': fullWidth,
