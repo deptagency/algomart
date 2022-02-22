@@ -1,5 +1,6 @@
 import * as Currencies from '@dinero.js/currencies'
 import { DEFAULT_LOCALE, LanguageList } from '@algomart/schemas'
+import { Knex } from 'knex'
 import { Transaction } from 'objection'
 
 import { CoinbaseAdapter, DirectusAdapter } from '@algomart/shared/adapters'
@@ -29,10 +30,11 @@ export default class I18nService {
       sourceCurrency: string
       targetCurrency?: string
     },
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex
   ) {
     // 1st: grab all conversions for source currency from db
-    let conversions = await CurrencyConversionModel.query(trx).where(
+    let conversions = await CurrencyConversionModel.query(knexRead).where(
       'sourceCurrency',
       sourceCurrency
     )
@@ -79,10 +81,15 @@ export default class I18nService {
     }: {
       sourceCurrency?: string
     },
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex
   ) {
+    if (!sourceCurrency) {
+      sourceCurrency = this.currency.code
+    }
+
     // 1st: grab all conversion for currency from db
-    let conversions = await CurrencyConversionModel.query(trx).where(
+    let conversions = await CurrencyConversionModel.query().where(
       'sourceCurrency',
       sourceCurrency
     )
@@ -123,7 +130,7 @@ export default class I18nService {
       })
 
       conversions = await CurrencyConversionModel.query(
-        trx
+        knexRead
       ).upsertGraphAndFetch(upserts)
     }
 

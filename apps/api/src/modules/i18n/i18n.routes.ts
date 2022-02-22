@@ -19,7 +19,8 @@ export async function getCurrencyConversion(
   const { sourceCurrency, targetCurrency } = request.query
   const currencyConversion = await service.getCurrencyConversion(
     { sourceCurrency, targetCurrency },
-    request.transaction
+    request.transaction,
+    request.knexRead
   )
   reply.send(currencyConversion)
 }
@@ -31,9 +32,10 @@ export async function getCurrencyConversions(
   const service = request.getContainer().get<I18nService>(I18nService.name)
   const { sourceCurrency } = request.query
 
-  const currencyConversions = await service.getCurrencyConversion(
+  const currencyConversions = await service.getCurrencyConversions(
     { sourceCurrency },
-    request.transaction
+    request.transaction,
+    request.knexRead
   )
   reply.send(currencyConversions)
 }
@@ -46,7 +48,8 @@ export async function getI18nInfo(
   const languages = await service.getLanguages(request.query.locale)
   const currencyConversions = await service.getCurrencyConversions(
     {},
-    request.transaction
+    request.transaction,
+    request.knexRead
   )
 
   reply.send({

@@ -3,11 +3,11 @@ import { CreateAuctionBody } from '@algomart/schemas'
 import algosdk from 'algosdk'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { Transaction } from 'objection'
 
 import { userInvariant, decrypt } from '@algomart/shared/utils'
 import { AlgorandAdapter } from '@algomart/shared/adapters'
 import { CollectibleModel, UserAccountModel } from '@algomart/shared/models'
+import { Knex } from 'knex'
 
 export default class AuctionsService {
   logger: pino.Logger<unknown>
@@ -20,8 +20,8 @@ export default class AuctionsService {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  async createAuction(request: CreateAuctionBody, trx?: Transaction) {
-    const user = await UserAccountModel.query(trx)
+  async createAuction(request: CreateAuctionBody, knexRead?: Knex) {
+    const user = await UserAccountModel.query(knexRead)
       .where({
         externalId: request.externalId,
       })
@@ -35,7 +35,7 @@ export default class AuctionsService {
     )
     userInvariant(mnemonic, 'Invalid passphrase', 400)
 
-    const collectible = await CollectibleModel.query(trx)
+    const collectible = await CollectibleModel.query(knexRead)
       .where({
         id: request.collectibleId,
         ownerId: user.id,

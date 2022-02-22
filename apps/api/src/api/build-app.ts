@@ -28,7 +28,8 @@ import { paymentRoutes } from '../modules/payments'
 import { setsRoutes } from '../modules/sets'
 
 export interface AppConfig {
-  knex: Knex.Config
+  knexMain: Knex.Config
+  knexRead?: Knex.Config
   fastify?: FastifyServerOptions
   container: DependencyResolver
 }
@@ -67,7 +68,15 @@ export default async function buildApp(config: AppConfig) {
   await app.register(fastifySensible)
 
   // Our Plugins
-  await app.register(fastifyKnexPlugin, { knex: config.knex })
+  await app.register(fastifyKnexPlugin, {
+    knex: config.knexMain,
+    name: 'knexMain',
+  }),
+    await app.register(fastifyKnexPlugin, {
+      knex: config.knexRead,
+      name: 'knexRead',
+      readReplica: true,
+    })
   await app.register(fastifyContainerPlugin, { container: config.container })
   await app.register(fastifyTransactionPlugin)
 

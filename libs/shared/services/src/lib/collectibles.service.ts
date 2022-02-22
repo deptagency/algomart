@@ -17,6 +17,7 @@ import {
   SingleCollectibleQuerystring,
   SortDirection,
 } from '@algomart/schemas'
+import { Knex } from 'knex'
 import { Transaction } from 'objection'
 
 import {
@@ -63,8 +64,8 @@ export default class CollectiblesService {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  async generateCollectibles(limit = 5, trx?: Transaction) {
-    const existingTemplates = await CollectibleModel.query(trx)
+  async generateCollectibles(limit = 5, trx?: Transaction, knexRead?: Knex) {
+    const existingTemplates = await CollectibleModel.query(knexRead)
       .groupBy('templateId')
       .select('templateId')
     const filter: ItemFilter = {}
@@ -128,9 +129,10 @@ export default class CollectiblesService {
   }
 
   async getCollectible(
-    query: SingleCollectibleQuerystring
+    query: SingleCollectibleQuerystring,
+    knexRead?: Knex
   ): Promise<CollectibleWithDetails> {
-    const collectible = await CollectibleModel.query()
+    const collectible = await CollectibleModel.query(knexRead)
       .findOne({ address: query.assetId })
       .withGraphFetched('[creationTransaction, pack.payment]')
 
@@ -153,7 +155,7 @@ export default class CollectiblesService {
     const currentOwner = await this.algoExplorer.getCurrentAssetOwner(
       collectible.address
     )
-    const owner = await UserAccountModel.query()
+    const owner = await UserAccountModel.query(knexRead)
       .alias('u')
       .join('AlgorandAccount as a', 'u.algorandAccountId', 'a.id')
       .where('a.address', '=', currentOwner?.address || '-')
@@ -189,9 +191,9 @@ export default class CollectiblesService {
     }
   }
 
-  async storeCollectibles(limit = 5, trx: Transaction) {
+  async storeCollectibles(limit = 5, trx?: Transaction, knexRead?: Knex) {
     // Get unstored collectibles
-    const collectibles = await CollectibleModel.query(trx)
+    const collectibles = await CollectibleModel.query(knexRead)
       .whereNull('ipfsStatus')
       .orderBy('templateId')
       .limit(10)
@@ -242,7 +244,8 @@ export default class CollectiblesService {
       pageSize = 10,
       sortBy = CollectibleSortField.Title,
       sortDirection = SortDirection.Ascending,
-    }: CollectiblesByAlgoAddressQuerystring
+    }: CollectiblesByAlgoAddressQuerystring,
+    knexRead?: Knex
   ): Promise<CollectibleListWithTotal | null> {
     // Validate query
     userInvariant(page > 0, 'page must be greater than 0')
@@ -267,7 +270,7 @@ export default class CollectiblesService {
     const { assets } = await this.algoExplorer.getAccount(algoAddress)
 
     // Find corresponding assets in DB
-    const collectibles = await CollectibleModel.query().whereIn(
+    const collectibles = await CollectibleModel.query(knexRead).whereIn(
       'address',
       assets.map((a) => a['asset-id'])
     )
@@ -324,7 +327,7 @@ export default class CollectiblesService {
   async storeCollectiblesByTemplate(
     template: CollectibleBase,
     collectibles: CollectibleModel[],
-    trx: Transaction
+    trx?: Transaction
   ) {
     await CollectibleModel.query()
       .whereIn(
@@ -388,12 +391,12 @@ export default class CollectiblesService {
     }
   }
 
-  async getCollectiblesByPackId(packId: string, trx?: Transaction) {
-    return await CollectibleModel.query(trx).where('packId', packId)
+  async getCollectiblesByPackId(packId: string, knexRead?: Knex) {
+    return await CollectibleModel.query(knexRead).where('packId', packId)
   }
 
-  async mintCollectibles(trx?: Transaction) {
-    const collectibles = await CollectibleModel.query(trx)
+  async mintCollectibles(trx?: Transaction, knexRead?: Knex) {
+    const collectibles = await CollectibleModel.query(knexRead)
       .whereNull('creationTransactionId')
       .joinRelated('pack', { alias: 'p' })
       .whereNotNull('p.ownerId')
@@ -492,7 +495,7 @@ export default class CollectiblesService {
       })
     )
 
-    const createdTransactions = await AlgorandTransactionModel.query(trx)
+    const createdTransactions = await AlgorandTransactionModel.query(knexRead)
       .whereIn('address', transactionIds)
       .select('id')
 
@@ -516,10 +519,11 @@ export default class CollectiblesService {
     id: string,
     userId: string,
     passphrase: string,
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex
   ) {
-    const collectible = await CollectibleModel.query(trx).findById(id)
-    const user = await UserAccountModel.query(trx)
+    const collectible = await CollectibleModel.query(knexRead).findById(id)
+    const user = await UserAccountModel.query(knexRead)
       .findById(userId)
       .withGraphFetched('algorandAccount')
 
@@ -599,17 +603,18 @@ export default class CollectiblesService {
     id: string,
     accountAddress?: string,
     userId?: string,
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex
   ) {
     userInvariant(userId || accountAddress, 'identifier not provided', 400)
 
-    const collectible = await CollectibleModel.query(trx).findById(id)
+    const collectible = await CollectibleModel.query(knexRead).findById(id)
     userInvariant(collectible, 'collectible not found', 404)
 
     // Find the user to get the address IF the user ID was provided
     let userAddress: string = accountAddress
     if (userId) {
-      const user = await UserAccountModel.query(trx)
+      const user = await UserAccountModel.query(knexRead)
         .findById(userId)
         .withGraphFetched('algorandAccount')
       userInvariant(user, 'user account not found', 404)
@@ -669,18 +674,21 @@ export default class CollectiblesService {
     ])
   }
 
-  async getCollectibles({
-    page = 1,
-    pageSize = 10,
-    locale = DEFAULT_LOCALE,
-    sortBy = CollectibleSortField.Title,
-    sortDirection = SortDirection.Ascending,
-    ownerExternalId,
-    ownerUsername,
-    templateIds,
-    setId,
-    collectionId,
-  }: CollectibleListQuerystring): Promise<CollectibleListWithTotal | null> {
+  async getCollectibles(
+    {
+      page = 1,
+      pageSize = 10,
+      locale = DEFAULT_LOCALE,
+      sortBy = CollectibleSortField.Title,
+      sortDirection = SortDirection.Ascending,
+      ownerExternalId,
+      ownerUsername,
+      templateIds,
+      setId,
+      collectionId,
+    }: CollectibleListQuerystring,
+    knexRead?: Knex
+  ): Promise<CollectibleListWithTotal | null> {
     const ownerIdentifier = ownerExternalId || ownerUsername
     userInvariant(ownerIdentifier, 'Must specify owner')
     userInvariant(page > 0, 'page must be greater than 0')
@@ -702,12 +710,12 @@ export default class CollectiblesService {
     )
 
     const field = ownerUsername ? 'username' : 'externalId'
-    const account = await UserAccountModel.query()
+    const account = await UserAccountModel.query(knexRead)
       .findOne(field, '=', ownerIdentifier)
       .select('id')
     userInvariant(account, 'user not found', 404)
 
-    const total = await CollectibleModel.query()
+    const total = await CollectibleModel.query(knexRead)
       .where('ownerId', account.id)
       .count('*', { as: 'count' })
       .first()
@@ -722,7 +730,7 @@ export default class CollectiblesService {
       }
     }
 
-    const collectibles = await CollectibleModel.query().where({
+    const collectibles = await CollectibleModel.query(knexRead).where({
       ownerId: account.id,
       ...(templateIds
         ? {
@@ -831,16 +839,16 @@ export default class CollectiblesService {
     return collectibles
   }
 
-  async getShowcaseCollectibles({
-    locale = DEFAULT_LOCALE,
-    ownerUsername,
-  }: CollectibleShowcaseQuerystring) {
+  async getShowcaseCollectibles(
+    { locale = DEFAULT_LOCALE, ownerUsername }: CollectibleShowcaseQuerystring,
+    knexRead?: Knex
+  ) {
     const user = await UserAccountModel.query()
       .findOne('username', ownerUsername)
       .select('id', 'showProfile')
     userInvariant(user, 'user not found', 404)
 
-    const showcase = await CollectibleShowcaseModel.query()
+    const showcase = await CollectibleShowcaseModel.query(knexRead)
       .where('ownerId', user.id)
       .orderBy('order', 'asc')
       .withGraphFetched('collectible')
@@ -902,22 +910,23 @@ export default class CollectiblesService {
       ownerUsername: string
       collectibleId: string
     },
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex
   ) {
-    const user = await UserAccountModel.query(trx)
+    const user = await UserAccountModel.query(knexRead)
       .findOne('username', ownerUsername)
       .select('id')
 
     userInvariant(user, 'user not found', 404)
 
-    const collectible = await CollectibleModel.query(trx).findOne({
+    const collectible = await CollectibleModel.query(knexRead).findOne({
       ownerId: user.id,
       id: collectibleId,
     })
 
     userInvariant(collectible, 'collectible not found', 404)
 
-    const showcases = await CollectibleShowcaseModel.query(trx)
+    const showcases = await CollectibleShowcaseModel.query(knexRead)
       .where('ownerId', user.id)
       .orderBy('order', 'desc')
 
@@ -951,16 +960,17 @@ export default class CollectiblesService {
       ownerUsername: string
       collectibleId: string
     },
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex
   ) {
-    const user = await UserAccountModel.query(trx)
+    const user = await UserAccountModel.query(knexRead)
       .findOne('username', ownerUsername)
       .select('id')
 
     userInvariant(user, 'user not found', 404)
 
     const showcaseToBeRemoved = await CollectibleShowcaseModel.query(
-      trx
+      knexRead
     ).findOne({
       ownerId: user.id,
       collectibleId: collectibleId,
@@ -981,7 +991,7 @@ export default class CollectiblesService {
 
     // normalize the order of the remaining showcases, this way order will
     // always stay in the range of 1..MAX_SHOWCASES (inclusive)
-    const showcases = await CollectibleShowcaseModel.query(trx)
+    const showcases = await CollectibleShowcaseModel.query(knexRead)
       .where('ownerId', user.id)
       .orderBy('order', 'asc')
 
@@ -1002,8 +1012,12 @@ export default class CollectiblesService {
     )
   }
 
-  async exportCollectible(request: ExportCollectible, trx?: Transaction) {
-    const user = await UserAccountModel.query(trx)
+  async exportCollectible(
+    request: ExportCollectible,
+    trx?: Transaction,
+    knexRead?: Knex
+  ) {
+    const user = await UserAccountModel.query(knexRead)
       .findOne({
         externalId: request.externalId,
       })
@@ -1012,7 +1026,7 @@ export default class CollectiblesService {
     userInvariant(user, 'user not found', 404)
     invariant(user.algorandAccount, 'algorand account not loaded')
 
-    const collectible = await CollectibleModel.query(trx)
+    const collectible = await CollectibleModel.query(knexRead)
       .findOne({
         address: request.assetIndex,
       })

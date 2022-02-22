@@ -1,13 +1,15 @@
 import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import { I18nService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
+import { Knex } from 'knex'
 import { Model } from 'objection'
 
 import { Configuration } from '../configuration'
 import { logger } from '../configuration/logger'
 
 export default async function updateCurrencyConversions(
-  registry: DependencyResolver
+  registry: DependencyResolver,
+  knexRead?: Knex
 ) {
   const log = logger.child({ task: 'update-currency-conversions' })
   const sourceCurrency = Configuration.currency?.code || DEFAULT_CURRENCY
@@ -18,7 +20,8 @@ export default async function updateCurrencyConversions(
       {
         sourceCurrency,
       },
-      trx
+      trx,
+      knexRead
     )
     log.info(
       `stored ${

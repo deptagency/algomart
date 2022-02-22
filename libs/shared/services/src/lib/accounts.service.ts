@@ -7,6 +7,7 @@ import {
 } from '@algomart/schemas'
 import { UpdateUserAccount } from '@algomart/schemas'
 import { Username } from '@algomart/schemas'
+import { Knex } from 'knex'
 import { Transaction } from 'objection'
 
 import { AlgorandAdapter } from '@algomart/shared/adapters'
@@ -26,9 +27,13 @@ export default class AccountsService {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  async create(request: CreateUserAccountRequest, trx?: Transaction) {
+  async create(
+    request: CreateUserAccountRequest,
+    trx?: Transaction,
+    knexRead?: Knex
+  ) {
     // 1. Check for a username or externalId collision
-    const existing = await UserAccountModel.query(trx)
+    const existing = await UserAccountModel.query(knexRead)
       .where({
         username: request.username,
       })
@@ -65,9 +70,10 @@ export default class AccountsService {
   async initializeAccount(
     userId: string,
     passphrase: string,
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex
   ) {
-    const userAccount = await UserAccountModel.query(trx)
+    const userAccount = await UserAccountModel.query(knexRead)
       .findById(userId)
       .withGraphJoined('algorandAccount')
 
@@ -157,8 +163,8 @@ export default class AccountsService {
     }
   }
 
-  async getByExternalId(request: ExternalId) {
-    const userAccount = await UserAccountModel.query()
+  async getByExternalId(request: ExternalId, knexRead?: Knex) {
+    const userAccount = await UserAccountModel.query(knexRead)
       .findOne({
         externalId: request.externalId,
       })
@@ -167,8 +173,8 @@ export default class AccountsService {
     return this.mapPublicAccount(userAccount)
   }
 
-  async getByUsername(request: Username) {
-    const userAccount = await UserAccountModel.query()
+  async getByUsername(request: Username, knexRead?: Knex) {
+    const userAccount = await UserAccountModel.query(knexRead)
       .findOne({
         username: request.username,
       })
@@ -177,8 +183,12 @@ export default class AccountsService {
     return this.mapPublicAccount(userAccount)
   }
 
-  async verifyPassphraseFor(externalId: string, passphrase: string) {
-    const userAccount = await UserAccountModel.query()
+  async verifyPassphraseFor(
+    externalId: string,
+    passphrase: string,
+    knexRead?: Knex
+  ) {
+    const userAccount = await UserAccountModel.query(knexRead)
       .findOne({ externalId })
       .withGraphJoined('algorandAccount')
 
@@ -194,19 +204,19 @@ export default class AccountsService {
     )
   }
 
-  async verifyUsername(username: string) {
-    const userId = await UserAccountModel.query()
+  async verifyUsername(username: string, knexRead?: Knex) {
+    const userId = await UserAccountModel.query(knexRead)
       .findOne({ username })
       .select('id')
     return Boolean(userId)
   }
 
-  async removeUser(request: ExternalId) {
-    const user = await UserAccountModel.query().findOne({
+  async removeUser(request: ExternalId, trx?: Transaction, knexRead?: Knex) {
+    const user = await UserAccountModel.query(knexRead).findOne({
       externalId: request.externalId,
     })
     if (user) {
-      await UserAccountModel.query().deleteById(user.id)
+      await UserAccountModel.query(trx).deleteById(user.id)
       return true
     }
     return false

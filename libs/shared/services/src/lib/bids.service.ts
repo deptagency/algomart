@@ -19,6 +19,7 @@ import PacksService from './packs.service'
 import NotificationsService from './notifications.service'
 import { isGreaterThan, userInvariant } from '@algomart/shared/utils'
 import I18nService from './i18n.service'
+import { Knex } from 'knex'
 
 // import { BidModel } from '@/models/bid.model'
 // import { EventModel } from '@/models/event.model'
@@ -42,9 +43,13 @@ export default class BidsService {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  async createBid(bid: CreateBidRequest, trx?: Transaction): Promise<boolean> {
+  async createBid(
+    bid: CreateBidRequest,
+    trx?: Transaction,
+    knexRead?: Knex
+  ): Promise<boolean> {
     // Get and verify corresponding pack
-    const pack = await PackModel.query(trx)
+    const pack = await PackModel.query(knexRead)
       .where('id', bid.packId)
       .withGraphFetched('activeBid')
       .first()
@@ -64,11 +69,12 @@ export default class BidsService {
         sourceCurrency: bid.currency,
         targetCurrency: this.currency.code,
       },
-      trx
+      trx,
+      knexRead
     )
 
     // Get user by externalId
-    const newHighBidder = await UserAccountModel.query(trx).findOne({
+    const newHighBidder = await UserAccountModel.query(knexRead).findOne({
       externalId: bid.externalId || null,
     })
 
@@ -101,7 +107,7 @@ export default class BidsService {
     })
 
     // Get the previous highest bidder
-    const previousHighBidder = await UserAccountModel.query(trx).findOne({
+    const previousHighBidder = await UserAccountModel.query(knexRead).findOne({
       id: pack.activeBid?.userAccountId || null,
     })
 
@@ -112,8 +118,8 @@ export default class BidsService {
     if (previousHighBidder && !biddersAreTheSame) {
       const packWithBase = await this.packService.getPackById(
         bid.packId,
-        previousHighBidder.locale,
-        trx
+        trx,
+        previousHighBidder.locale
       )
 
       if (packWithBase) {
@@ -135,8 +141,8 @@ export default class BidsService {
     if (!biddersAreTheSame) {
       const packWithBase = await this.packService.getPackById(
         bid.packId,
-        newHighBidder.locale,
-        trx
+        trx,
+        newHighBidder.locale
       )
       if (packWithBase) {
         await this.notifications.createNotification(

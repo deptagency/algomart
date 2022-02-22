@@ -1,3 +1,4 @@
+import { Knex } from 'knex'
 import { Transaction } from 'objection'
 import pino from 'pino'
 import * as Currencies from '@dinero.js/currencies'
@@ -35,7 +36,7 @@ import {
 import PacksService from './packs.service'
 import I18nService from './i18n.service'
 import NotificationsService from './notifications.service'
-import { CircleAdapter, CoinbaseAdapter } from '@algomart/shared/adapters'
+import { CircleAdapter } from '@algomart/shared/adapters'
 
 import {
   UserAccountModel,
@@ -91,17 +92,21 @@ export default class PaymentsService {
     }
   }
 
-  async getPayments({
-    locale = DEFAULT_LOCALE,
-    page = 1,
-    pageSize = 10,
-    packId,
-    packSlug,
-    payerExternalId,
-    payerUsername,
-    sortBy = PaymentSortField.UpdatedAt,
-    sortDirection = SortDirection.Ascending,
-  }: PaymentsQuerystring): Promise<Payments> {
+  async getPayments(
+    {
+      locale = DEFAULT_LOCALE,
+      page = 1,
+      pageSize = 10,
+      packId,
+      packSlug,
+      payerExternalId,
+      payerUsername,
+      sortBy = PaymentSortField.UpdatedAt,
+      sortDirection = SortDirection.Ascending,
+    }: PaymentsQuerystring,
+    trx?: Transaction,
+    knexRead?: Knex
+  ): Promise<Payments> {
     let account: UserAccount
     userInvariant(page > 0, 'page must be greater than 0')
     userInvariant(
@@ -138,10 +143,14 @@ export default class PaymentsService {
 
     // Add pack ID to packs array if available
     if (packId) {
-      const packDetails = await this.packs.getPackById(packId)
-      const { packs: packTemplates } = await this.packs.getPublishedPacks({
-        templateIds: [packDetails.templateId],
-      })
+      const packDetails = await this.packs.getPackById(packId, knexRead)
+      const { packs: packTemplates } = await this.packs.getPublishedPacks(
+        {
+          templateIds: [packDetails.templateId],
+        },
+        trx,
+        knexRead
+      )
       const packTemplate = packTemplates.find(
         (t) => t.templateId === packDetails.templateId
       )
@@ -160,7 +169,9 @@ export default class PaymentsService {
     if (packSlug) packQuery.slug = packSlug
     if (Object.keys(packQuery).length > 0) {
       const { packs: packTemplates } = await this.packs.getPublishedPacks(
-        packQuery
+        packQuery,
+        trx,
+        knexRead
       )
       const templateIds = packTemplates.map((p) => p.templateId)
       const templateLookup = new Map(
@@ -180,7 +191,7 @@ export default class PaymentsService {
     }
 
     // Find payments in the database
-    const query = PaymentModel.query()
+    const query = PaymentModel.query(knexRead)
     if (account?.id) query.where('payerId', '=', account.id)
     if (packIds && packIds.length > 0) {
       if (!account?.id) {
@@ -202,10 +213,10 @@ export default class PaymentsService {
     return { payments, total }
   }
 
-  async getCardStatus(cardId: string) {
+  async getCardStatus(cardId: string, knexRead?: Knex) {
     let externalId
     // Find card in database
-    const foundCard = await PaymentCardModel.query().findById(cardId)
+    const foundCard = await PaymentCardModel.query(knexRead).findById(cardId)
 
     // If a card was found, use the external ID. Otherwise check by passed in ID.
     if (foundCard) {
@@ -228,26 +239,28 @@ export default class PaymentsService {
     }
   }
 
-  async getCards(filters: OwnerExternalId) {
+  async getCards(filters: OwnerExternalId, knexRead?: Knex) {
     // Find user by external ID
     userInvariant(filters.ownerExternalId, 'owner external ID is required', 400)
-    const user: UserAccountModel | undefined = await UserAccountModel.query()
+    const user: UserAccountModel | undefined = await UserAccountModel.query(
+      knexRead
+    )
       .where('externalId', '=', filters.ownerExternalId)
       .first()
     userInvariant(user, 'no user found', 404)
 
     // Find cards in the database
-    const cards = await PaymentCardModel.query()
+    const cards = await PaymentCardModel.query(knexRead)
       .where({ ownerId: user.id })
       .andWhereNot('status', PaymentCardStatus.Inactive)
     return cards
   }
 
-  async getBankAccountStatus(bankAccountId: string) {
+  async getBankAccountStatus(bankAccountId: string, knexRead?: Knex) {
     // Find bank account in database
-    const foundBankAccount = await PaymentBankAccountModel.query().findById(
-      bankAccountId
-    )
+    const foundBankAccount = await PaymentBankAccountModel.query(
+      knexRead
+    ).findById(bankAccountId)
 
     userInvariant(foundBankAccount, 'bank account is not available', 404)
     const externalId = foundBankAccount.externalId
@@ -261,11 +274,11 @@ export default class PaymentsService {
     }
   }
 
-  async getWireTransferInstructions(bankAccountId: string) {
+  async getWireTransferInstructions(bankAccountId: string, knexRead?: Knex) {
     // Find bank account in database
-    const foundBankAccount = await PaymentBankAccountModel.query().findById(
-      bankAccountId
-    )
+    const foundBankAccount = await PaymentBankAccountModel.query(
+      knexRead
+    ).findById(bankAccountId)
 
     userInvariant(foundBankAccount, 'bank account is not available', 404)
     const externalId = foundBankAccount.externalId
@@ -282,8 +295,14 @@ export default class PaymentsService {
     }
   }
 
-  async createCard(cardDetails: CreateCard, trx?: Transaction) {
-    const user: UserAccountModel | undefined = await UserAccountModel.query(trx)
+  async createCard(
+    cardDetails: CreateCard,
+    trx?: Transaction,
+    knexRead?: Knex
+  ) {
+    const user: UserAccountModel | undefined = await UserAccountModel.query(
+      knexRead
+    )
       .where('externalId', cardDetails.ownerExternalId)
       .first()
     userInvariant(user, 'no user found', 404)
@@ -344,8 +363,12 @@ export default class PaymentsService {
     return { externalId: card.externalId, status: card.status }
   }
 
-  async createBankAccount(bankDetails: CreateBankAccount, trx?: Transaction) {
-    const user = await UserAccountModel.query(trx)
+  async createBankAccount(
+    bankDetails: CreateBankAccount,
+    trx?: Transaction,
+    knexRead?: Knex
+  ) {
+    const user = await UserAccountModel.query(knexRead)
       .where('externalId', bankDetails.ownerExternalId)
       .first()
     userInvariant(user, 'no user found', 404)
@@ -353,7 +376,8 @@ export default class PaymentsService {
     const { price, packId } = await this.selectPackAndAssignToUser(
       bankDetails.packTemplateId,
       user.id,
-      trx
+      trx,
+      knexRead
     )
 
     // Create bank account using Circle API
@@ -438,16 +462,17 @@ export default class PaymentsService {
   async updateCard(
     cardId: string,
     cardDetails: UpdatePaymentCard,
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex
   ) {
     // Find user
-    const user = await UserAccountModel.query(trx)
+    const user = await UserAccountModel.query(knexRead)
       .where('externalId', cardDetails.ownerExternalId)
       .first()
     userInvariant(user, 'no user found', 404)
 
     // Confirm card exists
-    const card = await PaymentCardModel.query(trx).findById(cardId)
+    const card = await PaymentCardModel.query(knexRead).findById(cardId)
     userInvariant(card, 'card was not found', 404)
 
     if (cardDetails.default === true) {
@@ -475,18 +500,19 @@ export default class PaymentsService {
   async selectPackAndAssignToUser(
     packTemplateId: string,
     userId: string,
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex
   ) {
     // Find random pack to award post-payment
     const randomPack = await this.packs.randomPackByTemplateId(
       packTemplateId,
-      trx
+      knexRead
     )
     userInvariant(randomPack?.id, 'no pack found', 404)
 
     // Check price is available
     const bid = randomPack.activeBidId
-      ? await BidModel.query(trx)
+      ? await BidModel.query(knexRead)
           .select('amount')
           .findById(randomPack.activeBidId)
       : null
@@ -508,7 +534,8 @@ export default class PaymentsService {
       {
         sourceCurrency: this.currency.code,
       },
-      trx
+      trx,
+      knexRead
     )
     invariant(currencyConversions, 'unable to find exchange rates')
 
@@ -530,8 +557,12 @@ export default class PaymentsService {
     return { price, priceInUSD: amount, packId: randomPack.id }
   }
 
-  async createPayment(paymentDetails: CreatePayment, trx?: Transaction) {
-    const user = await UserAccountModel.query(trx)
+  async createPayment(
+    paymentDetails: CreatePayment,
+    trx?: Transaction,
+    knexRead?: Knex
+  ) {
+    const user = await UserAccountModel.query(knexRead)
       .where('externalId', paymentDetails.payerExternalId)
       .first()
 
@@ -540,7 +571,8 @@ export default class PaymentsService {
     const { priceInUSD, packId } = await this.selectPackAndAssignToUser(
       paymentDetails.packTemplateId,
       user.id,
-      trx
+      trx,
+      knexRead
     )
 
     // If encrypted details are provided, add to request
@@ -563,7 +595,7 @@ export default class PaymentsService {
     }
 
     // Attempt to find card (cardId could be source or db ID)
-    const card = await PaymentCardModel.query(trx).findById(cardId)
+    const card = await PaymentCardModel.query(knexRead).findById(cardId)
 
     // Create payment using Circle API
     const payment = await this.circle
@@ -650,7 +682,8 @@ export default class PaymentsService {
 
   async createTransferPayment(
     transferDetails: CreateTransferPayment,
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex
   ) {
     const user = await UserAccountModel.query(trx)
       .where('externalId', transferDetails.payerExternalId)
@@ -662,7 +695,8 @@ export default class PaymentsService {
     const { packId, price } = await this.selectPackAndAssignToUser(
       transferDetails.packTemplateId,
       user.id,
-      trx
+      trx,
+      knexRead
     )
 
     // Find transfer
@@ -676,7 +710,8 @@ export default class PaymentsService {
       {
         sourceCurrency: this.currency.code,
       },
-      trx
+      trx,
+      knexRead
     )
     invariant(currencyConversions, 'unable to find exchange rates')
 
@@ -733,11 +768,13 @@ export default class PaymentsService {
 
   async handleWirePayment(
     payment: PaymentModel,
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex
   ): Promise<ToPaymentBase | null> {
     if (!payment.id || !payment.paymentBankId || !payment.packId) return null
     const payments = await this.searchAllWirePaymentsByBankId(
-      payment.paymentBankId
+      payment.paymentBankId,
+      knexRead
     )
     if (!payments) return null
 
@@ -746,14 +783,15 @@ export default class PaymentsService {
       {
         sourceCurrency: this.currency.code,
       },
-      trx
+      trx,
+      knexRead
     )
     invariant(currencyConversions, 'unable to find exchange rates')
 
     // Find bank account in database
-    const foundBankAccount = await PaymentBankAccountModel.query().findById(
-      payment.paymentBankId
-    )
+    const foundBankAccount = await PaymentBankAccountModel.query(
+      knexRead
+    ).findById(payment.paymentBankId)
     userInvariant(foundBankAccount, 'bank account was not found', 404)
 
     // Find payment with matching source ID
@@ -780,7 +818,8 @@ export default class PaymentsService {
   }
 
   async searchAllWirePaymentsByBankId(
-    bankAccountId: string
+    bankAccountId: string,
+    knexRead?: Knex
   ): Promise<WirePayment[]> {
     userInvariant(
       bankAccountId,
@@ -788,9 +827,9 @@ export default class PaymentsService {
       400
     )
     // Find bank account in database
-    const foundBankAccount = await PaymentBankAccountModel.query().findById(
-      bankAccountId
-    )
+    const foundBankAccount = await PaymentBankAccountModel.query(
+      knexRead
+    ).findById(bankAccountId)
     userInvariant(foundBankAccount, 'bank account was not found', 404)
 
     // Get payments of wire type, since the date when the payment was created
@@ -803,8 +842,13 @@ export default class PaymentsService {
     return matchingPayments || []
   }
 
-  async getPaymentById(paymentId: string, isAdmin?: boolean) {
-    const payment = await PaymentModel.query()
+  async getPaymentById(
+    paymentId: string,
+    isAdmin?: boolean,
+    trx?: Transaction,
+    knexRead?: Knex
+  ) {
+    const payment = await PaymentModel.query(knexRead)
       .findById(paymentId)
       .withGraphFetched('pack')
       .withGraphFetched('payer')
@@ -812,9 +856,13 @@ export default class PaymentsService {
     if (isAdmin) {
       const { pack } = payment
       invariant(pack?.templateId, 'pack template not found')
-      const { packs: packTemplates } = await this.packs.getPublishedPacks({
-        templateIds: [pack.templateId],
-      })
+      const { packs: packTemplates } = await this.packs.getPublishedPacks(
+        {
+          templateIds: [pack.templateId],
+        },
+        trx,
+        knexRead
+      )
       const packTemplate = packTemplates[0]
       return {
         ...payment,
@@ -830,9 +878,10 @@ export default class PaymentsService {
   async updatePayment(
     paymentId: string,
     updatedDetails: UpdatePayment,
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex
   ) {
-    const payment = await PaymentModel.query(trx).findById(paymentId)
+    const payment = await PaymentModel.query(knexRead).findById(paymentId)
     userInvariant(payment, 'payment not found', 404)
     // Update payment with new details
     await PaymentModel.query(trx).findById(paymentId).patch(updatedDetails)
@@ -845,9 +894,9 @@ export default class PaymentsService {
     return payment
   }
 
-  async removeCardById(cardId: string, trx?: Transaction) {
+  async removeCardById(cardId: string, trx?: Transaction, knexRead?: Knex) {
     // Confirm card exists
-    const card = await PaymentCardModel.query(trx).findById(cardId)
+    const card = await PaymentCardModel.query(knexRead).findById(cardId)
     userInvariant(card, 'card was not found', 404)
 
     // Remove card
@@ -864,22 +913,24 @@ export default class PaymentsService {
 
   async sendWireInstructions(
     details: SendBankAccountInstructions,
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex
   ) {
-    const user = await UserAccountModel.query(trx)
+    const user = await UserAccountModel.query(knexRead)
       .where('externalId', details.ownerExternalId)
       .first()
     userInvariant(user, 'no user found', 404)
 
     // Find bank account in database
-    const foundBankAccount = await PaymentBankAccountModel.query().findById(
-      details.bankAccountId
-    )
+    const foundBankAccount = await PaymentBankAccountModel.query(
+      knexRead
+    ).findById(details.bankAccountId)
     userInvariant(foundBankAccount, 'bank account is not available', 404)
 
     // Get wire instructions
     const bankAccountInstructions = await this.getWireTransferInstructions(
-      details.bankAccountId
+      details.bankAccountId,
+      knexRead
     )
     userInvariant(
       bankAccountInstructions,
@@ -887,7 +938,7 @@ export default class PaymentsService {
       404
     )
 
-    const payment = await PaymentModel.query().findOne({
+    const payment = await PaymentModel.query(knexRead).findOne({
       paymentBankId: details.bankAccountId,
     })
     userInvariant(
@@ -897,7 +948,7 @@ export default class PaymentsService {
     )
 
     // Get pack template details
-    const packTemplate = await this.packs.getPackById(payment.packId)
+    const packTemplate = await this.packs.getPackById(payment.packId, knexRead)
     userInvariant(packTemplate, 'pack template was not found', 404)
 
     // Send bank account instructions to user
@@ -936,8 +987,8 @@ export default class PaymentsService {
     return true
   }
 
-  async updatePaymentStatuses(trx?: Transaction) {
-    const pendingPayments = await PaymentModel.query(trx)
+  async updatePaymentStatuses(trx?: Transaction, knexRead?: Knex) {
+    const pendingPayments = await PaymentModel.query(knexRead)
       // Pending and Confirmed are non-final statuses
       .whereIn('status', [PaymentStatus.Pending, PaymentStatus.Confirmed])
       // Prioritize pending payments
@@ -970,7 +1021,11 @@ export default class PaymentsService {
         }
         // Wire transfer flow
         else if (payment.paymentBankId) {
-          const wirePayment = await this.handleWirePayment(payment, trx)
+          const wirePayment = await this.handleWirePayment(
+            payment,
+            trx,
+            knexRead
+          )
           if (wirePayment) {
             status = wirePayment.status
             updatedPayments++
@@ -1008,8 +1063,8 @@ export default class PaymentsService {
     return updatedPayments
   }
 
-  async updatePaymentBankStatuses(trx?: Transaction) {
-    const pendingPaymentBanks = await PaymentBankAccountModel.query(trx)
+  async updatePaymentBankStatuses(trx?: Transaction, knexRead?: Knex) {
+    const pendingPaymentBanks = await PaymentBankAccountModel.query(knexRead)
       .where('status', PaymentBankAccountStatus.Pending)
       .limit(10)
 
@@ -1038,8 +1093,8 @@ export default class PaymentsService {
     return updatedPaymentCards
   }
 
-  async updatePaymentCardStatuses(trx?: Transaction) {
-    const pendingPaymentCards = await PaymentCardModel.query(trx)
+  async updatePaymentCardStatuses(trx?: Transaction, knexRead?: Knex) {
+    const pendingPaymentCards = await PaymentCardModel.query(knexRead)
       .where('status', PaymentCardStatus.Pending)
       .limit(10)
 
