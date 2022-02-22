@@ -1005,7 +1005,7 @@ export default class PacksService {
 
     if (existingTemplates.length > 0) {
       filter.id = {
-        _nin: ids,
+        _nin: existingTemplates.map((c) => c.templateId),
       }
     }
 
