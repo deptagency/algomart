@@ -25,21 +25,32 @@ import {
 
 // #region CMS Types
 
+export interface DirectusTranslation {
+  languages_code: string
+}
+
+export interface DirectusHomepageTranslation extends DirectusTranslation {
+  featured_packs_subtitle?: string
+  featured_packs_title?: string
+  featured_nfts_title?: string
+  featured_nfts_subtitle?: string
+  hero_banner_title?: string
+  hero_banner_subtitle?: string
+}
+
 export interface DirectusHomepage {
   id: string
-  featured_pack: null | string | DirectusPackTemplate
-  upcoming_packs: null | string[] | DirectusPackTemplate[]
-  notable_collectibles: null | string[] | DirectusCollectibleTemplate[]
+  hero_banner: DirectusFile | null
+  hero_pack: null | string | DirectusPackTemplate
+  featured_packs: null | string[] | DirectusPackTemplate[]
+  featured_nfts: null | string[] | DirectusCollectibleTemplate[]
+  translations: DirectusHomepageTranslation[]
 }
 
 export enum DirectusStatus {
   Draft = 'draft',
   Published = 'published',
   Archived = 'archived',
-}
-
-export interface DirectusTranslation {
-  languages_code: string
 }
 
 export interface DirectusPackTemplateTranslation extends DirectusTranslation {
@@ -50,6 +61,8 @@ export interface DirectusPackTemplateTranslation extends DirectusTranslation {
 
 export interface DirectusFile {
   id: string
+  filename_disk: string
+  storage: string
   title: string
   type: string
   width: number
@@ -104,11 +117,11 @@ export interface DirectusCollection {
   status: DirectusStatus
   sort: number
   slug: string
-  collection_image: string | DirectusFile
+  collection_image: DirectusFile
   translations: number[] | DirectusCollectionTranslation[]
   sets: string[] | DirectusSet[]
   nft_templates: string[] | DirectusCollectibleTemplate[]
-  reward_image: string | DirectusFile | null
+  reward_image: DirectusFile | null
 }
 
 export interface DirectusCollectibleTemplateTranslation
@@ -122,10 +135,10 @@ export interface DirectusCollectibleTemplate {
   id: string
   status: DirectusStatus
   total_editions: number
-  preview_image: string | DirectusFile
-  preview_video: string | DirectusFile
-  preview_audio: string | DirectusFile
-  asset_file: string | DirectusFile
+  preview_image: DirectusFile
+  preview_video: DirectusFile | null
+  preview_audio: DirectusFile | null
+  asset_file: DirectusFile | null
   rarity: string | DirectusRarity | null
   unique_code: string
   pack_template: string | DirectusPackTemplate
@@ -144,7 +157,7 @@ export interface DirectusPackTemplate {
   nft_order: PackCollectibleOrder
   nft_templates: string[] | DirectusCollectibleTemplate[]
   nfts_per_pack: number
-  pack_image: string | DirectusFile
+  pack_image: DirectusFile
   price: number | null
   released_at: string | null
   show_nfts: boolean
@@ -290,29 +303,44 @@ function getDirectusTranslation<TItem extends DirectusTranslation>(
 
 // #region Mappers
 
-export type GetFileURL = (file: string | DirectusFile) => string
+export type GetFileURL = (file: DirectusFile) => string
 
-export function toHomepageBase(homepage: DirectusHomepage): HomepageBase {
+export function toHomepageBase(
+  homepage: DirectusHomepage,
+  getFileURL: GetFileURL,
+  locale = DEFAULT_LOCALE
+): HomepageBase {
   invariant(
-    homepage.featured_pack === null ||
-      typeof homepage.featured_pack === 'string',
-    'featured_pack must be null or a string'
+    homepage.hero_pack === null || typeof homepage.hero_pack === 'string',
+    'hero_pack must be null or a string'
   )
   invariant(
-    homepage.upcoming_packs === null ||
-      homepage.upcoming_packs.length === 0 ||
-      isStringArray(homepage.upcoming_packs),
-    'upcoming_packs must be empty or an array of strings'
+    homepage.featured_packs === null ||
+      homepage.featured_packs.length === 0 ||
+      isStringArray(homepage.featured_packs),
+    'featured_packs must be empty or an array of strings'
+  )
+
+  const translation = getDirectusTranslation(
+    homepage.translations,
+    `homepage has no translations`,
+    locale
   )
 
   return {
-    featuredPackTemplateId:
-      typeof homepage.featured_pack === 'string'
-        ? homepage.featured_pack
-        : homepage.featured_pack?.id,
-    upcomingPackTemplateIds: (homepage.upcoming_packs ?? []) as string[],
-    notableCollectibleTemplateIds: (homepage.notable_collectibles ??
-      []) as string[],
+    heroBanner: getFileURL(homepage.hero_banner),
+    heroBannerSubtitle: translation.hero_banner_subtitle,
+    heroBannerTitle: translation.hero_banner_title,
+    heroPackTemplateId:
+      typeof homepage.hero_pack === 'string'
+        ? homepage.hero_pack
+        : homepage.hero_pack?.id,
+    featuredNftsSubtitle: translation.featured_nfts_subtitle,
+    featuredNftsTitle: translation.featured_nfts_title,
+    featuredNftTemplateIds: (homepage.featured_nfts ?? []) as string[],
+    featuredPacksSubtitle: translation.featured_packs_subtitle,
+    featuredPacksTitle: translation.featured_packs_title,
+    featuredPackTemplateIds: (homepage.featured_packs ?? []) as string[],
   }
 }
 
@@ -546,7 +574,8 @@ export function toPackBase(
 // #endregion
 
 export interface DirectusAdapterOptions {
-  url: string
+  cmsUrl: string
+  gcpCdnUrl: string
   accessToken: string
 }
 
@@ -561,7 +590,7 @@ export default class DirectusAdapter {
     this.logger = logger.child({ context: this.constructor.name })
 
     this.http = got.extend({
-      prefixUrl: options.url,
+      prefixUrl: options.cmsUrl,
       headers: {
         Authorization: `Bearer ${options.accessToken}`,
       },
@@ -697,9 +726,16 @@ export default class DirectusAdapter {
     })
   }
 
-  private getFileURL(fileOrId: string | DirectusFile) {
-    const id = typeof fileOrId === 'string' ? fileOrId : fileOrId.id
-    return new URL(`/assets/${id}`, this.options.url).href
+  private getFileURL(file: DirectusFile | null) {
+    if (file === null) {
+      return null
+    }
+
+    if (this.options.gcpCdnUrl !== undefined) {
+      return new URL(`${this.options.gcpCdnUrl}/${file.filename_disk}`).href
+    }
+
+    return new URL(`/assets/${file.id}`, this.options.cmsUrl).href
   }
 
   async findAllPacks({
@@ -801,10 +837,10 @@ export default class DirectusAdapter {
   async findAllCollections(locale = DEFAULT_LOCALE) {
     const response = await this.findCollections({
       fields: [
-        'collection_image',
+        'collection_image.*',
         'id',
         'nft_templates',
-        'reward_image',
+        'reward_image.*',
         'slug',
         'translations.*',
         'sets.id',
@@ -840,10 +876,10 @@ export default class DirectusAdapter {
         },
       },
       fields: [
-        'collection_image',
+        'collection_image.*',
         'id',
         'nft_templates',
-        'reward_image',
+        'reward_image.*',
         'sets.id',
         'sets.nft_templates',
         'sets.slug',
@@ -869,10 +905,10 @@ export default class DirectusAdapter {
         },
       },
       fields: [
-        'collection.collection_image',
+        'collection.collection_image.*',
         'collection.id',
         'collection.nft_templates',
-        'collection.reward_image',
+        'collection.reward_image.*',
         'collection.slug',
         'collection.translations.*',
         'id',
@@ -934,29 +970,35 @@ export default class DirectusAdapter {
     )
   }
 
-  async findHomepage() {
+  async findHomepage(locale: string = DEFAULT_LOCALE) {
     // Homepage is a singleton in the CMS, which makes this endpoint only return a single item.
     // Therefore we should avoid using the `findMany` method and instead act as if the result is
     // from a `findById` call.
     const response = await this.http.get('items/homepage', {
       searchParams: getParameters({
-        fields: ['featured_pack', 'upcoming_packs', 'notable_collectibles'],
+        fields: [
+          'hero_banner',
+          'hero_pack',
+          'featured_packs',
+          'featured_nfts',
+          'translations.*',
+        ],
         deep: {
-          featured_pack: {
+          hero_pack: {
             _filter: {
               status: {
                 _eq: DirectusStatus.Published,
               },
             },
           },
-          upcoming_packs: {
+          featured_packs: {
             _filter: {
               status: {
                 _eq: DirectusStatus.Published,
               },
             },
           },
-          notable_collectibles: {
+          featured_nfts: {
             _filter: {
               status: {
                 _eq: DirectusStatus.Published,
@@ -971,7 +1013,7 @@ export default class DirectusAdapter {
       const result: ItemByIdResponse<DirectusHomepage> = JSON.parse(
         response.body
       )
-      return toHomepageBase(result.data)
+      return toHomepageBase(result.data, this.getFileURL.bind(this), locale)
     }
 
     return null

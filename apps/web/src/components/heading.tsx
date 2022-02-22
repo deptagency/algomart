@@ -24,6 +24,7 @@ export default function Heading({
     `h${level}`,
     {
       className: clsx(
+        'leading-tight',
         {
           'text-base-textSecondary': !inheritColor,
           'font-bold text-2xl': size === 1,

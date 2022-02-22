@@ -18,3 +18,7 @@
 .columns4 {
   @apply md:grid-cols-4 md:gap-5 md:mx-0;
 }
+
+.columns5 {
+  @apply md:grid-cols-5 md:gap-5 md:mx-0;
+}

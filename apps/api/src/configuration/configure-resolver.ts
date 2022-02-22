@@ -56,7 +56,8 @@ export function configureResolver() {
       new DirectusAdapter(
         {
           accessToken: Configuration.cmsAccessToken,
-          url: Configuration.cmsUrl,
+          cmsUrl: Configuration.cmsUrl,
+          gcpCdnUrl: Configuration.gcpCdnUrl,
         },
         logger
       )
@@ -134,6 +135,7 @@ export function configureResolver() {
         c.get<NFTStorageAdapter>(NFTStorageAdapter.name),
         c.get<AlgoExplorerAdapter>(AlgoExplorerAdapter.name),
         Configuration.minimumDaysBeforeTransfer,
+        Configuration.creatorPassphrase,
         logger
       )
   )

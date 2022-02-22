@@ -41,7 +41,7 @@ module.exports = {
       base: '1rem',
       lg: '1.25rem',
       xl: '1.75rem',
-      '2xl': '3.75rem',
+      '2xl': '2.5rem',
       '3xl': '4rem',
       '4xl': '5rem',
       '5xl': '6rem',
@@ -61,8 +61,8 @@ module.exports = {
         20: '20px',
       },
       boxShadow: {
-        medium: '0px 1px 10px rgba(0, 0, 0, 0.15)',
-        large: '0px 5px 40px rgba(0, 0, 0, 0.15)',
+        medium: '0px 1px 10px rgba(39, 86, 143, 0.15)',
+        large: '0px 5px 40px rgba(39, 86, 143, 0.15)',
       },
       colors: {
         action: {

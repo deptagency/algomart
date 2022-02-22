@@ -37,6 +37,13 @@ const defaultRules = {
   // Allow using any for rest arguments (i.e. `...any[]`)
   '@typescript-eslint/no-explicit-any': ['warn', { ignoreRestArgs: true }],
 
+  '@nrwl/nx/enforce-module-boundaries': [
+    2,
+    {
+      allowCircularSelfDependency: true,
+    },
+  ],
+
   // Enforce consistent import ordering
   'simple-import-sort/imports': [
     'error',

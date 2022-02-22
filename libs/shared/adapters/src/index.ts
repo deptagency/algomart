@@ -26,6 +26,7 @@ import DirectusAdapter, {
   DirectusCollectibleTemplate,
   DirectusPackTemplate,
   DirectusRarity,
+  DirectusFile,
 } from './directus-adapter'
 export {
   DirectusAdapter,
@@ -35,4 +36,5 @@ export {
   DirectusCollectibleTemplate,
   DirectusPackTemplate,
   DirectusRarity,
+  DirectusFile,
 }
