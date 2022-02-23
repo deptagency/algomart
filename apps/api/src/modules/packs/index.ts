@@ -37,10 +37,10 @@ import {
   getPacksByOwner,
   getPackWithCollectiblesById,
   getPublishedPackBySlug,
-  getPublishedPacks,
   getRedeemablePack,
   mintPackStatus,
   revokePack,
+  searchPublishedPacks,
   transferPack,
   transferPackStatus,
   untransferredPacks,
@@ -62,7 +62,7 @@ export async function packsRoutes(app: FastifyInstance) {
 
   // Services/Routes
   app.get(
-    '/',
+    '/search',
     {
       schema: {
         tags,
@@ -74,7 +74,7 @@ export async function packsRoutes(app: FastifyInstance) {
         },
       },
     },
-    getPublishedPacks
+    searchPublishedPacks
   )
 
   app.get(

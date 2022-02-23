@@ -18,14 +18,14 @@ import {
 import { PacksService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
-export async function getPublishedPacks(
+export async function searchPublishedPacks(
   request: FastifyRequest<{
     Querystring: PublishedPacksQuery
   }>,
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
-  const result = await service.getPublishedPacks(
+  const result = await service.searchPublishedPacks(
     request.query,
     request.transaction,
     request.knexRead

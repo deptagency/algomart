@@ -136,7 +136,6 @@ export default class PaymentsService {
       const packTemplates = await this.packs.getPublishedPacksByTemplateIds(
         [packDetails.templateId],
         locale,
-        trx,
         knexRead
       )
       const packTemplate = packTemplates.find(
@@ -823,12 +822,7 @@ export default class PaymentsService {
     return matchingPayments || []
   }
 
-  async getPaymentById(
-    paymentId: string,
-    isAdmin?: boolean,
-    trx?: Transaction,
-    knexRead?: Knex
-  ) {
+  async getPaymentById(paymentId: string, isAdmin?: boolean, knexRead?: Knex) {
     const payment = await PaymentModel.query(knexRead)
       .findById(paymentId)
       .withGraphFetched('pack')
@@ -837,11 +831,9 @@ export default class PaymentsService {
     if (isAdmin) {
       const { pack } = payment
       invariant(pack?.templateId, 'pack template not found')
-      const { packs: packTemplates } = await this.packs.getPublishedPacks(
-        {
-          templateIds: [pack.templateId],
-        },
-        trx,
+      const packTemplates = await this.packs.getPublishedPacksByTemplateIds(
+        [pack.templateId],
+        undefined,
         knexRead
       )
       const packTemplate = packTemplates[0]

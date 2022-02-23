@@ -84,7 +84,7 @@ export const urls = {
       getCurrencyConversions: '/api/v1/payments/get-currency-conversions',
       getI18nInfo: '/api/v1/i18n/get-i18n-info',
       getPayment: '/api/v1/payments/get-payment',
-      getPublishedPacks: '/api/v1/pack/get-published-packs',
+      searchPublishedPacks: '/api/v1/pack/get-published-packs',
       getRedeemable: '/api/v1/asset/get-redeemable',
       getTransfer: '/api/v1/payments/get-transfer-payment',
       getUntransferredPacks: '/api/v1/pack/untransferred',
