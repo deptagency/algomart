@@ -1,4 +1,5 @@
 import {
+  CirclePaymentErrorCode,
   CirclePaymentQueryType,
   CirclePaymentSourceType,
   CirclePaymentVerificationOptions,
@@ -6,7 +7,6 @@ import {
   CreateCard,
   CreatePayment,
   CreateTransferPayment,
-  CreateWalletAddress,
   DEFAULT_CURRENCY,
   DEFAULT_LOCALE,
   EventAction,
@@ -31,6 +31,7 @@ import {
 } from '@algomart/schemas'
 import { enc, SHA256 } from 'crypto-js'
 import { Transaction } from 'objection'
+import { v4 as uuid } from 'uuid'
 
 import { Configuration } from '@/configuration'
 import CircleAdapter from '@/lib/circle-adapter'
@@ -275,7 +276,7 @@ export default class PaymentsService {
     // Create card using Circle API
     const card = await this.circle
       .createPaymentCard({
-        idempotencyKey: cardDetails.idempotencyKey,
+        idempotencyKey: uuid(),
         keyId: cardDetails.keyId,
         encryptedData: cardDetails.encryptedData,
         billingDetails: cardDetails.billingDetails,
@@ -343,7 +344,7 @@ export default class PaymentsService {
     // Create bank account using Circle API
     const bankAccount = await this.circle
       .createBankAccount({
-        idempotencyKey: bankDetails.idempotencyKey,
+        idempotencyKey: uuid(),
         accountNumber: bankDetails.accountNumber,
         routingNumber: bankDetails.routingNumber,
         billingDetails: bankDetails.billingDetails,
@@ -541,14 +542,8 @@ export default class PaymentsService {
 
     // If encrypted details are provided, add to request
     const encryptedDetails = {}
-    const {
-      keyId,
-      encryptedData,
-      cardId,
-      idempotencyKey,
-      metadata,
-      description,
-    } = paymentDetails
+    const { keyId, encryptedData, cardId, metadata, description } =
+      paymentDetails
     if (keyId) {
       Object.assign(encryptedDetails, { keyId })
     }
@@ -567,7 +562,6 @@ export default class PaymentsService {
 
     // Base payment details
     const basePayment = {
-      idempotencyKey,
       metadata: {
         ...metadata,
         sessionId: SHA256(user.id).toString(enc.Base64),
@@ -586,6 +580,7 @@ export default class PaymentsService {
     // Create 3DS payment
     const paymentResponse = await this.circle
       .createPayment({
+        idempotencyKey: uuid(),
         ...basePayment,
         ...encryptedDetails,
         verification: CirclePaymentVerificationOptions.three_d_secure,
@@ -600,16 +595,48 @@ export default class PaymentsService {
       })
       .catch(() => null)
 
-    let payment: ToPaymentBase | undefined
-    if (!paymentResponse) {
-      // Create cvv payment
+    invariant(paymentResponse, 'unable to create 3DS payment')
+
+    // Circle may return the same payment ID if there's duplicate info
+    const newPayment = await PaymentModel.query(trx)
+      .insert({
+        externalId: paymentResponse.externalId,
+        status: paymentResponse.status,
+        error: paymentResponse.error,
+        payerId: user.id,
+        packId,
+        paymentCardId: card?.id,
+      })
+      .onConflict('externalId')
+      .ignore()
+
+    invariant(newPayment, 'unable to create payment in database')
+
+    // Search for payment status to confirm check is complete
+    const completeWhenNotPendingForPayments = (payment: ToPaymentBase | null) =>
+      !(payment?.status !== PaymentStatus.Pending)
+    const foundPayment = await poll<ToPaymentBase | null>(
+      async () =>
+        await this.circle.getPaymentById(paymentResponse.externalId as string),
+      completeWhenNotPendingForPayments,
+      1000
+    )
+    invariant(foundPayment, 'unable to find payment')
+
+    if (
+      foundPayment.status === PaymentStatus.Failed &&
+      foundPayment.error === CirclePaymentErrorCode.three_d_secure_not_supported
+    ) {
+      // Create cvv payment with Circle if 3DS is not supported
       const cvvPayment = await this.circle
         .createPayment({
+          idempotencyKey: uuid(),
           ...basePayment,
           ...encryptedDetails,
           verification: CirclePaymentVerificationOptions.cvv,
         })
         .catch(() => null)
+
       // Remove claim from payment if payment doesn't go through
       if (!cvvPayment) {
         await this.packs.revokePack(
@@ -619,40 +646,21 @@ export default class PaymentsService {
           },
           trx
         )
-
         return null
       }
-      payment = cvvPayment
-    } else {
-      payment = paymentResponse
+      invariant(cvvPayment, 'unable to create cvv payment')
+
+      // Update payment with new details
+      const payment = await PaymentModel.query(trx).patchAndFetchById(
+        newPayment.id,
+        {
+          externalId: cvvPayment.externalId,
+          status: cvvPayment.status,
+          error: cvvPayment.error,
+        }
+      )
+      return payment
     }
-
-    invariant(payment, 'unable to create payment')
-
-    // Circle may return the same payment ID if there's duplicate info
-    const newPayment = await PaymentModel.query(trx)
-      .insert({
-        externalId: payment.externalId,
-        status: payment.status,
-        error: payment.error,
-        payerId: user.id,
-        packId,
-        paymentCardId: card?.id,
-      })
-      .onConflict('externalId')
-      .ignore()
-    invariant(newPayment, 'unable to create payment in database')
-
-    // Search for payment status to confirm check is complete
-    const completeWhenNotPendingForPayments = (payment: ToPaymentBase | null) =>
-      !(payment?.status !== PaymentStatus.Pending)
-    const foundPayment = await poll<ToPaymentBase | null>(
-      async () =>
-        await this.circle.getPaymentById(payment.externalId as string),
-      completeWhenNotPendingForPayments,
-      1000
-    )
-    invariant(foundPayment, 'unable to find payment')
 
     // Create event for payment creation
     await EventModel.query(trx).insert({
@@ -750,13 +758,13 @@ export default class PaymentsService {
     return newPayment
   }
 
-  async generateAddress(request: CreateWalletAddress) {
+  async generateAddress() {
     // Find the merchant wallet
     const merchantWallet = await this.circle.getMerchantWallet()
     userInvariant(merchantWallet, 'no wallet found', 404)
     // Create blockchain address
     const address = await this.circle.createBlockchainAddress({
-      idempotencyKey: request.idempotencyKey,
+      idempotencyKey: uuid(),
       walletId: merchantWallet.walletId,
     })
     userInvariant(address, 'wallet could not be created', 401)

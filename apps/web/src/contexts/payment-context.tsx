@@ -264,11 +264,6 @@ export function usePaymentProvider({
         1000
       )
 
-      // Throw error if there was a failure code
-      if (!paymentResponse || paymentResponse.status === PaymentStatus.Failed) {
-        throw new Error('Payment failed')
-      }
-
       return paymentResponse
     },
     [release, t]

@@ -19,7 +19,6 @@ import {
   CreatePayment,
   CreateTransferPayment,
   CreateUserAccountRequest,
-  CreateWalletAddress,
   DEFAULT_LOCALE,
   ExportCollectible,
   ExternalId,
@@ -256,9 +255,9 @@ export class ApiClient {
     return await this.http.post('payments/transfers', { json }).json<Payment>()
   }
 
-  async createWalletAddress(json: CreateWalletAddress) {
+  async createWalletAddress() {
     return await this.http
-      .post('payments/wallets', { json })
+      .post('payments/wallets')
       .json<CircleBlockchainAddress>()
   }
 

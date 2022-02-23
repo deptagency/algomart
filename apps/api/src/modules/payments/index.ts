@@ -8,7 +8,6 @@ import {
   CreatePaymentCardSchema,
   CreatePaymentSchema,
   CreateTransferPaymentSchema,
-  CreateWalletAddressSchema,
   CurrencySchema,
   FindTransferByAddressSchema,
   GetPaymentBankAccountStatusSchema,
@@ -282,7 +281,6 @@ export async function paymentRoutes(app: FastifyInstance) {
         schema: {
           tags,
           security,
-          body: CreateWalletAddressSchema,
           response: {
             201: CircleBlockchainAddressSchema,
           },
