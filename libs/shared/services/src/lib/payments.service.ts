@@ -140,7 +140,6 @@ export default class PaymentsService {
       const packTemplates = await this.packs.getPublishedPacksByTemplateIds(
         [packDetails.templateId],
         locale,
-        trx,
         knexRead
       )
       const packTemplate = packTemplates.find(
@@ -515,8 +514,8 @@ export default class PaymentsService {
     // Check price is available
     const bid = randomPack.activeBidId
       ? await BidModel.query(knexRead)
-          .select('amount')
-          .findById(randomPack.activeBidId)
+        .select('amount')
+        .findById(randomPack.activeBidId)
       : null
 
     const price =
@@ -526,7 +525,7 @@ export default class PaymentsService {
     if (randomPack.type === PackType.Auction) {
       userInvariant(
         bid &&
-          isGreaterThanOrEqual(bid.amount, randomPack.price, this.currency),
+        isGreaterThanOrEqual(bid.amount, randomPack.price, this.currency),
         'active bid must be higher than the price of the item'
       )
     }
@@ -1001,11 +1000,9 @@ export default class PaymentsService {
     if (isAdmin) {
       const pack = payment.pack
       invariant(pack?.templateId, 'pack template not found')
-      const { packs: packTemplates } = await this.packs.getPublishedPacks(
-        {
-          templateIds: [pack.templateId],
-        },
-        trx,
+      const packTemplates = await this.packs.getPublishedPacksByTemplateIds(
+        [pack.templateId],
+        undefined,
         knexRead
       )
       const packTemplate = packTemplates[0]

@@ -73,7 +73,7 @@ import {
   getCollectiblesFilterQuery,
   getPacksByOwnerFilterQuery,
   getPaymentsFilterQuery,
-  getPublishedPacksFilterQuery,
+  searchPublishedPacksFilterQuery,
 } from '@/utils/filters'
 import { logger } from '@/utils/logger'
 
@@ -350,13 +350,15 @@ export class ApiClient {
   //#endregion
 
   //#region Packs
-  async getPublishedPacks(query: PublishedPacksQuery) {
-    const searchQuery = getPublishedPacksFilterQuery(query)
-    return await this.http.get(`packs?${searchQuery}`).json<PublishedPacks>()
+  async searchPublishedPacks(query: PublishedPacksQuery) {
+    const searchQuery = searchPublishedPacksFilterQuery(query)
+    return await this.http
+      .get(`packs/search?${searchQuery}`)
+      .json<PublishedPacks>()
   }
 
   async getPublishedPackBySlug(slug, locale) {
-    const searchQuery = getPublishedPacksFilterQuery({ locale: locale })
+    const searchQuery = searchPublishedPacksFilterQuery({ locale: locale })
     return await this.http
       .get(`packs/by-slug/${slug}?${searchQuery}`)
       .json<PublishedPack>()

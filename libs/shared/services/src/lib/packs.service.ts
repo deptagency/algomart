@@ -247,7 +247,6 @@ export default class PacksService {
   async getPublishedPacksByTemplateIds(
     templateIds,
     locale = DEFAULT_LOCALE,
-    trx: Transaction,
     knexRead?: Knex
   ) {
     const templates = await this.cms.findPacksByTemplateIds(
@@ -286,15 +285,12 @@ export default class PacksService {
     return this.createPublishedPack(template, packCount, null)
   }
 
-  async getPublishedPacks(
+  async searchPublishedPacks(
     {
       currency = this.currency.code,
       locale = DEFAULT_LOCALE,
       page = 1,
       pageSize = 10,
-      templates = [],
-      templateIds = [],
-      slug,
       type = [],
       status = [],
       priceHigh = Number.POSITIVE_INFINITY,
@@ -310,21 +306,12 @@ export default class PacksService {
 
     let packTemplates = []
 
-    if (templates.length > 0) {
-      packTemplates = templates
-    } else if (slug) {
-      packTemplates = [await this.cms.findPackBySlug(slug, locale)]
-    } else if (templateIds.length > 0) {
-      packTemplates = await this.cms.findPacksByTemplateIds(templateIds, locale)
-    } else if (type.length > 0) {
-      packTemplates = await this.cms.findPacksByType(type, pageSize, locale)
-    } else {
-      const { packs: templates } = await this.cms.findAllPacks({
-        locale: locale,
-        pageSize: pageSize,
-      })
-      packTemplates = templates
-    }
+    // TODO: Convert this lookup into a DB query
+    const { packs: templates } = await this.cms.findAllPacks({
+      locale: locale,
+      pageSize: pageSize,
+    })
+    packTemplates = templates
 
     const packCounts = await this.getPackCounts(
       packTemplates.map((t) => t.templateId),
