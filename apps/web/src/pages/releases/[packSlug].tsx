@@ -139,11 +139,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         !isAfterNow(new Date(packTemplate.auctionUntil))
       )
       const hasBids = bids?.some((b) => b.externalId === user.externalId)
-
-      isHighestBidder = activeBid?.externalId === user.externalId
+      const isReserveMet = packTemplate.price <= activeBid?.amount
+      isHighestBidder = activeBid?.externalId === user.externalId && !isClosed
       isOwner = user && ownerExternalId === user.externalId ? true : false
-      isWinningBidder = isHighestBidder && isClosed
-      isOutbid = !isHighestBidder && hasBids
+      isWinningBidder = isHighestBidder && isClosed && isReserveMet
+      isOutbid = !isHighestBidder && hasBids && !isClosed
     }
   }
 
