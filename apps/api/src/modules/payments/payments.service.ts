@@ -623,6 +623,14 @@ export default class PaymentsService {
     )
     invariant(foundPayment, 'unable to find payment')
 
+    // Create event for payment creation
+    await EventModel.query(trx).insert({
+      action: EventAction.Create,
+      entityType: EventEntityType.Payment,
+      entityId: newPayment.id,
+      userAccountId: user.id,
+    })
+
     if (
       foundPayment.status === PaymentStatus.Failed &&
       foundPayment.error === CirclePaymentErrorCode.three_d_secure_not_supported
@@ -661,14 +669,6 @@ export default class PaymentsService {
       )
       return payment
     }
-
-    // Create event for payment creation
-    await EventModel.query(trx).insert({
-      action: EventAction.Create,
-      entityType: EventEntityType.Payment,
-      entityId: newPayment.id,
-      userAccountId: user.id,
-    })
 
     return newPayment
   }
