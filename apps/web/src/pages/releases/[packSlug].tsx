@@ -135,7 +135,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       )
       const hasBids = bids?.some((b) => b.externalId === user.externalId)
       const isReserveMet = packTemplate.price <= activeBid?.amount
-      isHighestBidder = activeBid?.externalId === user.externalId && !isClosed
+      isHighestBidder = activeBid?.externalId === user.externalId
       isOwner = user && ownerExternalId === user.externalId ? true : false
       isWinningBidder = isHighestBidder && isClosed && isReserveMet
       isOutbid = !isHighestBidder && hasBids && !isClosed
