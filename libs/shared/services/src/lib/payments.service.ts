@@ -1,11 +1,13 @@
 import { Knex } from 'knex'
 import { Transaction } from 'objection'
 import pino from 'pino'
+import { enc, SHA256 } from 'crypto-js'
 import * as Currencies from '@dinero.js/currencies'
 
 import {
   CirclePaymentQueryType,
   CirclePaymentSourceType,
+  CirclePaymentVerificationOptions,
   CreateBankAccount,
   CreateCard,
   CreatePayment,
@@ -20,6 +22,7 @@ import {
   PackType,
   PaymentBankAccountStatus,
   PaymentCardStatus,
+  PaymentQuerystring,
   Payments,
   PaymentSortField,
   PaymentsQuerystring,
@@ -56,6 +59,7 @@ import {
   formatIntToFloat,
   invariant,
   userInvariant,
+  poll,
 } from '@algomart/shared/utils'
 
 export default class PaymentsService {
@@ -345,6 +349,7 @@ export default class PaymentsService {
 
   async createBankAccount(
     bankDetails: CreateBankAccount,
+    customerServiceEmail: string,
     trx?: Transaction,
     knexRead?: Knex
   ) {
@@ -353,7 +358,7 @@ export default class PaymentsService {
       .first()
     userInvariant(user, 'no user found', 404)
 
-    const { price, packId } = await this.selectPackAndAssignToUser(
+    const { price, packId, priceInUSD } = await this.selectPackAndAssignToUser(
       bankDetails.packTemplateId,
       user.id,
       trx,
@@ -435,6 +440,22 @@ export default class PaymentsService {
       entityId: newBankAccount.id,
       userAccountId: user.id,
     })
+
+    if (customerServiceEmail) {
+      const packTemplate = await this.packs.getPackById(packId)
+      await this.notifications.createNotification(
+        {
+          type: NotificationType.CSAwaitingWirePayment,
+          userAccountId: user.id,
+          variables: {
+            packTitle: packTemplate.title,
+            paymentId: newPayment.id,
+            amount: priceInUSD,
+          },
+        },
+        trx
+      )
+    }
 
     return { id: newBankAccount.id, status: bankAccount.status }
   }
@@ -539,6 +560,9 @@ export default class PaymentsService {
 
   async createPayment(
     paymentDetails: CreatePayment,
+    webUrl: string,
+    successPath: string,
+    failurePath: string,
     trx?: Transaction,
     knexRead?: Knex
   ) {
@@ -563,7 +587,6 @@ export default class PaymentsService {
       cardId,
       idempotencyKey,
       metadata,
-      verification,
       description,
     } = paymentDetails
     if (keyId) {
@@ -577,43 +600,75 @@ export default class PaymentsService {
     // Attempt to find card (cardId could be source or db ID)
     const card = await PaymentCardModel.query(knexRead).findById(cardId)
 
-    // Create payment using Circle API
-    const payment = await this.circle
-      .createPayment({
-        idempotencyKey: idempotencyKey,
-        metadata: metadata,
-        amount: {
-          amount: priceInUSD,
-          currency: DEFAULT_CURRENCY,
-        },
-        verification: verification,
-        description: description,
-        source: {
-          id: card?.externalId || cardId,
-          type: CirclePaymentSourceType.card, // @TODO: Update when support ACH
-        },
-        ...encryptedDetails,
-      })
-      .catch((error) => {
-        this.logger.error(error, 'failed to create payment')
-        return null
-      })
+    // Circle only accepts loopback addresses
+    const verificationHostname = webUrl.includes('localhost')
+      ? 'http://127.0.0.1:3000'
+      : webUrl
 
-    if (!payment) {
-      // Remove claim from payment if payment doesn't go through
-      await this.packs.claimPack(
-        {
-          packId,
-          claimedById: null,
-          claimedAt: null,
-        },
-        trx
-      )
-
-      return null
+    // Base payment details
+    const basePayment = {
+      idempotencyKey,
+      metadata: {
+        ...metadata,
+        sessionId: SHA256(user.id).toString(enc.Base64),
+      },
+      amount: {
+        amount: priceInUSD,
+        currency: DEFAULT_CURRENCY,
+      },
+      description,
+      source: {
+        id: card?.externalId || cardId,
+        type: CirclePaymentSourceType.card,
+      },
     }
 
-    // Create new payment in database
+    // Create 3DS payment
+    const paymentResponse = await this.circle
+      .createPayment({
+        ...basePayment,
+        ...encryptedDetails,
+        verification: CirclePaymentVerificationOptions.three_d_secure,
+        verificationSuccessUrl: new URL(
+          successPath,
+          verificationHostname
+        ).toString(),
+        verificationFailureUrl: new URL(
+          failurePath,
+          verificationHostname
+        ).toString(),
+      })
+      .catch(() => null)
+
+    let payment: ToPaymentBase | undefined
+    if (!paymentResponse) {
+      // Create cvv payment
+      const cvvPayment = await this.circle
+        .createPayment({
+          ...basePayment,
+          ...encryptedDetails,
+          verification: CirclePaymentVerificationOptions.cvv,
+        })
+        .catch(() => null)
+      // Remove claim from payment if payment doesn't go through
+      if (!cvvPayment) {
+        await this.packs.revokePack(
+          {
+            packId,
+            ownerId: user.id,
+          },
+          trx
+        )
+
+        return null
+      }
+      payment = cvvPayment
+    } else {
+      payment = paymentResponse
+    }
+
+    invariant(payment, 'unable to create payment')
+
     // Circle may return the same payment ID if there's duplicate info
     const newPayment = await PaymentModel.query(trx)
       .insert({
@@ -626,6 +681,18 @@ export default class PaymentsService {
       })
       .onConflict('externalId')
       .ignore()
+    invariant(newPayment, 'unable to create payment in database')
+
+    // Search for payment status to confirm check is complete
+    const completeWhenNotPendingForPayments = (payment: ToPaymentBase | null) =>
+      !(payment?.status !== PaymentStatus.Pending)
+    const foundPayment = await poll<ToPaymentBase | null>(
+      async () =>
+        await this.circle.getPaymentById(payment.externalId as string),
+      completeWhenNotPendingForPayments,
+      1000
+    )
+    invariant(foundPayment, 'unable to find payment')
 
     // Create event for payment creation
     await EventModel.query(trx).insert({
@@ -748,6 +815,7 @@ export default class PaymentsService {
 
   async handleWirePayment(
     payment: PaymentModel,
+    customerServiceEmail: string,
     trx?: Transaction,
     knexRead?: Knex
   ): Promise<ToPaymentBase | null> {
@@ -787,13 +855,97 @@ export default class PaymentsService {
       return amountInt === foundBankAccount.amount
     })
     if (!sourcePayment) return null
+
     // Update payment details
     if (payment.status !== sourcePayment.status || !payment.externalId) {
-      await PaymentModel.query(trx).patchAndFetchById(payment.id, {
+      await PaymentModel.query(trx).findById(payment.id).patch({
         externalId: sourcePayment.externalId,
         status: sourcePayment.status,
       })
+      // Send Awaiting payment notification to customer service
+      if (customerServiceEmail) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSAwaitingWirePayment,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      }
     }
+
+    // Send email notification to  Customer service
+    if (customerServiceEmail) {
+      if (sourcePayment.status === PaymentStatus.Failed) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentFailed,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      } else if (sourcePayment.status === PaymentStatus.Paid) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentSuccess,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      }
+    }
+
+    // STATUS CHANGED
+    if (
+      payment.status !== sourcePayment.status && // Automated notifications to customer service
+      customerServiceEmail
+    ) {
+      if (sourcePayment.status === PaymentStatus.Failed) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentFailed,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              paymentId: payment.id,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      } else if (sourcePayment.status === PaymentStatus.Paid) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentSuccess,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              paymentId: payment.id,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      }
+    }
+
     return sourcePayment
   }
 
@@ -822,14 +974,18 @@ export default class PaymentsService {
     return matchingPayments || []
   }
 
-  async getPaymentById(paymentId: string, isAdmin?: boolean, knexRead?: Knex) {
+  async getPaymentById(paymentId: string, isAdmin?: boolean, trx?: Transaction, knexRead?: Knex) {
     const payment = await PaymentModel.query(knexRead)
       .findById(paymentId)
       .withGraphFetched('pack')
       .withGraphFetched('payer')
+      .withGraphFetched('pack')
+      .first()
     userInvariant(payment, 'payment not found', 404)
+
+    // If admin, return additional pack details
     if (isAdmin) {
-      const { pack } = payment
+      const pack = payment.pack
       invariant(pack?.templateId, 'pack template not found')
       const packTemplates = await this.packs.getPublishedPacksByTemplateIds(
         [pack.templateId],
@@ -856,6 +1012,7 @@ export default class PaymentsService {
   ) {
     const payment = await PaymentModel.query(knexRead).findById(paymentId)
     userInvariant(payment, 'payment not found', 404)
+
     // Update payment with new details
     await PaymentModel.query(trx).findById(paymentId).patch(updatedDetails)
 
@@ -864,6 +1021,7 @@ export default class PaymentsService {
       entityType: EventEntityType.Payment,
       entityId: paymentId,
     })
+
     return payment
   }
 
@@ -932,6 +1090,7 @@ export default class PaymentsService {
         variables: {
           amount: formatIntToFloat(foundBankAccount.amount, this.currency),
           packTitle: packTemplate.title,
+          packSlug: packTemplate.slug,
           trackingRef: bankAccountInstructions.trackingRef,
           beneficiaryName: bankAccountInstructions.beneficiary.name,
           beneficiaryAddress1: bankAccountInstructions.beneficiary.address1,
@@ -960,10 +1119,18 @@ export default class PaymentsService {
     return true
   }
 
-  async updatePaymentStatuses(trx?: Transaction, knexRead?: Knex) {
+  async updatePaymentStatuses(
+    customerServiceEmail: string,
+    trx?: Transaction,
+    knexRead?: Knex
+  ) {
     const pendingPayments = await PaymentModel.query(knexRead)
-      // Pending and Confirmed are non-final statuses
-      .whereIn('status', [PaymentStatus.Pending, PaymentStatus.Confirmed])
+      // Pending, Confirmed, and ActionRequired are non-final statuses
+      .whereIn('status', [
+        PaymentStatus.Pending,
+        PaymentStatus.ActionRequired,
+        PaymentStatus.Confirmed,
+      ])
       // Prioritize pending payments
       .orderBy('status', 'desc')
       .limit(10)
@@ -974,6 +1141,7 @@ export default class PaymentsService {
     await Promise.all(
       pendingPayments.map(async (payment) => {
         let status: PaymentStatus | undefined
+
         // Card flow
         if (payment.externalId && payment.paymentCardId) {
           const circlePayment = await this.circle.getPaymentById(
@@ -987,7 +1155,18 @@ export default class PaymentsService {
           if (payment.status !== circlePayment.status) {
             await PaymentModel.query(trx).patchAndFetchById(payment.id, {
               status: circlePayment.status,
+              action: circlePayment.action,
+              error: circlePayment.error,
             })
+            if (circlePayment.status === PaymentStatus.Failed) {
+              await this.packs.revokePack(
+                {
+                  packId: payment.packId,
+                  ownerId: payment.payerId,
+                },
+                trx
+              )
+            }
             status = circlePayment.status
             updatedPayments++
           }
@@ -996,6 +1175,7 @@ export default class PaymentsService {
         else if (payment.paymentBankId) {
           const wirePayment = await this.handleWirePayment(
             payment,
+            customerServiceEmail,
             trx,
             knexRead
           )
@@ -1021,15 +1201,35 @@ export default class PaymentsService {
             updatedPayments++
           }
         }
+
         // If the new payment status is resolved as Paid:
         if (status === PaymentStatus.Paid && payment.packId) {
-          // @TODO: Take action if payment is successful
+          const packTemplate = await this.packs.getPackById(payment.packId)
+          await this.notifications.createNotification(
+            {
+              type: NotificationType.PaymentSuccess,
+              userAccountId: payment.payerId,
+              variables: {
+                packTitle: packTemplate.title,
+              },
+            },
+            trx
+          )
         }
         // If the new payment status is resolved as Failed:
         if (status === PaymentStatus.Failed) {
-          // @TODO: Take action if payment fails
+          const packTemplate = await this.packs.getPackById(payment.packId)
+          await this.notifications.createNotification(
+            {
+              type: NotificationType.PaymentFailed,
+              userAccountId: payment.payerId,
+              variables: {
+                packTitle: packTemplate.title,
+              },
+            },
+            trx
+          )
         }
-        return
       })
     )
 

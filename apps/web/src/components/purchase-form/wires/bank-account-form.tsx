@@ -23,6 +23,7 @@ import { isAfterNow } from '@/utils/date-time'
 
 export default function BankAccountPurchaseForm({
   bid,
+  countries,
   formErrors,
   handleAddBankAccount: onSubmitBankAccount,
   handleRetry,
@@ -75,6 +76,7 @@ export default function BankAccountPurchaseForm({
         <BankAccountForm
           bid={bid}
           className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
+          countries={countries}
           formErrors={formErrors}
           handleContinue={() => push(`${asPath.split('?')[0]}?step=summary`)}
           initialBid={initialBid}

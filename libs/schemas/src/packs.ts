@@ -95,6 +95,7 @@ export const PackConfigSchema = Type.Object({
 
 export const PackBaseSchema = Type.Object({
   activeBid: Type.Optional(Type.Number()),
+  additionalImages: Type.Array(Type.String({ format: 'uri' })),
   allowBidExpiration: Type.Boolean(),
   auctionUntil: Type.Optional(Type.String({ format: 'date-time' })),
   body: Type.Optional(Type.String()),

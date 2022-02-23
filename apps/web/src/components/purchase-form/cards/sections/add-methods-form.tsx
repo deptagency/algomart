@@ -12,11 +12,13 @@ import FullName from '@/components/purchase-form/shared/full-name'
 import { FormValidation } from '@/contexts/payment-context'
 
 export interface AddMethodsFormProps {
+  countries: { label: string | null; id: string }[]
   formErrors?: FormValidation
   onSubmit(event: FormEvent<HTMLFormElement>): void
 }
 
 export default function AddMethodsForm({
+  countries,
   formErrors,
   onSubmit,
 }: AddMethodsFormProps) {
@@ -60,6 +62,7 @@ export default function AddMethodsForm({
         }}
       />
       <BillingAddress
+        countries={countries}
         formErrors={{
           address1:
             formErrors && 'address1' in formErrors

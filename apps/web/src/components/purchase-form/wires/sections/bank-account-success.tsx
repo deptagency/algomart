@@ -75,6 +75,10 @@ export default function BankAccountSuccess({
             </Heading>
             <p>{bankAccountInstructions.trackingRef}</p>
           </div>
+          <div className={css.instructions}>
+            <Heading level={4}>Amount</Heading>
+            <p>{bankAccountInstructions.amount.toLocaleString(lang)}</p>
+          </div>
           <Heading className={css.subHeader} level={3}>
             {t('forms:fields.bankInstructions.beneficiary.label')}
           </Heading>

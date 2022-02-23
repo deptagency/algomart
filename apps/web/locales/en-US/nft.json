@@ -20,8 +20,10 @@
     "Edition": "Edition",
     "Rarity": "Rarity",
     "Collection": "Collection",
+    "Set": "Set",
     "Address": "Address",
     "editionX": "#{{edition}} of {{totalEditions}}",
+    "uniqueId": "Unique ID",
     "cannotTransfer": {
       "frozen": "This NFT is frozen and cannot be transferred.",
       "mintedRecently": "Cannot be transferred until {{date}}."

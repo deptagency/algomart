@@ -1,10 +1,18 @@
 import pino from 'pino'
 import {
+  CollectibleBase,
+  CollectionBase,
+  CollectionWithSets,
+  Countries,
   DEFAULT_LOCALE,
   DirectusCollectibleTemplate,
   DirectusCollection,
   DirectusFaqTemplate,
   DirectusHomepage,
+  DirectusCountry,
+  DirectusApplication,
+  DirectusCountryTranslation,
+  DirectusCountryWithTranslations,
   DirectusLanguageTemplate,
   DirectusPackTemplate,
   DirectusPage,
@@ -55,6 +63,21 @@ export interface ItemQuery<TItem> {
   deep?: ItemFilter
   totalCount?: boolean
   filterCount?: boolean
+}
+
+export function toCountryBase(
+  template: DirectusCountryWithTranslations,
+  locale: string
+) {
+  const translation = getDirectusTranslation<DirectusCountryTranslation>(
+    template.translations as DirectusCountryTranslation[],
+    `country ${template.code} has no translations`,
+    locale
+  )
+  return {
+    code: template.code,
+    name: translation.title,
+  }
 }
 
 function getParameters<TItem>(query?: ItemQuery<TItem>) {
@@ -287,6 +310,23 @@ export default class DirectusAdapter {
     })
   }
 
+  private async findCountries(query: ItemQuery<{ filter: ItemFilter }> = {}) {
+    const defaultQuery: ItemQuery<DirectusCountryWithTranslations> = {
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+      limit: -1,
+      fields: ['*.*'],
+    }
+
+    return await this.findMany<DirectusCountryWithTranslations>('countries', {
+      ...defaultQuery,
+      ...query,
+    })
+  }
+
   async findAllPacks({
     page = 1,
     pageSize = 10,
@@ -505,6 +545,17 @@ export default class DirectusAdapter {
     return response.data
   }
 
+  async findPublishedCountries(
+    filter: ItemFilter = {}
+  ): Promise<ItemsResponse<DirectusCountryWithTranslations | null>> {
+    const response = await this.findCountries({ filter })
+    if (response.data.length === 0) return null
+    const result: ItemByIdResponse<DirectusCountryWithTranslations> = JSON.parse(
+      response
+    )
+    return JSON.parse(result)
+  }
+
   async findHomepage() {
     // Homepage is a singleton in the CMS, which makes this endpoint only return a single item.
     // Therefore we should avoid using the `findMany` method and instead act as if the result is
@@ -578,11 +629,27 @@ export default class DirectusAdapter {
     })
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      const result: ItemByIdResponse<DirectusHomepage> = JSON.parse(
+      return JSON.parse(response.body).data as DirectusHomepage
+    }
+
+    return null
+  }
+
+  async findApplication(): Promise<DirectusApplication | null> {
+    // Application is a singleton in the CMS, which makes this endpoint only return a single item.
+    // Therefore we should avoid using the `findMany` method and instead act as if the result is
+    // from a `findById` call.
+    const response = await this.http.get('items/application', {
+      searchParams: getParameters({
+        fields: ['*.*'],
+      }),
+    })
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      const result: ItemByIdResponse<DirectusApplication> = JSON.parse(
         response.body
       )
-
-      return JSON.parse(response.body).data as DirectusHomepage
+      return result.data
     }
 
     return null

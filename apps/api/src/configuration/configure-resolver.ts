@@ -11,6 +11,7 @@ import {
 } from '@algomart/shared/adapters'
 import {
   AccountsService,
+  ApplicationService,
   AuctionsService,
   BidsService,
   CollectiblesService,
@@ -113,6 +114,7 @@ export function configureResolver() {
         c.get<MailerAdapter>(MailerAdapter.name),
         c.get<I18nAdapter>(I18nAdapter.name),
         Configuration.webUrl,
+        Configuration.customerServiceEmail,
         logger
       )
   )
@@ -214,6 +216,14 @@ export function configureResolver() {
       new AuctionsService(
         c.get<AlgorandAdapter>(AlgorandAdapter.name),
         Configuration.secret,
+        logger
+      )
+  )
+  resolver.set(
+    ApplicationService.name,
+    (c) =>
+      new ApplicationService(
+        c.get<DirectusAdapter>(DirectusAdapter.name),
         logger
       )
   )

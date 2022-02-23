@@ -5,6 +5,7 @@ import {
   fastifyTransactionPlugin,
 } from '@algomart/shared/plugins'
 import { DependencyResolver } from '@algomart/shared/utils'
+import { applicationRoutes } from '@api/modules/application'
 import ajvCompiler from '@fastify/ajv-compiler'
 import ajvFormats from 'ajv-formats'
 import fastify, { FastifyServerOptions } from 'fastify'
@@ -89,6 +90,7 @@ export default async function buildApp(config: AppConfig) {
   // Services
   await app.register(generateHealthRoutes(), { prefix: '/health' })
   await app.register(accountsRoutes, { prefix: '/accounts' })
+  await app.register(applicationRoutes, { prefix: '/application' })
   await app.register(auctionsRoutes, { prefix: '/auctions' })
   await app.register(bidsRoutes, { prefix: '/bids' })
   await app.register(collectiblesRoutes, { prefix: '/collectibles' })

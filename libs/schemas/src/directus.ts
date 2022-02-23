@@ -171,3 +171,27 @@ export interface DirectusFaqTemplate {
   id: string
   translations: DirectusFaqTemplateTranslation[]
 }
+
+export interface DirectusCountry {
+  id: string
+  application_id: string
+  countries_code: string
+}
+
+export interface DirectusApplication {
+  id: string
+  currency?: string | null
+  countries?: DirectusCountry[] | null
+}
+
+export interface DirectusCountryWithTranslations {
+  code: string
+  translations?: number[] | DirectusCountryTranslation[]
+}
+
+export interface DirectusCountryTranslation extends DirectusTranslation {
+  id: number
+  countries_code: string
+  languages_code: string
+  title: string | null
+}

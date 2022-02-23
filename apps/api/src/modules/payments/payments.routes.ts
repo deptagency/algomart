@@ -16,6 +16,7 @@ import {
   UpdatePaymentCard,
 } from '@algomart/schemas'
 import { PaymentsService } from '@algomart/shared/services'
+import { Configuration } from '@api/configuration'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function getPublicKey(
@@ -158,6 +159,7 @@ export async function createBankAccount(
     .get<PaymentsService>(PaymentsService.name)
   const bankAccount = await paymentService.createBankAccount(
     request.body,
+    Configuration.customerServiceEmail,
     request.transaction,
     request.knexRead
   )
@@ -249,14 +251,13 @@ export async function createPayment(
     .get<PaymentsService>(PaymentsService.name)
   const payment = await paymentService.createPayment(
     request.body,
+    Configuration.webUrl,
+    Configuration.successPath,
+    Configuration.failurePath,
     request.transaction,
     request.knexRead
   )
-  if (payment) {
-    reply.status(201).send(payment)
-  } else {
-    reply.badRequest('Unable to create payment')
-  }
+  reply.send(payment)
 }
 
 export async function updatePayment(
@@ -316,6 +317,7 @@ export async function getPaymentById(
   const payment = await paymentService.getPaymentById(
     request.params.paymentId,
     request.query.isAdmin,
+    request.transaction,
     request.knexRead
   )
   if (payment) {
