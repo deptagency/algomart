@@ -15,6 +15,7 @@ import {
   PackTemplateIdSchema,
   PackWithCollectiblesSchema,
   PackWithIdSchema,
+  PublishedPackSchema,
   PublishedPacksQuerySchema,
   PublishedPacksSchema,
   RedeemCodeSchema,
@@ -86,7 +87,7 @@ export async function packsRoutes(app: FastifyInstance) {
         querystring: LocaleSchema,
         params: PackSlugSchema,
         response: {
-          200: PackWithCollectiblesSchema,
+          200: PublishedPackSchema,
         },
       },
     },

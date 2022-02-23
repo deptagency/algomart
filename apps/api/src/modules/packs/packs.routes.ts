@@ -45,6 +45,7 @@ export async function getPublishedPackBySlug(
     request.params.packSlug,
     request.query.locale
   )
+
   reply.send(result)
 }
 

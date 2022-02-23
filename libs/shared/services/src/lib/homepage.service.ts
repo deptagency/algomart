@@ -25,17 +25,18 @@ export default class HomepageService {
     const homepageBase = await this.cms.findHomepage(locale)
     userInvariant(homepageBase, 'homepage not found', 404)
 
-    const { packs } = await this.packsService.getPublishedPacks(
-      {
-        locale: locale,
-        templates: homepageBase.heroPackTemplate
-          ? [...homepageBase.featuredPackTemplates, homepageBase.heroPackTemplate]
-          : homepageBase.featuredPackTemplates,
-      },
+    const templates = homepageBase.heroPackTemplate
+      ? [...homepageBase.featuredPackTemplates, homepageBase.heroPackTemplate]
+      : homepageBase.featuredPackTemplates
+
+    const packs = await this.packsService.getPublishedPacksByTemplates(
+      templates,
+      trx,
       knexRead
     )
-
-    const packLookup = new Map(packs.map((pack) => [pack.templateId, pack]))
+    const packLookup = new Map<string, PublishedPack>(
+      packs.map((pack) => [pack.templateId, pack as PublishedPack])
+    )
 
     return {
       heroBanner: homepageBase.heroBanner,
@@ -55,7 +56,7 @@ export default class HomepageService {
         ),
       featuredNftsSubtitle: homepageBase.featuredNftsSubtitle,
       featuredNftsTitle: homepageBase.featuredNftsTitle,
-      featuredNfts: homepageBase.featuredNfts,
+      featuredNfts: homepageBase.featuredNftTemplates,
     }
   }
 }
