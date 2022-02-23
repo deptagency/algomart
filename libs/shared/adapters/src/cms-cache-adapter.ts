@@ -409,9 +409,38 @@ export default class CMSCacheAdapter {
     query: ItemQuery<DirectusPackTemplate> = {},
     knxRead?: Knex
   ) {
-    const queryResult = await CMSCachePackTemplateModel.query(knxRead).select(
-      'content'
-    )
+    // TODO: Break apart the query input and translate into SQL clauses
+
+    // {
+    //   "currency": "EURO",
+    //   "locale": "en-US",
+    //   "page": "2",
+    //   "pageSize": "9",
+    //   "priceHigh": "50000",
+    //   "priceLow": "0",
+    //   "reserveMet": "false",
+    //   "sortBy": "title",
+    //   "sortDirection": "asc",
+    //   "status": [
+    //     "Expired",
+    //     "Active",
+    //     "Upcoming"
+    //   ],
+    //   "type": [
+    //     "auction",
+    //     "purchase"
+    //   ]
+    // }
+
+    // TODO: Convert the input priceHigh and priceLow from the input Currency to USD before adding the where clause.
+    // All the items in the database are stored in USD
+
+    const queryResult = await CMSCachePackTemplateModel.query(knxRead)
+      // .whereIn('status', query.status)
+      // .orderBy(query.sortBy, query.sortDirection)
+      // .limit(query.pageSize)
+      // .offset(9)
+      .select('content')
 
     const data = queryResult.map(
       (result: CMSCachePackTemplateModel): DirectusPackTemplate =>
