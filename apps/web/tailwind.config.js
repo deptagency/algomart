@@ -18,8 +18,6 @@ module.exports = {
     path.join(__dirname, 'src', '**', '*.{js,ts,jsx,tsx,css}'),
     ...createGlobPatternsForDependencies(__dirname, '**/*.{js,ts,jsx,tsx,css}'),
   ],
-
-  darkMode: false, // or false, 'media' or 'class'
   theme: {
     fontFamily: {
       base: ['"Open Sans"', 'ui-sans-serif', 'system-ui', '-apple-system'],
