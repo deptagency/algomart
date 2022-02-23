@@ -787,8 +787,8 @@ export default class DirectusAdapter {
       },
     })
 
-    if (response.data.length === 0) return null
-    const pack = response.data[0]
+    if (response?.data?.length === 0) return null
+    const pack = response.data[response?.data?.length - 1]
     return toPackBase(pack, this.getFileURL.bind(this), locale)
   }
 

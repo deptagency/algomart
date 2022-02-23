@@ -1,14 +1,17 @@
+import { Knex } from 'knex'
+
 import {
   CollectibleBase,
   DEFAULT_LOCALE,
   Homepage,
   PublishedPack,
 } from '@algomart/schemas'
-
 import { DirectusAdapter } from '@algomart/shared/adapters'
+import { userInvariant } from '@algomart/shared/utils'
+
 import PacksService from './packs.service'
 import CollectiblesService from './collectibles.service'
-import { userInvariant } from '@algomart/shared/utils'
+import { Transaction } from 'objection'
 
 export default class HomepageService {
   constructor(
@@ -17,20 +20,28 @@ export default class HomepageService {
     private readonly collectiblesService: CollectiblesService
   ) {}
 
-  async getHomepage(locale = DEFAULT_LOCALE): Promise<Homepage> {
+  async getHomepage(
+    trx: Transaction,
+    knexRead: Knex,
+    locale = DEFAULT_LOCALE
+  ): Promise<Homepage> {
     const homepageBase = await this.cms.findHomepage(locale)
     userInvariant(homepageBase, 'homepage not found', 404)
 
-    const { packs } = await this.packsService.getPublishedPacks({
-      locale,
-      pageSize: 1 + homepageBase.featuredPackTemplateIds.length,
-      templateIds: homepageBase.heroPackTemplateId
-        ? [
-            ...homepageBase.featuredPackTemplateIds,
-            homepageBase.heroPackTemplateId,
-          ]
-        : homepageBase.featuredPackTemplateIds,
-    })
+    const { packs } = await this.packsService.getPublishedPacks(
+      {
+        locale,
+        pageSize: 1 + homepageBase.featuredPackTemplateIds.length,
+        templateIds: homepageBase.heroPackTemplateId
+          ? [
+              ...homepageBase.featuredPackTemplateIds,
+              homepageBase.heroPackTemplateId,
+            ]
+          : homepageBase.featuredPackTemplateIds,
+      },
+      trx,
+      knexRead
+    )
 
     const collectibles = await this.collectiblesService.getCollectibleTemplates(
       {

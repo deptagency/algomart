@@ -1,11 +1,12 @@
 import pino from 'pino'
+import { Knex } from 'knex'
+import { Transaction } from 'objection'
+
 import {
   AlgorandTransactionStatus,
   EventAction,
   EventEntityType,
 } from '@algomart/schemas'
-import { Transaction } from 'objection'
-
 import { AlgorandAdapter } from '@algomart/shared/adapters'
 import {
   AlgorandTransactionModel,
@@ -23,8 +24,12 @@ export default class TransactionsService {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  async confirmPendingTransactions(limit = 16, trx?: Transaction) {
-    const transactions = await AlgorandTransactionModel.query(trx)
+  async confirmPendingTransactions(
+    limit = 16,
+    trx?: Transaction,
+    knexRead?: Knex
+  ) {
+    const transactions = await AlgorandTransactionModel.query(knexRead)
       .where('status', AlgorandTransactionStatus.Pending)
       .select('id', 'address')
       .limit(limit)
@@ -82,7 +87,7 @@ export default class TransactionsService {
       })
 
       if (updateCollectible) {
-        const collectible = await CollectibleModel.query(trx)
+        const collectible = await CollectibleModel.query(knexRead)
           .where('creationTransactionId', transaction.id)
           .first()
 

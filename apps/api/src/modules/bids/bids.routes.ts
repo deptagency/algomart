@@ -7,7 +7,11 @@ export async function createBid(
   reply: FastifyReply
 ) {
   const bidsService = request.getContainer().get<BidsService>(BidsService.name)
-  const bid = await bidsService.createBid(request.body, request.transaction)
+  const bid = await bidsService.createBid(
+    request.body,
+    request.transaction,
+    request.knexRead
+  )
   if (bid) {
     reply.status(204).send()
   } else {

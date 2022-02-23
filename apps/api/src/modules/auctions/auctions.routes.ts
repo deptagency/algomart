@@ -17,7 +17,7 @@ export async function createAuction(
     .getContainer()
     .get<AuctionsService>(AuctionsService.name)
 
-  await service.createAuction(request.body)
+  await service.createAuction(request.body, request.knexRead)
 
   reply.status(201).send()
 }

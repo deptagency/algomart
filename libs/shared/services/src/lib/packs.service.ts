@@ -35,6 +35,7 @@ import {
   TransferPack,
   TransferPackStatusList,
 } from '@algomart/schemas'
+import { Knex } from 'knex'
 import { raw, Transaction } from 'objection'
 
 import I18nService from './i18n.service'
@@ -209,16 +210,17 @@ export default class PacksService {
     }
   }
 
-  private async getPacksWithActiveBids(templateIds: string[]) {
-    return await PackModel.query()
+  private async getPacksWithActiveBids(templateIds: string[], knexRead?: Knex) {
+    return await PackModel.query(knexRead)
       .whereIn('templateId', templateIds)
       .withGraphFetched('activeBid')
   }
 
   private async getPackCounts(
-    templateIds: string[]
+    templateIds: string[],
+    knexRead?: Knex
   ): Promise<Array<{ templateId: string; available: string; total: string }>> {
-    return await PackModel.query()
+    return await PackModel.query(knexRead)
       .whereIn('templateId', templateIds)
       .groupBy('templateId')
       .select(
@@ -237,21 +239,25 @@ export default class PacksService {
 
   // #endregion
 
-  async getPublishedPacks({
-    currency = this.currency.code,
-    locale = DEFAULT_LOCALE,
-    page = 1,
-    pageSize = 10,
-    templateIds = [],
-    slug,
-    type = [],
-    status = [],
-    priceHigh = Number.POSITIVE_INFINITY,
-    priceLow = 0,
-    reserveMet,
-    sortBy = PackSortField.Title,
-    sortDirection = SortDirection.Ascending,
-  }: PublishedPacksQuery): Promise<{ packs: PublishedPack[]; total: number }> {
+  async getPublishedPacks(
+    {
+      currency = this.currency.code,
+      locale = DEFAULT_LOCALE,
+      page = 1,
+      pageSize = 10,
+      templateIds = [],
+      slug,
+      type = [],
+      status = [],
+      priceHigh = Number.POSITIVE_INFINITY,
+      priceLow = 0,
+      reserveMet,
+      sortBy = PackSortField.Title,
+      sortDirection = SortDirection.Ascending,
+    }: PublishedPacksQuery,
+    trx?: Transaction,
+    knexRead?: Knex
+  ): Promise<{ packs: PublishedPack[]; total: number }> {
     invariant(page > 0, 'page must be greater than 0')
 
     const filter: ItemFilter = {
@@ -273,7 +279,8 @@ export default class PacksService {
     })
 
     const packCounts = await this.getPackCounts(
-      templates.map((t) => t.templateId)
+      templates.map((t) => t.templateId),
+      knexRead
     )
 
     let packsWithActiveBids: PackModel[] = []
@@ -283,7 +290,8 @@ export default class PacksService {
       packsWithActiveBids = await this.getPacksWithActiveBids(
         templates
           .filter((t) => t.type === PackType.Auction)
-          .map((t) => t.templateId)
+          .map((t) => t.templateId),
+        knexRead
       )
     }
 
@@ -293,10 +301,14 @@ export default class PacksService {
     )
 
     if (currency !== this.currency.code) {
-      const { exchangeRate } = await this.i18nService.getCurrencyConversion({
-        sourceCurrency: currency,
-        targetCurrency: this.currency.code,
-      })
+      const { exchangeRate } = await this.i18nService.getCurrencyConversion(
+        {
+          sourceCurrency: currency,
+          targetCurrency: this.currency.code,
+        },
+        trx,
+        knexRead
+      )
 
       priceHigh *= exchangeRate
       priceLow *= exchangeRate
@@ -330,17 +342,20 @@ export default class PacksService {
     }
   }
 
-  async getPacksByOwner({
-    locale = DEFAULT_LOCALE,
-    page = 1,
-    pageSize = 10,
-    templateIds = [],
-    slug,
-    type = [],
-    sortBy = PackSortByOwnerField.ClaimedAt,
-    sortDirection = SortDirection.Ascending,
-    ownerExternalId,
-  }: PacksByOwnerQuery & OwnerExternalId): Promise<PacksByOwner> {
+  async getPacksByOwner(
+    {
+      locale = DEFAULT_LOCALE,
+      page = 1,
+      pageSize = 10,
+      templateIds = [],
+      slug,
+      type = [],
+      sortBy = PackSortByOwnerField.ClaimedAt,
+      sortDirection = SortDirection.Ascending,
+      ownerExternalId,
+    }: PacksByOwnerQuery & OwnerExternalId,
+    knexRead?: Knex
+  ): Promise<PacksByOwner> {
     invariant(page > 0, 'page must be greater than 0')
     invariant(ownerExternalId, 'owner ID is required')
 
@@ -361,7 +376,7 @@ export default class PacksService {
     invariant(user, 'user not found')
 
     // Find packs by owner ID
-    const packsByOwnerId: PackModel[] = await PackModel.query().where(
+    const packsByOwnerId: PackModel[] = await PackModel.query(knexRead).where(
       'ownerId',
       user.id
     )
@@ -410,7 +425,8 @@ export default class PacksService {
       packsWithActiveBids = await this.getPacksWithActiveBids(
         templates
           .filter((t) => t.type === PackType.Auction)
-          .map((t) => t.templateId)
+          .map((t) => t.templateId),
+        knexRead
       )
     }
 
@@ -457,9 +473,10 @@ export default class PacksService {
 
   async getPackWithCollectiblesById(
     id: string,
-    locale = DEFAULT_LOCALE
+    locale = DEFAULT_LOCALE,
+    knexRead?: Knex
   ): Promise<PackWithCollectibles> {
-    const pack = await PackModel.query()
+    const pack = await PackModel.query(knexRead)
       .findOne({ id })
       .withGraphFetched('collectibles')
 
@@ -506,9 +523,10 @@ export default class PacksService {
   }
 
   async getAuctionPackByTemplateId(
-    templateId: string
+    templateId: string,
+    knexRead?: Knex
   ): Promise<PackAuction | null> {
-    const pack = await PackModel.query()
+    const pack = await PackModel.query(knexRead)
       .where({ templateId })
       .withGraphFetched('activeBid.userAccount')
       .withGraphFetched('bids.userAccount')
@@ -539,10 +557,10 @@ export default class PacksService {
 
   async getPackById(
     id: string,
-    locale = DEFAULT_LOCALE,
-    trx?: Transaction
+    knexRead?: Knex,
+    locale = DEFAULT_LOCALE
   ): Promise<PackWithId | null> {
-    const pack = await PackModel.query(trx).where({ id }).first()
+    const pack = await PackModel.query(knexRead).where({ id }).first()
 
     if (!pack) {
       this.logger.info('pack with id %s not found', id)
@@ -563,9 +581,10 @@ export default class PacksService {
 
   async getPackByRedeemCode(
     redeemCode: string,
+    knexRead?: Knex,
     locale = DEFAULT_LOCALE
   ): Promise<PackWithId> {
-    const pack = await PackModel.query().where({ redeemCode }).first()
+    const pack = await PackModel.query(knexRead).where({ redeemCode }).first()
     userInvariant(pack && pack.ownerId === null, 'pack not found', 404)
 
     const template = await this.cms.findPack(
@@ -586,7 +605,7 @@ export default class PacksService {
 
   async randomPackByTemplateId(
     templateId: string,
-    trx?: Transaction
+    knexRead?: Knex
   ): Promise<PackWithId> {
     const template = await this.cms.findPack({ id: { _eq: templateId } })
 
@@ -616,7 +635,7 @@ export default class PacksService {
     // Randomly pick order direction
     const orderDirection = Math.random() < 0.5 ? 'asc' : 'desc'
 
-    const packs = await PackModel.query(trx)
+    const packs = await PackModel.query(knexRead)
       .where({
         templateId,
         ownerId: null,
@@ -643,15 +662,18 @@ export default class PacksService {
     return packDetails
   }
 
-  async getPackMintingStatus(request: MintPack): Promise<MintPackStatus> {
-    const user = await UserAccountModel.query()
+  async getPackMintingStatus(
+    request: MintPack,
+    knexRead?: Knex
+  ): Promise<MintPackStatus> {
+    const user = await UserAccountModel.query(knexRead)
       .where('externalId', request.externalId)
       .first()
       .select('id')
 
     userInvariant(user, 'user not found', 404)
 
-    const pack = await PackModel.query()
+    const pack = await PackModel.query(knexRead)
       .where('id', request.packId)
       .where('ownerId', user.id)
       .select('id')
@@ -666,8 +688,11 @@ export default class PacksService {
       : MintPackStatus.Pending
   }
 
-  async transferPackStatus(packId: string): Promise<TransferPackStatusList> {
-    const pack: PackModel | undefined = await PackModel.query()
+  async transferPackStatus(
+    packId: string,
+    knexRead?: Knex
+  ): Promise<TransferPackStatusList> {
+    const pack: PackModel | undefined = await PackModel.query(knexRead)
       .findOne('Pack.id', packId)
       .withGraphJoined('collectibles.latestTransferTransaction')
 
@@ -682,14 +707,18 @@ export default class PacksService {
     }
   }
 
-  async transferPack(request: TransferPack, trx?: Transaction) {
-    const user = await UserAccountModel.query(trx)
+  async transferPack(
+    request: TransferPack,
+    trx?: Transaction,
+    knexRead?: Knex
+  ) {
+    const user = await UserAccountModel.query(knexRead)
       .findOne('externalId', request.externalId)
       .withGraphJoined('algorandAccount.creationTransaction')
 
     userInvariant(user, 'user not found', 404)
 
-    const pack = await PackModel.query(trx)
+    const pack = await PackModel.query(knexRead)
       .where('id', request.packId)
       .where('ownerId', user.id)
       .select('id')
@@ -708,7 +737,12 @@ export default class PacksService {
     this.logger.info({ pack }, 'pack to be transferred')
 
     if (user.algorandAccount?.creationTransactionId === null) {
-      await this.accounts.initializeAccount(user.id, request.passphrase, trx)
+      await this.accounts.initializeAccount(
+        user.id,
+        request.passphrase,
+        trx,
+        knexRead
+      )
     }
 
     const collectibleIds = pack.collectibles?.map((c) => c.id) || []
@@ -719,13 +753,14 @@ export default class PacksService {
           id,
           user.id,
           request.passphrase,
-          trx
+          trx,
+          knexRead
         )
       })
     )
 
     // Create transfer success notification to be sent to user
-    const packWithBase = await this.getPackById(request.packId)
+    const packWithBase = await this.getPackById(request.packId, knexRead)
     if (packWithBase) {
       await this.notifications.createNotification(
         {
@@ -742,18 +777,18 @@ export default class PacksService {
     return true
   }
 
-  async untransferredPacks({
-    externalId,
-    locale = DEFAULT_LOCALE,
-  }: LocaleAndExternalId) {
-    const packs = await PackModel.query()
+  async untransferredPacks(
+    { externalId, locale = DEFAULT_LOCALE }: LocaleAndExternalId,
+    knexRead?: Knex
+  ) {
+    const packs = await PackModel.query(knexRead)
       .alias('p')
       .join('UserAccount as ua', 'ua.id', 'p.ownerId')
       .join('Collectible as c', 'c.packId', 'p.id')
       .whereRaw('"ua"."externalId" = ?', [externalId])
       .whereNotNull('c.address')
       .whereNotExists(
-        CollectibleOwnershipModel.query()
+        CollectibleOwnershipModel.query(knexRead)
           .alias('co')
           .select('id')
           .where('co.collectibleId', '=', raw('"c"."id"'))
@@ -803,12 +838,16 @@ export default class PacksService {
     }
   }
 
-  async claimRandomFreePack(request: ClaimFreePack, trx?: Transaction) {
-    const pack = await this.randomPackByTemplateId(request.templateId, trx)
+  async claimRandomFreePack(
+    request: ClaimFreePack,
+    trx?: Transaction,
+    knexRead?: Knex
+  ) {
+    const pack = await this.randomPackByTemplateId(request.templateId, knexRead)
     userInvariant(pack, 'pack not found', 404)
     userInvariant(pack.type === PackType.Free, 'pack is not free')
 
-    const user = await UserAccountModel.query(trx).findOne({
+    const user = await UserAccountModel.query(knexRead).findOne({
       externalId: request.externalId,
     })
 
@@ -833,14 +872,15 @@ export default class PacksService {
 
   async claimRedeemPack(
     request: ClaimRedeemPack,
-    locale = DEFAULT_LOCALE,
-    trx?: Transaction
+    trx?: Transaction,
+    knexRead?: Knex,
+    locale = DEFAULT_LOCALE
   ) {
-    const pack = await this.getPackByRedeemCode(request.redeemCode, locale)
+    const pack = await this.getPackByRedeemCode(request.redeemCode, knexRead)
     userInvariant(pack, 'pack not found', 404)
     userInvariant(pack.type === PackType.Redeem, 'pack is not redeemable')
 
-    const user = await UserAccountModel.query(trx).findOne({
+    const user = await UserAccountModel.query(knexRead).findOne({
       externalId: request.externalId,
     })
 
@@ -882,7 +922,7 @@ export default class PacksService {
     return pack
   }
 
-  async revokePack(request: RevokePack, trx?: Transaction) {
+  async revokePack(request: RevokePack, trx?: Transaction, knexRead?: Knex) {
     invariant(
       request.fromAddress || request.ownerId,
       'Pack owner ID or address is required.'
@@ -890,12 +930,14 @@ export default class PacksService {
     let userId
 
     if (request.ownerId) {
-      const user = await UserAccountModel.query(trx).findById(request.ownerId)
+      const user = await UserAccountModel.query(knexRead).findById(
+        request.ownerId
+      )
       userInvariant(user, 'user not found', 404)
       userId = user.id
     }
 
-    const packQuery = PackModel.query(trx).where('id', request.packId)
+    const packQuery = PackModel.query(knexRead).where('id', request.packId)
 
     if (userId) {
       packQuery.where('ownerId', request.ownerId)
@@ -923,13 +965,14 @@ export default class PacksService {
             c.id,
             request.fromAddress,
             userId,
-            trx
+            trx,
+            knexRead
           ))
       )
     )
 
     // Create transfer success notification to be sent to user
-    const packWithBase = await this.getPackById(request.packId)
+    const packWithBase = await this.getPackById(request.packId, knexRead)
     if (packWithBase) {
       // @TODO: create notification for revoking the pack
     }
@@ -953,8 +996,8 @@ export default class PacksService {
     return pack
   }
 
-  async generatePacks(trx?: Transaction) {
-    const existingTemplates = await PackModel.query(trx)
+  async generatePacks(trx?: Transaction, knexRead?: Knex) {
+    const existingTemplates = await PackModel.query(knexRead)
       .groupBy('templateId')
       .select('templateId')
 
@@ -986,7 +1029,7 @@ export default class PacksService {
       0
     )
 
-    const unassignedCollectibles = await CollectibleModel.query(trx)
+    const unassignedCollectibles = await CollectibleModel.query(knexRead)
       .whereIn('templateId', collectibleTemplateIds)
       .whereNull('packId')
       .where('ipfsStatus', IPFSStatus.Stored)
@@ -1096,7 +1139,7 @@ export default class PacksService {
       return 0
     }
 
-    await PackModel.query(trx).upsertGraph(
+    const packs = await PackModel.query(trx).upsertGraphAndFetch(
       balancedPacks.map((p) => ({
         templateId: p.templateId,
         redeemCode: p.redeemCode,
@@ -1106,11 +1149,6 @@ export default class PacksService {
       })),
       { relate: true }
     )
-
-    // Find newly created packs
-    const packs = await PackModel.query(trx)
-      .where('templateId', templateId)
-      .select('id')
 
     // Create events for pack creation
     await EventModel.query(trx).insert(
@@ -1124,7 +1162,7 @@ export default class PacksService {
     return packs.length
   }
 
-  async handlePackAuctionCompletion(trx?: Transaction) {
+  async handlePackAuctionCompletion(trx?: Transaction, knexRead?: Knex) {
     const past7Days = new Date(new Date().setDate(new Date().getDate() - 7))
     // Get pack templates recently completed auctions
     const { packs: packTemplates } = await this.cms.findAllPacks({
@@ -1152,7 +1190,7 @@ export default class PacksService {
     })
 
     // Find their associated packs that haven't been handled yet
-    const packs = await PackModel.query(trx)
+    const packs = await PackModel.query(knexRead)
       .whereNull('expiresAt')
       .whereNull('ownerId')
       .whereNotNull('activeBidId')
@@ -1222,9 +1260,9 @@ export default class PacksService {
     return numberCompletedPackAuctions
   }
 
-  async handlePackAuctionExpiration(trx?: Transaction) {
+  async handlePackAuctionExpiration(trx?: Transaction, knexRead?: Knex) {
     // get 10 packs with an activeBidId and an expires at of lte now
-    const packs: PackModel[] = await PackModel.query(trx)
+    const packs: PackModel[] = await PackModel.query(knexRead)
       .where('expiresAt', '<=', new Date())
       .whereNull('ownerId')
       .whereNotNull('activeBidId')

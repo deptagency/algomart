@@ -1,11 +1,13 @@
 import { CollectiblesService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
+import { Knex } from 'knex'
 import { Model } from 'objection'
 
 import { logger } from '../configuration/logger'
 
 export default async function generateCollectiblesTask(
-  registry: DependencyResolver
+  registry: DependencyResolver,
+  knexRead?: Knex
 ) {
   const log = logger.child({ task: 'generate-collectibles' })
   const collectibles = registry.get<CollectiblesService>(
@@ -13,7 +15,11 @@ export default async function generateCollectiblesTask(
   )
   const trx = await Model.startTransaction()
   try {
-    const result = await collectibles.generateCollectibles(undefined, trx)
+    const result = await collectibles.generateCollectibles(
+      undefined,
+      trx,
+      knexRead
+    )
     log.info('generated %d collectibles', result)
     await trx.commit()
   } catch (error) {

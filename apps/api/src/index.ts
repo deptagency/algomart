@@ -1,6 +1,9 @@
 import buildApp from './api/build-app'
 import { configureResolver } from './configuration/configure-resolver'
-import buildKnexConfiguration from './configuration/knex-config'
+import {
+  buildKnexMainConfiguration,
+  buildKnexReadConfiguration,
+} from './configuration/knex-config'
 import { logger } from './configuration/logger'
 import { Configuration } from './configuration'
 import { configureTasks } from './tasks'
@@ -9,7 +12,8 @@ buildApp({
   fastify: {
     logger: { prettyPrint: Configuration.env !== 'production' },
   },
-  knex: buildKnexConfiguration(),
+  knexMain: buildKnexMainConfiguration(),
+  knexRead: buildKnexReadConfiguration(),
   container: configureResolver(),
 })
   .then((app) => {

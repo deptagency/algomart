@@ -61,9 +61,16 @@ export const Configuration = {
       .asEnum(['betanet', 'testnet', 'mainnet'])
   },
 
-  get databaseUrl() {
+  get databaseMainUrl() {
     return env
-      .get('DATABASE_URL')
+      .get('DATABASE_URL_WRITE')
+      .default('postgres://localhost/postgres')
+      .asUrlString()
+  },
+
+  get databaseReadUrl() {
+    return env
+      .get('DATABASE_URL_READONLY')
       .default('postgres://localhost/postgres')
       .asUrlString()
   },
