@@ -43,7 +43,7 @@
   "openToEmployees": "FR Open to {{name}} Employees",
   "packContents": "FR This pack contains {{ nftsPerPack }} {{ nftCategory }}",
   "packActivityDate": "FR {{date}} at {{time}}",
-  "passphraseApprove": "FR Enter your passphrase to authorize this transaction.",
+  "passphraseApprove": "FR Enter your PIN code to authorize this transaction.",
   "redemptionCode": "FR This NFT requires a code to redeem.",
   "Remaining": "FR Remaining",
   "Reserve price met": "FR Reserve price met",

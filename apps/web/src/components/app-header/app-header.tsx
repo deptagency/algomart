@@ -29,7 +29,7 @@ export default function AppHeader() {
 
   const signIn = () => {
     setShowMenu(false)
-    push(urls.login)
+    push(urls.signUp)
   }
 
   return (

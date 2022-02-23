@@ -38,22 +38,7 @@ export default function LoginPanel({
         {!isAuthenticated && (
           <>
             <Button className={css.button} onClick={handleLoginEmail}>
-              {t('auth:Sign in with Email')}
-            </Button>
-            <Button
-              className={css.button}
-              onClick={handleLoginGoogle}
-              variant="secondary"
-            >
-              <Image
-                width={36}
-                height={36}
-                alt={t('auth:Google logo')}
-                src={googleIcon}
-              />
-              <p className={css.buttonImageText}>
-                {t('auth:Sign in with Google')}
-              </p>
+              {t('common:actions.Sign In')}
             </Button>
           </>
         )}
