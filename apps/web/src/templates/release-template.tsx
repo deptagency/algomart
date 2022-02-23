@@ -110,6 +110,7 @@ export default function ReleaseTemplate({
     content: string
     color: 'red' | 'blue' | 'green'
   } | null => {
+    if (isEnded) return null
     if (isWinningBidder) {
       return { content: `${t('release:You won the auction')}!`, color: 'green' }
     } else if (isHighestBidder) {
