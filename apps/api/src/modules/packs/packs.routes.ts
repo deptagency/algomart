@@ -43,7 +43,8 @@ export async function getPublishedPackBySlug(
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.getPublishedPackBySlug(
     request.params.packSlug,
-    request.query.locale
+    request.query.locale,
+    request.knexRead
   )
 
   reply.send(result)

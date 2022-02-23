@@ -159,7 +159,6 @@ export default class PaymentsService {
     const packTemplate = await this.packs.getPublishedPackBySlug(
       packSlug,
       locale,
-      trx,
       knexRead
     )
     const templateLookup = new Map([[packTemplate.templateId, packTemplate]])
@@ -516,8 +515,8 @@ export default class PaymentsService {
     // Check price is available
     const bid = randomPack.activeBidId
       ? await BidModel.query(knexRead)
-        .select('amount')
-        .findById(randomPack.activeBidId)
+          .select('amount')
+          .findById(randomPack.activeBidId)
       : null
 
     const price =
@@ -527,7 +526,7 @@ export default class PaymentsService {
     if (randomPack.type === PackType.Auction) {
       userInvariant(
         bid &&
-        isGreaterThanOrEqual(bid.amount, randomPack.price, this.currency),
+          isGreaterThanOrEqual(bid.amount, randomPack.price, this.currency),
         'active bid must be higher than the price of the item'
       )
     }
