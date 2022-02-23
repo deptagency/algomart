@@ -155,14 +155,10 @@ export default function AppHeader() {
               </>
             ) : (
               <>
-                <Button
-                  onClick={signIn}
-                  rounded={false}
-                  className="font-display uppercase font-light"
-                >
+                <Button onClick={signIn}>
                   {t('common:actions.Create Account')}
                 </Button>
-                <Button variant="tertiary" rounded={false} onClick={signIn}>
+                <Button variant="secondary" onClick={signIn}>
                   {t('common:actions.Sign In')}
                 </Button>
               </>

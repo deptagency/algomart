@@ -47,7 +47,7 @@
     --textTertiary: var(--darkText);
     --textDisabled: 102, 102, 102;
     --gradient-from: 63, 98, 145;
-    --gradient-to: 94, 147, 201, 1;
+    --gradient-to: 94, 147, 201;
 
     --bg: 247, 249, 252;
     --bgCard: 255, 255, 255;

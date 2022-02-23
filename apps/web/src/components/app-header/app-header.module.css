@@ -56,7 +56,7 @@
 
 .mainNav {
   /* Base */
-  @apply absolute left-0 flex flex-col w-full px-12 py-6 overflow-y-auto bg-base-bgCard border-base-bg border-t-1;
+  @apply absolute left-0 flex flex-col w-full px-12 py-6 overflow-y-auto bg-base-bgCard border-base-border border-t-1;
   top: 73px;
   height: calc(100% - 73px);
   /* Tablet + */
@@ -141,7 +141,7 @@
 
 .createAccountButton {
   /* Base */
-  @apply hidden px-3 py-2;
+  @apply hidden px-3 py-2 text-sm uppercase font-display;
   /* Tablet */
   @apply md:inline;
 }
