@@ -22,6 +22,7 @@ import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
 export interface CardPurchaseFormProps {
   bid: string | null
   className?: string
+  countries: { label: string | null; id: string }[]
   formErrors?: FormValidation
   handleContinue: () => void
   initialBid?: string
@@ -32,6 +33,7 @@ export interface CardPurchaseFormProps {
 export default function CardPurchaseForm({
   bid,
   className,
+  countries,
   formErrors,
   handleContinue,
   initialBid,
@@ -233,6 +235,7 @@ export default function CardPurchaseForm({
 
       {!savedCard && (
         <BillingAddress
+          countries={countries}
           formErrors={{
             address1:
               formErrors && 'address1' in formErrors

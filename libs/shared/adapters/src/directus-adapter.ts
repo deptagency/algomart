@@ -3,6 +3,7 @@ import {
   CollectibleBase,
   CollectionBase,
   CollectionWithSets,
+  Countries,
   DEFAULT_LOCALE,
   HomepageBase,
   PackBase,
@@ -69,8 +70,7 @@ export interface DirectusFile {
   height: number
 }
 
-export interface DirectusPackFile {
-  id: string
+export interface DirectusPackFile extends DirectusFile {
   directus_files_id: string
 }
 
@@ -184,6 +184,30 @@ export interface DirectusFaqTemplateTranslation extends DirectusTranslation {
 
 export interface DirectusFaqTemplate {
   translations: DirectusFaqTemplateTranslation[]
+}
+
+export interface DirectusCountry {
+  id: string
+  application_id: string
+  countries_code: string
+}
+
+export interface DirectusApplication {
+  id: string
+  currency?: string | null
+  countries?: DirectusCountry[] | null
+}
+
+export interface DirectusCountryWithTranslations {
+  code: string
+  translations?: number[] | DirectusCountryTranslation[]
+}
+
+export interface DirectusCountryTranslation extends DirectusTranslation {
+  id: number
+  countries_code: string
+  languages_code: string
+  title: string | null
 }
 
 // #endregion
@@ -303,7 +327,7 @@ function getDirectusTranslation<TItem extends DirectusTranslation>(
 
 // #region Mappers
 
-export type GetFileURL = (file: DirectusFile) => string
+export type GetFileURL = (file: DirectusFile | string) => string
 
 export function toHomepageBase(
   homepage: DirectusHomepage,
@@ -548,6 +572,9 @@ export function toPackBase(
 
   return {
     allowBidExpiration: template.allow_bid_expiration,
+    additionalImages: !isStringArray(template.additional_images)
+      ? template.additional_images.map((packFile) => getFileURL(packFile))
+      : undefined,
     auctionUntil: template.auction_until ?? undefined,
     body: translation.body ?? undefined,
     collectibleTemplateIds: isStringArray(template.nft_templates)
@@ -568,6 +595,21 @@ export function toPackBase(
     templateId: template.id,
     title: translation.title,
     type: template.type,
+  }
+}
+
+export function toCountryBase(
+  template: DirectusCountryWithTranslations,
+  locale: string
+) {
+  const translation = getDirectusTranslation<DirectusCountryTranslation>(
+    template.translations as DirectusCountryTranslation[],
+    `country ${template.code} has no translations`,
+    locale
+  )
+  return {
+    code: template.code,
+    name: translation.title,
   }
 }
 
@@ -736,6 +778,23 @@ export default class DirectusAdapter {
     }
 
     return new URL(`/assets/${file.id}`, this.options.cmsUrl).href
+  }
+
+  private async findCountries(query: ItemQuery<{ filter: ItemFilter }> = {}) {
+    const defaultQuery: ItemQuery<DirectusCountryWithTranslations> = {
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+      limit: -1,
+      fields: ['*.*'],
+    }
+
+    return await this.findMany<DirectusCountryWithTranslations>('countries', {
+      ...defaultQuery,
+      ...query,
+    })
   }
 
   async findAllPacks({
@@ -970,6 +1029,16 @@ export default class DirectusAdapter {
     )
   }
 
+  async findPublishedCountries(
+    filter: ItemFilter = {},
+    locale = DEFAULT_LOCALE
+  ): Promise<Countries | null> {
+    const response = await this.findCountries({ filter })
+    if (response.data.length === 0) return null
+    const countries = response.data
+    return countries.map((country) => toCountryBase(country, locale))
+  }
+
   async findHomepage(locale: string = DEFAULT_LOCALE) {
     // Homepage is a singleton in the CMS, which makes this endpoint only return a single item.
     // Therefore we should avoid using the `findMany` method and instead act as if the result is
@@ -1040,5 +1109,25 @@ export default class DirectusAdapter {
         locale
       )?.label,
     }))
+  }
+
+  async findApplication(): Promise<DirectusApplication | null> {
+    // Application is a singleton in the CMS, which makes this endpoint only return a single item.
+    // Therefore we should avoid using the `findMany` method and instead act as if the result is
+    // from a `findById` call.
+    const response = await this.http.get('items/application', {
+      searchParams: getParameters({
+        fields: ['*.*'],
+      }),
+    })
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      const result: ItemByIdResponse<DirectusApplication> = JSON.parse(
+        response.body
+      )
+      return result.data
+    }
+
+    return null
   }
 }

@@ -1,9 +1,10 @@
 import clsx from 'clsx'
 import { ButtonHTMLAttributes, DetailedHTMLProps, HTMLAttributes } from 'react'
 
-import { useThemeContext } from '@/contexts/theme-context'
+import EllipsisLoader from '@/components/ellipsis-loader'
 
 export interface ButtonBaseProps {
+  busy?: boolean
   disablePadding?: boolean
   size?: 'small' | 'medium'
   variant?: 'primary' | 'secondary' | 'tertiary' | 'link'
@@ -20,6 +21,7 @@ export function buttonClasses(
   props: ButtonBaseProps & { disabled?: boolean; className?: string }
 ) {
   const {
+    busy,
     disablePadding,
     size,
     variant,
@@ -30,7 +32,7 @@ export function buttonClasses(
     group,
   } = props
   return clsx(
-    'duration-300 transition text-base-primaryText font-normal',
+    'duration-300 transition text-base-primaryText font-normal relative',
     {
       'rounded-sm': !group,
       'rounded-l-sm': group === 'left',
@@ -56,6 +58,7 @@ export function buttonClasses(
 }
 
 export default function Button({
+  busy,
   children,
   className,
   disabled = false,
@@ -81,12 +84,15 @@ export default function Button({
         group,
         rounded,
       })}
-      disabled={disabled}
+      disabled={disabled || busy}
       onClick={onClick}
       type={type}
       {...props}
     >
-      {children}
+      <span className={busy && 'opacity-0'}>{children}</span>
+      {busy && (
+        <EllipsisLoader className="absolute bottom-0 left-0 right-0 -mt-4 top-1/2" />
+      )}
     </button>
   )
 }

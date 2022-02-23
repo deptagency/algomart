@@ -36,3 +36,6 @@ export { I18nService }
 
 import FaqsService from './faqs.service'
 export { FaqsService }
+
+import ApplicationService from './application.service'
+export { ApplicationService }
