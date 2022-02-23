@@ -1,10 +1,6 @@
 import { Knex } from 'knex'
 
-import {
-  DEFAULT_LOCALE,
-  Homepage,
-  PublishedPack,
-} from '@algomart/schemas'
+import { DEFAULT_LOCALE, Homepage, PublishedPack } from '@algomart/schemas'
 
 import { CMSCacheAdapter } from '@algomart/shared/adapters'
 import { userInvariant } from '@algomart/shared/utils'
@@ -15,7 +11,7 @@ export default class HomepageService {
   constructor(
     private readonly cms: CMSCacheAdapter,
     private readonly packsService: PacksService
-  ) { }
+  ) {}
 
   async getHomepage(
     trx: Transaction,
@@ -31,7 +27,6 @@ export default class HomepageService {
 
     const packs = await this.packsService.getPublishedPacksByTemplates(
       templates,
-      trx,
       knexRead
     )
     const packLookup = new Map<string, PublishedPack>(
@@ -44,7 +39,7 @@ export default class HomepageService {
       heroBannerTitle: homepageBase.heroBannerTitle,
       heroPack:
         homepageBase.heroPackTemplate &&
-          packLookup.has(homepageBase.heroPackTemplate.templateId)
+        packLookup.has(homepageBase.heroPackTemplate.templateId)
           ? packLookup.get(homepageBase.heroPackTemplate.templateId)
           : undefined,
       featuredPacksSubtitle: homepageBase.featuredPacksSubtitle,

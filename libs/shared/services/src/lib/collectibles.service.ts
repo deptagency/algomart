@@ -80,9 +80,9 @@ export default class CollectiblesService {
 
     const transferrableAt = wasPaidWithCard
       ? addDays(
-        new Date(collectible.creationTransaction.createdAt),
-        this.minimumDaysBeforeTransfer
-      )
+          new Date(collectible.creationTransaction.createdAt),
+          this.minimumDaysBeforeTransfer
+        )
       : new Date(collectible.creationTransaction.createdAt)
 
     return transferrableAt
@@ -101,8 +101,9 @@ export default class CollectiblesService {
     const transferrableAt = this.getTransferrableAt(collectible)
 
     const template = await this.cms.findCollectibleByTemplateId(
+      collectible.templateId,
       query.locale,
-      collectible.templateId
+      knexRead
     )
 
     invariant(template, `NFT Template ${collectible.templateId} not found`)
@@ -166,9 +167,11 @@ export default class CollectiblesService {
     )
 
     // Get corresponding templates from CMS
-    const templates = await this.cms.findCollectiblesByTemplateIds(undefined, [
-      ...collectiblesLookupByTemplate.keys(),
-    ])
+    const templates = await this.cms.findCollectiblesByTemplateIds(
+      [...collectiblesLookupByTemplate.keys()],
+      undefined,
+      knexRead
+    )
 
     if (templates.length === 0) {
       return 0
@@ -238,8 +241,9 @@ export default class CollectiblesService {
     // Get corresponding templates from CMS
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
     const templates = await this.cms.findCollectiblesByTemplateIds(
+      templateIds,
       locale,
-      templateIds
+      knexRead
     )
 
     // Map and sort collectibles
@@ -361,8 +365,9 @@ export default class CollectiblesService {
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
 
     const templates = await this.cms.findCollectiblesByTemplateIds(
+      templateIds,
       undefined,
-      templateIds
+      knexRead
     )
 
     invariant(templates.length > 0, 'templates not found')
@@ -683,17 +688,18 @@ export default class CollectiblesService {
       ownerId: account.id,
       ...(templateIds
         ? {
-          id: {
-            _in: templateIds,
-          },
-        }
+            id: {
+              _in: templateIds,
+            },
+          }
         : {}),
     })
 
     const foundTemplateIds = [...new Set(collectibles.map((c) => c.templateId))]
     const templates = await this.cms.findCollectiblesByTemplateIds(
+      foundTemplateIds,
       locale,
-      foundTemplateIds
+      knexRead
     )
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
     const mappedCollectibles = collectibles
@@ -735,10 +741,7 @@ export default class CollectiblesService {
   }
 
   async getShowcaseCollectibles(
-    {
-      locale = DEFAULT_LOCALE,
-      ownerUsername,
-    }: CollectibleShowcaseQuerystring,
+    { locale = DEFAULT_LOCALE, ownerUsername }: CollectibleShowcaseQuerystring,
     knexRead?: Knex
   ) {
     const user = await UserAccountModel.query()

@@ -30,7 +30,6 @@ import {
   SetBase,
   SetWithCollection,
 } from '@algomart/schemas'
-import { URL } from 'node:url'
 
 import {
   CMSCacheCollectibleTemplateModel,
@@ -49,6 +48,9 @@ import {
   isNowBetweenDates,
   invariant,
 } from '@algomart/shared/utils'
+
+import { URL } from 'node:url'
+import { Knex } from 'knex'
 
 export interface ItemsResponse<T> {
   data: T[]
@@ -403,10 +405,14 @@ export default class CMSCacheAdapter {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  private async findPackTemplates(query: ItemQuery<DirectusPackTemplate> = {}) {
-    const queryResult = await CMSCachePackTemplateModel.query().select(
+  private async findPackTemplates(
+    query: ItemQuery<DirectusPackTemplate> = {},
+    knxRead?: Knex
+  ) {
+    const queryResult = await CMSCachePackTemplateModel.query(knxRead).select(
       'content'
     )
+
     const data = queryResult.map(
       (result: CMSCachePackTemplateModel): DirectusPackTemplate =>
         result.content as unknown as DirectusPackTemplate
@@ -423,15 +429,18 @@ export default class CMSCacheAdapter {
   }
 
   private async findCollectibleTemplates(
-    query: ItemQuery<DirectusCollectibleTemplate> = {}
+    query: ItemQuery<DirectusCollectibleTemplate> = {},
+    knxRead?: Knex
   ) {
-    const queryResult = await CMSCacheCollectibleTemplateModel.query().select(
-      'content'
-    )
+    const queryResult = await CMSCacheCollectibleTemplateModel.query(
+      knxRead
+    ).select('content')
+
     const data = queryResult.map(
       (result: CMSCacheCollectibleTemplateModel): DirectusCollectibleTemplate =>
         result.content as unknown as DirectusCollectibleTemplate
     )
+
     const result: ItemsResponse<DirectusCollectibleTemplate> = {
       data: data,
       meta: {
@@ -443,12 +452,19 @@ export default class CMSCacheAdapter {
     return result
   }
 
-  private async findCollections(query: ItemQuery<DirectusCollection> = {}) {
-    const queryResult = await CMSCacheCollectionModel.query().select('content')
+  private async findCollections(
+    query: ItemQuery<DirectusCollection> = {},
+    knxRead?: Knex
+  ) {
+    const queryResult = await CMSCacheCollectionModel.query(knxRead).select(
+      'content'
+    )
+
     const data = queryResult.map(
       (result: CMSCacheCollectionModel): DirectusCollection =>
         result.content as unknown as DirectusCollection
     )
+
     const result: ItemsResponse<DirectusCollection> = {
       data: data,
       meta: {
@@ -460,8 +476,8 @@ export default class CMSCacheAdapter {
     return result
   }
 
-  private async findSets(query: ItemQuery<DirectusSet> = {}) {
-    const queryResult = await CMSCacheSetModel.query().select('content')
+  private async findSets(query: ItemQuery<DirectusSet> = {}, knxRead?: Knex) {
+    const queryResult = await CMSCacheSetModel.query(knxRead).select('content')
     const data = queryResult.map(
       (result: CMSCacheSetModel): DirectusSet =>
         result.content as unknown as DirectusSet
@@ -489,8 +505,12 @@ export default class CMSCacheAdapter {
     return new URL(`/assets/${file.id}`, this.options.cmsUrl).href
   }
 
-  async findAllPacksAuctionCompletion(startDate, locale = DEFAULT_LOCALE) {
-    const queryResult = await CMSCachePackTemplateModel.query()
+  async findAllPacksAuctionCompletion(
+    startDate,
+    locale = DEFAULT_LOCALE,
+    knxRead?: Knex
+  ) {
+    const queryResult = await CMSCachePackTemplateModel.query(knxRead)
       .where('type', PackType.Auction)
       .where('auctionUntil', '>', startDate)
       .select('content')
@@ -506,27 +526,33 @@ export default class CMSCacheAdapter {
     )
   }
 
-  async findAllPacks({
-    locale = DEFAULT_LOCALE,
-    page = 1,
-    pageSize = 10,
-    filter = {},
-  }: {
-    locale?: string
-    page?: number
-    pageSize?: number
-    filter?: ItemFilter
-  }) {
-    const response = await this.findPackTemplates({
-      page,
-      limit: pageSize,
-      // Sort by released_at in descending order
-      sort: ['-released_at'],
-      filter: {
-        ...filter,
+  async findAllPacks(
+    {
+      locale = DEFAULT_LOCALE,
+      page = 1,
+      pageSize = 10,
+      filter = {},
+    }: {
+      locale?: string
+      page?: number
+      pageSize?: number
+      filter?: ItemFilter
+    },
+    knxRead?: Knex
+  ) {
+    const response = await this.findPackTemplates(
+      {
+        page,
+        limit: pageSize,
+        // Sort by released_at in descending order
+        sort: ['-released_at'],
+        filter: {
+          ...filter,
+        },
+        filterCount: true,
       },
-      filterCount: true,
-    })
+      knxRead
+    )
 
     invariant(
       typeof response.meta?.filter_count === 'number',
@@ -541,8 +567,12 @@ export default class CMSCacheAdapter {
     }
   }
 
-  async findPacksByTemplateIds(templateIds, locale = DEFAULT_LOCALE) {
-    const queryResult = await CMSCachePackTemplateModel.query()
+  async findPacksByTemplateIds(
+    templateIds,
+    locale = DEFAULT_LOCALE,
+    knxRead?: Knex
+  ) {
+    const queryResult = await CMSCachePackTemplateModel.query(knxRead)
       .whereIn('templateId', templateIds)
       .select('content')
 
@@ -556,8 +586,8 @@ export default class CMSCacheAdapter {
     return data
   }
 
-  async findPacksByType(type, limit, locale = DEFAULT_LOCALE) {
-    const queryResult = await CMSCachePackTemplateModel.query()
+  async findPacksByType(type, limit, locale = DEFAULT_LOCALE, knxRead?: Knex) {
+    const queryResult = await CMSCachePackTemplateModel.query(knxRead)
       .whereIn('type', type)
       .limit(limit)
       .select('content')
@@ -572,8 +602,8 @@ export default class CMSCacheAdapter {
     return data
   }
 
-  async findPackBySlug(slug, locale = DEFAULT_LOCALE) {
-    const queryResult = await CMSCachePackTemplateModel.query()
+  async findPackBySlug(slug, locale = DEFAULT_LOCALE, knxRead?: Knex) {
+    const queryResult = await CMSCachePackTemplateModel.query(knxRead)
       .findOne('slug', slug)
       .select('content')
 
@@ -581,8 +611,12 @@ export default class CMSCacheAdapter {
     return toPackBase(packTemplate, this.getFileURL.bind(this), locale)
   }
 
-  async findPackByTemplateId(templateId, locale = DEFAULT_LOCALE) {
-    const queryResult = await CMSCachePackTemplateModel.query()
+  async findPackByTemplateId(
+    templateId,
+    locale = DEFAULT_LOCALE,
+    knxRead?: Knex
+  ) {
+    const queryResult = await CMSCachePackTemplateModel.query(knxRead)
       .findOne('templateId', templateId)
       .select('content')
 
@@ -590,8 +624,8 @@ export default class CMSCacheAdapter {
     return toPackBase(packTemplate, this.getFileURL.bind(this), locale)
   }
 
-  async findPacksPendingGeneration(locale = DEFAULT_LOCALE) {
-    const queryResult = await CMSCachePackTemplateModel.query()
+  async findPacksPendingGeneration(locale = DEFAULT_LOCALE, knxRead?: Knex) {
+    const queryResult = await CMSCachePackTemplateModel.query(knxRead)
       .leftJoin('Pack', 'Pack.templateId', 'CmsCachePackTemplates.id')
       .whereNull('Pack.templateId')
       .distinctOn('CmsCachePackTemplates.id')
@@ -610,18 +644,22 @@ export default class CMSCacheAdapter {
   async findAllCollectibles(
     locale = DEFAULT_LOCALE,
     filter: ItemFilter = {},
-    limit = -1
+    limit = -1,
+    knxRead?: Knex
   ) {
-    const response = await this.findCollectibleTemplates({
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
+    const response = await this.findCollectibleTemplates(
+      {
+        filter: {
+          status: {
+            _eq: DirectusStatus.Published,
+          },
+          ...filter,
         },
-        ...filter,
+        limit,
+        filterCount: true,
       },
-      limit,
-      filterCount: true,
-    })
+      knxRead
+    )
 
     invariant(
       typeof response.meta?.filter_count === 'number',
@@ -636,9 +674,13 @@ export default class CMSCacheAdapter {
     }
   }
 
-  async findCollectiblesByTemplateIds(locale = DEFAULT_LOCALE, ids) {
-    const queryResult = await CMSCacheCollectibleTemplateModel.query()
-      .whereIn('id', ids)
+  async findCollectiblesByTemplateIds(
+    templateIds,
+    locale = DEFAULT_LOCALE,
+    knxRead?: Knex
+  ) {
+    const queryResult = await CMSCacheCollectibleTemplateModel.query(knxRead)
+      .whereIn('id', templateIds)
       .select('content')
 
     const data = queryResult.map(
@@ -656,9 +698,13 @@ export default class CMSCacheAdapter {
     return data
   }
 
-  async findCollectibleByTemplateId(locale = DEFAULT_LOCALE, id) {
-    const queryResult = await CMSCacheCollectibleTemplateModel.query()
-      .findOne('templateId', id)
+  async findCollectibleByTemplateId(
+    locale = DEFAULT_LOCALE,
+    templateId,
+    knxRead
+  ) {
+    const queryResult = await CMSCacheCollectibleTemplateModel.query(knxRead)
+      .findOne('templateId', templateId)
       .select('content')
 
     const collectibleTemplate =
@@ -670,10 +716,8 @@ export default class CMSCacheAdapter {
     )
   }
 
-  async findAllCollections(locale = DEFAULT_LOCALE) {
-    const response = await this.findCollections({
-      filterCount: true,
-    })
+  async findAllCollections(locale = DEFAULT_LOCALE, knxRead?: Knex) {
+    const response = await this.findCollections({ filterCount: true }, knxRead)
 
     invariant(
       typeof response.meta?.filter_count === 'number',
@@ -688,8 +732,15 @@ export default class CMSCacheAdapter {
     }
   }
 
-  async findCollectionBySlug(slug: string, locale = DEFAULT_LOCALE) {
-    const result = await CMSCacheCollectionModel.query().findOne('slug', slug)
+  async findCollectionBySlug(
+    slug: string,
+    locale = DEFAULT_LOCALE,
+    knxRead?: Knex
+  ) {
+    const result = await CMSCacheCollectionModel.query(knxRead).findOne(
+      'slug',
+      slug
+    )
 
     if (result) {
       const collection: DirectusCollection =
@@ -704,8 +755,8 @@ export default class CMSCacheAdapter {
     return null
   }
 
-  async findSetBySlug(slug: string, locale = DEFAULT_LOCALE) {
-    const result = await CMSCacheSetModel.query().findOne('slug', slug)
+  async findSetBySlug(slug: string, locale = DEFAULT_LOCALE, knxRead?: Knex) {
+    const result = await CMSCacheSetModel.query(knxRead).findOne('slug', slug)
 
     if (result) {
       const set: DirectusSet = result.content as unknown as DirectusSet
@@ -715,8 +766,8 @@ export default class CMSCacheAdapter {
     return null
   }
 
-  async getPage(slug, locale = DEFAULT_LOCALE) {
-    const result = await CMSCachePageModel.query().findOne('slug', slug)
+  async getPage(slug, locale = DEFAULT_LOCALE, knexRead?: Knex) {
+    const result = await CMSCachePageModel.query(knexRead).findOne('slug', slug)
 
     if (result) {
       const page: DirectusPage = result.content as unknown as DirectusPage
@@ -731,8 +782,8 @@ export default class CMSCacheAdapter {
     return null
   }
 
-  async getFaqs(locale: string = DEFAULT_LOCALE) {
-    const queryResult = await CMSCacheFaqModel.query().select('content')
+  async getFaqs(locale: string = DEFAULT_LOCALE, knxRead?: Knex) {
+    const queryResult = await CMSCacheFaqModel.query(knxRead).select('content')
     const data = queryResult.map(
       (result: CMSCacheFaqModel): DirectusFaqTemplate =>
         result.content as unknown as DirectusFaqTemplate
@@ -743,8 +794,8 @@ export default class CMSCacheAdapter {
     )
   }
 
-  async findHomepage(locale: string = DEFAULT_LOCALE) {
-    const queryResult = await CMSCacheHomepageModel.query()
+  async findHomepage(locale: string = DEFAULT_LOCALE, knxRead?: Knex) {
+    const queryResult = await CMSCacheHomepageModel.query(knxRead)
       .select('content')
       .first()
     const result: DirectusHomepage =
@@ -753,8 +804,11 @@ export default class CMSCacheAdapter {
     return toHomepageBase(result, this.getFileURL.bind(this), locale)
   }
 
-  async getLanguages(locale = DEFAULT_LOCALE) {
-    const queryResult = await CMSCacheLanguageModel.query().select('content')
+  async getLanguages(locale = DEFAULT_LOCALE, knxRead?: Knex) {
+    const queryResult = await CMSCacheLanguageModel.query(knxRead).select(
+      'content'
+    )
+
     const data = queryResult.map(
       (result: CMSCacheLanguageModel): DirectusLanguageTemplate =>
         result.content as unknown as DirectusLanguageTemplate
