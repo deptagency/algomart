@@ -125,6 +125,8 @@ async function syncLanguages(cms: DirectusAdapter) {
   }
 }
 
+// TODO: syncCountries
+
 async function syncPackTemplates(cms: DirectusAdapter) {
   const results = await cms.findAllPacks({ pageSize: 200 })
 
