@@ -1,4 +1,5 @@
 import { DirectusAdapter } from '@algomart/shared/adapters'
+import pino from 'pino'
 import {
   CMSCacheCollectibleTemplateModel,
   CMSCacheCollectionModel,
@@ -12,36 +13,36 @@ import {
 } from '@algomart/shared/models'
 import { DependencyResolver } from '@algomart/shared/utils'
 
-import { logger } from '../configuration/logger'
-
-export default async function syncCMSCacheTask(registry: DependencyResolver) {
-  const log = logger.child({ task: 'confirm-transactions' })
+export async function syncCMSCacheTask(
+  registry: DependencyResolver,
+  logger: pino.Logger<unknown>
+) {
   const cms = registry.get<DirectusAdapter>(DirectusAdapter.name)
 
-  console.log('starting syncLanguages')
+  logger.info('starting syncLanguages')
   await syncLanguages(cms)
-  console.log('finished syncLanguages')
-  console.log('starting syncHomepage')
+  logger.info('finished syncLanguages')
+  logger.info('starting syncHomepage')
   await syncHomepage(cms)
-  console.log('finished syncHomepage')
-  console.log('starting syncFaqs')
+  logger.info('finished syncHomepage')
+  logger.info('starting syncFaqs')
   await syncFaqs(cms)
-  console.log('finished syncFaqs')
-  // console.log('starting syncPages')
+  logger.info('finished syncFaqs')
+  // logger.info('starting syncPages')
   // await syncPages(cms)
-  // console.log('finished syncPages')
-  console.log('starting syncPackTemplates')
+  // logger.info('finished syncPages')
+  logger.info('starting syncPackTemplates')
   await syncPackTemplates(cms)
-  console.log('finished syncPackTemplates')
-  console.log('starting syncCollectibleTemplates')
+  logger.info('finished syncPackTemplates')
+  logger.info('starting syncCollectibleTemplates')
   await syncCollectibleTemplates(cms)
-  console.log('finished syncCollectibleTemplates')
-  console.log('starting syncCollections')
+  logger.info('finished syncCollectibleTemplates')
+  logger.info('starting syncCollections')
   await syncCollections(cms)
-  console.log('finished syncCollections')
-  console.log('starting syncSets')
+  logger.info('finished syncCollections')
+  logger.info('starting syncSets')
   await syncSets(cms)
-  console.log('finished syncSets')
+  logger.info('finished syncSets')
 }
 
 async function syncHomepage(cms: DirectusAdapter) {
