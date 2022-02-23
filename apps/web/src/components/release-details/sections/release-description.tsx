@@ -13,7 +13,7 @@ export default function ReleaseDescription({
   description,
 }: ReleaseDescriptionProps) {
   const { t } = useTranslation()
-  const [collapsed, setCollapsed] = useState(description.length > 200)
+  const [collapsed, setCollapsed] = useState(description?.length > 200)
   const handleToggle = () => setCollapsed(!collapsed)
 
   return (
