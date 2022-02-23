@@ -8,7 +8,10 @@ export function buildKnexMainConfiguration(): Knex.Config {
     client: 'pg',
     connection: Configuration.databaseMainUrl,
     searchPath: [Configuration.databaseSchema],
-    pool: { min: 2, max: 20 },
+    pool: {
+      min: Configuration.databaseMainMinPool,
+      max: Configuration.databaseMainMaxPool,
+    },
     migrations: {
       extension: 'ts',
       directory: path.join(__dirname, '..', 'migrations'),
@@ -21,6 +24,9 @@ export function buildKnexReadConfiguration(): Knex.Config {
     client: 'pg',
     connection: Configuration.databaseReadUrl,
     searchPath: [Configuration.databaseSchema],
-    pool: { min: 2, max: 20 },
+    pool: {
+      min: Configuration.databaseReadMinPool,
+      max: Configuration.databaseReadMaxPool,
+    },
   }
 }
