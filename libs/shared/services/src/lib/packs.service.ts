@@ -250,7 +250,7 @@ export default class PacksService {
     trx: Transaction,
     knexRead?: Knex
   ) {
-    const templates = await this.cms.findPacksByTemplateIds(templateIds, locale, trx, knexRead)
+    const templates = await this.cms.findPacksByTemplateIds(templateIds, locale, knexRead)
     const packCounts = await this.getPackCounts(
       templates.map((t) => t.templateId)
     )
@@ -287,7 +287,7 @@ export default class PacksService {
     knexRead?: Knex
   ) {
     const template = await this.cms.findPackBySlug(slug, locale, trx, knexRead)
-    const packCount = await this.getPackCounts([template.templateId], trx, knexRead)[0]
+    const packCount = (await this.getPackCounts([template.templateId]))[0]
 
     return this.createPublishedPack(template, packCount, null)
   }

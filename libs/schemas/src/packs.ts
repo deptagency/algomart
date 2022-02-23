@@ -195,7 +195,7 @@ export const PackIdSchema = Type.Object({
 })
 
 export const PackSlugSchema = Type.Object({
-  packSlug: SlugSchema,
+  packSlug: Type.String(),
 })
 
 export const PackAuctionSchema = Type.Intersect([
