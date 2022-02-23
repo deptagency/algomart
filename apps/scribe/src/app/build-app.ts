@@ -16,7 +16,8 @@ import swaggerOptions from '../configuration/swagger'
 import { generateHealthRoutes } from '@algomart/shared/modules'
 
 export interface AppConfig {
-  knex: Knex.Config
+  knexMain: Knex.Config
+  knexRead?: Knex.Config
   fastify?: FastifyServerOptions
   container: DependencyResolver
 }
@@ -57,7 +58,16 @@ export default async function buildApp(config: AppConfig) {
   // Our Plugins
   await app.register(fastifyContainerPlugin, { container: config.container })
   await app.register(fastifyTransactionPlugin)
-  await app.register(fastifyKnexPlugin, { knex: config.knex })
+  // Our Plugins
+  await app.register(fastifyKnexPlugin, {
+    knex: config.knexMain,
+    name: 'knexMain',
+  }),
+    await app.register(fastifyKnexPlugin, {
+      knex: config.knexRead,
+      name: 'knexRead',
+      readReplica: true,
+    })
 
   // Decorators
   // no decorators yet

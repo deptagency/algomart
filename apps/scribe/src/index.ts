@@ -1,30 +1,19 @@
 import buildApp from './app/build-app'
 import { Configuration } from './configuration'
+import {
+  buildKnexMainConfiguration,
+  buildKnexReadConfiguration,
+} from './configuration/knex-config'
 import { configureTasks } from './configuration/tasks'
 import { configureResolver } from './configuration/configure-resolver'
 import { logger } from './configuration/logger'
-
-import { Knex } from 'knex'
-import path from 'node:path'
-
-export function buildKnexConfiguration(): Knex.Config {
-  return {
-    client: 'pg',
-    connection: Configuration.databaseUrl,
-    searchPath: [Configuration.databaseSchema],
-    pool: { min: 2, max: 20 },
-    // migrations: {
-    //   extension: 'ts',
-    //   directory: path.join(__dirname, '..', 'migrations'),
-    // },
-  }
-}
 
 buildApp({
   fastify: {
     logger: { prettyPrint: Configuration.env !== 'production' },
   },
-  knex: buildKnexConfiguration(),
+  knexMain: buildKnexMainConfiguration(),
+  knexRead: buildKnexReadConfiguration(),
   container: configureResolver(),
 })
   .then((app) => {
