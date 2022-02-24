@@ -226,7 +226,8 @@ export function configureResolver() {
       new I18nService(
         c.get<DirectusAdapter>(DirectusAdapter.name),
         c.get<CoinbaseAdapter>(CoinbaseAdapter.name),
-        Configuration.currency
+        Configuration.currency,
+        logger
       )
   )
   return resolver

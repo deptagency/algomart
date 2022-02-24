@@ -1,3 +1,4 @@
+import pino from 'pino'
 import * as Currencies from '@dinero.js/currencies'
 import { DEFAULT_LOCALE, LanguageList } from '@algomart/schemas'
 import { Knex } from 'knex'
@@ -9,11 +10,16 @@ import { CurrencyConversionModel } from '@algomart/shared/models'
 import { invariant } from '@algomart/shared/utils'
 
 export default class I18nService {
+  logger: pino.Logger<unknown>
+
   constructor(
     private readonly cms: DirectusAdapter,
     private readonly coinbase: CoinbaseAdapter,
-    private currency: Currencies.Currency<number>
-  ) {}
+    private currency: Currencies.Currency<number>,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
+  }
 
   async getLanguages(locale = DEFAULT_LOCALE): Promise<LanguageList> {
     const languages = await this.cms.getLanguages(locale)
@@ -104,34 +110,49 @@ export default class I18nService {
     // eslint-disable-next-line no-extra-boolean-cast
     // eslint-disable-next-line no-constant-condition
     if (conversions.length === 0 || staleConversion) {
-      const { rates } = await this.coinbase.getExchangeRates({
-        currency: sourceCurrency,
-      })
-      const now = new Date().toISOString()
-      const upserts = Object.keys(rates).map((code) => ({
-        id: conversions?.find(
-          (conversion) => conversion?.targetCurrency === code
-        )?.id,
-        sourceCurrency,
-        targetCurrency: code,
-        exchangeRate: Number.parseFloat(rates[code]),
-        updatedAt: now,
-      }))
+      try {
+        const { rates } = await this.coinbase.getExchangeRates({
+          currency: sourceCurrency,
+        })
 
-      // push matching exchange rate, helpful for ui conversions
-      upserts.push({
-        id: conversions?.find(
-          (conversion) => conversion?.targetCurrency === sourceCurrency
-        )?.id,
-        sourceCurrency,
-        targetCurrency: sourceCurrency,
-        exchangeRate: 1,
-        updatedAt: now,
-      })
+        if (rates) {
+          const now = new Date().toISOString()
+          const upserts = Object.keys(rates).map((code) => ({
+            id: conversions?.find(
+              (conversion) => conversion?.targetCurrency === code
+            )?.id,
+            sourceCurrency,
+            targetCurrency: code,
+            exchangeRate: Number.parseFloat(rates[code]),
+            updatedAt: now,
+          }))
 
-      conversions = await CurrencyConversionModel.query(
-        knexRead
-      ).upsertGraphAndFetch(upserts)
+          // push matching exchange rate, helpful for ui conversions
+          upserts.push({
+            id: conversions?.find(
+              (conversion) => conversion?.targetCurrency === sourceCurrency
+            )?.id,
+            sourceCurrency,
+            targetCurrency: sourceCurrency,
+            exchangeRate: 1,
+            updatedAt: now,
+          })
+
+          conversions = await CurrencyConversionModel.query(
+            knexRead
+          ).upsertGraphAndFetch(upserts)
+        } else {
+          this.logger.warn(
+            rates,
+            'Error receiving exchange rates from coinbase: No rates available. Attempting to returning stale conversions if avaliable'
+          )
+        }
+      } catch (e) {
+        this.logger.warn(
+          e,
+          'Error receiving exchange rates from coinbase: Catch. Attempting to returning stale conversions if avaliable'
+        )
+      }
     }
 
     invariant(conversions, 'conversions not found')

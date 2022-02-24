@@ -22,6 +22,11 @@ resource "google_cloud_run_service" "cms" {
       annotations = {
         "run.googleapis.com/vpc-access-connector" = var.vpc_access_connector_name
 
+        # Set to all to allow access without IAP auth
+        "run.googleapis.com/ingress" = "all"
+
+        "autoscaling.knative.dev/minScale" = 1
+
         # maxScale to limit database connections; it is unlikely that there
         # will ever be more than a single container running
         "autoscaling.knative.dev/maxScale" = 2

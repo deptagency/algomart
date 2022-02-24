@@ -10,6 +10,8 @@ resource "google_cloud_run_service" "api" {
 
       annotations = {
         "run.googleapis.com/vpc-access-connector" = var.vpc_access_connector_name
+        # Temp setting for IAP to work.
+        "run.googleapis.com/ingress" = "internal-and-cloud-load-balancing"
 
         # BETA FEATURE
         #
@@ -112,6 +114,26 @@ resource "google_cloud_run_service" "api" {
         env {
           name  = "DATABASE_URL_WRITE"
           value = "postgresql://${google_sql_user.api_user.name}:${google_sql_user.api_user.password}@${google_sql_database_instance.database_server.private_ip_address}:5432/${google_sql_database.api_database.name}"
+        }
+
+        env {
+          name  = "DATABASE_WRITE_MIN_POOL"
+          value = var.api_write_min_pool
+        }
+
+        env {
+          name  = "DATABASE_WRITE_MAX_POOL"
+          value = var.api_write_max_pool
+        }
+
+        env {
+          name  = "DATABASE_READ_MIN_POOL"
+          value = var.api_read_min_pool
+        }
+
+        env {
+          name  = "DATABASE_READ_MAX_POOL"
+          value = var.api_read_max_pool
         }
 
         env {
