@@ -2458,15 +2458,6 @@ fields:
       foreign_key_schema: public
       foreign_key_table: directus_files
       foreign_key_column: id
-      conditions:
-        - name: No editing after publish
-          rule:
-            _and:
-              - status:
-                  _eq: published
-              - id:
-                  _nnull: true
-          readonly: true
     meta:
       collection: nft_templates
       field: preview_image
