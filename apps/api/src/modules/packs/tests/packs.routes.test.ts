@@ -48,7 +48,7 @@ test('GET /packs OK', async () => {
   // Act
   const { body, statusCode, headers } = await app.inject({
     method: 'GET',
-    url: '/packs',
+    url: '/packs/search',
     headers: {
       authorization: 'Bearer test-api-key',
     },
@@ -66,6 +66,7 @@ test('GET /packs OK', async () => {
         available: 5,
         body: translation?.body,
         collectibleTemplateIds: [],
+        collectibleTemplates: [],
         config: {
           collectibleDistribution: packTemplate.nft_distribution,
           collectibleOrder: packTemplate.nft_order,
@@ -136,6 +137,7 @@ test('GET /packs/redeemable/:redeemCode', async () => {
       allowBidExpiration: false,
       body: translation?.body,
       collectibleTemplateIds: [],
+      collectibleTemplates: [],
       config: {
         collectibleDistribution: packTemplate.nft_distribution,
         collectibleOrder: packTemplate.nft_order,
