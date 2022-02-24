@@ -104,6 +104,7 @@ export default function AppHeader() {
                 </AppLink>
                 <Button
                   size="small"
+                  variant="secondary"
                   className={css.createAccountButton}
                   onClick={signIn}
                   rounded={false}

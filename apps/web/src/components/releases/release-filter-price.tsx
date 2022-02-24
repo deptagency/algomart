@@ -72,6 +72,7 @@ export default function ReleaseFilterPrice() {
               Number(priceLow) >= Number(priceHigh) ||
               Number(priceHigh) <= Number(priceLow)
             }
+            variant="secondary"
             fullWidth
             onClick={() => {
               const low = formatFloatToInt(priceLow, currency)
@@ -81,6 +82,7 @@ export default function ReleaseFilterPrice() {
               )
             }}
             size="small"
+            rounded={false}
           >
             {t('common:actions.Apply')}
           </Button>

@@ -114,8 +114,14 @@ export default function ReleaseMetadata({
             </div>
           </>
         ) : (
-          <div className={css.metadataValue}>
-            {isActive
+          <div
+            className={clsx(css.metadataValue, {
+              [css.metadataActive]: isActive,
+            })}
+          >
+            {packTemplate.subtitle
+              ? packTemplate.subtitle
+              : isActive
               ? t('release:This sale is open')
               : t('release:This sale has ended')}
           </div>

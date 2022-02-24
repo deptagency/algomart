@@ -72,7 +72,7 @@ export default function HomeTemplate({
             ) : null}
 
             <div className={css.featuredControls}>
-              <Button onClick={onClickFeatured} size="small" rounded>
+              <Button onClick={onClickFeatured} size="medium" rounded>
                 {authenticated
                   ? t('common:actions.Buy Now')
                   : t('common:actions.Create Account')}

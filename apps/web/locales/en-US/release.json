@@ -41,6 +41,7 @@
   "Notable Collectibles": "Notable Collectibles",
   "Not Met": "Not Met",
   "openToEmployees": "Open to {{name}} Employees",
+  "packContents": "This pack contains {{ nftsPerPack }} {{ nftCategory }}",
   "packActivityDate": "{{date}} at {{time}}",
   "passphraseApprove": "Enter your passphrase to authorize this transaction.",
   "redemptionCode": "This NFT requires a code to redeem.",

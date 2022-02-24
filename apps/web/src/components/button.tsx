@@ -37,15 +37,15 @@ export function buttonClasses(
       'rounded-sm': !group,
       'rounded-l-sm': group === 'left',
       'rounded-r-sm': group === 'right',
-      'bg-action-primary tracking-wide font-display border-none shadow-large hover:bg-opacity-90 text-action-primaryContrastText':
+      'bg-action-primary tracking-wide font-bold border-none shadow-large hover:bg-opacity-90 text-action-primaryContrastText':
         !disabled && variant === 'primary',
       'bg-action-secondary tracking-wide font-display text-action-secondaryContrastText shadow-large hover:bg-opacity-90':
         variant === 'secondary',
       // TODO: This should be a "ghost" variant
       'bg-transparent border-none hover:border-none': variant === 'tertiary',
       'bg-transparent border-none float-left mb-5': variant === 'link',
-      'text-lg': size === 'small',
-      'text-xl': size === 'medium',
+      'text-base': size === 'small',
+      'text-lg': size === 'medium',
       'px-10 py-5': size === 'medium' && !disablePadding,
       'px-10 py-3': size === 'small' && !disablePadding,
       'bg-gray-400 cursor-not-allowed pointer-events-none focus:ring-secondary opacity-30':
