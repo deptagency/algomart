@@ -117,6 +117,26 @@ resource "google_cloud_run_service" "api" {
         }
 
         env {
+          name  = "DATABASE_WRITE_MIN_POOL"
+          value = var.api_write_min_pool
+        }
+
+        env {
+          name  = "DATABASE_WRITE_MAX_POOL"
+          value = var.api_write_max_pool
+        }
+
+        env {
+          name  = "DATABASE_READ_MIN_POOL"
+          value = var.api_read_min_pool
+        }
+
+        env {
+          name  = "DATABASE_READ_MAX_POOL"
+          value = var.api_read_max_pool
+        }
+
+        env {
           name  = "DATABASE_SCHEMA"
           value = var.api_database_schema
         }
