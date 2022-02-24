@@ -32,7 +32,7 @@ export default function CardSummary({
             <th scope="row">{release?.title}</th>
             <td>
               <span>
-                {formatCurrency(price, lang)} {currency && currency}
+                {formatCurrency(price, lang)} {currency?.code && (currency.code)}
               </span>
             </td>
           </tr>
