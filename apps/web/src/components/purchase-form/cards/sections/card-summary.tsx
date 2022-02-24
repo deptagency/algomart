@@ -1,14 +1,11 @@
-import { DEFAULT_CURRENCY, PublishedPack } from '@algomart/schemas'
+import { PublishedPack } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 
 import css from './card-summary.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
-import { Environment } from '@/environment'
-import { formatCurrency } from '@/utils/format-currency'
-
-const currency = Environment.currency.code || DEFAULT_CURRENCY
+import { currency, formatCurrency } from '@/utils/format-currency'
 
 interface CardSummaryProps {
   isAuctionActive: boolean

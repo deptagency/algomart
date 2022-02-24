@@ -16,7 +16,7 @@ import Checkbox from '@/components/checkbox'
 import Heading from '@/components/heading'
 import Bid from '@/components/purchase-form/shared/bid'
 import { FormValidation } from '@/contexts/payment-context'
-import { formatCurrency } from '@/utils/format-currency'
+import { currency, formatCurrency } from '@/utils/format-currency'
 import { urls } from '@/utils/urls'
 
 export interface CryptoFormProps {
@@ -125,7 +125,9 @@ export default function CryptoForm({
       {/* Price */}
       <div className={css.priceContainer}>
         <p className={css.priceLabel}>{t('release:Total')}</p>
-        <p className={css.priceValue}>{formatCurrency(price, lang)}</p>
+        <p className={css.priceValue}>
+          {formatCurrency(price, lang)} {currency?.code && currency.code}
+        </p>
       </div>
 
       {!isAuctionActive ? (

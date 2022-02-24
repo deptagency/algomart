@@ -11,7 +11,7 @@ import {
 
 import { Environment } from '@/environment'
 
-const currency: Currency<number> = Environment.currency
+export const currency: Currency<number> = Environment.currency
 
 export function formatCurrency(
   value?: string | number | null,

@@ -14,7 +14,11 @@ import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import { FormValidation } from '@/contexts/payment-context'
 import { isAfterNow } from '@/utils/date-time'
-import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
+import {
+  currency,
+  formatCurrency,
+  formatIntToFloat,
+} from '@/utils/format-currency'
 
 export interface BankAccountFormProps {
   bid: string | null
@@ -200,7 +204,9 @@ export default function BankAccountForm({
       {/* Price */}
       <div className={css.priceContainer}>
         <p className={css.priceLabel}>{t('release:Total')}</p>
-        <p className={css.priceValue}>{formatCurrency(price, lang)}</p>
+        <p className={css.priceValue}>
+          {formatCurrency(price, lang)} {currency?.code && currency.code}
+        </p>
       </div>
 
       {/* Submit */}

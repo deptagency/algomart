@@ -56,7 +56,7 @@ export default function CryptoFormInstructions({
           <li>{t('forms:fields.payWithCrypto.instructions.2')}</li>
           <li>
             {t('forms:fields.payWithCrypto.instructions.3', {
-              price: formatCurrency(price, lang),
+              price: `${formatCurrency(price, lang)}`,
             })}
           </li>
           <li>{t('forms:fields.payWithCrypto.instructions.4')}</li>
