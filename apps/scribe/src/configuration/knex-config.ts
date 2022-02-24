@@ -15,12 +15,3 @@ export function buildKnexMainConfiguration(): Knex.Config {
     },
   }
 }
-
-export function buildKnexReadConfiguration(): Knex.Config {
-  return {
-    client: 'pg',
-    connection: Configuration.databaseReadUrl,
-    searchPath: [Configuration.databaseSchema],
-    pool: { min: 2, max: 20 },
-  }
-}

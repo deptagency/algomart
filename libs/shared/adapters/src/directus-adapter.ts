@@ -1,10 +1,5 @@
 import pino from 'pino'
 import {
-  CollectibleBase,
-  CollectionBase,
-  CollectionWithSets,
-  Countries,
-  DEFAULT_LOCALE,
   DirectusCollectibleTemplate,
   DirectusCollection,
   DirectusFaqTemplate,
@@ -18,11 +13,21 @@ import {
   DirectusPage,
   DirectusSet,
   DirectusStatus,
+  DirectusWebhook,
 } from '@algomart/schemas'
+import {
+  CMSCacheCollectibleTemplateModel,
+  CMSCacheCollectionModel,
+  CMSCacheFaqModel,
+  CMSCacheHomepageModel,
+  CMSCacheLanguageModel,
+  CMSCachePackTemplateModel,
+  CMSCachePageModel,
+  CMSCacheSetModel,
+} from '@algomart/shared/models'
+
 import got, { Got } from 'got'
 import { URLSearchParams } from 'node:url'
-
-import { invariant } from '@algomart/shared/utils'
 
 // #region Directus Helpers
 
@@ -40,16 +45,16 @@ export interface ItemByIdResponse<T> {
 
 export interface ItemFilter {
   [key: string]:
-    | string
-    | string[]
-    | number
-    | number[]
-    | boolean
-    | boolean[]
-    | Date
-    | Date[]
-    | ItemFilter
-    | ItemFilter[]
+  | string
+  | string[]
+  | number
+  | number[]
+  | boolean
+  | boolean[]
+  | Date
+  | Date[]
+  | ItemFilter
+  | ItemFilter[]
 }
 
 export interface ItemQuery<TItem> {
@@ -121,8 +126,8 @@ function getParameters<TItem>(query?: ItemQuery<TItem>) {
       query.totalCount && query.filterCount
         ? '*'
         : query.totalCount
-        ? 'total_count'
-        : 'filter_count'
+          ? 'total_count'
+          : 'filter_count'
     )
   }
 
@@ -254,122 +259,6 @@ export default class DirectusAdapter {
         },
       },
       limit: -1,
-      fields: ['*.*'],
-    }
-
-    return await this.findMany<DirectusCollectibleTemplate>('nft_templates', {
-      ...defaultQuery,
-      ...query,
-    })
-  }
-
-  private async findCollections(query: ItemQuery<DirectusCollection> = {}) {
-    const defaultQuery: ItemQuery<DirectusCollection> = {
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
-      limit: -1,
-      fields: ['*.*'],
-    }
-
-    return await this.findMany<DirectusCollection>('collections', {
-      ...defaultQuery,
-      ...query,
-    })
-  }
-
-  private async findSets(query: ItemQuery<DirectusSet> = {}) {
-    const defaultQuery: ItemQuery<DirectusSet> = {
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
-      limit: -1,
-      fields: ['*.*'],
-    }
-
-    return await this.findMany<DirectusSet>('sets', {
-      ...defaultQuery,
-      ...query,
-    })
-  }
-
-  private async findPages(query: ItemQuery<DirectusPage> = {}) {
-    const defaultQuery: ItemQuery<DirectusPage> = {
-      filter: {},
-      limit: -1,
-      fields: ['*.*'],
-    }
-
-    return await this.findMany<DirectusPage>('pages', {
-      ...defaultQuery,
-      ...query,
-    })
-  }
-
-  private async findCountries(query: ItemQuery<{ filter: ItemFilter }> = {}) {
-    const defaultQuery: ItemQuery<DirectusCountryWithTranslations> = {
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
-      limit: -1,
-      fields: ['*.*'],
-    }
-
-    return await this.findMany<DirectusCountryWithTranslations>('countries', {
-      ...defaultQuery,
-      ...query,
-    })
-  }
-
-  async findAllPacks({
-    page = 1,
-    pageSize = 10,
-  }: {
-    page?: number
-    pageSize?: number
-  }) {
-    const response = await this.findPackTemplates({
-      page,
-      limit: pageSize,
-      // Sort by released_at in descending order
-      sort: ['-released_at'],
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
-      filterCount: true,
-    })
-
-    invariant(
-      typeof response.meta?.filter_count === 'number',
-      'filter_count missing from response'
-    )
-
-    return response.data
-  }
-
-  async findAllCollectibles({
-    page = 1,
-    pageSize = 10,
-  }: {
-    page?: number
-    pageSize?: number
-  }) {
-    const response = await this.findCollectibleTemplates({
-      page,
-      limit: pageSize,
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
       fields: [
         'id',
         'total_editions',
@@ -386,32 +275,22 @@ export default class DirectusAdapter {
         'set.collection.id',
         'collection',
       ],
-      filterCount: true,
+    }
+
+    return await this.findMany<DirectusCollectibleTemplate>('nft_templates', {
+      ...defaultQuery,
+      ...query,
     })
-
-    invariant(
-      typeof response.meta?.filter_count === 'number',
-      'filter_count missing from response'
-    )
-
-    return response.data
   }
 
-  async findAllCollections({
-    page = 1,
-    pageSize = 10,
-  }: {
-    page?: number
-    pageSize?: number
-  }) {
-    const response = await this.findCollections({
-      page,
-      limit: pageSize,
+  private async findCollections(query: ItemQuery<DirectusCollection> = {}) {
+    const defaultQuery: ItemQuery<DirectusCollection> = {
       filter: {
         status: {
           _eq: DirectusStatus.Published,
         },
       },
+      limit: -1,
       fields: [
         'collection_image.*',
         'id',
@@ -424,32 +303,34 @@ export default class DirectusAdapter {
         'sets.slug',
         'sets.translations.*',
       ],
-      filterCount: true,
+    }
+
+    return await this.findMany<DirectusCollection>('collections', {
+      ...defaultQuery,
+      ...query,
     })
-
-    invariant(
-      typeof response.meta?.filter_count === 'number',
-      'filter_count missing from response'
-    )
-
-    return response.data
   }
 
-  async findAllSets({
-    page = 1,
-    pageSize = 10,
-  }: {
-    page?: number
-    pageSize?: number
-  }) {
-    const response = await this.findSets({
-      page,
-      limit: pageSize,
+  private async findLanguages(query: ItemQuery<DirectusLanguageTemplate> = {}) {
+    const defaultQuery: ItemQuery<DirectusLanguageTemplate> = {
+      limit: -1,
+      fields: ['code', 'translations.*'],
+    }
+
+    return await this.findMany<DirectusLanguageTemplate>('languages', {
+      ...defaultQuery,
+      ...query,
+    })
+  }
+
+  private async findSets(query: ItemQuery<DirectusSet> = {}) {
+    const defaultQuery: ItemQuery<DirectusSet> = {
       filter: {
         status: {
           _eq: DirectusStatus.Published,
         },
       },
+      limit: -1,
       fields: [
         'id',
         'status',
@@ -459,107 +340,275 @@ export default class DirectusAdapter {
         'translations.*',
         'nft_templates.*',
       ],
-      filterCount: true,
-    })
-
-    invariant(
-      typeof response.meta?.filter_count === 'number',
-      'filter_count missing from response'
-    )
-
-    return response.data
-  }
-
-  async findAllPages({
-    page = 1,
-    pageSize = 10,
-  }: {
-    page?: number
-    pageSize?: number
-  }) {
-    const response = await this.findPages({
-      page,
-      limit: pageSize,
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
-      fields: ['id', 'slug', 'translations.*'],
-      filterCount: true,
-    })
-
-    invariant(
-      typeof response.meta?.filter_count === 'number',
-      'filter_count missing from response'
-    )
-
-    return response.data
-  }
-
-  async getFaqs({
-    page = 1,
-    pageSize = 10,
-  }: {
-    page?: number
-    pageSize?: number
-  }) {
-    const defaultQuery: ItemQuery<DirectusFaqTemplate> = {
-      page,
-      limit: pageSize,
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
-      fields: ['*.*'],
     }
 
-    const response = await this.findMany<DirectusFaqTemplate>('faqs', {
+    return await this.findMany<DirectusSet>('sets', {
       ...defaultQuery,
+      ...query,
     })
-
-    return response.data
   }
 
-  async getLanguages({
-    page = 1,
-    pageSize = 10,
-  }: {
-    page?: number
-    pageSize?: number
-  }) {
-    const defaultQuery: ItemQuery<DirectusLanguageTemplate> = {
-      page,
-      limit: pageSize,
-      fields: ['*.*'],
+  private async findPages(query: ItemQuery<DirectusPage> = {}) {
+    const defaultQuery: ItemQuery<DirectusPage> = {
+      limit: -1,
+      fields: ['id', 'slug', 'translations.*'],
     }
 
-    const response = await this.findMany<DirectusLanguageTemplate>(
-      `languages`,
-      {
-        ...defaultQuery,
-      }
-    )
-
-    return response.data
+    return await this.findMany<DirectusPage>('pages', {
+      ...defaultQuery,
+      ...query,
+    })
   }
 
-  async findPublishedCountries(
-    filter: ItemFilter = {}
-  ): Promise<ItemsResponse<DirectusCountryWithTranslations | null>> {
-    const response = await this.findCountries({ filter })
-    if (response.data.length === 0) return null
-    const result: ItemByIdResponse<DirectusCountryWithTranslations> = JSON.parse(
-      response
-    )
-    return JSON.parse(result)
+  private async findFaqs(query: ItemQuery<DirectusFaqTemplate> = {}) {
+    const defaultQuery: ItemQuery<DirectusFaqTemplate> = {
+      filter: {},
+      limit: -1,
+      fields: ['id', 'translations.*'],
+    }
+
+    return await this.findMany<DirectusFaqTemplate>('faqs', {
+      ...defaultQuery,
+      ...query,
+    })
   }
 
-  async findHomepage() {
+  // #region directus sync methods
+  private async syncCollection(collectionId) {
+    const response = await this.findCollections({
+      filter: {
+        id: {
+          _eq: collectionId,
+        },
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+    })
+
+    if (response.data.length > 0) {
+      await CMSCacheCollectionModel.upsert(
+        response.data[0] as unknown as DirectusCollection
+      )
+    }
+  }
+
+  private async syncCollectibleTemplate(collectibleId) {
+    const response = await this.findCollectibleTemplates({
+      filter: {
+        id: {
+          _eq: collectibleId,
+        },
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+    })
+
+    if (response.data.length > 0) {
+      await CMSCacheCollectibleTemplateModel.upsert(
+        response.data[0] as unknown as DirectusCollectibleTemplate
+      )
+    }
+  }
+
+  private async syncLanguage(languageCode) {
+    const response = await this.findLanguages({
+      filter: {
+        code: {
+          _eq: languageCode,
+        },
+      },
+    })
+
+    if (response.data.length > 0) {
+      await CMSCacheLanguageModel.upsert(
+        response.data[0] as unknown as DirectusLanguageTemplate
+      )
+    }
+  }
+
+  private async syncPackTemplate(packId) {
+    const response = await this.findPackTemplates({
+      filter: {
+        id: {
+          _eq: packId,
+        },
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+    })
+
+    if (response.data.length > 0) {
+      await CMSCachePackTemplateModel.upsert(
+        response.data[0] as unknown as DirectusPackTemplate
+      )
+    }
+  }
+
+  private async syncRarities() {
+    await this.syncHomePage()
+
+    const collectibleTemplates = await this.findCollectibleTemplates()
+    for (const collectibleTemplate in collectibleTemplates) {
+      await CMSCacheCollectibleTemplateModel.upsert(
+        collectibleTemplate as unknown as DirectusCollectibleTemplate
+      )
+    }
+  }
+
+  private async syncSet(setId) {
+    const response = await this.findSets({
+      filter: {
+        id: {
+          _eq: setId,
+        },
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+    })
+
+    if (response.data.length > 0) {
+      await CMSCacheSetModel.upsert(response.data[0] as unknown as DirectusSet)
+    }
+  }
+
+  private async syncPage(pageId) {
+    const response = await this.findPages({
+      filter: {
+        id: {
+          _eq: pageId,
+        },
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+    })
+
+    if (response.data.length > 0) {
+      await CMSCachePageModel.upsert(
+        response.data[0] as unknown as DirectusPage
+      )
+    }
+  }
+
+  private async syncFaq(faqId) {
+    const response = await this.findFaqs({
+      filter: {
+        id: {
+          _eq: faqId,
+        },
+      },
+    })
+
+    if (response.data.length > 0) {
+      await CMSCacheFaqModel.upsert(
+        response.data[0] as unknown as DirectusFaqTemplate
+      )
+    }
+  }
+
+  // #endregion
+
+  async syncAllLanguages() {
+    const response = await this.findLanguages()
+
+    for (const language of response.data) {
+      await CMSCacheLanguageModel.upsert(language)
+    }
+  }
+
+  async syncAllPackTemplates() {
+    const response = await this.findPackTemplates({
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+    })
+
+    for (const packTemplate of response.data) {
+      await CMSCachePackTemplateModel.upsert(packTemplate)
+    }
+  }
+
+  async syncAllCollectibleTemplates() {
+    const response = await this.findCollectibleTemplates({
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+    })
+
+    for (const collectibleTemplate of response.data) {
+      await CMSCacheCollectibleTemplateModel.upsert(collectibleTemplate)
+    }
+  }
+
+  async syncAllCollections() {
+    const response = await this.findCollections({
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+    })
+
+    for (const collection of response.data) {
+      await CMSCacheCollectionModel.upsert(collection)
+    }
+  }
+
+  async syncAllSets() {
+    const response = await this.findSets({
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+    })
+
+    for (const set of response.data) {
+      await CMSCacheSetModel.upsert(set)
+    }
+  }
+
+  async syncAllPages() {
+    const response = await this.findPages({
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+    })
+
+    for (const page of response.data) {
+      await CMSCachePageModel.upsert(page)
+    }
+  }
+
+  async syncAllFaqs() {
+    const response = await this.findFaqs({
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+    })
+
+    for (const faq of response.data) {
+      await CMSCacheFaqModel.upsert(faq)
+    }
+  }
+
+  async syncHomePage() {
     // Homepage is a singleton in the CMS, which makes this endpoint only return a single item.
     // Therefore we should avoid using the `findMany` method and instead act as if the result is
     // from a `findById` call.
+
     const response = await this.http.get('items/homepage', {
       searchParams: getParameters({
         fields: [
@@ -629,29 +678,114 @@ export default class DirectusAdapter {
     })
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      return JSON.parse(response.body).data as DirectusHomepage
-    }
+      const homepage = JSON.parse(response.body).data as DirectusHomepage
 
-    return null
-  }
-
-  async findApplication(): Promise<DirectusApplication | null> {
-    // Application is a singleton in the CMS, which makes this endpoint only return a single item.
-    // Therefore we should avoid using the `findMany` method and instead act as if the result is
-    // from a `findById` call.
-    const response = await this.http.get('items/application', {
-      searchParams: getParameters({
-        fields: ['*.*'],
-      }),
-    })
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      const result: ItemByIdResponse<DirectusApplication> = JSON.parse(
-        response.body
+      await CMSCacheHomepageModel.upsert(
+        homepage as unknown as DirectusHomepage
       )
-      return result.data
     }
 
     return null
   }
+
+  // #region webhook handlers
+
+  async processWebhook(webhook: DirectusWebhook) {
+    switch (webhook.event) {
+      case 'items.create':
+        return await this.processWebhookCreate(webhook)
+      case 'items.update':
+        return await this.processWebhookUpdate(webhook)
+      case 'items.delete':
+        return await this.processWebhookDelete(webhook)
+      default:
+        throw new Error(`unhandled directus webhook event: ${webhook.event}`)
+    }
+  }
+
+  private async processWebhookCreate(webhook: DirectusWebhook) {
+    switch (webhook.collection) {
+      case 'collections':
+        return await this.syncCollection(webhook.key)
+      case 'homepage':
+        return await this.syncHomePage()
+      case 'languages':
+        return await this.syncLanguage(webhook.key)
+      case 'nft_templates':
+        return await this.syncCollectibleTemplate(webhook.key)
+      case 'pack_templates':
+        return await this.syncPackTemplate(webhook.key)
+      case 'rarities':
+        return await this.syncRarities()
+      case 'sets':
+        return await this.syncSet(webhook.key)
+      case 'faqs':
+        return await this.syncFaq(webhook.key)
+      case 'pages':
+        return await this.syncPage(webhook.key)
+      default:
+        throw new Error(
+          `unhandled directus webhook items.create event: ${webhook.collection}`
+        )
+    }
+  }
+
+  private async processWebhookUpdate(webhook: DirectusWebhook) {
+    console.log('processWebhookUpdate')
+    console.log(webhook)
+
+    switch (webhook.collection) {
+      case 'collections':
+        return await this.syncCollection(webhook.keys[0])
+      case 'homepage':
+        return await this.syncHomePage()
+      case 'languages':
+        return await this.syncLanguage(webhook.keys[0])
+      case 'nft_templates':
+        return await this.syncCollectibleTemplate(webhook.keys[0])
+      case 'pack_templates':
+        return await this.syncPackTemplate(webhook.keys[0])
+      case 'rarities':
+        return await this.syncRarities()
+      case 'sets':
+        return await this.syncSet(webhook.keys[0])
+      case 'faqs':
+        return await this.syncFaq(webhook.keys[0])
+      case 'pages':
+        return await this.syncPage(webhook.keys[0])
+      default:
+        throw new Error(
+          `unhandled directus webhook items.update event: ${webhook.collection}`
+        )
+    }
+  }
+
+  private async processWebhookDelete(webhook: DirectusWebhook) {
+    switch (webhook.collection) {
+      case 'collections':
+        return null
+      case 'homepage':
+        return null
+      case 'languages':
+        return null
+      case 'nft_templates':
+        return null
+      case 'pack_templates':
+        return null
+      case 'rarities':
+        return null
+      case 'sets':
+        return null
+      case 'faqs':
+        return null
+      case 'pages':
+        return null
+      default:
+        throw new Error(
+          `unhandled directus webhook items.delete event: ${webhook.collection}`
+        )
+    }
+  }
+
+  // #endregion
 }

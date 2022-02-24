@@ -1,13 +1,11 @@
 import { TransactionsService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
-import { Knex } from 'knex'
 import { Model } from 'objection'
 import pino from 'pino'
 
 export async function confirmTransactionsTask(
   registry: DependencyResolver,
-  logger: pino.Logger<unknown>,
-  knexRead?: Knex
+  logger: pino.Logger<unknown>
 ) {
   const log = logger.child({ task: 'confirm-transactions' })
   const transactions = registry.get<TransactionsService>(
@@ -16,11 +14,7 @@ export async function confirmTransactionsTask(
 
   const trx = await Model.startTransaction()
   try {
-    const result = await transactions.confirmPendingTransactions(
-      undefined,
-      trx,
-      knexRead
-    )
+    const result = await transactions.confirmPendingTransactions(undefined, trx)
     await trx.commit()
     log.info(result, 'updated transactions')
   } catch (error) {

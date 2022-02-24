@@ -1,9 +1,6 @@
 import buildApp from './app/build-app'
 import { Configuration } from './configuration'
-import {
-  buildKnexMainConfiguration,
-  buildKnexReadConfiguration,
-} from './configuration/knex-config'
+import { buildKnexMainConfiguration } from './configuration/knex-config'
 import { configureTasks } from './configuration/tasks'
 import { configureResolver } from './configuration/configure-resolver'
 import { logger } from './configuration/logger'
@@ -13,7 +10,6 @@ buildApp({
     logger: { prettyPrint: Configuration.env !== 'production' },
   },
   knexMain: buildKnexMainConfiguration(),
-  knexRead: buildKnexReadConfiguration(),
   container: configureResolver(),
 })
   .then((app) => {
