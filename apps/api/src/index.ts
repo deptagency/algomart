@@ -7,7 +7,12 @@ import { logger } from '@/utils/logger'
 
 buildApp({
   fastify: {
-    logger: { prettyPrint: Configuration.env !== 'production' },
+    logger: {
+      prettyPrint:
+        Configuration.env === 'production'
+          ? false
+          : { translateTime: 'HH:MM:ss Z' },
+    },
   },
   knex: buildKnexConfiguration(),
   container: configureResolver(),
