@@ -3,7 +3,11 @@ import {
   CollectibleBase,
   CollectionBase,
   CollectionWithSets,
+  Country,
   DEFAULT_LOCALE,
+  DirectusApplication,
+  DirectusCountry,
+  DirectusCountryTranslation,
   DirectusCollectibleTemplate,
   DirectusCollectibleTemplateTranslation,
   DirectusCollection,
@@ -32,6 +36,7 @@ import {
 } from '@algomart/schemas'
 
 import {
+  CMSCacheApplicationModel,
   CMSCacheCollectibleTemplateModel,
   CMSCacheCollectionModel,
   CMSCacheFaqModel,
@@ -122,17 +127,6 @@ export function toHomepageBase(
   getFileURL: GetFileURL,
   locale = DEFAULT_LOCALE
 ): HomepageBase {
-  // invariant(
-  //   homepage.hero_pack === null || typeof homepage.hero_pack === 'string',
-  //   'hero_pack must be null or a string'
-  // )
-  // invariant(
-  //   homepage.featured_packs === null ||
-  //   homepage.featured_packs.length === 0 ||
-  //   isStringArray(homepage.featured_packs),
-  //   'featured_packs must be empty or an array of strings'
-  // )
-
   const translation = getDirectusTranslation(
     homepage.translations,
     `homepage has no translations`,
@@ -349,6 +343,21 @@ export function toStatus(template: DirectusPackTemplate) {
   return PackStatus.Active
 }
 
+export function toCountryBase(
+  country: DirectusCountry,
+  locale: string
+): Country {
+  const translation = getDirectusTranslation<DirectusCountryTranslation>(
+    country.translations as DirectusCountryTranslation[],
+    `country ${country.code} has no translations`,
+    locale
+  )
+  return {
+    code: country.code,
+    name: translation.title,
+  }
+}
+
 export function toPackBase(
   template: DirectusPackTemplate,
   getFileURL: GetFileURL,
@@ -361,6 +370,8 @@ export function toPackBase(
   )
 
   return {
+    // TODO: Need to load the additional images from Directus to populate
+    additionalImages: [],
     allowBidExpiration: template.allow_bid_expiration,
     auctionUntil: template.auction_until ?? undefined,
     body: translation.body ?? undefined,
@@ -405,133 +416,23 @@ export default class CMSCacheAdapter {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  private async findPackTemplates(
-    query: ItemQuery<DirectusPackTemplate> = {},
-    knxRead?: Knex
-  ) {
-    // TODO: Break apart the query input and translate into SQL clauses
-
-    // {
-    //   "currency": "EURO",
-    //   "locale": "en-US",
-    //   "page": "2",
-    //   "pageSize": "9",
-    //   "priceHigh": "50000",
-    //   "priceLow": "0",
-    //   "reserveMet": "false",
-    //   "sortBy": "title",
-    //   "sortDirection": "asc",
-    //   "status": [
-    //     "Expired",
-    //     "Active",
-    //     "Upcoming"
-    //   ],
-    //   "type": [
-    //     "auction",
-    //     "purchase"
-    //   ]
-    // }
-
-    // TODO: Convert the input priceHigh and priceLow from the input Currency to USD before adding the where clause.
-    // All the items in the database are stored in USD
-
-    const queryResult = await CMSCachePackTemplateModel.query(knxRead)
-      // .whereIn('status', query.status)
-      // .orderBy(query.sortBy, query.sortDirection)
-      // .limit(query.pageSize)
-      // .offset(9)
+  async findApplication(knxRead?: Knex) {
+    const queryResult = await CMSCacheApplicationModel.query(knxRead)
       .select('content')
+      .first()
 
-    const data = queryResult.map(
-      (result: CMSCachePackTemplateModel): DirectusPackTemplate =>
-        result.content as unknown as DirectusPackTemplate
-    )
-    const result: ItemsResponse<DirectusPackTemplate> = {
-      data: data,
-      meta: {
-        filter_count: 1,
-        total_count: 1,
-      },
-    }
+    const result: DirectusApplication =
+      queryResult.content as unknown as DirectusApplication
 
     return result
   }
 
-  private async findCollectibleTemplates(
-    query: ItemQuery<DirectusCollectibleTemplate> = {},
-    knxRead?: Knex
-  ) {
-    const queryResult = await CMSCacheCollectibleTemplateModel.query(
-      knxRead
-    ).select('content')
+  async findAllCountries(locale = DEFAULT_LOCALE, knxRead?: Knex) {
+    const application = await this.findApplication(knxRead)
 
-    const data = queryResult.map(
-      (result: CMSCacheCollectibleTemplateModel): DirectusCollectibleTemplate =>
-        result.content as unknown as DirectusCollectibleTemplate
+    return application.countries.map((country) =>
+      toCountryBase(country, locale)
     )
-
-    const result: ItemsResponse<DirectusCollectibleTemplate> = {
-      data: data,
-      meta: {
-        filter_count: 1,
-        total_count: 1,
-      },
-    }
-
-    return result
-  }
-
-  private async findCollections(
-    query: ItemQuery<DirectusCollection> = {},
-    knxRead?: Knex
-  ) {
-    const queryResult = await CMSCacheCollectionModel.query(knxRead).select(
-      'content'
-    )
-
-    const data = queryResult.map(
-      (result: CMSCacheCollectionModel): DirectusCollection =>
-        result.content as unknown as DirectusCollection
-    )
-
-    const result: ItemsResponse<DirectusCollection> = {
-      data: data,
-      meta: {
-        filter_count: 1,
-        total_count: 1,
-      },
-    }
-
-    return result
-  }
-
-  private async findSets(query: ItemQuery<DirectusSet> = {}, knxRead?: Knex) {
-    const queryResult = await CMSCacheSetModel.query(knxRead).select('content')
-    const data = queryResult.map(
-      (result: CMSCacheSetModel): DirectusSet =>
-        result.content as unknown as DirectusSet
-    )
-    const result: ItemsResponse<DirectusSet> = {
-      data: data,
-      meta: {
-        filter_count: 1,
-        total_count: 1,
-      },
-    }
-
-    return result
-  }
-
-  private getFileURL(file: DirectusFile | null) {
-    if (file === null) {
-      return null
-    }
-
-    if (file.storage == 'gcp' && this.options.gcpCdnUrl !== undefined) {
-      return new URL(`${this.options.gcpCdnUrl}/${file.filename_disk}`).href
-    }
-
-    return new URL(`/assets/${file.id}`, this.options.cmsUrl).href
   }
 
   async findAllPacksAuctionCompletion(
@@ -853,5 +754,132 @@ export default class CMSCacheAdapter {
     }))
   }
 
-  // TODO: getCountries
+  private async findPackTemplates(
+    query: ItemQuery<DirectusPackTemplate> = {},
+    knxRead?: Knex
+  ) {
+    // TODO: Break apart the query input and translate into SQL clauses
+
+    // {
+    //   "currency": "EURO",
+    //   "locale": "en-US",
+    //   "page": "2",
+    //   "pageSize": "9",
+    //   "priceHigh": "50000",
+    //   "priceLow": "0",
+    //   "reserveMet": "false",
+    //   "sortBy": "title",
+    //   "sortDirection": "asc",
+    //   "status": [
+    //     "Expired",
+    //     "Active",
+    //     "Upcoming"
+    //   ],
+    //   "type": [
+    //     "auction",
+    //     "purchase"
+    //   ]
+    // }
+
+    // TODO: Convert the input priceHigh and priceLow from the input Currency to USD before adding the where clause.
+    // All the items in the database are stored in USD
+
+    const queryResult = await CMSCachePackTemplateModel.query(knxRead)
+      // .whereIn('status', query.status)
+      // .orderBy(query.sortBy, query.sortDirection)
+      // .limit(query.pageSize)
+      // .offset(9)
+      .select('content')
+
+    const data = queryResult.map(
+      (result: CMSCachePackTemplateModel): DirectusPackTemplate =>
+        result.content as unknown as DirectusPackTemplate
+    )
+    const result: ItemsResponse<DirectusPackTemplate> = {
+      data: data,
+      meta: {
+        filter_count: 1,
+        total_count: 1,
+      },
+    }
+
+    return result
+  }
+
+  private async findCollectibleTemplates(
+    query: ItemQuery<DirectusCollectibleTemplate> = {},
+    knxRead?: Knex
+  ) {
+    const queryResult = await CMSCacheCollectibleTemplateModel.query(
+      knxRead
+    ).select('content')
+
+    const data = queryResult.map(
+      (result: CMSCacheCollectibleTemplateModel): DirectusCollectibleTemplate =>
+        result.content as unknown as DirectusCollectibleTemplate
+    )
+
+    const result: ItemsResponse<DirectusCollectibleTemplate> = {
+      data: data,
+      meta: {
+        filter_count: 1,
+        total_count: 1,
+      },
+    }
+
+    return result
+  }
+
+  private async findCollections(
+    query: ItemQuery<DirectusCollection> = {},
+    knxRead?: Knex
+  ) {
+    const queryResult = await CMSCacheCollectionModel.query(knxRead).select(
+      'content'
+    )
+
+    const data = queryResult.map(
+      (result: CMSCacheCollectionModel): DirectusCollection =>
+        result.content as unknown as DirectusCollection
+    )
+
+    const result: ItemsResponse<DirectusCollection> = {
+      data: data,
+      meta: {
+        filter_count: 1,
+        total_count: 1,
+      },
+    }
+
+    return result
+  }
+
+  private async findSets(query: ItemQuery<DirectusSet> = {}, knxRead?: Knex) {
+    const queryResult = await CMSCacheSetModel.query(knxRead).select('content')
+    const data = queryResult.map(
+      (result: CMSCacheSetModel): DirectusSet =>
+        result.content as unknown as DirectusSet
+    )
+    const result: ItemsResponse<DirectusSet> = {
+      data: data,
+      meta: {
+        filter_count: 1,
+        total_count: 1,
+      },
+    }
+
+    return result
+  }
+
+  private getFileURL(file: DirectusFile | null) {
+    if (file === null) {
+      return null
+    }
+
+    if (file.storage == 'gcp' && this.options.gcpCdnUrl !== undefined) {
+      return new URL(`${this.options.gcpCdnUrl}/${file.filename_disk}`).href
+    }
+
+    return new URL(`/assets/${file.id}`, this.options.cmsUrl).href
+  }
 }

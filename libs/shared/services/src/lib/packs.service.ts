@@ -1038,11 +1038,8 @@ export default class PacksService {
     return pack
   }
 
-  async generatePacks(trx?: Transaction, knexRead?: Knex) {
-    const packTemplates = await this.cms.findPacksPendingGeneration(
-      undefined,
-      knexRead
-    )
+  async generatePacks(trx?: Transaction) {
+    const packTemplates = await this.cms.findPacksPendingGeneration()
 
     let total = 0
 
@@ -1053,13 +1050,11 @@ export default class PacksService {
     return total
   }
 
-  private async generatePack(template, trx?: Transaction, knexRead?: Knex) {
+  private async generatePack(template, trx?: Transaction) {
     const { collectibleTemplateIds, templateId, config } = template
     const collectibleTemplateIdsCount = collectibleTemplateIds.length
     const collectibleTemplates = await this.cms.findCollectiblesByTemplateIds(
-      collectibleTemplateIds,
-      undefined,
-      knexRead
+      collectibleTemplateIds
     )
 
     const totalCollectibles = collectibleTemplates.reduce(
@@ -1067,7 +1062,7 @@ export default class PacksService {
       0
     )
 
-    const unassignedCollectibles = await CollectibleModel.query(knexRead)
+    const unassignedCollectibles = await CollectibleModel.query()
       .whereIn('templateId', collectibleTemplateIds)
       .whereNull('packId')
       .where('ipfsStatus', IPFSStatus.Stored)
@@ -1178,7 +1173,7 @@ export default class PacksService {
       return 0
     }
 
-    await PackModel.query(trx).upsertGraph(
+    const packs = await PackModel.query(trx).upsertGraph(
       balancedPacks.map((p) => ({
         templateId: p.templateId,
         redeemCode: p.redeemCode,
@@ -1189,13 +1184,8 @@ export default class PacksService {
       { relate: true }
     )
 
-    // Find newly created packs
-    const packs = await PackModel.query()
-      .where('templateId', templateId)
-      .select('id')
-
     // Create events for pack creation
-    await EventModel.query().insert(
+    await EventModel.query(trx).insert(
       packs.map((p) => ({
         action: EventAction.Create,
         entityType: EventEntityType.Pack,

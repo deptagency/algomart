@@ -37,6 +37,10 @@ export const Configuration = {
       .asString()
   },
 
+  get customerServiceEmail() {
+    return env.get('CUSTOMER_SERVICE_EMAIL').asString()
+  },
+
   get algodToken() {
     return env
       .get('ALGOD_TOKEN')
