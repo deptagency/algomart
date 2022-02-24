@@ -337,7 +337,7 @@ export default class DirectusAdapter {
       fields: ['id', 'slug', 'translations.*'],
     }
 
-    return await this.findMany<DirectusPage>('pages', {
+    return await this.findMany<DirectusPage>('page', {
       ...defaultQuery,
       ...query,
     })
@@ -464,9 +464,6 @@ export default class DirectusAdapter {
         id: {
           _eq: pageId,
         },
-        status: {
-          _eq: DirectusStatus.Published,
-        },
       },
     })
 
@@ -561,12 +558,11 @@ export default class DirectusAdapter {
 
   async syncAllPages() {
     const response = await this.findPages({
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
+      filter: {},
     })
+
+    console.log('syncAllPages')
+    console.log(response.data)
 
     for (const page of response.data) {
       await CMSCachePageModel.upsert(page)
