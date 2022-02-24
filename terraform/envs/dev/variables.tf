@@ -181,7 +181,7 @@ variable "api_read_min_pool" {
   sensitive = true
 }
 
-variable "api_read_min_pool" {
+variable "api_read_max_pool" {
   sensitive = true
 }
 
