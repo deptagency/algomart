@@ -430,6 +430,10 @@ export default class DirectusAdapter {
     }
   }
 
+  private async syncCountries() {
+    await this.syncApplication()
+  }
+
   private async syncRarities() {
     await this.syncHomePage()
 
@@ -702,6 +706,9 @@ export default class DirectusAdapter {
         return await this.syncApplication()
       case 'collections':
         return await this.syncCollection(webhook.key)
+      case 'countries':
+        // nothing to do for new countries. inserts are handled with application collection updates
+        return null
       case 'homepage':
         return await this.syncHomePage()
       case 'languages':
@@ -711,7 +718,8 @@ export default class DirectusAdapter {
       case 'pack_templates':
         return await this.syncPackTemplate(webhook.key)
       case 'rarities':
-        return await this.syncRarities()
+        // nothing to do for new rariteies. inserts are handled with collectible and homepage collection updates
+        return null
       case 'sets':
         return await this.syncSet(webhook.key)
       case 'faqs':
@@ -734,6 +742,8 @@ export default class DirectusAdapter {
         return await this.syncApplication()
       case 'collections':
         return await this.syncCollection(webhook.keys[0])
+      case 'countries':
+        return await this.syncCountries()
       case 'homepage':
         return await this.syncHomePage()
       case 'languages':
