@@ -7,6 +7,7 @@ import AppLink from '@/components/app-link/app-link'
 import Heading from '@/components/heading'
 
 export interface PaymentOptionProps {
+  body?: ReactNode | null
   helpText: string
   href: string | { pathname: string; query?: { [key: string]: string } }
   icon: ReactNode
@@ -15,6 +16,7 @@ export interface PaymentOptionProps {
 }
 
 export default function PaymentOption({
+  body,
   helpText,
   href,
   icon,
@@ -32,6 +34,7 @@ export default function PaymentOption({
       <div>
         <Heading level={2}>{title}</Heading>
         <p>{helpText}</p>
+        {body && body}
       </div>
     </AppLink>
   )

@@ -7,9 +7,10 @@ export interface PaymentOptionsProps {
 export default function PaymentOptions({ cards }: PaymentOptionsProps) {
   return (
     <ul>
-      {cards.map(({ helpText, href, isDisabled, icon, title }) => (
+      {cards.map(({ body, helpText, href, isDisabled, icon, title }) => (
         <li key={title}>
           <PaymentOption
+            body={body}
             helpText={helpText}
             isDisabled={isDisabled}
             icon={icon}

@@ -85,7 +85,11 @@
       "success": "You're the current high bidder for {{title}}"
     },
     "ccNumber": {
-      "label": "Credit Card Number"
+      "label": "Credit Card Number",
+      "logos": {
+        "mastercard": "Mastercard",
+        "visa": "Visa"
+      }
     },
     "city": {
       "label": "City"
