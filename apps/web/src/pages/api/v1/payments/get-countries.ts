@@ -1,4 +1,3 @@
-import { BadRequest, NotFound } from 'http-errors'
 import { NextApiResponse } from 'next'
 
 import { ApiClient } from '@/clients/api-client'
@@ -11,20 +10,13 @@ const handler = createHandler()
 handler.use(authMiddleware()).use(userMiddleware())
 
 handler.get(async (request: NextApiRequestApp, response: NextApiResponse) => {
-  if (!request.query.paymentId || typeof request.query.paymentId !== 'string') {
-    throw new BadRequest('Payment ID is required')
+  const countries = await ApiClient.instance.getCountries()
+
+  if (countries) {
+    return response.status(200).json(countries)
   }
 
-  const payment = await ApiClient.instance.getPaymentById(
-    request.query.paymentId,
-    false
-  )
-
-  if (!payment) {
-    throw new NotFound('Payment not found')
-  }
-
-  response.status(200).json(payment)
+  return response.status(200).json([])
 })
 
 export default handler

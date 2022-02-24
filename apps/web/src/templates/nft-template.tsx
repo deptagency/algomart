@@ -60,9 +60,9 @@ export default function NFTTemplate({
 
         <div className={css.panelHeader}>
           <Heading className={css.title}>{collectible.title}</Heading>
-          {collectible.collection ? (
+          {collectible.subtitle ? (
             <Heading className={css.subtitle} level={2} size={4}>
-              {collectible.collection.name}
+              {collectible.subtitle}
             </Heading>
           ) : null}
         </div>
@@ -114,45 +114,36 @@ export default function NFTTemplate({
                 </li>
               ) : null}
               {/* TODO: add publisher details */}
-              {collectible.collection ? (
-                <li className={css.nftMetaListItem}>
-                  <span className={css.nftMetaLabel}>
-                    {t('nft:labels.Collection')}
-                  </span>
-                  <span>{collectible.collection.name}</span>
-                </li>
-              ) : null}
-              <li className={css.nftMetaListItem}>
-                <span className={css.nftMetaLabel}>
-                  {t('nft:labels.Edition')}
-                </span>
-                <span>
-                  {t('nft:labels.editionX', {
-                    edition: collectible.edition,
-                    totalEditions: collectible.totalEditions,
-                  })}
-                </span>
-              </li>
-              {collectible.rarity ? (
-                <li className={css.nftMetaListItem}>
-                  <span className={css.nftMetaLabel}>
-                    {t('nft:labels.Rarity')}
-                  </span>
-                  <span>{collectible.rarity.name}</span>
-                </li>
-              ) : null}
-              <li className={css.nftMetaListItem}>
-                <span className={css.nftMetaLabel}>
-                  {t('nft:labels.Address')}
-                </span>
-                <span>
-                  <ExternalLink
-                    href={`${Environment.algoExplorerBaseUrl}/asset/${collectible.address}`}
-                  >
-                    {collectible.address}
-                  </ExternalLink>
-                </span>
-              </li>
+              <CollectibleMetaListItem
+                label={t('nft:labels.Collection')}
+                value={collectible?.collection?.name}
+              />
+              <CollectibleMetaListItem
+                label={t('nft:labels.Set')}
+                value={collectible?.set?.name}
+              />
+              <CollectibleMetaListItem
+                label={t('nft:labels.Edition')}
+                value={t('nft:labels.editionX', {
+                  edition: collectible.edition,
+                  totalEditions: collectible.totalEditions,
+                })}
+              />
+              <CollectibleMetaListItem
+                label={t('nft:labels.Rarity')}
+                value={collectible?.rarity?.name}
+              />
+              <CollectibleMetaListItem label={t('nft:labels.Address')}>
+                <ExternalLink
+                  href={`${Environment.algoExplorerBaseUrl}/asset/${collectible.address}`}
+                >
+                  {collectible.address}
+                </ExternalLink>
+              </CollectibleMetaListItem>
+              <CollectibleMetaListItem
+                label={t('nft:labels.uniqueId')}
+                value={collectible?.uniqueCode}
+              />
             </ul>
           </div>
         </div>
@@ -160,3 +151,21 @@ export default function NFTTemplate({
     </div>
   )
 }
+
+interface ICollectibleMetaListItem {
+  label: string
+  value?: React.ReactNode
+  children?: React.ReactNode
+}
+
+const CollectibleMetaListItem = ({
+  label,
+  value,
+  children,
+}: ICollectibleMetaListItem) =>
+  children || value ? (
+    <li className={css.nftMetaListItem}>
+      <span className={css.nftMetaLabel}>{label}</span>
+      <span>{children ?? value}</span>
+    </li>
+  ) : null

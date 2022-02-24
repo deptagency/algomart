@@ -24,3 +24,7 @@
 .userInfoPanel dd {
   @apply font-mono text-xs text-base-textTertiary;
 }
+
+.leftSide {
+  @apply w-64;
+}
