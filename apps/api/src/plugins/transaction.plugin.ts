@@ -59,7 +59,17 @@ export default fp(async function fastifyTransaction(fastify: FastifyInstance) {
   }
 
   const onSend: onSendAsyncHookHandler<unknown> = async (request) => {
+    // Error was handled by default error handler -> Transaction has already been rolled back
     if (request.transactionFailed) return
+
+    // Error was handled by custom error handler -> rollback
+    if (request.customError) {
+      fastify.log.error(request.customError, 'rollback transaction')
+      await request.transaction?.rollback()
+      return
+    }
+
+    // Success -> commit
     fastify.log.info('commit transaction')
     await request.transaction?.commit()
   }

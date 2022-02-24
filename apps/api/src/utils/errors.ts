@@ -3,6 +3,15 @@ import { FastifyError } from 'fastify-error'
 import { HTTPError } from 'got'
 import { HttpError } from 'http-errors'
 
+declare module 'fastify' {
+  interface FastifyRequest {
+    /**
+     * Indicates that the error was handled by custom error handler.
+     */
+    customError?: Error
+  }
+}
+
 export class UserError extends Error {
   constructor(message: string, readonly statusCode: number) {
     super(message)
@@ -31,6 +40,23 @@ export function appErrorHandler(app: FastifyInstance) {
     } else {
       app.log.info(error)
     }
+
+    /**
+     *  If the error handler does not pass the error to the reply,
+     *  the onError hook will not be called.
+     *
+     *  For requests that use transactions ({transact: true}), we want to know there was and error
+     *  and rollback the transaction.
+     *
+     *  https://www.fastify.io/docs/latest/Reference/Hooks/#onerror
+     *  This hook will be executed only after the customErrorHandler has been executed,
+     *  and only if the customErrorHandler sends an error back to the user
+     *
+     *  example:
+     *     reply.send(error) // triggers onError
+     *     reply.status(statusCode).send({ statusCode, error: error.name, message: error.message }) // does not trigger onError
+     */
+    request.customError = error
 
     // Send error response
     if (error instanceof HTTPError) {
