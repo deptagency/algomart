@@ -19,6 +19,32 @@ import { invariant } from '@algomart/shared/utils'
 const isResponseError = (error: unknown): error is ResponseError => {
   return typeof (error as ResponseError).response?.body === 'string'
 }
+
+/** Freak out if the notification is missing any variables.
+ *
+ * NOTES
+ * - This does NOT prevent the email notification from being sent.
+ * - We don't use types because variables are pulled from the notifications table.
+ * - We don't use an invariant here anymore because it will throw an error causing the
+ *   email to be sent without updating the "pending" status of the notifaction,
+ *   this causes the email to be resent over and over again.
+ * - For now this is good enough since sending a poorly interpolated email is preferable
+ *   to not sending one at all.
+ */
+const expectVariables = (variables, variableNames: string[], logger) => {
+  // Use warn & trace because it's easier to read the error message.
+  if (!variables) {
+    logger.warn('No variables were provided for this notification.')
+    console.trace('No variables were provided for this notification.')
+  }
+  for (const key of variableNames) {
+    if (variables[key] === undefined) {
+      logger.warn(`Variable '${key}' is required for this email template.`)
+      console.trace(`Variable '${key}' is required for this email template.`)
+    }
+  }
+}
+
 export default class NotificationsService {
   logger: pino.Logger<unknown>
   dispatchStore: {
@@ -26,6 +52,9 @@ export default class NotificationsService {
   } = {
     [NotificationType.AuctionComplete]:
       this.getAuctionCompleteNotification.bind(this),
+    [NotificationType.PackRevoked]: this.getPackRevokedNotification.bind(this),
+    [NotificationType.PaymentFailed]:
+      this.getPaymentFailedNotification.bind(this),
     [NotificationType.BidExpired]: this.getBidExpiredNotification.bind(this),
     [NotificationType.PaymentSuccess]:
       this.getPaymentSuccessNotification.bind(this),
@@ -35,12 +64,20 @@ export default class NotificationsService {
     [NotificationType.UserOutbid]: this.getUserOutbidNotification.bind(this),
     [NotificationType.WireInstructions]:
       this.getWireInstructionsNotification.bind(this),
+    // Customer Service Notifications
+    [NotificationType.CSWirePaymentFailed]:
+      this.getCSWirePaymentFailedNotification.bind(this),
+    [NotificationType.CSWirePaymentSuccess]:
+      this.getCSWirePaymentSuccessNotification.bind(this),
+    [NotificationType.CSAwaitingWirePayment]:
+      this.getCSAwaitingWirePaymentNotification.bind(this),
   }
 
   constructor(
     private readonly mailer: MailerAdapter,
     private readonly i18n: I18nAdapter,
     private readonly webUrl: string,
+    private readonly customerServiceEmail: string,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
@@ -72,18 +109,20 @@ export default class NotificationsService {
     let successfullyDispatchedNotifications = 0
     await Promise.all(
       pendingNotifications.map(async (notification) => {
-        // Ensure recipient
-        if (!notification?.userAccount?.email) {
-          throw new Error(`Notification "${notification.id}" has no recipient`)
-        }
+        // Note: For customer service notifications this is not the recipient
+        // but the customer who the notification pertains to.
+        invariant(
+          notification?.userAccount?.email,
+          `Notification "${notification.id}" has no associated user account`
+        )
 
-        // Get recipient's locale
         const {
           type,
           id,
           userAccountId,
           userAccount: { locale },
         } = notification
+        // Get user's locale
         const t = this.i18n.getFixedT(locale, 'emails')
 
         // Attempt to send notification
@@ -106,13 +145,11 @@ export default class NotificationsService {
 
   getAuctionCompleteNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
-
-    // Validate variables
-    invariant(variables, 'no variables were provided for this notification')
-    invariant(typeof variables.amount === 'string', 'amount is required')
-    invariant(typeof variables.canExpire === 'boolean', 'canExpire is required')
-    invariant(typeof variables.packSlug === 'string', 'packSlug is required')
-    invariant(typeof variables.packTitle === 'string', 'packTitle is required')
+    expectVariables(
+      variables,
+      ['amount', 'canExpire', 'packSlug', 'packTitle'],
+      this.logger
+    )
 
     // Build notification
     const body = (
@@ -127,23 +164,18 @@ export default class NotificationsService {
       ? body + `<p>${t('auctionComplete.expirationWarning')}</p>`
       : body
 
-    const message = {
+    return {
       to: userAccount?.email as string,
       subject: t('auctionComplete.subject'),
       html,
     }
-    return message
   }
 
   getBidExpiredNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
+    expectVariables(variables, ['packTitle'], this.logger)
 
-    // Validate variables
-    invariant(variables, 'no variables were provided for this notification')
-    invariant(typeof variables.packTitle === 'string', 'packTitle is required')
-
-    // Build notification
-    const message = {
+    return {
       to: userAccount?.email as string,
       subject: t('bidExpired.subject', { ...variables }),
       html: t<string[]>('bidExpired.body', {
@@ -151,16 +183,11 @@ export default class NotificationsService {
         ...variables,
       }).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
     }
-
-    return message
   }
 
   getPaymentSuccessNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
-
-    // Validate variables
-    invariant(variables, 'no variables were provided for this notification')
-    invariant(typeof variables.packTitle === 'string', 'packTitle is required')
+    expectVariables(variables, ['packTitle'], this.logger)
 
     const html = t<string[]>('paymentSuccess.body', {
       returnObjects: true,
@@ -168,21 +195,16 @@ export default class NotificationsService {
       ...variables,
     })
 
-    // Build notification
-    const message = {
+    return {
       to: userAccount?.email as string,
       subject: t('paymentSuccess.subject'),
       html: html.reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
     }
-    return message
   }
 
   getTransferSuccessNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
-
-    // Validate variables
-    invariant(variables, 'no variables were provided for this notification')
-    invariant(typeof variables.packTitle === 'string', 'packTitle is required')
+    expectVariables(variables, ['packTitle'], this.logger)
 
     const html = t<string[]>('transferSuccess.body', {
       returnObjects: true,
@@ -190,25 +212,18 @@ export default class NotificationsService {
       ...variables,
     })
 
-    // Build notification
-    const message = {
+    return {
       to: userAccount?.email as string,
       subject: t('transferSuccess.subject'),
       html: html.reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
     }
-    return message
   }
 
   getUserHighBidNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
+    expectVariables(variables, ['packTitle', 'packSlug'], this.logger)
 
-    // Validate variables
-    invariant(variables, 'no variables were provided for this notification')
-    invariant(typeof variables.packSlug === 'string', 'packSlug is required')
-    invariant(typeof variables.packTitle === 'string', 'packTitle is required')
-
-    // Build notification
-    const message = {
+    return {
       to: userAccount?.email as string,
       subject: t('userHighBid.subject'),
       html: (
@@ -219,19 +234,13 @@ export default class NotificationsService {
         }) as string[]
       ).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
     }
-    return message
   }
 
   getUserOutbidNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
+    expectVariables(variables, ['packTitle', 'packSlug'], this.logger)
 
-    // Validate variables
-    invariant(variables, 'no variables were provided for this notification')
-    invariant(typeof variables.packSlug === 'string', 'packSlug is required')
-    invariant(typeof variables.packTitle === 'string', 'packTitle is required')
-
-    // Build notification
-    const message = {
+    return {
       to: userAccount?.email as string,
       subject: t('userOutbid.subject'),
       html: (
@@ -242,61 +251,30 @@ export default class NotificationsService {
         }) as string[]
       ).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
     }
-    return message
   }
 
   getWireInstructionsNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-
-    // Validate variables
-    invariant(variables, 'no variables were provided for this notification')
-    invariant(
-      typeof variables.trackingRef === 'string',
-      'trackingRef is required'
-    )
-    invariant(
-      typeof variables.beneficiaryName === 'string',
-      'beneficiaryName is required'
-    )
-    invariant(
-      typeof variables.beneficiaryAddress1 === 'string',
-      'beneficiaryAddress1 is required'
-    )
-    invariant(
-      typeof variables.beneficiaryAddress2 === 'string',
-      'beneficiaryAddress2 is required'
-    )
-    invariant(
-      typeof variables.beneficiaryBankName === 'string',
-      'beneficiaryBankName is required'
-    )
-    invariant(
-      typeof variables.beneficiaryBankSwiftCode === 'string',
-      'beneficiaryBankSwiftCode is required'
-    )
-    invariant(
-      typeof variables.beneficiaryBankRoutingNumber === 'string',
-      'beneficiaryBankRoutingNumber is required'
-    )
-    invariant(
-      typeof variables.beneficiaryBankAccountingNumber === 'string',
-      'beneficiaryBankAccountingNumber is required'
-    )
-    invariant(
-      typeof variables.beneficiaryBankAddress === 'string',
-      'beneficiaryBankAddress is required'
-    )
-    invariant(
-      typeof variables.beneficiaryBankCity === 'string',
-      'beneficiaryBankCity is required'
-    )
-    invariant(
-      typeof variables.beneficiaryBankPostalCode === 'string',
-      'beneficiaryBankPostalCode is required'
-    )
-    invariant(
-      typeof variables.beneficiaryBankCountry === 'string',
-      'beneficiaryBankCountry is required'
+    expectVariables(
+      variables,
+      [
+        'packTitle',
+        'packSlug',
+        'amount',
+        'beneficiaryName',
+        'beneficiaryAddress1',
+        'beneficiaryAddress2',
+        'beneficiaryBankName',
+        'beneficiaryBankSwiftCode',
+        'beneficiaryBankRoutingNumber',
+        'beneficiaryBankAccountingNumber',
+        'beneficiaryBankAddress',
+        'beneficiaryBankCity',
+        'beneficiaryBankPostalCode',
+        'beneficiaryBankCountry',
+        'trackingRef',
+      ],
+      this.logger
     )
 
     // Build notification
@@ -312,13 +290,90 @@ export default class NotificationsService {
       ? body + `<p>${t('wireTransfer.expirationWarning')}</p>`
       : body
 
-    const message = {
+    return {
       to: userAccount?.email as string,
       subject: t('wireTransfer.subject'),
       html,
     }
+  }
 
-    return message
+  getPaymentFailedNotification(n: NotificationModel, t: TFunction) {
+    const { userAccount, variables } = n
+    expectVariables(variables, ['packTitle'], this.logger)
+    return {
+      to: userAccount?.email,
+      subject: t('paymentFailed.subject'),
+      html: t('paymentFailed.body', variables),
+    }
+  }
+
+  getPackRevokedNotification(n: NotificationModel, t: TFunction) {
+    const { userAccount, variables } = n
+    expectVariables(variables, ['packTitle'], this.logger)
+    return {
+      to: userAccount?.email,
+      subject: t('packRevoked.subject'),
+      html: t('packRevoked.body', variables),
+    }
+  }
+
+  // Automated Emails to Customer Service
+
+  getCSWirePaymentFailedNotification(n: NotificationModel, t: TFunction) {
+    const { userAccount, variables } = n
+    expectVariables(
+      variables,
+      ['packTitle', 'paymentId', 'amount'],
+      this.logger
+    )
+    const fields = {
+      ...variables,
+      userEmail: userAccount?.email,
+      ctaUrl: `${this.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
+    }
+    return {
+      to: this.customerServiceEmail,
+      subject: t('csWirePaymentFailed.subject', fields),
+      html: t('csWirePaymentFailed.body', fields),
+    }
+  }
+
+  getCSWirePaymentSuccessNotification(n: NotificationModel, t: TFunction) {
+    const { userAccount, variables } = n
+    expectVariables(
+      variables,
+      ['packTitle', 'paymentId', 'amount'],
+      this.logger
+    )
+    const fields = {
+      ...variables,
+      userEmail: userAccount?.email,
+      ctaUrl: `${this.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
+    }
+    return {
+      to: this.customerServiceEmail,
+      subject: t('csWirePaymentSuccess.subject', fields),
+      html: t('csWirePaymentSuccess.body', fields),
+    }
+  }
+
+  getCSAwaitingWirePaymentNotification(n: NotificationModel, t: TFunction) {
+    const { userAccount, variables } = n
+    expectVariables(
+      variables,
+      ['packTitle', 'paymentId', 'amount'],
+      this.logger
+    )
+    const fields = {
+      ...variables,
+      userEmail: userAccount?.email,
+      ctaUrl: `${this.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
+    }
+    return {
+      to: this.customerServiceEmail,
+      subject: t('csAwaitingWirePayment.subject', fields),
+      html: t('csAwaitingWirePayment.body', fields),
+    }
   }
 
   async sendNotification(

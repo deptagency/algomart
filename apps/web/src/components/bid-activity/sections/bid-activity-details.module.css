@@ -1,5 +1,9 @@
 .listItem {
-  @apply flex items-center w-full py-5 border-b border-base-border;
+  @apply flex items-center w-full py-5;
+}
+
+.listItem + .listItem {
+  @apply border-t border-base-border;
 }
 
 .firstColumn {

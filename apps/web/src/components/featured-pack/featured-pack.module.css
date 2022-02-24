@@ -29,6 +29,11 @@
   /* Tablet */
   @apply sm:flex sm:flex-row;
 }
+@media (min-width: 768px) {
+  .featuredColumns {
+    height: calc(min(100vw, 1100px) * 3 / 5);
+  }
+}
 
 .featuredImage {
   /* Tablet */

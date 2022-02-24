@@ -68,11 +68,27 @@ export const Configuration = {
       .asUrlString()
   },
 
+  get databaseMainMinPool() {
+    return env.get('DATABASE_WRITE_MIN_POOL').default(2).asInt()
+  },
+
+  get databaseMainMaxPool() {
+    return env.get('DATABASE_WRITE_MAX_POOL').default(2).asInt()
+  },
+
   get databaseReadUrl() {
     return env
       .get('DATABASE_URL_READONLY')
       .default('postgres://localhost/postgres')
       .asUrlString()
+  },
+
+  get databaseReadMinPool() {
+    return env.get('DATABASE_READ_MIN_POOL').default(2).asInt()
+  },
+
+  get databaseReadMaxPool() {
+    return env.get('DATABASE_READ_MAX_POOL').default(2).asInt()
   },
 
   get databaseSchema() {
@@ -146,6 +162,10 @@ export const Configuration = {
     return Currencies[code as keyof typeof Currencies]
   },
 
+  get customerServiceEmail() {
+    return env.get('CUSTOMER_SERVICE_EMAIL').asString()
+  },
+
   get mailer(): MailerAdapterOptions {
     const emailFrom =
       env.get('EMAIL_FROM').default('').asString() ||
@@ -179,5 +199,13 @@ export const Configuration = {
 
   get minimumDaysBeforeTransfer(): number {
     return env.get('MINIMUM_DAYS_BEFORE_TRANSFER').default(7).asInt()
+  },
+
+  get successPath(): string {
+    return env.get('WEB_SUCCESS_PATH').default('/payments/success').asString()
+  },
+
+  get failurePath(): string {
+    return env.get('WEB_FAILURE_PATH').default('/payments/failure').asString()
   },
 }

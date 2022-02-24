@@ -1,4 +1,5 @@
 import {
+  Countries,
   CreateBankAccountResponse,
   CreatePaymentCard,
   GetPaymentBankAccountStatus,
@@ -48,6 +49,7 @@ export interface CheckoutAPI {
   getPayments(query: PaymentsQuerystring): Promise<Payments>
   getPayment(paymentId: string): Promise<Payment>
   getCards(): Promise<PaymentCards>
+  getCountries(): Promise<Countries | []>
   getPublicKey(): Promise<PublicKey | null>
   createBankAccount(
     request: CreateBankAccountRequest
@@ -86,6 +88,10 @@ export class CheckoutService implements CheckoutAPI {
     const response = await this.http.get(urls.api.v1.publicKey)
     if (response.ok) return await response.json()
     return null
+  }
+
+  async getCountries(): Promise<Countries | []> {
+    return await this.http.get(urls.api.v1.getCountries).json()
   }
 
   async createBankAccount(

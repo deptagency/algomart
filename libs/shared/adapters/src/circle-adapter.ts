@@ -7,7 +7,6 @@ import {
   CircleBlockchainAddress,
   CircleCard,
   CircleCardStatus,
-  CircleCardVerification,
   CircleCreateBankAccount,
   CircleCreateBlockchainAddress,
   CircleCreateCard,
@@ -22,9 +21,6 @@ import {
   CircleTransferQuery,
   CircleTransferSourceType,
   CircleTransferStatus,
-  CircleVerificationAVSFailureCode,
-  CircleVerificationAVSSuccessCode,
-  CircleVerificationCvvStatus,
   CircleWallet,
   GetPaymentBankAccountInstructions,
   isCircleSuccessResponse,
@@ -99,31 +95,12 @@ function toBankAccountBase(
   }
 }
 
-function toCardStatus(
-  status: CircleCardStatus,
-  verification: CircleCardVerification
-): PaymentCardStatus {
-  let finalStatus
-  if (
-    status === CircleCardStatus.Failed ||
-    Object.values(CircleVerificationAVSFailureCode).includes(
-      verification.avs
-    ) ||
-    verification.cvv === CircleVerificationCvvStatus.Fail
-  ) {
-    finalStatus = PaymentCardStatus.Failed
-  } else if (
-    status === CircleCardStatus.Complete &&
-    Object.values(CircleVerificationAVSSuccessCode).includes(
-      verification.avs
-    ) &&
-    verification.cvv === CircleVerificationCvvStatus.Pass
-  ) {
-    finalStatus = PaymentCardStatus.Complete
-  } else {
-    finalStatus = PaymentCardStatus.Pending
-  }
-  return finalStatus
+function toCardStatus(status: CircleCardStatus): PaymentCardStatus {
+  return {
+    [CircleCardStatus.Complete]: PaymentCardStatus.Complete,
+    [CircleCardStatus.Failed]: PaymentCardStatus.Failed,
+    [CircleCardStatus.Pending]: PaymentCardStatus.Pending,
+  }[status]
 }
 
 function toCardBase(response: CircleCard): ToPaymentCardBase {
@@ -133,7 +110,7 @@ function toCardBase(response: CircleCard): ToPaymentCardBase {
     externalId: response.id,
     network: response.network,
     lastFour: response.last4,
-    status: toCardStatus(response.status, response.verification),
+    status: toCardStatus(response.status),
     error: response.errorCode,
   }
 }
@@ -141,33 +118,19 @@ function toCardBase(response: CircleCard): ToPaymentCardBase {
 function toPaymentStatus(
   status: CirclePaymentStatus | CircleTransferStatus
 ): PaymentStatus {
-  let finalStatus
-  switch (status) {
-    case CirclePaymentStatus.Failed:
-      finalStatus = PaymentStatus.Failed
-      break
-    case CirclePaymentStatus.Paid:
-      finalStatus = PaymentStatus.Paid
-      break
-    case CirclePaymentStatus.Confirmed:
-      finalStatus = PaymentStatus.Confirmed
-      break
-    case CirclePaymentStatus.Pending:
-      finalStatus = PaymentStatus.Pending
-      break
-    case CircleTransferStatus.Failed:
-      finalStatus = PaymentStatus.Failed
-      break
-    case CircleTransferStatus.Complete:
-      finalStatus = PaymentStatus.Paid
-      break
-    case CircleTransferStatus.Pending:
-      finalStatus = PaymentStatus.Pending
-      break
-    default:
-      finalStatus = PaymentStatus.Pending
-  }
-  return finalStatus
+  return (
+    {
+      [CirclePaymentStatus.ActionRequired]: PaymentStatus.ActionRequired,
+      [CirclePaymentStatus.Confirmed]: PaymentStatus.Confirmed,
+      [CirclePaymentStatus.Failed]: PaymentStatus.Failed,
+      [CirclePaymentStatus.Pending]: PaymentStatus.Pending,
+      [CirclePaymentStatus.Paid]: PaymentStatus.Paid,
+
+      [CircleTransferStatus.Pending]: PaymentStatus.Pending,
+      [CircleTransferStatus.Failed]: PaymentStatus.Failed,
+      [CircleTransferStatus.Complete]: PaymentStatus.Paid,
+    }[status] || PaymentStatus.Pending
+  )
 }
 
 function toPaymentBase(
@@ -179,6 +142,7 @@ function toPaymentBase(
     sourceId: response.source.id,
     status: toPaymentStatus(response.status),
     error: response.errorCode,
+    action: (response as CirclePaymentResponse).requiredAction?.redirectUrl,
   }
 }
 

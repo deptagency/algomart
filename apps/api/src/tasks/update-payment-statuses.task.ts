@@ -1,5 +1,6 @@
 import { PaymentsService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
+import { Configuration } from '@api/configuration'
 import { Knex } from 'knex'
 import { Model } from 'objection'
 
@@ -13,7 +14,11 @@ export async function updatePaymentStatusesTask(
   const payments = registry.get<PaymentsService>(PaymentsService.name)
   const trx = await Model.startTransaction()
   try {
-    const updatedPayments = await payments.updatePaymentStatuses(trx, knexRead)
+    const updatedPayments = await payments.updatePaymentStatuses(
+      Configuration.customerServiceEmail,
+      trx,
+      knexRead
+    )
     log.info('updated %d payment statuses', updatedPayments)
     await trx.commit()
   } catch (error) {

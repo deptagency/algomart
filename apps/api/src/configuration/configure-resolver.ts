@@ -10,6 +10,7 @@ import {
 } from '@algomart/shared/adapters'
 import {
   AccountsService,
+  ApplicationService,
   AuctionsService,
   BidsService,
   CollectiblesService,
@@ -101,6 +102,7 @@ export function configureResolver() {
         c.get<MailerAdapter>(MailerAdapter.name),
         c.get<I18nAdapter>(I18nAdapter.name),
         Configuration.webUrl,
+        Configuration.customerServiceEmail,
         logger
       )
   )
@@ -207,6 +209,14 @@ export function configureResolver() {
       )
   )
   resolver.set(
+    ApplicationService.name,
+    (c) =>
+      new ApplicationService(
+        c.get<DirectusAdapter>(DirectusAdapter.name),
+        logger
+      )
+  )
+  resolver.set(
     DirectusPageService.name,
     (c) => new DirectusPageService(c.get<DirectusAdapter>(DirectusAdapter.name))
   )
@@ -216,7 +226,8 @@ export function configureResolver() {
       new I18nService(
         c.get<DirectusAdapter>(DirectusAdapter.name),
         c.get<CoinbaseAdapter>(CoinbaseAdapter.name),
-        Configuration.currency
+        Configuration.currency,
+        logger
       )
   )
   return resolver

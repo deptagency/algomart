@@ -61,6 +61,7 @@ test('GET /packs OK', async () => {
   expect(json).toEqual({
     packs: [
       {
+        additionalImages: [],
         allowBidExpiration: false,
         available: 5,
         body: translation?.body,
@@ -132,6 +133,7 @@ test('GET /packs/redeemable/:redeemCode', async () => {
   const json = JSON.parse(body)
   expect(json).toEqual({
     pack: {
+      additionalImages: [],
       allowBidExpiration: false,
       body: translation?.body,
       collectibleTemplateIds: [],
