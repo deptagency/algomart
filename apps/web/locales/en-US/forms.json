@@ -129,13 +129,13 @@
     },
     "passphrase": {
       "description": {
-        "1": "Your passphrase is used to approve every transaction.",
-        "2": "It cannot be reset if lost."
+        "1": "your PIN code is used to approve every transaction.",
+        "2": "It cannot be recovered or reset."
       },
       "label": "Passphrase",
       "helpText": "For approving transactions",
-      "warning": "Write down your passphrase!",
-      "enterPassphrase": "Enter your passphrase to authorize this transaction."
+      "warning": "Write down your PIN number!",
+      "enterPassphrase": "Enter your PIN code to authorize this transaction."
     },
     "paymentMethods": {
       "label": "Payment Method",

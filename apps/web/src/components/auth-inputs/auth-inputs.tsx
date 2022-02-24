@@ -30,6 +30,7 @@ export interface AuthInputProps {
   error?: string | unknown
   helpLink?: ReactNode
   t: Translate
+  translationKey?: string
 }
 
 export interface AuthCurrencyProps {
@@ -359,11 +360,15 @@ export function Passphrase({ error, t }: AuthInputProps) {
   )
 }
 
-export function Submit({ disabled, t }: AuthInputProps) {
+export function Submit({
+  disabled,
+  t,
+  translationKey = 'common:actions.Done',
+}: AuthInputProps) {
   return (
     <FormField>
       <Button disabled={disabled} fullWidth type="submit">
-        {t('common:actions.Done')}
+        {t(translationKey)}
       </Button>
     </FormField>
   )

@@ -55,9 +55,7 @@ export default function ResetPasswordTemplate({
         <Submit disabled={status === 'loading'} t={t} />
 
         <p className="mt-4 text-center">
-          <AppLink href={urls.signUp}>
-            <u>{t('auth:Need an account? Create one now')}</u>
-          </AppLink>
+          <AppLink href={urls.signUp}>{t('auth:Need an account?')}</AppLink>
         </p>
       </form>
     </>

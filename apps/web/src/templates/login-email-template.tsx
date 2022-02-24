@@ -28,9 +28,9 @@ export default function LoginEmailTemplate({
 }: LoginEmailTemplateProps) {
   const { t } = useTranslation()
   return (
-    <>
-      <Heading className="mb-8 text-center">
-        {t('auth:Sign into your account')}
+    <div className="bg-white p-16">
+      <Heading className="mb-8 text-center uppercase">
+        {t('common:actions.Sign In')}
       </Heading>
       <form className="relative max-w-sm mx-auto" onSubmit={handleLogin}>
         {status === 'error' && error && (
@@ -41,23 +41,24 @@ export default function LoginEmailTemplate({
           />
         )}
         <Email error={formErrors?.email} t={t} />
-        <Password
-          error={formErrors?.password}
-          helpLink={
-            <AppLink href={urls.resetPassword}>
-              {t('auth:Forgot your password?')}
-            </AppLink>
-          }
-          t={t}
-        />
-        <Submit disabled={status === 'loading'} t={t} />
+        <Password error={formErrors?.password} t={t} />
 
-        <p className="mt-4 text-center">
-          <AppLink href={urls.signUp}>
-            <u>{t('auth:Need an account? Create one now')}</u>
-          </AppLink>
+        <Submit
+          disabled={status === 'loading'}
+          t={t}
+          translationKey={'common:actions.Sign In'}
+        />
+        <AppLink
+          href={urls.resetPassword}
+          className="mt-4 block text-center text-secondary"
+        >
+          {t('auth:Forgot your password?')}
+        </AppLink>
+        <p className="mt-4 pt-4 text-center border-t-1 border-t-base-border">
+          {t('auth:Need an account?')}{' '}
+          <AppLink href={urls.signUp}>{t('common:actions.Sign Up')}</AppLink>
         </p>
       </form>
-    </>
+    </div>
   )
 }

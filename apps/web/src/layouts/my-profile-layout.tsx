@@ -43,7 +43,7 @@ export default function MyProfileLayout({
         <section>
           <AppHeader />
 
-          <MainPanel width="large">
+          <MainPanel width="large" panelPadding>
             {isLoading && <LoadingStatus />}
             {!isLoading && !isAuthenticated && <NotAuthenticated />}
             {!isLoading && isAuthenticated && (
