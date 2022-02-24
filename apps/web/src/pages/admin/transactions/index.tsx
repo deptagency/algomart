@@ -58,10 +58,27 @@ export default function AdminTransactionsPage() {
       sortable: true,
     },
     {
-      key: 'pack.price',
+      key: 'pack.template.activeBid',
       name: t('transactions.table.Amount'),
-      renderer: ({ value }) =>
-        formatCurrency(value, lang, currency, conversionRate),
+      renderer: ({ item }) =>
+        item.pack.template.activeBid
+          ? formatCurrency(
+              item.pack.template.activeBid,
+              lang,
+              currency,
+              conversionRate
+            )
+          : formatCurrency(
+              item.pack.template.price,
+              lang,
+              currency,
+              conversionRate
+            ),
+    },
+    {
+      key: 'pack.template.type',
+      name: t('transactions.table.Type'),
+      sortable: false,
     },
     { key: 'status', name: t('transactions.table.Status'), sortable: true },
   ]

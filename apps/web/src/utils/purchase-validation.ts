@@ -1,4 +1,7 @@
-import { PaymentStatus } from '@algomart/schemas'
+import {
+  CirclePaymentVerificationOptions,
+  PaymentStatus,
+} from '@algomart/schemas'
 import { Translate } from 'next-translate'
 import {
   boolean,
@@ -98,10 +101,7 @@ const state = (t: Translate) =>
   )
 
 const zipCode = (t: Translate) =>
-  string(
-    required(t('forms:errors.required') as string),
-    matches(/^\d{5}$/, t('forms:errors.invalidZipCode'))
-  )
+  string(required(t('forms:errors.required') as string))
 
 const keyId = (t: Translate) =>
   string(required(t('forms:errors.required') as string))

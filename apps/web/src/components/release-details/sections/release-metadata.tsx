@@ -90,7 +90,7 @@ export default function ReleaseMetadata({
           </>
         ) : (
           <div className={css.metadataValue}>
-            {t('release:N of N editions available', {
+            {t('release:N of N available', {
               available: packTemplate.available,
               total: packTemplate.total,
             })}

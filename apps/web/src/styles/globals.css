@@ -72,7 +72,5 @@
 }
 /* Custom globals  */
 #__next {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  @apply flex flex-col h-full;
 }
