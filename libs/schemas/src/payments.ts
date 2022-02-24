@@ -1,7 +1,7 @@
 import { Static, Type } from '@sinclair/typebox'
 
 import { UserAccountSchema } from './accounts'
-import { PackBaseSchema,PackSchema } from './packs'
+import { PackBaseSchema, PackSchema } from './packs'
 import {
   BaseSchema,
   IdSchema,
@@ -99,6 +99,11 @@ export enum CirclePaymentErrorCode {
   reference_id_invalid = 'ref_id_invalid',
   unauthorized_transaction = 'unauthorized_transaction',
   wallet_address_mismatch = 'wallet_address_mismatch',
+  three_d_secure_action_expired = 'three_d_secure_action_expired',
+  three_d_secure_failure = 'three_d_secure_failure',
+  three_d_secure_invalid_request = 'three_d_secure_invalid_request',
+  three_d_secure_not_supported = 'three_d_secure_not_supported',
+  three_d_secure_required = 'three_d_secure_required',
 }
 
 export enum CircleCardErrorCode {
@@ -113,11 +118,6 @@ export enum CircleCardErrorCode {
   card_not_honored = 'card_not_honored',
   card_zip_mismatch = 'card_zip_mismatch',
   risk_denied = 'risk_denied',
-  three_d_secure_action_expired = 'three_d_secure_action_expired',
-  three_d_secure_failure = 'three_d_secure_failure',
-  three_d_secure_invalid_request = 'three_d_secure_invalid_request',
-  three_d_secure_not_supported = 'three_d_secure_not_supported',
-  three_d_secure_required = 'three_d_secure_required',
   verification_failed = 'verification_failed',
   verification_fraud_detected = 'verification_fraud_detected',
   verification_not_supported_by_issuer = 'verification_not_supported_by_issuer',
@@ -584,6 +584,14 @@ export const CountrySchema = Type.Object({
 
 export const CountriesSchema = Type.Array(CountrySchema)
 
+export const CurrencySchema = Type.Object({
+  base: Type.Number(),
+  code: Type.String(),
+  name: Nullable(Type.Optional(Type.String())),
+})
+
+export const CountriesSchema = Type.Array(CountrySchema)
+
 export const GetPaymentBankAccountInstructionsSchema = Type.Object({
   trackingRef: Type.String(),
   beneficiary: Type.Object({
@@ -696,7 +704,7 @@ export const BankAccountIdSchema = Type.Object({
 })
 
 export const CreateCardSchema = Type.Intersect([
-  Type.Omit(CircleCreateCardSchema, ['expMonth', 'expYear']),
+  Type.Omit(CircleCreateCardSchema, ['expMonth', 'expYear', 'idempotencyKey']),
   Type.Object({
     id: Type.Optional(Type.String({ format: 'uuid' })),
     expirationMonth: Type.Number(),
@@ -715,7 +723,7 @@ export const CreateBankAccountResponseSchema = Type.Intersect([
 ])
 
 export const CreateBankAccountSchema = Type.Intersect([
-  CircleCreateBankAccountSchema,
+  Type.Omit(CircleCreateBankAccountSchema, ['idempotencyKey']),
   Type.Object({
     packTemplateId: IdSchema,
     ownerExternalId: Type.String(),
@@ -728,7 +736,7 @@ export const CreatePaymentCardSchema = Type.Union([
 ])
 
 export const CreatePaymentSchema = Type.Intersect([
-  Type.Omit(CircleCreatePaymentSchema, ['source', 'amount']),
+  Type.Omit(CircleCreatePaymentSchema, ['source', 'amount', 'idempotencyKey']),
   Type.Omit(PaymentBaseSchema, ['payerId']),
   Type.Object({
     cardId: Type.String(),
@@ -743,10 +751,6 @@ export const CreateTransferPaymentSchema = Type.Intersect([
     packTemplateId: Type.String({ format: 'uuid' }),
     payerExternalId: Type.String(),
   }),
-])
-
-export const CreateWalletAddressSchema = Type.Intersect([
-  Type.Omit(CircleCreateBlockchainAddressSchema, ['walletId']),
 ])
 
 export const PublicKeySchema = Type.Object({
@@ -835,11 +839,9 @@ export type CreatePaymentCard = Simplify<Static<typeof CreatePaymentCardSchema>>
 export type CreateTransferPayment = Simplify<
   Static<typeof CreateTransferPaymentSchema>
 >
-export type CreateWalletAddress = Simplify<
-  Static<typeof CreateWalletAddressSchema>
->
 export type Country = Simplify<Static<typeof CountrySchema>>
 export type Countries = Simplify<Static<typeof CountriesSchema>>
+export type Currency = Simplify<Static<typeof CurrencySchema>>
 export type FindTransferByAddress = Simplify<
   Static<typeof FindTransferByAddressSchema>
 >

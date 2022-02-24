@@ -172,6 +172,29 @@ export function usePaymentProvider({
     }
   }, [auth?.user, findCountries])
 
+  const findCountries = useCallback(async () => {
+    try {
+      const countries = await checkoutService.getCountries()
+      if (countries) {
+        const list = countries.map(({ code, name }) => ({
+          label: name,
+          id: code,
+        }))
+        return setCountries(list)
+      }
+      return setCountries([])
+    } catch {
+      setCountries([])
+      setStatus(CheckoutStatus.error)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (auth.user) {
+      findCountries()
+    }
+  }, [auth?.user, findCountries])
+
   const handleSetStatus = useCallback(
     (status: CheckoutStatus.form | CheckoutStatus.summary) => {
       setStatus(status)

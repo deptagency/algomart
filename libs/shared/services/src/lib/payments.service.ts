@@ -5,6 +5,7 @@ import { enc, SHA256 } from 'crypto-js'
 import * as Currencies from '@dinero.js/currencies'
 
 import {
+  CirclePaymentErrorCode,
   CirclePaymentQueryType,
   CirclePaymentSourceType,
   CirclePaymentVerificationOptions,
@@ -12,7 +13,6 @@ import {
   CreateCard,
   CreatePayment,
   CreateTransferPayment,
-  CreateWalletAddress,
   DEFAULT_CURRENCY,
   DEFAULT_LOCALE,
   EventAction,
@@ -61,6 +61,33 @@ import {
   userInvariant,
   poll,
 } from '@algomart/shared/utils'
+import { enc, SHA256 } from 'crypto-js'
+import { Transaction } from 'objection'
+import { v4 as uuid } from 'uuid'
+
+import { Configuration } from '@/configuration'
+import CircleAdapter from '@/lib/circle-adapter'
+import CoinbaseAdapter from '@/lib/coinbase-adapter'
+import { BidModel } from '@/models/bid.model'
+import { EventModel } from '@/models/event.model'
+import { PackModel } from '@/models/pack.model'
+import { PaymentModel } from '@/models/payment.model'
+import { PaymentBankAccountModel } from '@/models/payment-bank-account.model'
+import { PaymentCardModel } from '@/models/payment-card.model'
+import { UserAccountModel } from '@/models/user-account.model'
+import NotificationService from '@/modules/notifications/notifications.service'
+import PacksService from '@/modules/packs/packs.service'
+import {
+  convertFromUSD,
+  convertToUSD,
+  currency,
+  formatFloatToInt,
+  formatIntToFloat,
+  isGreaterThanOrEqual,
+} from '@/utils/format-currency'
+import { invariant, userInvariant } from '@/utils/invariant'
+import { logger } from '@/utils/logger'
+import { poll } from '@/utils/poll'
 
 export default class PaymentsService {
   logger: pino.Logger<unknown>
@@ -294,7 +321,7 @@ export default class PaymentsService {
     // Create card using Circle API
     const card = await this.circle
       .createPaymentCard({
-        idempotencyKey: cardDetails.idempotencyKey,
+        idempotencyKey: uuid(),
         keyId: cardDetails.keyId,
         encryptedData: cardDetails.encryptedData,
         billingDetails: cardDetails.billingDetails,
@@ -368,7 +395,7 @@ export default class PaymentsService {
     // Create bank account using Circle API
     const bankAccount = await this.circle
       .createBankAccount({
-        idempotencyKey: bankDetails.idempotencyKey,
+        idempotencyKey: uuid(),
         accountNumber: bankDetails.accountNumber,
         routingNumber: bankDetails.routingNumber,
         billingDetails: bankDetails.billingDetails,
@@ -581,14 +608,8 @@ export default class PaymentsService {
 
     // If encrypted details are provided, add to request
     const encryptedDetails = {}
-    const {
-      keyId,
-      encryptedData,
-      cardId,
-      idempotencyKey,
-      metadata,
-      description,
-    } = paymentDetails
+    const { keyId, encryptedData, cardId, metadata, description } =
+      paymentDetails
     if (keyId) {
       Object.assign(encryptedDetails, { keyId })
     }
@@ -623,58 +644,54 @@ export default class PaymentsService {
       },
     }
 
+    // Circle only accepts loopback addresses
+    const verificationHostname = Configuration.webUrl.includes('localhost')
+      ? 'http://127.0.0.1:3000'
+      : Configuration.webUrl
+
+    // Base payment details
+    const basePayment = {
+      metadata: {
+        ...metadata,
+        sessionId: SHA256(user.id).toString(enc.Base64),
+      },
+      amount: {
+        amount: priceInUSD,
+        currency: DEFAULT_CURRENCY,
+      },
+      description,
+      source: {
+        id: card?.externalId || cardId,
+        type: CirclePaymentSourceType.card,
+      },
+    }
+
     // Create 3DS payment
     const paymentResponse = await this.circle
       .createPayment({
+        idempotencyKey: uuid(),
         ...basePayment,
         ...encryptedDetails,
         verification: CirclePaymentVerificationOptions.three_d_secure,
         verificationSuccessUrl: new URL(
-          successPath,
+          Configuration.successPath,
           verificationHostname
         ).toString(),
         verificationFailureUrl: new URL(
-          failurePath,
+          Configuration.failurePath,
           verificationHostname
         ).toString(),
       })
       .catch(() => null)
 
-    let payment: ToPaymentBase | undefined
-    if (!paymentResponse) {
-      // Create cvv payment
-      const cvvPayment = await this.circle
-        .createPayment({
-          ...basePayment,
-          ...encryptedDetails,
-          verification: CirclePaymentVerificationOptions.cvv,
-        })
-        .catch(() => null)
-      // Remove claim from payment if payment doesn't go through
-      if (!cvvPayment) {
-        await this.packs.revokePack(
-          {
-            packId,
-            ownerId: user.id,
-          },
-          trx
-        )
-
-        return null
-      }
-      payment = cvvPayment
-    } else {
-      payment = paymentResponse
-    }
-
-    invariant(payment, 'unable to create payment')
+    invariant(paymentResponse, 'unable to create 3DS payment')
 
     // Circle may return the same payment ID if there's duplicate info
     const newPayment = await PaymentModel.query(trx)
       .insert({
-        externalId: payment.externalId,
-        status: payment.status,
-        error: payment.error,
+        externalId: paymentResponse.externalId,
+        status: paymentResponse.status,
+        error: paymentResponse.error,
         payerId: user.id,
         packId,
         paymentCardId: card?.id,
@@ -701,6 +718,45 @@ export default class PaymentsService {
       entityId: newPayment.id,
       userAccountId: user.id,
     })
+
+    if (
+      foundPayment.status === PaymentStatus.Failed &&
+      foundPayment.error === CirclePaymentErrorCode.three_d_secure_not_supported
+    ) {
+      // Create cvv payment with Circle if 3DS is not supported
+      const cvvPayment = await this.circle
+        .createPayment({
+          idempotencyKey: uuid(),
+          ...basePayment,
+          ...encryptedDetails,
+          verification: CirclePaymentVerificationOptions.cvv,
+        })
+        .catch(() => null)
+
+      // Remove claim from payment if payment doesn't go through
+      if (!cvvPayment) {
+        await this.packs.revokePack(
+          {
+            packId,
+            ownerId: user.id,
+          },
+          trx
+        )
+        return null
+      }
+      invariant(cvvPayment, 'unable to create cvv payment')
+
+      // Update payment with new details
+      const payment = await PaymentModel.query(trx).patchAndFetchById(
+        newPayment.id,
+        {
+          externalId: cvvPayment.externalId,
+          status: cvvPayment.status,
+          error: cvvPayment.error,
+        }
+      )
+      return payment
+    }
 
     return newPayment
   }
@@ -800,13 +856,13 @@ export default class PaymentsService {
     return newPayment
   }
 
-  async generateAddress(request: CreateWalletAddress) {
+  async generateAddress() {
     // Find the merchant wallet
     const merchantWallet = await this.circle.getMerchantWallet()
     userInvariant(merchantWallet, 'no wallet found', 404)
     // Create blockchain address
     const address = await this.circle.createBlockchainAddress({
-      idempotencyKey: request.idempotencyKey,
+      idempotencyKey: uuid(),
       walletId: merchantWallet.walletId,
     })
     userInvariant(address, 'wallet could not be created', 401)
@@ -974,10 +1030,18 @@ export default class PaymentsService {
     return matchingPayments || []
   }
 
-  async getPaymentById(paymentId: string, isAdmin?: boolean, trx?: Transaction, knexRead?: Knex) {
-    const payment = await PaymentModel.query(knexRead)
-      .findById(paymentId)
-      .withGraphFetched('pack')
+  async getPaymentById(paymentId: string, args?: PaymentQuerystring) {
+    const { isAdmin, isExternalId } = args
+    // Find payment by ID or external ID
+    const query = PaymentModel.query()
+    if (isExternalId) {
+      query.where({ externalId: paymentId })
+    } else {
+      query.findById(paymentId)
+    }
+
+    // Search for matching payment
+    const payment = await query
       .withGraphFetched('payer')
       .withGraphFetched('pack')
       .first()

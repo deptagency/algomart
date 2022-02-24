@@ -5,7 +5,6 @@ import {
   CreateCard,
   CreatePayment,
   CreateTransferPayment,
-  CreateWalletAddress,
   FindTransferByAddress,
   OwnerExternalId,
   PaymentId,
@@ -188,15 +187,13 @@ export async function createCard(
 }
 
 export async function createWalletAddress(
-  request: FastifyRequest<{
-    Body: CreateWalletAddress
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const address = await paymentService.generateAddress(request.body)
+  const address = await paymentService.generateAddress()
   if (address) {
     reply.status(201).send(address)
   } else {
@@ -316,7 +313,7 @@ export async function getPaymentById(
     .get<PaymentsService>(PaymentsService.name)
   const payment = await paymentService.getPaymentById(
     request.params.paymentId,
-    request.query.isAdmin,
+    request.query,
     request.transaction,
     request.knexRead
   )

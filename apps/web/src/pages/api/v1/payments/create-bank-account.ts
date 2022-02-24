@@ -1,6 +1,5 @@
 import { BadRequest } from 'http-errors'
 import { NextApiResponse } from 'next'
-import { v4 as uuid } from 'uuid'
 
 import { ApiClient } from '@/clients/api-client'
 import createHandler, { NextApiRequestApp } from '@/middleware'
@@ -24,7 +23,6 @@ handler.post(
 
     // Create bank account
     const bankAccount = await ApiClient.instance.createBankAccount({
-      idempotencyKey: uuid(),
       accountNumber: body.accountNumber,
       routingNumber: body.routingNumber,
       billingDetails: {

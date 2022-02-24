@@ -132,7 +132,7 @@ async function main(args) {
   } catch (err) {
     console.log('Language translations already exist')
   }
-  
+
   try {
     await createEntityRecords(
       'countries',
