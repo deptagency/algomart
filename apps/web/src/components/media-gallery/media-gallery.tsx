@@ -76,9 +76,9 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               alt={t('common:statuses.Selected Image')}
               className={css.contain}
               layout="fill"
-              src={`${currentMedia}?width=1400&quality=75`}
+              src={`${currentMedia}?width=700&quality=95`}
               objectFit="cover"
-              sizes="(min-width: 1400px) 1400px, 100vw"
+              sizes="(min-width: 700px) 700px, 100vw"
             />
           </div>
         </div>
