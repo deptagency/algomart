@@ -1,11 +1,14 @@
-import { PublishedPack } from '@algomart/schemas'
+import { DEFAULT_CURRENCY, PublishedPack } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 
 import css from './card-summary.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
+import { Environment } from '@/environment'
 import { formatCurrency } from '@/utils/format-currency'
+
+const currency = Environment.currency.code || DEFAULT_CURRENCY
 
 interface CardSummaryProps {
   isAuctionActive: boolean
@@ -30,7 +33,11 @@ export default function CardSummary({
           </tr>
           <tr>
             <th scope="row">{release?.title}</th>
-            <td>{formatCurrency(price, lang)}</td>
+            <td>
+              <span>
+                {formatCurrency(price, lang)} {currency && currency}
+              </span>
+            </td>
           </tr>
         </tbody>
       </table>
