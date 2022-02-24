@@ -1,13 +1,10 @@
 import pino from 'pino'
 import {
+  DirectusApplication,
   DirectusCollectibleTemplate,
   DirectusCollection,
   DirectusFaqTemplate,
   DirectusHomepage,
-  DirectusCountry,
-  DirectusApplication,
-  DirectusCountryTranslation,
-  DirectusCountryWithTranslations,
   DirectusLanguageTemplate,
   DirectusPackTemplate,
   DirectusPage,
@@ -16,6 +13,7 @@ import {
   DirectusWebhook,
 } from '@algomart/schemas'
 import {
+  CMSCacheApplicationModel,
   CMSCacheCollectibleTemplateModel,
   CMSCacheCollectionModel,
   CMSCacheFaqModel,
@@ -45,16 +43,16 @@ export interface ItemByIdResponse<T> {
 
 export interface ItemFilter {
   [key: string]:
-  | string
-  | string[]
-  | number
-  | number[]
-  | boolean
-  | boolean[]
-  | Date
-  | Date[]
-  | ItemFilter
-  | ItemFilter[]
+    | string
+    | string[]
+    | number
+    | number[]
+    | boolean
+    | boolean[]
+    | Date
+    | Date[]
+    | ItemFilter
+    | ItemFilter[]
 }
 
 export interface ItemQuery<TItem> {
@@ -68,21 +66,6 @@ export interface ItemQuery<TItem> {
   deep?: ItemFilter
   totalCount?: boolean
   filterCount?: boolean
-}
-
-export function toCountryBase(
-  template: DirectusCountryWithTranslations,
-  locale: string
-) {
-  const translation = getDirectusTranslation<DirectusCountryTranslation>(
-    template.translations as DirectusCountryTranslation[],
-    `country ${template.code} has no translations`,
-    locale
-  )
-  return {
-    code: template.code,
-    name: translation.title,
-  }
 }
 
 function getParameters<TItem>(query?: ItemQuery<TItem>) {
@@ -126,8 +109,8 @@ function getParameters<TItem>(query?: ItemQuery<TItem>) {
       query.totalCount && query.filterCount
         ? '*'
         : query.totalCount
-          ? 'total_count'
-          : 'filter_count'
+        ? 'total_count'
+        : 'filter_count'
     )
   }
 
@@ -605,10 +588,6 @@ export default class DirectusAdapter {
   }
 
   async syncHomePage() {
-    // Homepage is a singleton in the CMS, which makes this endpoint only return a single item.
-    // Therefore we should avoid using the `findMany` method and instead act as if the result is
-    // from a `findById` call.
-
     const response = await this.http.get('items/homepage', {
       searchParams: getParameters({
         fields: [
@@ -688,6 +667,24 @@ export default class DirectusAdapter {
     return null
   }
 
+  async syncApplication() {
+    const response = await this.http.get('items/application', {
+      searchParams: getParameters({
+        fields: ['id', 'currency', 'countries.*'],
+      }),
+    })
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      const application = JSON.parse(response.body).data as DirectusApplication
+
+      await CMSCacheApplicationModel.upsert(
+        application as unknown as DirectusApplication
+      )
+    }
+
+    return null
+  }
+
   // #region webhook handlers
 
   async processWebhook(webhook: DirectusWebhook) {
@@ -705,6 +702,8 @@ export default class DirectusAdapter {
 
   private async processWebhookCreate(webhook: DirectusWebhook) {
     switch (webhook.collection) {
+      case 'application':
+        return await this.syncApplication()
       case 'collections':
         return await this.syncCollection(webhook.key)
       case 'homepage':
@@ -735,6 +734,8 @@ export default class DirectusAdapter {
     console.log(webhook)
 
     switch (webhook.collection) {
+      case 'application':
+        return await this.syncApplication()
       case 'collections':
         return await this.syncCollection(webhook.keys[0])
       case 'homepage':
@@ -762,24 +763,7 @@ export default class DirectusAdapter {
 
   private async processWebhookDelete(webhook: DirectusWebhook) {
     switch (webhook.collection) {
-      case 'collections':
-        return null
-      case 'homepage':
-        return null
-      case 'languages':
-        return null
-      case 'nft_templates':
-        return null
-      case 'pack_templates':
-        return null
-      case 'rarities':
-        return null
-      case 'sets':
-        return null
-      case 'faqs':
-        return null
-      case 'pages':
-        return null
+      // TODO: handle delete operations
       default:
         throw new Error(
           `unhandled directus webhook items.delete event: ${webhook.collection}`

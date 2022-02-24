@@ -87,8 +87,8 @@ export type Simplify<T> = T extends unknown[]
   ? Array<Simplify<T[number]>>
   : { [KeyType in keyof T]: Simplify<T[KeyType]> }
 
-export type Base = Simplify<Static<typeof BaseSchema>>
 export type AlgoAddress = Simplify<Static<typeof AlgoAddressSchema>>
+export type Base = Simplify<Static<typeof BaseSchema>>
 export type ExternalId = Simplify<Static<typeof ExternalIdSchema>>
 export type OwnerExternalId = Simplify<Static<typeof OwnerExternalIdSchema>>
 export type Pagination = Simplify<Static<typeof PaginationSchema>>

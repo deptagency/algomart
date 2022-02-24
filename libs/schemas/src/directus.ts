@@ -174,19 +174,14 @@ export interface DirectusFaqTemplate {
 
 export interface DirectusCountry {
   id: string
-  application_id: string
-  countries_code: string
+  code: string
+  translations?: DirectusCountryTranslation[]
 }
 
 export interface DirectusApplication {
   id: string
   currency?: string | null
   countries?: DirectusCountry[] | null
-}
-
-export interface DirectusCountryWithTranslations {
-  code: string
-  translations?: number[] | DirectusCountryTranslation[]
 }
 
 export interface DirectusCountryTranslation extends DirectusTranslation {

@@ -223,7 +223,7 @@ export function configureResolver() {
     ApplicationService.name,
     (c) =>
       new ApplicationService(
-        c.get<DirectusAdapter>(DirectusAdapter.name),
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
         logger
       )
   )

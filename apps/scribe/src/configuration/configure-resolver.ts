@@ -111,6 +111,7 @@ export function configureResolver() {
         c.get<MailerAdapter>(MailerAdapter.name),
         c.get<I18nAdapter>(I18nAdapter.name),
         Configuration.webUrl,
+        Configuration.customerServiceEmail,
         logger
       )
   )
