@@ -584,14 +584,6 @@ export const CountrySchema = Type.Object({
 
 export const CountriesSchema = Type.Array(CountrySchema)
 
-export const CurrencySchema = Type.Object({
-  base: Type.Number(),
-  code: Type.String(),
-  name: Nullable(Type.Optional(Type.String())),
-})
-
-export const CountriesSchema = Type.Array(CountrySchema)
-
 export const GetPaymentBankAccountInstructionsSchema = Type.Object({
   trackingRef: Type.String(),
   beneficiary: Type.Object({
@@ -841,7 +833,6 @@ export type CreateTransferPayment = Simplify<
 >
 export type Country = Simplify<Static<typeof CountrySchema>>
 export type Countries = Simplify<Static<typeof CountriesSchema>>
-export type Currency = Simplify<Static<typeof CurrencySchema>>
 export type FindTransferByAddress = Simplify<
   Static<typeof FindTransferByAddressSchema>
 >

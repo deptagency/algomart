@@ -1,8 +1,9 @@
 import { Knex } from 'knex'
 import { Transaction } from 'objection'
 import pino from 'pino'
-import { enc, SHA256 } from 'crypto-js'
 import * as Currencies from '@dinero.js/currencies'
+import { enc, SHA256 } from 'crypto-js'
+import { v4 as uuid } from 'uuid'
 
 import {
   CirclePaymentErrorCode,
@@ -13,6 +14,7 @@ import {
   CreateCard,
   CreatePayment,
   CreateTransferPayment,
+  PaymentQuerystring,
   DEFAULT_CURRENCY,
   DEFAULT_LOCALE,
   EventAction,
@@ -22,7 +24,6 @@ import {
   PackType,
   PaymentBankAccountStatus,
   PaymentCardStatus,
-  PaymentQuerystring,
   Payments,
   PaymentSortField,
   PaymentsQuerystring,
@@ -58,36 +59,9 @@ import {
   formatFloatToInt,
   formatIntToFloat,
   invariant,
-  userInvariant,
   poll,
+  userInvariant,
 } from '@algomart/shared/utils'
-import { enc, SHA256 } from 'crypto-js'
-import { Transaction } from 'objection'
-import { v4 as uuid } from 'uuid'
-
-import { Configuration } from '@/configuration'
-import CircleAdapter from '@/lib/circle-adapter'
-import CoinbaseAdapter from '@/lib/coinbase-adapter'
-import { BidModel } from '@/models/bid.model'
-import { EventModel } from '@/models/event.model'
-import { PackModel } from '@/models/pack.model'
-import { PaymentModel } from '@/models/payment.model'
-import { PaymentBankAccountModel } from '@/models/payment-bank-account.model'
-import { PaymentCardModel } from '@/models/payment-card.model'
-import { UserAccountModel } from '@/models/user-account.model'
-import NotificationService from '@/modules/notifications/notifications.service'
-import PacksService from '@/modules/packs/packs.service'
-import {
-  convertFromUSD,
-  convertToUSD,
-  currency,
-  formatFloatToInt,
-  formatIntToFloat,
-  isGreaterThanOrEqual,
-} from '@/utils/format-currency'
-import { invariant, userInvariant } from '@/utils/invariant'
-import { logger } from '@/utils/logger'
-import { poll } from '@/utils/poll'
 
 export default class PaymentsService {
   logger: pino.Logger<unknown>
@@ -628,29 +602,6 @@ export default class PaymentsService {
 
     // Base payment details
     const basePayment = {
-      idempotencyKey,
-      metadata: {
-        ...metadata,
-        sessionId: SHA256(user.id).toString(enc.Base64),
-      },
-      amount: {
-        amount: priceInUSD,
-        currency: DEFAULT_CURRENCY,
-      },
-      description,
-      source: {
-        id: card?.externalId || cardId,
-        type: CirclePaymentSourceType.card,
-      },
-    }
-
-    // Circle only accepts loopback addresses
-    const verificationHostname = Configuration.webUrl.includes('localhost')
-      ? 'http://127.0.0.1:3000'
-      : Configuration.webUrl
-
-    // Base payment details
-    const basePayment = {
       metadata: {
         ...metadata,
         sessionId: SHA256(user.id).toString(enc.Base64),
@@ -674,11 +625,11 @@ export default class PaymentsService {
         ...encryptedDetails,
         verification: CirclePaymentVerificationOptions.three_d_secure,
         verificationSuccessUrl: new URL(
-          Configuration.successPath,
+          successPath,
           verificationHostname
         ).toString(),
         verificationFailureUrl: new URL(
-          Configuration.failurePath,
+          failurePath,
           verificationHostname
         ).toString(),
       })
@@ -705,7 +656,7 @@ export default class PaymentsService {
       !(payment?.status !== PaymentStatus.Pending)
     const foundPayment = await poll<ToPaymentBase | null>(
       async () =>
-        await this.circle.getPaymentById(payment.externalId as string),
+        await this.circle.getPaymentById(paymentResponse.externalId as string),
       completeWhenNotPendingForPayments,
       1000
     )
@@ -1030,7 +981,12 @@ export default class PaymentsService {
     return matchingPayments || []
   }
 
-  async getPaymentById(paymentId: string, args?: PaymentQuerystring) {
+  async getPaymentById(
+    paymentId: string,
+    args?: PaymentQuerystring,
+    trx?: Transaction,
+    knexRead?: Knex
+  ) {
     const { isAdmin, isExternalId } = args
     // Find payment by ID or external ID
     const query = PaymentModel.query()
