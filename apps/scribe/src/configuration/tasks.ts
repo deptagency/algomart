@@ -29,8 +29,7 @@ export function configureTasks(
       { seconds: 10 },
       new AsyncTask(
         'confirm-transactions',
-        async () =>
-          await confirmTransactionsTask(app.container, logger, app.knexRead),
+        async () => await confirmTransactionsTask(app.container, logger),
         (error) => app.log.error(error)
       )
     )
@@ -41,8 +40,7 @@ export function configureTasks(
       { minutes: 1 },
       new AsyncTask(
         'store-collectibles',
-        async () =>
-          await storeCollectiblesTask(app.container, logger, app.knexRead),
+        async () => await storeCollectiblesTask(app.container, logger),
         (error) => app.log.error(error)
       )
     )
@@ -53,8 +51,7 @@ export function configureTasks(
       { minutes: 1 },
       new AsyncTask(
         'generate-packs',
-        async () =>
-          await generatePacksTask(app.container, logger, app.knexRead),
+        async () => await generatePacksTask(app.container, logger),
         (error) => app.log.error(error)
       )
     )
@@ -65,8 +62,7 @@ export function configureTasks(
       { seconds: 10 },
       new AsyncTask(
         'mint-collectibles',
-        async () =>
-          await mintCollectiblesTask(app.container, logger, app.knexRead),
+        async () => await mintCollectiblesTask(app.container, logger),
         (error) => app.log.error(error)
       )
     )
@@ -79,8 +75,7 @@ export function configureTasks(
       { minutes: 1 },
       new AsyncTask(
         'dispatch-notifications',
-        async () =>
-          await dispatchNotificationsTask(app.container, logger, app.knexRead),
+        async () => await dispatchNotificationsTask(app.container, logger),
         (error) => app.log.error(error)
       )
     )
@@ -94,11 +89,7 @@ export function configureTasks(
       new AsyncTask(
         'handle-pack-auction-completion',
         async () =>
-          await handlePackAuctionCompletionTask(
-            app.container,
-            logger,
-            app.knexRead
-          ),
+          await handlePackAuctionCompletionTask(app.container, logger),
         (error) => app.log.error(error)
       )
     )
@@ -110,11 +101,7 @@ export function configureTasks(
       new AsyncTask(
         'handle-pack-auction-expiration',
         async () =>
-          await handlePackAuctionExpirationTask(
-            app.container,
-            logger,
-            app.knexRead
-          ),
+          await handlePackAuctionExpirationTask(app.container, logger),
         (error) => app.log.error(error)
       )
     )
@@ -127,12 +114,7 @@ export function configureTasks(
       { minutes: 1 },
       new AsyncTask(
         'check-pending-banks',
-        async () =>
-          await updatePaymentBankStatusesTask(
-            app.container,
-            logger,
-            app.knexRead
-          ),
+        async () => await updatePaymentBankStatusesTask(app.container, logger),
         (error) => app.log.error(error)
       )
     )
@@ -143,12 +125,7 @@ export function configureTasks(
       { seconds: 10 },
       new AsyncTask(
         'check-pending-cards',
-        async () =>
-          await updatePaymentCardStatusesTask(
-            app.container,
-            logger,
-            app.knexRead
-          ),
+        async () => await updatePaymentCardStatusesTask(app.container, logger),
         (error) => app.log.error(error)
       )
     )
@@ -159,8 +136,7 @@ export function configureTasks(
       { seconds: 10 },
       new AsyncTask(
         'check-pending-payments',
-        async () =>
-          await updatePaymentStatusesTask(app.container, logger, app.knexRead),
+        async () => await updatePaymentStatusesTask(app.container, logger),
         (error) => app.log.error(error)
       )
     )
@@ -188,8 +164,7 @@ export function configureTasks(
           await updateCurrencyConversionsTask(
             app.container,
             Configuration.currency,
-            logger,
-            app.knexRead
+            logger
           ),
         (error) => app.log.error(error)
       )

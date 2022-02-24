@@ -1,7 +1,6 @@
 import {
   AlgorandAdapter,
   CircleAdapter,
-  CMSCacheAdapter,
   NFTStorageAdapter,
 } from '@algomart/shared/adapters'
 

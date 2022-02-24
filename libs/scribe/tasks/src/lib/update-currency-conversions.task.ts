@@ -9,8 +9,7 @@ import pino from 'pino'
 export async function updateCurrencyConversionsTask(
   registry: DependencyResolver,
   currency: Currency<number> | undefined,
-  logger: pino.Logger<unknown>,
-  knexRead?: Knex
+  logger: pino.Logger<unknown>
 ) {
   const log = logger.child({ task: 'update-currency-conversions' })
   const sourceCurrency = currency?.code || DEFAULT_CURRENCY
@@ -21,11 +20,11 @@ export async function updateCurrencyConversionsTask(
       {
         sourceCurrency,
       },
-      trx,
-      knexRead
+      trx
     )
     log.info(
-      `stored ${Object.keys(result).length
+      `stored ${
+        Object.keys(result).length
       } currency conversions for ${sourceCurrency} in db`,
       result
     )
