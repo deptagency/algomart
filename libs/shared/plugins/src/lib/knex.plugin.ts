@@ -19,19 +19,22 @@ declare module 'fastify' {
 export interface FastifyKnexOptions extends FastifyPluginOptions {
   knex: Knex.Config
   name: string
-  readReplica?: boolean
+}
+
+export enum KnexConnectionType {
+  WRITE = 'knexMain',
+  READ = 'knexRead',
 }
 
 export default fp(async function fastifyKnex(
   fastify: FastifyInstance,
   options: FastifyKnexOptions
 ) {
-  const name = options?.name || 'knex'
+  const name = options?.name || KnexConnectionType.WRITE
 
   const preHandler: preHandlerAsyncHookHandler = async (request) => {
-    const knexConnection = knex(options.knex)
-    const knexConnectionModel = knexConnection
-    request.knexRead = knexConnectionModel
+    const knexConnection = fastify[KnexConnectionType.READ]
+    request.knexRead = knexConnection
   }
 
   if (!fastify[name]) {
@@ -45,7 +48,7 @@ export default fp(async function fastifyKnex(
       await knexInstance.destroy()
     })
 
-    if (options?.readReplica) {
+    if (name === KnexConnectionType.READ) {
       fastify.addHook('onRoute', (route) => {
         route.preHandler = addHandler(route.preHandler, preHandler)
       })
