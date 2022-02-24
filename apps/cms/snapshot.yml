@@ -2431,8 +2431,8 @@ fields:
       default_value: null
       generation_expression: null
       max_length: null
-      numeric_precision: 32
-      numeric_scale: 0
+      numeric_precision: null
+      numeric_scale: null
       is_generated: false
       is_nullable: true
       is_unique: false
@@ -2686,7 +2686,8 @@ fields:
       special:
         - m2o
       interface: select-dropdown-m2o
-      options: null
+      options:
+        template: '{{slug}}'
       display: null
       display_options: null
       readonly: false
@@ -7016,6 +7017,28 @@ fields:
       conditions: null
       required: false
       group: null
+  - collection: application
+    field: countries
+    type: alias
+    schema: null
+    meta:
+      collection: application
+      field: countries
+      special:
+        - m2m
+      interface: list-m2m
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
   - collection: collections
     field: translations
     type: alias
@@ -7420,63 +7443,66 @@ fields:
       special:
         - o2m
       interface: list-o2m
-      options: null
+      options:
+        template: '{{unique_code}}'
       display: null
       display_options: null
       readonly: false
       hidden: false
       sort: 6
       width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-  - collection: countries
-    field: translations
-    type: alias
-    schema: null
-    meta:
-      collection: countries
-      field: translations
-      special:
-        - translations
-      interface: translations
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: null
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-  - collection: application
-    field: countries
-    type: alias
-    schema: null
-    meta:
-      collection: application
-      field: countries
-      special:
-        - m2m
-      interface: list-m2m
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: null
-      width: full
-      translations: null
+      translations:
+        - language: en-US
+          translation: Featured NFTs
       note: null
       conditions: null
       required: false
       group: null
 relations:
+  - collection: application_countries
+    field: countries_code
+    related_collection: countries
+    schema:
+      table: application_countries
+      column: countries_code
+      foreign_key_table: countries
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: application_countries_countries_code_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: application_countries
+      many_field: countries_code
+      one_collection: countries
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: application_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: application_countries
+    field: application_id
+    related_collection: application
+    schema:
+      table: application_countries
+      column: application_id
+      foreign_key_table: application
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: application_countries_application_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: application_countries
+      many_field: application_id
+      one_collection: application
+      one_field: countries
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: countries_code
+      sort_field: null
+      one_deselect_action: nullify
   - collection: collections
     field: user_created
     related_collection: directus_users
@@ -7912,6 +7938,28 @@ relations:
       many_field: pack_image
       one_collection: directus_files
       one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: pack_templates
+    field: homepage
+    related_collection: homepage
+    schema:
+      table: pack_templates
+      column: homepage
+      foreign_key_table: homepage
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: pack_templates_homepage_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: pack_templates
+      many_field: homepage
+      one_collection: homepage
+      one_field: featured_packs
       one_collection_field: null
       one_allowed_collections: null
       junction_field: null

@@ -677,6 +677,8 @@ export default class DirectusAdapter {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       const application = JSON.parse(response.body).data as DirectusApplication
 
+      console.log({ application })
+
       await CMSCacheApplicationModel.upsert(
         application as unknown as DirectusApplication
       )
