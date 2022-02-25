@@ -18,6 +18,7 @@ import { urls } from '@/utils/urls'
 export interface NFTTemplateProps {
   collectible: CollectibleWithDetails
   userAddress?: string
+  currentOwnerHasShowcase?: boolean
 }
 
 function getTransferrableStatus(
@@ -34,6 +35,7 @@ function getTransferrableStatus(
 export default function NFTTemplate({
   userAddress,
   collectible,
+  currentOwnerHasShowcase,
 }: NFTTemplateProps) {
   const { t } = useTranslation()
   const transferrableStatus = getTransferrableStatus(collectible, userAddress)
@@ -96,23 +98,36 @@ export default function NFTTemplate({
         <div className={css.nftMeta}>
           <div className={css.nftMetaContent}>
             <ul role="list" className={css.nftMetaList}>
-              {collectible.currentOwner ? (
-                <li className={css.nftMetaListItem}>
-                  <span className={css.nftMetaLabel}>
-                    {t('nft:labels.Owner')}
-                  </span>
-                  <span>
-                    <AppLink
-                      href={urls.profileShowcase.replace(
-                        ':username',
-                        collectible.currentOwner
-                      )}
-                    >
-                      @{collectible.currentOwner}
-                    </AppLink>
-                  </span>
-                </li>
-              ) : null}
+              {(() => {
+                if (collectible.currentOwner && currentOwnerHasShowcase) {
+                  return (
+                    <li className={css.nftMetaListItem}>
+                      <span className={css.nftMetaLabel}>
+                        {t('nft:labels.Owner')}
+                      </span>
+                      <span>
+                        <AppLink
+                          href={urls.profileShowcase.replace(
+                            ':username',
+                            collectible.currentOwner
+                          )}
+                        >
+                          @{collectible.currentOwner}
+                        </AppLink>
+                      </span>
+                    </li>
+                  )
+                } else if (collectible.currentOwner) {
+                  return (
+                    <CollectibleMetaListItem
+                      label={t('nft:labels.Owner')}
+                      value={collectible?.currentOwner}
+                    />
+                  )
+                } else {
+                  return null
+                }
+              })()}
               {/* TODO: add publisher details */}
               <CollectibleMetaListItem
                 label={t('nft:labels.Collection')}
