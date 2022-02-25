@@ -99,11 +99,7 @@ export default function CollectibleItem({
         </button>
       )}
 
-      {title && (
-        <div className={clsx(css.title, { [css.titleFaded]: uncollected })}>
-          {title}
-        </div>
-      )}
+      {title && <div className={css.title}>{title}</div>}
 
       {hasMetadata && (
         <div

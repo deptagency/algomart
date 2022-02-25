@@ -44,11 +44,10 @@
 
 /* Item content */
 .title {
-  @apply mt-2 px-4 text-sm text-center text-base-textPrimary;
+  @apply mt-2 px-4 text-lg font-display text-center text-base-textPrimary;
 }
 
 .title.titleFaded {
-  @apply text-base-gray-light;
 }
 
 .rootCard .title {
