@@ -548,7 +548,7 @@ export default class CMSCacheAdapter {
     knxRead?: Knex
   ) {
     const queryResult = await CMSCachePackTemplateModel.query(knxRead)
-      .findOne('templateId', templateId)
+      .findOne('id', templateId)
       .select('content')
 
     const packTemplate = queryResult.content as unknown as DirectusPackTemplate
