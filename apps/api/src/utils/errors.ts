@@ -12,7 +12,7 @@ export class UserError extends Error {
   }
 }
 
-export function appErrorHandler() {
+export function appErrorHandler(app: FastifyInstance) {
   return async function (
     error: FastifyError,
     request: FastifyRequest,
