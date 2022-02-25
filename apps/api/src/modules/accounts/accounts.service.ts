@@ -3,6 +3,10 @@ import {
   CreateUserAccountRequest,
   ExternalId,
   PublicAccount,
+  SortDirection,
+  UserAccounts,
+  UserSortField,
+  UsersQuerystring,
 } from '@algomart/schemas'
 import { UpdateUserAccount } from '@algomart/schemas'
 import { Username } from '@algomart/schemas'
@@ -163,6 +167,50 @@ export default class AccountsService {
       .withGraphJoined('algorandAccount.creationTransaction')
 
     return this.mapPublicAccount(userAccount)
+  }
+
+  async getUsers({
+    page = 1,
+    pageSize = 10,
+    username,
+    email,
+    sortBy = UserSortField.CreatedAt,
+    sortDirection = SortDirection.Ascending,
+  }: UsersQuerystring): Promise<UserAccounts> {
+    userInvariant(page > 0, 'page must be greater than 0')
+    userInvariant(
+      pageSize > 0 || pageSize === -1,
+      'pageSize must be greater than 0'
+    )
+    userInvariant(
+      [
+        UserSortField.Username,
+        UserSortField.CreatedAt,
+        UserSortField.Email,
+      ].includes(sortBy),
+      'sortBy must be one of username, email, or createdAt'
+    )
+    userInvariant(
+      [SortDirection.Ascending, SortDirection.Descending].includes(
+        sortDirection
+      ),
+      'sortDirection must be one of asc or desc'
+    )
+
+    const query = UserAccountModel.query()
+
+    // Find payer
+    const userIdentifier = username || email
+    const field = username ? 'username' : 'email'
+    if (userIdentifier) {
+      query.where(field, 'ilike', userIdentifier)
+    }
+
+    const { results: users, total } = await query
+      .orderBy(sortBy, sortDirection)
+      .page(page >= 1 ? page - 1 : page, pageSize)
+
+    return { users, total }
   }
 
   async verifyPassphraseFor(externalId: string, passphrase: string) {

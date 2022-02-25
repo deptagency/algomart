@@ -1,4 +1,3 @@
-import { FirebaseClaim } from '@algomart/schemas'
 import { BadRequest } from 'http-errors'
 import { NextApiResponse } from 'next'
 
@@ -22,24 +21,22 @@ handler.patch(
   validateBodyMiddleware(validateSetClaim),
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
     // Check if permissions are already set
+    const { key, value, userExternalId } = request.body
     const admin = configureAdmin()
-    const firebaseUser = await admin.auth().getUser(request.body.userExternalId)
-    const claims = firebaseUser.customClaims
-
-    // If not, set admin permissions
-    const isAdminUser = claims?.[FirebaseClaim.admin]
-    if (!isAdminUser) {
-      try {
-        await admin.auth().setCustomUserClaims(request.body.userExternalId, {
-          [request.body.role]: true,
-        })
-        return response.status(204)
-      } catch {
-        throw new BadRequest('Unable to set claims')
-      }
+    const firebaseUser = await admin.auth().getUser(userExternalId)
+    const customClaims = firebaseUser.customClaims || {}
+    if (value === false && customClaims[key]) {
+      delete customClaims[key]
+    } else {
+      customClaims[key] = value
+    }
+    try {
+      await admin.auth().setCustomUserClaims(userExternalId, customClaims)
+    } catch {
+      throw new BadRequest('Unable to set claims')
     }
 
-    return response.status(204)
+    response.json({ claims: Object.keys(customClaims) })
   }
 )
 // #endregion Update claims

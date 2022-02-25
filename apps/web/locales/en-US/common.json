@@ -121,6 +121,7 @@
     "Sign Up": "Sign Up",
     "Transaction": "Transaction",
     "Transactions": "Transactions",
+    "Users": "Users",
     "User Profile": "@{{name}} Profile"
   },
   "nav": {

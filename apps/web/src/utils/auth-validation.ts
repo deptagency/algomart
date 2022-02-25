@@ -1,6 +1,7 @@
 import { FirebaseClaim } from '@algomart/schemas'
 import { Translate } from 'next-translate'
 import {
+  boolean,
   email,
   exact,
   matches,
@@ -95,5 +96,6 @@ export const validateUsername = (t: Translate) =>
 export const validateSetClaim = (t: Translate) =>
   object({
     userExternalId: userExternalId(t),
-    role: role(t),
+    key: role(t),
+    value: boolean(),
   })

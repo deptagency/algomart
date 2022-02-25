@@ -4,7 +4,9 @@ import {
   PassphraseSchema,
   PublicUserAccountSchema,
   UpdateUserAccountSchema,
+  UserAccountsSchema,
   UsernameSchema,
+  UsersQuerystringSchema,
 } from '@algomart/schemas'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
@@ -14,6 +16,7 @@ import {
   createAccount,
   getByExternalId,
   getByUsername,
+  getUsers,
   removeUser,
   updateAccount,
   verifyPassphrase,
@@ -68,6 +71,20 @@ export async function accountsRoutes(app: FastifyInstance) {
         },
       },
       getByUsername
+    )
+    .get(
+      '/all',
+      {
+        schema: {
+          tags,
+          security,
+          querystring: UsersQuerystringSchema,
+          response: {
+            200: UserAccountsSchema,
+          },
+        },
+      },
+      getUsers
     )
     .get(
       '/:externalId',
