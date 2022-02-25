@@ -3,7 +3,6 @@ import { Transaction } from 'objection'
 import pino from 'pino'
 import { enc, SHA256 } from 'crypto-js'
 import * as Currencies from '@dinero.js/currencies'
-import { enc, SHA256 } from 'crypto-js'
 import { v4 as uuid } from 'uuid'
 
 import {
@@ -15,7 +14,6 @@ import {
   CreateCard,
   CreatePayment,
   CreateTransferPayment,
-  PaymentQuerystring,
   DEFAULT_CURRENCY,
   DEFAULT_LOCALE,
   EventAction,
@@ -63,7 +61,6 @@ import {
   invariant,
   poll,
   userInvariant,
-  poll,
 } from '@algomart/shared/utils'
 
 export default class PaymentsService {
