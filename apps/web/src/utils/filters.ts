@@ -124,3 +124,15 @@ export const getSelectSortingOptions = (t: Translate) => {
     { id: SortOptions.Name, label: t('collection:sorting.Name') },
   ]
 }
+
+/**
+ * Build a search parameter string to filter payments
+ */
+export const getUsersFilterQuery = (query: any) => {
+  return stringify({
+    page: query.page,
+    pageSize: query.pageSize || PAGE_SIZE,
+    sortBy: query.sortBy,
+    sortDirection: query.sortDirection,
+  })
+}
