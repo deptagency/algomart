@@ -71,11 +71,11 @@ export default function NFTTemplate({
           <div className={css.panelActions}>
             {/* TODO: enable this for secondary marketplace */}
             <ButtonGroup>
-              <LinkButton group="left" size="small" disabled href={urls.home}>
+              <LinkButton group="right" size="small" disabled href={urls.home}>
                 {t('nft:actions.sellNFT')}
               </LinkButton>
               <LinkButton
-                group="right"
+                group="left"
                 href={urls.nftTransfer.replace(
                   ':assetId',
                   String(collectible.address)
