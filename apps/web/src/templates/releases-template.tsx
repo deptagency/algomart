@@ -39,8 +39,8 @@ export default function ReleasesTemplate({
   return (
     <div className={css.root}>
       {/* Sorting */}
-      <Heading level={2} inheritColor className="text-center mb-6">
-        {t('Browse FIFA NFT Releases')}
+      <Heading level={2} inheritColor className="mb-6 text-center">
+        {t('release:Browse FIFA NFT Releases')}
       </Heading>
       <div className={css.selectWrapper}>
         <Select

@@ -58,7 +58,23 @@ export default function NFTTemplate({
           />
         ) : null}
 
-        <MediaGallery media={[collectible.image]} />
+        {collectible.previewVideo ? (
+          //Yes, this video tag does need a key attribute
+          //https://stackoverflow.com/questions/29291688/video-displayed-in-reactjs-component-not-updating
+          <video
+            autoPlay
+            controls
+            key={collectible.previewVideo}
+            loop
+            muted
+            width="100%"
+          >
+            <source src={collectible.previewVideo} />
+            {t('common:statuses.noVideoSupport')}
+          </video>
+        ) : (
+          <MediaGallery media={[collectible.image]} />
+        )}
 
         <div className={css.panelHeader}>
           <Heading className={css.title}>{collectible.title}</Heading>
