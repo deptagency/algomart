@@ -6,11 +6,8 @@ import {
 } from '@algomart/schemas'
 import { UpdateUserAccount } from '@algomart/schemas'
 import { Username } from '@algomart/schemas'
-import got, { Got } from 'got'
 import { Transaction } from 'objection'
-import { v4 } from 'uuid'
 
-import { Configuration } from '@/configuration'
 import AlgorandAdapter from '@/lib/algorand-adapter'
 import { AlgorandAccountModel } from '@/models/algorand-account.model'
 import { AlgorandTransactionModel } from '@/models/algorand-transaction.model'
@@ -31,24 +28,22 @@ export default class AccountsService {
       })
       .orWhere({ externalId: request.externalId })
       .first()
-    // userInvariant(!existing, 'username or externalId already exists', 400)
+    userInvariant(!existing, 'username or externalId already exists', 400)
 
     // 2. generate algorand account (i.e. wallet)
     const result = this.algorand.generateAccount(request.passphrase)
 
     // 3. save account with encrypted mnemonic
     await UserAccountModel.query(trx).insertGraph({
-      username: v4().slice(16),
-      email: `${v4()}@test.local`,
+      username: request.username,
+      email: request.email,
       locale: request.locale,
-      externalId: v4().slice(16),
+      externalId: request.externalId,
       algorandAccount: {
         address: result.address,
         encryptedKey: result.encryptedMnemonic,
       },
     })
-
-    await got.get('https://httpstat.us/401')
 
     // 4. return "public" user account
     const userAccount = await UserAccountModel.query(trx)
