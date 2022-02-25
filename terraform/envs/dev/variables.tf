@@ -240,6 +240,11 @@ variable "smtp_port" {
   default   = ""
 }
 
+variable "api_minimum_days_before_transfer" {
+  sensitive = true
+  default   = ""
+}
+
 ##
 ## CMS service
 ##

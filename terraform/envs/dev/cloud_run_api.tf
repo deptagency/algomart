@@ -220,6 +220,11 @@ resource "google_cloud_run_service" "api" {
           name  = "LOG_LEVEL"
           value = "debug"
         }
+
+        env {
+          name  = "MINIMUM_DAYS_BEFORE_TRANSFER"
+          value = var.api_minimum_days_before_transfer
+        }
       }
     }
   }
