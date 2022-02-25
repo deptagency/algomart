@@ -388,6 +388,7 @@ export function toPackBase(
     },
     image: getFileURL(template.pack_image),
     onePackPerCustomer: template.one_pack_per_customer,
+    nftsPerPack: template.nfts_per_pack,
     price: template.price || 0,
     releasedAt: template.released_at ?? undefined,
     slug: template.slug,
