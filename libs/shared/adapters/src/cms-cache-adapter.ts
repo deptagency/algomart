@@ -786,8 +786,8 @@ export default class CMSCacheAdapter {
     // All the items in the database are stored in USD
 
     const queryResult = await CMSCachePackTemplateModel.query(knxRead)
-      .orWhere('released_at', null)
-      .orWhere('released_at', '<', new Date())
+      .orWhere('releasedAt', null)
+      .orWhere('releasedAt', '<', new Date())
       .select('content')
 
     const data = queryResult.map(
