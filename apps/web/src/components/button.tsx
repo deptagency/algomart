@@ -51,7 +51,7 @@ export function buttonClasses(
       'bg-gray-400 cursor-not-allowed pointer-events-none focus:ring-secondary opacity-30':
         disabled,
       'block w-full': fullWidth,
-      'rounded-full': rounded,
+      'rounded-full': rounded && !group,
     },
     className
   )
