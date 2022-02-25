@@ -7441,50 +7441,6 @@ fields:
       conditions: null
       required: false
       group: null
-  - collection: countries
-    field: translations
-    type: alias
-    schema: null
-    meta:
-      collection: countries
-      field: translations
-      special:
-        - translations
-      interface: translations
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: null
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-  - collection: application
-    field: countries
-    type: alias
-    schema: null
-    meta:
-      collection: application
-      field: countries
-      special:
-        - m2m
-      interface: list-m2m
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: null
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
 relations:
   - collection: application_countries
     field: countries_code
