@@ -33,7 +33,7 @@ export default function MyCollectionPage({
   )
 
   return (
-    <DefaultLayout pageTitle={collection.name} panelPadding width="large">
+    <DefaultLayout pageTitle={collection.name} noPanel width="large">
       {!collectibles ? (
         <Loading />
       ) : (

@@ -36,7 +36,7 @@ export default function MySetPage({ set, collection }: MySetPageProps) {
   )
 
   return (
-    <DefaultLayout pageTitle={set.name} panelPadding width="large">
+    <DefaultLayout pageTitle={set.name} noPanel width="large">
       {!collectibles ? (
         <Loading />
       ) : (

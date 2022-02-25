@@ -24,7 +24,9 @@
     "serve": {
       "executor": "@nrwl/node:execute",
       "options": {
-        "buildTarget": "api:build"
+        "buildTarget": "api:build",
+        "inspect": true,
+        "port": 53959
       }
     },
     "lint": {

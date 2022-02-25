@@ -7,5 +7,5 @@
 }
 
 .subHeading {
-  @apply text-base-gray-medium;
+  @apply text-base-gray-medium font-display;
 }

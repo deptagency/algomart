@@ -1,24 +1,23 @@
 .root {
   /* Base */
-  @apply flex items-center justify-center mb-5 -mt-8;
+  @apply flex items-center justify-center mb-5;
   /* Tablet + */
-  @apply md:mb-12 md:mx-auto;
+  @apply md:mb-8 md:mx-auto;
 }
 
 .negativeMargin {
-  @apply -mx-8;
 }
 
 .tabsContainer {
   /* Base */
   @apply relative flex w-full overflow-hidden bg-base-bgCard shadow-large;
   /* Tablet + */
-  @apply md:w-auto md:rounded-lg md:mx-5;
+  @apply md:w-auto md:rounded-full md:mx-5;
 }
 
 .tab {
   /* Base */
-  @apply flex-1 px-4 py-4 text-center no-underline transition duration-300 text-base-textPrimary;
+  @apply flex-1 px-4 py-4 text-center no-underline transition duration-300 text-base-textPrimary font-display text-lg;
   /* Base: Focus and Hover */
   @apply focus:outline-none focus:bg-action-secondary hover:bg-action-secondary focus:bg-opacity-20 hover:bg-opacity-20;
   /* Tablet + */
@@ -26,11 +25,11 @@
 }
 
 .tab:first-of-type {
-  @apply md:rounded-l-lg;
+  @apply md:rounded-l-full;
 }
 
 .tab:last-of-type {
-  @apply md:rounded-r-lg;
+  @apply md:rounded-r-full;
 }
 
 .tab + .tab {

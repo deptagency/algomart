@@ -8,7 +8,7 @@
 }
 
 .textTitle {
-  @apply mt-4 text-center text-xl;
+  @apply mt-4 text-center text-lg font-display uppercase;
 }
 
 .textBrand {

@@ -79,8 +79,8 @@ export default function MyCollectiblesPage() {
   return (
     <DefaultLayout
       pageTitle={t('common:pageTitles.My Collectibles')}
-      panelPadding
       width="large"
+      noPanel
     >
       {!collectibles || total === undefined ? (
         <Loading />
