@@ -169,6 +169,22 @@ variable "api_secret" {
   sensitive = true
 }
 
+variable "api_write_min_pool" {
+  sensitive = true
+}
+
+variable "api_write_max_pool" {
+  sensitive = true
+}
+
+variable "api_read_min_pool" {
+  sensitive = true
+}
+
+variable "api_read_max_pool" {
+  sensitive = true
+}
+
 variable "circle_key" {
   sensitive = true
 }

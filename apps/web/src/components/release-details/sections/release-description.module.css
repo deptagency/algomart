@@ -1,5 +1,5 @@
 .root {
-  @apply relative p-6 border-t border-base-border;
+  @apply relative px-20 py-12 border-t border-base-border;
 }
 
 .collapseContainer {

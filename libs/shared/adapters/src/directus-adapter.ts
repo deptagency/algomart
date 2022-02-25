@@ -337,7 +337,7 @@ export default class DirectusAdapter {
       fields: ['id', 'slug', 'translations.*'],
     }
 
-    return await this.findMany<DirectusPage>('pages', {
+    return await this.findMany<DirectusPage>('page', {
       ...defaultQuery,
       ...query,
     })
@@ -430,6 +430,10 @@ export default class DirectusAdapter {
     }
   }
 
+  private async syncCountries() {
+    await this.syncApplication()
+  }
+
   private async syncRarities() {
     await this.syncHomePage()
 
@@ -463,9 +467,6 @@ export default class DirectusAdapter {
       filter: {
         id: {
           _eq: pageId,
-        },
-        status: {
-          _eq: DirectusStatus.Published,
         },
       },
     })
@@ -561,12 +562,11 @@ export default class DirectusAdapter {
 
   async syncAllPages() {
     const response = await this.findPages({
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
+      filter: {},
     })
+
+    console.log('syncAllPages')
+    console.log(response.data)
 
     for (const page of response.data) {
       await CMSCachePageModel.upsert(page)
@@ -677,6 +677,8 @@ export default class DirectusAdapter {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       const application = JSON.parse(response.body).data as DirectusApplication
 
+      console.log({ application })
+
       await CMSCacheApplicationModel.upsert(
         application as unknown as DirectusApplication
       )
@@ -706,6 +708,9 @@ export default class DirectusAdapter {
         return await this.syncApplication()
       case 'collections':
         return await this.syncCollection(webhook.key)
+      case 'countries':
+        // nothing to do for new countries. inserts are handled with application collection updates
+        return null
       case 'homepage':
         return await this.syncHomePage()
       case 'languages':
@@ -715,7 +720,8 @@ export default class DirectusAdapter {
       case 'pack_templates':
         return await this.syncPackTemplate(webhook.key)
       case 'rarities':
-        return await this.syncRarities()
+        // nothing to do for new rariteies. inserts are handled with collectible and homepage collection updates
+        return null
       case 'sets':
         return await this.syncSet(webhook.key)
       case 'faqs':
@@ -738,6 +744,8 @@ export default class DirectusAdapter {
         return await this.syncApplication()
       case 'collections':
         return await this.syncCollection(webhook.keys[0])
+      case 'countries':
+        return await this.syncCountries()
       case 'homepage':
         return await this.syncHomePage()
       case 'languages':

@@ -64,7 +64,11 @@ export default function HomeTemplate({
               {featuredPacksTitle}
             </Heading>
             <FeaturedPacks featuredPacks={featuredPacks} />
-            <Button className={css.sectionButton} onClick={onClickReleases}>
+            <Button
+              className={css.sectionButton}
+              size="medium"
+              onClick={onClickReleases}
+            >
               {t('common:actions.Browse Latest Releases')}
             </Button>
           </section>
@@ -87,7 +91,11 @@ export default function HomeTemplate({
                 />
               ))}
             </Grid>
-            <Button className={css.sectionButton} onClick={onClickReleases}>
+            <Button
+              className={css.sectionButton}
+              size="medium"
+              onClick={onClickReleases}
+            >
               {t('common:actions.Start Collecting')}
             </Button>
           </div>

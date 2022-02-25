@@ -1,6 +1,6 @@
 .rootPanel {
   /* Base */
-  @apply mx-auto mb-8 max-w-700;
+  @apply mx-auto mb-8 max-w-700 bg-white;
   /* Tablet + */
   @apply md:mt-6;
 }
@@ -14,7 +14,7 @@
 
 .withPadding {
   /* Base */
-  @apply px-8;
+  @apply px-8 py-16;
   /* Tablet + */
   @apply md:px-20;
 }

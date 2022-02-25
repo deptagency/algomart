@@ -2090,7 +2090,7 @@ fields:
     type: uuid
     schema:
       name: id
-      table: application
+      table: faqs
       data_type: uuid
       default_value: null
       generation_expression: null
@@ -2108,7 +2108,7 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
     meta:
-      collection: application
+      collection: faqs
       field: id
       special:
         - uuid
@@ -2431,8 +2431,8 @@ fields:
       default_value: null
       generation_expression: null
       max_length: null
-      numeric_precision: 32
-      numeric_scale: 0
+      numeric_precision: null
+      numeric_scale: null
       is_generated: false
       is_nullable: true
       is_unique: false
@@ -2686,7 +2686,8 @@ fields:
       special:
         - m2o
       interface: select-dropdown-m2o
-      options: null
+      options:
+        template: '{{slug}}'
       display: null
       display_options: null
       readonly: false
@@ -6976,6 +6977,28 @@ fields:
       conditions: null
       required: false
       group: null
+  - collection: application
+    field: countries
+    type: alias
+    schema: null
+    meta:
+      collection: application
+      field: countries
+      special:
+        - m2m
+      interface: list-m2m
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
   - collection: collections
     field: translations
     type: alias
@@ -7068,6 +7091,28 @@ fields:
           readonly: true
       required: false
       group: null
+  - collection: countries
+    field: translations
+    type: alias
+    schema: null
+    meta:
+      collection: countries
+      field: translations
+      special:
+        - translations
+      interface: translations
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
   - collection: faqs
     field: translations
     type: alias
@@ -7087,6 +7132,28 @@ fields:
       readonly: false
       hidden: false
       sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+  - collection: homepage
+    field: translations
+    type: alias
+    schema: null
+    meta:
+      collection: homepage
+      field: translations
+      special:
+        - translations
+      interface: translations
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 2
       width: full
       translations: null
       note: null
@@ -7135,6 +7202,29 @@ fields:
       readonly: false
       hidden: false
       sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
+  - collection: homepage
+    field: featured_packs
+    type: alias
+    schema: null
+    meta:
+      collection: homepage
+      field: featured_packs
+      special:
+        - o2m
+      interface: list-o2m
+      options:
+        template: '{{slug}}'
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: 5
       width: full
       translations: null
       note: null
@@ -7327,50 +7417,6 @@ fields:
       required: false
       group: null
   - collection: homepage
-    field: translations
-    type: alias
-    schema: null
-    meta:
-      collection: homepage
-      field: translations
-      special:
-        - translations
-      interface: translations
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 2
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-  - collection: homepage
-    field: featured_packs
-    type: alias
-    schema: null
-    meta:
-      collection: homepage
-      field: featured_packs
-      special:
-        - o2m
-      interface: list-o2m
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 5
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-  - collection: homepage
     field: featured_nfts
     type: alias
     schema: null
@@ -7380,14 +7426,17 @@ fields:
       special:
         - o2m
       interface: list-o2m
-      options: null
+      options:
+        template: '{{unique_code}}'
       display: null
       display_options: null
       readonly: false
       hidden: false
       sort: 6
       width: full
-      translations: null
+      translations:
+        - language: en-US
+          translation: Featured NFTs
       note: null
       conditions: null
       required: false
@@ -7437,6 +7486,50 @@ fields:
       required: false
       group: null
 relations:
+  - collection: application_countries
+    field: countries_code
+    related_collection: countries
+    schema:
+      table: application_countries
+      column: countries_code
+      foreign_key_table: countries
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: application_countries_countries_code_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: application_countries
+      many_field: countries_code
+      one_collection: countries
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: application_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: application_countries
+    field: application_id
+    related_collection: application
+    schema:
+      table: application_countries
+      column: application_id
+      foreign_key_table: application
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: application_countries_application_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: application_countries
+      many_field: application_id
+      one_collection: application
+      one_field: countries
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: countries_code
+      sort_field: null
+      one_deselect_action: nullify
   - collection: collections
     field: user_created
     related_collection: directus_users
@@ -7569,6 +7662,50 @@ relations:
       junction_field: collections_id
       sort_field: null
       one_deselect_action: nullify
+  - collection: countries_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      table: countries_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: countries_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: countries_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: countries_code
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: countries_translations
+    field: countries_code
+    related_collection: countries
+    schema:
+      table: countries_translations
+      column: countries_code
+      foreign_key_table: countries
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: countries_translations_countries_code_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: countries_translations
+      many_field: countries_code
+      one_collection: countries
+      one_field: translations
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: languages_code
+      sort_field: null
+      one_deselect_action: nullify
   - collection: faqs_translations
     field: languages_code
     related_collection: languages
@@ -7607,6 +7744,138 @@ relations:
       many_collection: faqs_translations
       many_field: faqs_id
       one_collection: faqs
+      one_field: translations
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: languages_code
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: homepage
+    field: hero_banner
+    related_collection: directus_files
+    schema:
+      table: homepage
+      column: hero_banner
+      foreign_key_table: directus_files
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: homepage_hero_banner_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: homepage
+      many_field: hero_banner
+      one_collection: directus_files
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: homepage
+    field: hero_pack
+    related_collection: pack_templates
+    schema:
+      table: homepage
+      column: hero_pack
+      foreign_key_table: pack_templates
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: homepage_hero_pack_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: homepage
+      many_field: hero_pack
+      one_collection: pack_templates
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: homepage_pack_templates
+    field: pack_templates_id
+    related_collection: pack_templates
+    schema:
+      table: homepage_pack_templates
+      column: pack_templates_id
+      foreign_key_table: pack_templates
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: homepage_pack_templates_pack_templates_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: homepage_pack_templates
+      many_field: pack_templates_id
+      one_collection: pack_templates
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: homepage_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: homepage_pack_templates
+    field: homepage_id
+    related_collection: homepage
+    schema:
+      table: homepage_pack_templates
+      column: homepage_id
+      foreign_key_table: homepage
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: homepage_pack_templates_homepage_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: homepage_pack_templates
+      many_field: homepage_id
+      one_collection: homepage
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: pack_templates_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: homepage_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      table: homepage_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: homepage_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: homepage_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: homepage_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: homepage_translations
+    field: homepage_id
+    related_collection: homepage
+    schema:
+      table: homepage_translations
+      column: homepage_id
+      foreign_key_table: homepage
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: homepage_translations_homepage_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: homepage_translations
+      many_field: homepage_id
+      one_collection: homepage
       one_field: translations
       one_collection_field: null
       one_allowed_collections: null
@@ -7877,6 +8146,28 @@ relations:
       junction_field: null
       sort_field: null
       one_deselect_action: nullify
+  - collection: nft_templates
+    field: homepage
+    related_collection: homepage
+    schema:
+      table: nft_templates
+      column: homepage
+      foreign_key_table: homepage
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: nft_templates_homepage_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: nft_templates
+      many_field: homepage
+      one_collection: homepage
+      one_field: featured_nfts
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
   - collection: nft_templates_translations
     field: nft_templates_id
     related_collection: nft_templates
@@ -7982,6 +8273,28 @@ relations:
       many_field: pack_image
       one_collection: directus_files
       one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: pack_templates
+    field: homepage
+    related_collection: homepage
+    schema:
+      table: pack_templates
+      column: homepage
+      foreign_key_table: homepage
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: pack_templates_homepage_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: pack_templates
+      many_field: homepage
+      one_collection: homepage
+      one_field: featured_packs
       one_collection_field: null
       one_allowed_collections: null
       junction_field: null
@@ -8315,269 +8628,5 @@ relations:
       one_collection_field: null
       one_allowed_collections: null
       junction_field: sets_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: homepage_translations
-    field: languages_code
-    related_collection: languages
-    schema:
-      table: homepage_translations
-      column: languages_code
-      foreign_key_table: languages
-      foreign_key_column: code
-      foreign_key_schema: public
-      constraint_name: homepage_translations_languages_code_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: homepage_translations
-      many_field: languages_code
-      one_collection: languages
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: homepage_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: homepage_translations
-    field: homepage_id
-    related_collection: homepage
-    schema:
-      table: homepage_translations
-      column: homepage_id
-      foreign_key_table: homepage
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: homepage_translations_homepage_id_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: homepage_translations
-      many_field: homepage_id
-      one_collection: homepage
-      one_field: translations
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: languages_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: pack_templates
-    field: homepage
-    related_collection: homepage
-    schema:
-      table: pack_templates
-      column: homepage
-      foreign_key_table: homepage
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: pack_templates_homepage_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: pack_templates
-      many_field: homepage
-      one_collection: homepage
-      one_field: featured_packs
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: nft_templates
-    field: homepage
-    related_collection: homepage
-    schema:
-      table: nft_templates
-      column: homepage
-      foreign_key_table: homepage
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: nft_templates_homepage_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: nft_templates
-      many_field: homepage
-      one_collection: homepage
-      one_field: featured_nfts
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: homepage
-    field: hero_banner
-    related_collection: directus_files
-    schema:
-      table: homepage
-      column: hero_banner
-      foreign_key_table: directus_files
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: homepage_hero_banner_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: homepage
-      many_field: hero_banner
-      one_collection: directus_files
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: homepage_pack_templates
-    field: pack_templates_id
-    related_collection: pack_templates
-    schema:
-      table: homepage_pack_templates
-      column: pack_templates_id
-      foreign_key_table: pack_templates
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: homepage_pack_templates_pack_templates_id_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: homepage_pack_templates
-      many_field: pack_templates_id
-      one_collection: pack_templates
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: homepage_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: homepage_pack_templates
-    field: homepage_id
-    related_collection: homepage
-    schema:
-      table: homepage_pack_templates
-      column: homepage_id
-      foreign_key_table: homepage
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: homepage_pack_templates_homepage_id_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: homepage_pack_templates
-      many_field: homepage_id
-      one_collection: homepage
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: pack_templates_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: homepage
-    field: hero_pack
-    related_collection: pack_templates
-    schema:
-      table: homepage
-      column: hero_pack
-      foreign_key_table: pack_templates
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: homepage_hero_pack_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: homepage
-      many_field: hero_pack
-      one_collection: pack_templates
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: countries_translations
-    field: languages_code
-    related_collection: languages
-    schema:
-      table: countries_translations
-      column: languages_code
-      foreign_key_table: languages
-      foreign_key_column: code
-      foreign_key_schema: public
-      constraint_name: countries_translations_languages_code_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: countries_translations
-      many_field: languages_code
-      one_collection: languages
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: countries_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: countries_translations
-    field: countries_code
-    related_collection: countries
-    schema:
-      table: countries_translations
-      column: countries_code
-      foreign_key_table: countries
-      foreign_key_column: code
-      foreign_key_schema: public
-      constraint_name: countries_translations_countries_code_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: countries_translations
-      many_field: countries_code
-      one_collection: countries
-      one_field: translations
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: languages_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: application_countries
-    field: countries_code
-    related_collection: countries
-    schema:
-      table: application_countries
-      column: countries_code
-      foreign_key_table: countries
-      foreign_key_column: code
-      foreign_key_schema: public
-      constraint_name: application_countries_countries_code_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: application_countries
-      many_field: countries_code
-      one_collection: countries
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: application_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: application_countries
-    field: application_id
-    related_collection: application
-    schema:
-      table: application_countries
-      column: application_id
-      foreign_key_table: application
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: application_countries_application_id_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: application_countries
-      many_field: application_id
-      one_collection: application
-      one_field: countries
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: countries_code
       sort_field: null
       one_deselect_action: nullify

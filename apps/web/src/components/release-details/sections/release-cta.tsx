@@ -33,7 +33,7 @@ export default function ReleaseCTA({
   const { asPath } = useRouter()
   const { t } = useTranslation()
   const getText = () => {
-    if (type === PackType.Purchase) return t('common:actions.Purchase')
+    if (type === PackType.Purchase) return t('common:actions.Purchase Pack')
     if (type === PackType.Auction) {
       if (isOwner) return t('common:actions.View My Collection')
       if (status === PackStatus.Expired && isWinningBidder)

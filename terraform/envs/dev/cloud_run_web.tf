@@ -7,6 +7,15 @@ resource "google_cloud_run_service" "web" {
   template {
     metadata {
       name = var.web_revision_name
+
+      annotations = {
+        # Run in vpc for IAP to work. Without this, web cannot connect to API
+        "run.googleapis.com/vpc-access-connector" = var.vpc_access_connector_name
+        # Temp setting for IAP to work
+        "run.googleapis.com/ingress" = "internal-and-cloud-load-balancing"
+
+        "autoscaling.knative.dev/minScale" = 1
+      }
     }
 
     spec {

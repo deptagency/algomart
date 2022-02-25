@@ -3,6 +3,7 @@ import {
   fastifyContainerPlugin,
   fastifyKnexPlugin,
   fastifyTransactionPlugin,
+  KnexConnectionType,
 } from '@algomart/shared/plugins'
 import { DependencyResolver } from '@algomart/shared/utils'
 import { applicationRoutes } from '@api/modules/application'
@@ -71,12 +72,11 @@ export default async function buildApp(config: AppConfig) {
   // Our Plugins
   await app.register(fastifyKnexPlugin, {
     knex: config.knexMain,
-    name: 'knexMain',
+    name: KnexConnectionType.WRITE,
   }),
     await app.register(fastifyKnexPlugin, {
       knex: config.knexRead,
-      name: 'knexRead',
-      readReplica: true,
+      name: KnexConnectionType.READ,
     })
   await app.register(fastifyContainerPlugin, { container: config.container })
   await app.register(fastifyTransactionPlugin)

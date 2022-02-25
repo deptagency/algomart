@@ -29,7 +29,7 @@ export default function AppHeader() {
 
   const signIn = () => {
     setShowMenu(false)
-    push(urls.login)
+    push(urls.signUp)
   }
 
   return (
@@ -104,6 +104,7 @@ export default function AppHeader() {
                 </AppLink>
                 <Button
                   size="small"
+                  variant="secondary"
                   className={css.createAccountButton}
                   onClick={signIn}
                   rounded={false}

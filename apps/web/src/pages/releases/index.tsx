@@ -43,7 +43,11 @@ export default function Releases({ packs }: PublishedPacks) {
   }, [isValidating, state.currentPage])
 
   return (
-    <DefaultLayout pageTitle={t('common:pageTitles.Releases')} width="full">
+    <DefaultLayout
+      pageTitle={t('common:pageTitles.Releases')}
+      width="full"
+      noPanel
+    >
       <div ref={pageTop} />
       <PackFilterProvider value={{ dispatch, state }}>
         <ReleasesTemplate

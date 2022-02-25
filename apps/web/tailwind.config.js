@@ -18,8 +18,7 @@ module.exports = {
     path.join(__dirname, 'src', '**', '*.{js,ts,jsx,tsx,css}'),
     ...createGlobPatternsForDependencies(__dirname, '**/*.{js,ts,jsx,tsx,css}'),
   ],
-
-  darkMode: false, // or false, 'media' or 'class'
+  darkMode: false,
   theme: {
     fontFamily: {
       base: ['"Open Sans"', 'ui-sans-serif', 'system-ui', '-apple-system'],
@@ -73,6 +72,10 @@ module.exports = {
             'actionSecondaryContrastText'
           ),
           accent: generateColorClass('actionAccent'),
+          tertiary: generateColorClass('actionTertiary'),
+          tertiaryContrastText: generateColorClass(
+            'actionTertiaryContrastText'
+          ),
         },
         base: {
           error: generateColorClass('error'),
@@ -88,6 +91,9 @@ module.exports = {
           textSecondary: generateColorClass('textSecondary'),
           textTertiary: generateColorClass('textTertiary'),
           textDisabled: generateColorClass('textDisabled'),
+
+          gradientFrom: generateColorClass('gradient-from'),
+          gradientTo: generateColorClass('gradient-to'),
 
           // DEPRECATED
           gray: {

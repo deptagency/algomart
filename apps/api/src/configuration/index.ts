@@ -68,11 +68,27 @@ export const Configuration = {
       .asUrlString()
   },
 
+  get databaseMainMinPool() {
+    return env.get('DATABASE_WRITE_MIN_POOL').default(2).asInt()
+  },
+
+  get databaseMainMaxPool() {
+    return env.get('DATABASE_WRITE_MAX_POOL').default(2).asInt()
+  },
+
   get databaseReadUrl() {
     return env
       .get('DATABASE_URL_READONLY')
       .default('postgres://localhost/postgres')
       .asUrlString()
+  },
+
+  get databaseReadMinPool() {
+    return env.get('DATABASE_READ_MIN_POOL').default(2).asInt()
+  },
+
+  get databaseReadMaxPool() {
+    return env.get('DATABASE_READ_MAX_POOL').default(2).asInt()
   },
 
   get databaseSchema() {
