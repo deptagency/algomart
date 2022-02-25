@@ -12,40 +12,15 @@ export class UserError extends Error {
   }
 }
 
-export function appErrorHandler(app: FastifyInstance) {
+export function appErrorHandler() {
   return async function (
     error: FastifyError,
     request: FastifyRequest,
     reply: FastifyReply
   ) {
-    let statusCode = 500
-
     if (error instanceof HTTPError || error instanceof HttpError) {
-      statusCode = error.response.statusCode
-    } else if (error instanceof UserError) {
-      statusCode = error.statusCode
+      reply.status(error.response.statusCode)
     }
-
-    if (statusCode >= 500) {
-      app.log.error(error)
-    } else {
-      app.log.info(error)
-    }
-
-    // Send error response
-    if (error instanceof HTTPError) {
-      // errors from got
-      reply
-        .status(statusCode)
-        .type('application/json')
-        .send(error.response.body)
-    } else {
-      // everything else
-      reply.status(statusCode).send({
-        statusCode,
-        error: error.name,
-        message: error.message,
-      })
-    }
+    throw error
   }
 }
