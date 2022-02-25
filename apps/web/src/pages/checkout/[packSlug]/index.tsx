@@ -71,20 +71,19 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
     }
   }
 
-  const { packs: packTemplates } = await ApiClient.instance.getPublishedPacks({
-    locale: context.locale,
-    slug: context?.params?.packSlug as string,
-  })
+  const packTemplate = await ApiClient.instance.getPublishedPackBySlug(
+    context?.params?.packSlug as string,
+    context.locale
+  )
 
   // If no pack templates were found, return 404
-  if (!packTemplates || packTemplates.length === 0) {
+  if (!packTemplate) {
     return {
       notFound: true,
     }
   }
 
   // If there are no remaining packs, prohibit purchase
-  const packTemplate = packTemplates[0]
   if (!packTemplate.available) {
     return {
       redirect: {

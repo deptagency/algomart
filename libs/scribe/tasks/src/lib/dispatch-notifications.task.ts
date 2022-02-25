@@ -1,13 +1,11 @@
 import { NotificationsService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
-import { Knex } from 'knex'
 import { Model } from 'objection'
+import pino from 'pino'
 
-import { logger } from '../configuration/logger'
-
-export default async function dispatchNotificationsTask(
+export async function dispatchNotificationsTask(
   registry: DependencyResolver,
-  knexRead?: Knex
+  logger: pino.Logger<unknown>
 ) {
   const log = logger.child({ task: 'dispatch-notifications' })
   const notifications = registry.get<NotificationsService>(
@@ -16,7 +14,7 @@ export default async function dispatchNotificationsTask(
 
   const trx = await Model.startTransaction()
   try {
-    await notifications.dispatchNotifications(trx, knexRead)
+    await notifications.dispatchNotifications(trx)
     await trx.commit()
   } catch (error) {
     await trx.rollback()

@@ -1,7 +1,7 @@
 import { Static, Type } from '@sinclair/typebox'
 
 import { UserAccountSchema } from './accounts'
-import { PackForPaymentSchema } from './packs'
+import { PackBaseSchema,PackSchema } from './packs'
 import {
   BaseSchema,
   IdSchema,
@@ -623,6 +623,13 @@ export const PaymentQuerystringSchema = Type.Object({
   isAdmin: Type.Optional(Type.Boolean()),
   isExternalId: Type.Optional(Type.Boolean()),
 })
+
+export const PackForPaymentSchema = Type.Intersect([
+  PackSchema,
+  Type.Object({
+    template: Type.Optional(Nullable(PackBaseSchema)),
+  }),
+])
 
 export const PaymentSchema = Type.Intersect([
   BaseSchema,

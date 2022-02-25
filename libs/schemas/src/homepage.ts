@@ -1,7 +1,7 @@
 import { Static, Type } from '@sinclair/typebox'
 
 import { CollectibleBaseSchema } from './collectibles'
-import { PublishedPackSchema } from './packs'
+import { PackBaseSchema, PublishedPackSchema } from './packs'
 import { Simplify } from './shared'
 
 export const HomepageTranslationsSchema = Type.Object({
@@ -15,10 +15,10 @@ export const HomepageTranslationsSchema = Type.Object({
 
 export const HomepageBaseSchema = Type.Intersect([
   Type.Object({
-    featuredNftTemplateIds: Type.Array(Type.String({ format: 'uuid' })),
-    featuredPackTemplateIds: Type.Array(Type.String({ format: 'uuid' })),
     heroBanner: Type.Optional(Type.String()),
-    heroPackTemplateId: Type.Optional(Type.String({ format: 'uuid' })),
+    featuredNftTemplates: Type.Array(CollectibleBaseSchema),
+    featuredPackTemplates: Type.Array(PackBaseSchema),
+    heroPackTemplate: Type.Optional(PackBaseSchema),
   }),
   HomepageTranslationsSchema,
 ])

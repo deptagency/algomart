@@ -1,4 +1,3 @@
-import { DirectusAdapter } from '@algomart/shared/adapters'
 import {
   AlgorandAdapter,
   CircleAdapter,
@@ -11,9 +10,9 @@ import { configureResolver } from '../src/configuration/configure-resolver'
 import { getTestDatabaseConfig } from './setup-tests'
 
 export async function buildTestApp(database: string) {
-  jest
-    .spyOn(DirectusAdapter.prototype, 'testConnection')
-    .mockResolvedValue(Promise.resolve())
+  // jest
+  //   .spyOn(CMSCacheAdapter.prototype, 'testConnection')
+  //   .mockResolvedValue(Promise.resolve())
 
   jest
     .spyOn(AlgorandAdapter.prototype, 'testConnection')

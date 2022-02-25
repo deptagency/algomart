@@ -1,3 +1,4 @@
+import { Knex } from 'knex'
 import {
   fastifyContainerPlugin,
   fastifyKnexPlugin,
@@ -9,13 +10,11 @@ import ajvFormats from 'ajv-formats'
 import fastify, { FastifyServerOptions } from 'fastify'
 import { fastifySchedule } from 'fastify-schedule'
 import fastifySensible from 'fastify-sensible'
-import fastifySwagger from 'fastify-swagger'
-
-import swaggerOptions from '../configuration/swagger'
 import { generateHealthRoutes } from '@algomart/shared/modules'
+import { webhookRoutes } from '../modules/webhooks'
 
 export interface AppConfig {
-  // knex: Knex.Config
+  knexMain: Knex.Config
   fastify?: FastifyServerOptions
   container: DependencyResolver
 }
@@ -50,12 +49,17 @@ export default async function buildApp(config: AppConfig) {
 
   // Plugins
   await app.register(fastifySchedule)
-  await app.register(fastifySwagger, swaggerOptions)
   await app.register(fastifySensible)
 
   // Our Plugins
   await app.register(fastifyContainerPlugin, { container: config.container })
   await app.register(fastifyTransactionPlugin)
+
+  // Our Plugins
+  await app.register(fastifyKnexPlugin, {
+    knex: config.knexMain,
+    name: 'knexMain',
+  })
 
   // Decorators
   // no decorators yet
@@ -65,6 +69,7 @@ export default async function buildApp(config: AppConfig) {
 
   // Services
   await app.register(generateHealthRoutes(), { prefix: '/health' })
+  await app.register(webhookRoutes, { prefix: '/webhooks' })
 
   return app
 }

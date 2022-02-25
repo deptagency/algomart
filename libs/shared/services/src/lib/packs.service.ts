@@ -8,6 +8,7 @@ import {
   ClaimRedeemPack,
   CollectibleWithDetails,
   DEFAULT_LOCALE,
+  DirectusStatus,
   EventAction,
   EventEntityType,
   IPFSStatus,
@@ -40,11 +41,7 @@ import { raw, Transaction } from 'objection'
 
 import I18nService from './i18n.service'
 
-import {
-  DirectusAdapter,
-  DirectusStatus,
-  ItemFilter,
-} from '@algomart/shared/adapters'
+import { CMSCacheAdapter, ItemFilter } from '@algomart/shared/adapters'
 
 import NotificationsService from './notifications.service'
 import CollectiblesService from './collectibles.service'
@@ -129,7 +126,7 @@ export default class PacksService {
   logger: pino.Logger<unknown>
 
   constructor(
-    private readonly cms: DirectusAdapter,
+    private readonly cms: CMSCacheAdapter,
     private readonly collectibles: CollectiblesService,
     private readonly i18nService: I18nService,
     private readonly notifications: NotificationsService,
@@ -193,20 +190,28 @@ export default class PacksService {
       const packWithActiveBid = packWithActiveBidsLookup.get(
         template.templateId
       )
-      const available = packCount ? Number.parseInt(packCount.available, 10) : 0
-      const total = packCount ? Number.parseInt(packCount.total, 10) : 0
-      const status =
-        template.type !== PackType.Auction && !available
-          ? PackStatus.Expired
-          : template.status
-      return {
-        ...template,
-        status,
-        available,
-        total,
-        activeBid:
-          (packWithActiveBid?.activeBid?.amount as number) ?? undefined,
-      }
+
+      return this.createPublishedPack(template, packCount, packWithActiveBid)
+    }
+  }
+
+  private createPublishedPack(
+    template: PackBase,
+    packCount,
+    packWithActiveBid
+  ) {
+    const available = packCount ? Number.parseInt(packCount.available, 10) : 0
+    const total = packCount ? Number.parseInt(packCount.total, 10) : 0
+    const status =
+      template.type !== PackType.Auction && !available
+        ? PackStatus.Expired
+        : template.status
+    return {
+      ...template,
+      status,
+      available,
+      total,
+      activeBid: (packWithActiveBid?.activeBid?.amount as number) ?? undefined,
     }
   }
 
@@ -239,14 +244,53 @@ export default class PacksService {
 
   // #endregion
 
-  async getPublishedPacks(
+  async getPublishedPacksByTemplateIds(
+    templateIds,
+    locale = DEFAULT_LOCALE,
+    knexRead?: Knex
+  ) {
+    const templates = await this.cms.findPacksByTemplateIds(
+      templateIds,
+      locale,
+      knexRead
+    )
+    const packCounts = await this.getPackCounts(
+      templates.map((t) => t.templateId)
+    )
+    const assemblePack = this.createPublishedPackFn(
+      new Map(packCounts.map((p) => [p.templateId, p])),
+      new Map()
+    )
+
+    return templates.map((pack) => assemblePack(pack))
+  }
+
+  async getPublishedPacksByTemplates(templates, knexRead?: Knex) {
+    const packCounts = await this.getPackCounts(
+      templates.map((t) => t.templateId),
+      knexRead
+    )
+    const assemblePack = this.createPublishedPackFn(
+      new Map(packCounts.map((p) => [p.templateId, p])),
+      new Map()
+    )
+
+    return templates.map((pack) => assemblePack(pack))
+  }
+
+  async getPublishedPackBySlug(slug, locale = DEFAULT_LOCALE, knexRead?: Knex) {
+    const template = await this.cms.findPackBySlug(slug, locale, knexRead)
+    const packCount = (await this.getPackCounts([template.templateId]))[0]
+
+    return this.createPublishedPack(template, packCount, null)
+  }
+
+  async searchPublishedPacks(
     {
       currency = this.currency.code,
       locale = DEFAULT_LOCALE,
       page = 1,
       pageSize = 10,
-      templateIds = [],
-      slug,
       type = [],
       status = [],
       priceHigh = Number.POSITIVE_INFINITY,
@@ -260,26 +304,17 @@ export default class PacksService {
   ): Promise<{ packs: PublishedPack[]; total: number }> {
     invariant(page > 0, 'page must be greater than 0')
 
-    const filter: ItemFilter = {
-      status: {
-        _eq: DirectusStatus.Published,
-      },
-    }
+    let packTemplates = []
 
-    if (slug) filter.slug = { _eq: slug }
-    if (templateIds.length > 0) filter.id = { _in: templateIds }
-    if (type.length > 0) filter.type = { _in: type }
-
+    // TODO: Convert this lookup into a DB query
     const { packs: templates } = await this.cms.findAllPacks({
-      locale,
-      // need to load all packs into memory
-      // TODO: optimize when/if this becomes a problem
-      pageSize: -1,
-      filter,
+      locale: locale,
+      pageSize: pageSize,
     })
+    packTemplates = templates
 
     const packCounts = await this.getPackCounts(
-      templates.map((t) => t.templateId),
+      packTemplates.map((t) => t.templateId),
       knexRead
     )
 
@@ -288,7 +323,7 @@ export default class PacksService {
     if (type.length === 0 || type.includes(PackType.Auction)) {
       // only load bids when searching for auction packs
       packsWithActiveBids = await this.getPacksWithActiveBids(
-        templates
+        packTemplates
           .filter((t) => t.type === PackType.Auction)
           .map((t) => t.templateId),
         knexRead
@@ -331,13 +366,13 @@ export default class PacksService {
       packWithActiveBidsLookup
     )
 
-    const allPublicPacks = templates
+    const allPublicPacks = packTemplates
       .map((pack) => assemblePack(pack))
       .filter((pack) => filterPack(pack))
       .sort(sortPack)
 
     return {
-      packs: allPublicPacks.slice((page - 1) * pageSize, page * pageSize),
+      packs: allPublicPacks,
       total: allPublicPacks.length,
     }
   }
@@ -484,18 +519,18 @@ export default class PacksService {
     invariant(pack.collectibles, 'pack collectibles were not fetched')
     invariant(pack.collectibles.length > 0, 'pack has no collectibles')
 
-    const packTemplate = await this.cms.findPack(
-      { id: { _eq: pack.templateId } },
+    const packTemplate = await this.cms.findPackByTemplateId(
+      pack.templateId,
       locale
     )
     invariant(packTemplate, 'pack template missing in cms')
 
-    const { collectibles: collectibleTemplates } =
-      await this.cms.findAllCollectibles(locale, {
-        id: {
-          _in: pack.collectibles.map((c) => c.templateId),
-        },
-      })
+    const templateIds = pack.collectibles.map((c) => c.templateId)
+    const collectibleTemplates = await this.cms.findCollectiblesByTemplateIds(
+      templateIds,
+      locale,
+      knexRead
+    )
 
     const collectibleTemplateLookup = new Map(
       collectibleTemplates.map((t) => [t.templateId, t])
@@ -567,8 +602,8 @@ export default class PacksService {
       return null
     }
 
-    const template = await this.cms.findPack(
-      { id: { _eq: pack.templateId } },
+    const template = await this.cms.findPackByTemplateId(
+      pack.templateId,
       locale
     )
 
@@ -587,10 +622,8 @@ export default class PacksService {
     const pack = await PackModel.query(knexRead).where({ redeemCode }).first()
     userInvariant(pack && pack.ownerId === null, 'pack not found', 404)
 
-    const template = await this.cms.findPack(
-      {
-        id: { _eq: pack.templateId },
-      },
+    const template = await this.cms.findPackByTemplateId(
+      pack.templateId,
       locale
     )
 
@@ -607,7 +640,7 @@ export default class PacksService {
     templateId: string,
     knexRead?: Knex
   ): Promise<PackWithId> {
-    const template = await this.cms.findPack({ id: { _eq: templateId } })
+    const template = await this.cms.findPackByTemplateId(templateId)
 
     userInvariant(template, 'pack template not found', 404)
 
@@ -619,6 +652,11 @@ export default class PacksService {
     invariant(
       template.type !== PackType.Purchase || template.price !== null,
       'pack does not have a price set'
+    )
+
+    invariant(
+      new Date(template.releasedAt) < new Date(),
+      'pack has not been released yet'
     )
 
     // Auctions will only have a single pack, so no randomness needed
@@ -1005,40 +1043,31 @@ export default class PacksService {
     return pack
   }
 
-  async generatePacks(trx?: Transaction, knexRead?: Knex) {
-    const existingTemplates = await PackModel.query(knexRead)
-      .groupBy('templateId')
-      .select('templateId')
+  async generatePacks(trx?: Transaction) {
+    const packTemplates = await this.cms.findPacksPendingGeneration()
 
-    const filter: ItemFilter = {}
+    let total = 0
 
-    if (existingTemplates.length > 0) {
-      filter.id = {
-        _nin: existingTemplates.map((c) => c.templateId),
-      }
+    for (const template of packTemplates) {
+      total += await this.generatePack(template, trx)
     }
 
-    const template = await this.cms.findPack(filter)
+    return total
+  }
 
-    if (!template) {
-      return 0
-    }
-
+  private async generatePack(template, trx?: Transaction) {
     const { collectibleTemplateIds, templateId, config } = template
     const collectibleTemplateIdsCount = collectibleTemplateIds.length
-    const { collectibles: collectibleTemplates } =
-      await this.cms.findAllCollectibles(undefined, {
-        id: {
-          _in: collectibleTemplateIds,
-        },
-      })
+    const collectibleTemplates = await this.cms.findCollectiblesByTemplateIds(
+      collectibleTemplateIds
+    )
 
     const totalCollectibles = collectibleTemplates.reduce(
       (sum, t) => sum + t.totalEditions,
       0
     )
 
-    const unassignedCollectibles = await CollectibleModel.query(knexRead)
+    const unassignedCollectibles = await CollectibleModel.query()
       .whereIn('templateId', collectibleTemplateIds)
       .whereNull('packId')
       .where('ipfsStatus', IPFSStatus.Stored)
@@ -1048,6 +1077,7 @@ export default class PacksService {
         'still generating collectibles for pack template %s',
         templateId
       )
+
       return 0
     }
 
@@ -1148,7 +1178,7 @@ export default class PacksService {
       return 0
     }
 
-    const packs = await PackModel.query(trx).upsertGraphAndFetch(
+    const packs = await PackModel.query(trx).upsertGraph(
       balancedPacks.map((p) => ({
         templateId: p.templateId,
         redeemCode: p.redeemCode,
@@ -1174,29 +1204,11 @@ export default class PacksService {
   async handlePackAuctionCompletion(trx?: Transaction, knexRead?: Knex) {
     const past7Days = new Date(new Date().setDate(new Date().getDate() - 7))
     // Get pack templates recently completed auctions
-    const { packs: packTemplates } = await this.cms.findAllPacks({
-      pageSize: -1,
-      filter: {
-        _and: [
-          {
-            type: {
-              _eq: PackType.Auction,
-            },
-          },
-          // Shouldn't need every historical auction
-          {
-            auction_until: {
-              _lt: new Date(),
-            },
-          },
-          {
-            auction_until: {
-              _gt: past7Days,
-            },
-          },
-        ],
-      },
-    })
+    const packTemplates = await this.cms.findAllPacksAuctionCompletion(
+      past7Days,
+      undefined,
+      knexRead
+    )
 
     // Find their associated packs that haven't been handled yet
     const packs = await PackModel.query(knexRead)
@@ -1219,13 +1231,10 @@ export default class PacksService {
           'activeBid has no associated user'
         )
 
-        const packTemplate = await this.cms.findPack(
-          {
-            id: {
-              _eq: pack.templateId,
-            },
-          },
-          pack.activeBid.userAccount.locale
+        const packTemplate = await this.cms.findPackByTemplateId(
+          pack.templateId,
+          pack.activeBid.userAccount.locale,
+          knexRead
         )
         invariant(packTemplate, 'packTemplate not found')
 
@@ -1288,9 +1297,10 @@ export default class PacksService {
           'activeBid has no associated user'
         )
 
-        const packTemplate = await this.cms.findPack(
-          { id: { _eq: pack.templateId } },
-          pack.activeBid.userAccount.locale
+        const packTemplate = await this.cms.findPackByTemplateId(
+          pack.templateId,
+          pack.activeBid.userAccount.locale,
+          knexRead
         )
         invariant(packTemplate, 'packTemplate not found')
 
@@ -1363,9 +1373,10 @@ export default class PacksService {
             'next highest bid has no associated user account'
           )
 
-          const packTemplate = await this.cms.findPack(
-            { id: { _eq: pack.templateId } },
-            selectedBid.userAccount.locale
+          const packTemplate = await this.cms.findPackByTemplateId(
+            pack.templateId,
+            selectedBid.userAccount.locale,
+            knexRead
           )
           invariant(packTemplate, 'packTemplate not found')
 

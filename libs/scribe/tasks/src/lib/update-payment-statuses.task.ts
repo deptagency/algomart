@@ -3,22 +3,18 @@ import { DependencyResolver } from '@algomart/shared/utils'
 import { Configuration } from '@api/configuration'
 import { Knex } from 'knex'
 import { Model } from 'objection'
-
-import { logger } from '../configuration/logger'
+import pino from 'pino'
 
 export async function updatePaymentStatusesTask(
   registry: DependencyResolver,
-  knexRead?: Knex
+  logger: pino.Logger<unknown>
 ) {
   const log = logger.child({ task: 'update-payment-statuses' })
   const payments = registry.get<PaymentsService>(PaymentsService.name)
   const trx = await Model.startTransaction()
+
   try {
-    const updatedPayments = await payments.updatePaymentStatuses(
-      Configuration.customerServiceEmail,
-      trx,
-      knexRead
-    )
+    const updatedPayments = await payments.updatePaymentStatuses(Configuration.customerServiceEmail, trx)
     log.info('updated %d payment statuses', updatedPayments)
     await trx.commit()
   } catch (error) {

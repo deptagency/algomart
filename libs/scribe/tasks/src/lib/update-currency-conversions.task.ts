@@ -2,17 +2,17 @@ import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import { I18nService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
 import { Knex } from 'knex'
+import { Currency } from '@dinero.js/currencies'
 import { Model } from 'objection'
+import pino from 'pino'
 
-import { Configuration } from '../configuration'
-import { logger } from '../configuration/logger'
-
-export default async function updateCurrencyConversions(
+export async function updateCurrencyConversionsTask(
   registry: DependencyResolver,
-  knexRead?: Knex
+  currency: Currency<number> | undefined,
+  logger: pino.Logger<unknown>
 ) {
   const log = logger.child({ task: 'update-currency-conversions' })
-  const sourceCurrency = Configuration.currency?.code || DEFAULT_CURRENCY
+  const sourceCurrency = currency?.code || DEFAULT_CURRENCY
   const i18nService = registry.get<I18nService>(I18nService.name)
   const trx = await Model.startTransaction()
   try {
@@ -20,8 +20,7 @@ export default async function updateCurrencyConversions(
       {
         sourceCurrency,
       },
-      trx,
-      knexRead
+      trx
     )
     log.info(
       `stored ${

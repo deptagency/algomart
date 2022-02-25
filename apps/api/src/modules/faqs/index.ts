@@ -1,4 +1,4 @@
-import { FaqsSchema, LocaleSchema } from '@algomart/schemas'
+import { LocaleSchema } from '@algomart/schemas'
 import { appErrorHandler } from '@algomart/shared/utils'
 import bearerAuthOptions from '@api/configuration/bearer-auth'
 import { FastifyInstance } from 'fastify'

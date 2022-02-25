@@ -1,13 +1,11 @@
+import pino from 'pino'
 import { CollectiblesService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
-import { Knex } from 'knex'
 import { Model } from 'objection'
 
-import { logger } from '../configuration/logger'
-
-export default async function mintCollectibles(
+export async function mintCollectiblesTask(
   registry: DependencyResolver,
-  knexRead?: Knex
+  logger: pino.Logger<unknown>
 ) {
   const log = logger.child({ task: 'mint-collectibles' })
   const collectibles = registry.get<CollectiblesService>(
@@ -16,7 +14,7 @@ export default async function mintCollectibles(
 
   const trx = await Model.startTransaction()
   try {
-    const result = await collectibles.mintCollectibles(trx, knexRead)
+    const result = await collectibles.mintCollectibles(trx)
     log.info('minted %d collectibles', result)
     await trx.commit()
   } catch (error) {

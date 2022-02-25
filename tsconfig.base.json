@@ -17,6 +17,7 @@
     "baseUrl": ".",
     "paths": {
       "@algomart/schemas": ["libs/schemas/src/index.ts"],
+      "@algomart/scribe/tasks": ["libs/scribe/tasks/src/index.ts"],
       "@algomart/shared/adapters": ["libs/shared/adapters/src/index.ts"],
       "@algomart/shared/models": ["libs/shared/models/src/index.ts"],
       "@algomart/shared/modules": ["libs/shared/modules/src/index.ts"],

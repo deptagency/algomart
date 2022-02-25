@@ -5,6 +5,7 @@
     "cms": "apps/cms",
     "schemas": "libs/schemas",
     "scribe": "apps/scribe",
+    "scribe-tasks": "libs/scribe/tasks",
     "shared-adapters": "libs/shared/adapters",
     "shared-models": "libs/shared/models",
     "shared-modules": "libs/shared/modules",

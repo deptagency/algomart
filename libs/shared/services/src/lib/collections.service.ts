@@ -1,13 +1,12 @@
 import pino from 'pino'
 import { DEFAULT_LOCALE } from '@algomart/schemas'
-
-import { DirectusAdapter } from '@algomart/shared/adapters'
+import { CMSCacheAdapter } from '@algomart/shared/adapters'
 
 export default class CollectionsService {
   logger: pino.Logger<unknown>
 
   constructor(
-    private readonly cms: DirectusAdapter,
+    private readonly cms: CMSCacheAdapter,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
