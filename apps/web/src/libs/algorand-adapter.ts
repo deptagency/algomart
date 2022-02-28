@@ -84,7 +84,7 @@ export class AlgorandAdapter {
       amount: number
       creator: string
       frozen: boolean
-    }> = accountInfo.assets
+    }> = accountInfo.assets ? accountInfo.assets : []
 
     const assets: IAssetData[] = assetsFromResponse.map(
       ({ 'asset-id': id, amount, creator, frozen }) => ({
