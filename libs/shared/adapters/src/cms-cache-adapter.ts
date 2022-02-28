@@ -347,7 +347,6 @@ export function toCountryBase(
   country: DirectusCountry,
   locale: string
 ): Country {
-  console.log({ country })
   const translation = getDirectusTranslation<DirectusCountryTranslation>(
     country.countries_code.translations as DirectusCountryTranslation[],
     `country ${country.countries_code} has no translations`,
@@ -433,7 +432,6 @@ export default class CMSCacheAdapter {
     const application = await this.findApplication(knxRead)
 
     return application.countries.map((country) => {
-      console.log({ country })
       return toCountryBase(country, locale)
     })
   }
