@@ -77,7 +77,10 @@ async function main(args) {
     nft_templates, nft_templates_translations,
     pack_templates, pack_templates_translations, pack_templates_directus_files,
     collections, collections_translations,
-    sets, sets_translations
+    sets, sets_translations,
+    application, application_countries,
+    countries, countries_translations,
+    languages
     CASCADE`)
 
   /**
@@ -157,6 +160,22 @@ async function main(args) {
    * - Collections
    * - Sets
    */
+
+  /**
+   * Create application and application countries
+   */
+  const appId = '6048041f-2d72-4eb7-9a2c-3ab44aace8d5'
+  await updateEntityRecord(
+    'application',
+    '',
+    { id: appId, currency: 'USD' },
+    token
+  )
+  await createEntityRecords(
+    'application_countries',
+    { id: 1, application_id: appId, countries_code: 'US' },
+    token
+  )
 
   /**
    * Create homepage
