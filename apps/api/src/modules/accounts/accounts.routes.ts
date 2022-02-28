@@ -2,12 +2,11 @@ import {
   CreateUserAccountRequest,
   ExternalId,
   Passphrase,
+  UpdateUserAccount,
   Username,
 } from '@algomart/schemas'
-import { UpdateUserAccount } from '@algomart/schemas'
+import { AccountsService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import AccountsService from '@/modules/accounts/accounts.service'
 
 export async function createAccount(
   request: FastifyRequest<{ Body: CreateUserAccountRequest }>,
@@ -16,7 +15,11 @@ export async function createAccount(
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
-  const account = await accounts.create(request.body, request.transaction)
+  const account = await accounts.create(
+    request.body,
+    request.transaction,
+    request.knexRead
+  )
   if (account) {
     reply.status(201).send(account)
   } else {
@@ -31,6 +34,7 @@ export async function updateAccount(
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
+
   await accounts.updateAccount(
     {
       ...request.body,
@@ -48,7 +52,10 @@ export async function getByExternalId(
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
-  const account = await accounts.getByExternalId(request.params)
+  const account = await accounts.getByExternalId(
+    request.params,
+    request.knexRead
+  )
   reply.send(account)
 }
 
@@ -59,7 +66,7 @@ export async function getByUsername(
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
-  const account = await accounts.getByUsername(request.query)
+  const account = await accounts.getByUsername(request.query, request.knexRead)
   reply.send(account)
 }
 
@@ -72,7 +79,8 @@ export async function verifyPassphrase(
     .get<AccountsService>(AccountsService.name)
   const isValid = await accounts.verifyPassphraseFor(
     request.params.externalId,
-    request.body.passphrase
+    request.body.passphrase,
+    request.knexRead
   )
   reply.status(200).send({ isValid })
 }
@@ -84,7 +92,10 @@ export async function verifyUsername(
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
-  const userExists = await accounts.verifyUsername(request.body.username)
+  const userExists = await accounts.verifyUsername(
+    request.body.username,
+    request.knexRead
+  )
   reply.status(200).send({ isAvailable: !userExists })
 }
 
@@ -95,6 +106,10 @@ export async function removeUser(
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
-  await accounts.removeUser(request.params)
+  await accounts.removeUser(
+    request.params,
+    request.transaction,
+    request.knexRead
+  )
   reply.status(204).send()
 }

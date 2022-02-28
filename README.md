@@ -10,7 +10,7 @@ This project is developed to be a foundational starter for creating your own NFT
 - A [back-end API](./apps/api) (Fastify)
 - A [front-end](./apps/web) sample implementation (NextJS)
 - Shared Typescript [interfaces and enums](./libs/schemas)
-- [Terraform templates](./terraform) for setting up infrastructure on Google Cloud Platform
+- [Terraform templates](./terraform/envs/dev/) for setting up infrastructure on Google Cloud Platform
 - [Github Workflows](./.github/workflows) for linting, type-checking, building, dockerizing, and deploying
 
 ## 📚 General Project Overview
@@ -73,11 +73,51 @@ You can either build and run each application manually or you can use `docker-co
       brew install pkg-config cairo pango libpng jpeg giflib librsvg
       ```
 
-2. [Set up the CMS](apps/cms/README.md#Get-started)
+2. Setup the Databases (**assumes you have Docker running**)
 
-3. [Set up the API](apps/api/README.md#Get-started)
+   ```bash
+   # create the docker container
+   ?> docker run --name fifa-algorand-db -e POSTGRES_PASSWORD=algorand -p 5551:5432 -d postgres:13
 
-4. [Set up the web app](apps/web/README.md#Get-started)
+   # connect to the new docker container
+   ?> docker exec -it fifa-algorand-db bash
+
+   # connect to the postgres database as the admin user 'postgres'
+   ?> psql -U postgres
+
+   # create new users
+   psql?> CREATE USER cms_user PASSWORD 'cms_pass';
+   psql?> ALTER USER cms_user CREATEDB;
+   psql?> CREATE USER api_user PASSWORD 'api_pass';
+   psql?> ALTER USER api_user CREATEDB;
+
+   psql?> \q
+   ?> psql -U cms_user postgres
+
+   # create the new database
+   psql?> CREATE DATABASE fifa_algomart_cms;
+
+   psql?> \q
+   ?> psql -U api_user  postgres
+   psql?> CREATE DATABASE fifa_algomart_api;
+
+   # exit back to postgres container terminal
+   psql?> \q
+
+   # exit out of docker container
+   ?> exit
+   ```
+
+   With this setup you should use the following connection strings in your .env files
+
+   - API: `postgres://api_user:api_pass@localhost:5551/fifa_algomart_api`
+   - CMS: `postgres://cms_user:cms_pass@localhost:5551/fifa_algomart_cms`
+
+3. [Set up the CMS](apps/cms/README.md#Get-started)
+
+4. [Set up the API](apps/api/README.md#Get-started)
+
+5. [Set up the web app](apps/web/README.md#Get-started)
 
 ### Running
 

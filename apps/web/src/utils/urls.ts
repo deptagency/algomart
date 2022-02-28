@@ -5,6 +5,8 @@ export const urls = {
   checkout: '/checkout',
   checkoutPack: '/checkout/:packSlug',
   checkoutPackWithMethod: '/checkout/:packSlug/:method',
+  dataProtectionPortal: '/data-protection-portal',
+  downloads: '/downloads',
   home: '/',
   faqs: '/faqs',
   myCollectibles: '/my/collectibles',
@@ -21,9 +23,15 @@ export const urls = {
   nft: '/nft/:assetId',
   nftTransfer: '/nft/:assetId/transfer',
   packOpening: '/pack-opening/:packId',
+  paymentFailure: '/payments/failure',
+  paymentSuccess: '/payments/success',
   redeem: '/redeem',
   release: '/releases/:packSlug',
   releases: '/releases',
+  teams: '/teams',
+  settings: '/my/profile',
+  about: '/about-fifa-nfts',
+  support: '/support',
 
   // Auth-related
   login: '/login',
@@ -33,9 +41,9 @@ export const urls = {
   signUp: '/signup',
 
   // Legal
-  communityGuidelines: '#',
-  privacyPolicy: '#',
-  termsAndConditions: '#',
+  communityGuidelines: '/community-guidelines',
+  privacyPolicy: '/privacy-policy',
+  termsAndConditions: '/tos',
 
   // Admin
   admin: {
@@ -75,17 +83,21 @@ export const urls = {
       getBankAccountStatus: '/api/v1/payments/get-bank-account-status',
       getCardsByOwner: '/api/v1/payments/get-cards-by-owner',
       getCardStatus: '/api/v1/payments/get-card-status',
+      getCountries: '/api/v1/payments/get-countries',
+      getCurrencyConversions: '/api/v1/payments/get-currency-conversions',
+      getI18nInfo: '/api/v1/i18n/get-i18n-info',
       getPayment: '/api/v1/payments/get-payment',
-      getPublishedPacks: '/api/v1/pack/get-published-packs',
+      searchPublishedPacks: '/api/v1/pack/get-published-packs',
       getRedeemable: '/api/v1/asset/get-redeemable',
       getTransfer: '/api/v1/payments/get-transfer-payment',
       getUntransferredPacks: '/api/v1/pack/untransferred',
-      getLanguages: '/api/v1/languages/get-languages',
+      getLanguages: '/api/v1/i18n/get-languages',
       profile: '/api/v1/profile',
       publicKey: '/api/v1/payments/public-key',
       removeCard: '/api/v1/payments/remove-card',
       showcaseCollectible: '/api/v1/collection/collectibles-showcase',
       updateCard: '/api/v1/payments/update-card',
+      updateCurrency: '/api/v1/profile/update-currency',
       updateEmail: '/api/v1/profile/update-email',
       updateLanguage: '/api/v1/profile/update-language',
       updateUsername: '/api/v1/profile/update-username',
@@ -105,7 +117,7 @@ export const urls = {
 export function isRootPathMatch(path1: string, path2: string) {
   // Note: no path-matching needed for profile-related items
   if (path1.includes(urls.myProfile)) return false
-
+  if (path2 === '/') return path1 === '/'
   return path1
     .split('/')[1]
     .toLowerCase()

@@ -6,10 +6,8 @@ import {
 } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
-import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
-import { Analytics } from '@/clients/firebase-analytics'
 import { useRedemption } from '@/contexts/redemption-context'
 import DefaultLayout from '@/layouts/default-layout'
 import {
@@ -43,13 +41,6 @@ export default function ReleasePage({
 }: ReleasePageProps) {
   const { setRedeemable } = useRedemption()
   const { t } = useTranslation()
-
-  useEffect(() => {
-    Analytics.instance.viewItem({
-      itemName: packTemplate.title,
-      value: packAuction?.activeBid?.amount ?? packTemplate.price,
-    })
-  }, [packAuction, packTemplate])
 
   const handleClaimNFT = async (
     redeemCode: string
@@ -95,19 +86,17 @@ export default function ReleasePage({
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const user = await getAuthenticatedUser(context)
+  const packTemplate = await ApiClient.instance.getPublishedPackBySlug(
+    context?.params?.packSlug as string,
+    context.locale
+  )
 
-  const { packs: packTemplates } = await ApiClient.instance.getPublishedPacks({
-    locale: context.locale || DEFAULT_LOCALE,
-    slug: context?.params?.packSlug as string,
-  })
-
-  if (!packTemplates || packTemplates.length === 0) {
+  if (!packTemplate) {
     return {
       notFound: true,
     }
   }
 
-  const packTemplate = packTemplates[0]
   const avatars: { [key: string]: string | null } = {}
   let auction = null,
     isHighestBidder = null,
@@ -138,12 +127,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         packTemplate.auctionUntil &&
         !isAfterNow(new Date(packTemplate.auctionUntil))
       )
-      const userHasBids = bids?.some((b) => b.externalId === user.externalId)
+      const hasBids = bids?.some((b) => b.externalId === user.externalId)
 
       isHighestBidder = activeBid?.externalId === user.externalId
       isOwner = user && ownerExternalId === user.externalId ? true : false
       isWinningBidder = isHighestBidder && isClosed
-      isOutbid = !isHighestBidder && userHasBids
+      isOutbid = !isHighestBidder && hasBids
     }
   }
 

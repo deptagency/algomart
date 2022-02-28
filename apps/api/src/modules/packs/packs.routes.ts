@@ -8,24 +8,45 @@ import {
   OwnerExternalId,
   PackId,
   PacksByOwnerQuery,
+  PackSlug,
   PackTemplateId,
   PublishedPacksQuery,
   RedeemCode,
   RevokePack,
   TransferPack,
 } from '@algomart/schemas'
+import { PacksService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
-import PacksService from './packs.service'
-
-export async function getPublishedPacks(
+export async function searchPublishedPacks(
   request: FastifyRequest<{
     Querystring: PublishedPacksQuery
   }>,
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
-  const result = await service.getPublishedPacks(request.query)
+  const result = await service.searchPublishedPacks(
+    request.query,
+    request.transaction,
+    request.knexRead
+  )
+  reply.send(result)
+}
+
+export async function getPublishedPackBySlug(
+  request: FastifyRequest<{
+    Params: PackSlug
+    Querystring: Locale
+  }>,
+  reply: FastifyReply
+) {
+  const service = request.getContainer().get<PacksService>(PacksService.name)
+  const result = await service.getPublishedPackBySlug(
+    request.params.packSlug,
+    request.query.locale,
+    request.knexRead
+  )
+
   reply.send(result)
 }
 
@@ -37,10 +58,13 @@ export async function getPacksByOwner(
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
-  const result = await service.getPacksByOwner({
-    ...request.params,
-    ...request.query,
-  })
+  const result = await service.getPacksByOwner(
+    {
+      ...request.params,
+      ...request.query,
+    },
+    request.knexRead
+  )
   reply.send(result)
 }
 
@@ -54,7 +78,8 @@ export async function getPackWithCollectiblesById(
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.getPackWithCollectiblesById(
     request.params.packId,
-    request.query.locale
+    request.query.locale,
+    request.knexRead
   )
   reply.send(result)
 }
@@ -67,7 +92,8 @@ export async function getAuctionPackByTemplateId(
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.getAuctionPackByTemplateId(
-    request.params.templateId
+    request.params.templateId,
+    request.knexRead
   )
   reply.send(result)
 }
@@ -79,6 +105,7 @@ export async function getRedeemablePack(
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.getPackByRedeemCode(
     request.params.redeemCode,
+    request.knexRead,
     request.query.locale
   )
   reply.send({ pack: result })
@@ -89,7 +116,10 @@ export async function untransferredPacks(
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
-  const result = await service.untransferredPacks(request.query)
+  const result = await service.untransferredPacks(
+    request.query,
+    request.knexRead
+  )
   reply.send(result)
 }
 
@@ -100,7 +130,8 @@ export async function claimRandomFreePack(
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.claimRandomFreePack(
     request.body,
-    request.transaction
+    request.transaction,
+    request.knexRead
   )
   reply.send({ pack: result })
 }
@@ -112,8 +143,9 @@ export async function claimRedeemPack(
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.claimRedeemPack(
     request.body,
-    request.query.locale,
-    request.transaction
+    request.transaction,
+    request.knexRead,
+    request.query.locale
   )
   if (!result) {
     reply.notFound()
@@ -141,7 +173,10 @@ export async function mintPackStatus(
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
-  const status = await service.getPackMintingStatus(request.query)
+  const status = await service.getPackMintingStatus(
+    request.query,
+    request.knexRead
+  )
   reply.send({
     status,
   })
@@ -152,7 +187,11 @@ export async function revokePack(
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
-  const result = await service.revokePack(request.body, request.transaction)
+  const result = await service.revokePack(
+    request.body,
+    request.transaction,
+    request.knexRead
+  )
   if (!result) {
     reply.badRequest('Unable to revoke pack')
     return
@@ -165,7 +204,11 @@ export async function transferPack(
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
-  await service.transferPack(request.body, request.transaction)
+  await service.transferPack(
+    request.body,
+    request.transaction,
+    request.knexRead
+  )
   reply.status(204).send()
 }
 
@@ -174,6 +217,9 @@ export async function transferPackStatus(
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
-  const result = await service.transferPackStatus(request.params.packId)
+  const result = await service.transferPackStatus(
+    request.params.packId,
+    request.knexRead
+  )
   reply.send(result)
 }

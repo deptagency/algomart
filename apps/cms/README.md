@@ -115,13 +115,13 @@ Note that once a Pack Template record is published, many of its fields cannot be
 
 ## Sets
 
-Sets are an optional mechanism to group NFTs in a way that can incentivize an end-user to collect all of the NFTs assigned to a Set. For example, let's imagine we are distributing football card NFTs. A Set might be all of the NFTs for a player on a given team in the 2022 season.
+Sets are an optional mechanism to group NFTs in a way that can incentivize an end-user to collect an NFT from each template assigned to a Set. For example, let's imagine we are distributing football card NFTs. A Set might be all of the NFTs for a player on a given team in the 2022 season.
 
 Note that once Set record is published, many of its fields cannot be edited. This is to maintain integrity of the acquisition incentive. A Set has a number of configurable fields:
 
 - Status: Set to "Published" once you are sure all other fields have been configured in a satisfactory manner. Otherwise, keep it as a "Draft".
 - Slug: A URL-safe slug that can be referenced in the UI.
-- Collection: If desired, the Collection that this Set should belong to. More on Collections below.
+- Collection: The Collection this Set belongs to. More on Collections below.
 - NFT Templates: The NFTs that belong in this Set.
 - Name: The name of the Set to display when viewing the Set in the UI.
 

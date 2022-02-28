@@ -15,7 +15,7 @@
 }
 
 .metadata {
-  @apply grid grid-cols-2;
+  @apply grid grid-cols-2 border-t-1;
   gap: 1px;
 }
 
@@ -24,7 +24,11 @@
 }
 
 .metadata > div {
-  @apply flex flex-col justify-center p-4 text-white bg-base-gray-dark dark:bg-base-bgCard dark:text-base-textSecondary;
+  @apply border-r-1 flex flex-col justify-center p-4 text-white bg-base-gray-dark dark:bg-base-bgCard dark:text-base-textSecondary;
+}
+
+.metadata > div:last-child {
+  @apply border-r-0;
 }
 
 .metadataLabel {

@@ -20,18 +20,27 @@ export default function HeadTag({ pageDescription, pageTitle }: HeadTagProps) {
         name="description"
         content={pageDescription ?? t('common:global.pageDescription')}
       />
-      <link rel="icon" href="/favicon.ico" />
-      <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-      <link rel="apple-touch-icon" href="/favicon-180.png" />
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="32x32"
+        href="/favicon-32x32.png"
+      />
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="16x16"
+        href="/favicon-16x16.png"
+      />
       <link rel="manifest" href="/manifest.json" />
 
       {/* Base Fonts */}
       <link
         as="style"
         rel="preload"
-        href="https://fonts.cdnfonts.com/css/inter"
+        href="https://fonts.cdnfonts.com/css/open-sans"
       />
-      <link href="https://fonts.cdnfonts.com/css/inter" rel="stylesheet" />
+      <link href="https://fonts.cdnfonts.com/css/open-sans" rel="stylesheet" />
     </Head>
   )
 }

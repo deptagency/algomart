@@ -11,6 +11,7 @@ import {
   CollectibleShowcaseQuerystring,
   CollectibleWithDetails,
   CollectionWithSets,
+  Countries,
   CreateBankAccount,
   CreateBankAccountResponse,
   CreateBidRequest,
@@ -18,7 +19,6 @@ import {
   CreatePayment,
   CreateTransferPayment,
   CreateUserAccountRequest,
-  CreateWalletAddress,
   DEFAULT_LOCALE,
   ExportCollectible,
   ExternalId,
@@ -26,6 +26,7 @@ import {
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
+  I18nInfo,
   LanguageList,
   Locale,
   LocaleAndExternalId,
@@ -46,6 +47,7 @@ import {
   PaymentsQuerystring,
   PublicAccount,
   PublicKey,
+  PublishedPack,
   PublishedPacks,
   PublishedPacksQuery,
   RedeemCode,
@@ -70,7 +72,7 @@ import {
   getCollectiblesFilterQuery,
   getPacksByOwnerFilterQuery,
   getPaymentsFilterQuery,
-  getPublishedPacksFilterQuery,
+  searchPublishedPacksFilterQuery,
 } from '@/utils/filters'
 import { logger } from '@/utils/logger'
 
@@ -228,8 +230,12 @@ export class ApiClient {
     return await this.http.post('payments', { json }).json<Payment>()
   }
 
-  async getPaymentById(paymentId: string) {
-    return await this.http.get(`payments/${paymentId}`).json<Payment>()
+  async getPaymentById(paymentId: string, isExternalId: boolean) {
+    const searchParams = new URLSearchParams()
+    if (isExternalId) searchParams.set('isExternalId', isExternalId.toString())
+    return await this.http
+      .get(`payments/${paymentId}`, { searchParams })
+      .json<Payment>()
   }
 
   async getPublicKey() {
@@ -252,9 +258,9 @@ export class ApiClient {
     return await this.http.post('payments/transfers', { json }).json<Payment>()
   }
 
-  async createWalletAddress(json: CreateWalletAddress) {
+  async createWalletAddress() {
     return await this.http
-      .post('payments/wallets', { json })
+      .post('payments/wallets')
       .json<CircleBlockchainAddress>()
   }
 
@@ -343,9 +349,18 @@ export class ApiClient {
   //#endregion
 
   //#region Packs
-  async getPublishedPacks(query: PublishedPacksQuery) {
-    const searchQuery = getPublishedPacksFilterQuery(query)
-    return await this.http.get(`packs?${searchQuery}`).json<PublishedPacks>()
+  async searchPublishedPacks(query: PublishedPacksQuery) {
+    const searchQuery = searchPublishedPacksFilterQuery(query)
+    return await this.http
+      .get(`packs/search?${searchQuery}`)
+      .json<PublishedPacks>()
+  }
+
+  async getPublishedPackBySlug(slug, locale) {
+    const searchQuery = searchPublishedPacksFilterQuery({ locale: locale })
+    return await this.http
+      .get(`packs/by-slug/${slug}?${searchQuery}`)
+      .json<PublishedPack>()
   }
 
   async getPacksByOwnerId(ownerExternalId: string, query: PacksByOwnerQuery) {
@@ -466,15 +481,41 @@ export class ApiClient {
   }
   //#endregion
 
-  //#region Languages
+  //#region page
+  async getDirectusPage(slug: string, locale: string) {
+    return await this.http
+      .get('page', {
+        searchParams: {
+          locale,
+          slug,
+        },
+      })
+      .json()
+  }
+
+  //#region i18n
   async getLanguages(locale: string) {
     return await this.http
-      .get('languages', {
+      .get('i18n/languages', {
         searchParams: {
           locale: locale || DEFAULT_LOCALE,
         },
       })
       .json<LanguageList>()
+  }
+
+  async getCurrencyConversions() {
+    return await this.http.get('i18n/currencyConversions').json<LanguageList>()
+  }
+
+  async getI18n(locale: string) {
+    return await this.http
+      .get('i18n/i18n-info', {
+        searchParams: {
+          locale: locale || DEFAULT_LOCALE,
+        },
+      })
+      .json<I18nInfo>()
   }
   //#endregion
 
@@ -487,6 +528,12 @@ export class ApiClient {
         },
       })
       .json()
+  }
+  //#endregion
+
+  //#region Application
+  async getCountries() {
+    return await this.http.get('application/countries').json<Countries>()
   }
   //#endregion
 }

@@ -27,6 +27,14 @@ export default function NotableCollectible({
       </div>
       <div className={css.content}>
         <div className={css.title}>{collectible.title}</div>
+        {collectible.rarity && (
+          <div
+            className={css.rarity}
+            style={{ backgroundColor: collectible.rarity.color }}
+          >
+            {collectible.rarity.name}
+          </div>
+        )}
       </div>
     </div>
   )

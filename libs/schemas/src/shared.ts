@@ -19,6 +19,8 @@ export const RTL_LOCALES: string[] = [
   'yi',
 ]
 
+export const CURRENCY_COOKIE = 'currency'
+
 export const AlgoAddressSchema = Type.Object({
   algoAddress: Type.String({ maxLength: 58, minLength: 58 }),
 })
@@ -55,6 +57,13 @@ export const LocaleAndExternalIdSchema = Type.Intersect([
   ExternalIdSchema,
 ])
 
+export const PageAndLocaleSchema = Type.Intersect([
+  LocaleSchema,
+  Type.Object({
+    slug: Type.String(),
+  }),
+])
+
 export enum SortDirection {
   Ascending = 'asc',
   Descending = 'desc',
@@ -78,8 +87,8 @@ export type Simplify<T> = T extends unknown[]
   ? Array<Simplify<T[number]>>
   : { [KeyType in keyof T]: Simplify<T[KeyType]> }
 
-export type Base = Simplify<Static<typeof BaseSchema>>
 export type AlgoAddress = Simplify<Static<typeof AlgoAddressSchema>>
+export type Base = Simplify<Static<typeof BaseSchema>>
 export type ExternalId = Simplify<Static<typeof ExternalIdSchema>>
 export type OwnerExternalId = Simplify<Static<typeof OwnerExternalIdSchema>>
 export type Pagination = Simplify<Static<typeof PaginationSchema>>

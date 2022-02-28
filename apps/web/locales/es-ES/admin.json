@@ -1,0 +1,18 @@
+{
+  "transactions": {
+    "table": {
+      "Title": "ES Title",
+      "Type": "ES Type",
+      "Date": "ES Date",
+      "Amount": "ES Amount",
+      "Status": "ES Status"
+    },
+    "Customer": "ES Customer",
+    "markAsPaid": "ES Mark as paid",
+    "markAsPaidDesc": "ES Marking the transaction as paid removes the pending state from the transaction so the system will stop polling Circle. Use this action when a payment is made through any means outside of the system.",
+    "resetPayment": "ES Reset payment",
+    "resetPaymentDesc": "ES Resetting the transaction puts it back into the pending state which allows the buyer to attept to make the payment again using the original wire instructions.",
+    "revokePack": "ES Revoke pack",
+    "revokePackDesc": "ES If someone fails to pay you can revoke the pack. Note: Re-selling/auctioning revoked packs is not yet supported."
+  }
+}

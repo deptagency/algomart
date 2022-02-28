@@ -9,6 +9,8 @@ import {
   ExportCollectibleSchema,
   SingleCollectibleQuerystringSchema,
 } from '@algomart/schemas'
+import { appErrorHandler } from '@algomart/shared/utils'
+import bearerAuthOptions from '@api/configuration/bearer-auth'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
 import fastifyBearerAuth from 'fastify-bearer-auth'
@@ -22,9 +24,6 @@ import {
   getShowcaseCollectibles,
   removeCollectibleShowcase,
 } from './collectibles.routes'
-
-import bearerAuthOptions from '@/configuration/bearer-auth'
-import { appErrorHandler } from '@/utils/errors'
 
 export async function collectiblesRoutes(app: FastifyInstance) {
   const tags = ['collectibles']

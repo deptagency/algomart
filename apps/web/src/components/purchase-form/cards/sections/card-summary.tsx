@@ -5,6 +5,8 @@ import css from './card-summary.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
 import { formatCurrency } from '@/utils/format-currency'
 
 interface CardSummaryProps {
@@ -19,6 +21,9 @@ export default function CardSummary({
   release,
 }: CardSummaryProps) {
   const { t, lang } = useTranslation()
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
+
   return (
     <div className={css.root}>
       <Heading level={1}>{t('forms:sections.Summary')}</Heading>
@@ -30,7 +35,14 @@ export default function CardSummary({
           </tr>
           <tr>
             <th scope="row">{release?.title}</th>
-            <td>{formatCurrency(price, lang)}</td>
+            <td>
+              {formatCurrency(
+                price,
+                lang,
+                currency,
+                isAuctionActive ? 1 : conversionRate
+              )}
+            </td>
           </tr>
         </tbody>
       </table>

@@ -7,9 +7,8 @@ import {
   ExportCollectible,
   SingleCollectibleQuerystring,
 } from '@algomart/schemas'
+import { CollectiblesService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import CollectiblesService from './collectibles.service'
 
 export async function getCollectibles(
   request: FastifyRequest<{
@@ -27,7 +26,8 @@ export async function getCollectibles(
   }
 
   const collectiblesForAccount = await collectibles.getCollectibles(
-    request.query
+    request.query,
+    request.knexRead
   )
 
   if (!collectiblesForAccount) {
@@ -45,7 +45,10 @@ export async function getCollectible(
     .getContainer()
     .get<CollectiblesService>(CollectiblesService.name)
 
-  const collectible = await collectibles.getCollectible(request.query)
+  const collectible = await collectibles.getCollectible(
+    request.query,
+    request.knexRead
+  )
 
   reply.send(collectible)
 }
@@ -63,7 +66,8 @@ export async function getCollectiblesByAlgoAddress(
 
   const result = await collectiblesService.getCollectiblesByAlgoAddress(
     request.params.algoAddress,
-    request.query
+    request.query,
+    request.knexRead
   )
 
   reply.send(result)
@@ -78,7 +82,8 @@ export async function getShowcaseCollectibles(
     .get<CollectiblesService>(CollectiblesService.name)
 
   const result = await collectiblesService.getShowcaseCollectibles(
-    request.query
+    request.query,
+    request.knexRead
   )
 
   reply.send(result)
@@ -100,7 +105,8 @@ export async function addCollectibleShowcase(
       ...request.body,
       ...request.query,
     },
-    request.transaction
+    request.transaction,
+    request.knexRead
   )
 
   reply.status(204).send()
@@ -122,7 +128,8 @@ export async function removeCollectibleShowcase(
       ...request.body,
       ...request.query,
     },
-    request.transaction
+    request.transaction,
+    request.knexRead
   )
 
   reply.status(204).send()
@@ -138,7 +145,8 @@ export async function exportCollectible(
 
   const txId = await collectiblesService.exportCollectible(
     request.body,
-    request.transaction
+    request.transaction,
+    request.knexRead
   )
 
   reply.send({

@@ -1,8 +1,7 @@
 import { DEFAULT_CURRENCY } from '@algomart/schemas'
+import { MailerAdapterOptions } from '@algomart/shared/adapters'
 import * as Currencies from '@dinero.js/currencies'
 import env from 'env-var'
-
-import { MailerAdapterOptions } from '../lib/mailer-adapter'
 
 export const Configuration = {
   get env() {
@@ -62,11 +61,34 @@ export const Configuration = {
       .asEnum(['betanet', 'testnet', 'mainnet'])
   },
 
-  get databaseUrl() {
+  get databaseMainUrl() {
     return env
-      .get('DATABASE_URL')
+      .get('DATABASE_URL_WRITE')
       .default('postgres://localhost/postgres')
       .asUrlString()
+  },
+
+  get databaseMainMinPool() {
+    return env.get('DATABASE_WRITE_MIN_POOL').default(2).asInt()
+  },
+
+  get databaseMainMaxPool() {
+    return env.get('DATABASE_WRITE_MAX_POOL').default(2).asInt()
+  },
+
+  get databaseReadUrl() {
+    return env
+      .get('DATABASE_URL_READONLY')
+      .default('postgres://localhost/postgres')
+      .asUrlString()
+  },
+
+  get databaseReadMinPool() {
+    return env.get('DATABASE_READ_MIN_POOL').default(2).asInt()
+  },
+
+  get databaseReadMaxPool() {
+    return env.get('DATABASE_READ_MAX_POOL').default(2).asInt()
   },
 
   get databaseSchema() {
@@ -82,6 +104,10 @@ export const Configuration = {
 
   get cmsUrl() {
     return env.get('CMS_URL').default('http://localhost:8055').asUrlString()
+  },
+
+  get gcpCdnUrl() {
+    return env.get('GCP_CDN_URL').asUrlString()
   },
 
   get cmsAccessToken() {
@@ -136,6 +162,10 @@ export const Configuration = {
     return Currencies[code as keyof typeof Currencies]
   },
 
+  get customerServiceEmail() {
+    return env.get('CUSTOMER_SERVICE_EMAIL').asString()
+  },
+
   get mailer(): MailerAdapterOptions {
     const emailFrom =
       env.get('EMAIL_FROM').default('').asString() ||
@@ -169,5 +199,13 @@ export const Configuration = {
 
   get minimumDaysBeforeTransfer(): number {
     return env.get('MINIMUM_DAYS_BEFORE_TRANSFER').default(7).asInt()
+  },
+
+  get successPath(): string {
+    return env.get('WEB_SUCCESS_PATH').default('/payments/success').asString()
+  },
+
+  get failurePath(): string {
+    return env.get('WEB_FAILURE_PATH').default('/payments/failure').asString()
   },
 }

@@ -1,12 +1,12 @@
 {
-  "Asset Name": "FR Asset Name",
-  "createFail": "FR Failed to create assets.",
-  "createSuccess": "FR Success! Created asset(s).",
-  "Description": "FR Description",
-  "Editions": "FR Editions",
-  "editionsDescription": "FR 1 unique item or an edition of items",
-  "Release Description": "FR Release Description",
-  "Release Slug": "FR Release Slug",
-  "Release Title": "FR Release Title",
-  "Unit Name": "FR Unit Name"
+  "Asset Name": "Nom de l'actif",
+  "createFail": "Échec de la création des éléments.",
+  "createSuccess": "Succès! Actif(s) créé(s).",
+  "Description": "La description",
+  "Editions": "Éditions",
+  "editionsDescription": "1 pièce unique ou une édition de pièces",
+  "Release Description": "Description de la version",
+  "Release Slug": "Libérer la limace",
+  "Release Title": "Titre de la version",
+  "Unit Name": "Nom de l'unité"
 }

@@ -4,67 +4,72 @@
 @tailwind utilities;
 
 /* Base styles */
-@layer base {
-  html,
-  body {
-    @apply h-full text-base-textPrimary bg-base-bg;
-    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system !important;
-  }
+html,
+body {
+  @apply h-full text-base-textPrimary bg-base-bg font-base;
+}
 
-  /* Default light theme */
-  :root {
-    --textPrimary: 10, 17, 29;
-    --textSecondary: 44, 51, 63;
-    --textTertiary: 78, 85, 97;
-    --textDisabled: 102, 102, 102;
+h1,
+h2,
+h3,
+.h1,
+.h2,
+.h3 {
+  @apply font-bold font-display;
+}
 
-    --bg: 236, 236, 236;
-    --bgCard: 255, 255, 255;
-    --bgPanel: 255, 255, 255;
-    --bgNotice: 249, 249, 249;
+h1,
+.h1 {
+  @apply text-3xl;
+}
 
-    --actionPrimary: 10, 17, 29; /* very dark gray-blue */
-    --actionPrimaryContrastText: 255, 255, 255;
-    --actionSecondary: 18, 220, 197; /* teal */
-    --actionSecondaryContrastText: 0, 0, 0;
-    --actionAccent: 2, 251, 194; /* light green */
+h2,
+.h2 {
+  @apply text-2xl;
+}
 
-    --grayDark: 10, 17, 29; /* DEPRECATED */
-    --border: 218, 220, 223;
+h3,
+.h3 {
+  @apply text-lg;
+}
 
-    --error: 172, 0, 0; /* red */
-    --price: 5, 150, 105; /* green-600 */
-  }
+/* Default light theme */
+:root {
+  --darkText: 3, 16, 42;
+  --text: 40, 51, 74;
+  --lightText: 82, 91, 113;
+  --logoBlue: 39, 86, 143;
+  --shadeBlue: 45, 99, 182;
+  --blue: 58, 119, 210;
+  --textPrimary: var(--text);
+  --textSecondary: var(--lightText);
+  --textTertiary: var(--darkText);
+  --textDisabled: 102, 102, 102;
+  --gradient-from: 63, 98, 145;
+  --gradient-to: 94, 147, 201;
 
-  /* Dark theme */
-  .dark {
-    --textPrimary: 250, 250, 250;
-    --textSecondary: 216, 216, 216;
-    --textTertiary: 182, 182, 182;
-    --textDisabled: 128, 128, 128;
+  --bg: 247, 249, 252;
+  --bgCard: 255, 255, 255;
+  --bgPanel: var(--bg);
+  --bgNotice: 249, 249, 249;
 
-    --bg: 34, 35, 39;
-    --bgCard: 9, 12, 13;
-    --bgPanel: 28, 29, 33;
-    --bgNotice: 28, 29, 33;
+  --actionPrimary: var(--blue);
+  --actionPrimaryContrastText: 255, 255, 255;
+  --actionSecondary: var(--blue);
+  --actionSecondaryContrastText: 255, 255, 255;
+  --actionAccent: var(--blue);
+  --actionTertiary: 255, 255, 255;
+  --actionTertiaryContrastText: var(--blue);
 
-    --actionPrimary: 253, 89, 132; /* hot pink */
-    --actionPrimaryContrastText: 255, 255, 255;
-    --actionSecondary: 18, 220, 197; /* teal */
-    --actionSecondaryContrastText: 0, 0, 0;
-    --actionAccent: 2, 251, 194; /* light green */
+  --grayLight: 166, 172, 186;
+  --grayDark: 10, 17, 29;
+  --border: 229, 232, 239;
 
-    --grayDark: 10, 17, 29; /* DEPRECATED */
-    --border: 62, 64, 67;
-
-    --error: 255, 70, 70; /* red */
-    --price: 35, 180, 135;
-  }
+  --error: 172, 0, 0; /* red */
+  --price: 5, 150, 105; /* green-600 */
 }
 
 /* Custom globals  */
 #__next {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  @apply flex flex-col h-full;
 }

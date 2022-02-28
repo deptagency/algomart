@@ -24,12 +24,13 @@ export default function Heading({
     `h${level}`,
     {
       className: clsx(
+        'leading-tight',
         {
-          'text-base-textSecondary': !inheritColor,
+          'text-base-textPrimary': !inheritColor,
           'font-bold text-2xl': size === 1,
-          'text-xl': size === 2,
-          'text-lg': size === 3,
-          'text-md': size === 4,
+          'text-2xl': size === 2,
+          'text-xl': size === 3,
+          'text-lg': size === 4,
           'font-bold': bold,
         },
         className

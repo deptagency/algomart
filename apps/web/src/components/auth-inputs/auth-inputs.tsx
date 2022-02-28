@@ -1,33 +1,25 @@
+import { DEFAULT_LOCALE } from '@algomart/schemas'
+import * as DineroCurrencies from '@dinero.js/currencies'
 import {
-  CollectibleListWithTotal,
-  DEFAULT_LOCALE,
-  LanguageList,
-} from '@algomart/schemas'
-import { ShieldExclamationIcon, UserCircleIcon } from '@heroicons/react/outline'
+  CurrencyDollarIcon,
+  ShieldExclamationIcon,
+  UserCircleIcon,
+} from '@heroicons/react/outline'
+import { GlobeAltIcon } from '@heroicons/react/outline'
 import Image from 'next/image'
 import { Translate } from 'next-translate'
-import {
-  ChangeEventHandler,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 
 import css from './auth-inputs.module.css'
 
-import { ApiClient } from '@/clients/api-client'
 import Button from '@/components/button'
 import FormField from '@/components/form-field'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
 import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
-import { useLocale } from '@/hooks/use-locale'
-import languageService from '@/services/language-service'
+import { useI18n } from '@/contexts/i18n-context'
 import { FileWithPreview } from '@/types/file'
-import { useApi } from '@/utils/swr'
-import { urls } from '@/utils/urls'
 
 /**
  * Reused components found throughout sign-in, sign-up, and profile create/update flows
@@ -38,6 +30,70 @@ export interface AuthInputProps {
   error?: string | unknown
   helpLink?: ReactNode
   t: Translate
+  translationKey?: string
+}
+
+export interface AuthCurrencyProps {
+  disabled?: boolean
+  error?: string | unknown
+  handleChange?(option: SelectOption): void
+  showLabel?: boolean
+  t: Translate
+  value?: string
+}
+
+export function Currency({
+  error,
+  disabled,
+  handleChange,
+  showLabel = true,
+  t,
+  value,
+}: AuthCurrencyProps) {
+  const [options, setOptions] = useState<SelectOption[]>([])
+  const [selectedValue, setSelectedValue] = useState<SelectOption>()
+  const { currencyConversions } = useI18n()
+
+  useEffect(() => {
+    if (currencyConversions) {
+      const intersection = Object.keys(DineroCurrencies)
+        .filter((dineroCurrencyKey) =>
+          Object.keys(currencyConversions).includes(dineroCurrencyKey)
+        )
+        .map((targetCurrency) => ({
+          id: targetCurrency,
+          label: targetCurrency,
+        }))
+
+      setOptions(intersection)
+    }
+  }, [currencyConversions]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setSelectedValue(
+      options && value ? options.find((option) => option.id === value) : null
+    )
+  }, [options, value])
+
+  return (
+    <FormField className={css.formField}>
+      {options.length > 0 && (
+        <Select
+          className="pl-8"
+          defaultOption={options[0]}
+          error={error as string}
+          disabled={disabled}
+          label={showLabel ? t('forms:fields.currencies.label') : undefined}
+          id="currency"
+          name="currency"
+          options={options}
+          selectedValue={selectedValue}
+          handleChange={handleChange}
+          Icon={<CurrencyDollarIcon />}
+        />
+      )}
+    </FormField>
+  )
 }
 
 export function Email({ error, t }: AuthInputProps) {
@@ -74,16 +130,19 @@ export function Language({
 }: AuthLanguageProps) {
   const [options, setOptions] = useState<SelectOption[]>([])
   const [selectedValue, setSelectedValue] = useState<SelectOption>()
-
-  const locale = useLocale()
+  const { languages, getI18nInfo } = useI18n()
 
   useEffect(() => {
     const run = async () => {
       try {
-        const languages = await languageService.getLanguages(locale)
+        let i18nStateLanguages = languages
+        if (!i18nStateLanguages) {
+          const i18nInfo = await getI18nInfo()
+          i18nStateLanguages = i18nInfo.languages
+        }
 
         setOptions(
-          languages.map((language) => ({
+          i18nStateLanguages.map((language) => ({
             id: language.languages_code,
             label: language.label,
           }))
@@ -99,7 +158,7 @@ export function Language({
       }
     }
     run()
-  }, [locale, t])
+  }, [t, languages]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setSelectedValue(
@@ -121,6 +180,7 @@ export function Language({
           options={options}
           selectedValue={selectedValue}
           handleChange={handleChange}
+          Icon={<GlobeAltIcon />}
         />
       )}
     </FormField>
@@ -300,11 +360,15 @@ export function Passphrase({ error, t }: AuthInputProps) {
   )
 }
 
-export function Submit({ disabled, t }: AuthInputProps) {
+export function Submit({
+  disabled,
+  t,
+  translationKey = 'common:actions.Done',
+}: AuthInputProps) {
   return (
     <FormField>
       <Button disabled={disabled} fullWidth type="submit">
-        {t('common:actions.Done')}
+        {t(translationKey)}
       </Button>
     </FormField>
   )

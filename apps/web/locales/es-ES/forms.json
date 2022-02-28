@@ -1,0 +1,243 @@
+{
+  "errors": {
+    "accountAlreadyConfigured": "ES Account is already configured",
+    "addressNotFound": "ES Could not retrieve the blockchain address for sending funds. Apologies for any inconvenience.",
+    "cardExpiration": "ES Your card has expired.",
+    "emailAlreadyInUse": "ES Email already in use",
+    "emailValid": "ES Must be a valid email address",
+    "emailsDoNotMatch": "ES Email addresses do not match",
+    "invalidCVV": "ES Invalid CVV",
+    "exactCharacters": "ES Must be {exact} characters",
+    "invalidClaim": "ES Invalid Claim",
+    "invalidCredentials": "ES Invalid credentials",
+    "invalidCreditCard": "ES Invalid credit card number",
+    "invalidCountry": "ES Invalid country code",
+    "invalidCurrency": "ES Invalid currency",
+    "invalidDetails": "ES Invalid details provided",
+    "invalidName": "ES Invalid first and last name",
+    "invalidPassphrase": "ES Invalid Passphrase",
+    "invalidPassword": "ES Invalid password",
+    "invalidPayment": "ES Invalid Payment",
+    "invalidState": "ES Invalid province/state code",
+    "failedPayment": "ES Invalid payment details. Check your credit card and/or billing address details.",
+    "minimumBid": "ES Your bid must be at least {{amount}}",
+    "mustConfirmBid": "ES Bid must be confirmed",
+    "bidLessThanHighestBid": "ES Your bid was lower than the current high bid.",
+    "maxCharacters": "ES Must be less than {max} characters",
+    "minCharacters": "ES Must be at least {min} characters",
+    "minUSDC": "ES Found balance of {{balance}} USD, but the minimum needed is {{min}} USD",
+    "maxItems": "ES Must pick at most {max} items",
+    "minImageFileSize": "ES Image must be {{fileSize}} or smaller",
+    "noUSDC": "ES No USDC found in wallet",
+    "onlyLetters": "ES Must contain only letters",
+    "onlyLettersAndNumbers": "ES Must contain only letters and numbers",
+    "onlyNumbers": "ES Must contain only numbers",
+    "onlyLowercaseLettersAndNumbers": "ES Only lowercase characters and numbers allowed",
+    "paymentNotCreated": "ES The payment could not be created. Please contact support.",
+    "required": "ES This field is required",
+    "transferDeclined": "ES Transaction was declined, or something went wrong during payment.",
+    "transferNotFound": "ES Transfer not found. If this was completed, keep checking the status.",
+    "usernameTaken": "ES Username already in use",
+    "invalidDuration": "ES Invalid Duration",
+    "invalidRedemptionCode": "ES Invalid Redemption Code",
+    "invalidStatus": "ES Invalid Status",
+    "invalidZipCode": "ES Invalid ZIP Code"
+  },
+  "fields": {
+    "accountNumber": {
+      "label": "ES Account Number"
+    },
+    "address1": {
+      "label": "ES Street Address"
+    },
+    "bankAddress": {
+      "bankName": {
+        "label": "ES Bank Name"
+      },
+      "bankAddress1": {
+        "label": "ES Bank Address Line 1"
+      },
+      "bankAddress2": {
+        "label": "ES Bank Address Line 2"
+      }
+    },
+    "bankInstructions": {
+      "label": "ES Bank Wire Instructions",
+      "helpText": "ES Below is all of the information you need to initiate a wire transfer. Keep in mind, your bank may use slightly different names for these details. May the odds be ever in your favor.",
+      "notice": "ES You're not done! Once you submit your payment info, we will share the information you need to bring to your bank to initiate a wire transfer. Once you complete payment below, you will have 7 days to submit payment before your winning bid is canceled.",
+      "swiftCode": {
+        "label": "ES Swift Code"
+      },
+      "trackingRef": {
+        "label": "ES Tracking Reference"
+      },
+      "beneficiary": {
+        "label": "ES Beneficiary"
+      },
+      "beneficiaryBank": {
+        "label": "ES Beneficiary Bank"
+      }
+    },
+    "bid": {
+      "confirmation": "ES I understand that I need to complete payment within 72 hours or I will forfeit my winning bid.",
+      "description": "ES Your card will be charged immediately on auction close if you place the winning bid.",
+      "label": "ES Your Bid",
+      "helpTextCurrentBid": "ES Current bid is {{amount}}",
+      "success": "ES You're the current high bidder for {{title}}"
+    },
+    "ccNumber": {
+      "label": "ES Credit Card Number"
+    },
+    "city": {
+      "label": "ES City"
+    },
+    "country": {
+      "label": "ES Country Code",
+      "values": {
+        "CA": "ES Canada",
+        "US": "ES United States"
+      }
+    },
+    "currencies": {
+      "label": "ES Currency"
+    },
+    "defaultCard": {
+      "label": "ES Default",
+      "helpText": "ES Make card my default for purchases"
+    },
+    "differentCardLink": {
+      "label": "ES Use a different card"
+    },
+    "email": {
+      "label": "ES Email"
+    },
+    "emailConfirm": {
+      "label": "ES Confirm Email"
+    },
+    "expirationDate": {
+      "label": "ES Expiration Date"
+    },
+    "fullName": {
+      "label": "ES Full Name",
+      "helpText": "ES As it appears on your card"
+    },
+    "languages": {
+      "label": "ES Language"
+    },
+    "password": {
+      "label": "ES Password"
+    },
+    "passphrase": {
+      "description": {
+        "1": "ES your PIN code is used to approve every transaction.",
+        "2": "ES It cannot be recovered or reset."
+      },
+      "label": "ES Passphrase",
+      "helpText": "ES For approving transactions",
+      "warning": "ES Write down your PIN number!",
+      "enterPassphrase": "ES Enter your PIN code to authorize this transaction."
+    },
+    "paymentMethods": {
+      "label": "ES Payment Method",
+      "helpText": "ES Select Payment Method",
+      "options": {
+        "card": {
+          "label": "ES Credit Card",
+          "helpText": "ES Accepted for winning bids up to $3,000"
+        },
+        "wire": {
+          "label": "ES Bank Wire Transfer",
+          "helpText": "ES Accepted for all winning bids"
+        },
+        "crypto": {
+          "label": "ES Crypto Wallet",
+          "helpText": "ES Accepted for all winning bids. Payment accepted in USDC from WalletConnect, MyAlgo, or Coinbase."
+        }
+      }
+    },
+    "payWithCrypto": {
+      "label": "ES Pay with Crypto",
+      "helpText": "ES We can only accept crypto payments in USDC-A.",
+      "tutorial": {
+        "prompt": "ES Don't have a Crypto Wallet yet?",
+        "text": "ES We'll walk you through",
+        "hyperlink": "ES what is needed"
+      },
+      "instructions": {
+        "label": "ES If you already have a wallet",
+        "1": "ES Click to connect and scan the QR code using your wallet's mobile app, OR copy the blockchain address to your clipboard.",
+        "2": "ES Initiate the purchase, either by clicking the Purchase button or manually transferring funds to the copied address.",
+        "3": "ES Submit your payment of {{price}} in USDC.",
+        "4": "ES Check for payment. Once we receive your payment, you will be the new owner of the NFT."
+      },
+      "Connected account": "ES Connected account",
+      "walletInstructions": {
+        "label": "ES Wallet Instructions",
+        "createWallet": {
+          "label": "ES Create a Wallet",
+          "link": "ES Tutorial on creating a new account",
+          "1": "ES Install Algorand Wallet on your mobile device",
+          "2": "ES Create a new account with Algorand Wallet",
+          "3": "ES Add USDC by clicking Add new asset and searching for USDC"
+        },
+        "purchaseAlgos": {
+          "label": "ES Purchase ALGOs",
+          "link": "ES Tutorial on transferring cryptocurrency using Coinbase",
+          "notice": "ES Note: Fees are added during the swap",
+          "1": "ES Sign up for a Coinbase account",
+          "2": "ES Purchase ALGOs from Coinbase",
+          "3": "ES Transfer ALGOs to your Algorand wallet"
+        },
+        "swapAlgos": {
+          "label": "ES Swap ALGOs for USDC-A",
+          "link": "ES Visit Tinyman",
+          "notice": "ES Beware of extra fees and slippage! Wallet needs to have enough to cover the item cost + fees.",
+          "1": "ES Go to Tinyman",
+          "2": "ES Select ALGOs as From and USDC as To",
+          "3": "ES Connect to your wallet",
+          "4": "ES Initiate the swap"
+        }
+      }
+    },
+    "price": {
+      "label": "ES Price"
+    },
+    "profileImage": {
+      "label": "ES Profile Image"
+    },
+    "redemptionCode": {
+      "label": "ES Redemption Code"
+    },
+    "routingNumber": {
+      "label": "ES Routing Number"
+    },
+    "saveCard": {
+      "label": "ES Save my card for future purchases"
+    },
+    "savedCard": {
+      "label": "ES Saved Card",
+      "placeholder": "ES Select a Card"
+    },
+    "securityCode": {
+      "label": "ES CVV"
+    },
+    "state": {
+      "label": "ES State/Province"
+    },
+    "username": {
+      "helpText": "ES How you'll appear to others",
+      "label": "ES Username"
+    },
+    "zipCode": {
+      "label": "ES Postal Code"
+    }
+  },
+  "sections": {
+    "Bank Account": "ES Bank Account",
+    "Bank Address": "ES Bank Address",
+    "Billing Address": "ES Billing Address",
+    "Credit Card": "ES Credit Card",
+    "Summary": "ES Summary",
+    "Wire Transfer": "ES Wire Transfer"
+  }
+}

@@ -12,13 +12,16 @@ import BillingAddress from '@/components/purchase-form/shared/billing-address'
 import FullName from '@/components/purchase-form/shared/full-name'
 import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
+import { useI18n } from '@/contexts/i18n-context'
 import { FormValidation } from '@/contexts/payment-context'
+import { useCurrency } from '@/hooks/use-currency'
 import { isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 
 export interface BankAccountFormProps {
   bid: string | null
   className?: string
+  countries: { label: string | null; id: string }[]
   formErrors?: FormValidation
   handleContinue: () => void
   initialBid?: string
@@ -29,12 +32,15 @@ export interface BankAccountFormProps {
 export default function BankAccountForm({
   bid,
   className,
+  countries: countryOptions,
   formErrors,
   handleContinue,
   initialBid,
   release,
   setBid,
 }: BankAccountFormProps) {
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const { t, lang } = useTranslation()
   const isAuctionActive =
     release?.type === PackType.Auction &&
@@ -42,11 +48,7 @@ export default function BankAccountForm({
   const price =
     release?.type === PackType.Auction
       ? bid
-      : formatIntToFloat(release?.price || 0)
-  const countryOptions = [
-    { id: 'CA', label: t('forms:fields.country.values.CA') },
-    { id: 'US', label: t('forms:fields.country.values.US') },
-  ]
+      : formatIntToFloat(release?.price || 0, currency)
 
   return (
     <div className={className}>
@@ -102,6 +104,7 @@ export default function BankAccountForm({
             />
 
             <BillingAddress
+              countries={countryOptions}
               formErrors={{
                 address1:
                   formErrors && 'address1' in formErrors
@@ -135,7 +138,7 @@ export default function BankAccountForm({
                   : ''
               }
               label={t('forms:fields.bankAddress.bankName.label')}
-              name="address1"
+              name="bankName"
               variant="small"
             />
             <TextInput
@@ -180,19 +183,20 @@ export default function BankAccountForm({
                 variant="small"
               />
             </div>
-            <Select
-              defaultOption={countryOptions[1]}
-              error={
-                formErrors && 'bankCountry' in formErrors
-                  ? (formErrors.bankCountry as string)
-                  : ''
-              }
-              label={t('forms:fields.country.label')}
-              id="bankCountry"
-              name="bankCountry"
-              options={countryOptions}
-              placeholder="US"
-            />
+            {countryOptions.length > 0 && (
+              <Select
+                error={
+                  formErrors && 'bankCountry' in formErrors
+                    ? (formErrors.bankCountry as string)
+                    : ''
+                }
+                label={t('forms:fields.country.label')}
+                id="bankCountry"
+                name="bankCountry"
+                options={countryOptions}
+                placeholder="US"
+              />
+            )}
           </>
         )}
       </div>
@@ -200,7 +204,9 @@ export default function BankAccountForm({
       {/* Price */}
       <div className={css.priceContainer}>
         <p className={css.priceLabel}>{t('release:Total')}</p>
-        <p className={css.priceValue}>{formatCurrency(price, lang)}</p>
+        <p className={css.priceValue}>
+          {formatCurrency(price, lang, currency, conversionRate)}
+        </p>
       </div>
 
       {/* Submit */}

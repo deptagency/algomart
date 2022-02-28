@@ -1,3 +1,12 @@
+import { generateHealthRoutes } from '@algomart/shared/modules'
+import {
+  fastifyContainerPlugin,
+  fastifyKnexPlugin,
+  fastifyTransactionPlugin,
+  KnexConnectionType,
+} from '@algomart/shared/plugins'
+import { DependencyResolver } from '@algomart/shared/utils'
+import { applicationRoutes } from '@api/modules/application'
 import ajvCompiler from '@fastify/ajv-compiler'
 import ajvFormats from 'ajv-formats'
 import fastify, { FastifyServerOptions } from 'fastify'
@@ -6,25 +15,23 @@ import fastifySensible from 'fastify-sensible'
 import fastifySwagger from 'fastify-swagger'
 import { Knex } from 'knex'
 
-import swaggerOptions from '@/configuration/swagger'
-import { accountsRoutes } from '@/modules/accounts'
-import { auctionsRoutes } from '@/modules/auctions'
-import { bidsRoutes } from '@/modules/bids'
-import { collectiblesRoutes } from '@/modules/collectibles'
-import { collectionsRoutes } from '@/modules/collections'
-import { faqsRoutes } from '@/modules/faqs'
-import { homepageRoutes } from '@/modules/homepage'
-import { languagesRoutes } from '@/modules/languages'
-import { packsRoutes } from '@/modules/packs'
-import { paymentRoutes } from '@/modules/payments'
-import { setsRoutes } from '@/modules/sets'
-import fastifyContainer from '@/plugins/container.plugin'
-import fastifyKnex from '@/plugins/knex.plugin'
-import fastifyTransaction from '@/plugins/transaction.plugin'
-import DependencyResolver from '@/shared/dependency-resolver'
+import swaggerOptions from '../configuration/swagger'
+import { accountsRoutes } from '../modules/accounts'
+import { auctionsRoutes } from '../modules/auctions'
+import { bidsRoutes } from '../modules/bids'
+import { collectiblesRoutes } from '../modules/collectibles'
+import { collectionsRoutes } from '../modules/collections'
+import { faqsRoutes } from '../modules/faqs'
+import { homepageRoutes } from '../modules/homepage'
+import { i18nRoutes } from '../modules/i18n'
+import { packsRoutes } from '../modules/packs'
+import { pageRoute } from '../modules/pages'
+import { paymentRoutes } from '../modules/payments'
+import { setsRoutes } from '../modules/sets'
 
 export interface AppConfig {
-  knex: Knex.Config
+  knexMain: Knex.Config
+  knexRead?: Knex.Config
   fastify?: FastifyServerOptions
   container: DependencyResolver
 }
@@ -63,9 +70,16 @@ export default async function buildApp(config: AppConfig) {
   await app.register(fastifySensible)
 
   // Our Plugins
-  await app.register(fastifyKnex, { knex: config.knex })
-  await app.register(fastifyContainer, { container: config.container })
-  await app.register(fastifyTransaction)
+  await app.register(fastifyKnexPlugin, {
+    knex: config.knexMain,
+    name: KnexConnectionType.WRITE,
+  }),
+    await app.register(fastifyKnexPlugin, {
+      knex: config.knexRead,
+      name: KnexConnectionType.READ,
+    })
+  await app.register(fastifyContainerPlugin, { container: config.container })
+  await app.register(fastifyTransactionPlugin)
 
   // Decorators
   // no decorators yet
@@ -74,17 +88,20 @@ export default async function buildApp(config: AppConfig) {
   // no hooks yet
 
   // Services
+  await app.register(generateHealthRoutes(), { prefix: '/health' })
   await app.register(accountsRoutes, { prefix: '/accounts' })
+  await app.register(applicationRoutes, { prefix: '/application' })
   await app.register(auctionsRoutes, { prefix: '/auctions' })
   await app.register(bidsRoutes, { prefix: '/bids' })
   await app.register(collectiblesRoutes, { prefix: '/collectibles' })
   await app.register(collectionsRoutes, { prefix: '/collections' })
   await app.register(homepageRoutes, { prefix: '/homepage' })
-  await app.register(languagesRoutes, { prefix: '/languages' })
+  await app.register(i18nRoutes, { prefix: '/i18n' })
   await app.register(faqsRoutes, { prefix: '/faqs' })
   await app.register(packsRoutes, { prefix: '/packs' })
   await app.register(paymentRoutes, { prefix: '/payments' })
   await app.register(setsRoutes, { prefix: '/sets' })
+  await app.register(pageRoute, { prefix: '/page' })
 
   return app
 }

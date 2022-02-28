@@ -1,14 +1,14 @@
 .root {
-  @apply relative p-6 border-t border-base-border;
+  @apply relative px-20 py-12 border-t border-base-border;
 }
 
 .collapseContainer {
   @apply overflow-hidden transition-all;
-  max-height: 999px;
+  max-height: 9999px;
 }
 
 .collapseContainer.collapsed {
-  max-height: 100px;
+  @apply max-h-72;
 }
 
 .root p {
@@ -24,7 +24,5 @@
 }
 
 .mask {
-  @apply absolute left-0 w-full bg-gradient-to-t from-white to-transparent;
-  bottom: 50px;
-  height: 75px;
+  @apply absolute left-0 w-full h-16 bottom-12 bg-gradient-to-t to-transparent from-base-bgCard;
 }

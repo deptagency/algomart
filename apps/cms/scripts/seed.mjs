@@ -77,8 +77,17 @@ async function main(args) {
     nft_templates, nft_templates_translations,
     pack_templates, pack_templates_translations, pack_templates_directus_files,
     collections, collections_translations,
-    sets, sets_translations
+    sets, sets_translations,
+    languages, languages_translations
     CASCADE`)
+
+  await knex.raw(
+    `INSERT INTO directus_webhooks (
+      "name", "method", "url", "status", "data", "actions", "collections", "headers"
+    ) VALUES (
+      'CMS Cache Content', 'POST', 'http://localhost:3002/webhooks/directus', 'active', 't', 'create,update,delete', 'application,collections,countries,faqs,homepage,languages,nft_templates,pack_templates,page,rarities,sets', NULL
+    )`
+  )
 
   /**
    * Read config file if it exists, or ask user to provide it.
@@ -101,11 +110,58 @@ async function main(args) {
   try {
     await createEntityRecords(
       'languages',
-      [{ code: 'en-US', name: 'English' }],
+      [
+        { code: 'en-US', name: 'English' },
+        { code: 'fr-FR', name: 'French' },
+        { code: 'es-ES', name: 'Spanish' }
+      ],
       token
     )
   } catch (err) {
     console.log('Language already exists.')
+  }
+
+  try {
+    await createEntityRecords(
+      'languages_translations',
+      [
+        { language_id: 'en-US', languages_code: 'en-US', label: 'English' },
+        { language_id: 'en-US', languages_code: 'fr-FR', label: 'FR English' },
+        { language_id: 'en-US', languages_code: 'es-ES', label: 'ES English' },
+        { language_id: 'fr-FR', languages_code: 'en-US', label: 'French' },
+        { language_id: 'fr-FR', languages_code: 'fr-FR', label: 'FR French' },
+        { language_id: 'fr-FR', languages_code: 'es-ES', label: 'ES French' },
+        { language_id: 'es-ES', languages_code: 'en-US', label: 'Spanish' },
+        { language_id: 'es-ES', languages_code: 'fr-FR', label: 'FR Spanish' },
+        { language_id: 'es-ES', languages_code: 'es-ES', label: 'ES Spanish' }
+      ],
+      token
+    )
+  } catch (err) {
+    console.log('Language translations already exist')
+  }
+
+  try {
+    await createEntityRecords(
+      'countries',
+      [{ code: 'US' }, { code: 'CA' }],
+      token
+    )
+  } catch (err) {
+    console.log('Countries already exist.')
+  }
+
+  try {
+    await createEntityRecords(
+      'countries_translations',
+      [
+        { id: 1, countries_code: 'US', languages_code: 'en-US', title: 'United States' },
+        { id: 2, countries_code: 'CA', languages_code: 'en-US', title: 'Canada' },
+      ],
+      token
+    )
+  } catch (err) {
+    console.log('Country translations already exist.')
   }
 
   /**

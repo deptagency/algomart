@@ -9,6 +9,8 @@ import BidActivityEmoji from './sections/bid-activity-emoji'
 
 import css from './bid-activity.module.css'
 
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { isAfterNow, isNowBetweenDates } from '@/utils/date-time'
 import { formatCurrency, isGreaterThanOrEqual } from '@/utils/format-currency'
@@ -31,6 +33,8 @@ export default function BidActivity({
   winningBidUserName,
 }: BidActivityProps) {
   const locale = useLocale()
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const { t, lang } = useTranslation()
   const startDateTime = new Date(releasedAt)
   const endDateTime = new Date(auctionUntil)
@@ -53,10 +57,8 @@ export default function BidActivity({
     time: timeFormat.format(endDateTime),
   })
   return (
-    <>
-      <div className={css.titleWrapper}>
-        <h1 className={css.title}>{t('release:Activity')}</h1>
-      </div>
+    <section className={css.bidActivity}>
+      <h1 className={css.title}>{t('release:Activity')}</h1>
       <ul className={css.list}>
         {isClosed && auctionUntil && (
           <BidActivityDetails
@@ -80,16 +82,22 @@ export default function BidActivity({
           const avatar = avatars[bid.externalId]
           const createdAtDateTime = new Date(bid.createdAt)
           const meetsReservePrice =
-            !!reservePrice && isGreaterThanOrEqual(bid.amount, reservePrice)
+            !!reservePrice &&
+            isGreaterThanOrEqual(bid.amount, reservePrice, currency)
           const followingBid = bids[index + 1]
           const followingBidDoesNotMeetReservePrice =
             reservePrice &&
             !!followingBid &&
-            !isGreaterThanOrEqual(followingBid.amount, reservePrice)
+            !isGreaterThanOrEqual(followingBid.amount, reservePrice, currency)
           return (
             <React.Fragment key={bid.id}>
               <BidActivityDetails
-                amount={formatCurrency(bid.amount, lang)}
+                amount={formatCurrency(
+                  bid.amount,
+                  lang,
+                  currency,
+                  conversionRate
+                )}
                 content={t('release:Bid placed by', { username: bid.username })}
                 date={t('release:packActivityDate', {
                   date: dateFormat.format(createdAtDateTime),
@@ -138,6 +146,6 @@ export default function BidActivity({
           </BidActivityDetails>
         )}
       </ul>
-    </>
+    </section>
   )
 }

@@ -1,18 +1,18 @@
 import { AlgorandTransactionStatus } from '@algomart/schemas'
+import { AlgorandAdapter } from '@algomart/shared/adapters'
 import { FastifyInstance } from 'fastify'
-import { buildTestApp } from 'test/build-test-app'
+
+import { buildTestApp } from '../../../../test/build-test-app'
 import {
   fakeAddressFor,
   setupTestDatabase,
   teardownTestDatabase,
-} from 'test/setup-tests'
-
-import AlgorandAdapter from '@/lib/algorand-adapter'
+} from '../../../../test/setup-tests'
 import {
   algorandAccountFactory,
   algorandTransactionFactory,
   userAccountFactory,
-} from '@/seeds/seed-test-data'
+} from '../../../seeds/seed-test-data'
 
 let app: FastifyInstance
 
@@ -53,6 +53,7 @@ test('POST /accounts OK', async () => {
     },
     payload: {
       username,
+      currency: userAccount.currency,
       externalId: userAccount.externalId,
       email: userAccount.email,
       locale: userAccount.locale,
@@ -66,6 +67,7 @@ test('POST /accounts OK', async () => {
   const json = JSON.parse(body)
   expect(json).toEqual({
     address,
+    currency: userAccount.currency,
     username,
     externalId: userAccount.externalId,
     showProfile: false,
@@ -81,14 +83,14 @@ test('GET /accounts/:externalId OK', async () => {
   const creationTransaction = algorandTransactionFactory.build({
     status: AlgorandTransactionStatus.Confirmed,
   })
-  await app.knex('AlgorandTransaction').insert(creationTransaction)
+  await app.knexMain('AlgorandTransaction').insert(creationTransaction)
   const algorandAccount = algorandAccountFactory.build(
     {},
     {
       creationTransaction,
     }
   )
-  await app.knex('AlgorandAccount').insert(algorandAccount)
+  await app.knexMain('AlgorandAccount').insert(algorandAccount)
   const userAccount = userAccountFactory.build(
     {
       username,
@@ -97,7 +99,7 @@ test('GET /accounts/:externalId OK', async () => {
       algorandAccount,
     }
   )
-  await app.knex('UserAccount').insert(userAccount)
+  await app.knexMain('UserAccount').insert(userAccount)
 
   // Act
   const { body, statusCode, headers } = await app.inject({
@@ -118,6 +120,7 @@ test('GET /accounts/:externalId OK', async () => {
     externalId: userAccount.externalId,
     showProfile: false,
     email: userAccount.email,
+    currency: userAccount.currency,
     locale: userAccount.locale,
     status: AlgorandTransactionStatus.Confirmed,
   })
@@ -131,17 +134,17 @@ test('POST /accounts/:externalId/verify-passphrase (Valid passphrase)', async ()
   const creationTransaction = algorandTransactionFactory.build({
     status: AlgorandTransactionStatus.Confirmed,
   })
-  await app.knex('AlgorandTransaction').insert(creationTransaction)
+  await app.knexMain('AlgorandTransaction').insert(creationTransaction)
   const algorandAccount = algorandAccountFactory.build(
     {},
     { passphrase, creationTransaction }
   )
-  await app.knex('AlgorandAccount').insert(algorandAccount)
+  await app.knexMain('AlgorandAccount').insert(algorandAccount)
   const userAccount = userAccountFactory.build(
     { username },
     { algorandAccount }
   )
-  await app.knex('UserAccount').insert(userAccount)
+  await app.knexMain('UserAccount').insert(userAccount)
 
   jest
     .spyOn(AlgorandAdapter.prototype, 'isValidPassphrase')
@@ -168,17 +171,17 @@ test('POST /accounts/:externalId/verify-passphrase (Invalid passphrase)', async 
   const creationTransaction = algorandTransactionFactory.build({
     status: AlgorandTransactionStatus.Confirmed,
   })
-  await app.knex('AlgorandTransaction').insert(creationTransaction)
+  await app.knexMain('AlgorandTransaction').insert(creationTransaction)
   const algorandAccount = algorandAccountFactory.build(
     {},
     { passphrase, creationTransaction }
   )
-  await app.knex('AlgorandAccount').insert(algorandAccount)
+  await app.knexMain('AlgorandAccount').insert(algorandAccount)
   const userAccount = userAccountFactory.build(
     { username },
     { algorandAccount }
   )
-  await app.knex('UserAccount').insert(userAccount)
+  await app.knexMain('UserAccount').insert(userAccount)
 
   jest
     .spyOn(AlgorandAdapter.prototype, 'isValidPassphrase')
@@ -205,17 +208,17 @@ test('POST /accounts/verify-username (Available username)', async () => {
   const creationTransaction = algorandTransactionFactory.build({
     status: AlgorandTransactionStatus.Confirmed,
   })
-  await app.knex('AlgorandTransaction').insert(creationTransaction)
+  await app.knexMain('AlgorandTransaction').insert(creationTransaction)
   const algorandAccount = algorandAccountFactory.build(
     {},
     { passphrase, creationTransaction }
   )
-  await app.knex('AlgorandAccount').insert(algorandAccount)
+  await app.knexMain('AlgorandAccount').insert(algorandAccount)
   const userAccount = userAccountFactory.build(
     { username: externalId, externalId },
     { algorandAccount }
   )
-  await app.knex('UserAccount').insert(userAccount)
+  await app.knexMain('UserAccount').insert(userAccount)
 
   // Act
   const { body, statusCode } = await app.inject({
@@ -238,17 +241,17 @@ test('POST /accounts/verify-username (Unavailable username)', async () => {
   const creationTransaction = algorandTransactionFactory.build({
     status: AlgorandTransactionStatus.Confirmed,
   })
-  await app.knex('AlgorandTransaction').insert(creationTransaction)
+  await app.knexMain('AlgorandTransaction').insert(creationTransaction)
   const algorandAccount = algorandAccountFactory.build(
     {},
     { passphrase, creationTransaction }
   )
-  await app.knex('AlgorandAccount').insert(algorandAccount)
+  await app.knexMain('AlgorandAccount').insert(algorandAccount)
   const userAccount = userAccountFactory.build(
     { username: externalId, externalId },
     { algorandAccount }
   )
-  await app.knex('UserAccount').insert(userAccount)
+  await app.knexMain('UserAccount').insert(userAccount)
 
   // Act
   const { body, statusCode } = await app.inject({

@@ -11,9 +11,11 @@ import {
   PackIdSchema,
   PacksByOwnerQuerySchema,
   PacksByOwnerSchema,
+  PackSlugSchema,
   PackTemplateIdSchema,
   PackWithCollectiblesSchema,
   PackWithIdSchema,
+  PublishedPackSchema,
   PublishedPacksQuerySchema,
   PublishedPacksSchema,
   RedeemCodeSchema,
@@ -21,6 +23,8 @@ import {
   TransferPackSchema,
   TransferPackStatusListSchema,
 } from '@algomart/schemas'
+import { appErrorHandler } from '@algomart/shared/utils'
+import bearerAuthOptions from '@api/configuration/bearer-auth'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
 import fastifyBearerAuth from 'fastify-bearer-auth'
@@ -32,17 +36,15 @@ import {
   getAuctionPackByTemplateId,
   getPacksByOwner,
   getPackWithCollectiblesById,
-  getPublishedPacks,
+  getPublishedPackBySlug,
   getRedeemablePack,
   mintPackStatus,
   revokePack,
+  searchPublishedPacks,
   transferPack,
   transferPackStatus,
   untransferredPacks,
 } from './packs.routes'
-
-import bearerAuthOptions from '@/configuration/bearer-auth'
-import { appErrorHandler } from '@/utils/errors'
 
 export async function packsRoutes(app: FastifyInstance) {
   const tags = ['packs']
@@ -60,7 +62,7 @@ export async function packsRoutes(app: FastifyInstance) {
 
   // Services/Routes
   app.get(
-    '/',
+    '/search',
     {
       schema: {
         tags,
@@ -72,7 +74,24 @@ export async function packsRoutes(app: FastifyInstance) {
         },
       },
     },
-    getPublishedPacks
+    searchPublishedPacks
+  )
+
+  app.get(
+    '/by-slug/:packSlug',
+    {
+      schema: {
+        tags,
+        security,
+        description: 'Get a pack by slug with its collectibles.',
+        querystring: LocaleSchema,
+        params: PackSlugSchema,
+        response: {
+          200: PublishedPackSchema,
+        },
+      },
+    },
+    getPublishedPackBySlug
   )
 
   app.get(

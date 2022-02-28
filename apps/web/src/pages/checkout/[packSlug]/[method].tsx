@@ -10,10 +10,8 @@ import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
-import { v4 as uuid } from 'uuid'
 
 import { ApiClient } from '@/clients/api-client'
-import { Analytics } from '@/clients/firebase-analytics'
 import { usePaymentProvider } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
 import DefaultLayout from '@/layouts/default-layout'
@@ -61,13 +59,6 @@ export default function CheckoutMethodPage({
       setStatus(status)
     }
   }, [query.step, setStatus])
-
-  useEffect(() => {
-    Analytics.instance.beginCheckout({
-      itemName: release.title,
-      value: currentBid ?? release.price,
-    })
-  }, [currentBid, release])
 
   return (
     <DefaultLayout
@@ -126,20 +117,19 @@ export const getServerSideProps: GetServerSideProps<
   }
 
   // Find pack templates
-  const { packs: packTemplates } = await ApiClient.instance.getPublishedPacks({
-    locale: context.locale,
-    slug: params?.packSlug as string,
-  })
+  const packTemplate = await ApiClient.instance.getPublishedPackBySlug(
+    params?.packSlug as string,
+    context.locale
+  )
 
   // If no pack templates were found, return 404
-  if (!packTemplates || packTemplates.length === 0) {
+  if (!packTemplate) {
     return {
       notFound: true,
     }
   }
 
   // If there are no remaining packs, prohibit purchase
-  const packTemplate = packTemplates[0]
   if (!packTemplate.available) {
     return {
       redirect: {
@@ -195,11 +185,7 @@ export const getServerSideProps: GetServerSideProps<
   let address
   if (params?.method && params.method === CheckoutMethod.crypto) {
     // Get release based on search query
-    address = await ApiClient.instance
-      .createWalletAddress({
-        idempotencyKey: uuid(),
-      })
-      .catch(() => null)
+    address = await ApiClient.instance.createWalletAddress().catch(() => null)
   }
   return {
     props: {

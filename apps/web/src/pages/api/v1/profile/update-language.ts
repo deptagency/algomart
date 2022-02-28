@@ -5,9 +5,7 @@ import { ApiClient } from '@/clients/api-client'
 import createHandler, { NextApiRequestApp } from '@/middleware'
 import authMiddleware from '@/middleware/auth-middleware'
 import userMiddleware from '@/middleware/user-middleware'
-import validateBodyMiddleware, {
-  ExtractBodyType,
-} from '@/middleware/validate-body-middleware'
+import { ExtractBodyType } from '@/middleware/validate-body-middleware'
 import { validateLanguage } from '@/utils/auth-validation'
 
 const handler = createHandler()

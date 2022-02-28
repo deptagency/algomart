@@ -12,6 +12,7 @@
     "invalidCredentials": "FR Invalid credentials",
     "invalidCreditCard": "FR Invalid credit card number",
     "invalidCountry": "FR Invalid country code",
+    "invalidCurrency": "FR Invalid currency",
     "invalidDetails": "FR Invalid details provided",
     "invalidName": "FR Invalid first and last name",
     "invalidPassphrase": "FR Invalid Passphrase",
@@ -97,6 +98,9 @@
         "US": "FR United States"
       }
     },
+    "currencies": {
+      "label": "FR Currency"
+    },
     "defaultCard": {
       "label": "FR Default",
       "helpText": "FR Make card my default for purchases"
@@ -125,13 +129,13 @@
     },
     "passphrase": {
       "description": {
-        "1": "FR Your passphrase is used to approve every transaction.",
-        "2": "FR It cannot be reset if lost."
+        "1": "FR Your PIN code is used to approve every transaction.",
+        "2": "FR It cannot be recovered or reset."
       },
       "label": "FR Passphrase",
       "helpText": "FR For approving transactions",
-      "warning": "FR Write down your passphrase!",
-      "enterPassphrase": "FR Enter your passphrase to authorize this transaction."
+      "warning": "FR Write down your PIN number!",
+      "enterPassphrase": "FR Enter your PIN code to authorize this transaction."
     },
     "paymentMethods": {
       "label": "FR Payment Method",

@@ -9,9 +9,11 @@ import {
   Nullable,
   PaginationSchema,
   Simplify,
+  SlugSchema,
   SortDirection,
 } from './shared'
 import { AlgorandTransactionStatus } from './transactions'
+import { CollectibleSchema } from '.'
 
 export enum PackType {
   Auction = 'auction',
@@ -93,12 +95,16 @@ export const PackConfigSchema = Type.Object({
 
 export const PackBaseSchema = Type.Object({
   activeBid: Type.Optional(Type.Number()),
+  additionalImages: Type.Array(Type.String({ format: 'uri' })),
   allowBidExpiration: Type.Boolean(),
   auctionUntil: Type.Optional(Type.String({ format: 'date-time' })),
   body: Type.Optional(Type.String()),
+  collectibleTemplates: Type.Array(CollectibleSchema),
   collectibleTemplateIds: Type.Array(IdSchema),
   config: PackConfigSchema,
   image: Type.String({ format: 'uri' }),
+  nftCategory: Type.Optional(Type.String()),
+  nftsPerPack: Type.Integer(),
   onePackPerCustomer: Type.Boolean(),
   price: Type.Number(),
   releasedAt: Type.Optional(Type.String({ format: 'date-time' })),
@@ -141,8 +147,10 @@ export const PacksByOwnerSchema = Type.Object({
 export const PublishedPacksQuerySchema = Type.Intersect([
   PaginationSchema,
   Type.Object({
+    currency: Type.Optional(Type.String()),
     locale: Type.Optional(Type.String()),
     slug: Type.Optional(Type.String()),
+    templates: Type.Optional(Type.Array(PackBaseSchema)),
     templateIds: Type.Optional(Type.Array(IdSchema)),
     priceLow: Type.Optional(Type.Number()),
     priceHigh: Type.Optional(Type.Number()),
@@ -187,6 +195,10 @@ export const PackWithIdSchema = Type.Intersect([
 
 export const PackIdSchema = Type.Object({
   packId: IdSchema,
+})
+
+export const PackSlugSchema = Type.Object({
+  packSlug: Type.String(),
 })
 
 export const PackAuctionSchema = Type.Intersect([
@@ -261,6 +273,7 @@ export type PackAuction = Simplify<Static<typeof PackAuctionSchema>>
 export type PackBase = Simplify<Static<typeof PackBaseSchema>>
 export type PackByTemplateId = Simplify<Static<typeof PackByTemplateIdSchema>>
 export type PackId = Simplify<Static<typeof PackIdSchema>>
+export type PackSlug = Simplify<Static<typeof PackSlugSchema>>
 export type PackTemplateId = Simplify<Static<typeof PackTemplateIdSchema>>
 export type PackWithCollectibles = Simplify<
   Static<typeof PackWithCollectiblesSchema>

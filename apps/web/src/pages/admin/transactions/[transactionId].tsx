@@ -1,9 +1,8 @@
 import { Payment, PaymentStatus, WirePayment } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import css from './transaction.module.css'
 
@@ -13,9 +12,12 @@ import Avatar from '@/components/avatar/avatar'
 import Breadcrumbs from '@/components/breadcrumbs'
 import Button from '@/components/button'
 import { Flex } from '@/components/flex'
+import Heading from '@/components/heading'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
 import AdminLayout from '@/layouts/admin-layout'
 import adminService from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
@@ -23,6 +25,7 @@ import { formatCurrency } from '@/utils/format-currency'
 import { logger } from '@/utils/logger'
 import { useAuthApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
+
 interface AdminTransactionPageProps {
   payment: Payment
 }
@@ -31,13 +34,18 @@ export default function AdminTransactionPage({
   payment,
 }: AdminTransactionPageProps) {
   const { t, lang } = useTranslation('admin')
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const { query } = useRouter()
   const { transactionId } = query
-  const isAuction = !!payment.pack?.auctionUntil
+  const isAuction = !!payment.pack?.template?.auctionUntil
+  const isWire = !!payment.paymentBankId
 
   // WIRE PAYMENTS
   const { data } = useAuthApi<WirePayment[]>(
-    `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${payment.paymentBankId}`
+    payment.paymentBankId
+      ? `${urls.api.v1.admin.getPaymentsForBankAccount}?bankAccountId=${payment.paymentBankId}`
+      : null
   )
 
   const columns: ColumnDefinitionType<WirePayment>[] = [
@@ -48,9 +56,10 @@ export default function AdminTransactionPage({
         value ? new Date(value).toLocaleString(lang) : null,
     },
     {
-      key: 'pack.price',
+      key: 'amount',
       name: t('transactions.table.Amount'),
-      renderer: ({ value }) => formatCurrency(value, lang),
+      renderer: ({ value }) =>
+        formatCurrency(value, lang, currency, conversionRate),
     },
     { key: 'status', name: t('transactions.table.Status') },
     { key: 'type', name: t('transactions.table.Type') },
@@ -66,10 +75,10 @@ export default function AdminTransactionPage({
         status: PaymentStatus.Pending,
       })
       alert('Payment was reset')
-      logger.info(updatedPayment, 'Payment was reset.')
+      logger.info('Payment was reset.', updatedPayment)
     } catch (error) {
       alert('Unable to reset pack.')
-      logger.error(error, 'Unable to reset pack')
+      logger.error('Unable to reset pack', error)
     }
   }, [transactionId])
 
@@ -82,15 +91,17 @@ export default function AdminTransactionPage({
         status: PaymentStatus.Paid,
       })
       alert('Payment was marked as paid')
-      logger.info(updatedPayment, 'Payment marked as paid.')
+      logger.info('Payment marked as paid.', updatedPayment)
     } catch (error) {
       alert('Unable to update pack as paid.')
-      logger.error(error, 'Unable to update pack as paid')
+      logger.error('Unable to update pack as paid', error)
     }
   }, [transactionId])
 
+  const [isRevoking, setIsRevoking] = useState(false)
   const handleRevokePack = useCallback(async () => {
     if (!confirm('Are you sure you want to revoke this pack?')) return
+    setIsRevoking(true)
     try {
       if (!payment.pack?.id) throw new Error('No pack id')
       if (!payment.pack?.ownerId) throw new Error('No pack owner ID')
@@ -98,9 +109,11 @@ export default function AdminTransactionPage({
       await adminService.revokePack(payment.pack?.id, payment.pack?.ownerId)
       alert('Pack successfully revoked.')
       logger.info('Pack was revoked')
+      setIsRevoking(false)
     } catch (error) {
       alert('Unable to revoke pack.')
-      logger.error(error, 'Unable to revoke pack')
+      logger.error('Unable to revoke pack', error)
+      setIsRevoking(false)
     }
   }, [payment.pack?.id, payment.pack?.ownerId])
 
@@ -114,34 +127,38 @@ export default function AdminTransactionPage({
         ]}
       />
       <Flex gap={12}>
-        <Flex item flex="0 0 250px" className="overflow-hidden" gap={2}>
+        <Flex item flex="0 0 auto" className={css.leftSide} gap={2}>
           <Panel fullWidth>
-            <Image
-              src={payment.pack?.image}
-              layout="responsive"
-              height="100%"
-              width="100%"
-              alt="Pack image"
-            />
+            <img src={payment.pack?.template?.image} alt="Pack image" />
           </Panel>
 
           <Flex flex="1" flexDirection="column" gap={6}>
             <Panel className={css.userInfoPanel}>
               <dl>
                 <dt>Type</dt>
-                <dd>{payment.pack?.type}</dd>
+                <dd>{payment.pack?.template?.type}</dd>
                 <dt>Title</dt>
-                <dd>{payment.pack?.title}</dd>
+                <dd>{payment.pack?.template?.title}</dd>
                 <dt>Slug</dt>
                 <dd>
                   <AppLink
-                    href={urls.release.replace(':packSlug', payment.pack?.slug)}
+                    href={urls.release.replace(
+                      ':packSlug',
+                      payment.pack?.template?.slug
+                    )}
                   >
-                    {payment.pack?.slug}
+                    {payment.pack?.template?.slug}
                   </AppLink>
                 </dd>
                 <dt>Price</dt>
-                <dd>{formatCurrency(payment.pack?.price, lang)}</dd>
+                <dd>
+                  {formatCurrency(
+                    payment.pack?.template?.price,
+                    lang,
+                    currency,
+                    conversionRate
+                  )}
+                </dd>
                 <dt>Template ID</dt>
                 <dd>{payment.pack?.templateId}</dd>
               </dl>
@@ -169,12 +186,27 @@ export default function AdminTransactionPage({
         </Flex>
 
         <Flex flex="1" flexDirection="column" gap={6}>
+          <Heading className="capitalize">
+            {payment.status}{' '}
+            {formatCurrency(
+              payment?.pack?.template.activeBid ??
+                payment?.pack?.template.price,
+              lang
+            )}
+          </Heading>
           {isAuction && (
             <Panel>
               <Flex alignItems="stretch" gap={4} Element="dl">
                 <div className={css.packMeta}>
                   <dt>Winning Bid</dt>
-                  <dd>{formatCurrency(payment.pack?.activeBid, lang)} </dd>
+                  <dd>
+                    {formatCurrency(
+                      payment.pack?.template?.activeBid,
+                      lang,
+                      currency,
+                      conversionRate
+                    )}
+                  </dd>
                 </div>
                 <div className={css.packMeta}>
                   <dt>Winner</dt>
@@ -183,16 +215,20 @@ export default function AdminTransactionPage({
                 <div className={css.packMeta}>
                   <dt>Ended At</dt>
                   <dd>
-                    {new Date(payment.pack?.auctionUntil).toLocaleString(lang)}
+                    {new Date(
+                      payment.pack?.template?.auctionUntil
+                    ).toLocaleString(lang)}
                   </dd>
                 </div>
               </Flex>
             </Panel>
           )}
 
-          <Panel title={t('common:pageTitles.Transactions')} fullWidth>
-            <Table<WirePayment> columns={columns} data={data} />
-          </Panel>
+          {isWire && (
+            <Panel title={t('transactions.Wire Payments')} fullWidth>
+              <Table<WirePayment> columns={columns} data={data} />
+            </Panel>
+          )}
 
           <Panel title={t('transactions.resetPayment')}>
             <p className={css.actionDescription}>
@@ -201,7 +237,7 @@ export default function AdminTransactionPage({
             <Button
               onClick={handleReset}
               size="small"
-              disabled={payment?.status === PaymentStatus.Pending}
+              disabled={!isWire || payment?.status === PaymentStatus.Pending}
             >
               {t('transactions.resetPayment')}
             </Button>
@@ -228,6 +264,7 @@ export default function AdminTransactionPage({
               onClick={handleRevokePack}
               size="small"
               disabled={!payment?.pack?.ownerId}
+              busy={isRevoking}
             >
               {t('transactions.revokePack')}
             </Button>

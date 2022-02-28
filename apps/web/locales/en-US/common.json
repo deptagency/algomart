@@ -5,6 +5,7 @@
     "Add New Payment Method": "Add New Payment Method",
     "Apply": "Apply",
     "Back to Listing": "Back to Listing",
+    "Browse Latest Releases": "Browse Latest Releases",
     "Buy Now": "Buy Now",
     "Buy Collection Packs": "Buy {{collectionName}} Packs",
     "Buy Packs to Add to Collection": "Buy Packs to Add to Collection",
@@ -23,6 +24,7 @@
     "Connect to Algorand Wallet": "Connect to Algorand Wallet",
     "Continue to Summary": "Continue to Summary",
     "Copy to clipboard": "Copy to clipboard",
+    "Create Account": "Create Account",
     "Remove Payment Method?": "Remove Payment Method?",
     "Copy": "Copy",
     "Create Asset": "Create Asset",
@@ -41,6 +43,7 @@
     "Purchased on": "Purchased on",
     "Purchase with Algorand Wallet": "Purchase with Algorand Wallet",
     "Purchase Item": "Purchase Item",
+    "Purchase Pack": "Purchase Pack",
     "Read More": "Read More",
     "Remind Me": "Remind Me",
     "Remove": "Remove",
@@ -51,8 +54,11 @@
     "Save Changes": "Save Changes",
     "Save to My Collection": "Save to My Collection",
     "Select Image": "Select Image",
-    "Sign Out": "Sign Out",
+    "Sign In": "Sign in",
+    "Sign Out": "Sign out",
+    "Sign Up": "Sign up",
     "Sign": "Sign",
+    "Start Collecting": "Start Collecting",
     "Submit Payment Info": "Submit Payment Info",
     "Try Again": "Try Again",
     "View All Payment Methods": "View All Payment Methods",
@@ -82,9 +88,9 @@
   },
   "global": {
     "consent": "<0>We use cookies to collect information about your use of this site in order to enhance your experience on our website and to better understand your needs.</0><1>By clicking “Accept”, you agree to our <2>Terms & Conditions</2>, our <3>Privacy Policy</3> and our use of cookies on our site.</1>",
-    "language": "English",
+    "language": "EN",
     "or": "or",
-    "pageTitle": "AlgoMart",
+    "pageTitle": "FIFA NFT Marketplace",
     "pageDescription": "The best storefront for all your NFT assets",
     "rarityDefault": "Common",
     "404": {
@@ -129,27 +135,43 @@
       "Social Media": "Social Media",
       "Legal": "Legal"
     },
+    "headings": {
+      "FIFA NFT": "FIFA NFT",
+      "MORE": "MORE"
+    },
     "main": {
       "Releases": "Releases",
       "Brands": "Brands",
-      "My Collection": "My Collection"
+      "My Collection": "My Collection",
+      "Home": "Home",
+      "Teams": "Teams",
+      "Settings": "Settings",
+      "About FIFA NFTs": "About FIFA NFTs",
+      "FAQ": "FAQ",
+      "Support": "Support"
     },
     "utility": {
       "Log In": "Log In",
       "Log Out": "Log Out",
-      "My profile picture": "My profile picture"
+      "My profile picture": "My profile picture",
+      "My Account": "My Account"
     },
     "social": {
       "Instagram": "Instagram",
       "Twitter": "Twitter",
+      "Facebook": "Facebook",
+      "Weibo": "Weibo",
+      "YouTube": "YouTube",
       "Discord": "Discord",
       "Blog": "Blog"
     },
     "legal": {
+      "Data Protection Portal": "Data Protection Portal",
       "Community Guidelines": "Community Guidelines",
-      "Privacy Policy": "Privacy Policy",
-      "Terms & Conditions": "Terms & Conditions",
-      "copyright": "©2021 Algorand"
+      "Downloads": "Downloads",
+      "Terms & Conditions": "Terms of Service",
+      "copyright": "Copyright © 1994-2022 FIFA. All Rights Reserved",
+      "Cookie Settings": "Cookie Settings"
     },
     "payment": {
       "Payment Methods": "Payment Methods",

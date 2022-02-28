@@ -5,13 +5,14 @@ import { useEffect, useMemo, useRef } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import { PackFilterProvider } from '@/contexts/pack-filter-context'
+import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { usePackFilter } from '@/hooks/use-pack-filter'
 import DefaultLayout from '@/layouts/default-layout'
 import ReleasesTemplate from '@/templates/releases-template'
 import {
-  getPublishedPacksFilterQuery,
   getPublishedPacksFilterQueryFromState,
+  searchPublishedPacksFilterQuery,
 } from '@/utils/filters'
 import { useApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
@@ -21,17 +22,18 @@ export const RELEASES_PER_PAGE = 9
 export default function Releases({ packs }: PublishedPacks) {
   const { t } = useTranslation()
   const locale = useLocale()
+  const currency = useCurrency()
   const { dispatch, state } = usePackFilter()
   const pageTop = useRef<HTMLDivElement | null>(null)
 
   const queryString = useMemo(() => {
-    const query = getPublishedPacksFilterQueryFromState(locale, state)
+    const query = getPublishedPacksFilterQueryFromState(locale, state, currency)
     query.pageSize = RELEASES_PER_PAGE
-    return getPublishedPacksFilterQuery(query)
-  }, [locale, state])
+    return searchPublishedPacksFilterQuery(query)
+  }, [locale, state, currency])
 
   const { data, isValidating } = useApi<PublishedPacks>(
-    `${urls.api.v1.getPublishedPacks}?${queryString}`
+    `${urls.api.v1.searchPublishedPacks}?${queryString}`
   )
 
   useEffect(() => {
@@ -41,7 +43,11 @@ export default function Releases({ packs }: PublishedPacks) {
   }, [isValidating, state.currentPage])
 
   return (
-    <DefaultLayout pageTitle={t('common:pageTitles.Releases')} width="full">
+    <DefaultLayout
+      pageTitle={t('common:pageTitles.Releases')}
+      width="full"
+      noPanel
+    >
       <div ref={pageTop} />
       <PackFilterProvider value={{ dispatch, state }}>
         <ReleasesTemplate
@@ -57,7 +63,7 @@ export default function Releases({ packs }: PublishedPacks) {
 export const getServerSideProps: GetServerSideProps<PublishedPacks> = async ({
   locale,
 }) => {
-  const { packs, total } = await ApiClient.instance.getPublishedPacks({
+  const { packs, total } = await ApiClient.instance.searchPublishedPacks({
     locale: locale || DEFAULT_LOCALE,
     page: 1,
     pageSize: RELEASES_PER_PAGE,

@@ -18,9 +18,35 @@ module.exports = {
     path.join(__dirname, 'src', '**', '*.{js,ts,jsx,tsx,css}'),
     ...createGlobPatternsForDependencies(__dirname, '**/*.{js,ts,jsx,tsx,css}'),
   ],
-
-  darkMode: 'class', // or false, 'media' or 'class'
+  darkMode: false,
   theme: {
+    fontFamily: {
+      base: ['"Open Sans"', 'ui-sans-serif', 'system-ui', '-apple-system'],
+      display: ['"Open Sans Condensed"', 'ui-sans-serif', 'system-ui'],
+      mono: [
+        'ui-monospace',
+        'SFMono-Regular',
+        'Menlo',
+        'Monaco',
+        'Consolas',
+        '"Liberation Mono"',
+        '"Courier New"',
+        'monospace',
+      ],
+    },
+    fontSize: {
+      xs: '.75rem',
+      sm: '.875rem',
+      base: '1rem',
+      lg: '1.25rem',
+      xl: '1.75rem',
+      '2xl': '2.5rem',
+      '3xl': '4rem',
+      '4xl': '5rem',
+      '5xl': '6rem',
+      '6xl': '7rem',
+      '7xl': '8rem',
+    },
     extend: {
       backgroundImage: {
         'pack-texture': "url('/images/textures/pack-texture.jpg')",
@@ -34,8 +60,8 @@ module.exports = {
         20: '20px',
       },
       boxShadow: {
-        medium: '0px 1px 10px rgba(0, 0, 0, 0.15)',
-        large: '0px 5px 40px rgba(0, 0, 0, 0.15)',
+        medium: '0px 1px 10px rgba(39, 86, 143, 0.15)',
+        large: '0px 5px 40px rgba(39, 86, 143, 0.15)',
       },
       colors: {
         action: {
@@ -46,6 +72,10 @@ module.exports = {
             'actionSecondaryContrastText'
           ),
           accent: generateColorClass('actionAccent'),
+          tertiary: generateColorClass('actionTertiary'),
+          tertiaryContrastText: generateColorClass(
+            'actionTertiaryContrastText'
+          ),
         },
         base: {
           error: generateColorClass('error'),
@@ -61,6 +91,9 @@ module.exports = {
           textSecondary: generateColorClass('textSecondary'),
           textTertiary: generateColorClass('textTertiary'),
           textDisabled: generateColorClass('textDisabled'),
+
+          gradientFrom: generateColorClass('gradient-from'),
+          gradientTo: generateColorClass('gradient-to'),
 
           // DEPRECATED
           gray: {

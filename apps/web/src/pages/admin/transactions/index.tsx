@@ -9,6 +9,8 @@ import Pagination from '@/components/pagination/pagination'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
 import usePagination from '@/hooks/use-pagination'
 import AdminLayout from '@/layouts/admin-layout'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
@@ -21,6 +23,8 @@ const PAYMENTS_PER_PAGE = 10
 
 export default function AdminTransactionsPage() {
   const { t, lang } = useTranslation('admin')
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const { page, setPage, handleTableHeaderClick, sortBy, sortDirection } =
     usePagination<PaymentSortField>(1, PaymentSortField.CreatedAt)
 
@@ -36,7 +40,7 @@ export default function AdminTransactionsPage() {
 
   const columns: ColumnDefinitionType<Payment>[] = [
     {
-      key: 'pack.title',
+      key: 'pack.template.title',
       name: t('transactions.table.Title'),
       renderer: ({ value, item }) => (
         <AppLink
@@ -54,9 +58,27 @@ export default function AdminTransactionsPage() {
       sortable: true,
     },
     {
-      key: 'pack.price',
+      key: 'pack.template.activeBid',
       name: t('transactions.table.Amount'),
-      renderer: ({ value }) => formatCurrency(value, lang),
+      renderer: ({ item }) =>
+        item.pack.template.activeBid
+          ? formatCurrency(
+              item.pack.template.activeBid,
+              lang,
+              currency,
+              conversionRate
+            )
+          : formatCurrency(
+              item.pack.template.price,
+              lang,
+              currency,
+              conversionRate
+            ),
+    },
+    {
+      key: 'pack.template.type',
+      name: t('transactions.table.Type'),
+      sortable: false,
     },
     { key: 'status', name: t('transactions.table.Status'), sortable: true },
   ]
