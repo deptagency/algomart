@@ -102,8 +102,8 @@ export default class CollectiblesService {
 
     const template = await this.cms.findCollectibleByTemplateId(
       collectible.templateId,
-      query.locale,
-      knexRead
+      knexRead,
+      query.locale
     )
 
     invariant(template, `NFT Template ${collectible.templateId} not found`)

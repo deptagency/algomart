@@ -630,12 +630,12 @@ export default class CMSCacheAdapter {
   }
 
   async findCollectibleByTemplateId(
-    locale = DEFAULT_LOCALE,
-    templateId,
-    knxRead
+    templateId: string,
+    knxRead: Knex,
+    locale = DEFAULT_LOCALE
   ) {
     const queryResult = await CMSCacheCollectibleTemplateModel.query(knxRead)
-      .findOne('templateId', templateId)
+      .findOne('id', templateId)
       .select('content')
 
     const collectibleTemplate =
