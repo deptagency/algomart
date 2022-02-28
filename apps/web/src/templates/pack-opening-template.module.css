@@ -1,0 +1,7 @@
+.packOpeningBackground {
+  background: linear-gradient(180deg, #1e2535 0%, #373f53 100%);
+}
+
+.contentWrapper {
+  @apply relative py-16 mx-auto max-w-wrapper;
+}

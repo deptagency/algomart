@@ -99,18 +99,18 @@ const PackOpening = memo(function Scene({
   // Environment
   const environmentMap = useCubeTexture(
     [
-      'gold-env-map.jpg',
-      'gold-env-map.jpg',
-      'gold-env-map.jpg',
-      'gold-env-map.jpg',
-      'gold-env-map.jpg',
-      'gold-env-map.jpg',
+      'gold-texture.jpg',
+      'gold-texture.jpg',
+      'gold-texture.jpg',
+      'gold-texture.jpg',
+      'gold-texture.jpg',
+      'gold-texture.jpg',
     ],
     { path: '/images/textures/' }
   )
 
   //Pack Cover
-  const coverImage = useTexture('/images/textures/wc-logo.png')
+  const coverImage = useTexture(packPreview)
 
   // Model
   const texture = useTexture('/images/textures/gold-texture.jpg')
@@ -231,7 +231,7 @@ const PackOpening = memo(function Scene({
         </Plane>
 
         {/* Label Text */}
-        {/* <group position-y={-12}>
+        <group position-y={-12}>
           <TextBox
             boxDimensions={[22, 5, 1]}
             envMap={environmentMap}
@@ -252,7 +252,7 @@ const PackOpening = memo(function Scene({
             text={collectablesText}
             textDimensions={[12, 12, 10]}
           />
-        </group> */}
+        </group>
       </animated.mesh>
 
       {/* Open pack button */}

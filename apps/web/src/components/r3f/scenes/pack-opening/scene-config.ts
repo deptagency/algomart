@@ -9,7 +9,7 @@ export const sceneConfig = {
   lightPositionZ: { value: 20, min: -50, max: 20, step: 0.5 },
   mouseIntensity: { value: 0.001, min: 0, max: 0.005, step: 0.001 },
   noise: { value: 0.04, min: 0, max: 1, step: 0.01 },
-  particleColor: '#02fbc2',
+  particleColor: '#3A77D2',
   particleCount: { value: 1000, min: 0, max: 50_000, step: 50 },
   particleSize: { value: 0.75, min: 0, max: 10, step: 0.1 },
   particleSpread: { value: 100, min: 0, max: 400, step: 10 },

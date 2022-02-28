@@ -29,14 +29,14 @@ export default function PackGrid({
 
   // Automatic animations
   const animationIn = useTrail(packCards.length, {
-    config: config.gentle,
+    config: config.stiff,
     delay: 2500,
     from: { opacity: 0, y: -50 },
     to: { opacity: 1, y: 0 },
   })
   const animationOpacity = useTrail(packCards.length, {
-    config: config.default,
-    delay: 5000,
+    config: config.stiff,
+    delay: 3000,
     from: { opacity: 0 },
     to: { opacity: 1 },
   })

@@ -1,5 +1,5 @@
 .root {
-  @apply relative w-full h-full p-0 text-black duration-300 bg-white border rounded-md opacity-100 border-base-border shadow-medium;
+  @apply relative w-full h-full p-0 overflow-hidden text-black duration-300 bg-white rounded-md rounded-lg opacity-100 shadow-medium;
 }
 
 .column {
@@ -28,7 +28,7 @@
 
 .information {
   /* Base + */
-  @apply flex flex-col items-center justify-center pb-5;
+  @apply flex flex-col items-center justify-center pt-1 pb-6;
 }
 
 .titleWrapper {
@@ -36,14 +36,11 @@
 }
 
 .title {
-  /* Base + */
-  @apply h-full pt-1 text-sm font-bold text-base-textPrimary line-clamp-2;
-  /* Tablet + */
-  @apply md:text-base md:pt-3;
+  @apply h-full text-lg font-bold text-base-textPrimary line-clamp-2;
 }
 
 .label {
-  @apply px-4 py-2 text-xs text-white uppercase rounded-full bg-base-border;
+  @apply px-6 py-2 text-xs text-white uppercase rounded-full bg-base-border;
 }
 
 .icon {
