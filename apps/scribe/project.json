@@ -11,7 +11,14 @@
         "main": "apps/scribe/src/index.ts",
         "tsConfig": "apps/scribe/tsconfig.app.json",
         "traceResolution":true,
-        "assets": ["apps/scribe/src/assets"]
+        "assets": [
+          "apps/scribe/src/assets",
+          {
+            "input": "libs/shared/locales/src",
+            "glob": "**/*.json",
+            "output": "locales"
+          }
+        ]
       },
       "configurations": {
         "production": {

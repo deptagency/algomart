@@ -11,7 +11,14 @@
         "outputPath": "dist/apps/api",
         "main": "apps/api/src/index.ts",
         "tsConfig": "apps/api/tsconfig.app.json",
-        "assets": ["apps/api/src/contracts"]
+        "assets": [
+          "apps/api/src/contracts",
+          {
+            "input": "libs/shared/locales/src",
+            "glob": "**/*.json",
+            "output": "locales"
+          }
+        ]
       },
       "configurations": {
         "production": {
