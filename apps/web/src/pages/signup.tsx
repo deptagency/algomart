@@ -104,7 +104,7 @@ export default function SignUpPage() {
       // prevent authenticated users from trying to register
       router.push(urls.home)
     }
-  }, []) /* eslint-disable-line react-hooks/exhaustive-deps */
+  }, [auth.status]) /* eslint-disable-line react-hooks/exhaustive-deps */
 
   useEffect(() => {
     setDropdownLanguage(locale)

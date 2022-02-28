@@ -348,12 +348,12 @@ export function toCountryBase(
   locale: string
 ): Country {
   const translation = getDirectusTranslation<DirectusCountryTranslation>(
-    country.translations as DirectusCountryTranslation[],
-    `country ${country.code} has no translations`,
+    country.countries_code.translations as DirectusCountryTranslation[],
+    `country ${country.countries_code} has no translations`,
     locale
   )
   return {
-    code: country.code,
+    code: country.countries_code.code,
     name: translation.title,
   }
 }
@@ -431,9 +431,9 @@ export default class CMSCacheAdapter {
   async findAllCountries(locale = DEFAULT_LOCALE, knxRead?: Knex) {
     const application = await this.findApplication(knxRead)
 
-    return application.countries.map((country) =>
-      toCountryBase(country, locale)
-    )
+    return application.countries.map((country) => {
+      return toCountryBase(country, locale)
+    })
   }
 
   async findAllPacksAuctionCompletion(
