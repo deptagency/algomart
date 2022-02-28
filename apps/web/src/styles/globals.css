@@ -15,7 +15,7 @@ h3,
 .h1,
 .h2,
 .h3 {
-  @apply font-display font-bold;
+  @apply font-bold font-display;
 }
 
 h1,

@@ -3,8 +3,10 @@ import { Transaction } from 'objection'
 import pino from 'pino'
 import { enc, SHA256 } from 'crypto-js'
 import * as Currencies from '@dinero.js/currencies'
+import { v4 as uuid } from 'uuid'
 
 import {
+  CirclePaymentErrorCode,
   CirclePaymentQueryType,
   CirclePaymentSourceType,
   CirclePaymentVerificationOptions,
@@ -12,7 +14,6 @@ import {
   CreateCard,
   CreatePayment,
   CreateTransferPayment,
-  CreateWalletAddress,
   DEFAULT_CURRENCY,
   DEFAULT_LOCALE,
   EventAction,
@@ -58,8 +59,8 @@ import {
   formatFloatToInt,
   formatIntToFloat,
   invariant,
-  userInvariant,
   poll,
+  userInvariant,
 } from '@algomart/shared/utils'
 
 export default class PaymentsService {
@@ -294,7 +295,7 @@ export default class PaymentsService {
     // Create card using Circle API
     const card = await this.circle
       .createPaymentCard({
-        idempotencyKey: cardDetails.idempotencyKey,
+        idempotencyKey: uuid(),
         keyId: cardDetails.keyId,
         encryptedData: cardDetails.encryptedData,
         billingDetails: cardDetails.billingDetails,
@@ -368,7 +369,7 @@ export default class PaymentsService {
     // Create bank account using Circle API
     const bankAccount = await this.circle
       .createBankAccount({
-        idempotencyKey: bankDetails.idempotencyKey,
+        idempotencyKey: uuid(),
         accountNumber: bankDetails.accountNumber,
         routingNumber: bankDetails.routingNumber,
         billingDetails: bankDetails.billingDetails,
@@ -514,8 +515,8 @@ export default class PaymentsService {
     // Check price is available
     const bid = randomPack.activeBidId
       ? await BidModel.query(knexRead)
-        .select('amount')
-        .findById(randomPack.activeBidId)
+          .select('amount')
+          .findById(randomPack.activeBidId)
       : null
 
     const price =
@@ -525,7 +526,7 @@ export default class PaymentsService {
     if (randomPack.type === PackType.Auction) {
       userInvariant(
         bid &&
-        isGreaterThanOrEqual(bid.amount, randomPack.price, this.currency),
+          isGreaterThanOrEqual(bid.amount, randomPack.price, this.currency),
         'active bid must be higher than the price of the item'
       )
     }
@@ -581,14 +582,8 @@ export default class PaymentsService {
 
     // If encrypted details are provided, add to request
     const encryptedDetails = {}
-    const {
-      keyId,
-      encryptedData,
-      cardId,
-      idempotencyKey,
-      metadata,
-      description,
-    } = paymentDetails
+    const { keyId, encryptedData, cardId, metadata, description } =
+      paymentDetails
     if (keyId) {
       Object.assign(encryptedDetails, { keyId })
     }
@@ -607,7 +602,6 @@ export default class PaymentsService {
 
     // Base payment details
     const basePayment = {
-      idempotencyKey,
       metadata: {
         ...metadata,
         sessionId: SHA256(user.id).toString(enc.Base64),
@@ -626,6 +620,7 @@ export default class PaymentsService {
     // Create 3DS payment
     const paymentResponse = await this.circle
       .createPayment({
+        idempotencyKey: uuid(),
         ...basePayment,
         ...encryptedDetails,
         verification: CirclePaymentVerificationOptions.three_d_secure,
@@ -640,41 +635,14 @@ export default class PaymentsService {
       })
       .catch(() => null)
 
-    let payment: ToPaymentBase | undefined
-    if (!paymentResponse) {
-      // Create cvv payment
-      const cvvPayment = await this.circle
-        .createPayment({
-          ...basePayment,
-          ...encryptedDetails,
-          verification: CirclePaymentVerificationOptions.cvv,
-        })
-        .catch(() => null)
-      // Remove claim from payment if payment doesn't go through
-      if (!cvvPayment) {
-        await this.packs.revokePack(
-          {
-            packId,
-            ownerId: user.id,
-          },
-          trx
-        )
-
-        return null
-      }
-      payment = cvvPayment
-    } else {
-      payment = paymentResponse
-    }
-
-    invariant(payment, 'unable to create payment')
+    invariant(paymentResponse, 'unable to create 3DS payment')
 
     // Circle may return the same payment ID if there's duplicate info
     const newPayment = await PaymentModel.query(trx)
       .insert({
-        externalId: payment.externalId,
-        status: payment.status,
-        error: payment.error,
+        externalId: paymentResponse.externalId,
+        status: paymentResponse.status,
+        error: paymentResponse.error,
         payerId: user.id,
         packId,
         paymentCardId: card?.id,
@@ -688,7 +656,7 @@ export default class PaymentsService {
       !(payment?.status !== PaymentStatus.Pending)
     const foundPayment = await poll<ToPaymentBase | null>(
       async () =>
-        await this.circle.getPaymentById(payment.externalId as string),
+        await this.circle.getPaymentById(paymentResponse.externalId as string),
       completeWhenNotPendingForPayments,
       1000
     )
@@ -701,6 +669,45 @@ export default class PaymentsService {
       entityId: newPayment.id,
       userAccountId: user.id,
     })
+
+    if (
+      foundPayment.status === PaymentStatus.Failed &&
+      foundPayment.error === CirclePaymentErrorCode.three_d_secure_not_supported
+    ) {
+      // Create cvv payment with Circle if 3DS is not supported
+      const cvvPayment = await this.circle
+        .createPayment({
+          idempotencyKey: uuid(),
+          ...basePayment,
+          ...encryptedDetails,
+          verification: CirclePaymentVerificationOptions.cvv,
+        })
+        .catch(() => null)
+
+      // Remove claim from payment if payment doesn't go through
+      if (!cvvPayment) {
+        await this.packs.revokePack(
+          {
+            packId,
+            ownerId: user.id,
+          },
+          trx
+        )
+        return null
+      }
+      invariant(cvvPayment, 'unable to create cvv payment')
+
+      // Update payment with new details
+      const payment = await PaymentModel.query(trx).patchAndFetchById(
+        newPayment.id,
+        {
+          externalId: cvvPayment.externalId,
+          status: cvvPayment.status,
+          error: cvvPayment.error,
+        }
+      )
+      return payment
+    }
 
     return newPayment
   }
@@ -800,13 +807,13 @@ export default class PaymentsService {
     return newPayment
   }
 
-  async generateAddress(request: CreateWalletAddress) {
+  async generateAddress() {
     // Find the merchant wallet
     const merchantWallet = await this.circle.getMerchantWallet()
     userInvariant(merchantWallet, 'no wallet found', 404)
     // Create blockchain address
     const address = await this.circle.createBlockchainAddress({
-      idempotencyKey: request.idempotencyKey,
+      idempotencyKey: uuid(),
       walletId: merchantWallet.walletId,
     })
     userInvariant(address, 'wallet could not be created', 401)
@@ -982,7 +989,7 @@ export default class PaymentsService {
   ) {
     const { isAdmin, isExternalId } = args
     // Find payment by ID or external ID
-    const query = PaymentModel.query(knexRead)
+    const query = PaymentModel.query()
     if (isExternalId) {
       query.where({ externalId: paymentId })
     } else {

@@ -47,7 +47,6 @@ handler.post(
       keyId: body.keyId,
       expirationMonth: Number.parseInt(body.expMonth, 10),
       expirationYear: Number.parseInt('20' + body.expYear, 10),
-      idempotencyKey: uuid(),
       metadata: {
         email,
         ipAddress,

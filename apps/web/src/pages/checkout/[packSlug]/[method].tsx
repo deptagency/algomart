@@ -10,7 +10,6 @@ import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
-import { v4 as uuid } from 'uuid'
 
 import { ApiClient } from '@/clients/api-client'
 import { usePaymentProvider } from '@/contexts/payment-context'
@@ -186,11 +185,7 @@ export const getServerSideProps: GetServerSideProps<
   let address
   if (params?.method && params.method === CheckoutMethod.crypto) {
     // Get release based on search query
-    address = await ApiClient.instance
-      .createWalletAddress({
-        idempotencyKey: uuid(),
-      })
-      .catch(() => null)
+    address = await ApiClient.instance.createWalletAddress().catch(() => null)
   }
   return {
     props: {

@@ -77,8 +77,8 @@ export default function ReleaseMetadata({
               {isActive
                 ? t('release:Current Bid')
                 : isReserveMet
-                  ? t('release:Winning Bid')
-                  : t('release:Highest Bid')}
+                ? t('release:Winning Bid')
+                : t('release:Highest Bid')}
             </div>
             <div
               className={clsx(css.metadataValue, {
@@ -122,8 +122,8 @@ export default function ReleaseMetadata({
             {packTemplate.subtitle
               ? packTemplate.subtitle
               : isActive
-                ? t('release:This sale is open')
-                : t('release:This sale has ended')}
+              ? t('release:This sale is open')
+              : t('release:This sale has ended')}
           </div>
         )}
       </div>
