@@ -667,7 +667,13 @@ export default class DirectusAdapter {
   async syncApplication() {
     const response = await this.http.get('items/application', {
       searchParams: getParameters({
-        fields: ['id', 'currency', 'countries.*'],
+        fields: [
+          'id',
+          'currency',
+          'countries.*',
+          'countries.countries_code.*',
+          'countries.countries_code.translations.*',
+        ],
       }),
     })
 
