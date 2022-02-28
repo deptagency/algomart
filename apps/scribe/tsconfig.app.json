@@ -6,5 +6,5 @@
     "types": ["jest", "node"],
   },
   "exclude": ["**/*.spec.ts", "**/*.test.ts"],
-  "include": ["**/*.ts", "../../libs/scribe/tasks/src/lib/mint-collectibles.task.ts"]
+  "include": ["**/*.ts"]
 }
