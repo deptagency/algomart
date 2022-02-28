@@ -1058,6 +1058,16 @@ export default class PacksService {
   private async generatePack(template, trx?: Transaction) {
     const { collectibleTemplateIds, templateId, config } = template
     const collectibleTemplateIdsCount = collectibleTemplateIds.length
+
+    if (collectibleTemplateIdsCount === 0) {
+      this.logger.warn(
+        'no nft templates associated with pack template %s',
+        templateId
+      )
+
+      return 0
+    }
+
     const collectibleTemplates = await this.cms.findCollectiblesByTemplateIds(
       collectibleTemplateIds
     )
