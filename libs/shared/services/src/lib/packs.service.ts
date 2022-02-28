@@ -654,6 +654,11 @@ export default class PacksService {
       'pack does not have a price set'
     )
 
+    invariant(
+      new Date(template.releasedAt) < new Date(),
+      'pack has not been released yet'
+    )
+
     // Auctions will only have a single pack, so no randomness needed
     // TODO: support auctions
     // if (packTemplate.type === PackType.Auction) {

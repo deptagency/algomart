@@ -18,6 +18,7 @@ import { urls } from '@/utils/urls'
 export interface NFTTemplateProps {
   collectible: CollectibleWithDetails
   userAddress?: string
+  currentOwnerHasShowcase?: boolean
 }
 
 function getTransferrableStatus(
@@ -34,6 +35,7 @@ function getTransferrableStatus(
 export default function NFTTemplate({
   userAddress,
   collectible,
+  currentOwnerHasShowcase,
 }: NFTTemplateProps) {
   const { t } = useTranslation()
   const transferrableStatus = getTransferrableStatus(collectible, userAddress)
@@ -56,7 +58,23 @@ export default function NFTTemplate({
           />
         ) : null}
 
-        <MediaGallery media={[collectible.image]} />
+        {collectible.previewVideo ? (
+          //Yes, this video tag does need a key attribute
+          //https://stackoverflow.com/questions/29291688/video-displayed-in-reactjs-component-not-updating
+          <video
+            autoPlay
+            controls
+            key={collectible.previewVideo}
+            loop
+            muted
+            width="100%"
+          >
+            <source src={collectible.previewVideo} />
+            {t('common:statuses.noVideoSupport')}
+          </video>
+        ) : (
+          <MediaGallery media={[collectible.image]} />
+        )}
 
         <div className={css.panelHeader}>
           <Heading className={css.title}>{collectible.title}</Heading>
@@ -71,11 +89,11 @@ export default function NFTTemplate({
           <div className={css.panelActions}>
             {/* TODO: enable this for secondary marketplace */}
             <ButtonGroup>
-              <LinkButton group="left" size="small" disabled href={urls.home}>
+              <LinkButton group="right" size="small" disabled href={urls.home}>
                 {t('nft:actions.sellNFT')}
               </LinkButton>
               <LinkButton
-                group="right"
+                group="left"
                 href={urls.nftTransfer.replace(
                   ':assetId',
                   String(collectible.address)
@@ -96,23 +114,36 @@ export default function NFTTemplate({
         <div className={css.nftMeta}>
           <div className={css.nftMetaContent}>
             <ul role="list" className={css.nftMetaList}>
-              {collectible.currentOwner ? (
-                <li className={css.nftMetaListItem}>
-                  <span className={css.nftMetaLabel}>
-                    {t('nft:labels.Owner')}
-                  </span>
-                  <span>
-                    <AppLink
-                      href={urls.profileShowcase.replace(
-                        ':username',
-                        collectible.currentOwner
-                      )}
-                    >
-                      @{collectible.currentOwner}
-                    </AppLink>
-                  </span>
-                </li>
-              ) : null}
+              {(() => {
+                if (collectible.currentOwner && currentOwnerHasShowcase) {
+                  return (
+                    <li className={css.nftMetaListItem}>
+                      <span className={css.nftMetaLabel}>
+                        {t('nft:labels.Owner')}
+                      </span>
+                      <span>
+                        <AppLink
+                          href={urls.profileShowcase.replace(
+                            ':username',
+                            collectible.currentOwner
+                          )}
+                        >
+                          @{collectible.currentOwner}
+                        </AppLink>
+                      </span>
+                    </li>
+                  )
+                } else if (collectible.currentOwner) {
+                  return (
+                    <CollectibleMetaListItem
+                      label={t('nft:labels.Owner')}
+                      value={collectible?.currentOwner}
+                    />
+                  )
+                } else {
+                  return null
+                }
+              })()}
               {/* TODO: add publisher details */}
               <CollectibleMetaListItem
                 label={t('nft:labels.Collection')}

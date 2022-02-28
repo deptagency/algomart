@@ -85,7 +85,7 @@ async function main(args) {
     `INSERT INTO directus_webhooks (
       "name", "method", "url", "status", "data", "actions", "collections", "headers"
     ) VALUES (
-      'CMS Cache Content', 'POST', 'http://localhost:3002/webook/directus', 'active', 't', 'create,update,delete', 'application,collections,countries,faqs,homepage,languages,nft_templates,pack_templates,page,rarities,sets', NULL
+      'CMS Cache Content', 'POST', 'http://localhost:3002/webhooks/directus', 'active', 't', 'create,update,delete', 'application,collections,countries,faqs,homepage,languages,nft_templates,pack_templates,page,rarities,sets', NULL
     )`
   )
 

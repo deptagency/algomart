@@ -136,7 +136,7 @@ jobs:
           TF_VAR_api_image: '${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/api:${{ needs.tag.outputs.value }}'
           TF_VAR_api_key: ${{ secrets.API_KEY }}
           TF_VAR_api_secret: ${{ secrets.API_SECRET }}
-
+          TF_VAR_api_minimum_days_before_transfer: ${{ secrets.API_MINIMUM_DAYS_BEFORE_TRANSFER }}
           TF_VAR_circle_key: ${{ secrets.CIRCLE_KEY }}
           TF_VAR_circle_url: ${{ secrets.CIRCLE_URL }}
 

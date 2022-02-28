@@ -548,7 +548,7 @@ export default class CMSCacheAdapter {
     knxRead?: Knex
   ) {
     const queryResult = await CMSCachePackTemplateModel.query(knxRead)
-      .findOne('templateId', templateId)
+      .findOne('id', templateId)
       .select('content')
 
     const packTemplate = queryResult.content as unknown as DirectusPackTemplate
@@ -630,12 +630,12 @@ export default class CMSCacheAdapter {
   }
 
   async findCollectibleByTemplateId(
-    locale = DEFAULT_LOCALE,
-    templateId,
-    knxRead
+    templateId: string,
+    knxRead: Knex,
+    locale = DEFAULT_LOCALE
   ) {
     const queryResult = await CMSCacheCollectibleTemplateModel.query(knxRead)
-      .findOne('templateId', templateId)
+      .findOne('id', templateId)
       .select('content')
 
     const collectibleTemplate =
@@ -786,10 +786,8 @@ export default class CMSCacheAdapter {
     // All the items in the database are stored in USD
 
     const queryResult = await CMSCachePackTemplateModel.query(knxRead)
-      // .whereIn('status', query.status)
-      // .orderBy(query.sortBy, query.sortDirection)
-      // .limit(query.pageSize)
-      // .offset(9)
+      .orWhere('releasedAt', null)
+      .orWhere('releasedAt', '<', new Date())
       .select('content')
 
     const data = queryResult.map(

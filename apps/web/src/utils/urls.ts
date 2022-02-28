@@ -117,7 +117,7 @@ export const urls = {
 export function isRootPathMatch(path1: string, path2: string) {
   // Note: no path-matching needed for profile-related items
   if (path1.includes(urls.myProfile)) return false
-
+  if (path2 === '/') return path1 === '/'
   return path1
     .split('/')[1]
     .toLowerCase()

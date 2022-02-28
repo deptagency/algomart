@@ -565,9 +565,6 @@ export default class DirectusAdapter {
       filter: {},
     })
 
-    console.log('syncAllPages')
-    console.log(response.data)
-
     for (const page of response.data) {
       await CMSCachePageModel.upsert(page)
     }
@@ -677,8 +674,6 @@ export default class DirectusAdapter {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       const application = JSON.parse(response.body).data as DirectusApplication
 
-      console.log({ application })
-
       await CMSCacheApplicationModel.upsert(
         application as unknown as DirectusApplication
       )
@@ -736,9 +731,6 @@ export default class DirectusAdapter {
   }
 
   private async processWebhookUpdate(webhook: DirectusWebhook) {
-    console.log('processWebhookUpdate')
-    console.log(webhook)
-
     switch (webhook.collection) {
       case 'application':
         return await this.syncApplication()

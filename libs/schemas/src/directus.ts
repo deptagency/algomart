@@ -16,9 +16,9 @@ export interface DirectusHomepageTranslation extends DirectusTranslation {
 export interface DirectusHomepage {
   id: string
   hero_banner: DirectusFile | null
-  hero_pack: null | DirectusPackTemplate
-  featured_packs: null | DirectusPackTemplate[]
-  featured_nfts: null | DirectusCollectibleTemplate[]
+  hero_pack: DirectusPackTemplate | null
+  featured_packs: DirectusPackTemplate[] | null
+  featured_nfts: DirectusCollectibleTemplate[] | null
   translations: DirectusHomepageTranslation[]
 }
 
@@ -61,7 +61,7 @@ export interface DirectusRarity {
   code: string
   color: string
   id: string
-  translations: number[] | DirectusRarityTranslation[]
+  translations: DirectusRarityTranslation[]
 }
 
 export interface DirectusSetTranslation extends DirectusTranslation {
@@ -73,9 +73,9 @@ export interface DirectusSet {
   status: DirectusStatus
   sort: number
   slug: string
-  collection: string | DirectusCollection
-  nft_templates: string[] | DirectusCollectibleTemplate[]
-  translations: number[] | DirectusSetTranslation[]
+  collection: DirectusCollection
+  nft_templates: DirectusCollectibleTemplate[]
+  translations: DirectusSetTranslation[]
 }
 
 export interface DirectusCollectionTranslation extends DirectusTranslation {
@@ -103,9 +103,9 @@ export interface DirectusCollection {
   sort: number
   slug: string
   collection_image: DirectusFile
-  translations: number[] | DirectusCollectionTranslation[]
-  sets: string[] | DirectusSet[]
-  nft_templates: string[] | DirectusCollectibleTemplate[]
+  translations: DirectusCollectionTranslation[]
+  sets: DirectusSet[]
+  nft_templates: DirectusCollectibleTemplate[]
   reward_image: DirectusFile | null
 }
 
@@ -124,23 +124,23 @@ export interface DirectusCollectibleTemplate {
   preview_video: DirectusFile | null
   preview_audio: DirectusFile | null
   asset_file: DirectusFile | null
-  rarity: string | DirectusRarity | null
+  rarity: DirectusRarity | null
   unique_code: string
-  pack_template: string | DirectusPackTemplate
-  translations: number[] | DirectusCollectibleTemplateTranslation[]
-  collection: string | DirectusCollection | null
-  set: string | DirectusSet | null
+  pack_template: DirectusPackTemplate
+  translations: DirectusCollectibleTemplateTranslation[]
+  collection: DirectusCollection | null
+  set: DirectusSet | null
 }
 
 export interface DirectusPackTemplate {
-  additional_images: string[] | DirectusPackFile[]
+  additional_images: DirectusPackFile[]
   allow_bid_expiration: boolean
   auction_until: string | null
   id: string
   one_pack_per_customer: boolean
   nft_distribution: PackCollectibleDistribution
   nft_order: PackCollectibleOrder
-  nft_templates: string[] | DirectusCollectibleTemplate[]
+  nft_templates: DirectusCollectibleTemplate[]
   nfts_per_pack: number
   pack_image: DirectusFile
   price: number | null
@@ -148,7 +148,7 @@ export interface DirectusPackTemplate {
   show_nfts: boolean
   slug: string
   status: DirectusStatus
-  translations: number[] | DirectusPackTemplateTranslation[]
+  translations: DirectusPackTemplateTranslation[]
   type: PackType
 }
 

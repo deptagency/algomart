@@ -4,72 +4,71 @@
 @tailwind utilities;
 
 /* Base styles */
-@layer base {
-  html,
-  body {
-    @apply h-full text-base-textPrimary bg-base-bg font-base;
-  }
-
-  h1,
-  h2,
-  h3,
-  .h1,
-  .h2,
-  .h3 {
-    @apply font-bold font-display;
-  }
-
-  h1,
-  .h1 {
-    @apply text-3xl;
-  }
-
-  h2,
-  .h2 {
-    @apply text-2xl;
-  }
-
-  h3,
-  .h3 {
-    @apply text-lg;
-  }
-
-  /* Default light theme */
-  :root {
-    --darkText: 3, 16, 42;
-    --text: 40, 51, 74;
-    --lightText: 82, 91, 113;
-    --logoBlue: 39, 86, 143;
-    --shadeBlue: 45, 99, 182;
-    --blue: 58, 119, 210;
-    --textPrimary: var(--text);
-    --textSecondary: var(--lightText);
-    --textTertiary: var(--darkText);
-    --textDisabled: 102, 102, 102;
-    --gradient-from: 63, 98, 145;
-    --gradient-to: 94, 147, 201;
-
-    --bg: 247, 249, 252;
-    --bgCard: 255, 255, 255;
-    --bgPanel: var(--bg);
-    --bgNotice: 249, 249, 249;
-
-    --actionPrimary: var(--blue);
-    --actionPrimaryContrastText: 255, 255, 255;
-    --actionSecondary: var(--blue);
-    --actionSecondaryContrastText: 255, 255, 255;
-    --actionAccent: var(--blue);
-    --actionTertiary: 255, 255, 255;
-    --actionTertiaryContrastText: var(--blue);
-
-    --grayLight: 166, 172, 186;
-    --grayDark: 10, 17, 29;
-    --border: 229, 232, 239;
-
-    --error: 172, 0, 0; /* red */
-    --price: 5, 150, 105; /* green-600 */
-  }
+html,
+body {
+  @apply h-full text-base-textPrimary bg-base-bg font-base;
 }
+
+h1,
+h2,
+h3,
+.h1,
+.h2,
+.h3 {
+  @apply font-bold font-display;
+}
+
+h1,
+.h1 {
+  @apply text-3xl;
+}
+
+h2,
+.h2 {
+  @apply text-2xl;
+}
+
+h3,
+.h3 {
+  @apply text-lg;
+}
+
+/* Default light theme */
+:root {
+  --darkText: 3, 16, 42;
+  --text: 40, 51, 74;
+  --lightText: 82, 91, 113;
+  --logoBlue: 39, 86, 143;
+  --shadeBlue: 45, 99, 182;
+  --blue: 58, 119, 210;
+  --textPrimary: var(--text);
+  --textSecondary: var(--lightText);
+  --textTertiary: var(--darkText);
+  --textDisabled: 102, 102, 102;
+  --gradient-from: 63, 98, 145;
+  --gradient-to: 94, 147, 201;
+
+  --bg: 247, 249, 252;
+  --bgCard: 255, 255, 255;
+  --bgPanel: var(--bg);
+  --bgNotice: 249, 249, 249;
+
+  --actionPrimary: var(--blue);
+  --actionPrimaryContrastText: 255, 255, 255;
+  --actionSecondary: var(--blue);
+  --actionSecondaryContrastText: 255, 255, 255;
+  --actionAccent: var(--blue);
+  --actionTertiary: 255, 255, 255;
+  --actionTertiaryContrastText: var(--blue);
+
+  --grayLight: 166, 172, 186;
+  --grayDark: 10, 17, 29;
+  --border: 229, 232, 239;
+
+  --error: 172, 0, 0; /* red */
+  --price: 5, 150, 105; /* green-600 */
+}
+
 /* Custom globals  */
 #__next {
   @apply flex flex-col h-full;
