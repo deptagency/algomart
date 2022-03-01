@@ -5971,7 +5971,28 @@ fields:
       field: body
       special: null
       interface: input-rich-text-html
-      options: null
+      options:
+        toolbar:
+          - bold
+          - italic
+          - underline
+          - removeformat
+          - customLink
+          - bullist
+          - numlist
+          - blockquote
+          - h1
+          - h2
+          - h3
+          - customImage
+          - customMedia
+          - hr
+          - code
+          - fullscreen
+          - aligncenter
+          - alignleft
+          - alignnone
+          - alignright
       display: null
       display_options: null
       readonly: false

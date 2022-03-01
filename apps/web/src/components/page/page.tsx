@@ -18,22 +18,22 @@ export default function Page({
   heroBannerTitle,
   heroBannerSubtitle,
   heroBanner,
-  ...props
 }: PageProps) {
   return (
     <FullBleedLayout pageTitle={title}>
-      <div
-        className={css.heroBanner}
-        style={{ backgroundImage: `url(${heroBanner})` }}
-      >
-        <div className="max-w-5xl w-full m-auto text-left">
-          <Heading level={1} size={60}>
-            {heroBannerTitle}
-          </Heading>
-          <div className={css.heroBannerSubtitle}>{heroBannerSubtitle}</div>
+      {heroBanner && (
+        <div
+          className={css.heroBanner}
+          style={{ backgroundImage: `url(${heroBanner})` }}
+        >
+          <div className="max-w-5xl w-full m-auto text-left">
+            <Heading level={1} size={60}>
+              {heroBannerTitle || title}
+            </Heading>
+            <div className={css.heroBannerSubtitle}>{heroBannerSubtitle}</div>
+          </div>
         </div>
-      </div>
-
+      )}
       <MainPanel noPanel width="large">
         <div className="px-4">
           <div dangerouslySetInnerHTML={{ __html: body }} />
