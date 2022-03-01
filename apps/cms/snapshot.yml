@@ -114,7 +114,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 9
+      sort: 10
       group: null
       collapse: open
     schema:
@@ -138,7 +138,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 11
+      sort: 12
       group: null
       collapse: open
     schema:
@@ -164,7 +164,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 19
+      sort: 20
       group: null
       collapse: open
     schema:
@@ -188,7 +188,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 21
+      sort: 22
       group: null
       collapse: open
     schema:
@@ -236,7 +236,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 23
+      sort: 24
       group: null
       collapse: open
     schema:
@@ -286,7 +286,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 8
+      sort: 9
       group: null
       collapse: open
     schema:
@@ -310,7 +310,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 22
+      sort: 23
       group: null
       collapse: open
     schema:
@@ -338,7 +338,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 10
+      sort: 11
       group: null
       collapse: open
     schema:
@@ -366,7 +366,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 12
+      sort: 13
       group: null
       collapse: open
     schema:
@@ -390,7 +390,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 13
+      sort: 14
       group: null
       collapse: open
     schema:
@@ -414,7 +414,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 14
+      sort: 15
       group: null
       collapse: open
     schema:
@@ -438,7 +438,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 15
+      sort: 16
       group: null
       collapse: open
     schema:
@@ -466,7 +466,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 16
+      sort: 17
       group: null
       collapse: open
     schema:
@@ -490,7 +490,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 17
+      sort: 18
       group: null
       collapse: open
     schema:
@@ -514,7 +514,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 18
+      sort: 19
       group: null
       collapse: open
     schema:
@@ -538,7 +538,7 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 20
+      sort: 21
       group: null
       collapse: open
     schema:
@@ -586,8 +586,8 @@ collections:
       accountability: all
       color: null
       item_duplication_fields: null
-      sort: 1
-      group: static_page
+      sort: 8
+      group: null
       collapse: open
     schema:
       name: static_page_translations
@@ -7345,29 +7345,6 @@ fields:
       conditions: null
       required: false
       group: null
-  - collection: static_page
-    field: translations
-    type: alias
-    schema: null
-    meta:
-      collection: static_page
-      field: translations
-      special:
-        - translations
-      interface: translations
-      options: null
-      display: related-values
-      display_options:
-        template: '{{title}}'
-      readonly: false
-      hidden: false
-      sort: 5
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
   - collection: homepage
     field: translations
     type: alias
@@ -7670,7 +7647,96 @@ fields:
       conditions: null
       required: false
       group: null
+  - collection: static_page
+    field: translations
+    type: alias
+    schema: null
+    meta:
+      collection: static_page
+      field: translations
+      special:
+        - translations
+      interface: translations
+      options: null
+      display: related-values
+      display_options:
+        template: '{{title}}'
+      readonly: false
+      hidden: false
+      sort: 5
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
 relations:
+  - collection: faqs_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      table: faqs_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: faqs_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: faqs_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: faqs_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: faqs_translations
+    field: faqs_id
+    related_collection: faqs
+    schema:
+      table: faqs_translations
+      column: faqs_id
+      foreign_key_table: faqs
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: faqs_translations_faqs_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: faqs_translations
+      many_field: faqs_id
+      one_collection: faqs
+      one_field: translations
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: languages_code
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: static_page
+    field: hero_banner
+    related_collection: directus_files
+    schema:
+      table: static_page
+      column: hero_banner
+      foreign_key_table: directus_files
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: static_page_hero_banner_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: static_page
+      many_field: hero_banner
+      one_collection: directus_files
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
   - collection: static_page_translations
     field: languages_code
     related_collection: languages
@@ -7713,28 +7779,6 @@ relations:
       one_collection_field: null
       one_allowed_collections: null
       junction_field: languages_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: static_page
-    field: hero_banner
-    related_collection: directus_files
-    schema:
-      table: static_page
-      column: hero_banner
-      foreign_key_table: directus_files
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: static_page_hero_banner_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: static_page
-      many_field: hero_banner
-      one_collection: directus_files
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
       sort_field: null
       one_deselect_action: nullify
   - collection: application_countries
@@ -8791,49 +8835,5 @@ relations:
       one_collection_field: null
       one_allowed_collections: null
       junction_field: sets_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: faqs_translations
-    field: languages_code
-    related_collection: languages
-    schema:
-      table: faqs_translations
-      column: languages_code
-      foreign_key_table: languages
-      foreign_key_column: code
-      foreign_key_schema: public
-      constraint_name: faqs_translations_languages_code_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: faqs_translations
-      many_field: languages_code
-      one_collection: languages
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: faqs_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: faqs_translations
-    field: faqs_id
-    related_collection: faqs
-    schema:
-      table: faqs_translations
-      column: faqs_id
-      foreign_key_table: faqs
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: faqs_translations_faqs_id_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: faqs_translations
-      many_field: faqs_id
-      one_collection: faqs
-      one_field: translations
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: languages_code
       sort_field: null
       one_deselect_action: nullify
