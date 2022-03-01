@@ -2472,7 +2472,18 @@ fields:
       width: full
       translations: null
       note: null
-      conditions: null
+      conditions:
+        - name: No editing after publish
+          rule:
+            _and:
+              - status:
+                  _contains: published
+              - id:
+                  _nnull: true
+          readonly: true
+          required: false
+          options:
+            crop: false
       required: false
       group: null
   - collection: nft_templates
