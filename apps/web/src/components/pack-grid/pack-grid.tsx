@@ -11,19 +11,21 @@ import PackItem from '@/components/pack-grid/pack-item'
 import PackPlaceholder from '@/components/pack-grid/pack-placeholder'
 
 export interface PackGridProps {
-  packCards: PackWithCollectibles['collectibles']
-  packTitle: PackWithCollectibles['title']
-  transitionStyle?: 'automatic' | 'interactive'
   enableTransfer: boolean
   onTransfer?: () => void
+  packCards: PackWithCollectibles['collectibles']
+  packTitle: PackWithCollectibles['title']
+  setSceneMounted?: (isMounted: boolean) => void
+  transitionStyle?: 'automatic' | 'interactive'
 }
 
 export default function PackGrid({
+  enableTransfer,
+  onTransfer,
   packCards,
   packTitle,
-  enableTransfer,
+  setSceneMounted,
   transitionStyle = 'automatic',
-  onTransfer,
 }: PackGridProps) {
   const { t } = useTranslation()
 
@@ -39,6 +41,9 @@ export default function PackGrid({
     delay: 3000,
     from: { opacity: 0 },
     to: { opacity: 1 },
+    onRest: () => {
+      setSceneMounted(false)
+    },
   })
 
   // Interactive animations
