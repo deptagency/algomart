@@ -10,6 +10,7 @@ import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import authService from '@/services/auth-service'
 import { validateCurrency } from '@/utils/auth-validation'
+import { isChrome } from '@/utils/browser-detection'
 import { setCookie } from '@/utils/cookies-web'
 
 export default function AppFooterCurrency() {
@@ -57,11 +58,14 @@ export default function AppFooterCurrency() {
 
       setLoading(false)
       setDropdownCurrency(currency)
-      router.push(
-        { pathname: router.pathname, query: router.query },
-        router.asPath,
-        { locale }
-      )
+
+      if (!isChrome()) {
+        router.push(
+          { pathname: router.pathname, query: router.query },
+          router.asPath,
+          { locale }
+        )
+      }
 
       return
     },
