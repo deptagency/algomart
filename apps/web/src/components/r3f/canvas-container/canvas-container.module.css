@@ -1,4 +1,4 @@
 .canvasContainer {
-  @apply bg-white fixed h-full left-0 top-0  w-full z-10;
-  background: radial-gradient(50% 50% at 50% 50%, #4b4f56 0%, #000000 100%);
+  @apply fixed top-0 left-0 z-10 w-full h-full bg-white;
+  background: linear-gradient(180deg, #1e2535 0%, #373f53 100%);
 }

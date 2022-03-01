@@ -58,5 +58,5 @@
 }
 
 .viewCollectionButton {
-  @apply relative block mx-auto my-12;
+  @apply relative block mx-auto mt-12;
 }
