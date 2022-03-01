@@ -42,6 +42,11 @@ resource "google_cloud_run_service" "cms" {
           value = var.cms_admin_password
         }
 
+        env {
+          name = "CUSTOMER_SERVICE_EMAIL"
+          value = var.customer_service_email
+        }
+
         # Directus supports a `DB_CONNECTION_STRING` env var that takes precedence over these,
         # but even with that variable set Directus will error without these set as well
         env {

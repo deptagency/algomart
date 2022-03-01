@@ -148,6 +148,7 @@ jobs:
           TF_VAR_cms_key: ${{ secrets.CMS_KEY }}
           TF_VAR_cms_secret: ${{ secrets.CMS_SECRET }}
           TF_VAR_cms_storage_bucket: ${{ secrets.CMS_STORAGE_BUCKET }}
+          TF_VAR_customer_service_email: ${{ secrets.CUSTOMER_SERVICE_EMAIL }}
 
           TF_VAR_email_from: ${{ secrets.EMAIL_FROM }}
           TF_VAR_email_transport: ${{ secrets.EMAIL_TRANSPORT }}

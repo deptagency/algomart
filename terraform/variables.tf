@@ -274,6 +274,10 @@ variable "cms_storage_bucket" {
   sensitive = true
 }
 
+variable "customer_service_email" {
+  sensitive = true
+}
+
 ##
 ## Web service
 ##
