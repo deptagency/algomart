@@ -2085,21 +2085,21 @@ fields:
       group: null
   - collection: faqs
     field: id
-    type: uuid
+    type: integer
     schema:
       name: id
       table: faqs
-      data_type: uuid
-      default_value: null
+      data_type: integer
+      default_value: nextval('faqs_id_seq'::regclass)
       generation_expression: null
       max_length: null
-      numeric_precision: null
-      numeric_scale: null
+      numeric_precision: 32
+      numeric_scale: 0
       is_generated: false
       is_nullable: false
       is_unique: true
       is_primary_key: true
-      has_auto_increment: false
+      has_auto_increment: true
       comment: null
       schema: public
       foreign_key_schema: null
@@ -2108,15 +2108,14 @@ fields:
     meta:
       collection: faqs
       field: id
-      special:
-        - uuid
+      special: null
       interface: input
       options: null
       display: null
       display_options: null
       readonly: true
       hidden: true
-      sort: null
+      sort: 1
       width: full
       translations: null
       note: null
@@ -2257,16 +2256,16 @@ fields:
       group: null
   - collection: faqs_translations
     field: faqs_id
-    type: uuid
+    type: integer
     schema:
       name: faqs_id
       table: faqs_translations
-      data_type: uuid
+      data_type: integer
       default_value: null
       generation_expression: null
       max_length: null
-      numeric_precision: null
-      numeric_scale: null
+      numeric_precision: 32
+      numeric_scale: 0
       is_generated: false
       is_nullable: true
       is_unique: false
