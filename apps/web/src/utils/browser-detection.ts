@@ -63,10 +63,7 @@ export function isEdge() {
 export function isChrome() {
   if (!isWindowDefined()) return false
 
-  return (
-    !!window['chrome'] &&
-    (!!window['chrome']?.webstore || !!window['chrome']?.runtime)
-  )
+  return !!window['chrome']
 }
 
 // Edge (based on chromium) detection
@@ -78,5 +75,7 @@ export function isEdgeChromium() {
 
 // Blink engine detection
 export function isBlink() {
+  if (!isWindowDefined()) return false
+
   return (isChrome || isOpera) && !!window.CSS
 }
