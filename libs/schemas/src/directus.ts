@@ -89,11 +89,14 @@ export interface DirectusCollectionTranslation extends DirectusTranslation {
 export interface DirectusPageTranslation extends DirectusTranslation {
   body: string
   title: string
+  hero_banner_title?: string
+  hero_banner_subtitle?: string
 }
 
 export interface DirectusPage {
   id: string
   slug: string
+  hero_banner?: DirectusFile
   translations: DirectusPageTranslation[]
 }
 

@@ -2,11 +2,20 @@ import { Static, Type } from '@sinclair/typebox'
 
 import { Simplify } from './shared'
 
-export const PageSchema = Type.Object({
-  id: Type.String(),
-  slug: Type.String(),
+export const PageTranslationsSchema = Type.Object({
   title: Type.String(),
   body: Type.String(),
+  heroBannerTitle: Type.Optional(Type.String()),
+  heroBannerSubtitle: Type.Optional(Type.String()),
 })
 
-export type Page = Simplify<Static<typeof PageSchema>>
+export const PageBaseSchema = Type.Intersect([
+  Type.Object({
+    id: Type.String(),
+    slug: Type.String(),
+    heroBanner: Type.Optional(Type.String()),
+  }),
+  PageTranslationsSchema,
+])
+
+export type Page = Simplify<Static<typeof PageBaseSchema>>

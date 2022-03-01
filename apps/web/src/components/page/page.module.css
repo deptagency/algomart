@@ -1,0 +1,13 @@
+.heroBanner {
+  @apply px-4;
+  @apply flex justify-center items-center text-white bg-cover bg-center;
+  height: 420px;
+}
+
+.heroBanner * {
+  @apply text-inherit;
+}
+
+.heroBannerSubtitle {
+  @apply text-lg max-w-520;
+}

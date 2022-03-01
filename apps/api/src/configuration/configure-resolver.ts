@@ -16,6 +16,7 @@ import {
   BidsService,
   CollectiblesService,
   CollectionsService,
+  DirectusPageService,
   FaqsService,
   HomepageService,
   I18nService,
@@ -26,8 +27,6 @@ import {
   TransactionsService,
 } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
-
-import DirectusPageService from '../modules/pages/page.service'
 
 import { logger } from './logger'
 import { Configuration } from '.'

@@ -57,13 +57,6 @@ export const LocaleAndExternalIdSchema = Type.Intersect([
   ExternalIdSchema,
 ])
 
-export const PageAndLocaleSchema = Type.Intersect([
-  LocaleSchema,
-  Type.Object({
-    slug: Type.String(),
-  }),
-])
-
 export enum SortDirection {
   Ascending = 'asc',
   Descending = 'desc',
@@ -78,6 +71,8 @@ export enum SortOptions {
 export const SlugSchema = Type.Object({
   slug: Type.String(),
 })
+
+export const PageAndLocaleSchema = Type.Intersect([LocaleSchema, SlugSchema])
 
 export const Nullable = <T extends TSchema>(type: T) =>
   Type.Union([type, Type.Null()])

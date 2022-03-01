@@ -39,3 +39,6 @@ export { FaqsService }
 
 import ApplicationService from './application.service'
 export { ApplicationService }
+
+import DirectusPageService from './page.service'
+export { DirectusPageService }
