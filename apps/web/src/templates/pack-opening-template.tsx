@@ -29,10 +29,6 @@ export default function PackOpeningTemplate() {
     config: config.molasses,
     delay: 2000,
     sceneOpacity: sceneComplete ? 0 : 1,
-    onRest: () => {
-      // Unmounts the experience when animation is complete to prevent memory leaks
-      setSceneMounted(false)
-    },
   })
 
   return (
@@ -55,12 +51,13 @@ export default function PackOpeningTemplate() {
       {sceneComplete && (
         <section className={css.contentWrapper}>
           <PackGrid
-            packCards={packToOpen.collectibles}
-            packTitle={packToOpen.title}
             enableTransfer={mintStatus === MintPackStatus.Minted}
             onTransfer={() => {
               setShowTransfer(true)
             }}
+            packCards={packToOpen.collectibles}
+            packTitle={packToOpen.title}
+            setSceneMounted={setSceneMounted}
           />
           <TransferModal
             open={showTransfer}
