@@ -100,8 +100,7 @@ const state = (t: Translate) =>
     matches(/^[a-z]+$/i, t('forms:errors.onlyLetters'))
   )
 
-const zipCode = (t: Translate) =>
-  string(required(t('forms:errors.required') as string))
+const zipCode = () => string({ default: '00000' })
 
 const keyId = (t: Translate) =>
   string(required(t('forms:errors.required') as string))
@@ -151,7 +150,7 @@ export const validateBidsForm = (t: Translate, highestBid: number) =>
     fullName: fullName(t),
     securityCode: cvv(t),
     state: state(t),
-    zipCode: zipCode(t),
+    zipCode: zipCode(),
   })
 
 export const validateBidsFormWithoutCard = (t: Translate, highestBid: number) =>
@@ -183,7 +182,7 @@ export const validatePurchaseForm = (t: Translate) =>
     fullName: fullName(t),
     securityCode: cvv(t),
     state: state(t),
-    zipCode: zipCode(t),
+    zipCode: zipCode(),
   })
 
 export const validatePurchaseFormWithSavedCard = (t: Translate) =>
@@ -201,7 +200,7 @@ export const validateBankAccount = (t: Translate) =>
     city: city(t),
     country: country(t),
     state: state(t),
-    zipCode: zipCode(t),
+    zipCode: zipCode(),
     bankName: string(),
     bankAddress1: string(),
     bankAddress2: string(),
@@ -224,7 +223,7 @@ export const validateCard = (t: Translate) =>
     expMonth: expMonth(t),
     expYear: expYear(t),
     state: state(t),
-    zipCode: zipCode(t),
+    zipCode: zipCode(),
     saveCard: boolean(),
     default: boolean(),
   })
