@@ -193,11 +193,6 @@ export function toCollectionBase(
     locale
   )
 
-  invariant(
-    !sets || !isStringArray(sets),
-    'sets should not be an array of strings when provided'
-  )
-
   const collectibleTemplateIds = isStringArray(nft_templates)
     ? nft_templates
     : nft_templates.map((t) => t.id)
