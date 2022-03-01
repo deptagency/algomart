@@ -7671,50 +7671,6 @@ fields:
       required: false
       group: null
 relations:
-  - collection: faqs_translations
-    field: languages_code
-    related_collection: languages
-    schema:
-      table: faqs_translations
-      column: languages_code
-      foreign_key_table: languages
-      foreign_key_column: code
-      foreign_key_schema: public
-      constraint_name: faqs_translations_languages_code_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: faqs_translations
-      many_field: languages_code
-      one_collection: languages
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: faqs_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: faqs_translations
-    field: faqs_id
-    related_collection: faqs
-    schema:
-      table: faqs_translations
-      column: faqs_id
-      foreign_key_table: faqs
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: faqs_translations_faqs_id_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: faqs_translations
-      many_field: faqs_id
-      one_collection: faqs
-      one_field: translations
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: languages_code
-      sort_field: null
-      one_deselect_action: nullify
   - collection: static_page
     field: hero_banner
     related_collection: directus_files
@@ -7775,6 +7731,50 @@ relations:
       many_collection: static_page_translations
       many_field: static_page_id
       one_collection: static_page
+      one_field: translations
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: languages_code
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: faqs_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      table: faqs_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: faqs_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: faqs_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: faqs_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: faqs_translations
+    field: faqs_id
+    related_collection: faqs
+    schema:
+      table: faqs_translations
+      column: faqs_id
+      foreign_key_table: faqs
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: faqs_translations_faqs_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: faqs_translations
+      many_field: faqs_id
+      one_collection: faqs
       one_field: translations
       one_collection_field: null
       one_allowed_collections: null
