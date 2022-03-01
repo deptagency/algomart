@@ -14,7 +14,6 @@ export interface BillingAddressProps {
     city?: string
     state?: string
     country?: string
-    zipCode?: string
   }
   initialValues?: {
     address1?: string
@@ -73,7 +72,6 @@ export default function BillingAddress({
           />
         )}
         <TextInput
-          error={formErrors?.zipCode}
           label={t('forms:fields.zipCode.label')}
           name="zipCode"
           placeholder="02118"
