@@ -27,7 +27,6 @@ export default function LoginEmailPage() {
         email: formData.get('email') as string,
         password: formData.get('password') as string,
       }
-      console.log('LoginEmailPage body', body)
       const validation = await validate(body)
       if (validation.state === 'valid') {
         const result = await auth.authenticateWithEmailAndPassword(body)
