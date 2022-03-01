@@ -192,7 +192,7 @@
     "Transaction Received": "ES Transaction Received",
     "Transferring Asset": "ES Transferring Asset",
     "Minting Asset": "ES Minting Asset",
-    "Uncollected": "ES Uncollected",
+    "Uncollected": "ES Undiscovered",
     "Validating Bid": "ES Validating Bid",
     "Validating Payment Information": "ES Validating Payment Information",
     "Verifying Passphrase": "ES Verifying Passphrase",

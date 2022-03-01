@@ -34,8 +34,8 @@ export default function MyCollectionsPage() {
   return (
     <DefaultLayout
       pageTitle={t('common:pageTitles.My Collections')}
-      panelPadding
       width="large"
+      noPanel
     >
       {!allCollections || !collectibles ? (
         <Loading />

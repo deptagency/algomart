@@ -1,13 +1,13 @@
 .root {
-  @apply my-12 text-center;
+  @apply my-8 text-center;
 }
 
 .heading {
-  @apply font-normal mb-2 text-3xl;
+  @apply font-normal mb-2 text-2xl;
 }
 
 .subHeading {
-  @apply text-base-gray-medium;
+  @apply text-base-gray-medium font-display text-lg;
 }
 
 .subHeading a {

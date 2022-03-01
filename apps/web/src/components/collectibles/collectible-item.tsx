@@ -99,11 +99,7 @@ export default function CollectibleItem({
         </button>
       )}
 
-      {title && (
-        <div className={clsx(css.title, { [css.titleFaded]: uncollected })}>
-          {title}
-        </div>
-      )}
+      {title && <div className={css.title}>{title}</div>}
 
       {hasMetadata && (
         <div
@@ -111,17 +107,14 @@ export default function CollectibleItem({
             [css.metaCenter]: !setNumber,
           })}
         >
-          {setNumber && <div className={css.setNumber}>#{setNumber}</div>}
-          {rarity && (
-            <div
-              className={css.rarity}
-              style={
-                rarity?.color ? { backgroundColor: rarity.color } : undefined
-              }
-            >
-              {rarity?.name}
-            </div>
-          )}
+          <div
+            className={css.rarity}
+            style={
+              rarity?.color ? { backgroundColor: rarity.color } : undefined
+            }
+          >
+            {rarity ? rarity?.name : '\u00A0'}
+          </div>
         </div>
       )}
     </div>

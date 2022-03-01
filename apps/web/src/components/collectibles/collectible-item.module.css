@@ -16,8 +16,8 @@
 }
 
 .questionMarkWrapper {
-  @apply flex relative w-full;
-  background: linear-gradient(135deg, #6ba2ce 0%, #3f80b5 100%);
+  @apply flex relative w-full bg-gradient-to-b font-display;
+  background: linear-gradient(180deg, #1e2535 0%, #373f53 100%);
   padding-bottom: 100%;
 }
 
@@ -44,11 +44,10 @@
 
 /* Item content */
 .title {
-  @apply mt-2 px-4 text-sm text-center text-base-textPrimary;
+  @apply mt-2 px-4 text-lg font-display text-center text-base-textPrimary;
 }
 
 .title.titleFaded {
-  @apply text-base-gray-light;
 }
 
 .rootCard .title {
@@ -56,7 +55,7 @@
 }
 
 .metaWrapper {
-  @apply flex items-center justify-between pt-2 px-4;
+  @apply flex items-center justify-center pt-2 px-4;
 }
 
 .metaWrapper.metaCenter {
@@ -68,7 +67,8 @@
 }
 
 .rarity {
-  @apply bg-base-gray-medium font-bold px-4 py-1 rounded-full text-xs text-center text-white uppercase;
+  @apply bg-base-border font-bold px-4 py-1 rounded-full text-xs text-center text-white uppercase;
+  min-width: 100px;
 }
 
 /* Showcase actions */
