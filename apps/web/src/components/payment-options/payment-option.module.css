@@ -2,8 +2,13 @@
   @apply flex items-center w-full gap-5 p-5 mb-5 text-left no-underline border bg-base-bgCard border-base-border hover:border-action-primary;
 }
 
+.button svg path {
+  @apply stroke-1;
+}
 .button svg {
-  @apply w-14;
+  @apply flex-shrink-0 w-8;
+  /* Tablet+ */
+  @apply sm:w-12;
 }
 
 .button h2 {
