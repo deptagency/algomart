@@ -103,6 +103,16 @@ To run eslint for all projects:
 npm run lint
 ```
 
+To initialize the databases:
+
+```bash
+nx drop api &&\
+nx run api:migrate:latest &&\
+nx drop cms &&\
+nx bootstrap cms &&\
+nx import cms
+```
+
 ### Running with docker-compose
 
 The `docker-compose` [configuration](./docker-compose.yml) includes service definitions for the API service,

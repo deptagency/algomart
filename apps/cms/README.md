@@ -30,6 +30,14 @@ npm run seed
 
 > TODO: setup seed Nx executor
 
+To initialize the CMS database:
+
+```bash
+nx drop cms &&\
+nx bootstrap cms &&\
+nx import cms
+```
+
 Once the database is set up, it can be run in conjunction with the other monorepo packages from the root of the repository.
 
 ## Make files publicly viewable

@@ -34,6 +34,13 @@ Finally, apply migrations:
 nx run api:migrate:latest
 ```
 
+To initialize the API database:
+
+```bash
+nx drop api &&\
+nx run api:migrate:latest
+```
+
 Per the `.env`, you'll also need to be connected to an Algorand node, whether in development or production.
 
 ### Creating a local Algorand Sandbox account
