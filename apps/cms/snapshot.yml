@@ -2458,15 +2458,6 @@ fields:
       foreign_key_schema: public
       foreign_key_table: directus_files
       foreign_key_column: id
-      conditions:
-        - name: No editing after publish
-          rule:
-            _and:
-              - status:
-                  _eq: published
-              - id:
-                  _nnull: true
-          readonly: true
     meta:
       collection: nft_templates
       field: preview_image
@@ -5423,6 +5414,28 @@ fields:
       conditions: null
       required: false
       group: null
+  - collection: application
+    field: countries
+    type: alias
+    schema: null
+    meta:
+      collection: application
+      field: countries
+      special:
+        - m2m
+      interface: list-m2m
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: false
+      group: null
   - collection: collections
     field: translations
     type: alias
@@ -5513,6 +5526,28 @@ fields:
               - id:
                   _nnull: true
           readonly: true
+      required: false
+      group: null
+  - collection: countries
+    field: translations
+    type: alias
+    schema: null
+    meta:
+      collection: countries
+      field: translations
+      special:
+        - translations
+      interface: translations
+      options: null
+      display: null
+      display_options: null
+      readonly: false
+      hidden: false
+      sort: null
+      width: full
+      translations: null
+      note: null
+      conditions: null
       required: false
       group: null
   - collection: homepage
@@ -5750,51 +5785,51 @@ fields:
           readonly: true
       required: false
       group: null
-  - collection: countries
-    field: translations
-    type: alias
-    schema: null
-    meta:
-      collection: countries
-      field: translations
-      special:
-        - translations
-      interface: translations
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: null
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
-  - collection: application
-    field: countries
-    type: alias
-    schema: null
-    meta:
-      collection: application
-      field: countries
-      special:
-        - m2m
-      interface: list-m2m
-      options: null
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: null
-      width: full
-      translations: null
-      note: null
-      conditions: null
-      required: false
-      group: null
 relations:
+  - collection: application_countries
+    field: countries_code
+    related_collection: countries
+    schema:
+      table: application_countries
+      column: countries_code
+      foreign_key_table: countries
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: application_countries_countries_code_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: application_countries
+      many_field: countries_code
+      one_collection: countries
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: application_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: application_countries
+    field: application_id
+    related_collection: application
+    schema:
+      table: application_countries
+      column: application_id
+      foreign_key_table: application
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: application_countries_application_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+    meta:
+      many_collection: application_countries
+      many_field: application_id
+      one_collection: application
+      one_field: countries
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: countries_code
+      sort_field: null
+      one_deselect_action: nullify
   - collection: collections
     field: user_created
     related_collection: directus_users
@@ -5925,6 +5960,50 @@ relations:
       one_collection_field: null
       one_allowed_collections: null
       junction_field: collections_id
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: countries_translations
+    field: languages_code
+    related_collection: languages
+    schema:
+      table: countries_translations
+      column: languages_code
+      foreign_key_table: languages
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: countries_translations_languages_code_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: countries_translations
+      many_field: languages_code
+      one_collection: languages
+      one_field: null
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: countries_code
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: countries_translations
+    field: countries_code
+    related_collection: countries
+    schema:
+      table: countries_translations
+      column: countries_code
+      foreign_key_table: countries
+      foreign_key_column: code
+      foreign_key_schema: public
+      constraint_name: countries_translations_countries_code_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: countries_translations
+      many_field: countries_code
+      one_collection: countries
+      one_field: translations
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: languages_code
       sort_field: null
       one_deselect_action: nullify
   - collection: homepage
@@ -6164,6 +6243,28 @@ relations:
       many_field: homepage
       one_collection: homepage
       one_field: notable_collectibles
+      one_collection_field: null
+      one_allowed_collections: null
+      junction_field: null
+      sort_field: null
+      one_deselect_action: nullify
+  - collection: nft_templates
+    field: asset_file
+    related_collection: directus_files
+    schema:
+      table: nft_templates
+      column: asset_file
+      foreign_key_table: directus_files
+      foreign_key_column: id
+      foreign_key_schema: public
+      constraint_name: nft_templates_asset_file_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
+    meta:
+      many_collection: nft_templates
+      many_field: asset_file
+      one_collection: directus_files
+      one_field: null
       one_collection_field: null
       one_allowed_collections: null
       junction_field: null
@@ -6585,115 +6686,5 @@ relations:
       one_collection_field: null
       one_allowed_collections: null
       junction_field: sets_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: nft_templates
-    field: asset_file
-    related_collection: directus_files
-    schema:
-      table: nft_templates
-      column: asset_file
-      foreign_key_table: directus_files
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: nft_templates_asset_file_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: nft_templates
-      many_field: asset_file
-      one_collection: directus_files
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: null
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: countries_translations
-    field: languages_code
-    related_collection: languages
-    schema:
-      table: countries_translations
-      column: languages_code
-      foreign_key_table: languages
-      foreign_key_column: code
-      foreign_key_schema: public
-      constraint_name: countries_translations_languages_code_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: countries_translations
-      many_field: languages_code
-      one_collection: languages
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: countries_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: countries_translations
-    field: countries_code
-    related_collection: countries
-    schema:
-      table: countries_translations
-      column: countries_code
-      foreign_key_table: countries
-      foreign_key_column: code
-      foreign_key_schema: public
-      constraint_name: countries_translations_countries_code_foreign
-      on_update: NO ACTION
-      on_delete: NO ACTION
-    meta:
-      many_collection: countries_translations
-      many_field: countries_code
-      one_collection: countries
-      one_field: translations
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: languages_code
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: application_countries
-    field: countries_code
-    related_collection: countries
-    schema:
-      table: application_countries
-      column: countries_code
-      foreign_key_table: countries
-      foreign_key_column: code
-      foreign_key_schema: public
-      constraint_name: application_countries_countries_code_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: application_countries
-      many_field: countries_code
-      one_collection: countries
-      one_field: null
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: application_id
-      sort_field: null
-      one_deselect_action: nullify
-  - collection: application_countries
-    field: application_id
-    related_collection: application
-    schema:
-      table: application_countries
-      column: application_id
-      foreign_key_table: application
-      foreign_key_column: id
-      foreign_key_schema: public
-      constraint_name: application_countries_application_id_foreign
-      on_update: NO ACTION
-      on_delete: SET NULL
-    meta:
-      many_collection: application_countries
-      many_field: application_id
-      one_collection: application
-      one_field: countries
-      one_collection_field: null
-      one_allowed_collections: null
-      junction_field: countries_code
       sort_field: null
       one_deselect_action: nullify
