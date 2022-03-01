@@ -1,4 +1,5 @@
 import { CashIcon, CreditCardIcon, LibraryIcon } from '@heroicons/react/outline'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { Translate } from 'next-translate'
 import useTranslation from 'next-translate/useTranslation'
@@ -11,6 +12,9 @@ import { PaymentContextProps } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
 import { isGreaterThanOrEqual } from '@/utils/format-currency'
 import { MAX_BID_FOR_CARD_PAYMENT } from '@/utils/purchase-validation'
+
+const mastercardIcon = '/images/logos/mastercard.svg'
+const visaIcon = '/images/logos/visa.svg'
 
 export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
   const { t } = useTranslation()
@@ -36,6 +40,22 @@ export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
           pathname: `${pathname}/[method]`,
           query: { ...query, method: 'card', step: 'details' },
         },
+        body: (
+          <div>
+            <Image
+              width={60}
+              height={60}
+              alt={t('forms:fields.ccNumber.logos.visa')}
+              src={visaIcon}
+            />
+            <Image
+              width={60}
+              height={60}
+              alt={t('forms:fields.ccNumber.logos.mastercard')}
+              src={mastercardIcon}
+            />
+          </div>
+        ),
       },
     ]
     if (Environment.isWireEnabled) {
@@ -48,6 +68,7 @@ export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
           pathname: `${pathname}/[method]`,
           query: { ...query, method: 'wire', step: 'details' },
         },
+        body: null,
       })
     }
     if (Environment.isCryptoEnabled) {
@@ -60,6 +81,7 @@ export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
           pathname: `${pathname}/[method]`,
           query: { ...query, method: 'crypto', step: 'details' },
         },
+        body: null,
       })
     }
     return baseCards

@@ -20,7 +20,7 @@
 }
 
 .checkForTransfer {
-  @apply bg-base-error flex justify-center gap-2 items-center mt-10 text-white uppercase;
+  @apply flex items-center justify-center gap-2 mt-10 text-white uppercase bg-base-error;
 }
 
 .priceContainer {
@@ -36,7 +36,7 @@
 }
 
 .information {
-  @apply bg-base-bg p-5 mb-10;
+  @apply p-5 mb-10 bg-base-bg;
 }
 
 .infoHelpText {
@@ -48,7 +48,7 @@
 }
 
 .prompt {
-  @apply font-bold pr-1;
+  @apply pr-1 font-bold;
 }
 
 .separator {
@@ -56,11 +56,11 @@
 }
 
 .instructions ol {
-  @apply list-decimal pb-10;
+  @apply pb-10 list-decimal;
 }
 
 .instructions h2 {
-  @apply font-bold pb-5;
+  @apply pb-5 font-bold;
 }
 
 .walletConnect {
@@ -76,20 +76,24 @@
 }
 
 .disconnectButton {
-  @apply mt-2 p-0 text-sm text-left underline w-full;
+  @apply w-full p-0 mt-2 text-sm text-left underline;
 }
 
 .copyWrapper {
-  @apply flex gap-1 items-center mt-5;
+  @apply flex items-center gap-1 mt-5;
 }
 
 .copyButton {
-  @apply m-0 p-0 text-lg;
+  @apply p-0 m-0 text-lg;
 }
 
 .icon {
   @apply w-8;
   transform: scale(-1, 1);
+}
+
+.icon span {
+  @apply flex gap-1;
 }
 
 .spinningIcon {
@@ -105,5 +109,5 @@
 }
 
 .openButton {
-  @apply font-normal ml-1 p-0 text-base underline;
+  @apply p-0 ml-1 text-base font-normal underline;
 }
