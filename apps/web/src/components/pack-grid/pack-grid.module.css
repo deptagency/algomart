@@ -57,6 +57,17 @@
   @apply absolute top-0 w-full h-full opacity-100;
 }
 
+.mintStatus {
+  @apply mt-12 text-center text-white;
+}
+
 .viewCollectionButton {
-  @apply relative block mx-auto mt-12;
+  @apply relative block mx-auto mt-6;
+}
+.viewCollectionButton[disabled] {
+  @apply opacity-100;
+}
+
+.viewCollectionButton[disabled] span + div {
+  @apply text-white;
 }

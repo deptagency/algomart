@@ -180,6 +180,8 @@
     "None": "ES None",
     "noMethodsAvailable": "ES You have no saved payment methods. Create a new one to make it available for use during checkout.",
     "Optional": "ES Optional",
+    "packMinted": "ES Your NFTs are minted and ready!",
+    "packMinting": "ES Your NFTs are being minted and will be availabile shortly.",
     "Redeemable": "ES Redeemable",
     "Saving Payment Information": "ES Saving Payment Information",
     "Searching for Payment": "ES Searching for Payment",

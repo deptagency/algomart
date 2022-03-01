@@ -120,13 +120,21 @@ export default function PackGrid({
         })}
       </ul>
       {onTransfer && (
-        <Button
-          className={css.viewCollectionButton}
-          onClick={onTransfer}
-          disabled={packCards.length === 0 || !enableTransfer}
-        >
-          {t('common:actions.Save to My Collection')}
-        </Button>
+        <>
+          {!enableTransfer ? (
+            <p className={css.mintStatus}>{t('common:statuses.packMinting')}</p>
+          ) : (
+            <p className={css.mintStatus}>{t('common:statuses.packMinted')}</p>
+          )}
+          <Button
+            busy={!enableTransfer}
+            className={css.viewCollectionButton}
+            onClick={onTransfer}
+            disabled={packCards.length === 0 || !enableTransfer}
+          >
+            {t('common:actions.Save to My Collection')}
+          </Button>
+        </>
       )}
     </>
   )
