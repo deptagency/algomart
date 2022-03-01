@@ -54,9 +54,13 @@ Then go back and refresh, and you should see images!
 
 Once bootstrapped, the Directus CMS will be populated with configurable entities (Directus refers to these as "collections"). There are a handful of these collections that can be administered to create and configure NFTs. Here is an explanation of each collection:
 
+### Countries
+
+The Countries collection is for setting the countries which can be supported within the application when going through the payment flow. First set the countries, providing a country code as well as translations for the country name. In order to have these supported within the application, you'll also need to select these for the Application (see next section on the Application collection). Circle documentation on supported countries for payments can be found [here](https://developers.circle.com/docs/supported-countries).
+
 ### Application
 
-The Application collection is really just one setting for the app's currency. Set this to the currency your app will be selling in (e.g. `USD`).
+The Application collection is for setting the application's currency and the countries which are supported in the payment flow. Set the currency to the currency your app will be selling in (e.g. `USD`), and select the countries that will be supported.
 
 ### Languages
 
