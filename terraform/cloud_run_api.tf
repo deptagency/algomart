@@ -98,6 +98,11 @@ resource "google_cloud_run_service" "api" {
           name  = "CREATOR_PASSPHRASE"
           value = var.api_creator_passphrase
         }
+ 
+        env {
+          name  = "CUSTOMER_SERVICE_EMAIL"
+          value = var.customer_service_email
+        }
 
         env {
           name  = "DATABASE_URL"
