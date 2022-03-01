@@ -50,9 +50,20 @@ export default function LoginEmailPage() {
   )
 
   useEffect(() => {
+    if (router.query.redirect && typeof router.query.redirect === 'string') {
+      auth.setRedirectPath(router.query.redirect)
+    }
+  }, [auth, router])
+
+  useEffect(() => {
+    // prevent authenticated users from trying to login
     if (auth.status === 'authenticated') {
-      // prevent authenticated users from trying to login
-      router.push(urls.home)
+      const redirectPath = auth.getRedirectPath()
+      if (redirectPath) {
+        router.push(redirectPath)
+      } else {
+        router.push(urls.home)
+      }
     }
   }, [auth, router])
 

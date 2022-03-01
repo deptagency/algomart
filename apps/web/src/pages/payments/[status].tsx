@@ -1,13 +1,13 @@
 import { Payment, PaymentStatus } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
+import { useEffect, useState } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
+import Loading from '@/components/loading/loading'
+import { useAuth } from '@/contexts/auth-context'
 import DefaultLayout from '@/layouts/default-layout'
-import {
-  getAuthenticatedUser,
-  handleUnauthenticatedRedirect,
-} from '@/services/api/auth-service'
 import PaymentStatusTemplate from '@/templates/payment-status-template'
 import { urls } from '@/utils/urls'
 
@@ -23,6 +23,25 @@ export interface StatusPageProps {
 
 export default function ResolvedPayment({ payment, status }: StatusPageProps) {
   const { t } = useTranslation()
+  const { user } = useAuth()
+  const { push } = useRouter()
+  const [isLoading, setIsLoading] = useState(true)
+  const [isOwner, setIsOwner] = useState(false)
+
+  useEffect(() => {
+    if (user?.uid) setIsLoading(false)
+  }, [user, push])
+
+  useEffect(() => {
+    // Confirm logged-in user is owner of pack
+    // Done here instead of server side props to avoid redirect issue
+    if (!isLoading && payment?.payer?.externalId !== user.uid) {
+      push(urls.home)
+    } else {
+      setIsOwner(true)
+    }
+  }, [payment?.payer?.externalId, isLoading, push, user?.uid])
+
   return (
     <DefaultLayout
       pageTitle={
@@ -32,7 +51,11 @@ export default function ResolvedPayment({ payment, status }: StatusPageProps) {
       }
       panelPadding
     >
-      <PaymentStatusTemplate payment={payment} status={status} />
+      {isLoading || !isOwner ? (
+        <Loading variant="primary" />
+      ) : (
+        <PaymentStatusTemplate payment={payment} status={status} />
+      )}
     </DefaultLayout>
   )
 }
@@ -59,12 +82,6 @@ export const getServerSideProps: GetServerSideProps<StatusPageProps> = async (
     return {
       notFound: true,
     }
-  }
-
-  // Verify authentication
-  const user = await getAuthenticatedUser(context)
-  if (!user) {
-    return handleUnauthenticatedRedirect(context.resolvedUrl)
   }
 
   // Get payment
@@ -96,16 +113,6 @@ export const getServerSideProps: GetServerSideProps<StatusPageProps> = async (
       !acceptableSuccessStatuses.has(payment.status)) ||
     (status === Status.failure && !acceptableFailedStatuses.has(payment.status))
   ) {
-    return {
-      redirect: {
-        destination: urls.releases,
-        permanent: false,
-      },
-    }
-  }
-
-  // Confirm logged-in user is owner of pack
-  if (payment?.payer?.externalId !== user.externalId) {
     return {
       redirect: {
         destination: urls.releases,
