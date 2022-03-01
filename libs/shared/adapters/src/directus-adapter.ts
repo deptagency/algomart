@@ -337,7 +337,7 @@ export default class DirectusAdapter {
       fields: ['id', 'slug', 'hero_banner.*', 'translations.*'],
     }
 
-    return await this.findMany<DirectusPage>('page', {
+    return await this.findMany<DirectusPage>('static_page', {
       ...defaultQuery,
       ...query,
     })
