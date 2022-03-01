@@ -334,7 +334,7 @@ export default class DirectusAdapter {
   private async findPages(query: ItemQuery<DirectusPage> = {}) {
     const defaultQuery: ItemQuery<DirectusPage> = {
       limit: -1,
-      fields: ['id', 'slug', 'translations.*'],
+      fields: ['id', 'slug', 'hero_banner.*', 'translations.*'],
     }
 
     return await this.findMany<DirectusPage>('page', {

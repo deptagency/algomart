@@ -703,11 +703,18 @@ export default class CMSCacheAdapter {
     if (result) {
       const page: DirectusPage = result.content as unknown as DirectusPage
 
-      return getDirectusTranslation<DirectusPageTranslation>(
+      const pageTranslations = getDirectusTranslation<DirectusPageTranslation>(
         page.translations as DirectusPageTranslation[],
         `No translations found for slug "${slug}"`,
         locale
       )
+      return {
+        heroBanner: this.getFileURL(page.hero_banner),
+        heroBannerTitle: pageTranslations.hero_banner_title,
+        heroBannerSubtitle: pageTranslations.hero_banner_subtitle,
+        ...page,
+        ...pageTranslations,
+      }
     }
 
     return null

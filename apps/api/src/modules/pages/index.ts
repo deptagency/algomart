@@ -1,4 +1,4 @@
-import { PageAndLocaleSchema, PageSchema } from '@algomart/schemas'
+import { PageAndLocaleSchema, PageBaseSchema } from '@algomart/schemas'
 import { appErrorHandler } from '@algomart/shared/utils'
 import bearerAuthOptions from '@api/configuration/bearer-auth'
 import { FastifyInstance } from 'fastify'
@@ -29,7 +29,7 @@ export async function pageRoute(app: FastifyInstance) {
         security,
         querystring: PageAndLocaleSchema,
         response: {
-          200: PageSchema,
+          200: PageBaseSchema,
         },
       },
     },
