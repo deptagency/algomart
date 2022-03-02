@@ -1,4 +1,4 @@
-import { CollectibleBase } from '@algomart/schemas'
+import { CollectibleBase, TransferCollectibleResult } from '@algomart/schemas'
 import algosdk from 'algosdk'
 
 import { Configuration } from '@/configuration'
@@ -171,7 +171,7 @@ export default class AlgorandAdapter {
 
   async submitTransaction(transaction: Uint8Array | Uint8Array[]) {
     try {
-      await this.algod.sendRawTransaction(transaction).do()
+      return await this.algod.sendRawTransaction(transaction).do()
     } catch (error) {
       this.logger.error(error as Error)
       throw error
@@ -279,7 +279,12 @@ export default class AlgorandAdapter {
         numByteSlices: info['apps-total-schema']?.['num-byte-slice'] || 0,
         numInts: info['apps-total-schema']?.['num-uint'] || 0,
       },
-      assets: info['assets'] || [],
+      assets: (info['assets'] || []).map((asset) => ({
+        assetId: asset['asset-id'],
+        amount: asset['amount'],
+        creator: asset['creator'],
+        isFrozen: asset['is-frozen'],
+      })),
       authAddr: info['auth-addr'],
       createdApps: info['created-apps'] || [],
       createdAssets: info['created-assets'] || [],
@@ -565,18 +570,13 @@ export default class AlgorandAdapter {
    */
   async generateExportTransactions(options: {
     assetIndex: number
-    encryptedMnemonic: string
-    passphrase: string
     fromAccountAddress: string
     toAccountAddress: string
   }) {
-    const fromAccount = algosdk.mnemonicToSecretKey(
-      decrypt(options.encryptedMnemonic, options.passphrase)
-    )
-
     const suggestedParams = await this.algod.getTransactionParams().do()
 
     // Send funds to cover asset transfer transaction
+    // Signed by funding account
     const fundsTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
       suggestedParams,
       amount: 2000,
@@ -585,6 +585,7 @@ export default class AlgorandAdapter {
     })
 
     // Clear freeze and reserve addresses
+    // Signed by funding account (current manager address)
     const configureTxn =
       algosdk.makeAssetConfigTxnWithSuggestedParamsFromObject({
         suggestedParams,
@@ -595,7 +596,18 @@ export default class AlgorandAdapter {
         clawback: this.fundingAccount.addr,
       })
 
+    // Opt-in to asset in recipient's non-custodial wallet
+    // Signed by non-custodial wallet recipient
+    const optInTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+      suggestedParams,
+      amount: 0,
+      assetIndex: options.assetIndex,
+      from: options.toAccountAddress,
+      to: options.toAccountAddress,
+    })
+
     // Transfer asset to recipient and remove opt-in from sender
+    // Signed by the user's custodial wallet
     const transferAssetTxn =
       algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
         suggestedParams,
@@ -607,6 +619,7 @@ export default class AlgorandAdapter {
       })
 
     // Return min balance funds to funding account
+    // Signed by the user's custodial wallet
     const returnFundsTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
       suggestedParams,
       from: options.fromAccountAddress,
@@ -614,21 +627,143 @@ export default class AlgorandAdapter {
       amount: 100_000,
     })
 
-    const txns = [fundsTxn, configureTxn, transferAssetTxn, returnFundsTxn]
-
-    algosdk.assignGroupID(txns)
-
-    const signedTxns = [
-      fundsTxn.signTxn(this.fundingAccount.sk),
-      configureTxn.signTxn(this.fundingAccount.sk),
-      transferAssetTxn.signTxn(fromAccount.sk),
-      returnFundsTxn.signTxn(fromAccount.sk),
+    const transactions = [
+      fundsTxn,
+      configureTxn,
+      optInTxn,
+      transferAssetTxn,
+      returnFundsTxn,
     ]
 
+    const signers = [
+      this.fundingAccount.addr,
+      this.fundingAccount.addr,
+      options.toAccountAddress,
+      options.fromAccountAddress,
+      options.fromAccountAddress,
+    ]
+
+    algosdk.assignGroupID(transactions)
+
+    return transactions.map((txn, index) => {
+      return {
+        txn: Buffer.from(algosdk.encodeUnsignedTransaction(txn)).toString(
+          'base64'
+        ),
+        txnId: txn.txID(),
+        signer: signers[index],
+      }
+    })
+  }
+
+  async signTransferTransactions(options: {
+    passphrase: string
+    encryptedMnemonic: string
+    transactions: TransferCollectibleResult
+  }) {
+    const fromAccount = algosdk.mnemonicToSecretKey(
+      decrypt(options.encryptedMnemonic, options.passphrase)
+    )
+
+    const signedTransactions = options.transactions.map((transaction) => {
+      if (transaction.signedTxn)
+        return new Uint8Array(Buffer.from(transaction.signedTxn, 'base64'))
+
+      const txn = algosdk.decodeUnsignedTransaction(
+        Buffer.from(transaction.txn, 'base64')
+      )
+
+      const signer =
+        transaction.signer === fromAccount.addr
+          ? fromAccount
+          : transaction.signer === this.fundingAccount.addr
+          ? this.fundingAccount
+          : null
+
+      invariant(signer, 'unknown signer')
+
+      return txn.signTxn(signer.sk)
+    })
+
     return {
-      transferTxnId: transferAssetTxn.txID(),
-      transactionIds: txns.map((txn) => txn.txID()),
-      signedTransactions: signedTxns,
+      transactionIds: options.transactions.map(
+        (transaction) => transaction.txnId
+      ),
+      signedTransactions,
     }
+  }
+
+  async generateImportTransactions(options: {
+    assetIndex: number
+    toAccountAddress: string
+    fromAccountAddress: string
+  }): Promise<{ txn: string; txnId: string; signer: string }[]> {
+    const accountInfo = await this.getAccountInfo(options.toAccountAddress)
+    const transactions: algosdk.Transaction[] = []
+    const suggestedParams = await this.algod.getTransactionParams().do()
+    const signers: string[] = []
+
+    if (
+      !accountInfo.assets.some((asset) => asset.assetId === options.assetIndex)
+    ) {
+      // This account has not opted in to this asset
+      // 0.1 Algo for opt-in, 1000 microAlgos for txn fee
+      let minBalanceIncrease = 100_000 + 1000
+
+      if (accountInfo.amount === 0) {
+        // this is a brand new account, need to send additional funds
+        minBalanceIncrease += 100_000
+      }
+
+      // Send funds to cover asset min balance increase
+      // Signed by the funding account
+      const fundsTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        suggestedParams,
+        amount: minBalanceIncrease,
+        from: this.fundingAccount.addr,
+        to: options.toAccountAddress,
+      })
+
+      // Opt-in to asset
+      // Signed by the user's custodial account
+      const optInAssetTxn =
+        algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+          suggestedParams,
+          assetIndex: options.assetIndex,
+          from: options.toAccountAddress,
+          to: options.toAccountAddress,
+          amount: 0,
+        })
+
+      signers.push(this.fundingAccount.addr, options.toAccountAddress)
+      transactions.push(fundsTxn, optInAssetTxn)
+    }
+
+    // Transfer asset to recipient and remove opt-in from sender
+    // This transaction will be signed by the non-custodial account
+    const transferAssetTxn =
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        suggestedParams,
+        assetIndex: options.assetIndex,
+        from: options.fromAccountAddress,
+        to: options.toAccountAddress,
+        amount: 1,
+        closeRemainderTo: options.toAccountAddress,
+      })
+
+    signers.push(options.fromAccountAddress)
+    transactions.push(transferAssetTxn)
+
+    algosdk.assignGroupID(transactions)
+
+    return transactions.map((txn, index) => {
+      return {
+        txn: Buffer.from(algosdk.encodeUnsignedTransaction(txn)).toString(
+          'base64'
+        ),
+        txnId: txn.txID(),
+        signer: signers[index],
+      }
+    })
   }
 }

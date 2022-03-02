@@ -29,11 +29,17 @@ export interface IAssetData {
   url?: string
 }
 
+export interface UnsignedTransaction {
+  txn: Transaction
+  signers?: string[]
+}
+
 export interface IConnector extends EventEmitter {
   signTransaction(
-    transaction: Transaction,
-    message?: string
-  ): Promise<Uint8Array>
+    unsignedTransactions: UnsignedTransaction[],
+    message?: string,
+    skipSubmit?: boolean
+  ): Promise<(Uint8Array | null)[]>
   connect(): Promise<void>
   disconnect(): Promise<void>
 }
@@ -147,6 +153,17 @@ export class AlgorandAdapter {
   async encodeUnsignedTransaction(txn: Transaction): Promise<Uint8Array> {
     const algosdk = await algosdkLoader
     return algosdk.encodeUnsignedTransaction(txn)
+  }
+
+  async decodeUnsignedTransaction(txn: string): Promise<Transaction> {
+    const algosdk = await algosdkLoader
+    return algosdk.decodeUnsignedTransaction(
+      new Uint8Array(Buffer.from(txn, 'base64'))
+    )
+  }
+
+  encodeSignedTransaction(txn: Uint8Array): string {
+    return Buffer.from(txn).toString('base64')
   }
 
   async makeAssetTransferTransaction(

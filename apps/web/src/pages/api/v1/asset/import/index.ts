@@ -7,26 +7,30 @@ import userMiddleware from '@/middleware/user-middleware'
 import validateBodyMiddleware, {
   ExtractBodyType,
 } from '@/middleware/validate-body-middleware'
-import { validateExportAsset } from '@/utils/asset-validation'
+import { validateInitializeTransferCollectible } from '@/utils/asset-validation'
 
 const handler = createHandler()
 
 handler.use(authMiddleware()).use(userMiddleware())
 
-type BodyType = ExtractBodyType<typeof validateExportAsset>
+type InitializeBodyType = ExtractBodyType<
+  typeof validateInitializeTransferCollectible
+>
 
 handler.post(
-  validateBodyMiddleware(validateExportAsset),
-  async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
+  validateBodyMiddleware(validateInitializeTransferCollectible),
+  async (
+    request: NextApiRequestApp<InitializeBodyType>,
+    response: NextApiResponse
+  ) => {
     const { externalId } = request.user
-    const { address, assetIndex, passphrase } = request.validResult
-      .value as BodyType
+    const { address, assetIndex } = request.validResult
+      .value as InitializeBodyType
 
-    const result = await ApiClient.instance.exportCollectible({
+    const result = await ApiClient.instance.initializeImportCollectible({
       externalId,
       address,
       assetIndex,
-      passphrase,
     })
 
     response.json(result)

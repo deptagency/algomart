@@ -4,7 +4,10 @@
     "connect": "Open WalletConnect",
     "description": "Use WalletConnect to link your Algorand wallet to AlgoMart.",
     "helpText": "Need a wallet? Get one here:",
-    "selectAccount": "Destination wallet:",
+    "destinationWallet": "Destination wallet:",
+    "selectAccount": "Select Account",
+    "nfts": "NFTs",
+    "selectNFT": "Select NFT",
     "transfer": "Transfer",
     "orCancel": "or cancel and disconnect from wallet",
     "transferring": "Transferring NFT...",
@@ -31,10 +34,12 @@
   },
   "exportStatus": {
     "idle": "Loading...",
-    "optingIn": "Please confirm the transaction in your wallet to opt-in to the NFT.",
+    "optingIn": "Please confirm the transactions in your wallet to opt-in to the NFT.",
     "optIn": "Verifying opt-in transaction...",
     "pending": "Transferring NFT...",
     "success": "NFT transferred!",
-    "error": "Error transferring NFT."
+    "error": "Error transferring NFT.",
+    "generatingTransactions": "Generating transactions for import...",
+    "signTransaction": "Please confirm the transactions in your wallet to transfer the NFT."
   }
 }

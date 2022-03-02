@@ -194,12 +194,31 @@ export const CollectibleListShowcaseSchema = Type.Object({
   collectibles: CollectibleListSchema,
 })
 
-export const ExportCollectibleSchema = Type.Object({
+export const InitializeTransferCollectibleSchema = Type.Object({
   assetIndex: Type.Number(),
   address: Type.String(),
-  passphrase: Type.String(),
   externalId: Type.String(),
 })
+
+export const TransferCollectibleSchema = Type.Intersect([
+  InitializeTransferCollectibleSchema,
+  Type.Object({
+    transactionId: Type.String(),
+    signedTransaction: Type.String(),
+    passphrase: Type.String(),
+  }),
+])
+
+export const EncodedTransactionSchema = Type.Object({
+  txn: Type.String(),
+  txnId: Type.String(),
+  signer: Type.String(),
+  signedTxn: Type.Optional(Type.String()),
+})
+
+export const TransferCollectibleResultSchema = Type.Array(
+  EncodedTransactionSchema
+)
 
 export type Collectible = Simplify<Static<typeof CollectibleSchema>>
 export type CollectibleAuction = Simplify<
@@ -236,7 +255,18 @@ export type CollectibleId = Simplify<Static<typeof CollectibleIdSchema>>
 export type CollectibleListShowcase = Simplify<
   Static<typeof CollectibleListShowcaseSchema>
 >
-export type ExportCollectible = Simplify<Static<typeof ExportCollectibleSchema>>
 export type SingleCollectibleQuerystring = Simplify<
   Static<typeof SingleCollectibleQuerystringSchema>
+>
+export type InitializeTransferCollectible = Simplify<
+  Static<typeof InitializeTransferCollectibleSchema>
+>
+export type TransferCollectible = Simplify<
+  Static<typeof TransferCollectibleSchema>
+>
+export type TransferCollectibleResult = Simplify<
+  Static<typeof TransferCollectibleResultSchema>
+>
+export type EncodedTransaction = Simplify<
+  Static<typeof EncodedTransactionSchema>
 >

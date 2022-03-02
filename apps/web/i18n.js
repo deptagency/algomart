@@ -4,7 +4,7 @@ module.exports = {
   pages: {
     '*': ['admin', 'auth', 'collection', 'common', 'forms', 'release'],
     'rgx:/asset': ['asset'],
-    'rgx:/my/profile': ['profile'],
+    'rgx:/my/profile': ['profile', 'nft'],
     'rgx:/nft': ['nft'],
   },
   // Needed to dynamically load locales within APIs using `getT()`

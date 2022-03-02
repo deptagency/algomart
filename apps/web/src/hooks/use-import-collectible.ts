@@ -12,7 +12,7 @@ import collectibleService from '@/services/collectible-service'
 
 const algorand = new AlgorandAdapter(Environment.chainType)
 
-export type ExportStatus =
+export type ImportStatus =
   | 'idle'
   | 'generate-transactions'
   | 'sign-transaction'
@@ -20,11 +20,11 @@ export type ExportStatus =
   | 'success'
   | 'error'
 
-export function useExportCollectible(passphrase: string) {
+export function useImportCollectible(passphrase: string) {
   const [connected, setConnected] = useState(false)
   const [accounts, setAccounts] = useState([])
   const [selectedAccount, selectAccount] = useState('')
-  const [exportStatus, setExportStatus] = useState<ExportStatus>('idle')
+  const [importStatus, setImportStatus] = useState<ImportStatus>('idle')
   const connectorReference = useRef<IConnector>()
 
   const connect = useCallback(async () => {
@@ -49,15 +49,15 @@ export function useExportCollectible(passphrase: string) {
     }
   }, [])
 
-  const exportCollectible = useCallback(
+  const importCollectible = useCallback(
     async (assetIndex: number) => {
       try {
-        setExportStatus('idle')
+        setImportStatus('idle')
         const connector = connectorReference.current
         if (!connector || !passphrase) return
 
-        setExportStatus('generate-transactions')
-        const result = await collectibleService.initializeExportCollectible({
+        setImportStatus('generate-transactions')
+        const result = await collectibleService.initializeImportCollectible({
           address: selectedAccount,
           assetIndex,
         })
@@ -76,7 +76,7 @@ export function useExportCollectible(passphrase: string) {
           })
         )
 
-        setExportStatus('sign-transaction')
+        setImportStatus('sign-transaction')
         const signedTransactions = await connector.signTransaction(
           unsignedTransactions,
           undefined,
@@ -84,11 +84,11 @@ export function useExportCollectible(passphrase: string) {
         )
         const signedTransaction = signedTransactions.find((txn) => !!txn)
 
-        setExportStatus('pending')
+        setImportStatus('pending')
         const encodedSignedTransaction =
           algorand.encodeSignedTransaction(signedTransaction)
 
-        await collectibleService.exportCollectible({
+        await collectibleService.importCollectible({
           address: selectedAccount,
           assetIndex,
           passphrase,
@@ -98,9 +98,9 @@ export function useExportCollectible(passphrase: string) {
 
         await algorand.waitForConfirmation(txnId)
         await disconnect()
-        setExportStatus('success')
+        setImportStatus('success')
       } catch (error) {
-        setExportStatus('error')
+        setImportStatus('error')
         throw error
       }
     },
@@ -120,8 +120,8 @@ export function useExportCollectible(passphrase: string) {
       connect,
       connected,
       disconnect,
-      exportCollectible,
-      exportStatus,
+      importCollectible,
+      importStatus,
       hasOptedIn,
       selectAccount,
       selectedAccount,
@@ -132,8 +132,8 @@ export function useExportCollectible(passphrase: string) {
       connect,
       connected,
       disconnect,
-      exportCollectible,
-      exportStatus,
+      importCollectible,
+      importStatus,
       hasOptedIn,
       selectedAccount,
     ]
