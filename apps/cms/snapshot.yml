@@ -1040,15 +1040,7 @@ fields:
       width: half
       translations: null
       note: null
-      conditions:
-        - name: No editing after publish
-          rule:
-            _and:
-              - status:
-                  _eq: published
-              - id:
-                  _nnull: true
-          readonly: true
+      conditions: null
       required: false
       group: null
   - collection: collections
@@ -1262,7 +1254,7 @@ fields:
       table: collections
       schema: public
       data_type: character varying
-      is_nullable: false
+      is_nullable: true
       generation_expression: null
       default_value: null
       is_generated: false
@@ -1292,16 +1284,8 @@ fields:
       width: half
       translations: null
       note: null
-      conditions:
-        - name: No editing after publish
-          rule:
-            _and:
-              - status:
-                  _eq: published
-              - id:
-                  _nnull: true
-          readonly: true
-      required: false
+      conditions: null
+      required: true
       group: null
   - collection: collections
     field: collection_image
@@ -2164,7 +2148,7 @@ fields:
       sort: 7
       width: half
       translations: null
-      note: null
+      note: Most fields will not be editable once published.
       conditions:
         - name: No editing after publish
           rule:
@@ -2376,7 +2360,7 @@ fields:
       sort: 8
       width: half
       translations: null
-      note: null
+      note: Number of NFT editions that will be minted for this NFT Template.
       conditions:
         - name: No editing after publish
           rule:
@@ -2424,7 +2408,9 @@ fields:
       sort: 9
       width: half
       translations: null
-      note: null
+      note: >-
+        Eight character unique code that is displayed with the Algorand Standard
+        Asset on the blockchain.
       conditions:
         - name: No editing after publish
           rule:
@@ -2481,7 +2467,7 @@ fields:
               - id:
                   _nnull: true
           readonly: true
-          required: false
+          required: true
           options:
             crop: false
       required: true
@@ -2633,26 +2619,17 @@ fields:
       interface: select-dropdown-m2o
       options:
         template: '{{slug}}'
-        filter:
-          _and:
-            - status:
-                _ncontains: published
+        filter: null
       display: related-values
       display_options:
         template: '{{slug}}'
-      readonly: false
+      readonly: true
       hidden: false
       sort: 11
       width: full
       translations: null
-      note: null
+      note: Must be configured via the Pack Template.
       conditions:
-        - name: Required if status is Published
-          rule:
-            _and:
-              - status:
-                  _contains: published
-          required: true
         - name: No editing after publish
           rule:
             _and:
@@ -2701,7 +2678,7 @@ fields:
       sort: 10
       width: half
       translations: null
-      note: null
+      note: Optional rarity color and name for this NFT.
       conditions:
         - name: No editing after publish
           rule:
@@ -2751,15 +2728,14 @@ fields:
       sort: 12
       width: half
       translations: null
-      note: null
+      note: Optional Set to organize this NFT Template under.
       conditions:
-        - name: No editing after publish
+        - name: Cannot set Set and Collection
           rule:
             _and:
-              - status:
-                  _eq: published
-              - id:
-                  _nnull: true
+              - collection:
+                  id:
+                    _nnull: true
           readonly: true
       required: false
       group: null
@@ -2801,15 +2777,16 @@ fields:
       sort: 13
       width: half
       translations: null
-      note: null
+      note: >-
+        Optional Collection to organize this NFT Template under. Select this or
+        Set, but not both.
       conditions:
-        - name: No editing after publish
+        - name: Cannot set Collection and Set
           rule:
             _and:
-              - status:
-                  _eq: published
-              - id:
-                  _nnull: true
+              - set:
+                  id:
+                    _nnull: true
           readonly: true
       required: false
       group: null
@@ -4985,15 +4962,7 @@ fields:
       width: half
       translations: null
       note: null
-      conditions:
-        - name: No editing after publish
-          rule:
-            _and:
-              - status:
-                  _eq: published
-              - id:
-                  _nnull: true
-          readonly: true
+      conditions: null
       required: false
       group: null
   - collection: sets
@@ -5207,7 +5176,7 @@ fields:
       table: sets
       schema: public
       data_type: character varying
-      is_nullable: false
+      is_nullable: true
       generation_expression: null
       default_value: null
       is_generated: false
@@ -5237,16 +5206,8 @@ fields:
       width: half
       translations: null
       note: null
-      conditions:
-        - name: No editing after publish
-          rule:
-            _and:
-              - status:
-                  _eq: published
-              - id:
-                  _nnull: true
-          readonly: true
-      required: false
+      conditions: null
+      required: true
       group: null
   - collection: sets
     field: collection
@@ -5284,18 +5245,10 @@ fields:
       readonly: false
       hidden: false
       sort: 9
-      width: fill
+      width: full
       translations: null
       note: null
-      conditions:
-        - name: No editing after publish
-          rule:
-            _and:
-              - status:
-                  _eq: published
-              - id:
-                  _nnull: true
-          readonly: true
+      conditions: null
       required: false
       group: null
   - collection: sets_translations
@@ -5504,30 +5457,29 @@ fields:
       required: false
       group: null
   - collection: collections
-    field: translations
+    field: nft_templates
     type: alias
     schema: null
     meta:
       collection: collections
-      field: translations
+      field: nft_templates
       special:
-        - translations
-      interface: translations
+        - o2m
+      interface: list-o2m
       options:
-        languageTemplate: '{{name}}'
-        translationsTemplate: '{{name}}'
-        languageField: code
-      display: translations
+        enableCreate: false
+        enableSelect: true
+        template: "{{preview_image}}\_{{unique_code}}"
+      display: related-values
       display_options:
-        template: '{{name}}'
-        languageField: code
-        defaultLanguage: en-US
-        userLanguage: true
+        template: "{{preview_image}}\_{{unique_code}}"
       readonly: false
       hidden: false
-      sort: 13
+      sort: 12
       width: full
-      translations: null
+      translations:
+        - language: en-US
+          translation: NFT Templates
       note: null
       conditions: null
       required: false
@@ -5554,50 +5506,7 @@ fields:
       width: full
       translations: null
       note: null
-      conditions:
-        - name: No editing after publish
-          rule:
-            _and:
-              - status:
-                  _eq: published
-              - id:
-                  _nnull: true
-          readonly: true
-      required: false
-      group: null
-  - collection: collections
-    field: nft_templates
-    type: alias
-    schema: null
-    meta:
-      collection: collections
-      field: nft_templates
-      special:
-        - o2m
-      interface: list-o2m
-      options:
-        enableCreate: false
-        enableSelect: true
-        template: '{{unique_code}}'
-      display: null
-      display_options: null
-      readonly: false
-      hidden: false
-      sort: 12
-      width: full
-      translations:
-        - language: en-US
-          translation: NFT Templates
-      note: null
-      conditions:
-        - name: No editing after publish
-          rule:
-            _and:
-              - status:
-                  _eq: published
-              - id:
-                  _nnull: true
-          readonly: true
+      conditions: null
       required: false
       group: null
   - collection: countries
@@ -5650,6 +5559,35 @@ fields:
       conditions: null
       required: false
       group: null
+  - collection: collections
+    field: translations
+    type: alias
+    schema: null
+    meta:
+      collection: collections
+      field: translations
+      special:
+        - translations
+      interface: translations
+      options:
+        languageTemplate: '{{name}}'
+        translationsTemplate: '{{name}}'
+        languageField: code
+      display: translations
+      display_options:
+        template: '{{name}}'
+        languageField: code
+        defaultLanguage: en-US
+        userLanguage: true
+      readonly: false
+      hidden: false
+      sort: 13
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: true
+      group: null
   - collection: nft_templates
     field: translations
     type: alias
@@ -5673,6 +5611,35 @@ fields:
       readonly: false
       hidden: false
       sort: 18
+      width: full
+      translations: null
+      note: null
+      conditions: null
+      required: true
+      group: null
+  - collection: sets
+    field: translations
+    type: alias
+    schema: null
+    meta:
+      collection: sets
+      field: translations
+      special:
+        - translations
+      interface: translations
+      options:
+        languageTemplate: '{{name}}'
+        translationsTemplate: '{{name}}'
+        languageField: code
+      display: translations
+      display_options:
+        template: '{{name}}'
+        languageField: code
+        defaultLanguage: en-US
+        userLanguage: true
+      readonly: false
+      hidden: false
+      sort: 11
       width: full
       translations: null
       note: null
@@ -5772,9 +5739,10 @@ fields:
       options:
         enableCreate: false
         enableSelect: true
-        template: '{{unique_code}}'
-      display: null
-      display_options: null
+        template: "{{preview_image}}\_{{unique_code}}"
+      display: related-values
+      display_options:
+        template: "{{preview_image}}\_{{unique_code}}"
       readonly: false
       hidden: false
       sort: 10
@@ -5782,43 +5750,6 @@ fields:
       translations:
         - language: en-US
           translation: NFT Templates
-      note: null
-      conditions:
-        - name: No editing after publish
-          rule:
-            _and:
-              - status:
-                  _eq: published
-              - id:
-                  _nnull: true
-          readonly: true
-      required: false
-      group: null
-  - collection: sets
-    field: translations
-    type: alias
-    schema: null
-    meta:
-      collection: sets
-      field: translations
-      special:
-        - translations
-      interface: translations
-      options:
-        languageTemplate: '{{name}}'
-        translationsTemplate: '{{name}}'
-        languageField: code
-      display: translations
-      display_options:
-        template: '{{name}}'
-        languageField: code
-        defaultLanguage: en-US
-        userLanguage: true
-      readonly: false
-      hidden: false
-      sort: 11
-      width: full
-      translations: null
       note: null
       conditions: null
       required: false
