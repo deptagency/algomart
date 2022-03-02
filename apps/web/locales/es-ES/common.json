@@ -24,6 +24,7 @@
     "Connect to Algorand Wallet": "ES Connect to Algorand Wallet",
     "Continue to Summary": "ES Continue to Summary",
     "Copy to clipboard": "ES Copy to clipboard",
+    "Create Account": "ES Create Account",
     "Remove Payment Method?": "ES Remove Payment Method?",
     "Copy": "ES Copy",
     "Create Asset": "ES Create Asset",
@@ -55,7 +56,7 @@
     "Select Image": "ES Select Image",
     "Sign In": "ES Sign in",
     "Sign Out": "ES Sign out",
-    "Sign Up": "FR Sign up",
+    "Sign Up": "ES Sign up",
     "Sign": "ES Sign",
     "Start Collecting": "ES Start Collecting",
     "Submit Payment Info": "ES Submit Payment Info",
@@ -87,9 +88,9 @@
   },
   "global": {
     "consent": "ES <0>We use cookies to collect information about your use of this site in order to enhance your experience on our website and to better understand your needs.</0><1>By clicking “Accept”, you agree to our <2>Terms & Conditions</2>, our <3>Privacy Policy</3> and our use of cookies on our site.</1>",
-    "language": "ES English",
+    "language": "ES EN",
     "or": "ES or",
-    "pageTitle": "ES AlgoMart",
+    "pageTitle": "ES FIFA NFT Marketplace",
     "pageDescription": "ES The best storefront for all your NFT assets",
     "rarityDefault": "ES Common",
     "404": {
@@ -134,27 +135,42 @@
       "Social Media": "ES Social Media",
       "Legal": "ES Legal"
     },
+    "headings": {
+      "FIFA NFT": "ES FIFA NFT",
+      "MORE": "ES MORE"
+    },
     "main": {
       "Releases": "ES Releases",
       "Brands": "ES Brands",
-      "My Collection": "ES My Collection"
+      "My Collection": "ES My Collection",
+      "Home": "ES Home",
+      "Settings": "ES Settings",
+      "About FIFA NFTs": "ES About FIFA NFTs",
+      "FAQ": "ES FAQ",
+      "Support": "ES Support"
     },
     "utility": {
       "Log In": "ES Log In",
       "Log Out": "ES Log Out",
-      "My profile picture": "ES My profile picture"
+      "My profile picture": "ES My profile picture",
+      "My Account": "ES My Account"
     },
     "social": {
       "Instagram": "ES Instagram",
       "Twitter": "ES Twitter",
+      "Facebook": "ES Facebook",
+      "Weibo": "ES Weibo",
+      "YouTube": "ES YouTube",
       "Discord": "ES Discord",
       "Blog": "ES Blog"
     },
     "legal": {
+      "Data Protection Portal": "ES Data Protection Portal",
       "Community Guidelines": "ES Community Guidelines",
-      "Privacy Policy": "ES Privacy Policy",
-      "Terms & Conditions": "ES Terms & Conditions",
-      "copyright": "ES ©2021 Algorand"
+      "Downloads": "ES Downloads",
+      "Terms & Conditions": "ES Terms of Service",
+      "copyright": "ES Copyright © 1994-2022 FIFA. All Rights Reserved",
+      "Cookie Settings": "ES Cookie Settings"
     },
     "payment": {
       "Payment Methods": "ES Payment Methods",
@@ -180,6 +196,8 @@
     "None": "ES None",
     "noMethodsAvailable": "ES You have no saved payment methods. Create a new one to make it available for use during checkout.",
     "Optional": "ES Optional",
+    "packMinted": "ES Your NFTs are minted and ready!",
+    "packMinting": "ES Your NFTs are being minted and will be availabile shortly.",
     "Redeemable": "ES Redeemable",
     "Saving Payment Information": "ES Saving Payment Information",
     "Searching for Payment": "ES Searching for Payment",

@@ -3,6 +3,8 @@ import { animated, config, useSpring } from '@react-spring/web'
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
 
+import css from './pack-opening-template.module.css'
+
 import TransferModal from '@/components/modals/transfer-modal'
 import PackGrid from '@/components/pack-grid/pack-grid'
 import CanvasContainer from '@/components/r3f/canvas-container/canvas-container'
@@ -27,14 +29,10 @@ export default function PackOpeningTemplate() {
     config: config.molasses,
     delay: 2000,
     sceneOpacity: sceneComplete ? 0 : 1,
-    onRest: () => {
-      // Unmounts the experience when animation is complete to prevent memory leaks
-      setSceneMounted(false)
-    },
   })
 
   return (
-    <>
+    <section className={css.packOpeningBackground}>
       {/* R3F Scene */}
       {sceneMounted && (
         <animated.div
@@ -51,14 +49,15 @@ export default function PackOpeningTemplate() {
 
       {/* Pack Contents */}
       {sceneComplete && (
-        <>
+        <section className={css.contentWrapper}>
           <PackGrid
-            packCards={packToOpen.collectibles}
-            packTitle={packToOpen.title}
             enableTransfer={mintStatus === MintPackStatus.Minted}
             onTransfer={() => {
               setShowTransfer(true)
             }}
+            packCards={packToOpen.collectibles}
+            packTitle={packToOpen.title}
+            setSceneMounted={setSceneMounted}
           />
           <TransferModal
             open={showTransfer}
@@ -71,8 +70,8 @@ export default function PackOpeningTemplate() {
             transferStatus={status}
             onSubmit={transfer}
           />
-        </>
+        </section>
       )}
-    </>
+    </section>
   )
 }

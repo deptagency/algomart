@@ -253,10 +253,6 @@ export default function CardPurchaseForm({
               formErrors && 'country' in formErrors
                 ? (formErrors.country as string)
                 : '',
-            zipCode:
-              formErrors && 'zipCode' in formErrors
-                ? (formErrors.zipCode as string)
-                : '',
           }}
         />
       )}

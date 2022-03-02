@@ -320,6 +320,7 @@ export default class DirectusAdapter {
         'sort',
         'slug',
         'collection.*',
+        'collection.translations.*',
         'translations.*',
         'nft_templates.*',
       ],

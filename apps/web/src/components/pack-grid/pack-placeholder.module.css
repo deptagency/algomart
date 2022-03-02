@@ -1,5 +1,5 @@
 .root {
-  @apply absolute top-0 w-full h-full p-5 overflow-hidden text-center bg-cover bg-pack-texture;
+  @apply absolute top-0 w-full h-full p-5 overflow-hidden text-center bg-cover rounded-lg bg-pack-texture;
   background-size: 200%;
 }
 

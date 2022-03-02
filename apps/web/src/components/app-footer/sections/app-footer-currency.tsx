@@ -1,4 +1,5 @@
 import { CURRENCY_COOKIE } from '@algomart/schemas'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -6,13 +7,17 @@ import { Currency } from '@/components/auth-inputs/auth-inputs'
 import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useCurrency } from '@/hooks/use-currency'
+import { useLocale } from '@/hooks/use-locale'
 import authService from '@/services/auth-service'
 import { validateCurrency } from '@/utils/auth-validation'
+import { isChrome } from '@/utils/browser-detection'
 import { setCookie } from '@/utils/cookies-web'
 
 export default function AppFooterCurrency() {
   const { t } = useTranslation()
   const { user, reloadProfile } = useAuth()
+  const router = useRouter()
+  const locale = useLocale()
   const currency = useCurrency()
   const [dropdownCurrency, setDropdownCurrency] = useState<string>(
     useCurrency()
@@ -54,9 +59,17 @@ export default function AppFooterCurrency() {
       setLoading(false)
       setDropdownCurrency(currency)
 
+      if (!isChrome()) {
+        router.push(
+          { pathname: router.pathname, query: router.query },
+          router.asPath,
+          { locale }
+        )
+      }
+
       return
     },
-    [validate, user, reloadProfile]
+    [validate, user, router, locale, reloadProfile]
   )
 
   // useEffect to handle global currency changes

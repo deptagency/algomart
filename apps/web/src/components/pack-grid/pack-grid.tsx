@@ -11,34 +11,39 @@ import PackItem from '@/components/pack-grid/pack-item'
 import PackPlaceholder from '@/components/pack-grid/pack-placeholder'
 
 export interface PackGridProps {
-  packCards: PackWithCollectibles['collectibles']
-  packTitle: PackWithCollectibles['title']
-  transitionStyle?: 'automatic' | 'interactive'
   enableTransfer: boolean
   onTransfer?: () => void
+  packCards: PackWithCollectibles['collectibles']
+  packTitle: PackWithCollectibles['title']
+  setSceneMounted?: (isMounted: boolean) => void
+  transitionStyle?: 'automatic' | 'interactive'
 }
 
 export default function PackGrid({
+  enableTransfer,
+  onTransfer,
   packCards,
   packTitle,
-  enableTransfer,
+  setSceneMounted,
   transitionStyle = 'automatic',
-  onTransfer,
 }: PackGridProps) {
   const { t } = useTranslation()
 
   // Automatic animations
   const animationIn = useTrail(packCards.length, {
-    config: config.gentle,
+    config: config.stiff,
     delay: 2500,
     from: { opacity: 0, y: -50 },
     to: { opacity: 1, y: 0 },
   })
   const animationOpacity = useTrail(packCards.length, {
-    config: config.default,
-    delay: 5000,
+    config: config.stiff,
+    delay: 3000,
     from: { opacity: 0 },
     to: { opacity: 1 },
+    onRest: () => {
+      setSceneMounted(false)
+    },
   })
 
   // Interactive animations
@@ -120,13 +125,21 @@ export default function PackGrid({
         })}
       </ul>
       {onTransfer && (
-        <Button
-          className={css.viewCollectionButton}
-          onClick={onTransfer}
-          disabled={packCards.length === 0 || !enableTransfer}
-        >
-          {t('common:actions.Save to My Collection')}
-        </Button>
+        <>
+          {!enableTransfer ? (
+            <p className={css.mintStatus}>{t('common:statuses.packMinting')}</p>
+          ) : (
+            <p className={css.mintStatus}>{t('common:statuses.packMinted')}</p>
+          )}
+          <Button
+            busy={!enableTransfer}
+            className={css.viewCollectionButton}
+            onClick={onTransfer}
+            disabled={packCards.length === 0 || !enableTransfer}
+          >
+            {t('common:actions.Save to My Collection')}
+          </Button>
+        </>
       )}
     </>
   )
