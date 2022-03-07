@@ -19,7 +19,7 @@
     "@dinero.js/currencies": "2.0.0-alpha.8",
     "@fastify/ajv-compiler": "3.1.0",
     "@headlessui/react": "1.5.0",
-    "@heroicons/react": "1.0.5",
+    "@heroicons/react": "1.0.6",
     "@json-rpc-tools/utils": "1.7.6",
     "@nrwl/next": "13.8.3",
     "@pinata/sdk": "1.1.23",
