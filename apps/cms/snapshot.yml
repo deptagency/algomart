@@ -2619,7 +2619,6 @@ fields:
       interface: select-dropdown-m2o
       options:
         template: '{{slug}}'
-        filter: null
       display: related-values
       display_options:
         template: '{{slug}}'
@@ -5572,13 +5571,8 @@ fields:
       options:
         languageTemplate: '{{name}}'
         translationsTemplate: '{{name}}'
-        languageField: code
       display: translations
-      display_options:
-        template: '{{name}}'
-        languageField: code
-        defaultLanguage: en-US
-        userLanguage: true
+      display_options: null
       readonly: false
       hidden: false
       sort: 13
@@ -5601,13 +5595,8 @@ fields:
       options:
         languageTemplate: '{{name}}'
         translationsTemplate: '{{title}}'
-        languageField: code
       display: translations
-      display_options:
-        template: '{{title}}'
-        languageField: code
-        defaultLanguage: en-US
-        userLanguage: true
+      display_options: null
       readonly: false
       hidden: false
       sort: 18
@@ -5630,13 +5619,8 @@ fields:
       options:
         languageTemplate: '{{name}}'
         translationsTemplate: '{{name}}'
-        languageField: code
       display: translations
-      display_options:
-        template: '{{name}}'
-        languageField: code
-        defaultLanguage: en-US
-        userLanguage: true
+      display_options: null
       readonly: false
       hidden: false
       sort: 11
@@ -5681,13 +5665,8 @@ fields:
       options:
         languageTemplate: '{{name}}'
         translationsTemplate: '{{name}}'
-        languageField: code
-      display: translations
-      display_options:
-        template: '{{name}}'
-        languageField: code
-        userLanguage: true
-        defaultLanguage: en-US
+      display: null
+      display_options: null
       readonly: false
       hidden: false
       sort: 8
@@ -5710,13 +5689,8 @@ fields:
       options:
         languageTemplate: '{{name}}'
         translationsTemplate: '{{title}}'
-        languageField: code
       display: translations
-      display_options:
-        template: '{{title}}'
-        languageField: code
-        defaultLanguage: en-US
-        userLanguage: true
+      display_options: null
       readonly: false
       hidden: false
       sort: 23
@@ -5767,11 +5741,6 @@ fields:
       options:
         enableCreate: false
         template: '{{unique_code}}'
-        filter:
-          _and:
-            - pack_template:
-                id:
-                  _null: true
       display: null
       display_options: null
       readonly: false
