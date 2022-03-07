@@ -91,7 +91,9 @@ export default function NFTTemplate({
 
         {/* TODO: add tabs for description, activity, listings, and offers */}
 
-        <ReleaseDescription description={collectible.body} />
+        {collectible.body ? (
+          <ReleaseDescription description={collectible.body} />
+        ) : null}
 
         <div className={css.nftMeta}>
           <div className={css.nftMetaContent}>
