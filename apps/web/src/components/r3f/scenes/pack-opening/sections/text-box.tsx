@@ -1,4 +1,5 @@
 import { RoundedBox, Text } from '@react-three/drei'
+import { Suspense } from 'react'
 import { CubeTexture, DoubleSide } from 'three'
 
 interface TextBoxProps {
@@ -31,23 +32,25 @@ export default function TextBox({
           transparent
         />
       </RoundedBox>
-      <Text
-        anchorX="center"
-        anchorY="middle"
-        color="white"
-        position-z={2}
-        scale={textDimensions}
-      >
-        <meshStandardMaterial
-          attach="material"
-          envMap={envMap}
-          side={DoubleSide}
-          envMapIntensity={envMapIntensity}
-          metalness={1}
-          roughness={0}
-        />
-        {text}
-      </Text>
+      <Suspense fallback={null}>
+        <Text
+          anchorX="center"
+          anchorY="middle"
+          color="white"
+          position-z={2}
+          scale={textDimensions}
+        >
+          <meshStandardMaterial
+            attach="material"
+            envMap={envMap}
+            side={DoubleSide}
+            envMapIntensity={envMapIntensity}
+            metalness={1}
+            roughness={0}
+          />
+          {text}
+        </Text>
+      </Suspense>
     </group>
   )
 }

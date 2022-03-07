@@ -36,7 +36,7 @@ export default function PackGrid({
   })
   const animationOpacity = useTrail(packCards.length, {
     config: config.default,
-    delay: 5000,
+    delay: 2500,
     from: { opacity: 0 },
     to: { opacity: 1 },
   })
