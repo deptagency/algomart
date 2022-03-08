@@ -25,7 +25,7 @@
     "@pinata/sdk": "1.1.23",
     "@react-spring/three": "9.4.3",
     "@react-spring/web": "9.4.3",
-    "@react-three/drei": "8.16.0",
+    "@react-three/drei": "8.16.3",
     "@react-three/fiber": "7.0.26",
     "@react-three/postprocessing": "2.1.6",
     "@sendgrid/mail": "7.6.1",
@@ -34,7 +34,7 @@
     "ajv": "8.10.0",
     "ajv-formats": "2.1.1",
     "algorand-walletconnect-qrcode-modal": "1.7.4",
-    "algosdk": "1.13.1",
+    "algosdk": "1.14.0",
     "clsx": "1.1.1",
     "cookies": "0.8.0",
     "core-js": "3.21.1",
@@ -48,7 +48,7 @@
     "fastify-plugin": "3.0.1",
     "fastify-schedule": "1.0.0",
     "fastify-sensible": "3.1.2",
-    "fastify-swagger": "4.17.1",
+    "fastify-swagger": "5.0.0",
     "firebase": "9.6.8",
     "firebase-admin": "10.0.2",
     "got": "11.8.3",
@@ -84,7 +84,7 @@
     "toad-scheduler": "1.6.0",
     "tslib": "2.3.1",
     "uuid": "8.3.2",
-    "validator-fns": "1.7.10"
+    "validator-fns": "1.7.11"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "7.17.0",
