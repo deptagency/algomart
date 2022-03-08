@@ -1,5 +1,6 @@
 import {
   AdminPermissions,
+  FirebaseClaim,
   Payment,
   UpdatePayment,
   WirePayment,
@@ -18,7 +19,7 @@ export interface AdminAPI {
   updatePayment(paymentId: string, json: UpdatePayment): Promise<Payment | null>
   updateClaims(
     userExternalId: string,
-    key: any,
+    key: FirebaseClaim,
     value: boolean
   ): Promise<AdminPermissions>
 }
@@ -97,7 +98,7 @@ export class AdminService implements AdminAPI {
 
   async updateClaims(
     userExternalId: string,
-    key: string,
+    key: FirebaseClaim,
     value: boolean
   ): Promise<AdminPermissions> {
     return await this.http

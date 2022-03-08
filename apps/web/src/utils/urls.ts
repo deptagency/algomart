@@ -45,7 +45,6 @@ export const urls = {
     transactions: '/admin/transactions',
     transaction: '/admin/transactions/:transactionId',
     users: '/admin/users',
-    user: '/admin/users/:userId',
   },
 
   api: {

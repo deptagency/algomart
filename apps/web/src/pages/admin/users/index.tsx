@@ -5,6 +5,7 @@ import {
   UserSortField,
 } from '@algomart/schemas'
 import { RefreshIcon } from '@heroicons/react/outline'
+import debounce from 'lodash.debounce'
 import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useMemo, useState } from 'react'
@@ -15,6 +16,7 @@ import Pagination from '@/components/pagination/pagination'
 import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
+import TextInput from '@/components/text-input/text-input'
 import usePagination from '@/hooks/use-pagination'
 import AdminLayout from '@/layouts/admin-layout'
 import adminService from '@/services/admin-service'
@@ -63,6 +65,8 @@ function CheckRole({ user, role }: CheckRoleProps) {
 
 export default function AdminUsersPage() {
   const { t, lang } = useTranslation('admin')
+  const [search, setSearch] = useState('')
+  const [searchDebounced, setSearchDebounced] = useState('')
 
   const { page, setPage, handleTableHeaderClick, sortBy, sortDirection } =
     usePagination<UserSortField>(1, UserSortField.CreatedAt)
@@ -81,6 +85,7 @@ export default function AdminUsersPage() {
     sortBy,
     sortDirection,
     pageSize: USERS_PER_PAGE,
+    search: searchDebounced,
   })
   const { data, isValidating } = useAuthApi<UserAccounts>(
     `${urls.api.v1.admin.getUsers}?${qp}`
@@ -91,10 +96,26 @@ export default function AdminUsersPage() {
   const renderClaims = useCallback(
     ({ item }: RendererProps) =>
       rolesArray.map((role) => (
-        <CheckRole key={role.id} user={item} role={role} />
+        <CheckRole
+          key={`${item.externalId}-${role.id}`}
+          user={item}
+          role={role}
+        />
       )),
     []
   )
+
+  const submitSearch = useCallback(
+    debounce((value) => {
+      setSearchDebounced(value)
+    }, 200),
+    []
+  )
+
+  const handleSearchChange = useCallback((value) => {
+    setSearch(value)
+    submitSearch(value)
+  }, [])
 
   const columns: ColumnDefinitionType<UserAccount>[] = [
     {
@@ -120,6 +141,16 @@ export default function AdminUsersPage() {
       renderer: renderClaims,
     },
   ]
+
+  const searchBox = (
+    <div className={'m-5'}>
+      <TextInput
+        handleChange={handleSearchChange}
+        placeholder={'Search by email or username'}
+        value={search}
+      />
+    </div>
+  )
 
   const footer = (
     <>
@@ -151,6 +182,7 @@ export default function AdminUsersPage() {
         }
         footer={footer}
       >
+        {searchBox}
         <div className="overflow-x-auto">
           <Table<UserAccount>
             columns={columns}

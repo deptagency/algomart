@@ -107,8 +107,7 @@ export enum UserSortField {
 export const UsersQuerystringSchema = Type.Intersect([
   PaginationSchema,
   Type.Object({
-    username: Type.Optional(Type.String()),
-    email: Type.Optional(Type.String()),
+    search: Type.Optional(Type.String()),
     sortBy: Type.Optional(
       Type.Enum(UserSortField, { default: UserSortField.CreatedAt })
     ),
