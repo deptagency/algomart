@@ -178,8 +178,7 @@ export class AccountsService {
   async getUsers({
     page = 1,
     pageSize = 10,
-    username,
-    email,
+    search = '',
     sortBy = UserSortField.CreatedAt,
     sortDirection = SortDirection.Ascending,
   }: UsersQuerystring): Promise<UserAccounts> {
@@ -206,10 +205,11 @@ export class AccountsService {
     const query = UserAccountModel.query()
 
     // Find payer
-    const userIdentifier = username || email
-    const field = username ? 'username' : 'email'
-    if (userIdentifier) {
-      query.where(field, 'ilike', userIdentifier)
+    if (search?.length > 0) {
+      const ilikeSearch = `%${search}%`
+      query
+        .where('email', 'ilike', ilikeSearch)
+        .orWhere('username', 'ilike', ilikeSearch)
     }
 
     const { results: users, total } = await query
