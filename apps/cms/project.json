@@ -27,6 +27,13 @@
       "options": {
         "action": "bootstrap"
       }
+    },
+    "migrate-latest": {
+      "executor": "./tools/executors/directus:directus",
+      "options": {
+        "action": "database",
+        "args": ["migrate:latest"]
+      }
     }
   }
 }
