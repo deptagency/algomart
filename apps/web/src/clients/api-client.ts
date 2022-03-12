@@ -149,8 +149,8 @@ export class ApiClient {
   async getUsers(query: UsersQuerystring): Promise<UserAccounts> {
     const searchQuery = getUsersFilterQuery(query)
     return await this.http
-      .get(`accounts/all?${searchQuery}`)
-      .json<UserAccounts>()
+      .get<UserAccounts>(`accounts/all?${searchQuery}`)
+      .then((response) => response.data)
   }
 
   async verifyPassphrase(externalId: string, passphrase: string) {
