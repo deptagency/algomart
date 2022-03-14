@@ -27,7 +27,7 @@ npm install
 Once everything is configured, you can start everything in development/watch mode:
 
 ```bash
-npm run dev
+nx serve web
 ```
 
 To build _everything_:
