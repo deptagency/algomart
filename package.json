@@ -28,7 +28,7 @@
     "@react-three/drei": "8.16.4",
     "@react-three/fiber": "7.0.26",
     "@react-three/postprocessing": "2.1.6",
-    "@sendgrid/mail": "7.6.1",
+    "@sendgrid/mail": "7.6.2",
     "@sinclair/typebox": "0.23.4",
     "@walletconnect/client": "1.7.4",
     "ajv": "8.10.0",
