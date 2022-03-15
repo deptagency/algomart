@@ -6,7 +6,10 @@ import { Environment } from '@/environment'
 export const logger = pino({
   level: Environment.logLevel,
   ...(!Environment.isProduction && {
-    transport: { target: 'pino-pretty' },
+    transport: {
+      target: 'pino-pretty',
+      options: { translateTime: 'HH:MM:ss Z', colorize: true },
+    },
   }),
   serializers: {
     ...pino.stdSerializers,

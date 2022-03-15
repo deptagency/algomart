@@ -1,7 +1,11 @@
-FROM node:16-bullseye-slim
+FROM node:16-alpine
 
+RUN apk add --no-cache libc6-compat python2 make g++
+RUN npm config set python python2
 WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
 
-COPY ./docker/local/api/run.sh /app/run.sh
+# not copying anything else... relying on mapping volume from the host
 
-CMD ["./run.sh"]
+CMD ["npx", "nx", "serve", "api"]

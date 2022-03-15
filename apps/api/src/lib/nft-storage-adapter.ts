@@ -100,10 +100,14 @@ export default class NFTStorageAdapter {
   async storeFile(url: string) {
     let fileName: fs.PathLike = ''
     try {
+      // If CMS_PUBLIC_URL is set, we need to replace it with the internal URL
+      const internalURL = url.includes(Configuration.cmsPublicUrl)
+        ? url.replace(Configuration.cmsPublicUrl, Configuration.cmsUrl)
+        : url
       const pipeline = promisify(stream.pipeline)
 
       // Kick off download stream, intercept file metadata
-      const downloadStream = got.stream(url)
+      const downloadStream = got.stream(internalURL)
       fileName = downloadStream.options.url.pathname
         .split('/')
         .at(-1) as fs.PathLike

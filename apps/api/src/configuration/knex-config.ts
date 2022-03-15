@@ -11,7 +11,7 @@ export default function buildKnexConfiguration(): Knex.Config {
     pool: { min: 2, max: 20 },
     migrations: {
       extension: 'ts',
-      directory: path.join(__dirname, '..', 'migrations'),
+      directory: path.resolve('src/migrations'),
     },
   }
 }

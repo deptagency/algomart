@@ -39,7 +39,7 @@ export function configureTasks(app: FastifyInstance) {
 
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
-      { minutes: 1 },
+      { seconds: 30 },
       new AsyncTask(
         'store-collectibles',
         async () => await storeCollectiblesTask(app.container),

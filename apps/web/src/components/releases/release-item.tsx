@@ -7,7 +7,6 @@ import css from './release-item.module.css'
 
 import Counter from '@/components/counter/counter'
 import { useLocale } from '@/hooks/use-locale'
-import { cmsImageLoader } from '@/utils/cms-image-loader'
 import { formatCurrency } from '@/utils/format-currency'
 
 export interface ReleaseItemProps {
@@ -30,7 +29,6 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
           alt={pack.title}
           height={250}
           layout="responsive"
-          loader={cmsImageLoader}
           objectFit="cover"
           src={pack.image}
           width={250}

@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  api-db:
+  api-db-deploy:
     image: postgres:14-alpine
     restart: always
     environment:
@@ -9,13 +9,13 @@ services:
       POSTGRES_PASSWORD: api
       POSTGRES_DB: api
     networks:
-      - algomart_test
+      - algomart_deploy
     ports:
       - "5432:5432"
     volumes:
-      - api-db:/var/lib/postgresql/data
+      - api-db-deploy:/var/lib/postgresql/data
 
-  cms-db:
+  cms-db-deploy:
     image: postgres:14-alpine
     restart: always
     environment:
@@ -23,34 +23,34 @@ services:
       POSTGRES_PASSWORD: cms
       POSTGRES_DB: cms
     networks:
-      - algomart_test
+      - algomart_deploy
     ports:
       - "5433:5432"
     volumes:
-      - cms-db:/var/lib/postgresql/data
+      - cms-db-deploy:/var/lib/postgresql/data
 
-  cms:
+  cms-deploy:
     build:
       context: .
-      dockerfile: docker/local/cms/Dockerfile
+      dockerfile: docker/deploy/cms/Dockerfile
     restart: always
     depends_on:
-      - cms-db
+      - cms-db-deploy
     env_file: apps/cms/.env
     environment:
       # only put values in here that should override the CMS .env file
-      DB_CONNECTION_STRING: postgres://cms:cms@cms-db:5432/cms
+      DB_CONNECTION_STRING: postgres://cms:cms@cms-db-deploy:5432/cms
     networks:
-      - algomart_test
+      - algomart_deploy
     ports:
       - "8055:8055"
     volumes:
-      - cms-uploads:/app/uploads
+      - cms-uploads-deploy:/app/uploads
 
-  api:
+  api-deploy:
     build:
       context: .
-      dockerfile: docker/local/api/Dockerfile
+      dockerfile: docker/deploy/api/Dockerfile
     restart: always
     depends_on:
       - api-db
@@ -58,20 +58,18 @@ services:
     env_file: apps/api/.env
     environment:
       # only put values in here that should override the API .env file
-      CMS_URL: http://cms:8055
+      CMS_URL: http://cms-deploy:8055
       CMS_PUBLIC_URL: http://localhost:8055
-      DATABASE_URL: postgres://api:api@api-db:5432/api
+      DATABASE_URL: postgres://api:api@api-db-deploy:5432/api
     networks:
-      - algomart_test
+      - algomart_deploy
     ports:
       - "3001:3001"
-    volumes:
-      - .:/app
 
-  web:
+  web-deploy:
     build:
       context: .
-      dockerfile: docker/local/web/Dockerfile
+      dockerfile: docker/deploy/web/Dockerfile
     restart: always
     depends_on:
       - api
@@ -79,19 +77,16 @@ services:
     env_file: apps/web/.env
     environment:
       # only put values in here that should override the Web .env file
-      API_URL: http://api:3001
-      IMAGE_DOMAINS: lh3.googleusercontent.com,firebasestorage.googleapis.com,localhost,cms
+      API_URL: http://api-deploy:3001
     networks:
-      - algomart_test
+      - algomart_deploy
     ports:
       - "3000:3000"
-    volumes:
-      - .:/app
 
 networks:
-  algomart_test:
+  algomart_deploy:
 
 volumes:
-  api-db:
-  cms-db:
-  cms-uploads:
+  api-db-deploy:
+  cms-db-deploy:
+  cms-uploads-deploy:

@@ -105,6 +105,7 @@ export function configureResolver() {
       new DirectusAdapter({
         accessToken: Configuration.cmsAccessToken,
         url: Configuration.cmsUrl,
+        publicUrl: Configuration.cmsPublicUrl,
       })
   )
   resolver.set(

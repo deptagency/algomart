@@ -1,17 +1,17 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 set -e
 
 cd /app
 
 echo 'current version, before:'
-nx run api:migrate:currentVersion
+npx nx run api:migrate:currentVersion
 
 echo 'applying migrations...'
-nx run api:migrate:latest
+npx nx run api:migrate:latest
 
 echo 'current version, after:'
-nx run api:migrate:currentVersion
+npx nx run api:migrate:currentVersion
 
 echo 'starting api...'
 cd /app/dist/apps/api
