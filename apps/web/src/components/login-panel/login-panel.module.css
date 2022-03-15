@@ -12,10 +12,6 @@
   @apply sm:p-16;
 }
 
-.button {
-  @apply flex items-center justify-center;
-}
-
 .button img {
   @apply w-5 h-5;
 }

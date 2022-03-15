@@ -1088,7 +1088,7 @@ export default class PaymentsService {
         let status: PaymentStatus | undefined
 
         // Card flow
-        if (payment.externalId && payment.paymentCardId) {
+        if (payment.externalId) {
           const circlePayment = await this.circle.getPaymentById(
             payment.externalId
           )

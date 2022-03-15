@@ -51,9 +51,9 @@ export default function LoginPanel({
                 alt={t('auth:Google logo')}
                 src={googleIcon}
               />
-              <p className={css.buttonImageText}>
+              <span className={css.buttonImageText}>
                 {t('auth:Sign in with Google')}
-              </p>
+              </span>
             </Button>
           </>
         )}

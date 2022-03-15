@@ -32,7 +32,7 @@ import {
   TransferPack,
   TransferPackStatusList,
 } from '@algomart/schemas'
-import { raw, Transaction } from 'objection'
+import { Model, raw, Transaction } from 'objection'
 
 import DirectusAdapter, {
   DirectusStatus,
@@ -948,12 +948,30 @@ export default class PacksService {
       }
     }
 
-    const template = await this.cms.findPack(filter)
+    const { packs: packTemplates } = await this.cms.findAllPacks({ filter })
 
-    if (!template) {
-      return 0
-    }
+    const results = await Promise.all(
+      packTemplates.map(async (packTemplate) => {
+        const trx = await Model.startTransaction()
+        try {
+          const result = await this.generatePack(packTemplate, trx)
+          await trx.commit()
+          return result
+        } catch (error) {
+          await trx.rollback()
+          this.logger.error(
+            error,
+            `error generating pack ${packTemplate.templateId}`
+          )
+          return 0
+        }
+      })
+    )
 
+    return results.reduce((a, b) => a + b, 0)
+  }
+
+  async generatePack(template: PackBase, trx?: Transaction) {
     const { collectibleTemplateIds, templateId, config } = template
     const collectibleTemplateIdsCount = collectibleTemplateIds.length
     const { collectibles: collectibleTemplates } =

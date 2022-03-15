@@ -9,7 +9,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import css from './collectible-browser.module.css'
 
 import Heading from '@/components/heading'
-import { cmsImageLoader } from '@/utils/cms-image-loader'
 
 export interface CollectibleBrowserProps {
   collectibles: CollectibleWithDetails[]
@@ -89,7 +88,6 @@ export default function CollectibleBrowser({
         {!collectible.previewVideo && (
           <Image
             src={collectible.image}
-            loader={cmsImageLoader}
             width={700}
             height={700}
             layout="responsive"
@@ -125,7 +123,6 @@ export default function CollectibleBrowser({
                 <Image
                   src={collectible.image}
                   alt={collectible.title}
-                  loader={cmsImageLoader}
                   width={700}
                   height={700}
                   layout="responsive"
@@ -182,7 +179,6 @@ export default function CollectibleBrowser({
             >
               <Image
                 src={c.image}
-                loader={cmsImageLoader}
                 width={70}
                 height={70}
                 objectFit="contain"

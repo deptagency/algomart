@@ -29,7 +29,9 @@ jobs:
           node-version: '16'
       - run: npm install
       - run: npx nx affected --target=build --parallel --max-parallel=3
+      - run: docker-compose --project-name algorand-test --file docker-compose.test.yml up --detach
       - run: npx nx affected --target=test --parallel --max-parallel=2
+      - run: docker-compose --project-name algorand-test --file docker-compose.test.yml down
   pr:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' }}
@@ -45,4 +47,6 @@ jobs:
           node-version: '16'
       - run: npm install
       - run: npx nx affected --target=build --parallel --max-parallel=3
+      - run: docker-compose --project-name algorand-test --file docker-compose.test.yml up --detach
       - run: npx nx affected --target=test --parallel --max-parallel=2
+      - run: docker-compose --project-name algorand-test --file docker-compose.test.yml down

@@ -3,16 +3,13 @@ import { Configuration } from '@/configuration'
 import buildKnexConfiguration from '@/configuration/knex-config'
 import { configureResolver } from '@/shared/dependency-resolver'
 import { configureTasks } from '@/tasks'
-import { logger, prettyOptions } from '@/utils/logger'
+import { logger } from '@/utils/logger'
 
 buildApp({
-  fastify: {
-    logger: {
-      prettyPrint: Configuration.env === 'production' ? false : prettyOptions,
-    },
-  },
+  fastify: { logger },
   knex: buildKnexConfiguration(),
   container: configureResolver(),
+  enableTrap: true,
 })
   .then((app) => {
     configureTasks(app)

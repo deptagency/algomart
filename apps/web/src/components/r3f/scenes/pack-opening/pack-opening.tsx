@@ -110,7 +110,9 @@ const PackOpening = memo(function Scene({
   )
 
   //Pack Cover
-  const coverImage = useTexture(packPreview)
+  const coverImage = useTexture(
+    `/_next/image?url=${encodeURI(packPreview)}&w=1080&q=75`
+  )
 
   // Model
   const texture = useTexture('/images/textures/pack-texture.jpg')

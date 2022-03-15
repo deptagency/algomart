@@ -565,6 +565,7 @@ export function toCountryBase(
 
 export interface DirectusAdapterOptions {
   url: string
+  publicUrl: string
   accessToken: string
 }
 
@@ -729,7 +730,7 @@ export default class DirectusAdapter {
 
   private getFileURL(fileOrId: string | DirectusFile) {
     const id = typeof fileOrId === 'string' ? fileOrId : fileOrId.id
-    return new URL(`/assets/${id}`, this.options.url).href
+    return new URL(`/assets/${id}`, this.options.publicUrl).href
   }
 
   async findAllPacks({

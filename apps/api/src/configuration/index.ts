@@ -84,6 +84,11 @@ export const Configuration = {
     return env.get('CMS_URL').default('http://localhost:8055').asUrlString()
   },
 
+  get cmsPublicUrl() {
+    return this.cmsUrl
+    // return env.get('CMS_PUBLIC_URL').default(this.cmsUrl).asUrlString()
+  },
+
   get cmsAccessToken() {
     return env
       .get('CMS_ACCESS_TOKEN')
@@ -181,5 +186,9 @@ export const Configuration = {
 
   get failurePath(): string {
     return env.get('WEB_FAILURE_PATH').default('/payments/failure').asString()
+  },
+
+  get enableJobs(): boolean {
+    return env.get('ENABLE_JOBS').default('false').asBool()
   },
 }

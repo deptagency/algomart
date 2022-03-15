@@ -1,3 +1,4 @@
+import fastifyTraps from '@dnlup/fastify-traps'
 import ajvCompiler from '@fastify/ajv-compiler'
 import ajvFormats from 'ajv-formats'
 import fastify, { FastifyServerOptions } from 'fastify'
@@ -26,6 +27,7 @@ export interface AppConfig {
   knex: Knex.Config
   fastify?: FastifyServerOptions
   container: DependencyResolver
+  enableTrap?: boolean
 }
 
 export default async function buildApp(config: AppConfig) {
@@ -57,6 +59,15 @@ export default async function buildApp(config: AppConfig) {
   )
 
   // Plugins
+  if (config.enableTrap) {
+    await app.register(fastifyTraps, {
+      async onClose() {
+        app.log.info('Closing database connection...')
+        app.knex.destroy()
+        app.log.info('Closed database connection.')
+      },
+    })
+  }
   await app.register(fastifySchedule)
   await app.register(fastifySwagger, swaggerOptions)
   await app.register(fastifySensible)
@@ -83,6 +94,9 @@ export default async function buildApp(config: AppConfig) {
   await app.register(packsRoutes, { prefix: '/packs' })
   await app.register(paymentRoutes, { prefix: '/payments' })
   await app.register(setsRoutes, { prefix: '/sets' })
+
+  // Handle SIGINT and SIGTERM signals
+  app
 
   return app
 }

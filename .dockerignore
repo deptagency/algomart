@@ -7,3 +7,5 @@
 **/cypress
 **/node_modules
 **/Dockerfile*
+contracts/*
+terraform/*

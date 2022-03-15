@@ -124,6 +124,7 @@ export default function PackGrid({
           className={css.viewCollectionButton}
           onClick={onTransfer}
           disabled={packCards.length === 0 || !enableTransfer}
+          busy={packCards.length === 0 || !enableTransfer}
         >
           {t('common:actions.Save to My Collection')}
         </Button>

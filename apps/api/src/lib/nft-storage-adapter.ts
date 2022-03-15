@@ -40,7 +40,6 @@ export interface StoreMediaOutput {
 
 export interface StoreMetadataInput extends StoreMediaOutput {
   description?: string
-  editionNumber: number
   name: string
   totalEditions: number
 }
@@ -77,7 +76,6 @@ export default class NFTStorageAdapter {
   }
 
   mapToMetadata({
-    editionNumber,
     description,
     name,
     totalEditions,
@@ -88,7 +86,7 @@ export default class NFTStorageAdapter {
      * https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md#json-metadata-file-schema
      */
     return {
-      name: `${name} ${editionNumber}/${totalEditions}`,
+      name: `${name} (${totalEditions} editions)`,
       decimals: 0,
       external_url: Configuration.webUrl,
       external_url_mimetype: 'text/html',
@@ -100,10 +98,14 @@ export default class NFTStorageAdapter {
   async storeFile(url: string) {
     let fileName: fs.PathLike = ''
     try {
+      // If CMS_PUBLIC_URL is set, we need to replace it with the internal URL
+      const internalURL = url.includes(Configuration.cmsPublicUrl)
+        ? url.replace(Configuration.cmsPublicUrl, Configuration.cmsUrl)
+        : url
       const pipeline = promisify(stream.pipeline)
 
       // Kick off download stream, intercept file metadata
-      const downloadStream = got.stream(url)
+      const downloadStream = got.stream(internalURL)
       fileName = downloadStream.options.url.pathname
         .split('/')
         .at(-1) as fs.PathLike
