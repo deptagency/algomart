@@ -20,7 +20,6 @@ export function buttonClasses(
   props: ButtonBaseProps & { disabled?: boolean; className?: string }
 ) {
   const {
-    busy,
     disablePadding,
     size,
     variant,
@@ -84,7 +83,15 @@ export default function Button({
       type={type}
       {...props}
     >
-      <span className={busy && 'opacity-0'}>{children}</span>
+      <span
+        className={
+          busy
+            ? 'opacity-0 flex items-center justify-center'
+            : 'flex items-center justify-center'
+        }
+      >
+        {children}
+      </span>
       {busy && (
         <EllipsisLoader className="absolute bottom-0 left-0 right-0 -mt-4 top-1/2" />
       )}

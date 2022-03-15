@@ -383,9 +383,7 @@ export default class AlgorandAdapter {
         decimals: 0,
         defaultFrozen: false,
         clawback: this.fundingAccount.addr,
-        freeze: null,
         manager: this.fundingAccount.addr,
-        reserve: null,
         unitName: template.uniqueCode,
         suggestedParams,
       })

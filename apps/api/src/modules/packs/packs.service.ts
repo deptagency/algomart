@@ -968,7 +968,7 @@ export default class PacksService {
       })
     )
 
-    return results.reduce((a, b) => a + b)
+    return results.reduce((a, b) => a + b, 0)
   }
 
   async generatePack(template: PackBase, trx?: Transaction) {
