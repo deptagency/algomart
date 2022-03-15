@@ -187,4 +187,8 @@ export const Configuration = {
   get failurePath(): string {
     return env.get('WEB_FAILURE_PATH').default('/payments/failure').asString()
   },
+
+  get enableJobs(): boolean {
+    return env.get('ENABLE_JOBS').default('false').asBool()
+  },
 }

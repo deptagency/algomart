@@ -13,7 +13,16 @@ import { updatePaymentBankStatusesTask } from './update-payment-bank-statuses.ta
 import { updatePaymentCardStatusesTask } from './update-payment-card-statuses.task'
 import { updatePaymentStatusesTask } from './update-payment-statuses.task'
 
+import { Configuration } from '@/configuration'
+
 export function configureTasks(app: FastifyInstance) {
+  if (!Configuration.enableJobs) {
+    app.log.info('Tasks are disabled')
+    return
+  }
+
+  app.log.info('Tasks enabled')
+
   //#region Pack & Collectible generation/storage/minting
   app.scheduler.addSimpleIntervalJob(
     new SimpleIntervalJob(
