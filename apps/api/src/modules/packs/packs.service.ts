@@ -948,12 +948,26 @@ export default class PacksService {
       }
     }
 
-    const template = await this.cms.findPack(filter)
+    const { packs: packTemplates } = await this.cms.findAllPacks({ filter })
 
-    if (!template) {
-      return 0
-    }
+    const results = await Promise.all(
+      packTemplates.map(async (packTemplate) => {
+        try {
+          return await this.generatePack(packTemplate, trx)
+        } catch (error) {
+          this.logger.error(
+            error,
+            `error generating pack ${packTemplate.templateId}`
+          )
+          return 0
+        }
+      })
+    )
 
+    return results.reduce((a, b) => a + b)
+  }
+
+  async generatePack(template: PackBase, trx?: Transaction) {
     const { collectibleTemplateIds, templateId, config } = template
     const collectibleTemplateIdsCount = collectibleTemplateIds.length
     const { collectibles: collectibleTemplates } =
