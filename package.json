@@ -11,7 +11,9 @@
     "prepare": "husky install",
     "start": "nx run-many --target=serve --projects=api,cms,web --parallel",
     "build": "nx run-many --target=build --all",
+    "pretest": "docker-compose --project-name algomart-test --file docker-compose.test.yml up --detach",
     "test": "nx run-many --target=test --all",
+    "posttest": "docker-compose --project-name algomart-test --file docker-compose.test.yml down",
     "lint": "nx run-many --target=lint --all",
     "e2e": "nx run-many --target=serve --all --watch"
   },
