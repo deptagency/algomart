@@ -383,9 +383,9 @@ export default class AlgorandAdapter {
         decimals: 0,
         defaultFrozen: false,
         clawback: this.fundingAccount.addr,
-        freeze: this.fundingAccount.addr,
+        freeze: null,
         manager: this.fundingAccount.addr,
-        reserve: this.fundingAccount.addr,
+        reserve: null,
         unitName: template.uniqueCode,
         suggestedParams,
       })
@@ -584,18 +584,6 @@ export default class AlgorandAdapter {
       to: options.fromAccountAddress,
     })
 
-    // Clear freeze and reserve addresses
-    // Signed by funding account (current manager address)
-    const configureTxn =
-      algosdk.makeAssetConfigTxnWithSuggestedParamsFromObject({
-        suggestedParams,
-        assetIndex: options.assetIndex,
-        from: this.fundingAccount.addr,
-        strictEmptyAddressChecking: false,
-        manager: this.fundingAccount.addr,
-        clawback: this.fundingAccount.addr,
-      })
-
     // Opt-in to asset in recipient's non-custodial wallet
     // Signed by non-custodial wallet recipient
     const optInTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
@@ -627,16 +615,9 @@ export default class AlgorandAdapter {
       amount: 100_000,
     })
 
-    const transactions = [
-      fundsTxn,
-      configureTxn,
-      optInTxn,
-      transferAssetTxn,
-      returnFundsTxn,
-    ]
+    const transactions = [fundsTxn, optInTxn, transferAssetTxn, returnFundsTxn]
 
     const signers = [
-      this.fundingAccount.addr,
       this.fundingAccount.addr,
       options.toAccountAddress,
       options.fromAccountAddress,

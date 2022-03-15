@@ -32,7 +32,7 @@ import {
   TransferPack,
   TransferPackStatusList,
 } from '@algomart/schemas'
-import { raw, Transaction } from 'objection'
+import { Model, raw, Transaction } from 'objection'
 
 import DirectusAdapter, {
   DirectusStatus,
@@ -952,9 +952,13 @@ export default class PacksService {
 
     const results = await Promise.all(
       packTemplates.map(async (packTemplate) => {
+        const trx = await Model.startTransaction()
         try {
-          return await this.generatePack(packTemplate, trx)
+          const result = await this.generatePack(packTemplate, trx)
+          await trx.commit()
+          return result
         } catch (error) {
+          await trx.rollback()
           this.logger.error(
             error,
             `error generating pack ${packTemplate.templateId}`
