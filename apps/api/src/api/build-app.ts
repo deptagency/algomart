@@ -1,6 +1,7 @@
 import ajvCompiler from '@fastify/ajv-compiler'
 import ajvFormats from 'ajv-formats'
 import fastify, { FastifyServerOptions } from 'fastify'
+import fastifyGracefulShutdown from 'fastify-graceful-shutdown'
 import { fastifySchedule } from 'fastify-schedule'
 import fastifySensible from 'fastify-sensible'
 import fastifySwagger from 'fastify-swagger'
@@ -57,6 +58,7 @@ export default async function buildApp(config: AppConfig) {
   )
 
   // Plugins
+  await app.register(fastifyGracefulShutdown)
   await app.register(fastifySchedule)
   await app.register(fastifySwagger, swaggerOptions)
   await app.register(fastifySensible)
@@ -83,6 +85,15 @@ export default async function buildApp(config: AppConfig) {
   await app.register(packsRoutes, { prefix: '/packs' })
   await app.register(paymentRoutes, { prefix: '/payments' })
   await app.register(setsRoutes, { prefix: '/sets' })
+
+  // Handle SIGINT and SIGTERM signals
+  app.after(() => {
+    app.gracefulShutdown(async (signal, next) => {
+      app.log.info(`Received ${signal} signal, shutting down...`)
+      await app.knex.destroy()
+      next()
+    })
+  })
 
   return app
 }
