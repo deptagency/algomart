@@ -9,6 +9,7 @@ buildApp({
   fastify: { logger },
   knex: buildKnexConfiguration(),
   container: configureResolver(),
+  enableTrap: true,
 })
   .then((app) => {
     configureTasks(app)

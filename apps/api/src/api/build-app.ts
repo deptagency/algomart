@@ -1,7 +1,7 @@
+import fastifyTraps from '@dnlup/fastify-traps'
 import ajvCompiler from '@fastify/ajv-compiler'
 import ajvFormats from 'ajv-formats'
 import fastify, { FastifyServerOptions } from 'fastify'
-import fastifyGracefulShutdown from 'fastify-graceful-shutdown'
 import { fastifySchedule } from 'fastify-schedule'
 import fastifySensible from 'fastify-sensible'
 import fastifySwagger from 'fastify-swagger'
@@ -27,6 +27,7 @@ export interface AppConfig {
   knex: Knex.Config
   fastify?: FastifyServerOptions
   container: DependencyResolver
+  enableTrap?: boolean
 }
 
 export default async function buildApp(config: AppConfig) {
@@ -58,7 +59,15 @@ export default async function buildApp(config: AppConfig) {
   )
 
   // Plugins
-  await app.register(fastifyGracefulShutdown)
+  if (config.enableTrap) {
+    await app.register(fastifyTraps, {
+      async onClose() {
+        app.log.info('Closing database connection...')
+        app.knex.destroy()
+        app.log.info('Closed database connection.')
+      },
+    })
+  }
   await app.register(fastifySchedule)
   await app.register(fastifySwagger, swaggerOptions)
   await app.register(fastifySensible)
@@ -87,13 +96,7 @@ export default async function buildApp(config: AppConfig) {
   await app.register(setsRoutes, { prefix: '/sets' })
 
   // Handle SIGINT and SIGTERM signals
-  app.after(() => {
-    app.gracefulShutdown(async (signal, next) => {
-      app.log.info(`Received ${signal} signal, shutting down...`)
-      await app.knex.destroy()
-      next()
-    })
-  })
+  app
 
   return app
 }
