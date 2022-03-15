@@ -8,12 +8,10 @@ The purpose of the CMS is to provide content authors the ability to create and m
 
 Once the environment variables have been added to the `.env` file, you'll want to create a new Postgres database with the name specified in the `DB_CONNECTION_STRING` in the `.env` file. You'll also want to set the `ADMIN_EMAIL` and `ADMIN_PASSWORD` values for the initial CMS admin user.
 
-Create the cms schema in your database
+If using a single database, create the `cms` schema in your database before running the bootstrap scripts below.
 
 ```bash
-CREATE SCHEMA cms
-```
-
+CREATE SCHEMA "cms"
 Run the bootstrap and import commands via Nx:
 
 ```bash
