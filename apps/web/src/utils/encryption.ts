@@ -1,6 +1,6 @@
 import { PublicKey } from '@algomart/schemas'
 import CryptoJS from 'crypto-js'
-import { createMessage, encrypt as encryption, readKey } from 'openpgp'
+import { createMessage, encrypt as pgpEncrypt, readKey } from 'openpgp'
 
 export function encrypt(value: string, passphrase: string) {
   return CryptoJS.AES.encrypt(value, passphrase).toString()
@@ -21,10 +21,10 @@ export async function encryptCardDetails(
 
   const message = await createMessage({ text: JSON.stringify(data) })
   const publicKeys = await readKey({ armoredKey: decodedPublicKey })
-  const encrypted = await encryption({
+  const encrypted = await pgpEncrypt({
     message,
     encryptionKeys: publicKeys,
   })
 
-  return btoa(encrypted)
+  return btoa(String(encrypted))
 }
