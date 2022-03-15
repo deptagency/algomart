@@ -53,8 +53,8 @@ services:
       dockerfile: docker/deploy/api/Dockerfile
     restart: always
     depends_on:
-      - api-db
-      - cms
+      - api-db-deploy
+      - cms-deploy
     env_file: apps/api/.env
     environment:
       # only put values in here that should override the API .env file
@@ -72,8 +72,8 @@ services:
       dockerfile: docker/deploy/web/Dockerfile
     restart: always
     depends_on:
-      - api
-      - cms
+      - api-deploy
+      - cms-deploy
     env_file: apps/web/.env
     environment:
       # only put values in here that should override the Web .env file
