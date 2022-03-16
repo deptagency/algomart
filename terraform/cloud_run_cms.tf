@@ -22,9 +22,10 @@ resource "google_cloud_run_service" "cms" {
       annotations = {
         "run.googleapis.com/vpc-access-connector" = var.vpc_access_connector_name
 
-        # maxScale to limit database connections; it is unlikely that there
-        # will ever be more than a single container running
-        "autoscaling.knative.dev/maxScale" = 2
+        # Limit the CMS to run a single instance at all times
+        # This may need to be tweaked to improve performance on a per-project basis
+        "autoscaling.knative.dev/minScale" = 1
+        "autoscaling.knative.dev/maxScale" = 1
       }
     }
 

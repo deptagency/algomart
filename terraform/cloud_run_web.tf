@@ -7,6 +7,13 @@ resource "google_cloud_run_service" "web" {
   template {
     metadata {
       name = var.web_revision_name
+
+      annotations = {
+        # Limit the Web to run a single instance at all times
+        # This may need to be tweaked to improve performance on a per-project basis
+        "autoscaling.knative.dev/minScale" = 1
+        "autoscaling.knative.dev/maxScale" = 1
+      }
     }
 
     spec {

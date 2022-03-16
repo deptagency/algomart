@@ -42,7 +42,7 @@ resource "google_cloud_run_service" "api" {
         # maxScale is very conservative due to background tasks not needing
         # to scale up (and opening up unnecessary connection pools) and
         # fastify being highly capable of handling a decent amount of traffic.
-        "autoscaling.knative.dev/maxScale" = 2
+        "autoscaling.knative.dev/maxScale" = 1
       }
     }
 
