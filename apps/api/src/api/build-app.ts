@@ -95,8 +95,5 @@ export default async function buildApp(config: AppConfig) {
   await app.register(paymentRoutes, { prefix: '/payments' })
   await app.register(setsRoutes, { prefix: '/sets' })
 
-  // Handle SIGINT and SIGTERM signals
-  app
-
   return app
 }
