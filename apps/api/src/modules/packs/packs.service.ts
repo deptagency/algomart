@@ -732,6 +732,7 @@ export default class PacksService {
           .where('co.collectibleId', '=', raw('"c"."id"'))
           .where('co.ownerId', '=', raw('"ua"."id"'))
       )
+      .distinct('p.id', 'p.templateId', 'p.claimedAt')
 
     if (packs.length === 0) {
       return {
