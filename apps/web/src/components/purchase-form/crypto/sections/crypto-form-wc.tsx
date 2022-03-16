@@ -13,7 +13,7 @@ import Button from '@/components/button'
 import Heading from '@/components/heading'
 import { AlgorandAdapter, ChainType, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
-import checkoutService from '@/services/checkout-service'
+import { CheckoutService } from '@/services/checkout-service'
 import { formatToDecimal, isGreaterThanOrEqual } from '@/utils/format-currency'
 import { formatFloatToInt } from '@/utils/format-currency'
 import { poll } from '@/utils/poll'
@@ -130,7 +130,7 @@ export default function CryptoFormWalletConnect({
         ) => !(transfer?.status === PaymentStatus.Paid)
         const transfer = await poll<ToPaymentBase | null>(
           async () =>
-            await checkoutService
+            await CheckoutService.instance
               .getTransferByAddress(address)
               .catch(() => null),
           completeWhenNotPendingForTransfer,

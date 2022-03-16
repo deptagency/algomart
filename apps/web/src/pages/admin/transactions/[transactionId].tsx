@@ -18,7 +18,7 @@ import Panel from '@/components/panel'
 import Table from '@/components/table'
 import { ColumnDefinitionType } from '@/components/table'
 import AdminLayout from '@/layouts/admin-layout'
-import adminService from '@/services/admin-service'
+import { AdminService } from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { formatCurrency } from '@/utils/format-currency'
 import { logger } from '@/utils/logger'
@@ -65,10 +65,13 @@ export default function AdminTransactionPage({
     if (!confirm('Are you sure you want to reset this transaction?')) return
     const paymentId = typeof transactionId === 'string' ? transactionId : null
     try {
-      const updatedPayment = await adminService.updatePayment(paymentId, {
-        externalId: '',
-        status: PaymentStatus.Pending,
-      })
+      const updatedPayment = await AdminService.instance.updatePayment(
+        paymentId,
+        {
+          externalId: '',
+          status: PaymentStatus.Pending,
+        }
+      )
       alert('Payment was reset')
       logger.info('Payment was reset.', updatedPayment)
     } catch (error) {
@@ -82,9 +85,12 @@ export default function AdminTransactionPage({
       return
     const paymentId = typeof transactionId === 'string' ? transactionId : null
     try {
-      const updatedPayment = await adminService.updatePayment(paymentId, {
-        status: PaymentStatus.Paid,
-      })
+      const updatedPayment = await AdminService.instance.updatePayment(
+        paymentId,
+        {
+          status: PaymentStatus.Paid,
+        }
+      )
       alert('Payment was marked as paid')
       logger.info('Payment marked as paid.', updatedPayment)
     } catch (error) {
@@ -101,7 +107,10 @@ export default function AdminTransactionPage({
       if (!payment.pack?.id) throw new Error('No pack id')
       if (!payment.pack?.ownerId) throw new Error('No pack owner ID')
       // Revoke pack
-      await adminService.revokePack(payment.pack?.id, payment.pack?.ownerId)
+      await AdminService.instance.revokePack(
+        payment.pack?.id,
+        payment.pack?.ownerId
+      )
       alert('Pack successfully revoked.')
       logger.info('Pack was revoked')
       setIsRevoking(false)

@@ -2,6 +2,7 @@ import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
 import loadFirebase from '@/clients/firebase-client'
+import { invariant } from '@/utils/invariant'
 import { urls } from '@/utils/urls'
 export interface AuthAPI {
   isUsernameAvailable(username: string): Promise<boolean>
@@ -11,8 +12,17 @@ export interface AuthAPI {
 
 export class AuthService implements AuthAPI {
   http: typeof ky
+  private static _instance: AuthService
+
+  static get instance() {
+    return this._instance || (this._instance = new AuthService())
+  }
 
   constructor() {
+    invariant(
+      typeof window !== 'undefined',
+      'AuthService must be used in the browser'
+    )
     this.http = ky.create({
       throwHttpErrors: false,
       timeout: 10_000,
@@ -64,7 +74,3 @@ export class AuthService implements AuthAPI {
     return isValid
   }
 }
-
-const authService: AuthAPI = new AuthService()
-
-export default authService

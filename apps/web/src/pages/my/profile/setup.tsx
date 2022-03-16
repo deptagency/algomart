@@ -6,7 +6,7 @@ import { ExtractError } from 'validator-fns'
 import { useAuth } from '@/contexts/auth-context'
 import { useRedemption } from '@/contexts/redemption-context'
 import DefaultLayout from '@/layouts/default-layout'
-import authService from '@/services/auth-service'
+import { AuthService } from '@/services/auth-service'
 import MyProfileSetupTemplate from '@/templates/my-profile-setup-template'
 import { validateUserRegistration } from '@/utils/auth-validation'
 import { urls } from '@/utils/urls'
@@ -38,9 +38,8 @@ export default function MyProfileSetupPage() {
         return setFormErrors(validation.errors)
       }
 
-      const isUsernameAvailable = await authService.isUsernameAvailable(
-        body.username
-      )
+      const isUsernameAvailable =
+        await AuthService.instance.isUsernameAvailable(body.username)
       if (!isUsernameAvailable) {
         return setFormErrors((errors) => ({
           ...errors,

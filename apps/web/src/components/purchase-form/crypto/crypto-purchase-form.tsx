@@ -17,7 +17,7 @@ import css from './crypto-purchase-form.module.css'
 
 import Loading from '@/components/loading/loading'
 import { PaymentContextProps } from '@/contexts/payment-context'
-import checkoutService from '@/services/checkout-service'
+import { CheckoutService } from '@/services/checkout-service'
 import { isAfterNow } from '@/utils/date-time'
 
 export interface CryptoPurchaseFormProps {
@@ -59,7 +59,7 @@ export default function CryptoPurchaseForm({
       }
       // Creating payment for the pending transfer
       setLoadingText(t('common:statuses.Creating Payment'))
-      const transferPayment = await checkoutService
+      const transferPayment = await CheckoutService.instance
         .createTransferPayment({
           packTemplateId: release.templateId,
           transferId: transfer.externalId,
@@ -98,7 +98,9 @@ export default function CryptoPurchaseForm({
       return router.reload()
     }
     // Otherwise, check if purchase has been made for this address
-    const transferResp = await checkoutService.getTransferByAddress(address)
+    const transferResp = await CheckoutService.instance.getTransferByAddress(
+      address
+    )
     if (transferResp) {
       handlePurchase(transferResp)
     }

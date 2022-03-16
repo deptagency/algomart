@@ -16,7 +16,7 @@ import {
   getAuthenticatedUser,
   getProfileImageForUser,
 } from '@/services/api/auth-service'
-import collectibleService from '@/services/collectible-service'
+import { CollectibleService } from '@/services/collectible-service'
 import ReleaseTemplate from '@/templates/release-template'
 import { isAfterNow } from '@/utils/date-time'
 
@@ -57,8 +57,8 @@ export default function ReleasePage({
     // Redeem/claim asset
     const { packId } =
       packTemplate.type === PackType.Redeem
-        ? await collectibleService.redeem(redeemCode)
-        : await collectibleService.claim(packTemplate.templateId)
+        ? await CollectibleService.instance.redeem(redeemCode)
+        : await CollectibleService.instance.claim(packTemplate.templateId)
 
     // Don't mint if redemption fails
     if (!packId) {

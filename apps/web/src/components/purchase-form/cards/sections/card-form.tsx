@@ -15,7 +15,7 @@ import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import Toggle from '@/components/toggle/toggle'
 import { FormValidation } from '@/contexts/payment-context'
-import checkoutService from '@/services/checkout-service'
+import { CheckoutService } from '@/services/checkout-service'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
 
@@ -49,7 +49,7 @@ export default function CardPurchaseForm({
 
   useEffect(() => {
     const run = async () => {
-      const cards = await checkoutService.getCards()
+      const cards = await CheckoutService.instance.getCards()
       const sortedCardsByExpDate = sortByExpirationDate(cards)
       const sortedCards = sortByDefault(sortedCardsByExpDate)
       const cardsList = sortedCards

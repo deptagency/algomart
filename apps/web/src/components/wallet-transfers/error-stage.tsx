@@ -1,5 +1,4 @@
 import { ExclamationCircleIcon } from '@heroicons/react/outline'
-import useTranslation from 'next-translate/useTranslation'
 
 import Heading from '../heading'
 import LinkButton from '../link-button'
@@ -13,7 +12,6 @@ export interface ErrorStageProps {
 }
 
 export default function ErrorStage(props: ErrorStageProps) {
-  const { t } = useTranslation()
   return (
     <div key="error" className={css.stage}>
       <div className={css.terminalStage}>

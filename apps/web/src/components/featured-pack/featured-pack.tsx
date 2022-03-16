@@ -78,6 +78,7 @@ export default function HomeTemplate({
             height={512}
             layout="responsive"
             objectFit="cover"
+            alt={featuredPack.title}
           />
         </div>
 

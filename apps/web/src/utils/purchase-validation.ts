@@ -1,7 +1,4 @@
-import {
-  CirclePaymentVerificationOptions,
-  PaymentStatus,
-} from '@algomart/schemas'
+import { PaymentStatus } from '@algomart/schemas'
 import { Translate } from 'next-translate'
 import {
   boolean,
