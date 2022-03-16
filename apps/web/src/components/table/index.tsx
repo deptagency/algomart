@@ -1,3 +1,4 @@
+import { SortDirection } from '@algomart/schemas'
 import { ArrowUpIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
 import get from 'lodash.get'
@@ -29,7 +30,7 @@ export type TableProps<T> = {
   columns: Array<ColumnDefinitionType<T>>
   data: Array<T>
   onHeaderClick?: (col: ColumnDefinitionType<T>) => void
-  sortDirection?: 'asc' | 'desc'
+  sortDirection?: SortDirection
   sortBy?: string
 }
 
@@ -66,7 +67,7 @@ function Table<T>({
               {sortBy === col.key && (
                 <ArrowUpIcon
                   className={clsx(css.sortIcon, {
-                    [css.sortAsc]: sortDirection === 'asc',
+                    [css.sortAsc]: sortDirection === SortDirection.Ascending,
                   })}
                 />
               )}

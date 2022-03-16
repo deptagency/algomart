@@ -56,11 +56,14 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     setTheme(null)
   }, [setTheme])
 
-  const handleThemeChangeShortcut = useCallback((event: KeyboardEvent) => {
-    if (event.ctrlKey && event.key === 'l') {
-      toggleTheme()
-    }
-  }, [])
+  const handleThemeChangeShortcut = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === 'l') {
+        toggleTheme()
+      }
+    },
+    [toggleTheme]
+  )
 
   useEffect(() => {
     if (!Environment.isProduction) {

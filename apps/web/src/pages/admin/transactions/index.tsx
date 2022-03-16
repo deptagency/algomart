@@ -7,8 +7,7 @@ import AppLink from '@/components/app-link/app-link'
 import Breadcrumbs from '@/components/breadcrumbs'
 import Pagination from '@/components/pagination/pagination'
 import Panel from '@/components/panel'
-import Table from '@/components/table'
-import { ColumnDefinitionType } from '@/components/table'
+import Table, { ColumnDefinitionType } from '@/components/table'
 import usePagination from '@/hooks/use-pagination'
 import AdminLayout from '@/layouts/admin-layout'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
@@ -105,7 +104,7 @@ export default function AdminTransactionsPage() {
             data={data?.payments}
             onHeaderClick={handleTableHeaderClick}
             sortBy={sortBy}
-            sortDirection={sortDirection as any}
+            sortDirection={sortDirection}
           />
         </div>
       </Panel>
