@@ -12,6 +12,8 @@ If using a single database, create the `cms` schema in your database before runn
 
 ```bash
 CREATE SCHEMA "cms"
+```
+
 Run the bootstrap and import commands via Nx:
 
 ```bash
