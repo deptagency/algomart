@@ -1,6 +1,6 @@
+import axios from 'axios'
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { FastifyError } from 'fastify-error'
-import { HTTPError } from 'got'
 import { HttpError } from 'http-errors'
 
 export class UserError extends Error {
@@ -15,12 +15,27 @@ export class UserError extends Error {
 export function appErrorHandler(app: FastifyInstance) {
   return async function (
     error: FastifyError,
-    request: FastifyRequest,
+    _request: FastifyRequest,
     reply: FastifyReply
   ) {
-    if (error instanceof HTTPError || error instanceof HttpError) {
-      reply.status(error.response.statusCode)
+    let statusCode = 500
+
+    if (axios.isAxiosError(error) && error.response) {
+      statusCode = error.response.status
+    } else if (error instanceof HttpError) {
+      statusCode = error.response.statusCode
+    } else if (error instanceof UserError) {
+      statusCode = error.statusCode
     }
+
+    if (statusCode >= 500) {
+      app.log.error(error)
+    } else {
+      app.log.info(error)
+    }
+
+    reply.status(statusCode)
+
     throw error
   }
 }

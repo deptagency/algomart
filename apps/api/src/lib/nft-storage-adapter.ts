@@ -1,12 +1,13 @@
 import pinataSDK, { PinataClient } from '@pinata/sdk'
-import got from 'got'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
+import path from 'node:path'
 import stream from 'node:stream'
 import { promisify } from 'node:util'
 import { getMimeType } from 'stream-mime-type'
 
 import { Configuration } from '@/configuration'
+import { HttpTransport } from '@/utils/http-transport'
 import { invariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
 
@@ -96,19 +97,17 @@ export default class NFTStorageAdapter {
   }
 
   async storeFile(url: string) {
-    let fileName: fs.PathLike = ''
+    const fileName = path.basename(new URL(url).pathname)
     try {
       // If CMS_PUBLIC_URL is set, we need to replace it with the internal URL
       const internalURL = url.includes(Configuration.cmsPublicUrl)
         ? url.replace(Configuration.cmsPublicUrl, Configuration.cmsUrl)
         : url
       const pipeline = promisify(stream.pipeline)
+      const http = new HttpTransport()
 
       // Kick off download stream, intercept file metadata
-      const downloadStream = got.stream(internalURL)
-      fileName = downloadStream.options.url.pathname
-        .split('/')
-        .at(-1) as fs.PathLike
+      const downloadStream = await http.stream(internalURL)
       const { mime, stream: outStream } = await getMimeType(downloadStream)
       outStream.on('error', (error: Error) => {
         this.logger.error(error, `Failed to download ${fileName}`)
