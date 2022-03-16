@@ -38,7 +38,7 @@ export default function useAdmin({
     if (auth.user) {
       checkClaims()
     }
-  }, [auth?.user, router])
+  }, [auth.user, redirectIfNotAdmin, router])
 
   return {
     isAdmin: (claims || []).includes(FirebaseClaim.admin),
