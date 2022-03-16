@@ -130,7 +130,7 @@ export default function CryptoFormWalletConnect({
         ) => !(transfer?.status === PaymentStatus.Paid)
         const transfer = await poll<ToPaymentBase | null>(
           async () =>
-            await checkoutService
+            await CheckoutService.instance
               .getTransferByAddress(address)
               .catch(() => null),
           completeWhenNotPendingForTransfer,
