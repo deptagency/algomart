@@ -25,8 +25,9 @@ import { ExtractError } from 'validator-fns'
 
 import { Analytics } from '@/clients/firebase-analytics'
 import { useAuth } from '@/contexts/auth-context'
-import bidService from '@/services/bid-service'
-import checkoutService, {
+import { BidService } from '@/services/bid-service'
+import {
+  CheckoutService,
   CreateBankAccountRequest,
   CreateCardRequest,
 } from '@/services/checkout-service'
@@ -149,7 +150,7 @@ export function usePaymentProvider({
 
   const findCountries = useCallback(async () => {
     try {
-      const countries = await checkoutService.getCountries()
+      const countries = await CheckoutService.instance.getCountries()
       if (countries) {
         const list = countries.map(({ code, name }) => ({
           label: name,
@@ -242,7 +243,7 @@ export function usePaymentProvider({
 
       // Send request to create
       setLoadingText(t('common:statuses.Submitting Payment'))
-      const payment = await checkoutService.createPayment({
+      const payment = await CheckoutService.instance.createPayment({
         cardId,
         description: `Purchase of ${release.title} release`,
         packTemplateId: release.templateId,
@@ -259,7 +260,8 @@ export function usePaymentProvider({
       const completeWhenNotPendingForPayments = (payment: Payment | null) =>
         !(payment?.status !== PaymentStatus.Pending)
       const paymentResponse = await poll<Payment | null>(
-        async () => await checkoutService.getPayment(payment.id as string),
+        async () =>
+          await CheckoutService.instance.getPayment(payment.id as string),
         completeWhenNotPendingForPayments,
         1000
       )
@@ -336,7 +338,7 @@ export function usePaymentProvider({
           setLoadingText(t('common:statuses.Saving Payment Information'))
         }
 
-        const card = await checkoutService
+        const card = await CheckoutService.instance
           .createCard({
             address1,
             address2,
@@ -372,7 +374,8 @@ export function usePaymentProvider({
           card: GetPaymentCardStatus | null
         ) => !(card?.status !== 'pending')
         const cardResponse = await poll<GetPaymentCardStatus | null>(
-          async () => await checkoutService.getCardStatus(cardIdentifier),
+          async () =>
+            await CheckoutService.instance.getCardStatus(cardIdentifier),
           completeWhenNotPendingForCards,
           1000
         )
@@ -437,7 +440,7 @@ export function usePaymentProvider({
           return
         }
 
-        const bankAccount = await checkoutService
+        const bankAccount = await CheckoutService.instance
           .createBankAccount({
             accountNumber,
             routingNumber,
@@ -478,7 +481,9 @@ export function usePaymentProvider({
         ) => !(bankAccount?.status !== 'pending')
         const bankAccountResp = await poll<GetPaymentBankAccountStatus | null>(
           async () =>
-            await checkoutService.getBankAccountStatus(bankAccountIdentifier),
+            await CheckoutService.instance.getBankAccountStatus(
+              bankAccountIdentifier
+            ),
           completeWhenNotPendingForAccounts,
           1000
         )
@@ -490,7 +495,7 @@ export function usePaymentProvider({
 
         // Retrieve instructions for new bank account
         const bankAccountInstructions =
-          await checkoutService.getBankAccountInstructions(
+          await CheckoutService.instance.getBankAccountInstructions(
             bankAccountIdentifier
           )
 
@@ -561,7 +566,7 @@ export function usePaymentProvider({
           }
 
           // Get the public key
-          const publicKeyRecord = await checkoutService.getPublicKey()
+          const publicKeyRecord = await CheckoutService.instance.getPublicKey()
 
           // Throw error if no public key
           if (!publicKeyRecord) {
@@ -589,7 +594,10 @@ export function usePaymentProvider({
         }
 
         // Create bid
-        const isBidValid = await bidService.addToPack(bid, auctionPackId)
+        const isBidValid = await BidService.instance.addToPack(
+          bid,
+          auctionPackId
+        )
         if (isBidValid) {
           setStatus(CheckoutStatus.success)
         } else {
@@ -619,7 +627,7 @@ export function usePaymentProvider({
       setLoadingText(t('common:statuses.Validating Payment Information'))
       try {
         // Get the public key
-        const publicKeyRecord = await checkoutService.getPublicKey()
+        const publicKeyRecord = await CheckoutService.instance.getPublicKey()
 
         // Throw error if no public key
         if (!publicKeyRecord) {

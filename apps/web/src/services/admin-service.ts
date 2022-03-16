@@ -8,6 +8,7 @@ import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
 import loadFirebase from '@/clients/firebase-client'
+import { invariant } from '@/utils/invariant'
 import { urls } from '@/utils/urls'
 
 export interface AdminAPI {
@@ -19,8 +20,17 @@ export interface AdminAPI {
 
 export class AdminService implements AdminAPI {
   http: typeof ky
+  private static _instance: AdminService
+
+  static get instance() {
+    return this._instance || (this._instance = new AdminService())
+  }
 
   constructor() {
+    invariant(
+      typeof window !== 'undefined',
+      'AdminService must be used in the browser'
+    )
     this.http = ky.create({
       throwHttpErrors: false,
       timeout: 10_000,
@@ -80,7 +90,3 @@ export class AdminService implements AdminAPI {
     return payment
   }
 }
-
-const adminService: AdminAPI = new AdminService()
-
-export default adminService

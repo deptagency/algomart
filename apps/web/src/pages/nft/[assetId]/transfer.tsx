@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { ApiClient } from '@/clients/api-client'
 import { useExportCollectible } from '@/hooks/use-export-collectible'
 import DefaultLayout from '@/layouts/default-layout'
-import authService from '@/services/auth-service'
+import { AuthService } from '@/services/auth-service'
 import NFTTransferTemplate, {
   TransferStage,
 } from '@/templates/nft-transfer-template'
@@ -37,7 +37,7 @@ export default function TransferPage({
   const handlePassphraseChange = useCallback(
     async (passphrase: string) => {
       if (passphrase.length < 6) return
-      if (await authService.verifyPassphrase(passphrase)) {
+      if (await AuthService.instance.verifyPassphrase(passphrase)) {
         setPassphrase(passphrase)
         setStage('connect')
       } else {

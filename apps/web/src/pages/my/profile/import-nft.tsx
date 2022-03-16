@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { useImportCollectible } from '@/hooks/use-import-collectible'
 import MyProfileLayout from '@/layouts/my-profile-layout'
-import authService from '@/services/auth-service'
+import { AuthService } from '@/services/auth-service'
 import MyImportNFTTemplate from '@/templates/my-import-nft-template'
 import { useApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
@@ -34,7 +34,7 @@ export default function MyImportPage() {
   const onPassphraseChange = useCallback(
     async (passphrase: string) => {
       if (passphrase.length < 6) return
-      if (await authService.verifyPassphrase(passphrase)) {
+      if (await AuthService.instance.verifyPassphrase(passphrase)) {
         setPassphrase(passphrase)
         setStage('connect')
       } else {

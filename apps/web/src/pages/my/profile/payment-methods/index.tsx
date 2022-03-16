@@ -9,7 +9,7 @@ import {
   getAuthenticatedUser,
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
-import checkoutService from '@/services/checkout-service'
+import { CheckoutService } from '@/services/checkout-service'
 import MyProfilePaymentMethodsTemplate from '@/templates/my-profile-payment-methods-template'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
@@ -48,7 +48,7 @@ export default function MyProfilePaymentMethodsPage({
   const [options, setOptions] = useState<CardsList[]>(cardsList)
 
   const handleRetrieveCards = useCallback(async () => {
-    const cards = await checkoutService.getCards()
+    const cards = await CheckoutService.instance.getCards()
     const sortedCardsByExpDate = sortByExpirationDate(cards)
     const sortedCardsByDefault = sortByDefault(sortedCardsByExpDate)
     const cardsList = toCardsList(sortedCardsByDefault)
@@ -57,7 +57,7 @@ export default function MyProfilePaymentMethodsPage({
 
   const updateCard = useCallback(
     async (cardId: string, defaultCard: boolean) => {
-      await checkoutService.updateCard(cardId, defaultCard)
+      await CheckoutService.instance.updateCard(cardId, defaultCard)
       handleRetrieveCards()
     },
     [handleRetrieveCards]
@@ -65,7 +65,7 @@ export default function MyProfilePaymentMethodsPage({
 
   const removeCard = useCallback(
     async (cardId: string) => {
-      await checkoutService.removeCard(cardId)
+      await CheckoutService.instance.removeCard(cardId)
       handleRetrieveCards()
     },
     [handleRetrieveCards]
@@ -82,22 +82,23 @@ export default function MyProfilePaymentMethodsPage({
   )
 }
 
-export const getServerSideProps: GetServerSideProps<MyProfilePaymentMethodsPageProps> =
-  async (context) => {
-    // Verify authentication
-    const user = await getAuthenticatedUser(context)
-    if (!user || !user.externalId)
-      return handleUnauthenticatedRedirect(context.resolvedUrl)
+export const getServerSideProps: GetServerSideProps<
+  MyProfilePaymentMethodsPageProps
+> = async (context) => {
+  // Verify authentication
+  const user = await getAuthenticatedUser(context)
+  if (!user || !user.externalId)
+    return handleUnauthenticatedRedirect(context.resolvedUrl)
 
-    // Find cards by owner
-    const cards = await ApiClient.instance.getCards({
-      ownerExternalId: user.externalId,
-    })
-    const sortedCardsByExpDate = sortByExpirationDate(cards)
-    const sortedCardsByDefault = sortByDefault(sortedCardsByExpDate)
-    return {
-      props: {
-        cards: sortedCardsByDefault,
-      },
-    }
+  // Find cards by owner
+  const cards = await ApiClient.instance.getCards({
+    ownerExternalId: user.externalId,
+  })
+  const sortedCardsByExpDate = sortByExpirationDate(cards)
+  const sortedCardsByDefault = sortByDefault(sortedCardsByExpDate)
+  return {
+    props: {
+      cards: sortedCardsByDefault,
+    },
   }
+}

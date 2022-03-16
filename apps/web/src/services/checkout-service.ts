@@ -18,6 +18,7 @@ import ky from 'ky'
 import loadFirebase from '@/clients/firebase-client'
 import { ExtractBodyType } from '@/middleware/validate-body-middleware'
 import { getPaymentsFilterQuery } from '@/utils/filters'
+import { invariant } from '@/utils/invariant'
 import {
   validateBankAccount,
   validateCard,
@@ -61,8 +62,17 @@ export interface CheckoutAPI {
 
 export class CheckoutService implements CheckoutAPI {
   http: typeof ky
+  private static _instance: CheckoutService
+
+  static get instance() {
+    return this._instance || (this._instance = new CheckoutService())
+  }
 
   constructor() {
+    invariant(
+      typeof window !== 'undefined',
+      'CheckoutService must be used in the browser'
+    )
     this.http = ky.create({
       throwHttpErrors: true,
       timeout: 10_000,
@@ -220,7 +230,3 @@ export class CheckoutService implements CheckoutAPI {
     return response.json()
   }
 }
-
-const checkoutService = new CheckoutService()
-
-export default checkoutService

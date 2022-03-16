@@ -8,7 +8,7 @@ import {
   UnsignedTransaction,
 } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
-import collectibleService from '@/services/collectible-service'
+import { CollectibleService } from '@/services/collectible-service'
 
 const algorand = new AlgorandAdapter(Environment.chainType)
 
@@ -57,10 +57,11 @@ export function useExportCollectible(passphrase: string) {
         if (!connector || !passphrase) return
 
         setExportStatus('generate-transactions')
-        const result = await collectibleService.initializeExportCollectible({
-          address: selectedAccount,
-          assetIndex,
-        })
+        const result =
+          await CollectibleService.instance.initializeExportCollectible({
+            address: selectedAccount,
+            assetIndex,
+          })
         let txnId = ''
 
         const unsignedTransactions = await Promise.all(
@@ -88,7 +89,7 @@ export function useExportCollectible(passphrase: string) {
         const encodedSignedTransaction =
           algorand.encodeSignedTransaction(signedTransaction)
 
-        await collectibleService.exportCollectible({
+        await CollectibleService.instance.exportCollectible({
           address: selectedAccount,
           assetIndex,
           passphrase,

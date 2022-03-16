@@ -12,6 +12,7 @@ import ky from 'ky'
 
 import loadFirebase from '@/clients/firebase-client'
 import { UploadedFileProps } from '@/types/file'
+import { invariant } from '@/utils/invariant'
 import { urls } from '@/utils/urls'
 
 export interface CreateAssetRequest {
@@ -43,8 +44,17 @@ export interface CollectibleAPI {
 
 export class CollectibleService implements CollectibleAPI {
   http: typeof ky
+  private static _instance: CollectibleService
+
+  static get instance() {
+    return this._instance || (this._instance = new CollectibleService())
+  }
 
   constructor() {
+    invariant(
+      typeof window !== 'undefined',
+      'CollectibleService must be used in the browser'
+    )
     this.http = ky.create({
       timeout: 10_000,
       throwHttpErrors: false,
@@ -177,7 +187,3 @@ export class CollectibleService implements CollectibleAPI {
       .json()
   }
 }
-
-const collectibleService: CollectibleAPI = new CollectibleService()
-
-export default collectibleService
