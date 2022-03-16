@@ -99,6 +99,11 @@ resource "google_cloud_run_service" "cms" {
           value = var.cms_secret
         }
 
+        env {
+          name = "CACHE_ENABLED"
+          value = true
+        }
+
         # The "locations" value is a comma-separate string of arbitrary values.
         # Directus doesn't expect any specific value(s); instead, it uses those
         # locations to look for other environment variables.
