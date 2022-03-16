@@ -958,7 +958,7 @@ export default class DirectusAdapter {
       }
     )
 
-    return response.data
+    return toHomepageBase(response.data.data)
   }
 
   async findApplication(): Promise<DirectusApplication | null> {
