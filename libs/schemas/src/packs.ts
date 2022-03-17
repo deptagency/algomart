@@ -79,6 +79,12 @@ export const ClaimPackSchema = Type.Object({
   claimedAt: Type.Optional(Nullable(Type.String({ format: 'date-time' }))),
 })
 
+export const RevokePackSchema = Type.Object({
+  packId: IdSchema,
+  ownerId: Type.Optional(Nullable(IdSchema)),
+  fromAddress: Type.Optional(Nullable(Type.String())),
+})
+
 export const PackConfigSchema = Type.Object({
   collectibleDistribution: Type.Enum(PackCollectibleDistribution),
   collectibleOrder: Type.Enum(PackCollectibleOrder),
@@ -86,6 +92,8 @@ export const PackConfigSchema = Type.Object({
 })
 
 export const PackBaseSchema = Type.Object({
+  activeBid: Type.Optional(Type.Number()),
+  additionalImages: Type.Array(Type.String({ format: 'uri' })),
   allowBidExpiration: Type.Boolean(),
   auctionUntil: Type.Optional(Type.String({ format: 'date-time' })),
   body: Type.Optional(Type.String()),
@@ -174,6 +182,7 @@ export const PackWithIdSchema = Type.Intersect([
   Type.Object({
     id: IdSchema,
     activeBidId: Type.Optional(IdSchema),
+    ownerId: Type.Optional(IdSchema),
   }),
 ])
 
@@ -205,6 +214,13 @@ export const PackSchema = Type.Intersect([
 export const PackByTemplateIdSchema = Type.Object({
   templateId: IdSchema,
 })
+
+export const PackForPaymentSchema = Type.Intersect([
+  PackSchema,
+  Type.Object({
+    template: Type.Optional(Nullable(PackBaseSchema)),
+  }),
+])
 
 export const RedeemCodeSchema = Type.Object({
   redeemCode: Type.String({
@@ -267,6 +283,7 @@ export type PublishedPacksQuery = Simplify<
 export type PublishedPack = Simplify<Static<typeof PublishedPackSchema>>
 export type PublishedPacks = Simplify<Static<typeof PublishedPacksSchema>>
 export type RedeemCode = Simplify<Static<typeof RedeemCodeSchema>>
+export type RevokePack = Simplify<Static<typeof RevokePackSchema>>
 export type TransferPack = Simplify<Static<typeof TransferPackSchema>>
 export type MintPack = Simplify<Static<typeof MintPackSchema>>
 export type MintPackStatusResponse = Simplify<

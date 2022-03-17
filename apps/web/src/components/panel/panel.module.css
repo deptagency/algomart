@@ -1,0 +1,26 @@
+.root {
+  @apply overflow-hidden shadow-lg bg-base-bgCard;
+}
+
+.header {
+  @apply flex px-5 pt-5 mb-5;
+}
+
+.padContent {
+  @apply px-5 pb-5 mt-5;
+}
+
+.description {
+  @apply text-sm text-base-textTertiary;
+}
+
+.contentLeft {
+}
+
+.contentRight {
+  @apply flex justify-end flex-auto flex-grow flex-shrink;
+}
+
+.footer {
+  @apply flex items-center justify-between gap-8 p-5 border-t-1 border-base-border text-base-textSecondary;
+}

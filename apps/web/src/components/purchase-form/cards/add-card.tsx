@@ -8,7 +8,8 @@ import AddMethodsSuccess from './sections/add-methods-success'
 import Loading from '@/components/loading/loading'
 import { FormValidation } from '@/contexts/payment-context'
 
-export interface MyProfilePaymentMethodsAddProps {
+export interface PaymentMethodsFormProps {
+  countries: { label: string | null; id: string }[]
   formErrors?: FormValidation
   handleRetry: () => void
   loadingText: string
@@ -16,17 +17,22 @@ export interface MyProfilePaymentMethodsAddProps {
   status?: CheckoutStatus
 }
 
-export default function MyProfilePaymentMethodsAddTemplate({
+export default function PaymentMethodsForm({
+  countries,
   handleRetry,
   formErrors,
   loadingText,
   onSubmit,
   status,
-}: MyProfilePaymentMethodsAddProps) {
+}: PaymentMethodsFormProps) {
   return (
     <section className="pt-5">
       <div className={status === CheckoutStatus.form ? '' : 'hidden'}>
-        <AddMethodsForm formErrors={formErrors} onSubmit={onSubmit} />
+        <AddMethodsForm
+          countries={countries}
+          formErrors={formErrors}
+          onSubmit={onSubmit}
+        />
       </div>
 
       {status === CheckoutStatus.loading && (

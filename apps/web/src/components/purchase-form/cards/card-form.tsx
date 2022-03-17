@@ -2,23 +2,25 @@ import { CheckoutMethod, CheckoutStatus, PackType } from '@algomart/schemas'
 import clsx from 'clsx'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { FormEvent, useCallback, useState } from 'react'
+import { FormEvent, useCallback } from 'react'
 
-import CardPurchaseError from './sections/card-error'
 import CardPurchaseForm from './sections/card-form'
 import CardPurchaseHeader from './sections/card-header'
-import CardPurchaseSuccess from './sections/card-success'
 import CardPurchaseSummary from './sections/card-summary'
 
 import css from './card-form.module.css'
 
 import Loading from '@/components/loading/loading'
+import Failure from '@/components/purchase-form/shared/failure'
+import Success from '@/components/purchase-form/shared/success'
 import { PaymentContextProps } from '@/contexts/payment-context'
 import { useWarningOnExit } from '@/hooks/use-warning-on-exit'
 import { isAfterNow } from '@/utils/date-time'
+import { urls } from '@/utils/urls'
 
 export default function CardForm({
   bid,
+  countries,
   release,
   formErrors,
   handleRetry,
@@ -27,12 +29,13 @@ export default function CardForm({
   loadingText,
   packId,
   price,
+  promptLeaving,
   setBid,
+  setPromptLeaving,
   status,
 }: PaymentContextProps) {
   const { t } = useTranslation()
   const { asPath, push } = useRouter()
-  const [promptLeaving, setPromptLeaving] = useState(false)
   const isAuctionActive =
     release?.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))
@@ -49,12 +52,35 @@ export default function CardForm({
         : onSubmitPurchase(data, true))
       setPromptLeaving(false)
     },
-    [release?.auctionUntil, release?.type, onSubmitBid, onSubmitPurchase]
+    [
+      release?.type,
+      release.auctionUntil,
+      onSubmitBid,
+      onSubmitPurchase,
+      setPromptLeaving,
+    ]
+  )
+
+  const handlePackOpening = useCallback(() => {
+    const path = urls.packOpening.replace(':packId', packId)
+    if (typeof window !== 'undefined') {
+      window.location.assign(new URL(path, window.location.origin).href)
+    }
+  }, [packId])
+
+  const handleCompleteAuction = useCallback(
+    () =>
+      push(
+        isAuctionActive
+          ? urls.release.replace(':packSlug', release.slug)
+          : urls.myCollectibles
+      ),
+    [isAuctionActive, push, release?.slug]
   )
 
   return (
     <section className={css.root}>
-      <CardPurchaseHeader release={release} />
+      <CardPurchaseHeader title={release.title} image={release.image} />
 
       <form
         className={clsx(
@@ -68,6 +94,7 @@ export default function CardForm({
         <CardPurchaseForm
           bid={bid}
           className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
+          countries={countries}
           formErrors={formErrors}
           isAuctionActive={isAuctionActive}
           setBid={setBid}
@@ -87,13 +114,39 @@ export default function CardForm({
       )}
 
       {status === CheckoutStatus.success && packId && (
-        <CardPurchaseSuccess release={release} packId={packId} />
+        <Success
+          buttonText={
+            release?.type === PackType.Auction && isAuctionActive
+              ? t('common:actions.Back to Listing')
+              : release?.type === PackType.Auction
+              ? t('common:actions.View My Collection')
+              : t('common:actions.Open Pack')
+          }
+          handleClick={
+            release?.type === PackType.Auction
+              ? handleCompleteAuction
+              : handlePackOpening
+          }
+          headingClassName={release?.type === PackType.Purchase && 'mb-16'}
+          headingText={
+            release?.type === PackType.Auction && isAuctionActive
+              ? t('common:statuses.Bid placed!')
+              : t('common:statuses.Success!')
+          }
+          notice={
+            release?.type === PackType.Auction &&
+            isAuctionActive &&
+            t('forms:fields.bid.success', { title: release.title })
+          }
+        />
       )}
 
       {status === CheckoutStatus.error && (
-        <CardPurchaseError
+        <Failure
+          buttonText={t('common:actions.Try Again')}
           error={t('forms:errors.failedPayment')}
-          handleRetry={handleRetry}
+          handleClick={handleRetry}
+          headingText={t('release:failedToClaim')}
         />
       )}
     </section>

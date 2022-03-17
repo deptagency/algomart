@@ -1,8 +1,11 @@
 import type WalletConnect from '@walletconnect/client'
 import { IInternalEvent } from '@walletconnect/types'
-import type { Transaction } from 'algosdk'
 
-import { AlgorandAdapter, IConnector } from './algorand-adapter'
+import {
+  AlgorandAdapter,
+  IConnector,
+  UnsignedTransaction,
+} from './algorand-adapter'
 import { EventEmitter } from './event-emitter'
 
 const BRIDGE_URL = 'https://bridge.walletconnect.org'
@@ -85,32 +88,42 @@ export class WalletConnectAdapter extends EventEmitter implements IConnector {
     await this._connector.killSession()
   }
 
-  public async signTransaction(transaction: Transaction, message?: string) {
+  public async signTransaction(
+    unsignedTransactions: UnsignedTransaction[],
+    message?: string,
+    skipSubmit?: boolean
+  ): Promise<(Uint8Array | null)[]> {
     try {
       if (!this._connector) throw new Error('WalletConnect not initialized')
 
       const { formatJsonRpcRequest } = await import('@json-rpc-tools/utils')
 
       const request = formatJsonRpcRequest(SIGNING_METHOD, [
-        [
-          {
+        await Promise.all(
+          unsignedTransactions.map(async (transaction) => ({
             txn: Buffer.from(
-              await this.algorand.encodeUnsignedTransaction(transaction)
+              await this.algorand.encodeUnsignedTransaction(transaction.txn)
             ).toString('base64'),
             message,
-          },
-        ],
+            signers: transaction.signers,
+          }))
+        ),
       ])
 
-      const [encodedSignedTxn]: string[] =
+      const encodedSignedTxns: string[] =
         await this._connector.sendCustomRequest(request)
 
-      const txn = new Uint8Array(Buffer.from(encodedSignedTxn, 'base64'))
+      const txns = encodedSignedTxns.map((txn) => {
+        if (!txn) return null
+        return new Uint8Array(Buffer.from(txn, 'base64'))
+      })
 
       // Send signed transaction to the Algorand network
-      await this.algorand.sendRawTransaction(txn)
+      if (!skipSubmit) {
+        await this.algorand.sendRawTransaction(txns)
+      }
 
-      return txn
+      return txns
     } catch (error) {
       this.onDisconnect()
       throw error

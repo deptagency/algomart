@@ -1,5 +1,7 @@
 export const urls = {
   // Main pages
+  adminTransactions: '/admin/transactions',
+  adminTransaction: '/admin/transactions/:transactionId',
   checkout: '/checkout',
   checkoutPack: '/checkout/:packSlug',
   checkoutPackWithMethod: '/checkout/:packSlug/:method',
@@ -13,9 +15,14 @@ export const urls = {
   myProfileSecurity: '/my/profile/security',
   myProfileSetup: '/my/profile/setup',
   myProfileTransactions: '/my/profile/transactions',
+  myProfileImportNFT: '/my/profile/import-nft',
   mySet: '/my/sets/:setSlug',
   myShowcase: '/my/showcase',
+  nft: '/nft/:assetId',
+  nftTransfer: '/nft/:assetId/transfer',
   packOpening: '/pack-opening/:packId',
+  paymentFailure: '/payments/failure',
+  paymentSuccess: '/payments/success',
   redeem: '/redeem',
   release: '/releases/:packSlug',
   releases: '/releases',
@@ -32,9 +39,25 @@ export const urls = {
   privacyPolicy: '#',
   termsAndConditions: '#',
 
+  // Admin
+  admin: {
+    index: '/admin',
+    transactions: '/admin/transactions',
+    transaction: '/admin/transactions/:transactionId',
+  },
+
   api: {
     v1: {
+      admin: {
+        getPaymentsForBankAccount:
+          '/api/v1/payments/get-payments-by-bank-account',
+        getPayments: '/api/v1/payments/list-payments',
+        revokePack: '/api/v1/asset/revoke',
+        updatePayment: '/api/v1/payments/update-payment',
+      },
       addToShowcase: '/api/v1/collection/add-showcase',
+      adminGetClaims: '/api/v1/admin/get-claims',
+      adminUpdateClaims: '/api/v1/admin/update-claims',
       asset: '/api/v1/asset',
       assetClaim: '/api/v1/asset/claim',
       assetMint: '/api/v1/asset/mint',
@@ -45,6 +68,10 @@ export const urls = {
       createCard: '/api/v1/payments/create-card',
       createPayment: '/api/v1/payments/create-payment',
       createTransfer: '/api/v1/payments/create-transfer-payment',
+      initializeExportCollectible: '/api/v1/asset/export',
+      exportCollectible: '/api/v1/asset/export/sign',
+      initializeImportCollectible: '/api/v1/asset/import',
+      importCollectible: '/api/v1/asset/import/sign',
       getAllCollections: '/api/v1/collection/get-all-collections',
       getAssetsByAlgoAddress: '/api/v1/asset/get-by-algo-address',
       getAssetsByOwner: '/api/v1/asset/get-by-owner',
@@ -53,6 +80,7 @@ export const urls = {
       getBankAccountStatus: '/api/v1/payments/get-bank-account-status',
       getCardsByOwner: '/api/v1/payments/get-cards-by-owner',
       getCardStatus: '/api/v1/payments/get-card-status',
+      getCountries: '/api/v1/payments/get-countries',
       getPayment: '/api/v1/payments/get-payment',
       getPublishedPacks: '/api/v1/pack/get-published-packs',
       getRedeemable: '/api/v1/asset/get-redeemable',

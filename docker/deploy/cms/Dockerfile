@@ -1,8 +1,8 @@
-FROM node:16-bullseye-slim
+FROM node:16-alpine
 
 WORKDIR /app
 COPY docker/deploy/cms/run.sh ./
 COPY apps/cms/ ./
-RUN npm install directus@9.4.3 --save-exact --global
+RUN npm install directus --global
 
 CMD ["./run.sh"]

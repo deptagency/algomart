@@ -1,26 +1,27 @@
-.navigation {
-}
-
-.wrapper {
+.root {
   @apply flex justify-center;
 }
 
 .pageNumbersList {
-  @apply flex items-center m-0 p-0;
+  @apply flex items-center p-0 m-0;
 }
 
 .listItem {
-  @apply list-none pr-2.5;
+  @apply list-none;
+}
+
+.listItem:not(:last-of-type) {
+  @apply pr-2.5;
 }
 
 .pageNumber {
-  @apply h-10 w-10;
+  @apply w-10 h-10;
 }
 
 .currentPageNumber {
-  @apply bg-action-secondary text-white;
+  @apply text-white bg-action-secondary;
 }
 
 .otherPageNumbers {
-  @apply text-base-textPrimary underline;
+  @apply underline text-base-textPrimary;
 }

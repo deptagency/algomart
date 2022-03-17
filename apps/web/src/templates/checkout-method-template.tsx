@@ -3,11 +3,11 @@ import { useRouter } from 'next/router'
 import { Translate } from 'next-translate'
 import useTranslation from 'next-translate/useTranslation'
 
-import Breadcrumbs from '@/components/breadcrumbs'
 import EmailVerification from '@/components/profile/email-verification'
 import CardForm from '@/components/purchase-form/cards/card-form'
 import CryptoPurchaseForm from '@/components/purchase-form/crypto/crypto-purchase-form'
 import BankAccountForm from '@/components/purchase-form/wires/bank-account-form'
+import StepLinks from '@/components/step-links'
 import { useAuth } from '@/contexts/auth-context'
 import { PaymentContextProps } from '@/contexts/payment-context'
 import { urls } from '@/utils/urls'
@@ -52,7 +52,7 @@ export default function CheckoutMethodsTemplate(
   }
   return (
     <>
-      {!!method && <Breadcrumbs breadcrumbs={getPaymentNavItems(t)} />}
+      {!!method && <StepLinks links={getPaymentNavItems(t)} />}
       {/* Credit cards */}
       {method === CheckoutMethod.card && <CardForm {...paymentProps} />}
       {/* Wire payments */}

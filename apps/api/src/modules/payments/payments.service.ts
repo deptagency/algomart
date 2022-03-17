@@ -1,12 +1,14 @@
 import {
+  CirclePaymentErrorCode,
   CirclePaymentQueryType,
   CirclePaymentSourceType,
+  CirclePaymentVerificationOptions,
   CreateBankAccount,
   CreateCard,
   CreatePayment,
   CreateTransferPayment,
-  CreateWalletAddress,
   DEFAULT_CURRENCY,
+  DEFAULT_LOCALE,
   EventAction,
   EventEntityType,
   NotificationType,
@@ -14,33 +16,46 @@ import {
   PackType,
   PaymentBankAccountStatus,
   PaymentCardStatus,
+  PaymentQuerystring,
+  Payments,
+  PaymentSortField,
+  PaymentsQuerystring,
   PaymentStatus,
   SendBankAccountInstructions,
+  SortDirection,
   ToPaymentBase,
+  UpdatePayment,
   UpdatePaymentCard,
+  UserAccount,
+  WirePayment,
 } from '@algomart/schemas'
+import { enc, SHA256 } from 'crypto-js'
 import { Transaction } from 'objection'
+import { v4 as uuid } from 'uuid'
 
 import { Configuration } from '@/configuration'
 import CircleAdapter from '@/lib/circle-adapter'
 import CoinbaseAdapter from '@/lib/coinbase-adapter'
 import { BidModel } from '@/models/bid.model'
 import { EventModel } from '@/models/event.model'
+import { PackModel } from '@/models/pack.model'
 import { PaymentModel } from '@/models/payment.model'
 import { PaymentBankAccountModel } from '@/models/payment-bank-account.model'
 import { PaymentCardModel } from '@/models/payment-card.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import NotificationService from '@/modules/notifications/notifications.service'
 import PacksService from '@/modules/packs/packs.service'
-import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 import {
   convertFromUSD,
   convertToUSD,
   currency,
+  formatFloatToInt,
+  formatIntToFloat,
   isGreaterThanOrEqual,
 } from '@/utils/format-currency'
 import { invariant, userInvariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
+import { poll } from '@/utils/poll'
 
 export default class PaymentsService {
   logger = logger.child({ context: this.constructor.name })
@@ -59,6 +74,117 @@ export default class PaymentsService {
     } catch {
       return null
     }
+  }
+
+  async getPayments({
+    locale = DEFAULT_LOCALE,
+    page = 1,
+    pageSize = 10,
+    packId,
+    packSlug,
+    payerExternalId,
+    payerUsername,
+    sortBy = PaymentSortField.UpdatedAt,
+    sortDirection = SortDirection.Ascending,
+  }: PaymentsQuerystring): Promise<Payments> {
+    let account: UserAccount
+    userInvariant(page > 0, 'page must be greater than 0')
+    userInvariant(
+      pageSize > 0 || pageSize === -1,
+      'pageSize must be greater than 0'
+    )
+    userInvariant(
+      [
+        PaymentSortField.UpdatedAt,
+        PaymentSortField.CreatedAt,
+        PaymentSortField.Status,
+      ].includes(sortBy),
+      'sortBy must be one of createdAt, updatedAt, or status'
+    )
+    userInvariant(
+      [SortDirection.Ascending, SortDirection.Descending].includes(
+        sortDirection
+      ),
+      'sortDirection must be one of asc or desc'
+    )
+
+    // Find payer
+    const userIdentifier = payerExternalId || payerUsername
+    const field = payerUsername ? 'username' : 'externalId'
+    if (userIdentifier) {
+      account = await UserAccountModel.query()
+        .findOne(field, '=', userIdentifier)
+        .select('id')
+      userInvariant(account, 'user not found', 404)
+    }
+
+    const packIds = []
+    const packLookup = new Map()
+
+    // Add pack ID to packs array if available
+    if (packId) {
+      const packDetails = await this.packs.getPackById(packId)
+      const { packs: packTemplates } = await this.packs.getPublishedPacks({
+        templateIds: [packDetails.templateId],
+      })
+      const packTemplate = packTemplates.find(
+        (t) => t.templateId === packDetails.templateId
+      )
+      if (packTemplate) {
+        packIds.push(packId)
+        packLookup.set(packId, {
+          ...packTemplate,
+          ...packDetails,
+        })
+      }
+    }
+
+    // Find packs and add pack IDs to array if available
+    const packQuery: { locale?: string; slug?: string } = {}
+    if (locale) packQuery.locale = locale
+    if (packSlug) packQuery.slug = packSlug
+    if (Object.keys(packQuery).length > 0) {
+      const { packs: packTemplates } = await this.packs.getPublishedPacks(
+        packQuery
+      )
+      const templateIds = packTemplates.map((p) => p.templateId)
+      const templateLookup = new Map(
+        packTemplates.map((p) => [p.templateId, p])
+      )
+      const packList = await PackModel.query()
+        .whereIn('templateId', templateIds)
+        .withGraphFetched('activeBid')
+      packList.map((p) => {
+        packIds.push(p.id)
+        packLookup.set(p.id, {
+          template: templateLookup.get(p.templateId),
+          ...p,
+          activeBid: p?.activeBid?.amount,
+        })
+      })
+    }
+
+    // Find payments in the database
+    const query = PaymentModel.query()
+    if (account?.id) query.where('payerId', '=', account.id)
+    if (packIds && packIds.length > 0) {
+      if (!account?.id) {
+        query.whereIn('packId', packIds)
+      } else {
+        query.orWhereIn('packId', packIds)
+      }
+    }
+
+    const { results, total } = await query
+      .orderBy(sortBy, sortDirection)
+      .page(page >= 1 ? page - 1 : page, pageSize)
+
+    const payments = results.map((payment) => ({
+      ...payment,
+      pack: packLookup.get(payment.packId),
+    }))
+
+    return { payments, total }
   }
 
   async getCardStatus(cardId: string) {
@@ -150,7 +276,7 @@ export default class PaymentsService {
     // Create card using Circle API
     const card = await this.circle
       .createPaymentCard({
-        idempotencyKey: cardDetails.idempotencyKey,
+        idempotencyKey: uuid(),
         keyId: cardDetails.keyId,
         encryptedData: cardDetails.encryptedData,
         billingDetails: cardDetails.billingDetails,
@@ -158,14 +284,11 @@ export default class PaymentsService {
         expYear: cardDetails.expirationYear,
         metadata: cardDetails.metadata,
       })
-      .catch((error) => {
-        this.logger.error(error, 'failed to create payment card')
+      .catch(() => {
         return null
       })
 
-    if (!card) {
-      return null
-    }
+    invariant(card, 'failed to create card')
 
     // Create new card in database
     if (cardDetails.saveCard && card) {
@@ -212,7 +335,7 @@ export default class PaymentsService {
       .first()
     userInvariant(user, 'no user found', 404)
 
-    const { price, packId } = await this.selectPackAndAssignToUser(
+    const { price, packId, priceInUSD } = await this.selectPackAndAssignToUser(
       bankDetails.packTemplateId,
       user.id,
       trx
@@ -221,7 +344,7 @@ export default class PaymentsService {
     // Create bank account using Circle API
     const bankAccount = await this.circle
       .createBankAccount({
-        idempotencyKey: bankDetails.idempotencyKey,
+        idempotencyKey: uuid(),
         accountNumber: bankDetails.accountNumber,
         routingNumber: bankDetails.routingNumber,
         billingDetails: bankDetails.billingDetails,
@@ -293,6 +416,22 @@ export default class PaymentsService {
       entityId: newBankAccount.id,
       userAccountId: user.id,
     })
+
+    if (Configuration.customerServiceEmail) {
+      const packTemplate = await this.packs.getPackById(packId)
+      await this.notifications.createNotification(
+        {
+          type: NotificationType.CSAwaitingWirePayment,
+          userAccountId: user.id,
+          variables: {
+            packTitle: packTemplate.title,
+            paymentId: newPayment.id,
+            amount: priceInUSD,
+          },
+        },
+        trx
+      )
+    }
 
     return { id: newBankAccount.id, status: bankAccount.status }
   }
@@ -403,15 +542,8 @@ export default class PaymentsService {
 
     // If encrypted details are provided, add to request
     const encryptedDetails = {}
-    const {
-      keyId,
-      encryptedData,
-      cardId,
-      idempotencyKey,
-      metadata,
-      verification,
-      description,
-    } = paymentDetails
+    const { keyId, encryptedData, cardId, metadata, description } =
+      paymentDetails
     if (keyId) {
       Object.assign(encryptedDetails, { keyId })
     }
@@ -423,55 +555,73 @@ export default class PaymentsService {
     // Attempt to find card (cardId could be source or db ID)
     const card = await PaymentCardModel.query(trx).findById(cardId)
 
-    // Create payment using Circle API
-    const payment = await this.circle
-      .createPayment({
-        idempotencyKey: idempotencyKey,
-        metadata: metadata,
-        amount: {
-          amount: priceInUSD,
-          currency: DEFAULT_CURRENCY,
-        },
-        verification: verification,
-        description: description,
-        source: {
-          id: card?.externalId || cardId,
-          type: CirclePaymentSourceType.card, // @TODO: Update when support ACH
-        },
-        ...encryptedDetails,
-      })
-      .catch((error) => {
-        this.logger.error(error, 'failed to create payment')
-        return null
-      })
+    // Circle only accepts loopback addresses
+    const verificationHostname = Configuration.webUrl.includes('localhost')
+      ? 'http://127.0.0.1:3000'
+      : Configuration.webUrl
 
-    if (!payment) {
-      // Remove claim from payment if payment doesn't go through
-      await this.packs.claimPack(
-        {
-          packId,
-          claimedById: null,
-          claimedAt: null,
-        },
-        trx
-      )
-
-      return null
+    // Base payment details
+    const basePayment = {
+      metadata: {
+        ...metadata,
+        sessionId: SHA256(user.id).toString(enc.Base64),
+      },
+      amount: {
+        amount: priceInUSD,
+        currency: DEFAULT_CURRENCY,
+      },
+      description,
+      source: {
+        id: card?.externalId || cardId,
+        type: CirclePaymentSourceType.card,
+      },
     }
 
-    // Create new payment in database
+    // Create 3DS payment
+    const paymentResponse = await this.circle
+      .createPayment({
+        idempotencyKey: uuid(),
+        ...basePayment,
+        ...encryptedDetails,
+        verification: CirclePaymentVerificationOptions.three_d_secure,
+        verificationSuccessUrl: new URL(
+          Configuration.successPath,
+          verificationHostname
+        ).toString(),
+        verificationFailureUrl: new URL(
+          Configuration.failurePath,
+          verificationHostname
+        ).toString(),
+      })
+      .catch(() => null)
+
+    invariant(paymentResponse, 'unable to create 3DS payment')
+
     // Circle may return the same payment ID if there's duplicate info
     const newPayment = await PaymentModel.query(trx)
       .insert({
-        externalId: payment.externalId,
-        status: payment.status,
-        error: payment.error,
+        externalId: paymentResponse.externalId,
+        status: paymentResponse.status,
+        error: paymentResponse.error,
         payerId: user.id,
         packId,
         paymentCardId: card?.id,
       })
       .onConflict('externalId')
       .ignore()
+
+    invariant(newPayment, 'unable to create payment in database')
+
+    // Search for payment status to confirm check is complete
+    const completeWhenNotPendingForPayments = (payment: ToPaymentBase | null) =>
+      !(payment?.status !== PaymentStatus.Pending)
+    const foundPayment = await poll<ToPaymentBase | null>(
+      async () =>
+        await this.circle.getPaymentById(paymentResponse.externalId as string),
+      completeWhenNotPendingForPayments,
+      1000
+    )
+    invariant(foundPayment, 'unable to find payment')
 
     // Create event for payment creation
     await EventModel.query(trx).insert({
@@ -480,6 +630,45 @@ export default class PaymentsService {
       entityId: newPayment.id,
       userAccountId: user.id,
     })
+
+    if (
+      foundPayment.status === PaymentStatus.Failed &&
+      foundPayment.error === CirclePaymentErrorCode.three_d_secure_not_supported
+    ) {
+      // Create cvv payment with Circle if 3DS is not supported
+      const cvvPayment = await this.circle
+        .createPayment({
+          idempotencyKey: uuid(),
+          ...basePayment,
+          ...encryptedDetails,
+          verification: CirclePaymentVerificationOptions.cvv,
+        })
+        .catch(() => null)
+
+      // Remove claim from payment if payment doesn't go through
+      if (!cvvPayment) {
+        await this.packs.revokePack(
+          {
+            packId,
+            ownerId: user.id,
+          },
+          trx
+        )
+        return null
+      }
+      invariant(cvvPayment, 'unable to create cvv payment')
+
+      // Update payment with new details
+      const payment = await PaymentModel.query(trx).patchAndFetchById(
+        newPayment.id,
+        {
+          externalId: cvvPayment.externalId,
+          status: cvvPayment.status,
+          error: cvvPayment.error,
+        }
+      )
+      return payment
+    }
 
     return newPayment
   }
@@ -569,13 +758,13 @@ export default class PaymentsService {
     return newPayment
   }
 
-  async generateAddress(request: CreateWalletAddress) {
+  async generateAddress() {
     // Find the merchant wallet
     const merchantWallet = await this.circle.getMerchantWallet()
     userInvariant(merchantWallet, 'no wallet found', 404)
     // Create blockchain address
     const address = await this.circle.createBlockchainAddress({
-      idempotencyKey: request.idempotencyKey,
+      idempotencyKey: uuid(),
       walletId: merchantWallet.walletId,
     })
     userInvariant(address, 'wallet could not be created', 401)
@@ -587,22 +776,9 @@ export default class PaymentsService {
     trx?: Transaction
   ): Promise<ToPaymentBase | null> {
     if (!payment.id || !payment.paymentBankId || !payment.packId) return null
-    // Find bank account in database
-    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+    const payments = await this.searchAllWirePaymentsByBankId(
       payment.paymentBankId
     )
-    userInvariant(foundBankAccount, 'bank account was not found', 404)
-
-    // Last 24 hours
-    const newDate24HoursInPast = new Date(
-      new Date().setDate(new Date().getDate() - 1)
-    ).toISOString()
-
-    // Get recent payments of wire type
-    const payments = await this.circle.getPayments({
-      from: newDate24HoursInPast.toString(),
-      type: CirclePaymentQueryType.wire,
-    })
     if (!payments) return null
 
     // Retrieve exchange rates for app currency and USD
@@ -611,31 +787,192 @@ export default class PaymentsService {
     })
     invariant(exchangeRates, 'unable to find exchange rates')
 
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      payment.paymentBankId
+    )
+    userInvariant(foundBankAccount, 'bank account was not found', 404)
+
     // Find payment with matching source ID
     const sourcePayment = payments.find((currentPayment) => {
       // Convert price to USD for payment
       const amount = convertFromUSD(currentPayment.amount, exchangeRates.rates)
       invariant(amount !== null, 'unable to convert to currency')
       const amountInt = formatFloatToInt(amount)
-      return (
-        currentPayment.sourceId === foundBankAccount.externalId &&
-        amountInt === foundBankAccount.amount
-      )
+      return amountInt === foundBankAccount.amount
     })
     if (!sourcePayment) return null
+
     // Update payment details
     if (payment.status !== sourcePayment.status || !payment.externalId) {
-      await PaymentModel.query(trx).patchAndFetchById(payment.id, {
+      await PaymentModel.query(trx).findById(payment.id).patch({
         externalId: sourcePayment.externalId,
         status: sourcePayment.status,
       })
+      // Send Awaiting payment notification to customer service
+      if (Configuration.customerServiceEmail) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSAwaitingWirePayment,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      }
     }
+
+    // Send email notification to  Customer service
+    if (Configuration.customerServiceEmail) {
+      if (sourcePayment.status === PaymentStatus.Failed) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentFailed,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      } else if (sourcePayment.status === PaymentStatus.Paid) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentSuccess,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      }
+    }
+
+    // STATUS CHANGED
+    if (
+      payment.status !== sourcePayment.status && // Automated notifications to customer service
+      Configuration.customerServiceEmail
+    ) {
+      if (sourcePayment.status === PaymentStatus.Failed) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentFailed,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              paymentId: payment.id,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      } else if (sourcePayment.status === PaymentStatus.Paid) {
+        const packTemplate = await this.packs.getPackById(payment.packId)
+        await this.notifications.createNotification(
+          {
+            type: NotificationType.CSWirePaymentSuccess,
+            userAccountId: payment.payerId,
+            variables: {
+              packTitle: packTemplate.title,
+              paymentId: payment.id,
+              amount: sourcePayment.amount,
+            },
+          },
+          trx
+        )
+      }
+    }
+
     return sourcePayment
   }
 
-  async getPaymentById(paymentId: string) {
-    const payment = await PaymentModel.query().findById(paymentId)
+  async searchAllWirePaymentsByBankId(
+    bankAccountId: string
+  ): Promise<WirePayment[]> {
+    userInvariant(
+      bankAccountId,
+      'bank account identifier was not provided',
+      400
+    )
+    // Find bank account in database
+    const foundBankAccount = await PaymentBankAccountModel.query().findById(
+      bankAccountId
+    )
+    userInvariant(foundBankAccount, 'bank account was not found', 404)
+
+    // Get payments of wire type, since the date when the payment was created
+    const dateCreated = new Date(foundBankAccount.createdAt).toISOString()
+    const matchingPayments = await this.circle.getPayments({
+      from: dateCreated.toString(),
+      type: CirclePaymentQueryType.wire,
+      source: foundBankAccount.externalId,
+    })
+    return matchingPayments || []
+  }
+
+  async getPaymentById(paymentId: string, args?: PaymentQuerystring) {
+    const { isAdmin, isExternalId } = args
+    // Find payment by ID or external ID
+    const query = PaymentModel.query()
+    if (isExternalId) {
+      query.where({ externalId: paymentId })
+    } else {
+      query.findById(paymentId)
+    }
+
+    // Search for matching payment
+    const payment = await query
+      .withGraphFetched('payer')
+      .withGraphFetched('pack')
+      .first()
     userInvariant(payment, 'payment not found', 404)
+
+    // If admin, return additional pack details
+    if (isAdmin) {
+      const pack = payment.pack
+      invariant(pack?.templateId, 'pack template not found')
+      const { packs: packTemplates } = await this.packs.getPublishedPacks({
+        templateIds: [pack.templateId],
+      })
+      const packTemplate = packTemplates[0]
+      return {
+        ...payment,
+        pack: {
+          ...pack,
+          template: packTemplate,
+        },
+      }
+    }
+    return payment
+  }
+
+  async updatePayment(
+    paymentId: string,
+    updatedDetails: UpdatePayment,
+    trx?: Transaction
+  ) {
+    const payment = await PaymentModel.query(trx).findById(paymentId)
+    userInvariant(payment, 'payment not found', 404)
+
+    // Update payment with new details
+    await PaymentModel.query(trx).findById(paymentId).patch(updatedDetails)
+
+    await EventModel.query(trx).insert({
+      action: EventAction.Update,
+      entityType: EventEntityType.Payment,
+      entityId: paymentId,
+    })
+
     return payment
   }
 
@@ -702,6 +1039,7 @@ export default class PaymentsService {
         variables: {
           amount: formatIntToFloat(foundBankAccount.amount),
           packTitle: packTemplate.title,
+          packSlug: packTemplate.slug,
           trackingRef: bankAccountInstructions.trackingRef,
           beneficiaryName: bankAccountInstructions.beneficiary.name,
           beneficiaryAddress1: bankAccountInstructions.beneficiary.address1,
@@ -732,8 +1070,12 @@ export default class PaymentsService {
 
   async updatePaymentStatuses(trx?: Transaction) {
     const pendingPayments = await PaymentModel.query(trx)
-      // Pending and Confirmed are non-final statuses
-      .whereIn('status', [PaymentStatus.Pending, PaymentStatus.Confirmed])
+      // Pending, Confirmed, and ActionRequired are non-final statuses
+      .whereIn('status', [
+        PaymentStatus.Pending,
+        PaymentStatus.ActionRequired,
+        PaymentStatus.Confirmed,
+      ])
       // Prioritize pending payments
       .orderBy('status', 'desc')
       .limit(10)
@@ -744,8 +1086,9 @@ export default class PaymentsService {
     await Promise.all(
       pendingPayments.map(async (payment) => {
         let status: PaymentStatus | undefined
+
         // Card flow
-        if (payment.externalId && payment.paymentCardId) {
+        if (payment.externalId) {
           const circlePayment = await this.circle.getPaymentById(
             payment.externalId
           )
@@ -757,7 +1100,18 @@ export default class PaymentsService {
           if (payment.status !== circlePayment.status) {
             await PaymentModel.query(trx).patchAndFetchById(payment.id, {
               status: circlePayment.status,
+              action: circlePayment.action,
+              error: circlePayment.error,
             })
+            if (circlePayment.status === PaymentStatus.Failed) {
+              await this.packs.revokePack(
+                {
+                  packId: payment.packId,
+                  ownerId: payment.payerId,
+                },
+                trx
+              )
+            }
             status = circlePayment.status
             updatedPayments++
           }
@@ -787,15 +1141,35 @@ export default class PaymentsService {
             updatedPayments++
           }
         }
+
         // If the new payment status is resolved as Paid:
         if (status === PaymentStatus.Paid && payment.packId) {
-          // @TODO: Take action if payment is successful
+          const packTemplate = await this.packs.getPackById(payment.packId)
+          await this.notifications.createNotification(
+            {
+              type: NotificationType.PaymentSuccess,
+              userAccountId: payment.payerId,
+              variables: {
+                packTitle: packTemplate.title,
+              },
+            },
+            trx
+          )
         }
         // If the new payment status is resolved as Failed:
         if (status === PaymentStatus.Failed) {
-          // @TODO: Take action if payment fails
+          const packTemplate = await this.packs.getPackById(payment.packId)
+          await this.notifications.createNotification(
+            {
+              type: NotificationType.PaymentFailed,
+              userAccountId: payment.payerId,
+              variables: {
+                packTitle: packTemplate.title,
+              },
+            },
+            trx
+          )
         }
-        return
       })
     )
 

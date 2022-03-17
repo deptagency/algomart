@@ -9,7 +9,7 @@ import css from './bank-account-summary.module.css'
 import Button from '@/components/button'
 import Checkbox from '@/components/checkbox'
 import Heading from '@/components/heading'
-import { formatCurrency } from '@/utils/format-currency'
+import { currency, formatCurrency } from '@/utils/format-currency'
 
 interface BankAccountSummaryProps {
   isAuctionActive: boolean
@@ -47,7 +47,9 @@ export default function BankAccountSummary({
         <tbody>
           <tr>
             <th scope="row">{release?.title}</th>
-            <td>{formatCurrency(price, lang)}</td>
+            <td>
+              {formatCurrency(price, lang)} {currency?.code && currency.code}
+            </td>
           </tr>
         </tbody>
       </table>

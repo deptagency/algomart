@@ -1,5 +1,6 @@
 import { Static, Type } from '@sinclair/typebox'
 
+import { CollectionWithSetsSchema, SetBaseSchema } from './collections'
 import {
   BaseSchema,
   IdSchema,
@@ -13,6 +14,15 @@ import {
 export enum IPFSStatus {
   Pending = 'pending',
   Stored = 'stored',
+}
+
+export enum CollectibleAuctionStatus {
+  New = 'new',
+  SettingUp = 'setting-up',
+  Active = 'active',
+  Closing = 'closing',
+  Closed = 'closed',
+  Canceled = 'canceled',
 }
 
 export const CollectibleSchema = Type.Intersect([
@@ -34,6 +44,30 @@ export const CollectibleSchema = Type.Intersect([
     assetMetadataHash: Type.Optional(Nullable(Type.String())),
     assetUrl: Type.Optional(Nullable(Type.String())),
     ipfsStatus: Type.Optional(Nullable(Type.Enum(IPFSStatus))),
+  }),
+])
+
+export const CollectibleAuctionSchema = Type.Intersect([
+  BaseSchema,
+  Type.Object({
+    collectibleId: IdSchema,
+    userAccountId: IdSchema,
+    reservePrice: Type.Integer({ minimum: 0 }),
+    startAt: Type.String({ format: 'date-time' }),
+    endAt: Type.String({ format: 'date-time' }),
+    status: Type.Enum(CollectibleAuctionStatus),
+    appId: Type.Optional(Nullable(Type.Integer())),
+    transactionId: Type.String({ format: 'uuid' }),
+  }),
+])
+
+export const CollectibleAuctionBidSchema = Type.Intersect([
+  BaseSchema,
+  Type.Object({
+    collectibleAuctionId: IdSchema,
+    amount: Type.Integer({ minimum: 0 }),
+    userAccountId: IdSchema,
+    transactionId: Type.Optional(Nullable(Type.String({ format: 'uuid' }))),
   }),
 ])
 
@@ -66,6 +100,13 @@ export const CollectibleWithDetailsSchema = Type.Intersect([
     edition: Type.Number(),
     address: Type.Optional(Type.Number()),
     claimedAt: Type.Optional(Type.String({ format: 'date-time' })),
+    currentOwner: Type.Optional(Type.String()),
+    currentOwnerAddress: Type.Optional(Type.String()),
+    collection: Type.Optional(CollectionWithSetsSchema),
+    set: Type.Optional(SetBaseSchema),
+    isFrozen: Type.Optional(Type.Boolean()),
+    mintedAt: Type.Optional(Type.String({ format: 'date-time' })),
+    transferrableAt: Type.Optional(Type.String({ format: 'date-time' })),
   }),
 ])
 
@@ -101,6 +142,14 @@ export const CollectiblesByAlgoAddressQuerystringSchema = Type.Intersect([
     sortDirection: Type.Optional(
       Type.Enum(SortDirection, { default: SortDirection.Ascending })
     ),
+  }),
+])
+
+export const SingleCollectibleQuerystringSchema = Type.Intersect([
+  LocaleSchema,
+  Type.Object({
+    assetId: Type.Integer({ minimum: 0 }),
+    externalId: Type.Optional(Type.String({ format: 'uuid' })),
   }),
 ])
 
@@ -145,7 +194,39 @@ export const CollectibleListShowcaseSchema = Type.Object({
   collectibles: CollectibleListSchema,
 })
 
+export const InitializeTransferCollectibleSchema = Type.Object({
+  assetIndex: Type.Number(),
+  address: Type.String(),
+  externalId: Type.String(),
+})
+
+export const TransferCollectibleSchema = Type.Intersect([
+  InitializeTransferCollectibleSchema,
+  Type.Object({
+    transactionId: Type.String(),
+    signedTransaction: Type.String(),
+    passphrase: Type.String(),
+  }),
+])
+
+export const EncodedTransactionSchema = Type.Object({
+  txn: Type.String(),
+  txnId: Type.String(),
+  signer: Type.String(),
+  signedTxn: Type.Optional(Type.String()),
+})
+
+export const TransferCollectibleResultSchema = Type.Array(
+  EncodedTransactionSchema
+)
+
 export type Collectible = Simplify<Static<typeof CollectibleSchema>>
+export type CollectibleAuction = Simplify<
+  Static<typeof CollectibleAuctionSchema>
+>
+export type CollectibleAuctionBid = Simplify<
+  Static<typeof CollectibleAuctionBidSchema>
+>
 export type CollectibleOwnership = Simplify<
   Static<typeof CollectibleOwnershipSchema>
 >
@@ -173,4 +254,19 @@ export type CollectibleListWithTotal = Simplify<
 export type CollectibleId = Simplify<Static<typeof CollectibleIdSchema>>
 export type CollectibleListShowcase = Simplify<
   Static<typeof CollectibleListShowcaseSchema>
+>
+export type SingleCollectibleQuerystring = Simplify<
+  Static<typeof SingleCollectibleQuerystringSchema>
+>
+export type InitializeTransferCollectible = Simplify<
+  Static<typeof InitializeTransferCollectibleSchema>
+>
+export type TransferCollectible = Simplify<
+  Static<typeof TransferCollectibleSchema>
+>
+export type TransferCollectibleResult = Simplify<
+  Static<typeof TransferCollectibleResultSchema>
+>
+export type EncodedTransaction = Simplify<
+  Static<typeof EncodedTransactionSchema>
 >

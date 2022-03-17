@@ -36,7 +36,7 @@ export default function PackGrid({
   })
   const animationOpacity = useTrail(packCards.length, {
     config: config.default,
-    delay: 5000,
+    delay: 2500,
     from: { opacity: 0 },
     to: { opacity: 1 },
   })
@@ -124,6 +124,7 @@ export default function PackGrid({
           className={css.viewCollectionButton}
           onClick={onTransfer}
           disabled={packCards.length === 0 || !enableTransfer}
+          busy={packCards.length === 0 || !enableTransfer}
         >
           {t('common:actions.Save to My Collection')}
         </Button>

@@ -1,25 +1,24 @@
 import {
+  CheckoutMethod,
   CircleBankAccount,
   CircleBankAccountStatus,
   CircleBlockchainAddress,
   CircleCard,
   CircleCardStatus,
-  CircleCardVerification,
   CircleCreateBankAccount,
   CircleCreateBlockchainAddress,
   CircleCreateCard,
   CircleCreatePayment,
   CirclePaymentQuery,
   CirclePaymentResponse,
+  CirclePaymentSourceType,
   CirclePaymentStatus,
   CirclePublicKey,
   CircleResponse,
   CircleTransfer,
   CircleTransferQuery,
+  CircleTransferSourceType,
   CircleTransferStatus,
-  CircleVerificationAVSFailureCode,
-  CircleVerificationAVSSuccessCode,
-  CircleVerificationCvvStatus,
   CircleWallet,
   GetPaymentBankAccountInstructions,
   isCircleSuccessResponse,
@@ -30,10 +29,10 @@ import {
   ToPaymentBankAccountBase,
   ToPaymentBase,
   ToPaymentCardBase,
+  WirePayment,
 } from '@algomart/schemas'
-import got, { Got } from 'got'
-import { URLSearchParams } from 'node:url'
 
+import { HttpTransport } from '@/utils/http-transport'
 import { invariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
 
@@ -47,6 +46,27 @@ function toPublicKeyBase(data: CirclePublicKey): PublicKey {
     keyId: data.keyId,
     publicKey: data.publicKey,
   }
+}
+
+function toPaymentType(
+  type: CirclePaymentSourceType | CircleTransferSourceType
+): CheckoutMethod | undefined {
+  let finalType
+  switch (type) {
+    case CirclePaymentSourceType.card:
+      finalType = CheckoutMethod.card
+      break
+    case CirclePaymentSourceType.wire:
+      finalType = CheckoutMethod.wire
+      break
+    case CircleTransferSourceType.wallet:
+      finalType = CheckoutMethod.crypto
+      break
+    default:
+      finalType = undefined
+      break
+  }
+  return finalType
 }
 
 function toBankAccountStatus(
@@ -73,31 +93,12 @@ function toBankAccountBase(
   }
 }
 
-function toCardStatus(
-  status: CircleCardStatus,
-  verification: CircleCardVerification
-): PaymentCardStatus {
-  let finalStatus
-  if (
-    status === CircleCardStatus.Failed ||
-    Object.values(CircleVerificationAVSFailureCode).includes(
-      verification.avs
-    ) ||
-    verification.cvv === CircleVerificationCvvStatus.Fail
-  ) {
-    finalStatus = PaymentCardStatus.Failed
-  } else if (
-    status === CircleCardStatus.Complete &&
-    Object.values(CircleVerificationAVSSuccessCode).includes(
-      verification.avs
-    ) &&
-    verification.cvv === CircleVerificationCvvStatus.Pass
-  ) {
-    finalStatus = PaymentCardStatus.Complete
-  } else {
-    finalStatus = PaymentCardStatus.Pending
-  }
-  return finalStatus
+function toCardStatus(status: CircleCardStatus): PaymentCardStatus {
+  return {
+    [CircleCardStatus.Complete]: PaymentCardStatus.Complete,
+    [CircleCardStatus.Failed]: PaymentCardStatus.Failed,
+    [CircleCardStatus.Pending]: PaymentCardStatus.Pending,
+  }[status]
 }
 
 function toCardBase(response: CircleCard): ToPaymentCardBase {
@@ -107,7 +108,7 @@ function toCardBase(response: CircleCard): ToPaymentCardBase {
     externalId: response.id,
     network: response.network,
     lastFour: response.last4,
-    status: toCardStatus(response.status, response.verification),
+    status: toCardStatus(response.status),
     error: response.errorCode,
   }
 }
@@ -115,33 +116,19 @@ function toCardBase(response: CircleCard): ToPaymentCardBase {
 function toPaymentStatus(
   status: CirclePaymentStatus | CircleTransferStatus
 ): PaymentStatus {
-  let finalStatus
-  switch (status) {
-    case CirclePaymentStatus.Failed:
-      finalStatus = PaymentStatus.Failed
-      break
-    case CirclePaymentStatus.Paid:
-      finalStatus = PaymentStatus.Paid
-      break
-    case CirclePaymentStatus.Confirmed:
-      finalStatus = PaymentStatus.Confirmed
-      break
-    case CirclePaymentStatus.Pending:
-      finalStatus = PaymentStatus.Pending
-      break
-    case CircleTransferStatus.Failed:
-      finalStatus = PaymentStatus.Failed
-      break
-    case CircleTransferStatus.Complete:
-      finalStatus = PaymentStatus.Paid
-      break
-    case CircleTransferStatus.Pending:
-      finalStatus = PaymentStatus.Pending
-      break
-    default:
-      finalStatus = PaymentStatus.Pending
-  }
-  return finalStatus
+  return (
+    {
+      [CirclePaymentStatus.ActionRequired]: PaymentStatus.ActionRequired,
+      [CirclePaymentStatus.Confirmed]: PaymentStatus.Confirmed,
+      [CirclePaymentStatus.Failed]: PaymentStatus.Failed,
+      [CirclePaymentStatus.Pending]: PaymentStatus.Pending,
+      [CirclePaymentStatus.Paid]: PaymentStatus.Paid,
+
+      [CircleTransferStatus.Pending]: PaymentStatus.Pending,
+      [CircleTransferStatus.Failed]: PaymentStatus.Failed,
+      [CircleTransferStatus.Complete]: PaymentStatus.Paid,
+    }[status] || PaymentStatus.Pending
+  )
 }
 
 function toPaymentBase(
@@ -153,19 +140,17 @@ function toPaymentBase(
     sourceId: response.source.id,
     status: toPaymentStatus(response.status),
     error: response.errorCode,
+    action: (response as CirclePaymentResponse).requiredAction?.redirectUrl,
   }
 }
 
 export default class CircleAdapter {
   logger = logger.child({ context: this.constructor.name })
-  http: Got
+  http: HttpTransport
 
   constructor(readonly options: CircleAdapterOptions) {
-    this.http = got.extend({
-      prefixUrl: options.url,
-      headers: {
-        Authorization: `Bearer ${options.apiKey}`,
-      },
+    this.http = new HttpTransport(options.url, undefined, {
+      Authorization: `Bearer ${options.apiKey}`,
     })
 
     this.testConnection()
@@ -183,16 +168,16 @@ export default class CircleAdapter {
 
   async ping() {
     const response = await this.http.get('ping')
-    return response.statusCode === 200
+    return response.status === 200
   }
 
   async getPublicKey(): Promise<PublicKey | null> {
-    const response = await this.http
-      .get('v1/encryption/public')
-      .json<CircleResponse<CirclePublicKey>>()
+    const response = await this.http.get<CircleResponse<CirclePublicKey>>(
+      'v1/encryption/public'
+    )
 
-    if (isCircleSuccessResponse(response)) {
-      return toPublicKeyBase(response.data)
+    if (isCircleSuccessResponse(response.data)) {
+      return toPublicKeyBase(response.data.data)
     }
 
     this.logger.error({ response }, 'Failed to get public key')
@@ -202,18 +187,16 @@ export default class CircleAdapter {
   async createBlockchainAddress(
     request: CircleCreateBlockchainAddress
   ): Promise<CircleBlockchainAddress | null> {
-    const response = await this.http
-      .post(`v1/wallets/${request.walletId}/addresses`, {
-        json: {
-          idempotencyKey: request.idempotencyKey,
-          currency: 'USD',
-          chain: 'ALGO',
-        },
-      })
-      .json<CircleResponse<CircleBlockchainAddress>>()
+    const response = await this.http.post<
+      CircleResponse<CircleBlockchainAddress>
+    >(`v1/wallets/${request.walletId}/addresses`, {
+      idempotencyKey: request.idempotencyKey,
+      currency: 'USD',
+      chain: 'ALGO',
+    })
 
-    if (isCircleSuccessResponse(response)) {
-      return response.data
+    if (isCircleSuccessResponse(response.data)) {
+      return response.data.data
     }
 
     this.logger.error({ response }, 'Failed to create blockchain address')
@@ -223,14 +206,13 @@ export default class CircleAdapter {
   async createPaymentCard(
     request: CircleCreateCard
   ): Promise<ToPaymentCardBase | null> {
-    const response = await this.http
-      .post('v1/cards', {
-        json: request,
-      })
-      .json<CircleResponse<CircleCard>>()
+    const response = await this.http.post<CircleResponse<CircleCard>>(
+      'v1/cards',
+      request
+    )
 
-    if (isCircleSuccessResponse(response)) {
-      return toCardBase(response.data)
+    if (isCircleSuccessResponse(response.data)) {
+      return toCardBase(response.data.data)
     }
 
     this.logger.error({ response }, 'Failed to create payment card')
@@ -240,14 +222,13 @@ export default class CircleAdapter {
   async createBankAccount(
     request: CircleCreateBankAccount
   ): Promise<ToPaymentBankAccountBase | null> {
-    const response = await this.http
-      .post('v1/banks/wires', {
-        json: request,
-      })
-      .json<CircleResponse<CircleBankAccount>>()
+    const response = await this.http.post<CircleResponse<CircleBankAccount>>(
+      'v1/banks/wires',
+      request
+    )
 
-    if (isCircleSuccessResponse(response)) {
-      return toBankAccountBase(response.data)
+    if (isCircleSuccessResponse(response.data)) {
+      return toBankAccountBase(response.data.data)
     }
 
     this.logger.error({ response }, 'Failed to create bank account')
@@ -257,14 +238,12 @@ export default class CircleAdapter {
   async createPayment(
     request: CircleCreatePayment
   ): Promise<ToPaymentBase | null> {
-    const response = await this.http
-      .post('v1/payments', {
-        json: request,
-      })
-      .json<CircleResponse<CirclePaymentResponse>>()
+    const response = await this.http.post<
+      CircleResponse<CirclePaymentResponse>
+    >('v1/payments', request)
 
-    if (isCircleSuccessResponse(response)) {
-      return toPaymentBase(response.data)
+    if (isCircleSuccessResponse(response.data)) {
+      return toPaymentBase(response.data.data)
     }
 
     this.logger.error({ response }, 'Failed to create payment')
@@ -272,12 +251,12 @@ export default class CircleAdapter {
   }
 
   async getMerchantWallet(): Promise<CircleWallet | null> {
-    const response = await this.http
-      .get('v1/wallets')
-      .json<CircleResponse<CircleWallet[]>>()
+    const response = await this.http.get<CircleResponse<CircleWallet[]>>(
+      'v1/wallets'
+    )
 
-    if (isCircleSuccessResponse(response) && response.data) {
-      const merchantWallet = response.data.find(
+    if (isCircleSuccessResponse(response.data) && response.data.data) {
+      const merchantWallet = response.data.data.find(
         (wallet: CircleWallet) => wallet.type === 'merchant'
       )
       if (merchantWallet) return merchantWallet
@@ -291,12 +270,12 @@ export default class CircleAdapter {
   async getPaymentBankAccountInstructionsById(
     id: string
   ): Promise<GetPaymentBankAccountInstructions | null> {
-    const response = await this.http
-      .get(`v1/banks/wires/${id}/instructions`)
-      .json<CircleResponse<GetPaymentBankAccountInstructions>>()
+    const response = await this.http.get<
+      CircleResponse<GetPaymentBankAccountInstructions>
+    >(`v1/banks/wires/${id}/instructions`)
 
-    if (isCircleSuccessResponse(response)) {
-      return response.data
+    if (isCircleSuccessResponse(response.data)) {
+      return response.data.data
     }
 
     this.logger.error(
@@ -309,12 +288,12 @@ export default class CircleAdapter {
   async getPaymentBankAccountById(
     id: string
   ): Promise<ToPaymentBankAccountBase | null> {
-    const response = await this.http
-      .get(`v1/banks/wires/${id}`)
-      .json<CircleResponse<CircleBankAccount>>()
+    const response = await this.http.get<CircleResponse<CircleBankAccount>>(
+      `v1/banks/wires/${id}`
+    )
 
-    if (isCircleSuccessResponse(response)) {
-      return toBankAccountBase(response.data)
+    if (isCircleSuccessResponse(response.data)) {
+      return toBankAccountBase(response.data.data)
     }
 
     this.logger.error({ response }, 'Failed to get payment bank account')
@@ -322,12 +301,12 @@ export default class CircleAdapter {
   }
 
   async getPaymentCardById(id: string): Promise<ToPaymentCardBase | null> {
-    const response = await this.http
-      .get(`v1/cards/${id}`)
-      .json<CircleResponse<CircleCard>>()
+    const response = await this.http.get<CircleResponse<CircleCard>>(
+      `v1/cards/${id}`
+    )
 
-    if (isCircleSuccessResponse(response)) {
-      return toCardBase(response.data)
+    if (isCircleSuccessResponse(response.data)) {
+      return toCardBase(response.data.data)
     }
 
     this.logger.error({ response }, 'Failed to get payment card')
@@ -335,12 +314,12 @@ export default class CircleAdapter {
   }
 
   async getPaymentById(id: string): Promise<ToPaymentBase | null> {
-    const response = await this.http
-      .get(`v1/payments/${id}`)
-      .json<CircleResponse<CirclePaymentResponse>>()
+    const response = await this.http.get<CircleResponse<CirclePaymentResponse>>(
+      `v1/payments/${id}`
+    )
 
-    if (isCircleSuccessResponse(response)) {
-      return toPaymentBase(response.data)
+    if (isCircleSuccessResponse(response.data)) {
+      return toPaymentBase(response.data.data)
     }
 
     this.logger.error({ response }, 'Failed to get payment')
@@ -352,14 +331,6 @@ export default class CircleAdapter {
     destinationAddressId: string
   ): Promise<ToPaymentBase | null> {
     const searchParams = {}
-    if (query.walletId)
-      Object.assign(searchParams, { walletId: query.walletId })
-    if (query.sourceWalletId)
-      Object.assign(searchParams, { sourceWalletId: query.sourceWalletId })
-    if (query.destinationWalletId)
-      Object.assign(searchParams, {
-        destinationWalletId: query.destinationWalletId,
-      })
     if (query.from) Object.assign(searchParams, { from: query.from })
     if (query.to) Object.assign(searchParams, { to: query.to })
     if (query.pageBefore)
@@ -368,14 +339,15 @@ export default class CircleAdapter {
       Object.assign(searchParams, { pageAfter: query.pageAfter })
     if (query.pageSize)
       Object.assign(searchParams, { pageSize: query.pageSize })
-    const response = await this.http
-      .get('v1/transfers', {
-        searchParams,
-      })
-      .json<CircleResponse<CircleTransfer[]>>()
+    const response = await this.http.get<CircleResponse<CircleTransfer[]>>(
+      'v1/transfers',
+      {
+        params: searchParams,
+      }
+    )
 
-    if (isCircleSuccessResponse(response)) {
-      const transfer = response.data.find(
+    if (isCircleSuccessResponse(response.data)) {
+      const transfer = response.data.data.find(
         (transfer) => transfer.destination.address === destinationAddressId
       )
       if (transfer) {
@@ -392,31 +364,35 @@ export default class CircleAdapter {
   }
 
   async getTransferById(id: string): Promise<ToPaymentBase | null> {
-    const response = await this.http
-      .get(`v1/transfers/${id}`)
-      .json<CircleResponse<CircleTransfer>>()
+    const response = await this.http.get<CircleResponse<CircleTransfer>>(
+      `v1/transfers/${id}`
+    )
 
-    if (isCircleSuccessResponse(response)) {
-      return toPaymentBase(response.data)
+    if (isCircleSuccessResponse(response.data)) {
+      return toPaymentBase(response.data.data)
     }
 
     this.logger.error({ response }, 'Failed to get transfer by ID')
     return null
   }
 
-  async getPayments(
-    query: CirclePaymentQuery
-  ): Promise<ToPaymentBase[] | null> {
-    const searchParams = new URLSearchParams()
-    for (const [key, value] of Object.entries(query)) {
-      searchParams.append(key, `${value}`)
-    }
-    const response = await this.http
-      .get('v1/payments', { searchParams })
-      .json<CircleResponse<CirclePaymentResponse[]>>()
+  async getPayments(query: CirclePaymentQuery): Promise<WirePayment[] | null> {
+    const response = await this.http.get<
+      CircleResponse<CirclePaymentResponse[]>
+    >('v1/payments', { params: query })
 
-    if (isCircleSuccessResponse(response)) {
-      return response.data.map((payment) => toPaymentBase(payment))
+    if (isCircleSuccessResponse(response.data)) {
+      return response.data.data.map((payment) => {
+        const base = toPaymentBase(payment)
+        const type = toPaymentType(payment.source.type)
+        return {
+          ...base,
+          createdAt: payment.createDate,
+          updatedAt: payment.updateDate,
+          id: payment.id,
+          type,
+        }
+      })
     }
 
     this.logger.error({ response }, 'Failed to get payments')

@@ -1,6 +1,5 @@
-import got from 'got'
-
 import { Configuration } from '@/configuration'
+import { HttpTransport } from '@/utils/http-transport'
 import { logger } from '@/utils/logger'
 
 /**
@@ -10,37 +9,74 @@ import { logger } from '@/utils/logger'
 
 interface AlgoExplorerAssetHolding {
   'asset-id': number
+  amount: number
+  'is-frozen': boolean
 }
 
 interface AlgoExplorerAccount {
+  address: string
+  amount: number
+  'amount-without-pending-rewards': number
+  'apps-total-schema': { 'num-uint': number; 'num-byte-slice': number }
+  'apps-total-extra-pages': number
   assets: AlgoExplorerAssetHolding[]
 }
 
+const AlgoExplorerIndexerURLs = {
+  mainnet: 'https://algoindexer.algoexplorerapi.io/v2',
+  testnet: 'https://algoindexer.testnet.algoexplorerapi.io/v2',
+  betanet: 'https://algoindexer.betanet.algoexplorerapi.io/v2',
+}
+
 export default class AlgoExplorerAdapter {
-  algoExplorerUrl: string
+  http: HttpTransport
   logger = logger.child({ context: this.constructor.name })
 
   constructor() {
-    this.algoExplorerUrl = this.configureAlgoExplorerUrl()
+    this.http = new HttpTransport(
+      AlgoExplorerIndexerURLs[Configuration.algodEnv]
+    )
   }
 
-  configureAlgoExplorerUrl() {
-    switch (Configuration.algodEnv) {
-      case 'betanet':
-        return 'https://betanet.algoexplorerapi.io/v2'
-      case 'mainnet':
-        return 'https://algoexplorerapi.io/v2'
-      default:
-        return 'https://testnet.algoexplorerapi.io/v2'
+  async getAccount(address: string): Promise<AlgoExplorerAccount> {
+    try {
+      const {
+        data: { account },
+      } = await this.http.get<{ account: AlgoExplorerAccount }>(
+        `accounts/${address}`
+      )
+      return account
+    } catch (error) {
+      this.logger.error(error as Error)
+      throw error
     }
   }
 
-  async getAccount(address: string) {
+  async getAccountsByAssetId(assetId: number): Promise<AlgoExplorerAccount[]> {
     try {
-      const account = await got<AlgoExplorerAccount>(
-        `${this.algoExplorerUrl}/accounts/${address}`
-      ).json<AlgoExplorerAccount>()
-      return account
+      const {
+        data: { accounts },
+      } = await this.http.get<{ accounts: AlgoExplorerAccount[] }>('accounts', {
+        params: { 'asset-id': assetId },
+      })
+      return accounts
+    } catch (error) {
+      this.logger.error(error as Error)
+      throw error
+    }
+  }
+
+  async getCurrentAssetOwner(
+    assetId: number
+  ): Promise<AlgoExplorerAccount | null> {
+    try {
+      const accounts = await this.getAccountsByAssetId(assetId)
+      const currentAccount = accounts.find((account) =>
+        account.assets.some(
+          (asset) => asset['asset-id'] === assetId && asset.amount === 1
+        )
+      )
+      return currentAccount ?? null
     } catch (error) {
       this.logger.error(error as Error)
       throw error

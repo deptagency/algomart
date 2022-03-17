@@ -51,32 +51,35 @@ This software is in a pre-release state. This means while we strive to keep it s
 - [Circle][circle] account for taking payments
 - [SendGrid][sendgrid] for sending email notifications
 - [Firebase][firebase] account for authentication
+- [Pinata][pinata] account for storing NFTs
 - (optional) [Google Cloud Platform][gcp] account for hosting
 - (optional) Install the [Nx CLI][nx cli] for ease of development: `npm i -g nx`
 
 ## 🚀 Get Started
 
-Create an `.env` file in the `./apps/api`, `./apps/cms`, and `./apps/web` and populate them with the appropriate environment variables. You can reference the adjacent `.env.example` file in each directory. See the corresponding comments for explanations of each variable.
+You can either build and run each application manually or you can use `docker-compose`.
 
-After this, you can either build and run each application manually or you can use `docker-compose`.
+### Manual Setup
 
-### Running manually
+1. Install all dependencies (may take a while the first time):
 
-Install all dependencies (may take a while the first time):
+   ```bash
+   npm install
+   ```
 
-```bash
-npm install
-```
+   1. **For M1 Mac Users:** You might need to manually install additional system dependencies using [Homebrew](https://brew.sh/) before running `npm install`. Once Homebrew is installed, run
 
-> ### For M1 Mac Users
->
-> You might need to manually install additional system dependencies using [Homebrew](https://brew.sh/) before running `npm install`. Once Homebrew is installed, run
->
-> ```bash
-> brew install pkg-config cairo pango libpng jpeg giflib librsvg
-> ```
+      ```bash
+      brew install pkg-config cairo pango libpng jpeg giflib librsvg
+      ```
 
-Additional setup may be required within each package. Check the README in each for more details. Once everything is configured, you can start everything in development/watch mode:
+2. [Set up the CMS](apps/cms/README.md#Get-started)
+
+3. [Set up the API](apps/api/README.md#Get-started)
+
+4. [Set up the web app](apps/web/README.md#Get-started)
+
+### Running
 
 ```bash
 npm start
@@ -100,6 +103,16 @@ To run eslint for all projects:
 npm run lint
 ```
 
+To initialize the databases:
+
+```bash
+nx drop api &&\
+nx run api:migrate:latest &&\
+nx drop cms &&\
+nx bootstrap cms &&\
+nx import cms
+```
+
 ### Running with docker-compose
 
 The `docker-compose` [configuration](./docker-compose.yml) includes service definitions for the API service,
@@ -115,19 +128,6 @@ This will load the various `.env` files for Algorand, Circle, etc. credentials -
 most other environment variables will be overridden in favor of those specified
 in the `docker-compose.yml` file.
 
-### Adding the CMS key to the admin user
-
-The CMS key needs to be added to the admin user created by Directus.
-Otherwise, the API cannot authenticate even though its CMS key matches.
-
-- Visit http://localhost:8055
-- Authenticate with the CMS admin email & password
-- Go to the [user directory](http://localhost:8055/admin/users)
-- Click the admin user and enter the CMS key into the "Token" field
-- Click the green check mark in the upper right corner
-
-This allows all API background tasks to run properly.
-
 ## 📦 Project packages
 
 When creating a new package, first determine which kind of package you are creating. If it doesn't fit any of the listed ones, discuss with your development team first to decide where it belongs or if a new one is warranted.
@@ -138,18 +138,13 @@ Applications with a UI.
 
 - [`cms`][cms] - Self-hosted [Directus][directus] headless CMS
 - [`web`][web] - Next.js customer-facing website
+- [`api`][api] - API abstracting communications with Algod etc
 
-### `packages/*`
+### `libs/*`
 
 Shared packages used by this monorepo.
 
 - [`schemas`][schemas] - Shared code and typings
-
-### `services/*`
-
-Background tasks and APIs without a UI.
-
-- [`api`][api] - API abstracting communications with Algod etc
 
 ## 📖 Quick Workspace Guide
 
@@ -179,6 +174,7 @@ npm run test:api -- --watch
 [sendgrid]: https://sendgrid.com
 [web]: apps/web
 [nx cli]: https://nx.dev/using-nx/nx-cli#nx-cli
+[pinata]: https://www.pinata.cloud/
 
 ## 🚢 Deployment
 

@@ -1,7 +1,10 @@
 import {
+  InitializeTransferCollectible,
   MintPackStatus,
   MintPackStatusResponse,
   PackWithId,
+  TransferCollectible,
+  TransferCollectibleResult,
   TransferPackStatusList,
 } from '@algomart/schemas'
 import { getAuth } from 'firebase/auth'
@@ -9,6 +12,7 @@ import ky from 'ky'
 
 import loadFirebase from '@/clients/firebase-client'
 import { UploadedFileProps } from '@/types/file'
+import { invariant } from '@/utils/invariant'
 import { urls } from '@/utils/urls'
 
 export interface CreateAssetRequest {
@@ -24,12 +28,33 @@ export interface CollectibleAPI {
   transfer(packId: string, passphrase: string): Promise<boolean>
   transferStatus(packId: string): Promise<TransferPackStatusList>
   shareProfile(shareProfile: boolean): Promise<boolean>
+  initializeExportCollectible(
+    request: Omit<InitializeTransferCollectible, 'externalId'>
+  ): Promise<TransferCollectibleResult>
+  exportCollectible(
+    request: Omit<TransferCollectible, 'externalId'>
+  ): Promise<{ txId: string }>
+  initializeImportCollectible(
+    request: Omit<InitializeTransferCollectible, 'externalId'>
+  ): Promise<TransferCollectibleResult>
+  importCollectible(
+    request: Omit<TransferCollectible, 'externalId'>
+  ): Promise<{ txId: string }>
 }
 
 export class CollectibleService implements CollectibleAPI {
   http: typeof ky
+  private static _instance: CollectibleService
+
+  static get instance() {
+    return this._instance || (this._instance = new CollectibleService())
+  }
 
   constructor() {
+    invariant(
+      typeof window !== 'undefined',
+      'CollectibleService must be used in the browser'
+    )
     this.http = ky.create({
       timeout: 10_000,
       throwHttpErrors: false,
@@ -49,6 +74,24 @@ export class CollectibleService implements CollectibleAPI {
         ],
       },
     })
+  }
+
+  async importCollectible(
+    request: Omit<TransferCollectible, 'externalId'>
+  ): Promise<{ txId: string }> {
+    return await this.http
+      .post(urls.api.v1.importCollectible, {
+        json: request,
+      })
+      .json()
+  }
+
+  async initializeImportCollectible(
+    request: Omit<InitializeTransferCollectible, 'externalId'>
+  ): Promise<TransferCollectibleResult> {
+    return await this.http
+      .post(urls.api.v1.initializeImportCollectible, { json: request })
+      .json()
   }
 
   async claim(packTemplateId: string): Promise<{ packId?: string }> {
@@ -124,8 +167,23 @@ export class CollectibleService implements CollectibleAPI {
 
     return response.ok
   }
+
+  async initializeExportCollectible(
+    request: Omit<InitializeTransferCollectible, 'externalId'>
+  ) {
+    return await this.http
+      .post(urls.api.v1.initializeExportCollectible, { json: request })
+      .json<TransferCollectibleResult>()
+  }
+
+  async exportCollectible(
+    request: Omit<TransferCollectible, 'externalId'>
+  ): Promise<{ txId: string }> {
+    return await this.http
+      .post(urls.api.v1.exportCollectible, {
+        json: request,
+        throwHttpErrors: true,
+      })
+      .json()
+  }
 }
-
-const collectibleService: CollectibleAPI = new CollectibleService()
-
-export default collectibleService

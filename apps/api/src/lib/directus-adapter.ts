@@ -2,6 +2,7 @@ import {
   CollectibleBase,
   CollectionBase,
   CollectionWithSets,
+  Countries,
   DEFAULT_LOCALE,
   HomepageBase,
   PackBase,
@@ -12,11 +13,11 @@ import {
   SetBase,
   SetWithCollection,
 } from '@algomart/schemas'
-import got, { Got } from 'got'
-import { URL, URLSearchParams } from 'node:url'
+import { URL } from 'node:url'
 
 import { isStringArray } from '@/utils/arrays'
 import { isAfterNow, isNowBetweenDates } from '@/utils/date-time'
+import { HttpTransport } from '@/utils/http-transport'
 import { invariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
 
@@ -35,8 +36,11 @@ export enum DirectusStatus {
   Archived = 'archived',
 }
 
-export interface DirectusPackTemplateTranslation {
-  language_code: string
+export interface DirectusTranslation {
+  languages_code: string
+}
+
+export interface DirectusPackTemplateTranslation extends DirectusTranslation {
   title: string
   subtitle: string | null
   body: string | null
@@ -55,8 +59,7 @@ export interface DirectusPackFile {
   directus_files_id: string
 }
 
-export interface DirectusRarityTranslation {
-  language_code: string
+export interface DirectusRarityTranslation extends DirectusTranslation {
   name: string
 }
 
@@ -67,8 +70,7 @@ export interface DirectusRarity {
   translations: number[] | DirectusRarityTranslation[]
 }
 
-export interface DirectusSetTranslation {
-  language_code: string
+export interface DirectusSetTranslation extends DirectusTranslation {
   name: string
 }
 
@@ -82,8 +84,7 @@ export interface DirectusSet {
   translations: number[] | DirectusSetTranslation[]
 }
 
-export interface DirectusCollectionTranslation {
-  language_code: string
+export interface DirectusCollectionTranslation extends DirectusTranslation {
   name: string
   description: string | null
   metadata: Record<string, string | number | boolean> | null
@@ -103,8 +104,8 @@ export interface DirectusCollection {
   reward_image: string | DirectusFile | null
 }
 
-export interface DirectusCollectibleTemplateTranslation {
-  language_code: string
+export interface DirectusCollectibleTemplateTranslation
+  extends DirectusTranslation {
   title: string
   subtitle: string | null
   body: string | null
@@ -144,6 +145,30 @@ export interface DirectusPackTemplate {
   status: DirectusStatus
   translations: number[] | DirectusPackTemplateTranslation[]
   type: PackType
+}
+
+export interface DirectusCountry {
+  id: string
+  application_id: string
+  countries_code: string
+}
+
+export interface DirectusApplication {
+  id: string
+  currency?: string | null
+  countries?: DirectusCountry[] | null
+}
+
+export interface DirectusCountryWithTranslations {
+  code: string
+  translations?: number[] | DirectusCountryTranslation[]
+}
+
+export interface DirectusCountryTranslation extends DirectusTranslation {
+  id: number
+  countries_code: string
+  languages_code: string
+  title: string | null
 }
 
 // #endregion
@@ -190,52 +215,73 @@ export interface ItemQuery<TItem> {
 }
 
 function getParameters<TItem>(query?: ItemQuery<TItem>) {
-  const parameters = new URLSearchParams()
+  const parameters = {}
 
   if (query?.fields) {
-    parameters.set('fields', query.fields.join(','))
+    Object.assign(parameters, { fields: query.fields.join(',') })
   }
 
   if (query?.search) {
-    parameters.set('search', query.search)
+    Object.assign(parameters, { search: query.search })
   }
 
   if (query?.sort) {
-    parameters.set('sort', query.sort.join(','))
+    Object.assign(parameters, { sort: query.sort.join(',') })
   }
 
   if (query?.limit) {
-    parameters.set('limit', query.limit.toString())
+    Object.assign(parameters, { limit: query.limit })
   }
 
   if (query?.offset) {
-    parameters.set('offset', query.offset.toString())
+    Object.assign(parameters, { offset: query.offset })
   }
 
   if (query?.page) {
-    parameters.set('page', query.page.toString())
+    Object.assign(parameters, { page: query.page })
   }
 
   if (query?.filter) {
-    parameters.set('filter', JSON.stringify(query.filter))
+    Object.assign(parameters, { filter: JSON.stringify(query.filter) })
   }
 
   if (query?.deep) {
-    parameters.set('deep', JSON.stringify(query.deep))
+    Object.assign(parameters, { deep: JSON.stringify(query.deep) })
   }
 
   if (query?.totalCount || query?.filterCount) {
-    parameters.set(
-      'meta',
-      query.totalCount && query.filterCount
-        ? '*'
-        : query.totalCount
-        ? 'total_count'
-        : 'filter_count'
-    )
+    Object.assign(parameters, {
+      meta:
+        query.totalCount && query.filterCount
+          ? '*'
+          : query.totalCount
+          ? 'total_count'
+          : 'filter_count',
+    })
   }
 
   return parameters
+}
+
+function getDirectusTranslation<TItem extends DirectusTranslation>(
+  translations: TItem[] & DirectusTranslation[],
+  invariantLabel: string,
+  locale = DEFAULT_LOCALE
+): TItem {
+  invariant(
+    typeof translations != 'number' && translations?.length > 0,
+    `no translations found: ${invariantLabel}`
+  )
+
+  const translation =
+    translations.find((translation) => translation.languages_code === locale) ||
+    translations[0]
+  invariant(
+    translation !== undefined && typeof translation !== 'number',
+    invariantLabel
+  )
+
+  return translation as TItem
 }
 
 // #endregion
@@ -268,16 +314,15 @@ export function toHomepageBase(homepage: DirectusHomepage): HomepageBase {
   }
 }
 
-export function toSetBase(set: DirectusSet): SetBase {
+export function toSetBase(set: DirectusSet, locale = DEFAULT_LOCALE): SetBase {
   const { id, slug, translations, nft_templates } = set
 
-  invariant(translations.length > 0, `collection ${id} has no translations`)
-  const translation = translations[0]
-  invariant(
-    translation !== undefined && typeof translation !== 'number',
-    'no translation found'
+  const { name } = getDirectusTranslation<DirectusSetTranslation>(
+    translations as DirectusSetTranslation[],
+    `set ${id} has no translations`,
+    locale
   )
-  const { name } = translation
+
   const collectibleTemplateIds = isStringArray(nft_templates)
     ? nft_templates
     : nft_templates.map((t) => t.id)
@@ -292,7 +337,8 @@ export function toSetBase(set: DirectusSet): SetBase {
 
 export function toCollectionBase(
   collection: DirectusCollection,
-  getFileURL: GetFileURL
+  getFileURL: GetFileURL,
+  locale: string
 ): CollectionBase {
   const {
     id,
@@ -304,12 +350,12 @@ export function toCollectionBase(
     collection_image,
   } = collection
 
-  invariant(translations.length > 0, `collection ${id} has no translations`)
-  const translation = translations[0]
-  invariant(
-    translation !== undefined && typeof translation !== 'number',
-    'no translation found'
+  const translation = getDirectusTranslation<DirectusCollectionTranslation>(
+    translations as DirectusCollectionTranslation[],
+    `collection ${id} has no translations`,
+    locale
   )
+
   invariant(
     !sets || !isStringArray(sets),
     'sets should not be an array of strings when provided'
@@ -343,23 +389,25 @@ export function toCollectionBase(
 
 export function toSetWithCollection(
   set: DirectusSet,
-  getFileURL: GetFileURL
+  getFileURL: GetFileURL,
+  locale = DEFAULT_LOCALE
 ): SetWithCollection {
-  const base = toSetBase(set)
+  const base = toSetBase(set, locale)
 
   invariant(typeof set.collection !== 'string', 'collection must be an object')
 
   return {
     ...base,
-    collection: toCollectionBase(set.collection, getFileURL),
+    collection: toCollectionBase(set.collection, getFileURL, locale),
   }
 }
 
 export function toCollectionWithSets(
   collection: DirectusCollection,
-  getFileURL: GetFileURL
+  getFileURL: GetFileURL,
+  locale = DEFAULT_LOCALE
 ): CollectionWithSets {
-  const base = toCollectionBase(collection, getFileURL)
+  const base = toCollectionBase(collection, getFileURL, locale)
 
   invariant(!isStringArray(collection.sets), 'sets must be an array of objects')
 
@@ -371,20 +419,24 @@ export function toCollectionWithSets(
 
 export function toCollectibleBase(
   template: DirectusCollectibleTemplate,
-  getFileURL: GetFileURL
+  getFileURL: GetFileURL,
+  locale = DEFAULT_LOCALE
 ): CollectibleBase {
-  const translation = template.translations[0]
-  invariant(
-    translation !== undefined && typeof translation !== 'number',
-    'no translation found'
-  )
+  const translation =
+    getDirectusTranslation<DirectusCollectibleTemplateTranslation>(
+      template.translations as DirectusCollectibleTemplateTranslation[],
+      `collectible ${template.id} has no translations`,
+      locale
+    )
 
   const rarity = template.rarity as DirectusRarity
-  const [rarityTranslation] = rarity?.translations || []
-  invariant(
-    rarityTranslation === undefined || typeof rarityTranslation !== 'number',
-    'expected rarity to include translations'
-  )
+  const rarityTranslation = rarity
+    ? getDirectusTranslation<DirectusRarityTranslation>(
+        rarity?.translations as DirectusRarityTranslation[],
+        'expected rarity to include translations',
+        locale
+      )
+    : undefined
 
   let collectionId =
     typeof template.collection === 'string'
@@ -428,10 +480,7 @@ export function toCollectibleBase(
       ? {
           code: rarity.code,
           color: rarity.color,
-          name:
-            typeof rarityTranslation !== 'number'
-              ? rarityTranslation?.name
-              : undefined,
+          name: rarityTranslation?.name,
         }
       : undefined,
   }
@@ -458,17 +507,22 @@ export function toStatus(template: DirectusPackTemplate) {
 
 export function toPackBase(
   template: DirectusPackTemplate,
-  getFileURL: GetFileURL
+  getFileURL: GetFileURL,
+  locale = DEFAULT_LOCALE
 ): PackBase {
-  const translation = template
-    .translations[0] as DirectusPackTemplateTranslation
-  invariant(
-    translation !== undefined && typeof translation !== 'number',
-    'no translation found'
+  const translation = getDirectusTranslation<DirectusPackTemplateTranslation>(
+    template.translations as DirectusPackTemplateTranslation[],
+    `pack ${template.id} has no translations`,
+    locale
   )
 
   return {
     allowBidExpiration: template.allow_bid_expiration,
+    additionalImages: isStringArray(template.additional_images)
+      ? template.additional_images.map((id) => getFileURL(id))
+      : template.additional_images.map((packFile) =>
+          getFileURL(packFile.directus_files_id)
+        ),
     auctionUntil: template.auction_until ?? undefined,
     body: translation.body ?? undefined,
     collectibleTemplateIds: isStringArray(template.nft_templates)
@@ -492,23 +546,36 @@ export function toPackBase(
   }
 }
 
+export function toCountryBase(
+  template: DirectusCountryWithTranslations,
+  locale: string
+) {
+  const translation = getDirectusTranslation<DirectusCountryTranslation>(
+    template.translations as DirectusCountryTranslation[],
+    `country ${template.code} has no translations`,
+    locale
+  )
+  return {
+    code: template.code,
+    name: translation.title,
+  }
+}
+
 // #endregion
 
 export interface DirectusAdapterOptions {
   url: string
+  publicUrl: string
   accessToken: string
 }
 
 export default class DirectusAdapter {
   logger = logger.child({ context: this.constructor.name })
-  http: Got
+  http: HttpTransport
 
   constructor(private readonly options: DirectusAdapterOptions) {
-    this.http = got.extend({
-      prefixUrl: options.url,
-      headers: {
-        Authorization: `Bearer ${options.accessToken}`,
-      },
+    this.http = new HttpTransport(options.url, undefined, {
+      Authorization: `Bearer ${options.accessToken}`,
     })
 
     this.testConnection()
@@ -524,26 +591,24 @@ export default class DirectusAdapter {
   }
 
   async ensureFilePermission() {
-    const permissions = await this.http
-      .get('permissions', {
-        searchParams: {
-          fields: 'id,role,collection,action,fields',
-          'filter[collection][_eq]': 'directus_files',
-          'filter[fields][_in]': '*',
-          'filter[action][_eq]': 'read',
-        },
-      })
-      .json<{
-        data: Array<{
-          id: number
-          role: string | null
-          collection: string
-          action: 'create' | 'read' | 'update' | 'delete'
-          fields: string[]
-        }>
-      }>()
+    const permissions = await this.http.get<{
+      data: Array<{
+        id: number
+        role: string | null
+        collection: string
+        action: 'create' | 'read' | 'update' | 'delete'
+        fields: string[]
+      }>
+    }>('permissions', {
+      params: {
+        fields: 'id,role,collection,action,fields',
+        'filter[collection][_eq]': 'directus_files',
+        'filter[fields][_in]': '*',
+        'filter[action][_eq]': 'read',
+      },
+    })
 
-    if (permissions.data.length === 0) {
+    if (permissions.data.data.length === 0) {
       await this.http.post('permissions', {
         json: {
           collection: 'directus_files',
@@ -559,16 +624,14 @@ export default class DirectusAdapter {
     collection: string,
     query: ItemQuery<TItem> = {}
   ): Promise<ItemsResponse<TItem>> {
-    const response = await this.http.get(`items/${collection}`, {
-      searchParams: getParameters(query),
-    })
+    const response = await this.http.get<ItemsResponse<TItem>>(
+      `items/${collection}`,
+      {
+        params: getParameters(query),
+      }
+    )
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      const result: ItemsResponse<TItem> = JSON.parse(response.body)
-      return result
-    }
-
-    return { data: [] }
+    return response.data
   }
 
   private async findPackTemplates(query: ItemQuery<DirectusPackTemplate> = {}) {
@@ -641,9 +704,26 @@ export default class DirectusAdapter {
     })
   }
 
+  private async findCountries(query: ItemQuery<{ filter: ItemFilter }> = {}) {
+    const defaultQuery: ItemQuery<DirectusCountryWithTranslations> = {
+      filter: {
+        status: {
+          _eq: DirectusStatus.Published,
+        },
+      },
+      limit: -1,
+      fields: ['*.*'],
+    }
+
+    return await this.findMany<DirectusCountryWithTranslations>('countries', {
+      ...defaultQuery,
+      ...query,
+    })
+  }
+
   private getFileURL(fileOrId: string | DirectusFile) {
     const id = typeof fileOrId === 'string' ? fileOrId : fileOrId.id
-    return new URL(`/assets/${id}`, this.options.url).href
+    return new URL(`/assets/${id}`, this.options.publicUrl).href
   }
 
   async findAllPacks({
@@ -662,15 +742,6 @@ export default class DirectusAdapter {
       limit: pageSize,
       // Sort by released_at in descending order
       sort: ['-released_at'],
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: {
-              _eq: locale,
-            },
-          },
-        },
-      },
       filter: {
         ...filter,
       },
@@ -684,7 +755,7 @@ export default class DirectusAdapter {
 
     return {
       packs: response.data.map((template) =>
-        toPackBase(template, this.getFileURL.bind(this))
+        toPackBase(template, this.getFileURL.bind(this), locale)
       ),
       total: response.meta.filter_count,
     }
@@ -699,18 +770,11 @@ export default class DirectusAdapter {
         },
         ...filter,
       },
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: locale,
-          },
-        },
-      },
     })
 
     if (response.data.length === 0) return null
     const pack = response.data[0]
-    return toPackBase(pack, this.getFileURL.bind(this))
+    return toPackBase(pack, this.getFileURL.bind(this), locale)
   }
 
   async findAllCollectibles(
@@ -742,20 +806,6 @@ export default class DirectusAdapter {
         'set.collection.id',
         'collection',
       ],
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: locale,
-          },
-        },
-        rarity: {
-          translations: {
-            _filter: {
-              languages_code: locale,
-            },
-          },
-        },
-      },
       filterCount: true,
     })
 
@@ -766,7 +816,7 @@ export default class DirectusAdapter {
 
     return {
       collectibles: response.data.map((template) =>
-        toCollectibleBase(template, this.getFileURL.bind(this))
+        toCollectibleBase(template, this.getFileURL.bind(this), locale)
       ),
       total: response.meta.filter_count,
     }
@@ -786,24 +836,6 @@ export default class DirectusAdapter {
         'sets.slug',
         'sets.translations.*',
       ],
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: {
-              _eq: locale,
-            },
-          },
-        },
-        sets: {
-          translations: {
-            _filter: {
-              languages_code: {
-                _eq: locale,
-              },
-            },
-          },
-        },
-      },
       filterCount: true,
     })
 
@@ -814,7 +846,7 @@ export default class DirectusAdapter {
 
     return {
       collections: response.data.map((c) =>
-        toCollectionWithSets(c, this.getFileURL.bind(this))
+        toCollectionWithSets(c, this.getFileURL.bind(this), locale)
       ),
       total: response.meta.filter_count,
     }
@@ -843,29 +875,11 @@ export default class DirectusAdapter {
         'slug',
         'translations.*',
       ],
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: {
-              _eq: locale,
-            },
-          },
-        },
-        sets: {
-          translations: {
-            _filter: {
-              languages_code: {
-                _eq: locale,
-              },
-            },
-          },
-        },
-      },
     })
 
     if (response.data.length === 0) return null
     const collection = response.data[0]
-    return toCollectionWithSets(collection, this.getFileURL.bind(this))
+    return toCollectionWithSets(collection, this.getFileURL.bind(this), locale)
   }
 
   async findSetBySlug(slug: string, locale = DEFAULT_LOCALE) {
@@ -891,71 +905,75 @@ export default class DirectusAdapter {
         'translations.*',
       ],
       limit: 1,
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: {
-              _eq: locale,
-            },
-          },
-        },
-        sets: {
-          translations: {
-            _filter: {
-              languages_code: {
-                _eq: locale,
-              },
-            },
-          },
-        },
-      },
     })
 
     if (response.data.length === 0) return null
     const set = response.data[0]
-    return toSetWithCollection(set, this.getFileURL.bind(this))
+    return toSetWithCollection(set, this.getFileURL.bind(this), locale)
+  }
+
+  async findPublishedCountries(
+    filter: ItemFilter = {},
+    locale = DEFAULT_LOCALE
+  ): Promise<Countries | null> {
+    const response = await this.findCountries({ filter })
+    if (response.data.length === 0) return null
+    const countries = response.data
+    return countries.map((country) => toCountryBase(country, locale))
   }
 
   async findHomepage() {
     // Homepage is a singleton in the CMS, which makes this endpoint only return a single item.
     // Therefore we should avoid using the `findMany` method and instead act as if the result is
     // from a `findById` call.
-    const response = await this.http.get('items/homepage', {
-      searchParams: getParameters({
-        fields: ['featured_pack', 'upcoming_packs', 'notable_collectibles'],
-        deep: {
-          featured_pack: {
-            _filter: {
-              status: {
-                _eq: DirectusStatus.Published,
+    const response = await this.http.get<ItemByIdResponse<DirectusHomepage>>(
+      'items/homepage',
+      {
+        params: getParameters({
+          fields: ['featured_pack', 'upcoming_packs', 'notable_collectibles'],
+          deep: {
+            featured_pack: {
+              _filter: {
+                status: {
+                  _eq: DirectusStatus.Published,
+                },
+              },
+            },
+            upcoming_packs: {
+              _filter: {
+                status: {
+                  _eq: DirectusStatus.Published,
+                },
+              },
+            },
+            notable_collectibles: {
+              _filter: {
+                status: {
+                  _eq: DirectusStatus.Published,
+                },
               },
             },
           },
-          upcoming_packs: {
-            _filter: {
-              status: {
-                _eq: DirectusStatus.Published,
-              },
-            },
-          },
-          notable_collectibles: {
-            _filter: {
-              status: {
-                _eq: DirectusStatus.Published,
-              },
-            },
-          },
-        },
-      }),
-    })
+        }),
+      }
+    )
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      const result: ItemByIdResponse<DirectusHomepage> = JSON.parse(
-        response.body
-      )
-      return toHomepageBase(result.data)
-    }
+    return toHomepageBase(response.data.data)
+  }
 
-    return null
+  async findApplication(): Promise<DirectusApplication | null> {
+    // Application is a singleton in the CMS, which makes this endpoint only return a single item.
+    // Therefore we should avoid using the `findMany` method and instead act as if the result is
+    // from a `findById` call.
+    const response = await this.http.get<ItemByIdResponse<DirectusApplication>>(
+      'items/application',
+      {
+        params: getParameters({
+          fields: ['*.*'],
+        }),
+      }
+    )
+
+    return response.data.data
   }
 }

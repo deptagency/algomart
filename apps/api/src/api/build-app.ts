@@ -1,3 +1,4 @@
+import fastifyTraps from '@dnlup/fastify-traps'
 import ajvCompiler from '@fastify/ajv-compiler'
 import ajvFormats from 'ajv-formats'
 import fastify, { FastifyServerOptions } from 'fastify'
@@ -8,6 +9,8 @@ import { Knex } from 'knex'
 
 import swaggerOptions from '@/configuration/swagger'
 import { accountsRoutes } from '@/modules/accounts'
+import { applicationRoutes } from '@/modules/application'
+import { auctionsRoutes } from '@/modules/auctions'
 import { bidsRoutes } from '@/modules/bids'
 import { collectiblesRoutes } from '@/modules/collectibles'
 import { collectionsRoutes } from '@/modules/collections'
@@ -24,6 +27,7 @@ export interface AppConfig {
   knex: Knex.Config
   fastify?: FastifyServerOptions
   container: DependencyResolver
+  enableTrap?: boolean
 }
 
 export default async function buildApp(config: AppConfig) {
@@ -55,6 +59,15 @@ export default async function buildApp(config: AppConfig) {
   )
 
   // Plugins
+  if (config.enableTrap) {
+    await app.register(fastifyTraps, {
+      async onClose() {
+        app.log.info('Closing database connection...')
+        app.knex.destroy()
+        app.log.info('Closed database connection.')
+      },
+    })
+  }
   await app.register(fastifySchedule)
   await app.register(fastifySwagger, swaggerOptions)
   await app.register(fastifySensible)
@@ -72,6 +85,8 @@ export default async function buildApp(config: AppConfig) {
 
   // Services
   await app.register(accountsRoutes, { prefix: '/accounts' })
+  await app.register(applicationRoutes, { prefix: '/application' })
+  await app.register(auctionsRoutes, { prefix: '/auctions' })
   await app.register(bidsRoutes, { prefix: '/bids' })
   await app.register(collectiblesRoutes, { prefix: '/collectibles' })
   await app.register(collectionsRoutes, { prefix: '/collections' })

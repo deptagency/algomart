@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useInterval } from './use-interval'
 
 import { useAuth } from '@/contexts/auth-context'
-import collectibleService from '@/services/collectible-service'
+import { CollectibleService } from '@/services/collectible-service'
 
 export function usePackMintStatus(packId: string) {
   const [status, setStatus] = useState<MintPackStatus>()
@@ -13,7 +13,7 @@ export function usePackMintStatus(packId: string) {
   useInterval(
     async () => {
       if (!auth.user) return
-      setStatus(await collectibleService.mintStatus(packId))
+      setStatus(await CollectibleService.instance.mintStatus(packId))
     },
     status === MintPackStatus.Minted ? null : 1000
   )

@@ -42,7 +42,7 @@ resource "google_cloud_run_service" "api" {
         # maxScale is very conservative due to background tasks not needing
         # to scale up (and opening up unnecessary connection pools) and
         # fastify being highly capable of handling a decent amount of traffic.
-        "autoscaling.knative.dev/maxScale" = 2
+        "autoscaling.knative.dev/maxScale" = 1
       }
     }
 
@@ -100,6 +100,11 @@ resource "google_cloud_run_service" "api" {
         }
 
         env {
+          name  = "CUSTOMER_SERVICE_EMAIL"
+          value = var.customer_service_email
+        }
+
+        env {
           name  = "DATABASE_URL"
           value = "postgresql://${google_sql_user.api_user.name}:${google_sql_user.api_user.password}@${google_sql_database_instance.database_server.private_ip_address}:5432/${google_sql_database.api_database.name}"
         }
@@ -107,6 +112,13 @@ resource "google_cloud_run_service" "api" {
         env {
           name  = "DATABASE_SCHEMA"
           value = var.api_database_schema
+        }
+
+        # Set this to false and add a separate Cloud Run service for the
+        # jobs if you need to run multiple API instances.
+        env {
+          name  = "ENABLE_JOBS"
+          value = true
         }
 
         env {

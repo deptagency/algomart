@@ -3,6 +3,14 @@ import { Static, Type } from '@sinclair/typebox'
 import { BaseSchema, ExternalIdSchema, Simplify } from './shared'
 import { AlgorandTransactionStatus } from './transactions'
 
+export enum FirebaseClaim {
+  admin = 'admin',
+}
+
+export const AdminPermissionsSchema = Type.Object({
+  claims: Type.Array(Type.Enum(FirebaseClaim)),
+})
+
 export const AlgorandAccountSchema = Type.Intersect([
   BaseSchema,
   Type.Object({
@@ -67,6 +75,7 @@ export const UserAccountSchema = Type.Intersect([
 ])
 
 export type AlgorandAccount = Simplify<Static<typeof AlgorandAccountSchema>>
+export type AdminPermissions = Simplify<Static<typeof AdminPermissionsSchema>>
 export type CreateUserAccountRequest = Simplify<
   Static<typeof CreateUserAccountRequestSchema>
 >

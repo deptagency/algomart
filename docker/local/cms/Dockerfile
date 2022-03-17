@@ -1,10 +1,8 @@
-FROM node:16-bullseye-slim
+FROM node:16-alpine
 
-WORKDIR /directus
-
-COPY ./apps/cms/package*.json ./
-COPY ./docker/local/cms/run.sh ./run.sh
-
-RUN npm install
+WORKDIR /app
+COPY docker/local/cms/run.sh ./
+COPY apps/cms/ ./
+RUN npm install directus --global
 
 CMD ["./run.sh"]

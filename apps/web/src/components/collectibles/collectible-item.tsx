@@ -10,8 +10,6 @@ import useTranslation from 'next-translate/useTranslation'
 
 import css from './collectible-item.module.css'
 
-import { cmsImageLoader } from '@/utils/cms-image-loader'
-
 export interface CollectibleItemProps {
   alt?: string
   cardView?: boolean
@@ -46,7 +44,6 @@ export default function CollectibleItem({
 
   const img = showImage ? (
     <Image
-      loader={cmsImageLoader}
       src={imageUrl}
       alt={alt}
       width={160}

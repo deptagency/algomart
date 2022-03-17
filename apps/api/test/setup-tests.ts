@@ -25,11 +25,9 @@ export function fakeAddressFor(type: 'account' | 'transaction') {
 
 export function getTestDatabaseConfig(database: string): KnexInstance.Config {
   return {
-    client: 'sqlite3',
+    client: 'postgres',
     useNullAsDefault: true,
-    connection: {
-      filename: path.join(__dirname, `${database}.sqlite`),
-    },
+    connection: `postgres://postgres:postgres@localhost:6543/${database}`,
     migrations: {
       directory: path.join(__dirname, '..', 'src', 'migrations'),
     },
@@ -40,23 +38,27 @@ export function getTestDatabaseConfig(database: string): KnexInstance.Config {
 }
 
 export async function setupTestDatabase(database: string) {
-  const knex = Knex(getTestDatabaseConfig(database))
+  const baseKnex = Knex(getTestDatabaseConfig('algomart-api-test'))
+  let knex: KnexInstance
   try {
+    await baseKnex.raw(`CREATE DATABASE "${database}"`)
+    knex = Knex(getTestDatabaseConfig(database))
     await knex.migrate.latest()
     await knex.seed.run()
   } finally {
-    await knex.destroy()
+    await baseKnex.destroy()
+    if (knex) {
+      await knex.destroy()
+    }
   }
 }
 
 export async function teardownTestDatabase(database: string) {
+  const knex = Knex(getTestDatabaseConfig('algomart-api-test'))
   try {
-    const config = getTestDatabaseConfig(database)
-    const connection = config.connection as KnexInstance.Sqlite3ConnectionConfig
-    if (connection?.filename) {
-      fs.unlinkSync(connection.filename)
-    }
+    await knex.raw(`DROP DATABASE "${database}"`)
   } catch (error) {
+    await knex.destroy()
     console.log(error)
     throw error
   }

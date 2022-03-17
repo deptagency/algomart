@@ -2,6 +2,7 @@ import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
 import loadFirebase from '@/clients/firebase-client'
+import { invariant } from '@/utils/invariant'
 import { urls } from '@/utils/urls'
 
 export interface BidAPI {
@@ -10,8 +11,17 @@ export interface BidAPI {
 
 export class BidService implements BidAPI {
   http: typeof ky
+  private static _instance: BidService
+
+  static get instance() {
+    return this._instance || (this._instance = new BidService())
+  }
 
   constructor() {
+    invariant(
+      typeof window !== 'undefined',
+      'BidService must be used in the browser'
+    )
     this.http = ky.create({
       timeout: 10_000,
       throwHttpErrors: false,
@@ -41,7 +51,3 @@ export class BidService implements BidAPI {
     return response.ok
   }
 }
-
-const bidService: BidAPI = new BidService()
-
-export default bidService

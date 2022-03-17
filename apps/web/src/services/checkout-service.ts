@@ -1,4 +1,5 @@
 import {
+  Countries,
   CreateBankAccountResponse,
   CreatePaymentCard,
   GetPaymentBankAccountStatus,
@@ -6,6 +7,8 @@ import {
   Payment,
   PaymentBankAccountInstructions,
   PaymentCards,
+  Payments,
+  PaymentsQuerystring,
   PublicKey,
   ToPaymentBase,
 } from '@algomart/schemas'
@@ -14,6 +17,8 @@ import ky from 'ky'
 
 import loadFirebase from '@/clients/firebase-client'
 import { ExtractBodyType } from '@/middleware/validate-body-middleware'
+import { getPaymentsFilterQuery } from '@/utils/filters'
+import { invariant } from '@/utils/invariant'
 import {
   validateBankAccount,
   validateCard,
@@ -42,8 +47,10 @@ export interface CheckoutAPI {
     bankAccountId: string
   ): Promise<GetPaymentBankAccountStatus>
   getCardStatus(cardId: string): Promise<GetPaymentCardStatus>
+  getPayments(query: PaymentsQuerystring): Promise<Payments>
   getPayment(paymentId: string): Promise<Payment>
   getCards(): Promise<PaymentCards>
+  getCountries(): Promise<Countries | []>
   getPublicKey(): Promise<PublicKey | null>
   createBankAccount(
     request: CreateBankAccountRequest
@@ -55,8 +62,17 @@ export interface CheckoutAPI {
 
 export class CheckoutService implements CheckoutAPI {
   http: typeof ky
+  private static _instance: CheckoutService
+
+  static get instance() {
+    return this._instance || (this._instance = new CheckoutService())
+  }
 
   constructor() {
+    invariant(
+      typeof window !== 'undefined',
+      'CheckoutService must be used in the browser'
+    )
     this.http = ky.create({
       throwHttpErrors: true,
       timeout: 10_000,
@@ -82,6 +98,10 @@ export class CheckoutService implements CheckoutAPI {
     const response = await this.http.get(urls.api.v1.publicKey)
     if (response.ok) return await response.json()
     return null
+  }
+
+  async getCountries(): Promise<Countries | []> {
+    return await this.http.get(urls.api.v1.getCountries).json()
   }
 
   async createBankAccount(
@@ -126,6 +146,13 @@ export class CheckoutService implements CheckoutAPI {
       })
       .json<Payment>()
     return response.id && response.packId ? response : null
+  }
+
+  async getPayments(query: PaymentsQuerystring): Promise<Payments> {
+    const searchQuery = getPaymentsFilterQuery(query)
+    return await this.http
+      .get(`${urls.api.v1.admin.getPayments}?${searchQuery}`)
+      .json<Payments>()
   }
 
   async getPayment(paymentId: string): Promise<Payment> {
@@ -203,7 +230,3 @@ export class CheckoutService implements CheckoutAPI {
     return response.json()
   }
 }
-
-const checkoutService = new CheckoutService()
-
-export default checkoutService

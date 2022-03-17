@@ -6,6 +6,7 @@ import {
   PackType,
   Payment,
   PaymentBankAccountInstructions,
+  PaymentStatus,
   PublicKey,
   PublishedPack,
 } from '@algomart/schemas'
@@ -16,14 +17,17 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react'
 import { ExtractError } from 'validator-fns'
 
 import { Analytics } from '@/clients/firebase-analytics'
-import bidService from '@/services/bid-service'
-import checkoutService, {
+import { useAuth } from '@/contexts/auth-context'
+import { BidService } from '@/services/bid-service'
+import {
+  CheckoutService,
   CreateBankAccountRequest,
   CreateCardRequest,
 } from '@/services/checkout-service'
@@ -62,6 +66,7 @@ export interface PaymentContextProps {
   address: string | null
   auctionPackId?: string | null
   bid: string | null
+  countries: { label: string | null; id: string }[]
   currentBid: number | null
   formErrors?: FormValidation
   handleAddBankAccount(
@@ -75,11 +80,13 @@ export interface PaymentContextProps {
   method?: string | string[]
   packId: string | null
   price: string | null
+  promptLeaving: boolean
   release?: PublishedPack
   setAddress(address: string | null): void
   setBid: (bid: string | null) => void
   setLoadingText: (loadingText: string) => void
   setPackId: (packId: string | null) => void
+  setPromptLeaving: (promptLeaving: boolean) => void
   setStatus: (status: CheckoutStatus) => void
   status: CheckoutStatus
 }
@@ -100,6 +107,7 @@ export function usePaymentProvider({
   const { t } = useTranslation()
   const { asPath, query, push, route } = useRouter()
   const { method } = query
+  const auth = useAuth()
 
   const [packId, setPackId] = useState<string | null>(auctionPackId || null)
   const [status, setStatus] = useState<CheckoutStatus>(CheckoutStatus.form)
@@ -108,6 +116,10 @@ export function usePaymentProvider({
   const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
   const [bid, setBid] = useState<string | null>(initialBid)
   const [address, setAddress] = useState<string | null>(null)
+  const [promptLeaving, setPromptLeaving] = useState(false)
+  const [countries, setCountries] = useState<
+    { label: string | null; id: string }[]
+  >([])
   const validateFormForBankAccount = useMemo(() => validateBankAccount(t), [t])
   const validateFormForPurchase = useMemo(() => validatePurchaseForm(t), [t])
   const validateFormForPurchaseWithSavedCard = useMemo(
@@ -135,6 +147,29 @@ export function usePaymentProvider({
     release?.type === PackType.Auction
       ? bid
       : formatIntToFloat(release?.price || 0)
+
+  const findCountries = useCallback(async () => {
+    try {
+      const countries = await CheckoutService.instance.getCountries()
+      if (countries) {
+        const list = countries.map(({ code, name }) => ({
+          label: name,
+          id: code,
+        }))
+        return setCountries(list)
+      }
+      return setCountries([])
+    } catch {
+      setCountries([])
+      setStatus(CheckoutStatus.error)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (auth.user) {
+      findCountries()
+    }
+  }, [auth?.user, findCountries])
 
   const handleSetStatus = useCallback(
     (status: CheckoutStatus.form | CheckoutStatus.summary) => {
@@ -208,7 +243,7 @@ export function usePaymentProvider({
 
       // Send request to create
       setLoadingText(t('common:statuses.Submitting Payment'))
-      const payment = await checkoutService.createPayment({
+      const payment = await CheckoutService.instance.createPayment({
         cardId,
         description: `Purchase of ${release.title} release`,
         packTemplateId: release.templateId,
@@ -223,19 +258,20 @@ export function usePaymentProvider({
 
       // Poll for payment status to confirm avs check is complete
       const completeWhenNotPendingForPayments = (payment: Payment | null) =>
-        !(payment?.status !== 'pending')
+        !(payment?.status !== PaymentStatus.Pending)
       const paymentResponse = await poll<Payment | null>(
-        async () => await checkoutService.getPayment(payment.id as string),
+        async () =>
+          await CheckoutService.instance.getPayment(payment.id as string),
         completeWhenNotPendingForPayments,
         1000
       )
 
       // Throw error if there was a failure code
-      if (!paymentResponse || paymentResponse.status === 'failed') {
+      if (!paymentResponse || paymentResponse.status === PaymentStatus.Failed) {
         throw new Error('Payment failed')
       }
 
-      return payment
+      return paymentResponse
     },
     [release, t]
   )
@@ -281,6 +317,7 @@ export function usePaymentProvider({
         })
 
         if (expValidation.state === 'invalid') {
+          setPromptLeaving(false)
           setFormErrors(expValidation.errors)
           handleSetStatus(CheckoutStatus.form)
           return
@@ -301,7 +338,7 @@ export function usePaymentProvider({
           setLoadingText(t('common:statuses.Saving Payment Information'))
         }
 
-        const card = await checkoutService
+        const card = await CheckoutService.instance
           .createCard({
             address1,
             address2,
@@ -320,6 +357,7 @@ export function usePaymentProvider({
           .catch(async (error) => {
             const response = await error.response.json()
             mapCircleErrors(response.code)
+            setPromptLeaving(false)
             handleSetStatus(CheckoutStatus.form)
             return null
           })
@@ -336,7 +374,8 @@ export function usePaymentProvider({
           card: GetPaymentCardStatus | null
         ) => !(card?.status !== 'pending')
         const cardResponse = await poll<GetPaymentCardStatus | null>(
-          async () => await checkoutService.getCardStatus(cardIdentifier),
+          async () =>
+            await CheckoutService.instance.getCardStatus(cardIdentifier),
           completeWhenNotPendingForCards,
           1000
         )
@@ -395,12 +434,13 @@ export function usePaymentProvider({
         })
 
         if (bankValidation.state === 'invalid') {
+          setPromptLeaving(false)
           setFormErrors(bankValidation.errors)
           handleSetStatus(CheckoutStatus.form)
           return
         }
 
-        const bankAccount = await checkoutService
+        const bankAccount = await CheckoutService.instance
           .createBankAccount({
             accountNumber,
             routingNumber,
@@ -423,6 +463,7 @@ export function usePaymentProvider({
           .catch(async (error) => {
             const response = await error.response.json()
             mapCircleErrors(response.code)
+            setPromptLeaving(false)
             handleSetStatus(CheckoutStatus.form)
             return null
           })
@@ -440,7 +481,9 @@ export function usePaymentProvider({
         ) => !(bankAccount?.status !== 'pending')
         const bankAccountResp = await poll<GetPaymentBankAccountStatus | null>(
           async () =>
-            await checkoutService.getBankAccountStatus(bankAccountIdentifier),
+            await CheckoutService.instance.getBankAccountStatus(
+              bankAccountIdentifier
+            ),
           completeWhenNotPendingForAccounts,
           1000
         )
@@ -452,7 +495,7 @@ export function usePaymentProvider({
 
         // Retrieve instructions for new bank account
         const bankAccountInstructions =
-          await checkoutService.getBankAccountInstructions(
+          await CheckoutService.instance.getBankAccountInstructions(
             bankAccountIdentifier
           )
 
@@ -516,13 +559,14 @@ export function usePaymentProvider({
             : await validateFormForBids({ ...body, bid })
 
           if (validation.state === 'invalid') {
+            setPromptLeaving(false)
             setFormErrors(validation.errors)
             handleSetStatus(CheckoutStatus.form)
             return
           }
 
           // Get the public key
-          const publicKeyRecord = await checkoutService.getPublicKey()
+          const publicKeyRecord = await CheckoutService.instance.getPublicKey()
 
           // Throw error if no public key
           if (!publicKeyRecord) {
@@ -542,6 +586,7 @@ export function usePaymentProvider({
           })
 
           if (bidValidation.state === 'invalid') {
+            setPromptLeaving(false)
             setFormErrors(bidValidation.errors)
             handleSetStatus(CheckoutStatus.form)
             return
@@ -549,7 +594,10 @@ export function usePaymentProvider({
         }
 
         // Create bid
-        const isBidValid = await bidService.addToPack(bid, auctionPackId)
+        const isBidValid = await BidService.instance.addToPack(
+          bid,
+          auctionPackId
+        )
         if (isBidValid) {
           setStatus(CheckoutStatus.success)
         } else {
@@ -579,7 +627,7 @@ export function usePaymentProvider({
       setLoadingText(t('common:statuses.Validating Payment Information'))
       try {
         // Get the public key
-        const publicKeyRecord = await checkoutService.getPublicKey()
+        const publicKeyRecord = await CheckoutService.instance.getPublicKey()
 
         // Throw error if no public key
         if (!publicKeyRecord) {
@@ -602,6 +650,7 @@ export function usePaymentProvider({
           : await validateFormForPurchase(body)
 
         if (validation.state === 'invalid') {
+          setPromptLeaving(false)
           setFormErrors(validation.errors)
           handleSetStatus(CheckoutStatus.form)
           return
@@ -614,24 +663,29 @@ export function usePaymentProvider({
         }
 
         if (isPurchase) {
-          const { id, packId } = await handlePurchase(
+          const payment = await handlePurchase(
             securityCode,
             cardId,
             publicKeyRecord
           )
 
-          // Throw error if failed request
-          if (!packId) throw new Error('Pack not available')
-
-          setPackId(packId)
-          setStatus(CheckoutStatus.success)
-          if (release) {
-            Analytics.instance.purchase({
-              itemName: release.title,
-              value: release.price,
-              paymentId: id,
-            })
+          // Check if the payment requires further action
+          if (
+            payment.status === PaymentStatus.ActionRequired &&
+            payment.action
+          ) {
+            // Do not prompt user to leave page, since redirect is expected
+            setPromptLeaving(false)
+            setStatus(CheckoutStatus.success)
+            return window.location.assign(payment.action)
           }
+
+          // Throw error if failed request
+          if (!payment || !payment.packId) throw new Error('Pack not available')
+
+          setPackId(payment.packId)
+          setStatus(CheckoutStatus.success)
+          return
         } else {
           setStatus(CheckoutStatus.success)
           return
@@ -647,7 +701,6 @@ export function usePaymentProvider({
       handleAddCard,
       handlePurchase,
       handleSetStatus,
-      release,
       t,
       validateFormForPurchase,
       validateFormForPurchaseWithSavedCard,
@@ -659,6 +712,7 @@ export function usePaymentProvider({
       address,
       auctionPackId,
       bid,
+      countries,
       currentBid: currentBid || null,
       formErrors,
       handleAddBankAccount,
@@ -670,11 +724,13 @@ export function usePaymentProvider({
       method,
       packId,
       price,
+      promptLeaving,
       release,
       setAddress,
       setBid,
       setLoadingText,
       setPackId,
+      setPromptLeaving,
       setStatus,
       status,
     }),
@@ -682,6 +738,7 @@ export function usePaymentProvider({
       address,
       auctionPackId,
       bid,
+      countries,
       currentBid,
       formErrors,
       handleAddBankAccount,
@@ -693,11 +750,13 @@ export function usePaymentProvider({
       method,
       packId,
       price,
+      promptLeaving,
       release,
       setAddress,
       setBid,
       setLoadingText,
       setPackId,
+      setPromptLeaving,
       setStatus,
       status,
     ]

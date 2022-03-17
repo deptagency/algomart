@@ -1,110 +1,97 @@
-# Version 3 had a lot of updates for use in deployed environments,
-# but it dropped stuff useful for local dev like "depends_on" conditions
-version: '2'
+version: '3'
 
 services:
-  db:
-    container_name: algomart-db
-    image: postgres:13-alpine
+  api-db:
+    image: postgres:14-alpine
+    restart: always
     environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
-      - POSTGRES_DB=algomart
-    healthcheck:
-      test: ['CMD', 'pg_isready', '-q', '-d', 'algomart', '-U', 'postgres']
-      timeout: 10s
-      interval: 10s
-      retries: 10
+      POSTGRES_USER: api
+      POSTGRES_PASSWORD: api
+      POSTGRES_DB: api
+    networks:
+      - algomart_test
     ports:
-      - 5555:5432
+      - "5432:5432"
     volumes:
-      - ./docker/local/db/entrypoint:/docker-entrypoint-initdb.d/
+      - api-db:/var/lib/postgresql/data
 
-  api:
-    container_name: algomart-api
-    build:
-      context: .
-      dockerfile: ./docker/local/api/Dockerfile
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - 3001:3001
+  cms-db:
+    image: postgres:14-alpine
+    restart: always
     environment:
-      - API_KEY=5e22baa64da181ba9b1c4c5df41f5db51bf57445a6c12c0f211b74da7b430d9a
-      - CMS_ACCESS_TOKEN=600122b146b3691881ff8e8d7b58ee41e370949928a2553054c63c80828c4089
-      - CMS_URL=http://cms:8055
-      - CREATOR_PASSPHRASE=fdeef67f5ae4347dec7faa07b5b883a3555222d00a31a2a4eee359d9d6f3081b
-      - CURRENCY=USD
-      - DATABASE_URL=postgresql://api@db:5432/algomart
-      - DATABASE_SCHEMA=api
-      - HOST=0.0.0.0
-      - PORT=3001
-      - SECRET=81cc87552956fbef03cccf738b21f1604629ee6d03d6d5120d3cbbf3162c9a4b
-      - WEB_URL=http://web:3000
-    env_file:
-      # This .env should contain details for:
-      #   - Algod (and funding account)
-      #   - Circle
-      #   - Coinbase
-      #   - Sendgrid
-      - ./apps/api/.env
+      POSTGRES_USER: cms
+      POSTGRES_PASSWORD: cms
+      POSTGRES_DB: cms
+    networks:
+      - algomart_test
+    ports:
+      - "5433:5432"
     volumes:
-      - ./package.json:/app/package.json
-      - ./package-lock.json:/app/package-lock.json
-      - ./node_modules:/app/node_modules
-      # Install all API/web dependencies at once to make life easier
-      - ./apps/web:/app/apps/web
-      - ./packages:/app/packages
-      - ./services:/app/services
+      - cms-db:/var/lib/postgresql/data
 
   cms:
-    container_name: algomart-cms
     build:
       context: .
-      dockerfile: ./docker/local/cms/Dockerfile
+      dockerfile: docker/local/cms/Dockerfile
+    restart: always
     depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - 8055:8055
+      - cms-db
+    env_file: apps/cms/.env
     environment:
-      - CURRENCY=USD
-      - KEY=600122b146b3691881ff8e8d7b58ee41e370949928a2553054c63c80828c4089
-      - SECRET=7647f8c3fcfd11101bd68e402ceefad60f58607b35e84a65f36aa0f9a03e5f06
-
-      # This needs to be from the browser's perspective, since Directus prepends
-      # assets with this URL rather than using relative paths
-      - PUBLIC_URL=http://localhost:8055
-
-      # Directus uses these to automatically create the first admin user
-      - ADMIN_EMAIL=admin@example.com
-      - ADMIN_PASSWORD=password
-
-      # These are necessary *even if* `DB_CONNECTION_STRING` is supplied, so just use them instead
-      - DB_CLIENT=postgres
-      - DB_DATABASE=algomart
-      - DB_SEARCH_PATH=cms
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=cms
-      - DB_PASSWORD=
+      # only put values in here that should override the CMS .env file
+      DB_CONNECTION_STRING: postgres://cms:cms@cms-db:5432/cms
+    networks:
+      - algomart_test
+    ports:
+      - "8055:8055"
     volumes:
-      - ./apps/cms/extensions:/directus/extensions
+      - cms-uploads:/app/uploads
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/local/api/Dockerfile
+    restart: always
+    depends_on:
+      - api-db
+      - cms
+    env_file: apps/api/.env
+    environment:
+      # only put values in here that should override the API .env file
+      CMS_URL: http://cms:8055
+      CMS_PUBLIC_URL: http://localhost:8055
+      DATABASE_URL: postgres://api:api@api-db:5432/api
+    networks:
+      - algomart_test
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
 
   web:
-    container_name: algomart-web
     build:
       context: .
-      dockerfile: ./docker/local/web/Dockerfile
-    ports:
-      - 3000:3000
+      dockerfile: docker/local/web/Dockerfile
+    restart: always
+    depends_on:
+      - api
+      - cms
+    env_file: apps/web/.env
     environment:
-      - API_KEY=5e22baa64da181ba9b1c4c5df41f5db51bf57445a6c12c0f211b74da7b430d9a
-      - API_URL=http://api:3001
-      - CURRENCY=USD
+      # only put values in here that should override the Web .env file
+      API_URL: http://api:3001
+      IMAGE_DOMAINS: lh3.googleusercontent.com,firebasestorage.googleapis.com,localhost,cms
+    networks:
+      - algomart_test
+    ports:
+      - "3000:3000"
     volumes:
-      - ./package.json:/app/package.json
-      - ./package-lock.json:/app/package-lock.json
-      - ./node_modules:/app/node_modules
-      - ./packages:/app/packages
-      - ./apps/web:/app/apps/web
+      - .:/app
+
+networks:
+  algomart_test:
+
+volumes:
+  api-db:
+  cms-db:
+  cms-uploads:

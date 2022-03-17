@@ -2,10 +2,11 @@
 
 import 'dotenv/config'
 
-import Canvas from 'canvas'
+import PureImage from 'pureimage'
 import FormData from 'form-data'
 import Knex from 'knex'
 import { resolve as _resolve } from 'path'
+import * as stream from 'node:stream'
 
 import { randColor } from './seed-data/color.mjs'
 import { Factory } from './seed-data/factories.mjs'
@@ -26,6 +27,44 @@ const knex = Knex({
   searchPath: process.env.DB_SEARCH_PATH,
 })
 
+function registerFonts() {
+  PureImage.registerFont(
+    _resolve('scripts/seed-data/Inter.ttf'),
+    'Inter'
+  ).loadSync()
+}
+
+function streamToBuffer() {
+  let chunks = []
+  let buffer = null
+
+  const writableStream = new stream.Writable({
+    write(chunk, _encoding, next) {
+      chunks.push(chunk)
+      next()
+    },
+  })
+
+  writableStream.on('finish', () => {
+    buffer = Buffer.concat(chunks)
+  })
+
+  const getBuffer = () => {
+    return new Promise((resolve) => {
+      const tick = () => {
+        setImmediate(() => {
+          if (buffer) resolve(buffer)
+          else tick()
+        })
+      }
+
+      tick()
+    })
+  }
+
+  return { writableStream, getBuffer }
+}
+
 async function makeImage({
   width = 1024,
   height = 1024,
@@ -33,12 +72,12 @@ async function makeImage({
   filename = 'image.png',
   color = '#ffffff',
   backgroundColor = '#000000',
-  font = 'bold 64px Arial',
+  font = '64px Inter',
   lineWidth = 16,
   borderColor,
   token,
 } = {}) {
-  const canvas = Canvas.createCanvas(width, height)
+  const canvas = PureImage.make(width, height)
   const ctx = canvas.getContext('2d')
   ctx.fillStyle = backgroundColor
   ctx.fillRect(0, 0, width, height)
@@ -50,15 +89,20 @@ async function makeImage({
   ctx.strokeStyle = borderColor || color
   ctx.lineWidth = lineWidth
   ctx.strokeRect(24, 24, width - 48, height - 48)
+  const { getBuffer, writableStream } = streamToBuffer()
+
+  PureImage.encodePNGToStream(canvas, writableStream)
 
   const formData = new FormData()
   formData.append('title', text)
-  formData.append('file', canvas.toBuffer(), { filename })
+  formData.append('file', await getBuffer(), { filename })
 
   return await createAssetRecords(formData, token)
 }
 
 async function main(args) {
+  registerFonts()
+
   /**
    * To prevent errors when seeding, it's best to start from a fresh DB.
    * Ask user to confirm the destructive operation, and if so, truncate the tables before seeding.                                                                                          [return description]
@@ -77,7 +121,10 @@ async function main(args) {
     nft_templates, nft_templates_translations,
     pack_templates, pack_templates_translations, pack_templates_directus_files,
     collections, collections_translations,
-    sets, sets_translations
+    sets, sets_translations,
+    application, application_countries,
+    countries, countries_translations,
+    languages
     CASCADE`)
 
   /**
@@ -85,11 +132,16 @@ async function main(args) {
    * Once credentials are provided, get an auth token from  directus.
    */
   console.log('Authenticating...')
-  let config = { email: '', password: '' }
-  if (args.length < 3) {
-    config = await getConfigFromStdin()
-  } else {
-    config = JSON.parse(await readFileAsync(_resolve(args[2])))
+  let config = {
+    email: process.env.ADMIN_EMAIL,
+    password: process.env.ADMIN_PASSWORD,
+  }
+  if (!config.email || !config.password) {
+    if (args.length < 3) {
+      config = await getConfigFromStdin()
+    } else {
+      config = JSON.parse(await readFileAsync(_resolve(args[2])))
+    }
   }
   const token = await getCMSAuthToken(config)
 
@@ -106,6 +158,39 @@ async function main(args) {
     )
   } catch (err) {
     console.log('Language already exists.')
+  }
+
+  try {
+    await createEntityRecords(
+      'countries',
+      [{ code: 'US' }, { code: 'CA' }],
+      token
+    )
+  } catch (err) {
+    console.log('Countries already exist.')
+  }
+
+  try {
+    await createEntityRecords(
+      'countries_translations',
+      [
+        {
+          id: 1,
+          countries_code: 'US',
+          languages_code: 'en-US',
+          title: 'United States',
+        },
+        {
+          id: 2,
+          countries_code: 'CA',
+          languages_code: 'en-US',
+          title: 'Canada',
+        },
+      ],
+      token
+    )
+  } catch (err) {
+    console.log('Country translations already exist.')
   }
 
   /**
@@ -134,6 +219,22 @@ async function main(args) {
    * - Collections
    * - Sets
    */
+
+  /**
+   * Create application and application countries
+   */
+  const appId = '6048041f-2d72-4eb7-9a2c-3ab44aace8d5'
+  await updateEntityRecord(
+    'application',
+    '',
+    { id: appId, currency: 'USD' },
+    token
+  )
+  await createEntityRecords(
+    'application_countries',
+    { id: 1, application_id: appId, countries_code: 'US' },
+    token
+  )
 
   /**
    * Create homepage
@@ -262,7 +363,7 @@ async function main(args) {
         height: 300,
         token,
         text: `Reward for ${item.translations[0].name}`,
-        font: 'bold 24px Arial',
+        font: '24px Inter',
         color: '#ffffff',
         backgroundColor: color,
         lineWidth: 8,

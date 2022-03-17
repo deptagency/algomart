@@ -84,6 +84,11 @@ export const Configuration = {
     return env.get('CMS_URL').default('http://localhost:8055').asUrlString()
   },
 
+  get cmsPublicUrl() {
+    return this.cmsUrl
+    // return env.get('CMS_PUBLIC_URL').default(this.cmsUrl).asUrlString()
+  },
+
   get cmsAccessToken() {
     return env
       .get('CMS_ACCESS_TOKEN')
@@ -136,6 +141,10 @@ export const Configuration = {
     return Currencies[code as keyof typeof Currencies]
   },
 
+  get customerServiceEmail() {
+    return env.get('CUSTOMER_SERVICE_EMAIL').asString()
+  },
+
   get mailer(): MailerAdapterOptions {
     const emailFrom =
       env.get('EMAIL_FROM').default('').asString() ||
@@ -161,5 +170,25 @@ export const Configuration = {
       smtpPassword,
       sendGridApiKey,
     }
+  },
+
+  get enableMarketplace(): boolean {
+    return env.get('ENABLE_MARKETPLACE').default('false').asBool()
+  },
+
+  get minimumDaysBeforeTransfer(): number {
+    return env.get('MINIMUM_DAYS_BEFORE_TRANSFER').default(7).asInt()
+  },
+
+  get successPath(): string {
+    return env.get('WEB_SUCCESS_PATH').default('/payments/success').asString()
+  },
+
+  get failurePath(): string {
+    return env.get('WEB_FAILURE_PATH').default('/payments/failure').asString()
+  },
+
+  get enableJobs(): boolean {
+    return env.get('ENABLE_JOBS').default('false').asBool()
   },
 }

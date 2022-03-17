@@ -1,5 +1,6 @@
 {
   "scripts": {
-    "seed": "./scripts/seed.mjs"
+    "seed": "./scripts/seed.mjs",
+    "drop": "./scripts/drop.mjs"
   }
 }

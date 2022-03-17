@@ -9,7 +9,7 @@ import Button from '@/components/button'
 import Heading from '@/components/heading'
 import TextInput from '@/components/text-input/text-input'
 import { useAuth } from '@/contexts/auth-context'
-import authService from '@/services/auth-service'
+import { AuthService } from '@/services/auth-service'
 import { validateUsername } from '@/utils/auth-validation'
 
 export default function MyProfileUsername() {
@@ -44,9 +44,8 @@ export default function MyProfileUsername() {
       }
 
       // Check if username exists
-      const isUsernameAvailable = await authService.isUsernameAvailable(
-        body.username
-      )
+      const isUsernameAvailable =
+        await AuthService.instance.isUsernameAvailable(body.username)
       if (!isUsernameAvailable) {
         setLoading(false)
         return setFormErrors((errors) => ({
@@ -56,7 +55,9 @@ export default function MyProfileUsername() {
       }
 
       // Update username
-      const updateUsername = await authService.updateUsername(body.username)
+      const updateUsername = await AuthService.instance.updateUsername(
+        body.username
+      )
       if (!updateUsername) {
         setUpdateError(t('common:statuses.An Error has Occurred'))
         setLoading(false)

@@ -7,7 +7,7 @@
 }
 
 .column {
-  @apply p-6 border-r border-base-border;
+  @apply flex flex-col items-center justify-center px-6 my-6 border-r border-base-border;
 }
 
 .column:last-child {
@@ -19,7 +19,7 @@
 }
 
 .metadataValue {
-  @apply text-xl font-bold;
+  @apply text-lg font-bold;
 }
 
 .active {
@@ -27,5 +27,5 @@
 }
 
 .completeSuccess {
-  @apply text-green-600;
+  @apply text-base-price;
 }

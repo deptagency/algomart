@@ -1,26 +1,16 @@
-.navigation {
-}
-
 .breadcrumbs {
-  @apply flex flex-wrap gap-2 mb-16;
+  @apply flex flex-wrap mb-8;
 }
 
-.breadcrumb {
-  @apply flex justify-between gap-1;
+.breadcrumb + .breadcrumb::before {
+  @apply px-3;
+  content: '/';
 }
 
-.navLink {
-  @apply flex gap-6 no-underline transition duration-300 text-base-textTertiary hover:text-base-textPrimary;
+.link {
+  @apply inline-block leading-5 no-underline transition text-base-textTertiary hover:text-base-textPrimary;
 }
 
-.navLink.navLinkActive {
-  @apply font-semibold border-b-1 text-base-textPrimary border-action-accent;
-}
-
-.navLink.navLinkDisabled {
-  @apply opacity-60;
-}
-
-.icon {
-  @apply w-5;
+.current {
+  @apply border-b-1 text-base-textPrimary border-action-accent;
 }

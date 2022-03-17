@@ -78,19 +78,28 @@ export default function HomeTemplate({
             height={512}
             layout="responsive"
             objectFit="cover"
+            alt={featuredPack.title}
           />
         </div>
 
         {/* Content */}
         <div className={css.featuredContent}>
-          <Heading className={css.featuredHeading} level={2} bold>
+          <Heading size={1} level={2} bold>
             {featuredPack.title}
           </Heading>
+
+          {featuredPack.subtitle ? (
+            <Heading className={css.subtitle} level={3} size={4}>
+              {featuredPack.subtitle}
+            </Heading>
+          ) : null}
+
           {featuredPack.body ? (
             <div className={css.featuredBody}>
               <Markdown options={{ forceBlock: true }}>
-                {featuredPack.body}
+                {featuredPack.body.slice(0, 500)}
               </Markdown>
+              <div className={css.mask} />
             </div>
           ) : null}
 

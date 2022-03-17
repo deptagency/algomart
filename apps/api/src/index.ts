@@ -6,11 +6,10 @@ import { configureTasks } from '@/tasks'
 import { logger } from '@/utils/logger'
 
 buildApp({
-  fastify: {
-    logger: { prettyPrint: Configuration.env !== 'production' },
-  },
+  fastify: { logger },
   knex: buildKnexConfiguration(),
   container: configureResolver(),
+  enableTrap: true,
 })
   .then((app) => {
     configureTasks(app)

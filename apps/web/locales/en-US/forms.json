@@ -8,6 +8,7 @@
     "emailsDoNotMatch": "Email addresses do not match",
     "invalidCVV": "Invalid CVV",
     "exactCharacters": "Must be {exact} characters",
+    "invalidClaim": "Invalid Claim",
     "invalidCredentials": "Invalid credentials",
     "invalidCreditCard": "Invalid credit card number",
     "invalidCountry": "Invalid country code",
@@ -15,6 +16,7 @@
     "invalidName": "Invalid first and last name",
     "invalidPassphrase": "Invalid Passphrase",
     "invalidPassword": "Invalid password",
+    "invalidPayment": "Invalid Payment",
     "invalidState": "Invalid province/state code",
     "failedPayment": "Invalid payment details. Check your credit card and/or billing address details.",
     "minimumBid": "Your bid must be at least {{amount}}",
@@ -83,7 +85,11 @@
       "success": "You're the current high bidder for {{title}}"
     },
     "ccNumber": {
-      "label": "Credit Card Number"
+      "label": "Credit Card Number",
+      "logos": {
+        "mastercard": "Mastercard",
+        "visa": "Visa"
+      }
     },
     "city": {
       "label": "City"
@@ -125,7 +131,8 @@
       },
       "label": "Passphrase",
       "helpText": "For approving transactions",
-      "warning": "Write down your passphrase!"
+      "warning": "Write down your passphrase!",
+      "enterPassphrase": "Enter your passphrase to authorize this transaction."
     },
     "paymentMethods": {
       "label": "Payment Method",

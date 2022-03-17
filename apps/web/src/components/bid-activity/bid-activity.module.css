@@ -1,9 +1,9 @@
-.titleWrapper {
-  @apply bg-gradient-to-b from-gray-200 to-white;
+.bidActivity {
+  @apply mt-6 shadow-large bg-base-bgCard;
 }
 
 .title {
-  @apply font-bold p-6 text-2xl text-center;
+  @apply p-6 text-2xl font-bold text-center;
 }
 
 .list {

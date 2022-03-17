@@ -6,7 +6,7 @@ import { ExtractError } from 'validator-fns'
 import { useAuth } from '@/contexts/auth-context'
 import { useRedemption } from '@/contexts/redemption-context'
 import DefaultLayout from '@/layouts/default-layout'
-import authService from '@/services/auth-service'
+import { AuthService } from '@/services/auth-service'
 import SignupTemplate from '@/templates/signup-template'
 import { FileWithPreview } from '@/types/file'
 import { validateEmailAndPasswordRegistration } from '@/utils/auth-validation'
@@ -41,9 +41,8 @@ export default function SignUpPage() {
       if (validation.state === 'invalid' && validation.errors) {
         return setFormErrors(validation.errors)
       }
-      const isUsernameAvailable = await authService.isUsernameAvailable(
-        body.username
-      )
+      const isUsernameAvailable =
+        await AuthService.instance.isUsernameAvailable(body.username)
       if (!isUsernameAvailable) {
         setFormErrors((errors) => {
           return { ...errors, username: t('forms:errors.usernameTaken') }

@@ -27,11 +27,12 @@ import {
   PackWithId,
   PublishedPack,
   PublishedPacksQuery,
+  RevokePack,
   SortDirection,
   TransferPack,
   TransferPackStatusList,
 } from '@algomart/schemas'
-import { raw, Transaction } from 'objection'
+import { Model, raw, Transaction } from 'objection'
 
 import DirectusAdapter, {
   DirectusStatus,
@@ -39,6 +40,7 @@ import DirectusAdapter, {
 } from '@/lib/directus-adapter'
 import { BidModel } from '@/models/bid.model'
 import { CollectibleModel } from '@/models/collectible.model'
+import { CollectibleOwnershipModel } from '@/models/collectible-ownership.model'
 import { EventModel } from '@/models/event.model'
 import { PackModel } from '@/models/pack.model'
 import { UserAccountModel } from '@/models/user-account.model'
@@ -718,10 +720,19 @@ export default class PacksService {
     locale = DEFAULT_LOCALE,
   }: LocaleAndExternalId) {
     const packs = await PackModel.query()
-      .withGraphJoined('[collectibles, owner]')
-      .where('owner.externalId', externalId)
-      .whereNull('collectibles.ownerId')
-      .whereNotNull('collectibles.address')
+      .alias('p')
+      .join('UserAccount as ua', 'ua.id', 'p.ownerId')
+      .join('Collectible as c', 'c.packId', 'p.id')
+      .whereRaw('"ua"."externalId" = ?', [externalId])
+      .whereNotNull('c.address')
+      .whereNotExists(
+        CollectibleOwnershipModel.query()
+          .alias('co')
+          .select('id')
+          .where('co.collectibleId', '=', raw('"c"."id"'))
+          .where('co.ownerId', '=', raw('"ua"."id"'))
+      )
+      .distinct('p.id', 'p.templateId', 'p.claimedAt')
 
     if (packs.length === 0) {
       return {
@@ -845,6 +856,86 @@ export default class PacksService {
     return pack
   }
 
+  async revokePack(request: RevokePack, trx?: Transaction) {
+    invariant(
+      request.fromAddress || request.ownerId,
+      'Pack owner ID or address is required.'
+    )
+    let userId
+
+    if (request.ownerId) {
+      const user = await UserAccountModel.query(trx).findById(request.ownerId)
+      userInvariant(user, 'user not found', 404)
+      userId = user.id
+    }
+
+    const packQuery = PackModel.query(trx).where('id', request.packId)
+
+    if (userId) {
+      packQuery.where('ownerId', request.ownerId)
+    }
+
+    const pack = await packQuery
+      .select('id')
+      .withGraphFetched('collectibles')
+      .modifyGraph('collectibles', (builder) => {
+        builder.select('id')
+      })
+      .first()
+
+    userInvariant(pack, 'pack not found', 404)
+
+    this.logger.info({ pack }, 'pack to be transferred')
+
+    // Transfer
+    await Promise.all(
+      pack?.collectibles?.map(
+        async (c) =>
+          c.ownerId &&
+          c.id &&
+          (await this.collectibles.transferToCreatorFromUser(
+            c.id,
+            request.fromAddress,
+            userId,
+            trx
+          ))
+      )
+    )
+
+    // Create transfer success notification to be sent to user
+    const packWithBase = await this.getPackById(request.packId)
+    if (packWithBase) {
+      await this.notifications.createNotification(
+        {
+          type: NotificationType.PackRevoked,
+          userAccountId: request.ownerId,
+          variables: {
+            packTitle: packWithBase.title,
+          },
+        },
+        trx
+      )
+    }
+
+    // Remove claim from pack
+    await PackModel.query(trx)
+      .patch({
+        ownerId: null,
+        claimedAt: null,
+        updatedAt: new Date().toISOString(),
+      })
+      .where({ id: request.packId })
+
+    await EventModel.query(trx).insert({
+      action: EventAction.Update,
+      entityId: request.packId,
+      entityType: EventEntityType.Pack,
+      userAccountId: request.ownerId,
+    })
+
+    return pack
+  }
+
   async generatePacks(trx?: Transaction) {
     const existingTemplates = await PackModel.query(trx)
       .groupBy('templateId')
@@ -858,12 +949,30 @@ export default class PacksService {
       }
     }
 
-    const template = await this.cms.findPack(filter)
+    const { packs: packTemplates } = await this.cms.findAllPacks({ filter })
 
-    if (!template) {
-      return 0
-    }
+    const results = await Promise.all(
+      packTemplates.map(async (packTemplate) => {
+        const trx = await Model.startTransaction()
+        try {
+          const result = await this.generatePack(packTemplate, trx)
+          await trx.commit()
+          return result
+        } catch (error) {
+          await trx.rollback()
+          this.logger.error(
+            error,
+            `error generating pack ${packTemplate.templateId}`
+          )
+          return 0
+        }
+      })
+    )
 
+    return results.reduce((a, b) => a + b, 0)
+  }
+
+  async generatePack(template: PackBase, trx?: Transaction) {
     const { collectibleTemplateIds, templateId, config } = template
     const collectibleTemplateIdsCount = collectibleTemplateIds.length
     const { collectibles: collectibleTemplates } =

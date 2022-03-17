@@ -2,20 +2,25 @@ import {
   AlgorandTransactionStatus,
   CollectibleBase,
   CollectibleListQuerystring,
+  CollectibleListShowcase,
   CollectibleListWithTotal,
   CollectiblesByAlgoAddressQuerystring,
+  CollectibleShowcaseQuerystring,
   CollectibleSortField,
   CollectibleWithDetails,
   DEFAULT_LOCALE,
   EventAction,
   EventEntityType,
+  InitializeTransferCollectible,
   IPFSStatus,
+  SingleCollectibleQuerystring,
   SortDirection,
+  TransferCollectible,
+  TransferCollectibleResult,
 } from '@algomart/schemas'
-import { CollectibleListShowcase } from '@algomart/schemas'
-import { CollectibleShowcaseQuerystring } from '@algomart/schemas'
 import { Transaction } from 'objection'
 
+import { Configuration } from '@/configuration'
 import AlgoExplorerAdapter from '@/lib/algoexplorer-adapter'
 import AlgorandAdapter, {
   DEFAULT_INITIAL_BALANCE,
@@ -24,12 +29,14 @@ import DirectusAdapter, { ItemFilter } from '@/lib/directus-adapter'
 import NFTStorageAdapter from '@/lib/nft-storage-adapter'
 import { AlgorandAccountModel } from '@/models/algorand-account.model'
 import { AlgorandTransactionModel } from '@/models/algorand-transaction.model'
+import { AlgorandTransactionGroupModel } from '@/models/algorand-transaction-group.model'
 import { CollectibleModel } from '@/models/collectible.model'
 import { CollectibleOwnershipModel } from '@/models/collectible-ownership.model'
 import { CollectibleShowcaseModel } from '@/models/collectible-showcase.model'
 import { EventModel } from '@/models/event.model'
 import { UserAccountModel } from '@/models/user-account.model'
 import { isDefinedArray } from '@/utils/arrays'
+import { addDays, isBeforeNow } from '@/utils/date-time'
 import { invariant, userInvariant } from '@/utils/invariant'
 import { logger } from '@/utils/logger'
 
@@ -84,12 +91,101 @@ export default class CollectiblesService {
     return collectibles.length
   }
 
-  async storeCollectibles(limit = 5, trx: Transaction) {
-    // Get unstored collectibles
+  getTransferrableAt(collectible: CollectibleModel): Date {
+    invariant(collectible.pack, 'must load collectible with its pack')
+    invariant(
+      collectible.creationTransaction,
+      'must load collectible with its creation transaction'
+    )
+
+    const { payment } = collectible.pack
+
+    // If this collectible was purchased with a card, then it cannot be
+    // transferred until MINIMUM_DAYS_BEFORE_TRANSFER has passed since the
+    // ASA was minted.
+    const wasPaidWithCard =
+      payment && !payment.destinationAddress && !payment.paymentBankId
+
+    const transferrableAt = wasPaidWithCard
+      ? addDays(
+          new Date(collectible.creationTransaction.createdAt),
+          Configuration.minimumDaysBeforeTransfer
+        )
+      : new Date(collectible.creationTransaction.createdAt)
+
+    return transferrableAt
+  }
+
+  async getCollectible(
+    query: SingleCollectibleQuerystring
+  ): Promise<CollectibleWithDetails> {
+    const collectible = await CollectibleModel.query()
+      .findOne({ address: query.assetId })
+      .withGraphFetched('[creationTransaction, pack.payment]')
+
+    userInvariant(collectible, 'Collectible not found', 404)
+
+    const transferrableAt = this.getTransferrableAt(collectible)
+
+    const {
+      collectibles: [template],
+    } = await this.cms.findAllCollectibles(
+      query.locale,
+      {
+        id: { _eq: collectible.templateId },
+      },
+      1
+    )
+
+    invariant(template, `NFT Template ${collectible.templateId} not found`)
+
+    const currentOwner = await this.algoExplorer.getCurrentAssetOwner(
+      collectible.address
+    )
+    const owner = await UserAccountModel.query()
+      .alias('u')
+      .join('AlgorandAccount as a', 'u.algorandAccountId', 'a.id')
+      .where('a.address', '=', currentOwner?.address || '-')
+      .first()
+
+    const { collections } = await this.cms.findAllCollections(query.locale)
+    const collection = collections.find(
+      (c) =>
+        c.id === template.collectionId ||
+        c.sets.some((s) => s.id === template.setId)
+    )
+    const set = collection?.sets.find((s) => s.id === template.setId)
+
+    return {
+      ...template,
+      set,
+      collection,
+      currentOwner: owner?.username,
+      currentOwnerAddress: currentOwner?.address,
+      isFrozen: currentOwner?.assets.some(
+        (asset) =>
+          asset['asset-id'] === collectible.address && asset['is-frozen']
+      ),
+      transferrableAt: transferrableAt.toISOString(),
+      id: collectible.id,
+      edition: collectible.edition,
+      address: collectible.address,
+      mintedAt: collectible.creationTransaction?.createdAt,
+      claimedAt:
+        collectible.claimedAt instanceof Date
+          ? collectible.claimedAt.toISOString()
+          : collectible.claimedAt,
+    }
+  }
+
+  async storeCollectibles(limit = 10, trx: Transaction) {
+    // Get unstored collectibles by their templateIds
     const collectibles = await CollectibleModel.query(trx)
       .whereNull('ipfsStatus')
-      .orderBy('templateId')
-      .limit(10)
+      .groupBy('templateId')
+      .havingRaw('count(*) > 0')
+      .limit(limit)
+      .select('templateId')
 
     if (collectibles.length === 0) {
       return 0
@@ -116,17 +212,10 @@ export default class CollectiblesService {
 
     // Grouping collectibles by template data prevents need to upload assets more than once
     await Promise.all(
-      templates.map(
-        async (t) =>
-          await this.storeCollectiblesByTemplate(
-            t,
-            collectiblesLookupByTemplate.get(t.templateId) || [],
-            trx
-          )
-      )
+      templates.map(async (t) => await this.storeCollectiblesByTemplate(t, trx))
     )
 
-    return collectibles.length
+    return templates.length
   }
 
   async getCollectiblesByAlgoAddress(
@@ -218,14 +307,11 @@ export default class CollectiblesService {
 
   async storeCollectiblesByTemplate(
     template: CollectibleBase,
-    collectibles: CollectibleModel[],
     trx: Transaction
   ) {
+    // Set collectibles to be stored to a pending state
     await CollectibleModel.query()
-      .whereIn(
-        'id',
-        collectibles.map((c) => c.id)
-      )
+      .where('templateId', template.templateId)
       .patch({ ipfsStatus: IPFSStatus.Pending })
 
     try {
@@ -237,47 +323,50 @@ export default class CollectiblesService {
         ? await this.storage.storeFile(animationField)
         : null
 
-      await Promise.all(
-        collectibles.map(async (c) => {
-          const metadata = this.storage.mapToMetadata({
-            ...(animationData && {
-              animation_integrity: animationData.integrityHash,
-              animation_url_mimetype: animationData.mimeType,
-              animation_url: animationData.uri,
-            }),
-            description: template.subtitle,
-            editionNumber: c.edition,
-            image_integrity: imageData.integrityHash,
-            image_mimetype: imageData.mimeType,
-            image: imageData.uri,
-            name: template.uniqueCode,
-            totalEditions: template.totalEditions,
-          })
+      const metadata = this.storage.mapToMetadata({
+        ...(animationData && {
+          animation_integrity: animationData.integrityHash,
+          animation_url_mimetype: animationData.mimeType,
+          animation_url: animationData.uri,
+        }),
+        description: template.subtitle,
+        image_integrity: imageData.integrityHash,
+        image_mimetype: imageData.mimeType,
+        image: imageData.uri,
+        name: template.uniqueCode,
+        totalEditions: template.totalEditions,
+      })
 
-          // Store metadata as JSON on IPFS
-          const assetUrl = await this.storage.storeJSON(metadata)
+      // Store metadata as JSON on IPFS
+      const assetUrl = await this.storage.storeJSON(metadata)
 
-          // Construct JSON hash of metadata
-          const assetMetadataHash = this.storage.hashMetadata(metadata)
+      // Construct JSON hash of metadata
+      const assetMetadataHash = this.storage.hashMetadata(metadata)
 
-          await CollectibleModel.query(trx).where('id', c.id).patch({
-            assetUrl,
-            assetMetadataHash,
-            ipfsStatus: IPFSStatus.Stored,
-          })
-          await EventModel.query(trx).insert({
-            action: EventAction.Update,
-            entityType: EventEntityType.Collectible,
-            entityId: c.id,
-          })
+      // Update records with new IPFS data
+      await CollectibleModel.query(trx)
+        .where('templateId', template.templateId)
+        .patch({
+          assetUrl,
+          assetMetadataHash,
+          ipfsStatus: IPFSStatus.Stored,
         })
+
+      // Get updated collectibles and update event records
+      const updatedCollectibles = await CollectibleModel.query().where(
+        'templateId',
+        template.templateId
+      )
+      await EventModel.query(trx).insert(
+        updatedCollectibles.map((c) => ({
+          action: EventAction.Update,
+          entityType: EventEntityType.Collectible,
+          entityId: c.id,
+        }))
       )
     } catch (error) {
       await CollectibleModel.query()
-        .whereIn(
-          'id',
-          collectibles.map((c) => c.id)
-        )
+        .where('templateId', template.templateId)
         .patch({ ipfsStatus: null })
       throw error
     }
@@ -480,6 +569,80 @@ export default class CollectiblesService {
         action: EventAction.Create,
         entityId: ownership.id,
         entityType: EventEntityType.CollectibleOwnership,
+        userAccountId: userId,
+      },
+    ])
+  }
+
+  async transferToCreatorFromUser(
+    id: string,
+    accountAddress?: string,
+    userId?: string,
+    trx?: Transaction
+  ) {
+    userInvariant(userId || accountAddress, 'identifier not provided', 400)
+
+    const collectible = await CollectibleModel.query(trx).findById(id)
+    userInvariant(collectible, 'collectible not found', 404)
+
+    // Find the user to get the address IF the user ID was provided
+    let userAddress: string = accountAddress
+    if (userId) {
+      const user = await UserAccountModel.query(trx)
+        .findById(userId)
+        .withGraphFetched('algorandAccount')
+      userInvariant(user, 'user account not found', 404)
+      userAddress = user.algorandAccount.address
+    }
+    userInvariant(userAddress, 'address not found for user', 400)
+
+    const assetIndex = collectible.address
+    if (!assetIndex) {
+      throw new Error('Collectible not yet minted')
+    }
+
+    const info = await this.algorand.getAssetInfo(assetIndex)
+
+    if (!info) {
+      throw new Error(
+        `Collectible with asset index ${assetIndex} not found on blockchain`
+      )
+    }
+
+    const { signedTransactions, transactionIds } =
+      await this.algorand.generateClawbackTransactionsFromUser({
+        assetIndex,
+        fromAccountAddress: userAddress,
+        toAccountAddress: info.creator,
+      })
+
+    await this.algorand.submitTransaction(signedTransactions)
+
+    const transactions = await AlgorandTransactionModel.query(trx).insert(
+      transactionIds.map((id) => ({
+        address: id,
+        status: AlgorandTransactionStatus.Pending,
+      }))
+    )
+
+    // Remove ownership from collectible
+    await CollectibleModel.query(trx).where('id', collectible.id).patch({
+      ownerId: null,
+      latestTransferTransactionId: transactions[0].id,
+      claimedAt: new Date().toISOString(),
+    })
+
+    await EventModel.query(trx).insert([
+      ...transactions.map((t) => ({
+        action: EventAction.Create,
+        entityType: EventEntityType.AlgorandTransaction,
+        entityId: t.id,
+        userAccountId: userId,
+      })),
+      {
+        action: EventAction.Update,
+        entityId: collectible.id,
+        entityType: EventEntityType.Collectible,
         userAccountId: userId,
       },
     ])
@@ -816,5 +979,284 @@ export default class CollectiblesService {
         })
       })
     )
+  }
+
+  async initializeExportCollectible(
+    request: InitializeTransferCollectible,
+    trx?: Transaction
+  ): Promise<TransferCollectibleResult> {
+    const user = await UserAccountModel.query(trx)
+      .findOne({
+        externalId: request.externalId,
+      })
+      .withGraphFetched('algorandAccount')
+
+    userInvariant(user, 'user not found', 404)
+    invariant(user.algorandAccount, 'algorand account not loaded')
+
+    const collectible = await CollectibleModel.query(trx)
+      .findOne({
+        address: request.assetIndex,
+      })
+      .withGraphFetched('[creationTransaction, pack.payment]')
+
+    userInvariant(collectible, 'collectible not found', 404)
+    userInvariant(
+      collectible.ownerId == user.id,
+      'not the owner of this collectible',
+      400
+    )
+    userInvariant(
+      collectible.creationTransaction?.createdAt,
+      'collectible not minted',
+      400
+    )
+
+    const transferrableAt = this.getTransferrableAt(collectible)
+
+    userInvariant(
+      isBeforeNow(transferrableAt),
+      'collectible cannot yet be transferred',
+      400
+    )
+
+    const asset = await this.algorand.getAssetInfo(collectible.address)
+    userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
+
+    const transactions = await this.algorand.generateExportTransactions({
+      assetIndex: request.assetIndex,
+      fromAccountAddress: user.algorandAccount.address,
+      toAccountAddress: request.address,
+    })
+
+    await AlgorandTransactionGroupModel.query(trx).insertGraph({
+      transactions: transactions.map((tx) => ({
+        address: tx.txnId,
+        // Note the Unsigned status
+        status: AlgorandTransactionStatus.Unsigned,
+        encodedTransaction: tx.txn,
+        signer: tx.signer,
+      })),
+    })
+
+    return transactions
+  }
+
+  async exportCollectible(
+    request: TransferCollectible,
+    trx?: Transaction
+  ): Promise<string> {
+    const user = await UserAccountModel.query(trx)
+      .findOne({
+        externalId: request.externalId,
+      })
+      .withGraphFetched('algorandAccount')
+
+    userInvariant(user, 'user not found', 404)
+    invariant(user.algorandAccount, 'algorand account not loaded')
+
+    const collectible = await CollectibleModel.query(trx)
+      .findOne({
+        address: request.assetIndex,
+      })
+      .withGraphFetched('[creationTransaction, pack.payment]')
+
+    userInvariant(collectible, 'collectible not found', 404)
+    userInvariant(
+      collectible.ownerId == user.id,
+      'not the owner of this collectible',
+      400
+    )
+    userInvariant(
+      collectible.creationTransaction?.createdAt,
+      'collectible not minted',
+      400
+    )
+
+    const transferrableAt = this.getTransferrableAt(collectible)
+
+    userInvariant(
+      isBeforeNow(transferrableAt),
+      'collectible cannot yet be transferred',
+      400
+    )
+
+    const asset = await this.algorand.getAssetInfo(collectible.address)
+    userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
+
+    // Load transaction, the group, and related transactions
+    const transaction = await AlgorandTransactionModel.query(trx)
+      .findOne({
+        address: request.transactionId,
+        status: AlgorandTransactionStatus.Unsigned,
+      })
+      .withGraphFetched('group.transactions')
+    invariant(
+      transaction.group?.transactions?.length >= 1,
+      'failed to load transaction group'
+    )
+
+    const { group } = transaction
+
+    const result = await this.algorand.signTransferTransactions({
+      passphrase: request.passphrase,
+      encryptedMnemonic: user.algorandAccount.encryptedKey,
+      transactions: group.transactions.map(
+        ({ signer, encodedTransaction, address }) => {
+          const signedTxn =
+            address === transaction.address ? request.signedTransaction : null
+          return {
+            signer,
+            txn: encodedTransaction,
+            txnId: address,
+            signedTxn,
+          }
+        }
+      ),
+    })
+
+    const txResult = await this.algorand.submitTransaction(
+      result.signedTransactions
+    )
+    const txId = txResult.txId
+
+    await AlgorandTransactionModel.query(trx)
+      .where({ groupId: group.id })
+      .patch({ status: AlgorandTransactionStatus.Pending })
+
+    await CollectibleModel.query(trx)
+      .findOne({ id: collectible.id })
+      .patch({ ownerId: null })
+
+    return txId
+  }
+
+  async initializeImportCollectible(
+    request: InitializeTransferCollectible,
+    trx?: Transaction
+  ): Promise<TransferCollectibleResult> {
+    // Find the user's custodial wallet
+    const user = await UserAccountModel.query(trx)
+      .findOne({
+        externalId: request.externalId,
+      })
+      .withGraphFetched('algorandAccount')
+    userInvariant(user, 'user not found', 404)
+    invariant(user.algorandAccount, 'algorand account not loaded')
+
+    // Find the collectible, it must be owned by the non-custodial wallet
+    const collectible = await CollectibleModel.query(trx).findOne({
+      address: request.assetIndex,
+      ownerId: null,
+    })
+    userInvariant(collectible, 'collectible not found', 404)
+
+    // Ensure the sender currently owns the asset
+    const accountInfo = await this.algorand.getAccountInfo(request.address)
+    userInvariant(
+      accountInfo.assets.some(
+        (asset) => asset.assetId === request.assetIndex && asset.amount === 1
+      ),
+      'must own the asset to import',
+      400
+    )
+
+    // Generate the transactions that will need to be signed, but do not yet
+    // submit them to Algorand! That will be done in a separate step.
+    const transactions = await this.algorand.generateImportTransactions({
+      assetIndex: request.assetIndex,
+      fromAccountAddress: request.address,
+      toAccountAddress: user.algorandAccount.address,
+    })
+
+    // Store all of the unsigned transactions for later reference
+    await AlgorandTransactionGroupModel.query(trx).insertGraph({
+      transactions: transactions.map((tx) => ({
+        address: tx.txnId,
+        // Note the Unsigned status
+        status: AlgorandTransactionStatus.Unsigned,
+        encodedTransaction: tx.txn,
+        signer: tx.signer,
+      })),
+    })
+
+    return transactions
+  }
+
+  async importCollectible(
+    request: TransferCollectible,
+    trx?: Transaction
+  ): Promise<string> {
+    // Find the user's custodial wallet
+    const user = await UserAccountModel.query(trx)
+      .findOne({
+        externalId: request.externalId,
+      })
+      .withGraphFetched('algorandAccount')
+    userInvariant(user, 'user not found', 404)
+    invariant(user.algorandAccount, 'algorand account not loaded')
+
+    // Find the collectible, it must be owned by the non-custodial wallet
+    const collectible = await CollectibleModel.query(trx).findOne({
+      address: request.assetIndex,
+      ownerId: null,
+    })
+    userInvariant(collectible, 'collectible not found', 404)
+
+    // Ensure the sender still owns the asset
+    const accountInfo = await this.algorand.getAccountInfo(request.address)
+    userInvariant(
+      accountInfo.assets.some(
+        (asset) => asset.assetId === request.assetIndex && asset.amount === 1
+      ),
+      'must own the asset to import',
+      400
+    )
+
+    // Load transaction, the group, and related transactions
+    const transaction = await AlgorandTransactionModel.query(trx)
+      .findOne({
+        address: request.transactionId,
+        status: AlgorandTransactionStatus.Unsigned,
+      })
+      .withGraphFetched('group.transactions')
+    invariant(
+      transaction.group?.transactions?.length >= 1,
+      'failed to load transaction group'
+    )
+
+    const { group } = transaction
+
+    const result = await this.algorand.signTransferTransactions({
+      passphrase: request.passphrase,
+      encryptedMnemonic: user.algorandAccount.encryptedKey,
+      transactions: group.transactions.map(
+        ({ signer, encodedTransaction, address }) => {
+          const signedTxn =
+            address === transaction.address ? request.signedTransaction : null
+          return {
+            signer,
+            txn: encodedTransaction,
+            txnId: address,
+            signedTxn,
+          }
+        }
+      ),
+    })
+
+    const txResult = await this.algorand.submitTransaction(
+      result.signedTransactions
+    )
+    const txId = txResult.txId
+
+    await AlgorandTransactionModel.query(trx)
+      .where({ groupId: group.id })
+      .patch({ status: AlgorandTransactionStatus.Pending })
+
+    await CollectibleModel.query(trx)
+      .findOne({ id: collectible.id })
+      .patch({ ownerId: user.id })
+
+    return txId
   }
 }

@@ -15,7 +15,7 @@ import {
   getAuthenticatedUser,
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
-import collectibleService from '@/services/collectible-service'
+import { CollectibleService } from '@/services/collectible-service'
 import MyShowcaseTemplate from '@/templates/my-showcase-template'
 import { useApi, useAuthApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
@@ -52,7 +52,7 @@ export default function MyShowcasePage() {
   const addCollectible = useCallback(
     async (collectibleId: string) => {
       // Add asset/collectible to publicCollectibles list for customer
-      await collectibleService.addCollectibleShowcase(collectibleId)
+      await CollectibleService.instance.addCollectibleShowcase(collectibleId)
       if (collectibles) {
         const collectible = collectibles.find((c) => c.id === collectibleId)
         if (collectible) {
@@ -69,7 +69,7 @@ export default function MyShowcasePage() {
   const removeCollectible = useCallback(
     async (collectibleId: string) => {
       // Remove asset/collectible to publicCollectibles list for customer
-      await collectibleService.removeCollectibleShowcase(collectibleId)
+      await CollectibleService.instance.removeCollectibleShowcase(collectibleId)
       if (collectibles) {
         mutate({
           collectibles: (showcaseCollectibles || []).filter(
@@ -84,7 +84,7 @@ export default function MyShowcasePage() {
 
   const shareProfile = useCallback(
     async (shared: boolean) => {
-      await collectibleService.shareProfile(shared)
+      await CollectibleService.instance.shareProfile(shared)
       mutate({
         collectibles: showcaseCollectibles || [],
         showProfile: shared,

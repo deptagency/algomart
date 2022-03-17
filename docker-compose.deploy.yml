@@ -1,0 +1,113 @@
+version: '3'
+
+services:
+  api-db-deploy:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: api
+      POSTGRES_PASSWORD: api
+      POSTGRES_DB: api
+    networks:
+      - algomart_deploy
+    ports:
+      - "5432:5432"
+    volumes:
+      - api-db-deploy:/var/lib/postgresql/data
+
+  cms-db-deploy:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: cms
+      POSTGRES_PASSWORD: cms
+      POSTGRES_DB: cms
+    networks:
+      - algomart_deploy
+    ports:
+      - "5433:5432"
+    volumes:
+      - cms-db-deploy:/var/lib/postgresql/data
+
+  cms-deploy:
+    build:
+      context: .
+      dockerfile: docker/deploy/cms/Dockerfile
+    restart: always
+    depends_on:
+      - cms-db-deploy
+    env_file: apps/cms/.env
+    environment:
+      # only put values in here that should override the CMS .env file
+      DB_CONNECTION_STRING: postgres://cms:cms@cms-db-deploy:5432/cms
+    networks:
+      - algomart_deploy
+    ports:
+      - "8055:8055"
+    volumes:
+      - cms-uploads-deploy:/app/uploads
+
+  api-deploy:
+    build:
+      context: .
+      dockerfile: docker/deploy/api/Dockerfile
+    restart: always
+    depends_on:
+      - api-db-deploy
+      - cms-deploy
+    env_file: apps/api/.env
+    environment:
+      # only put values in here that should override the API .env file
+      CMS_URL: http://cms-deploy:8055
+      CMS_PUBLIC_URL: http://localhost:8055
+      DATABASE_URL: postgres://api:api@api-db-deploy:5432/api
+      ENABLE_JOBS: 'false'
+    networks:
+      - algomart_deploy
+    ports:
+      - "3001:3001"
+
+  api-jobs-deploy:
+    build:
+      context: .
+      dockerfile: docker/deploy/api/Dockerfile
+    restart: always
+    depends_on:
+      - api-db-deploy
+      - cms-deploy
+    env_file: apps/api/.env
+    environment:
+      # only put values in here that should override the API .env file
+      CMS_URL: http://cms-deploy:8055
+      CMS_PUBLIC_URL: http://localhost:8055
+      DATABASE_URL: postgres://api:api@api-db-deploy:5432/api
+      ENABLE_JOBS: 'true'
+    networks:
+      - algomart_deploy
+    ports:
+      - "3002:3001"
+
+  web-deploy:
+    build:
+      context: .
+      dockerfile: docker/deploy/web/Dockerfile
+    restart: always
+    depends_on:
+      - api-deploy
+      - cms-deploy
+    env_file: apps/web/.env
+    environment:
+      # only put values in here that should override the Web .env file
+      API_URL: http://api-deploy:3001
+    networks:
+      - algomart_deploy
+    ports:
+      - "3000:3000"
+
+networks:
+  algomart_deploy:
+
+volumes:
+  api-db-deploy:
+  cms-db-deploy:
+  cms-uploads-deploy:

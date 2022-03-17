@@ -35,10 +35,9 @@ handler.post(
 
     // Create payment
     const payment = await ApiClient.instance.createPayment({
-      idempotencyKey: uuid(),
       keyId: body.verificationKeyId,
       encryptedData: body.verificationEncryptedData,
-      verification: CirclePaymentVerificationOptions.cvv,
+      verification: CirclePaymentVerificationOptions.three_d_secure,
       metadata: {
         email,
         ipAddress,

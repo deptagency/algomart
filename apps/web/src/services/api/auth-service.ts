@@ -1,3 +1,4 @@
+import { FirebaseClaim } from '@algomart/schemas'
 import Cookies from 'cookies'
 import { GetServerSidePropsContext } from 'next'
 
@@ -53,4 +54,47 @@ export async function handleUnauthenticatedRedirect(urlPath: string) {
       permanent: false,
     },
   }
+}
+
+export async function isAuthenticatedUserAdmin({
+  req,
+  res,
+}: GetServerSidePropsContext) {
+  const cookies = new Cookies(req, res)
+  const token = cookies.get(TOKEN_COOKIE_NAME)
+  const admin = configureAdmin()
+
+  if (!token) {
+    return false
+  }
+
+  // Verify token
+  const decoded = await admin
+    .auth()
+    .verifyIdToken(token)
+    .catch(() => null)
+
+  if (!decoded) {
+    return false
+  }
+
+  const user = await ApiClient.instance.getAccountByExternalId(decoded.uid)
+
+  if (!user) {
+    return false
+  }
+
+  // Check user
+  const firebaseUser = await admin.auth().getUser(decoded.uid)
+
+  // Check permissions
+  const claims = firebaseUser.customClaims
+
+  // Only allow if user has admin claim
+  const isAdminUser = claims?.[FirebaseClaim.admin]
+  if (!isAdminUser) {
+    return false
+  }
+
+  return user
 }

@@ -5,7 +5,6 @@ import Image from 'next/image'
 import css from './collection-header.module.css'
 
 import Heading from '@/components/heading'
-import { cmsImageLoader } from '@/utils/cms-image-loader'
 
 export interface CollectionHeaderProps {
   collection: CollectionBase
@@ -23,7 +22,6 @@ export default function CollectionHeader({
           alt={collection.name}
           height={240}
           layout="responsive"
-          loader={cmsImageLoader}
           objectFit="cover"
           src={collection.image}
           width={240}

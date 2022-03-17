@@ -6,7 +6,6 @@ import useTranslation from 'next-translate/useTranslation'
 import css from './collection-reward.module.css'
 
 import Button from '@/components/button'
-import { cmsImageLoader } from '@/utils/cms-image-loader'
 
 export interface CollectionRewardProps {
   collectionName: string
@@ -35,7 +34,6 @@ export default function CollectionReward({
           alt={collectionName}
           height={300}
           layout="responsive"
-          loader={cmsImageLoader}
           objectFit="cover"
           src={reward.image}
           width={700}

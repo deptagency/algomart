@@ -5,7 +5,7 @@ import css from './card-summary.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
-import { formatCurrency } from '@/utils/format-currency'
+import { currency, formatCurrency } from '@/utils/format-currency'
 
 interface CardSummaryProps {
   isAuctionActive: boolean
@@ -30,7 +30,11 @@ export default function CardSummary({
           </tr>
           <tr>
             <th scope="row">{release?.title}</th>
-            <td>{formatCurrency(price, lang)}</td>
+            <td>
+              <span>
+                {formatCurrency(price, lang)} {currency?.code && (currency.code)}
+              </span>
+            </td>
           </tr>
         </tbody>
       </table>

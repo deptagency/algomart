@@ -1,5 +1,9 @@
 .listItem {
-  @apply border-gray-200 border-b flex items-center py-5 w-full;
+  @apply flex items-center w-full py-5;
+}
+
+.listItem + .listItem {
+  @apply border-t border-base-border;
 }
 
 .firstColumn {
@@ -21,5 +25,5 @@
 }
 
 .amount {
-  @apply font-bold flex-none;
+  @apply flex-none font-bold;
 }

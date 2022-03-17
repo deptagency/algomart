@@ -4,9 +4,15 @@ This package within the monorepo is a minimal (but powerful) headless CMS using 
 
 The purpose of the CMS is to provide content authors the ability to create and manage application-related "templates" (content, imagery, translations, and other attributes) that can be consumed by the `api` package (to mint and transfer the appropriate assets on the blockchain) and the `web` package (to display the content and imagery in the browser).
 
-## Initial setup
+## Get started
 
-Once the environment variables have been added to the `.env` file, you'll want to create a new Postgres database with the name specified in the `DB_CONNECTION_STRING` in the `.env` file. You'll also want to set the `ADMIN_EMAIL` and `ADMIN_PASSWORD` values for the initial CMS admin user.
+Once the environment variables have been added to the `.env` file, you'll want to create a new Postgres database with the name specified in the `DB_CONNECTION_STRING` in the `.env` file and create an appropriate schema for `DB_SEARCH_PATH`. You'll also want to set the `ADMIN_EMAIL` and `ADMIN_PASSWORD` values for the initial CMS admin user.
+
+If using a single database, create the `cms` schema in your database before running the bootstrap scripts below.
+
+```bash
+CREATE SCHEMA "cms"
+```
 
 Run the bootstrap and import commands via Nx:
 
@@ -30,13 +36,19 @@ npm run seed
 
 > TODO: setup seed Nx executor
 
+To initialize the CMS database:
+
+```bash
+nx drop cms &&\
+nx bootstrap cms &&\
+nx import cms
+```
+
 Once the database is set up, it can be run in conjunction with the other monorepo packages from the root of the repository.
 
-## Manual configuration
+## Make files publicly viewable
 
-After bootstrapping and running the seed script locally, there's additional configuration steps which may be needed.
-
-### 1. Make files publicly viewable
+After bootstrapping and running the seed script locally, you may need to do this
 
 When you first spin up the app, you'll see only text rendered in place of images. There's an extra step needed in order to make these files available.
 
@@ -52,21 +64,17 @@ When you first spin up the app, you'll see only text rendered in place of images
 
 Then go back and refresh, and you should see images!
 
-### 2. Add token for user
-
-In order for the API to connect to the CMS, the Directus key needs to be inputted into the CMS:
-
-1. Go to your profile (the icon at the very bottom left)
-1. Scroll all the way down to Token, under Admin Options
-1. Paste in the desired API key (has to match `CMS_ACCESS_TOKEN` in apps/api/.env)
-
 ## Data Model Overview
 
 Once bootstrapped, the Directus CMS will be populated with configurable entities (Directus refers to these as "collections"). There are a handful of these collections that can be administered to create and configure NFTs. Here is an explanation of each collection:
 
+### Countries
+
+The Countries collection is for setting the countries which can be supported within the application when going through the payment flow. First set the countries, providing a country code as well as translations for the country name. In order to have these supported within the application, you'll also need to select these for the Application (see next section on the Application collection). Circle documentation on supported countries for payments can be found [here](https://developers.circle.com/docs/supported-countries).
+
 ### Application
 
-The Application collection is really just one setting for the app's currency. Set this to the currency your app will be selling in (e.g. `USD`).
+The Application collection is for setting the application's currency and the countries which are supported in the payment flow. Set the currency to the currency your app will be selling in (e.g. `USD`), and select the countries that will be supported.
 
 ### Languages
 
@@ -125,19 +133,19 @@ Note that once a Pack Template record is published, many of its fields cannot be
 
 ## Sets
 
-Sets are an optional mechanism to group NFTs in a way that can incentivize an end-user to collect all of the NFTs assigned to a a Set. For example, let's imagine we are distributing football card NFTs. A Set might be all of the NFTs for a player on a given team in the 2022 season.
+Sets are an optional mechanism to group NFTs in a way that can incentivize an end-user to collect an NFT from each template assigned to a Set. For example, let's imagine we are distributing football card NFTs. A Set might be all of the NFTs for a player on a given team in the 2022 season.
 
 Note that once Set record is published, many of its fields cannot be edited. This is to maintain integrity of the acquisition incentive. A Set has a number of configurable fields:
 
 - Status: Set to "Published" once you are sure all other fields have been configured in a satisfactory manner. Otherwise, keep it as a "Draft".
 - Slug: A URL-safe slug that can be referenced in the UI.
-- Collection: If desired, the Collection that this Set should belong to. More on Collections below.
+- Collection: The Collection this Set belongs to. More on Collections below.
 - NFT Templates: The NFTs that belong in this Set.
 - Name: The name of the Set to display when viewing the Set in the UI.
 
 ## Collections
 
-Not to be confused with Directus' "Collection" nomenclature. Within this platform, Collections are an optional mechanism to group Sets and/or individual NFTs in a way that can incentivize an end-user to collect all of the NFTs assigned to a a Collection, or all of the NFTs in the Sets assigned to the Collection. For example, let's revisit the football card NFTs scenario described above. A Collection might represent all of the football teams in a league for the 2022 season. Each Set (again, representing a team), would contain NFTs for each player on a given team in the 2022 season. So in essence, a user who has collected all NFTs in every Set of a Collection has effectively collected all of the NFTs for each player in the 2022 football league.
+Not to be confused with Directus' "Collection" nomenclature. Within this platform, Collections are an optional mechanism to group Sets and/or individual NFTs in a way that can incentivize an end-user to collect all of the NFTs assigned to a Collection, or all of the NFTs in the Sets assigned to the Collection. For example, let's revisit the football card NFTs scenario described above. A Collection might represent all of the football teams in a league for the 2022 season. Each Set (again, representing a team), would contain NFTs for each player on a given team in the 2022 season. So in essence, a user who has collected all NFTs in every Set of a Collection has effectively collected all of the NFTs for each player in the 2022 football league.
 
 Collections don't have to contain Sets. They can also just contain individual NFTs. They also contain Sets AND individual NFTs.
 
@@ -176,13 +184,7 @@ The homepage of the provided UI depicts a featured Pack, which takes prominence 
 
 ## Updating the data model
 
-To update the data model you can start by locally using the Directus UI. But to ensure other developers can apply those changes you will need to write a migration file based on [knex](https://knexjs.org/). See the existing migration files for examples.
+To update the data model you can start by locally using the Directus UI. But to ensure other developers can apply those changes you will need to export the data model to a snapshot file.
 
-Running `npm run bootstrap` will apply new migrations. Additionally, the `package.json` contains other migration scripts (up, down, rollback, and latest) in case they're needed.
-
-## Importing & Exporting Data
-
-Data may be exported from the CMS via `npm run export` and loaded via `npm run import`. This includes Rarities, Packs, NFT Templates, Sets, Collections and asset files (typically images & videos). MNake sure your CMS server is running before running either script.
-
-`npm run export` — This will export data to `scripts/export/`
-`npm run import` — Import data from `scripts/export/` (this will not overwrite any records)
+`nx export cms` - This exports the CMS data model to `snapshot.yml`
+`nx import cms` - This imports from `snapshot.yml` to your CMS

@@ -3,14 +3,23 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
+  pre-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
+
   tag:
     runs-on: ubuntu-latest
     outputs:
       value: ${{ steps.docker-image-tag.outputs.value }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - id: docker-image-tag
         run: echo "::set-output name=value::$( git rev-parse --short HEAD )"
@@ -25,7 +34,7 @@ jobs:
       matrix:
         app: [api, cms, web]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Cache layers
         uses: actions/cache@v2
@@ -60,7 +69,7 @@ jobs:
           mv /tmp/.buildx-cache-${{ matrix.app }}-new /tmp/.buildx-cache-${{ matrix.app }}
 
       - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v0.3.0
+        uses: google-github-actions/setup-gcloud@v0.6.0
         with:
           version: '290.0.1'
           service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
@@ -86,7 +95,7 @@ jobs:
       GOOGLE_CREDENTIALS: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up terraform
         uses: hashicorp/setup-terraform@v1
@@ -126,6 +135,7 @@ jobs:
           TF_VAR_api_image: '${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/api:${{ needs.tag.outputs.value }}'
           TF_VAR_api_key: ${{ secrets.API_KEY }}
           TF_VAR_api_secret: ${{ secrets.API_SECRET }}
+          TF_VAR_customer_service_email: ${{ secrets.CUSTOMER_SERVICE_EMAIL }}
 
           TF_VAR_circle_key: ${{ secrets.CIRCLE_KEY }}
           TF_VAR_circle_url: ${{ secrets.CIRCLE_URL }}

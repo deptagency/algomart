@@ -4,6 +4,9 @@ import {
   CollectibleListQuerystring,
   CollectiblesByAlgoAddressQuerystring,
   CollectibleShowcaseQuerystring,
+  InitializeTransferCollectible,
+  SingleCollectibleQuerystring,
+  TransferCollectible,
 } from '@algomart/schemas'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
@@ -33,6 +36,19 @@ export async function getCollectibles(
   } else {
     reply.send(collectiblesForAccount)
   }
+}
+
+export async function getCollectible(
+  request: FastifyRequest<{ Querystring: SingleCollectibleQuerystring }>,
+  reply: FastifyReply
+) {
+  const collectibles = request
+    .getContainer()
+    .get<CollectiblesService>(CollectiblesService.name)
+
+  const collectible = await collectibles.getCollectible(request.query)
+
+  reply.send(collectible)
 }
 
 export async function getCollectiblesByAlgoAddress(
@@ -111,4 +127,71 @@ export async function removeCollectibleShowcase(
   )
 
   reply.status(204).send()
+}
+
+export async function initializeExportCollectible(
+  request: FastifyRequest<{ Body: InitializeTransferCollectible }>,
+  reply: FastifyReply
+) {
+  const collectiblesService = request
+    .getContainer()
+    .get<CollectiblesService>(CollectiblesService.name)
+
+  const result = await collectiblesService.initializeExportCollectible(
+    request.body
+  )
+
+  reply.send(result)
+}
+
+export async function exportCollectible(
+  request: FastifyRequest<{ Body: TransferCollectible }>,
+  reply: FastifyReply
+) {
+  const collectiblesService = request
+    .getContainer()
+    .get<CollectiblesService>(CollectiblesService.name)
+
+  const txId = await collectiblesService.exportCollectible(
+    request.body,
+    request.transaction
+  )
+
+  reply.send({
+    txId,
+  })
+}
+
+export async function initializeImportCollectible(
+  request: FastifyRequest<{ Body: InitializeTransferCollectible }>,
+  reply: FastifyReply
+) {
+  const collectiblesService = request
+    .getContainer()
+    .get<CollectiblesService>(CollectiblesService.name)
+
+  const transaction = await collectiblesService.initializeImportCollectible(
+    request.body,
+    request.transaction
+  )
+
+  reply.send(transaction)
+}
+
+export async function importCollectible(
+  request: FastifyRequest<{ Body: TransferCollectible }>,
+  reply: FastifyReply
+) {
+  const collectiblesService = request
+    .getContainer()
+    .get<CollectiblesService>(CollectiblesService.name)
+
+  const txId = await collectiblesService.importCollectible(
+    request.body,
+    request.transaction
+  )
+
+  reply.send({
+    txId,
+  })
 }

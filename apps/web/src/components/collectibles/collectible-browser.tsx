@@ -9,7 +9,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import css from './collectible-browser.module.css'
 
 import Heading from '@/components/heading'
-import { cmsImageLoader } from '@/utils/cms-image-loader'
 
 export interface CollectibleBrowserProps {
   collectibles: CollectibleWithDetails[]
@@ -89,11 +88,11 @@ export default function CollectibleBrowser({
         {!collectible.previewVideo && (
           <Image
             src={collectible.image}
-            loader={cmsImageLoader}
             width={700}
             height={700}
             layout="responsive"
             objectFit="contain"
+            alt={collectible.title}
           />
         )}
         {collectible.previewVideo && (
@@ -104,8 +103,8 @@ export default function CollectibleBrowser({
           >
             <div className={css.flipBoxInner}>
               <div className={css.flipBoxFront}>
-                {/* Yes, this video tag does need a key attribute 
-                https://stackoverflow.com/questions/29291688/video-displayed-in-reactjs-component-not-updating 
+                {/* Yes, this video tag does need a key attribute
+                https://stackoverflow.com/questions/29291688/video-displayed-in-reactjs-component-not-updating
                 */}
                 <video
                   ref={videoReference}
@@ -123,7 +122,7 @@ export default function CollectibleBrowser({
               <div className={css.flipBoxBack}>
                 <Image
                   src={collectible.image}
-                  loader={cmsImageLoader}
+                  alt={collectible.title}
                   width={700}
                   height={700}
                   layout="responsive"
@@ -180,11 +179,11 @@ export default function CollectibleBrowser({
             >
               <Image
                 src={c.image}
-                loader={cmsImageLoader}
                 width={70}
                 height={70}
                 objectFit="contain"
                 layout="responsive"
+                alt={collectible.title}
               />
             </button>
           ))}

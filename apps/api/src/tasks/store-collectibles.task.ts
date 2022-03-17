@@ -14,10 +14,13 @@ export default async function storeCollectiblesTask(
   const trx = await Model.startTransaction()
   try {
     const result = await collectibles.storeCollectibles(undefined, trx)
-    log.info('stored %d collectibles on IPFS', result)
+    log.info('stored IPFS records for %d collectibles templates', result)
     await trx.commit()
   } catch (error) {
     await trx.rollback()
-    log.error(error as Error, 'failed to store collectibles')
+    log.error(
+      error as Error,
+      'failed to store IPFS records for collectible templates'
+    )
   }
 }

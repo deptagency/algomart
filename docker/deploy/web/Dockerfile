@@ -1,37 +1,44 @@
-FROM node:16-bullseye AS builder
-
+# Install dependencies only when needed
+FROM node:16-alpine AS deps
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat python2 make g++
+RUN npm config set python python2
 WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# need to remove the npm packages canvas and sqlite3 to remove the next few lines
-RUN apt update && apt install python2 build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev sqlite3 -y
-ENV PYTHON=/usr/bin/python2
-RUN npm config set python="/usr/bin/python2"
 
-# Setup nx
-RUN npm install --global nx
-
-# install dependencies
-COPY package*.json ./
-RUN npm install --build-from-source
-
-# Copy remaining files
+# Rebuild the source code only when needed
+FROM node:16-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN nx run web:build:production
+ENV NEXT_TELEMETRY_DISABLED 1
+RUN npx nx run web:build:production
 
 
-FROM node:16-bullseye AS runner
-
+# Production image, copy all the files and run next
+FROM node:16-alpine AS runner
 WORKDIR /app
 
-COPY --from=builder /app/dist/apps/web/ ./
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# need to manually copy the next-translate configuration
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/ ./node_modules/
+COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/.next/ ./.next/
+COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/next.config.js ./
+COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/package.json ./
+
+# Copy and setup files for next-translate
 COPY --from=builder /app/apps/web/i18n.js ./i18n.js
 COPY --from=builder /app/apps/web/locales/ ./locales/
-
-# next-translate requires pages/_app.js to be present
 RUN mkdir pages && touch pages/_app.js
 RUN npm install --no-package-lock --production
-ENV NEXT_TELEMETRY_DISABLED 1
+
+USER nextjs
 
 CMD ["npm", "start"]

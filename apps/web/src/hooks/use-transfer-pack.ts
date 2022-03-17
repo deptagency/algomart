@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useInterval } from './use-interval'
 
 import { useAuth } from '@/contexts/auth-context'
-import collectibleService from '@/services/collectible-service'
+import { CollectibleService } from '@/services/collectible-service'
 
 export enum TransferPackStatus {
   Idle = 'idle',
@@ -44,7 +44,10 @@ export function useTransferPack(
 
       setStatus(TransferPackStatus.Transferring)
 
-      const result = await collectibleService.transfer(packId, passphrase)
+      const result = await CollectibleService.instance.transfer(
+        packId,
+        passphrase
+      )
 
       if (!result) {
         setStatus(TransferPackStatus.Error)
@@ -61,7 +64,7 @@ export function useTransferPack(
   const checkStatus = useCallback(async () => {
     if (!packId) return
 
-    const result = await collectibleService.transferStatus(packId)
+    const result = await CollectibleService.instance.transferStatus(packId)
     if (hasError(result)) {
       // One or more failed
       setStatus(TransferPackStatus.Error)

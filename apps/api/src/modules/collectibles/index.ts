@@ -6,6 +6,9 @@ import {
   CollectibleListWithTotalSchema,
   CollectiblesByAlgoAddressQuerystringSchema,
   CollectibleShowcaseQuerystringSchema,
+  InitializeTransferCollectibleSchema,
+  SingleCollectibleQuerystringSchema,
+  TransferCollectibleSchema,
 } from '@algomart/schemas'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
@@ -13,9 +16,14 @@ import fastifyBearerAuth from 'fastify-bearer-auth'
 
 import {
   addCollectibleShowcase,
+  exportCollectible,
+  getCollectible,
   getCollectibles,
   getCollectiblesByAlgoAddress,
   getShowcaseCollectibles,
+  importCollectible,
+  initializeExportCollectible,
+  initializeImportCollectible,
   removeCollectibleShowcase,
 } from './collectibles.routes'
 
@@ -53,6 +61,18 @@ export async function collectiblesRoutes(app: FastifyInstance) {
         },
       },
       getCollectibles
+    )
+    .get(
+      '/find-one',
+      {
+        schema: {
+          tags,
+          security,
+          querystring: SingleCollectibleQuerystringSchema,
+          description: 'Fetch a single collectible and its current owner.',
+        },
+      },
+      getCollectible
     )
     .get(
       '/address/:algoAddress',
@@ -114,5 +134,81 @@ export async function collectiblesRoutes(app: FastifyInstance) {
         },
       },
       removeCollectibleShowcase
+    )
+    .post(
+      '/export',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: InitializeTransferCollectibleSchema,
+          response: {
+            200: Type.Array(
+              Type.Object({
+                txnId: Type.String(),
+                txn: Type.String(),
+                signer: Type.String(),
+              })
+            ),
+          },
+        },
+      },
+      initializeExportCollectible
+    )
+    .post(
+      '/export/sign',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: TransferCollectibleSchema,
+          response: {
+            200: Type.Object({
+              txId: Type.String(),
+            }),
+          },
+        },
+      },
+      exportCollectible
+    )
+    .post(
+      '/import',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: InitializeTransferCollectibleSchema,
+          response: {
+            200: Type.Array(
+              Type.Object({
+                txnId: Type.String(),
+                txn: Type.String(),
+                signer: Type.String(),
+              })
+            ),
+          },
+        },
+      },
+      initializeImportCollectible
+    )
+    .post(
+      '/import/sign',
+      {
+        transact: true,
+        schema: {
+          tags,
+          security,
+          body: TransferCollectibleSchema,
+          response: {
+            200: Type.Object({
+              txId: Type.String(),
+            }),
+          },
+        },
+      },
+      importCollectible
     )
 }

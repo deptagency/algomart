@@ -172,6 +172,10 @@ variable "circle_url" {
   sensitive = true
 }
 
+variable "customer_service_email" {
+  sensitive = true
+}
+
 variable "pinata_api_key" {
   sensitive = true
   default   = ""

@@ -97,12 +97,14 @@
   },
   "pageTitles": {
     "404": "404",
+    "Admin": "Admin",
     "Add Payment Method": "Add Payment Method",
     "Algorand Address": "Algorand Address: {{algoAddress}}",
     "Checking Out": "Checkout for {{name}}",
     "Login": "Login",
     "My Collectibles": "My Collectibles",
     "My Collections": "My Collections",
+    "Import NFT": "Import NFT",
     "My Profile": "My Profile",
     "My Sets": "My Sets",
     "My Showcase": "My Showcase",
@@ -117,6 +119,7 @@
     "Security": "Security",
     "Setup Profile": "Setup Profile",
     "Sign Up": "Sign Up",
+    "Transaction": "Transaction",
     "Transactions": "Transactions",
     "User Profile": "@{{name}} Profile"
   },

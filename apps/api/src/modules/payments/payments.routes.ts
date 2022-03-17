@@ -5,11 +5,13 @@ import {
   CreateCard,
   CreatePayment,
   CreateTransferPayment,
-  CreateWalletAddress,
   FindTransferByAddress,
   OwnerExternalId,
   PaymentId,
+  PaymentQuerystring,
+  PaymentsQuerystring,
   SendBankAccountInstructions,
+  UpdatePayment,
   UpdatePaymentCard,
 } from '@algomart/schemas'
 import { FastifyReply, FastifyRequest } from 'fastify'
@@ -23,7 +25,12 @@ export async function getPublicKey(
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  reply.send(await paymentService.getPublicKey())
+  const publicKey = await paymentService.getPublicKey()
+  if (publicKey) {
+    reply.send(publicKey)
+  } else {
+    reply.notFound()
+  }
 }
 
 export async function getCardStatus(
@@ -60,6 +67,21 @@ export async function getWireTransferInstructions(
   } else {
     reply.notFound()
   }
+}
+
+export async function findWirePaymentsByBankId(
+  request: FastifyRequest<{
+    Params: BankAccountId
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payments = await paymentService.searchAllWirePaymentsByBankId(
+    request.params.bankAccountId
+  )
+  reply.send(payments)
 }
 
 export async function sendWireTransferInstructions(
@@ -148,23 +170,17 @@ export async function createCard(
     request.body,
     request.transaction
   )
-  if (card) {
-    reply.status(201).send(card)
-  } else {
-    reply.badRequest('Unable to create card')
-  }
+  reply.status(201).send(card)
 }
 
 export async function createWalletAddress(
-  request: FastifyRequest<{
-    Body: CreateWalletAddress
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const address = await paymentService.generateAddress(request.body)
+  const address = await paymentService.generateAddress()
   if (address) {
     reply.status(201).send(address)
   } else {
@@ -212,10 +228,27 @@ export async function createPayment(
     request.body,
     request.transaction
   )
+  reply.send(payment)
+}
+
+export async function updatePayment(
+  request: FastifyRequest<{
+    Params: PaymentId
+    Body: UpdatePayment
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payment = await paymentService.updatePayment(
+    request.params.paymentId,
+    request.body
+  )
   if (payment) {
     reply.status(201).send(payment)
   } else {
-    reply.badRequest('Unable to create payment')
+    reply.badRequest('Unable to update payment')
   }
 }
 
@@ -242,18 +275,35 @@ export async function createTransferPayment(
 export async function getPaymentById(
   request: FastifyRequest<{
     Params: PaymentId
+    Querystring: PaymentQuerystring
   }>,
   reply: FastifyReply
 ) {
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const payment = await paymentService.getPaymentById(request.params.paymentId)
+  const payment = await paymentService.getPaymentById(
+    request.params.paymentId,
+    request.query
+  )
   if (payment) {
     reply.status(200).send(payment)
   } else {
     reply.notFound()
   }
+}
+
+export async function getPayments(
+  request: FastifyRequest<{
+    Querystring: PaymentsQuerystring
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payments = await paymentService.getPayments(request.query)
+  reply.status(200).send(payments)
 }
 
 export async function getCurrency(

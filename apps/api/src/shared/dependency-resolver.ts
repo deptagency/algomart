@@ -8,6 +8,8 @@ import I18nAdapter from '@/lib/i18n-adapter'
 import MailerAdapter from '@/lib/mailer-adapter'
 import NFTStorageAdapter from '@/lib/nft-storage-adapter'
 import AccountsService from '@/modules/accounts/accounts.service'
+import ApplicationService from '@/modules/application/application.service'
+import AuctionsService from '@/modules/auctions/auctions.service'
 import BidsService from '@/modules/bids/bids.service'
 import CollectiblesService from '@/modules/collectibles/collectibles.service'
 import CollectionsService from '@/modules/collections/collections.service'
@@ -103,6 +105,7 @@ export function configureResolver() {
       new DirectusAdapter({
         accessToken: Configuration.cmsAccessToken,
         url: Configuration.cmsUrl,
+        publicUrl: Configuration.cmsPublicUrl,
       })
   )
   resolver.set(
@@ -203,6 +206,14 @@ export function configureResolver() {
         c.get<PacksService>(PacksService.name),
         c.get<CollectiblesService>(CollectiblesService.name)
       )
+  )
+  resolver.set(
+    AuctionsService.name,
+    (c) => new AuctionsService(c.get<AlgorandAdapter>(AlgorandAdapter.name))
+  )
+  resolver.set(
+    ApplicationService.name,
+    (c) => new ApplicationService(c.get<DirectusAdapter>(DirectusAdapter.name))
   )
   return resolver
 }
