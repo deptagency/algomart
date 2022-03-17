@@ -146,3 +146,13 @@ apps/cms/uploads/*
 
 # Webstorm IDE folder
 .idea
+
+# Terraform 
+.terraform
+.terragrunt-cache
+
+# Github Act Tester
+act.env
+
+# Docker helpers
+apps/web/.babelrc
