@@ -17,7 +17,7 @@ handler.get(
     const data = await ApiClient.instance.getUsers(request.query)
 
     if (!data?.users) {
-      throw new BadRequest('No userIDs provided')
+      throw new BadRequest('No users found')
     }
     const admin = configureAdmin()
     data.users = await Promise.all(

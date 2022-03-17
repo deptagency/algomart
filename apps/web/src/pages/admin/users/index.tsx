@@ -4,8 +4,8 @@ import {
   UserAccounts,
   UserSortField,
 } from '@algomart/schemas'
-import { RefreshIcon } from '@heroicons/react/outline'
-import debounce from 'lodash.debounce'
+import RefreshIcon from '@heroicons/react/outline/esm/RefreshIcon'
+import debounce from 'lodash/debounce'
 import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useMemo, useState } from 'react'
@@ -20,7 +20,6 @@ import TextInput from '@/components/text-input/text-input'
 import usePagination from '@/hooks/use-pagination'
 import AdminLayout from '@/layouts/admin-layout'
 import adminService from '@/services/admin-service'
-import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { getUsersFilterQuery } from '@/utils/filters'
 import { useAuthApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
@@ -44,9 +43,20 @@ interface CheckRoleProps {
 }
 
 function CheckRole({ user, role }: CheckRoleProps) {
+  const { t } = useTranslation('admin')
   const [checked, setChecked] = useState(user.claims.includes(role.id))
 
   const updateClaim = useCallback(async () => {
+    // Confirm that's their intention. Alternatively, consider a dropdown menu
+    // https://github.com/deptagency/algomart/pull/325#discussion_r826354494
+    const confirmMessage = t(`users.${checked ? 'removeRole' : 'addRole'}`, {
+      username: user.username,
+      role: role.id,
+    })
+    if (!window.confirm(confirmMessage)) {
+      return
+    }
+
     // show in UI before it goes through
     setChecked(!checked)
     const updatedClaims = await adminService.updateClaims(
@@ -184,32 +194,15 @@ export default function AdminUsersPage() {
       >
         {searchBox}
         <div className="overflow-x-auto">
-          <Table<UserAccount>
+          <Table
             columns={columns}
             data={users}
             onHeaderClick={handleTableHeaderClick}
             sortBy={sortBy}
-            sortDirection={sortDirection as any}
+            sortDirection={sortDirection}
           />
         </div>
       </Panel>
     </AdminLayout>
   )
-}
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  // Check if the user is admin (check again on render, to prevent caching of claims)
-  const user = await isAuthenticatedUserAdmin(context)
-  if (!user) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    }
-  }
-
-  return {
-    props: {},
-  }
 }

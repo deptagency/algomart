@@ -20,8 +20,11 @@ handler.use(authMiddleware()).use(userMiddleware()).use(adminMiddleware())
 handler.patch(
   validateBodyMiddleware(validateSetClaim),
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
-    // Check if permissions are already set
     const { key, value, userExternalId } = request.body
+    // Can't update own permissions
+    if (userExternalId === request.user.externalId) {
+      throw new BadRequest('User cannot change their own roles')
+    }
     const admin = configureAdmin()
     const firebaseUser = await admin.auth().getUser(userExternalId)
     const customClaims = firebaseUser.customClaims || {}

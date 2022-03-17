@@ -20,6 +20,8 @@
     "roles": {
       "admin": "Admin"
     },
+    "addRole": "Add {{username}} to {{role}}?",
+    "removeRole": "Remove {{username}} from {{role}}?",
     "table": {
       "Username": "Username",
       "Email": "Email",
