@@ -30,6 +30,7 @@ def test_create():
     endTime = startTime + 60  # end time is 1 minute after start
     reserve = 1_000_000  # 1 Algo
     increment = 100_000  # 0.1 Algo
+    fee = 5  # 5% royalty
 
     appID = createAuctionApp(
         client=client,
@@ -40,6 +41,7 @@ def test_create():
         endTime=endTime,
         reserve=reserve,
         minBidIncrement=increment,
+        feePercent=fee,
     )
 
     actual = getAppGlobalState(client, appID)
@@ -51,6 +53,7 @@ def test_create():
         b"reserve_amount": reserve,
         b"min_bid_inc": increment,
         b"bid_account": bytes(32),  # decoded zero address
+        b"fee_percent": fee,
     }
 
     assert actual == expected
@@ -69,6 +72,7 @@ def test_setup():
     endTime = startTime + 60  # end time is 1 minute after start
     reserve = 1_000_000  # 1 Algo
     increment = 100_000  # 0.1 Algo
+    fee = 5  # 5% royalty
 
     appID = createAuctionApp(
         client=client,
@@ -79,6 +83,7 @@ def test_setup():
         endTime=endTime,
         reserve=reserve,
         minBidIncrement=increment,
+        feePercent=fee,
     )
 
     setupAuctionApp(
@@ -99,6 +104,7 @@ def test_setup():
         b"reserve_amount": reserve,
         b"min_bid_inc": increment,
         b"bid_account": bytes(32),  # decoded zero address
+        b"fee_percent": fee,
     }
 
     assert actualState == expectedState

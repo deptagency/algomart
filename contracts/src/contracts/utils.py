@@ -333,6 +333,7 @@ def createAuctionApp(
     endTime: int,
     reserve: int,
     minBidIncrement: int,
+    feePercent: int,
 ) -> int:
     """Create a new auction.
 
@@ -352,13 +353,14 @@ def createAuctionApp(
             the NFT will return to the seller.
         minBidIncrement: The minimum different required between a new bid and
             the current leading bid.
-
+        feePercent: The percentage of the bid amount that will be paid as a
+            royalty to the creator (0-100).
     Returns:
         The ID of the newly created auction app.
     """
     approval, clear = getContracts(client)
 
-    globalSchema = transaction.StateSchema(num_uints=7, num_byte_slices=2)
+    globalSchema = transaction.StateSchema(num_uints=8, num_byte_slices=2)
     localSchema = transaction.StateSchema(num_uints=0, num_byte_slices=0)
 
     app_args = [
@@ -368,6 +370,7 @@ def createAuctionApp(
         endTime.to_bytes(8, "big"),
         reserve.to_bytes(8, "big"),
         minBidIncrement.to_bytes(8, "big"),
+        feePercent.to_bytes(8, "big"),
     ]
 
     txn = transaction.ApplicationCreateTxn(
