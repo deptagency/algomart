@@ -1,10 +1,11 @@
 import { DropdownLanguageList } from '@algomart/schemas'
-import { CurrencyConversionModel } from '@algomart/shared/models'
 import { invariant } from '@algomart/shared/utils'
 import { CMSCacheAdapter, CoinbaseAdapter } from '@api/lib/coinbase-adapter'
 import * as Currencies from '@dinero.js/currencies'
 import { Transaction } from 'objection'
 import pino from 'pino'
+
+import { CurrencyConversionModel } from '@/models'
 
 export default class I18nService {
   logger: pino.Logger<unknown>

@@ -2,8 +2,8 @@ import {
   ClaimFreePackSchema,
   ClaimPackSchema,
   ClaimRedeemPackSchema,
-  LocaleAndExternalIdSchema,
-  LocaleSchema,
+  LanguageAndExternalIdSchema,
+  LanguageSchema,
   MintPackSchema,
   MintPackStatusResponseSchema,
   OwnerExternalIdSchema,
@@ -98,7 +98,7 @@ export async function packsRoutes(app: FastifyInstance) {
         tags,
         security,
         description: 'Get a pack by id with its collectibles.',
-        querystring: LocaleSchema,
+        querystring: LanguageSchema,
         params: PackIdSchema,
         response: {
           200: PackWithCollectiblesSchema,
@@ -183,7 +183,7 @@ export async function packsRoutes(app: FastifyInstance) {
         tags,
         security,
         body: ClaimRedeemPackSchema,
-        querystring: LocaleSchema,
+        querystring: LanguageSchema,
         description: 'Used to claim a redeemable pack.',
         response: {
           200: Type.Object({ pack: PackWithIdSchema }),
@@ -267,7 +267,7 @@ export async function packsRoutes(app: FastifyInstance) {
         tags,
         security,
         description: 'Get all packs that have not been transferred.',
-        querystring: LocaleAndExternalIdSchema,
+        querystring: LanguageAndExternalIdSchema,
         response: {
           200: PacksByOwnerSchema,
         },

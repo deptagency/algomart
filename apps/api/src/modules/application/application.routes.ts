@@ -1,10 +1,10 @@
-import { Locale } from '@algomart/schemas'
+import { Language } from '@algomart/schemas'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 import ApplicationService from './application.service'
 
 export async function getCountries(
-  request: FastifyRequest<{ Querystring: Locale }>,
+  request: FastifyRequest<{ Querystring: Language }>,
   reply: FastifyReply
 ) {
   const countries = await request

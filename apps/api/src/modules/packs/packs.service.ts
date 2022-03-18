@@ -8,7 +8,7 @@ import {
   EventAction,
   EventEntityType,
   IPFSStatus,
-  LocaleAndExternalId,
+  LanguageAndExternalId,
   MintPack,
   MintPackStatus,
   NotificationType,
@@ -719,7 +719,7 @@ export default class PacksService {
   async untransferredPacks({
     externalId,
     locale = DEFAULT_LOCALE,
-  }: LocaleAndExternalId) {
+  }: LanguageAndExternalId) {
     const packs = await PackModel.query()
       .alias('p')
       .join('UserAccount as ua', 'ua.id', 'p.ownerId')

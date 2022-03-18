@@ -2,8 +2,8 @@ import {
   ClaimFreePack,
   ClaimPack,
   ClaimRedeemPack,
-  Locale,
-  LocaleAndExternalId,
+  Language,
+  LanguageAndExternalId,
   MintPack,
   OwnerExternalId,
   PackId,
@@ -51,7 +51,7 @@ export async function getPacksByOwner(
 export async function getPackWithCollectiblesById(
   request: FastifyRequest<{
     Params: PackId
-    Querystring: Locale
+    Querystring: Language
   }>,
   reply: FastifyReply
 ) {
@@ -77,7 +77,7 @@ export async function getAuctionPackByTemplateId(
 }
 
 export async function getRedeemablePack(
-  request: FastifyRequest<{ Params: RedeemCode; Querystring: Locale }>,
+  request: FastifyRequest<{ Params: RedeemCode; Querystring: Language }>,
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
@@ -89,7 +89,7 @@ export async function getRedeemablePack(
 }
 
 export async function untransferredPacks(
-  request: FastifyRequest<{ Querystring: LocaleAndExternalId }>,
+  request: FastifyRequest<{ Querystring: LanguageAndExternalId }>,
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
@@ -110,7 +110,7 @@ export async function claimRandomFreePack(
 }
 
 export async function claimRedeemPack(
-  request: FastifyRequest<{ Body: ClaimRedeemPack; Querystring: Locale }>,
+  request: FastifyRequest<{ Body: ClaimRedeemPack; Querystring: Language }>,
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)

@@ -1,10 +1,10 @@
-import { Locale } from '@algomart/schemas'
+import { Language } from '@algomart/schemas'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 import HomepageService from './homepage.service'
 
 export async function getHomepage(
-  request: FastifyRequest<{ Querystring: Locale }>,
+  request: FastifyRequest<{ Querystring: Language }>,
   reply: FastifyReply
 ) {
   const service = request
