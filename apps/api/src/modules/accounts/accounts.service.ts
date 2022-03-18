@@ -6,12 +6,14 @@ import {
 } from '@algomart/schemas'
 import { UpdateUserAccount } from '@algomart/schemas'
 import { Username } from '@algomart/schemas'
+import {
+  AlgorandAccountModel,
+  AlgorandTransactionModel,
+  UserAccountModel,
+} from '@algomart/shared/models'
 import { invariant, userInvariant } from '@algomart/shared/utils'
 import { logger } from '@api/configuration/logger'
 import AlgorandAdapter from '@api/lib/algorand-adapter'
-import { AlgorandAccountModel } from '@api/models/algorand-account.model'
-import { AlgorandTransactionModel } from '@api/models/algorand-transaction.model'
-import { UserAccountModel } from '@api/models/user-account.model'
 import { Transaction } from 'objection'
 
 export default class AccountsService {

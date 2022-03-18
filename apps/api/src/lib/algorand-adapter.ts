@@ -1,9 +1,9 @@
 import { CollectibleBase, TransferCollectibleResult } from '@algomart/schemas'
+import { CollectibleModel } from '@algomart/shared/models'
 import { decrypt, encrypt } from '@algomart/shared/utils'
 import { invariant } from '@algomart/shared/utils'
 import { Configuration } from '@api/configuration'
 import { logger } from '@api/configuration/logger'
-import { CollectibleModel } from '@api/models/collectible.model'
 import algosdk from 'algosdk'
 
 // 100_000 microAlgos = 0.1 ALGO

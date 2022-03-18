@@ -6,13 +6,12 @@ import {
   NotificationStatus,
   NotificationType,
 } from '@algomart/schemas'
+import { EventModel, NotificationModel } from '@algomart/shared/models'
 import { invariant } from '@algomart/shared/utils'
 import { Configuration } from '@api/configuration'
 import { logger } from '@api/configuration/logger'
 import I18nAdapter from '@api/lib/i18n-adapter'
 import MailerAdapter from '@api/lib/mailer-adapter'
-import { EventModel } from '@api/models/event.model'
-import { NotificationModel } from '@api/models/notification.model'
 import { ResponseError } from '@sendgrid/mail'
 import { TFunction } from 'i18next'
 import { Transaction } from 'objection'
