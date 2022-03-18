@@ -17,10 +17,9 @@
     "baseUrl": ".",
     "paths": {
       "@algomart/schemas": ["libs/schemas/src/index.ts"],
+      "@algomart/shared/models": ["libs/shared/models/src/index.ts"],
       "@algomart/shared/utils": ["libs/shared/utils/src/index.ts"],
-      "@api-tests/*": [
-        "apps/api/test/*"
-      ],
+      "@api-tests/*": ["apps/api/test/*"],
       "@api/*": ["apps/api/src/*"]
     }
   },
