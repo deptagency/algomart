@@ -13,13 +13,15 @@ import {
   SetBase,
   SetWithCollection,
 } from '@algomart/schemas'
+import {
+  HttpTransport,
+  isAfterNow,
+  isNowBetweenDates,
+  isStringArray,
+} from '@algomart/shared/utils'
+import { invariant } from '@algomart/shared/utils'
+import { logger } from '@api/configuration/logger'
 import { URL } from 'node:url'
-
-import { isStringArray } from '@/utils/arrays'
-import { isAfterNow, isNowBetweenDates } from '@/utils/date-time'
-import { HttpTransport } from '@/utils/http-transport'
-import { invariant } from '@/utils/invariant'
-import { logger } from '@/utils/logger'
 
 // #region CMS Types
 
@@ -398,7 +400,11 @@ export function toSetWithCollection(
 
   return {
     ...base,
-    collection: toCollectionBase(set.collection, getFileURL, locale),
+    collection: toCollectionBase(
+      set.collection as DirectusCollection,
+      getFileURL,
+      locale
+    ),
   }
 }
 

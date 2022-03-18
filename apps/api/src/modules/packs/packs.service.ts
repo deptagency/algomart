@@ -32,29 +32,30 @@ import {
   TransferPack,
   TransferPackStatusList,
 } from '@algomart/schemas'
-import { Model, raw, Transaction } from 'objection'
-
-import DirectusAdapter, {
-  DirectusStatus,
-  ItemFilter,
-} from '@/lib/directus-adapter'
-import { BidModel } from '@/models/bid.model'
-import { CollectibleModel } from '@/models/collectible.model'
-import { CollectibleOwnershipModel } from '@/models/collectible-ownership.model'
-import { EventModel } from '@/models/event.model'
-import { PackModel } from '@/models/pack.model'
-import { UserAccountModel } from '@/models/user-account.model'
-import AccountsService from '@/modules/accounts/accounts.service'
-import CollectiblesService from '@/modules/collectibles/collectibles.service'
-import NotificationsService from '@/modules/notifications/notifications.service'
-import { formatIntToFloat } from '@/utils/format-currency'
-import { invariant, userInvariant } from '@/utils/invariant'
-import { logger } from '@/utils/logger'
 import {
+  formatIntToFloat,
+  invariant,
   randomInteger,
   randomRedemptionCode,
   shuffleArray,
-} from '@/utils/random'
+  userInvariant,
+} from '@algomart/shared/utils'
+import { Configuration } from '@api/configuration'
+import { logger } from '@api/configuration/logger'
+import DirectusAdapter, {
+  DirectusStatus,
+  ItemFilter,
+} from '@api/lib/directus-adapter'
+import { BidModel } from '@api/models/bid.model'
+import { CollectibleModel } from '@api/models/collectible.model'
+import { CollectibleOwnershipModel } from '@api/models/collectible-ownership.model'
+import { EventModel } from '@api/models/event.model'
+import { PackModel } from '@api/models/pack.model'
+import { UserAccountModel } from '@api/models/user-account.model'
+import AccountsService from '@api/modules/accounts/accounts.service'
+import CollectiblesService from '@api/modules/collectibles/collectibles.service'
+import NotificationsService from '@api/modules/notifications/notifications.service'
+import { Model, raw, Transaction } from 'objection'
 
 interface PackFilters {
   priceLow: number
@@ -1189,7 +1190,10 @@ export default class PacksService {
             type: NotificationType.AuctionComplete,
             userAccountId: pack.activeBid.userAccount.id,
             variables: {
-              amount: `${formatIntToFloat(pack.activeBid.amount)}`,
+              amount: `${formatIntToFloat(
+                pack.activeBid.amount,
+                Configuration.currency // TODO: receive as argument
+              )}`,
               canExpire: packTemplate.allowBidExpiration,
               packSlug: packTemplate.slug,
               packTitle: packTemplate.title,
@@ -1326,7 +1330,10 @@ export default class PacksService {
               type: NotificationType.AuctionComplete,
               userAccountId: selectedBid.userAccount.id,
               variables: {
-                amount: `${formatIntToFloat(selectedBid.amount)}`,
+                amount: `${formatIntToFloat(
+                  selectedBid.amount,
+                  Configuration.currency // TODO: receive as argument
+                )}`,
                 canExpire: packTemplate.allowBidExpiration,
                 packSlug: packTemplate.slug,
                 packTitle: packTemplate.title,

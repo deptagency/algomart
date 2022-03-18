@@ -4,9 +4,8 @@ import {
   CoinbaseResponse,
   isCoinbaseSuccessResponse,
 } from '@algomart/schemas'
-
-import { HttpTransport } from '@/utils/http-transport'
-import { logger } from '@/utils/logger'
+import { HttpTransport } from '@algomart/shared/utils'
+import { logger } from '@api/configuration/logger'
 
 interface CoinbaseAdapterOptions {
   url: string

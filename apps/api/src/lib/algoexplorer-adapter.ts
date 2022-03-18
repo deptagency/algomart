@@ -1,6 +1,6 @@
-import { Configuration } from '@/configuration'
-import { HttpTransport } from '@/utils/http-transport'
-import { logger } from '@/utils/logger'
+import { HttpTransport } from '@algomart/shared/utils'
+import { Configuration } from '@api/configuration'
+import { logger } from '@api/configuration/logger'
 
 /**
  * AlgoExplorer APIv2 Docs:

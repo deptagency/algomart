@@ -1,7 +1,6 @@
 import { DEFAULT_LOCALE } from '@algomart/schemas'
-
-import DirectusAdapter from '@/lib/directus-adapter'
-import { logger } from '@/utils/logger'
+import { logger } from '@api/configuration/logger'
+import DirectusAdapter from '@api/lib/directus-adapter'
 
 export default class SetsService {
   logger = logger.child({ context: this.constructor.name })

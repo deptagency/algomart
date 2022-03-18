@@ -1,3 +1,4 @@
+import { Configuration } from '@api/configuration'
 import { FastifyInstance } from 'fastify'
 import { AsyncTask, SimpleIntervalJob } from 'toad-scheduler'
 
@@ -12,8 +13,6 @@ import storeCollectiblesTask from './store-collectibles.task'
 import { updatePaymentBankStatusesTask } from './update-payment-bank-statuses.task'
 import { updatePaymentCardStatusesTask } from './update-payment-card-statuses.task'
 import { updatePaymentStatusesTask } from './update-payment-statuses.task'
-
-import { Configuration } from '@/configuration'
 
 export function configureTasks(app: FastifyInstance) {
   if (!Configuration.enableJobs) {

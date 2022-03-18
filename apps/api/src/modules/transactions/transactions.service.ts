@@ -3,13 +3,12 @@ import {
   EventAction,
   EventEntityType,
 } from '@algomart/schemas'
+import { logger } from '@api/configuration/logger'
+import AlgorandAdapter from '@api/lib/algorand-adapter'
+import { AlgorandTransactionModel } from '@api/models/algorand-transaction.model'
+import { CollectibleModel } from '@api/models/collectible.model'
+import { EventModel } from '@api/models/event.model'
 import { Transaction } from 'objection'
-
-import AlgorandAdapter from '@/lib/algorand-adapter'
-import { AlgorandTransactionModel } from '@/models/algorand-transaction.model'
-import { CollectibleModel } from '@/models/collectible.model'
-import { EventModel } from '@/models/event.model'
-import { logger } from '@/utils/logger'
 
 export default class TransactionsService {
   logger = logger.child({ context: this.constructor.name })

@@ -24,9 +24,13 @@ export async function getPublishedPacks(
   }>,
   reply: FastifyReply
 ) {
+  console.log('IN HANDLER')
   const service = request.getContainer().get<PacksService>(PacksService.name)
+  console.log('IN HANDLER')
   const result = await service.getPublishedPacks(request.query)
+  console.log('IN HANDLER')
   reply.send(result)
+  console.log('IN HANDLER')
 }
 
 export async function getPacksByOwner(

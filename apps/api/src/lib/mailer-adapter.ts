@@ -1,9 +1,8 @@
 import { Email } from '@algomart/schemas'
+import { invariant } from '@algomart/shared/utils'
+import { logger } from '@api/configuration/logger'
 import SendGridMail from '@sendgrid/mail'
 import NodeMailer from 'nodemailer'
-
-import { invariant } from '@/utils/invariant'
-import { logger } from '@/utils/logger'
 
 export type MailerAdapterOptions =
   | {
