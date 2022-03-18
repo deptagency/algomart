@@ -50,11 +50,10 @@ byte "nft_id"
 app_global_get
 byte "seller"
 app_global_get
-callsub sub0
+callsub closeNFTTo_0
 main_l11:
-byte "seller"
-app_global_get
-callsub sub2
+global CreatorAddress
+callsub closeAccountTo_2
 int 1
 return
 main_l12:
@@ -68,19 +67,20 @@ byte "nft_id"
 app_global_get
 byte "seller"
 app_global_get
-callsub sub0
+callsub closeNFTTo_0
 byte "bid_account"
 app_global_get
 byte "bid_amount"
 app_global_get
-callsub sub1
+callsub repayPreviousLeadBidder_1
 b main_l11
 main_l14:
 byte "nft_id"
 app_global_get
 byte "bid_account"
 app_global_get
-callsub sub0
+callsub closeNFTTo_0
+callsub sendBidToSeller_3
 b main_l11
 main_l15:
 txn Sender
@@ -96,10 +96,9 @@ byte "nft_id"
 app_global_get
 byte "seller"
 app_global_get
-callsub sub0
-byte "seller"
-app_global_get
-callsub sub2
+callsub closeNFTTo_0
+global CreatorAddress
+callsub closeAccountTo_2
 int 1
 return
 main_l16:
@@ -117,10 +116,10 @@ global CurrentApplicationAddress
 byte "nft_id"
 app_global_get
 asset_holding_get AssetBalance
-store 0
 store 1
-load 0
+store 0
 load 1
+load 0
 int 0
 >
 &&
@@ -208,7 +207,7 @@ byte "bid_account"
 app_global_get
 byte "bid_amount"
 app_global_get
-callsub sub1
+callsub repayPreviousLeadBidder_1
 b main_l22
 main_l24:
 global LatestTimestamp
@@ -251,13 +250,27 @@ byte "min_bid_inc"
 txna ApplicationArgs 5
 btoi
 app_global_put
+byte "fee_percent"
+txna ApplicationArgs 6
+btoi
+app_global_put
 byte "bid_account"
 global ZeroAddress
 app_global_put
+byte "fee_percent"
+app_global_get
+int 0
+>=
+byte "fee_percent"
+app_global_get
+int 100
+<=
+&&
 global LatestTimestamp
 txna ApplicationArgs 2
 btoi
 <
+&&
 txna ApplicationArgs 2
 btoi
 txna ApplicationArgs 3
@@ -267,16 +280,18 @@ btoi
 assert
 int 1
 return
-sub0: // closeNFTTo
+
+// closeNFTTo
+closeNFTTo_0:
 store 3
 store 2
 global CurrentApplicationAddress
 load 2
 asset_holding_get AssetBalance
-store 4
 store 5
-load 4
-bz sub0_l2
+store 4
+load 5
+bz closeNFTTo_0_l2
 itxn_begin
 int axfer
 itxn_field TypeEnum
@@ -285,9 +300,11 @@ itxn_field XferAsset
 load 3
 itxn_field AssetCloseTo
 itxn_submit
-sub0_l2:
+closeNFTTo_0_l2:
 retsub
-sub1: // repayPreviousLeadBidder
+
+// repayPreviousLeadBidder
+repayPreviousLeadBidder_1:
 store 7
 store 6
 itxn_begin
@@ -301,18 +318,42 @@ load 6
 itxn_field Receiver
 itxn_submit
 retsub
-sub2: // closeAccountTo
+
+// closeAccountTo
+closeAccountTo_2:
 store 8
 global CurrentApplicationAddress
 balance
 int 0
 !=
-bz sub2_l2
+bz closeAccountTo_2_l2
 itxn_begin
 int pay
 itxn_field TypeEnum
 load 8
 itxn_field CloseRemainderTo
 itxn_submit
-sub2_l2:
+closeAccountTo_2_l2:
+retsub
+
+// sendBidToSeller
+sendBidToSeller_3:
+itxn_begin
+int pay
+itxn_field TypeEnum
+byte "seller"
+app_global_get
+itxn_field Receiver
+byte "bid_amount"
+app_global_get
+byte "fee_percent"
+app_global_get
+byte "bid_amount"
+app_global_get
+*
+int 100
+/
+-
+itxn_field Amount
+itxn_submit
 retsub

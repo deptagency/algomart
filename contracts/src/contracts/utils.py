@@ -158,6 +158,11 @@ def decodeState(stateArray: List[Any]) -> Dict[bytes, Union[int, bytes]]:
     return state
 
 
+def getAppCreator(client: AlgodClient, appID: int) -> str:
+    app = client.application_info(appID)
+    return app["params"]["creator"]
+
+
 def getAppGlobalState(
     client: AlgodClient, appID: int
 ) -> Dict[bytes, Union[int, bytes]]:
@@ -537,10 +542,14 @@ def closeAuction(client: AlgodClient, appID: int, closer: Account):
             auction before it starts. Otherwise, this can be any account.
     """
     appGlobalState = getAppGlobalState(client, appID)
+    appCreator = getAppCreator(client, appID)
 
     nftID = appGlobalState[b"nft_id"]
 
-    accounts: List[str] = [encoding.encode_address(appGlobalState[b"seller"])]
+    accounts: List[str] = [
+        encoding.encode_address(appGlobalState[b"seller"]),
+        appCreator,
+    ]
 
     if any(appGlobalState[b"bid_account"]):
         # if "bid_account" is not the zero address
@@ -558,3 +567,28 @@ def closeAuction(client: AlgodClient, appID: int, closer: Account):
     client.send_transaction(signedDeleteTxn)
 
     waitForTransaction(client, signedDeleteTxn.get_txid())
+
+
+def fundAccount(client: AlgodClient, funder: Account, recipient: Account, amount: int):
+    """Fund an account.
+
+    Args:
+        client: An Algod client.
+        funder: The account providing the funding.
+        recipient: The account address receiving the funding.
+        amount: The amount of the funding.
+    """
+    suggestedParams = client.suggested_params()
+
+    fundTxn = transaction.PaymentTxn(
+        sender=funder.getAddress(),
+        receiver=recipient.getAddress(),
+        amt=amount,
+        sp=suggestedParams,
+    )
+
+    signedFundTxn = fundTxn.sign(funder.getPrivateKey())
+
+    client.send_transaction(signedFundTxn)
+
+    waitForTransaction(client, signedFundTxn.get_txid())

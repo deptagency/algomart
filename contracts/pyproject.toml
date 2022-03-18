@@ -1,17 +1,17 @@
 [tool.poetry]
-authors = ["Simon Ingeson <44818+smonn@users.noreply.github.com>"]
+authors = ["Dept Agency"]
 description = ""
 name = "contracts"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
-py-algorand-sdk = "^1.9.0"
-pyteal = "^0.9.1"
+py-algorand-sdk = "^1.10.0"
+pyteal = "^0.10.1"
 python = "^3.8"
 
 [tool.poetry.dev-dependencies]
-black = "^21.12b0"
-pytest = "^6.2"
+black = "^22.1.0"
+pytest = "^7.1.1"
 pytest-xdist = "^2.5.0"
 
 [build-system]

@@ -5,7 +5,6 @@ from pathlib import Path
 def approval_program():
     seller_key = Bytes("seller")
     fee_percent_key = Bytes("fee_percent")
-    fee_recipient_key = Bytes("fee_recipient")
     nft_id_key = Bytes("nft_id")
     start_time_key = Bytes("start")
     end_time_key = Bytes("end")
@@ -81,7 +80,7 @@ def approval_program():
                                 App.globalGet(fee_percent_key)
                                 * App.globalGet(lead_bid_amount_key)
                             )
-                            / 100
+                            / Int(100)
                         )
                     ),
                 }
@@ -103,8 +102,8 @@ def approval_program():
         Assert(
             And(
                 # ensure that the fee percent is between 0 and 100
-                App.globalGet(fee_percent_key) >= 0,
-                App.globalGet(fee_percent_key) <= 100,
+                App.globalGet(fee_percent_key) >= Int(0),
+                App.globalGet(fee_percent_key) <= Int(100),
                 # ensure that start time is after the current time
                 Global.latest_timestamp() < on_create_start_time,
                 # ensure that the end time is after the start time
