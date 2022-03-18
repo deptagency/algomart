@@ -29,6 +29,17 @@ import {
   UserAccount,
   WirePayment,
 } from '@algomart/schemas'
+
+import {
+  BidModel,
+  EventModel,
+  PackModel,
+  PaymentBankAccountModel,
+  PaymentCardModel,
+  PaymentModel,
+  UserAccountModel,
+} from '@algomart/shared/models'
+
 import {
   BidModel,
   EventModel,

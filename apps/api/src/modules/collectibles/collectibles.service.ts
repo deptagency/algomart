@@ -18,6 +18,18 @@ import {
   TransferCollectible,
   TransferCollectibleResult,
 } from '@algomart/schemas'
+
+import {
+  AlgorandAccountModel,
+  AlgorandTransactionGroupModel,
+  AlgorandTransactionModel,
+  CollectibleModel,
+  CollectibleOwnershipModel,
+  CollectibleShowcaseModel,
+  EventModel,
+  UserAccountModel,
+} from '@algomart/shared/models'
+
 import {
   AlgorandTransactionGroupModel,
   AlgorandTransactionModel,

@@ -145,8 +145,6 @@ Each app has it's own configuration
 
 For performance and code organization reasons, the [https://nx.dev/structure/applications-and-libraries](Nx docs) recommend
 putting as much functionality as possible into libs, even if the code is only used in a single app. In Nx, a lib is more than just a directory under the `libs/` directory. Each lib must have an entry in the workspace.json file for the lib to build and import correctly.
-
-Linting will fail for any lib code that tries to import code from an app. This means that lib code should never access things like
 global configuration variables or environment variables. (eg. `Configuration`)
 
 If you wanted to create a new library at the path `libs/shared/utils`, you'd use the nx generator...
