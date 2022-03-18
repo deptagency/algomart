@@ -1,12 +1,16 @@
+import { DEFAULT_CURRENCY, DEFAULT_LANG } from '@algomart/schemas'
 import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
 import loadFirebase from '@/clients/firebase-client'
 import { invariant } from '@/utils/invariant'
 import { urls } from '@/utils/urls'
+
 export interface AuthAPI {
   isUsernameAvailable(username: string): Promise<boolean>
   updateUsername(username: string): Promise<boolean>
+  updateLanguage(language: string): Promise<boolean>
+  updateCurrency(currency: string): Promise<boolean>
   verifyPassphrase(passphrase: string): Promise<boolean>
 }
 
@@ -51,6 +55,36 @@ export class AuthService implements AuthAPI {
       })
       .json<{ isAvailable: boolean }>()
     return isAvailable
+  }
+
+  /**
+   *
+   * @param language - language to update user's preference to
+   */
+  async updateLanguage(language = DEFAULT_LANG): Promise<boolean> {
+    try {
+      await this.http
+        .put(urls.api.v1.updateLanguage, { json: { language } })
+        .json()
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   *
+   * @param currency - currency to update user's preference to
+   */
+  async updateCurrency(currency = DEFAULT_CURRENCY): Promise<boolean> {
+    try {
+      await this.http
+        .put(urls.api.v1.updateCurrency, { json: { currency } })
+        .json()
+      return true
+    } catch {
+      return false
+    }
   }
 
   async updateUsername(username: string): Promise<boolean> {

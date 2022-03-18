@@ -1,7 +1,29 @@
 import { Static, TSchema, Type } from '@sinclair/typebox'
 
+import * as LanguageConsts from './language-consts.js'
+
 export const DEFAULT_CURRENCY = 'USD'
 export const DEFAULT_LOCALE = 'en-US'
+export const DEFAULT_LANG: string = LanguageConsts.DEFAULT_LANG
+
+export const LANG_COOKIE = 'language'
+export const SUPPORTED_LANGUAGES: string[] = LanguageConsts.SUPPORTED_LANGUAGES
+export const RTL_LANGUAGES: string[] = [
+  'ar',
+  'arc',
+  'dv',
+  'fa',
+  'ha',
+  'he',
+  'khw',
+  'ks',
+  'ku',
+  'ps',
+  'ur',
+  'yi',
+]
+
+export const CURRENCY_COOKIE = 'currency'
 
 export const AlgoAddressSchema = Type.Object({
   algoAddress: Type.String({ maxLength: 58, minLength: 58 }),

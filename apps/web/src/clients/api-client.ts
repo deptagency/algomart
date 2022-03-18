@@ -19,12 +19,16 @@ import {
   CreatePayment,
   CreateTransferPayment,
   CreateUserAccountRequest,
+  CurrencyConversionDict,
+  DEFAULT_LANG,
   DEFAULT_LOCALE,
+  DropdownLanguageList,
   ExternalId,
   FindTransferByAddress,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
+  I18nInfo,
   InitializeTransferCollectible,
   Locale,
   LocaleAndExternalId,
@@ -502,6 +506,34 @@ export class ApiClient {
       .get<Homepage>('homepage', {
         params: {
           locale,
+        },
+      })
+      .then((response) => response.data)
+  }
+  //#endregion
+
+  //#region i18n
+  async getLanguages(language: string) {
+    return await this.http
+      .get<DropdownLanguageList>('i18n/languages', {
+        params: {
+          language: language || DEFAULT_LANG,
+        },
+      })
+      .then((response) => response.data)
+  }
+
+  async getCurrencyConversions() {
+    return await this.http
+      .get<CurrencyConversionDict>('i18n/currencyConversions')
+      .then((response) => response.data)
+  }
+
+  async getI18n(language: string) {
+    return await this.http
+      .get<I18nInfo>('i18n/i18n-info', {
+        params: {
+          language: language || DEFAULT_LANG,
         },
       })
       .then((response) => response.data)
