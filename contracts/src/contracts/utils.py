@@ -578,6 +578,7 @@ def fundAccount(client: AlgodClient, funder: Account, recipient: Account, amount
         recipient: The account address receiving the funding.
         amount: The amount of the funding.
     """
+
     suggestedParams = client.suggested_params()
 
     fundTxn = transaction.PaymentTxn(
@@ -592,3 +593,40 @@ def fundAccount(client: AlgodClient, funder: Account, recipient: Account, amount
     client.send_transaction(signedFundTxn)
 
     waitForTransaction(client, signedFundTxn.get_txid())
+
+
+def getCreatorAccount(client: AlgodClient, funder: Account, amount: int):
+    """Get the creator account.
+
+    Args:
+        client: An Algod client.
+        funder: The account providing the funding.
+        amount: The amount of the funding.
+    """
+
+    creator = Account(account.generate_account()[0])
+    fundAccount(client, funder, creator, amount)
+    return creator
+
+
+def closeAccount(client: AlgodClient, closer: Account, recipient: Account):
+    """Close an account.
+
+    Args:
+        client: An Algod client.
+        closer: The account initiating the close transaction.
+        recipient: The account address receiving the funds.
+    """
+
+    suggestedParams = client.suggested_params()
+
+    closeTxn = transaction.PaymentTxn(
+        sender=closer.getAddress(),
+        close_remainder_to=recipient.getAddress(),
+        sp=suggestedParams,
+    )
+    signedCloseTxn = closeTxn.sign(closer.getPrivateKey())
+
+    client.send_transaction(signedCloseTxn)
+
+    waitForTransaction(client, signedCloseTxn.get_txid())
