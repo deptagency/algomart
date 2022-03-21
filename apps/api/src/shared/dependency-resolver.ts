@@ -20,6 +20,8 @@ import PaymentsService from '@api/modules/payments/payments.service'
 import SetsService from '@api/modules/sets/sets.service'
 import TransactionsService from '@api/modules/transactions/transactions.service'
 
+import { logger } from '../configuration/logger'
+
 export interface Factory<T> {
   (resolver: DependencyResolver): T
 }
@@ -102,11 +104,13 @@ export function configureResolver() {
   resolver.set(
     DirectusAdapter.name,
     () =>
-      new DirectusAdapter({
-        accessToken: Configuration.cmsAccessToken,
-        url: Configuration.cmsUrl,
-        publicUrl: Configuration.cmsPublicUrl,
-      })
+      new DirectusAdapter(
+        {
+          accessToken: Configuration.cmsAccessToken,
+          cmsUrl: Configuration.cmsUrl,
+        },
+        logger
+      )
   )
   resolver.set(
     NFTStorageAdapter.name,

@@ -6,7 +6,7 @@ import DirectusAdapter from '@api/lib/directus-adapter'
 export default class ApplicationService {
   logger = logger.child({ context: this.constructor.name })
 
-  constructor(private readonly cms: DirectusAdapter) {}
+  constructor(private readonly cms: CMSCacheAdapter) {}
 
   async getCountries(locale = DEFAULT_LOCALE): Promise<Countries> {
     // Find application details and compile IDs of supported countries

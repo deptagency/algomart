@@ -49,7 +49,7 @@ export default class CollectiblesService {
   logger = logger.child({ context: this.constructor.name })
 
   constructor(
-    private readonly cms: DirectusAdapter,
+    private readonly cms: CMSCacheAdapter,
     private readonly algorand: AlgorandAdapter,
     private readonly storage: NFTStorageAdapter,
     private readonly algoExplorer: AlgoExplorerAdapter

@@ -4,7 +4,8 @@ import {
   ClaimPack,
   ClaimRedeemPack,
   CollectibleWithDetails,
-  DEFAULT_LOCALE,
+  DEFAULT_LANG,
+  DEFAULT_LANG,
   EventAction,
   EventEntityType,
   IPFSStatus,
@@ -42,10 +43,8 @@ import {
 } from '@algomart/shared/utils'
 import { Configuration } from '@api/configuration'
 import { logger } from '@api/configuration/logger'
-import DirectusAdapter, {
-  DirectusStatus,
-  ItemFilter,
-} from '@api/lib/directus-adapter'
+import CMSCacheAdapter from '@api/lib/cms-cache-adapter'
+import { ItemFilter, ItemFilters } from '@api/lib/cms-cache-adapter'
 import { BidModel } from '@api/models/bid.model'
 import { CollectibleModel } from '@api/models/collectible.model'
 import { CollectibleOwnershipModel } from '@api/models/collectible-ownership.model'
@@ -118,7 +117,7 @@ export default class PacksService {
   logger = logger.child({ context: this.constructor.name })
 
   constructor(
-    private readonly cms: DirectusAdapter,
+    private readonly cms: CMSCacheAdapter,
     private readonly collectibles: CollectiblesService,
     private readonly notifications: NotificationsService,
     private readonly accounts: AccountsService
@@ -135,10 +134,10 @@ export default class PacksService {
 
       switch (sort.sortBy) {
         case PackSortField.Title:
-          return direction * a.title.localeCompare(b.title)
+          return direction * a.title.languageCompare(b.title)
         case PackSortField.ReleasedAt:
           return (
-            direction * (a.releasedAt?.localeCompare(b.releasedAt ?? '') ?? 0)
+            direction * (a.releasedAt?.languageCompare(b.releasedAt ?? '') ?? 0)
           )
         default:
           return 0
@@ -223,7 +222,7 @@ export default class PacksService {
   // #endregion
 
   async getPublishedPacks({
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     page = 1,
     pageSize = 10,
     templateIds = [],
@@ -238,18 +237,14 @@ export default class PacksService {
   }: PublishedPacksQuery): Promise<{ packs: PublishedPack[]; total: number }> {
     invariant(page > 0, 'page must be greater than 0')
 
-    const filter: ItemFilter = {
-      status: {
-        _eq: DirectusStatus.Published,
-      },
-    }
+    const filter: ItemFilters = {}
 
     if (slug) filter.slug = { _eq: slug }
     if (templateIds.length > 0) filter.id = { _in: templateIds }
     if (type.length > 0) filter.type = { _in: type }
 
     const { packs: templates } = await this.cms.findAllPacks({
-      locale,
+      language,
       // need to load all packs into memory
       // TODO: optimize when/if this becomes a problem
       pageSize: -1,
@@ -305,7 +300,7 @@ export default class PacksService {
   }
 
   async getPacksByOwner({
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     page = 1,
     pageSize = 10,
     templateIds = [],
@@ -318,11 +313,7 @@ export default class PacksService {
     invariant(page > 0, 'page must be greater than 0')
     invariant(ownerExternalId, 'owner ID is required')
 
-    const filter: ItemFilter = {
-      status: {
-        _eq: DirectusStatus.Published,
-      },
-    }
+    const filter: ItemFilters = {}
     if (slug) filter.slug = { _eq: slug }
     if (templateIds.length > 0) filter.id = { _in: templateIds }
     if (type.length > 0) filter.type = { _in: type }
@@ -371,7 +362,7 @@ export default class PacksService {
 
     // Find templates for the packs owned by user
     const { packs: templates } = await this.cms.findAllPacks({
-      locale,
+      language,
       pageSize: -1,
       filter,
     })
@@ -431,7 +422,7 @@ export default class PacksService {
 
   async getPackWithCollectiblesById(
     id: string,
-    locale = DEFAULT_LOCALE
+    language = DEFAULT_LANG
   ): Promise<PackWithCollectibles> {
     const pack = await PackModel.query()
       .findOne({ id })
@@ -443,12 +434,12 @@ export default class PacksService {
 
     const packTemplate = await this.cms.findPack(
       { id: { _eq: pack.templateId } },
-      locale
+      language
     )
     invariant(packTemplate, 'pack template missing in cms')
 
     const { collectibles: collectibleTemplates } =
-      await this.cms.findAllCollectibles(locale, {
+      await this.cms.findAllCollectibles(language, {
         id: {
           _in: pack.collectibles.map((c) => c.templateId),
         },
@@ -513,7 +504,7 @@ export default class PacksService {
 
   async getPackById(
     id: string,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     trx?: Transaction
   ): Promise<PackWithId | null> {
     const pack = await PackModel.query(trx).where({ id }).first()
@@ -525,7 +516,7 @@ export default class PacksService {
 
     const template = await this.cms.findPack(
       { id: { _eq: pack.templateId } },
-      locale
+      language
     )
 
     if (!template) {
@@ -537,7 +528,7 @@ export default class PacksService {
 
   async getPackByRedeemCode(
     redeemCode: string,
-    locale = DEFAULT_LOCALE
+    language = DEFAULT_LANG
   ): Promise<PackWithId> {
     const pack = await PackModel.query().where({ redeemCode }).first()
     userInvariant(pack && pack.ownerId === null, 'pack not found', 404)
@@ -546,7 +537,7 @@ export default class PacksService {
       {
         id: { _eq: pack.templateId },
       },
-      locale
+      language
     )
 
     invariant(template, 'pack template not in cms')
@@ -718,7 +709,7 @@ export default class PacksService {
 
   async untransferredPacks({
     externalId,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
   }: LanguageAndExternalId) {
     const packs = await PackModel.query()
       .alias('p')
@@ -744,15 +735,11 @@ export default class PacksService {
 
     const templateIds = [...new Set(packs.map((p) => p.templateId))]
 
-    const filter: ItemFilter = {
-      status: {
-        _eq: DirectusStatus.Published,
-      },
-    }
+    const filter: ItemFilters = {}
     if (templateIds.length > 0) filter.id = { _in: templateIds }
 
     const { packs: templates } = await this.cms.findAllPacks({
-      locale,
+      language,
       pageSize: -1,
       filter,
     })
@@ -808,10 +795,10 @@ export default class PacksService {
 
   async claimRedeemPack(
     request: ClaimRedeemPack,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     trx?: Transaction
   ) {
-    const pack = await this.getPackByRedeemCode(request.redeemCode, locale)
+    const pack = await this.getPackByRedeemCode(request.redeemCode, language)
     userInvariant(pack, 'pack not found', 404)
     userInvariant(pack.type === PackType.Redeem, 'pack is not redeemable')
 
@@ -1180,7 +1167,7 @@ export default class PacksService {
               _eq: pack.templateId,
             },
           },
-          pack.activeBid.userAccount.locale
+          pack.activeBid.userAccount.language
         )
         invariant(packTemplate, 'packTemplate not found')
 
@@ -1245,7 +1232,7 @@ export default class PacksService {
 
         const packTemplate = await this.cms.findPack(
           { id: { _eq: pack.templateId } },
-          pack.activeBid.userAccount.locale
+          pack.activeBid.userAccount.language
         )
         invariant(packTemplate, 'packTemplate not found')
 
@@ -1320,7 +1307,7 @@ export default class PacksService {
 
           const packTemplate = await this.cms.findPack(
             { id: { _eq: pack.templateId } },
-            selectedBid.userAccount.locale
+            selectedBid.userAccount.language
           )
           invariant(packTemplate, 'packTemplate not found')
 

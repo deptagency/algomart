@@ -5,7 +5,7 @@ import DirectusAdapter from '@api/lib/directus-adapter'
 export default class SetsService {
   logger = logger.child({ context: this.constructor.name })
 
-  constructor(private readonly cms: DirectusAdapter) {}
+  constructor(private readonly cms: CMSCacheAdapter) {}
 
   async getBySlug(slug: string, locale = DEFAULT_LOCALE) {
     return await this.cms.findSetBySlug(slug, locale)

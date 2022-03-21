@@ -22,6 +22,7 @@
         "apps/api/test/*"
       ],
       "@api/*": ["apps/api/src/*"]
+      
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -12,7 +12,7 @@ import PacksService from '../packs/packs.service'
 
 export default class HomepageService {
   constructor(
-    private readonly cms: DirectusAdapter,
+    private readonly cms: CMSCacheAdapter,
     private readonly packsService: PacksService,
     private readonly collectiblesService: CollectiblesService
   ) {}
