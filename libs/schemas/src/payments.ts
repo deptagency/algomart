@@ -649,7 +649,7 @@ export const PaymentsSchema = Type.Object({
 export const PaymentsQuerystringSchema = Type.Intersect([
   PaginationSchema,
   Type.Object({
-    locale: Type.Optional(Type.String()),
+    language: Type.Optional(Type.String()),
     packId: Type.Optional(Type.String({ format: 'uuid' })),
     packSlug: Type.Optional(Type.String()),
     payerExternalId: Type.Optional(Type.String()),

@@ -53,7 +53,7 @@ export const PaginationSchema = Type.Object({
 })
 
 export const LanguageSchema = Type.Object({
-  locale: Type.Optional(Type.String()),
+  language: Type.Optional(Type.String()),
 })
 
 export const LanguageAndExternalIdSchema = Type.Intersect([

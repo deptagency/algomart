@@ -38,7 +38,7 @@ const BaseUserAccountSchema = Type.Intersect([
   UsernameSchema,
   Type.Object({
     email: Type.String({ format: 'email' }),
-    locale: Type.String({
+    language: Type.String({
       minLength: 2,
       maxLength: 5,
       pattern: '[a-z]{2}(-[A-Z]{2})?',
