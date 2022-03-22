@@ -29,33 +29,32 @@ import {
   UserAccount,
   WirePayment,
 } from '@algomart/schemas'
-import { enc, SHA256 } from 'crypto-js'
-import { Transaction } from 'objection'
-import { v4 as uuid } from 'uuid'
-
-import { Configuration } from '@/configuration'
-import CircleAdapter from '@/lib/circle-adapter'
-import CoinbaseAdapter from '@/lib/coinbase-adapter'
-import { BidModel } from '@/models/bid.model'
-import { EventModel } from '@/models/event.model'
-import { PackModel } from '@/models/pack.model'
-import { PaymentModel } from '@/models/payment.model'
-import { PaymentBankAccountModel } from '@/models/payment-bank-account.model'
-import { PaymentCardModel } from '@/models/payment-card.model'
-import { UserAccountModel } from '@/models/user-account.model'
-import NotificationService from '@/modules/notifications/notifications.service'
-import PacksService from '@/modules/packs/packs.service'
 import {
   convertFromUSD,
   convertToUSD,
-  currency,
   formatFloatToInt,
   formatIntToFloat,
+  invariant,
   isGreaterThanOrEqual,
-} from '@/utils/format-currency'
-import { invariant, userInvariant } from '@/utils/invariant'
-import { logger } from '@/utils/logger'
-import { poll } from '@/utils/poll'
+  poll,
+  userInvariant,
+} from '@algomart/shared/utils'
+import { Configuration } from '@api/configuration'
+import { logger } from '@api/configuration/logger'
+import CircleAdapter from '@api/lib/circle-adapter'
+import CoinbaseAdapter from '@api/lib/coinbase-adapter'
+import { BidModel } from '@api/models/bid.model'
+import { EventModel } from '@api/models/event.model'
+import { PackModel } from '@api/models/pack.model'
+import { PaymentModel } from '@api/models/payment.model'
+import { PaymentBankAccountModel } from '@api/models/payment-bank-account.model'
+import { PaymentCardModel } from '@api/models/payment-card.model'
+import { UserAccountModel } from '@api/models/user-account.model'
+import NotificationService from '@api/modules/notifications/notifications.service'
+import PacksService from '@api/modules/packs/packs.service'
+import { enc, SHA256 } from 'crypto-js'
+import { Transaction } from 'objection'
+import { v4 as uuid } from 'uuid'
 
 export default class PaymentsService {
   logger = logger.child({ context: this.constructor.name })
@@ -498,19 +497,28 @@ export default class PaymentsService {
 
     if (randomPack.type === PackType.Auction) {
       userInvariant(
-        bid && isGreaterThanOrEqual(bid.amount, randomPack.price),
+        bid &&
+          isGreaterThanOrEqual(
+            bid.amount,
+            randomPack.price,
+            Configuration.currency // TODO: receive as argument
+          ),
         'active bid must be higher than the price of the item'
       )
     }
 
     // Retrieve exchange rates for app currency and USD
     const exchangeRates = await this.coinbase.getExchangeRates({
-      currency: currency.code,
+      currency: Configuration.currency.code, // TODO: receive as argument
     })
     invariant(exchangeRates, 'unable to find exchange rates')
 
     // Convert price to USD for payment
-    const amount = convertToUSD(price, exchangeRates.rates)
+    const amount = convertToUSD(
+      price,
+      exchangeRates.rates,
+      Configuration.currency // TODO: receive as argument
+    )
     invariant(amount !== null, 'unable to convert to currency')
 
     // Claim pack ASAP to ensure it's not claimed by someone else during this flow.
@@ -720,14 +728,21 @@ export default class PaymentsService {
 
     // Retrieve exchange rates for app currency and USD
     const exchangeRates = await this.coinbase.getExchangeRates({
-      currency: currency.code,
+      currency: Configuration.currency.code, // TODO: receive as argument
     })
     invariant(exchangeRates, 'unable to find exchange rates')
 
     // Convert from USD to native currency integer
-    const amount = convertFromUSD(transfer.amount, exchangeRates.rates)
+    const amount = convertFromUSD(
+      transfer.amount,
+      exchangeRates.rates,
+      Configuration.currency // TODO: receive as argument
+    )
     invariant(amount !== null, 'unable to convert to currency')
-    const amountInt = formatFloatToInt(amount)
+    const amountInt = formatFloatToInt(
+      amount,
+      Configuration.currency // TODO: receive as argument
+    )
 
     // Check the payment amount is correct
     const isCorrectAmount = amountInt === price
@@ -783,7 +798,7 @@ export default class PaymentsService {
 
     // Retrieve exchange rates for app currency and USD
     const exchangeRates = await this.coinbase.getExchangeRates({
-      currency: currency.code,
+      currency: Configuration.currency.code, // TODO: receive as argument
     })
     invariant(exchangeRates, 'unable to find exchange rates')
 
@@ -796,9 +811,16 @@ export default class PaymentsService {
     // Find payment with matching source ID
     const sourcePayment = payments.find((currentPayment) => {
       // Convert price to USD for payment
-      const amount = convertFromUSD(currentPayment.amount, exchangeRates.rates)
+      const amount = convertFromUSD(
+        currentPayment.amount,
+        exchangeRates.rates,
+        Configuration.currency // TODO: receive as argument
+      )
       invariant(amount !== null, 'unable to convert to currency')
-      const amountInt = formatFloatToInt(amount)
+      const amountInt = formatFloatToInt(
+        amount,
+        Configuration.currency // receive as argument
+      )
       return amountInt === foundBankAccount.amount
     })
     if (!sourcePayment) return null
@@ -1037,7 +1059,10 @@ export default class PaymentsService {
         type: NotificationType.WireInstructions,
         userAccountId: user.id,
         variables: {
-          amount: formatIntToFloat(foundBankAccount.amount),
+          amount: formatIntToFloat(
+            foundBankAccount.amount,
+            Configuration.currency // TODO: receive as argument
+          ),
           packTitle: packTemplate.title,
           packSlug: packTemplate.slug,
           trackingRef: bankAccountInstructions.trackingRef,

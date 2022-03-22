@@ -31,10 +31,9 @@ import {
   ToPaymentCardBase,
   WirePayment,
 } from '@algomart/schemas'
-
-import { HttpTransport } from '@/utils/http-transport'
-import { invariant } from '@/utils/invariant'
-import { logger } from '@/utils/logger'
+import { HttpTransport } from '@algomart/shared/utils'
+import { invariant } from '@algomart/shared/utils'
+import { logger } from '@api/configuration/logger'
 
 export interface CircleAdapterOptions {
   url: string

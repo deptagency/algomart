@@ -1,8 +1,7 @@
+import { logger } from '@api/configuration/logger'
+import PaymentsService from '@api/modules/payments/payments.service'
+import DependencyResolver from '@api/shared/dependency-resolver'
 import { Model } from 'objection'
-
-import PaymentsService from '@/modules/payments/payments.service'
-import DependencyResolver from '@/shared/dependency-resolver'
-import { logger } from '@/utils/logger'
 
 export async function updatePaymentCardStatusesTask(
   registry: DependencyResolver

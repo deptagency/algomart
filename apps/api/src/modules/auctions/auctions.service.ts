@@ -1,15 +1,14 @@
 import { CreateAuctionBody } from '@algomart/schemas'
+import { decrypt, userInvariant } from '@algomart/shared/utils'
+import { Configuration } from '@api/configuration'
+import { logger } from '@api/configuration/logger'
+import AlgorandAdapter from '@api/lib/algorand-adapter'
+import { CollectibleModel } from '@api/models/collectible.model'
+import { UserAccountModel } from '@api/models/user-account.model'
 import algosdk from 'algosdk'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { Transaction } from 'objection'
-
-import AlgorandAdapter from '@/lib/algorand-adapter'
-import { CollectibleModel } from '@/models/collectible.model'
-import { UserAccountModel } from '@/models/user-account.model'
-import { decrypt } from '@/utils/encryption'
-import { userInvariant } from '@/utils/invariant'
-import { logger } from '@/utils/logger'
 
 export default class AuctionsService {
   logger = logger.child({ context: this.constructor.name })
@@ -26,7 +25,8 @@ export default class AuctionsService {
     userInvariant(user, 'User not found', 404)
     const mnemonic = decrypt(
       user.algorandAccount?.encryptedKey,
-      request.passphrase
+      request.passphrase,
+      Configuration.secret // TODO: receive via argument
     )
     userInvariant(mnemonic, 'Invalid passphrase', 400)
 

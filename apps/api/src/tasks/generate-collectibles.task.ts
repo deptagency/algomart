@@ -1,8 +1,7 @@
+import { logger } from '@api/configuration/logger'
+import CollectiblesService from '@api/modules/collectibles/collectibles.service'
+import DependencyResolver from '@api/shared/dependency-resolver'
 import { Model } from 'objection'
-
-import CollectiblesService from '@/modules/collectibles/collectibles.service'
-import DependencyResolver from '@/shared/dependency-resolver'
-import { logger } from '@/utils/logger'
 
 export default async function generateCollectiblesTask(
   registry: DependencyResolver

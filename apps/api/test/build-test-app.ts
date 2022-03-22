@@ -1,11 +1,11 @@
-import { getTestDatabaseConfig } from './setup-tests'
+import buildApp from '@api/api/build-app'
+import AlgorandAdapter from '@api/lib/algorand-adapter'
+import CircleAdapter from '@api/lib/circle-adapter'
+import DirectusAdapter from '@api/lib/directus-adapter'
+import NFTStorageAdapter from '@api/lib/nft-storage-adapter'
+import { configureResolver } from '@api/shared/dependency-resolver'
 
-import buildApp from '@/api/build-app'
-import AlgorandAdapter from '@/lib/algorand-adapter'
-import CircleAdapter from '@/lib/circle-adapter'
-import DirectusAdapter from '@/lib/directus-adapter'
-import NFTStorageAdapter from '@/lib/nft-storage-adapter'
-import { configureResolver } from '@/shared/dependency-resolver'
+import { getTestDatabaseConfig } from './setup-tests'
 
 export async function buildTestApp(database: string) {
   jest

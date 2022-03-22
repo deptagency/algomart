@@ -1,8 +1,7 @@
+import { logger } from '@api/configuration/logger'
+import PacksService from '@api/modules/packs/packs.service'
+import DependencyResolver from '@api/shared/dependency-resolver'
 import { Model } from 'objection'
-
-import PacksService from '@/modules/packs/packs.service'
-import DependencyResolver from '@/shared/dependency-resolver'
-import { logger } from '@/utils/logger'
 
 export default async function generatePacksTask(registry: DependencyResolver) {
   const log = logger.child({ task: 'generate-packs' })

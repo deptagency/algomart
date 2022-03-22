@@ -1,7 +1,6 @@
+import DependencyResolver from '@api/shared/dependency-resolver'
 import { FastifyInstance, FastifyPluginOptions } from 'fastify'
 import fp from 'fastify-plugin'
-
-import DependencyResolver from '@/shared/dependency-resolver'
 
 declare module 'fastify' {
   interface FastifyInstance {

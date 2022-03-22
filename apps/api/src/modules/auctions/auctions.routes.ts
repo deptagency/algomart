@@ -1,9 +1,8 @@
 import { CreateAuctionBody } from '@algomart/schemas'
+import { Configuration } from '@api/configuration'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 import AuctionsService from './auctions.service'
-
-import { Configuration } from '@/configuration'
 
 export async function createAuction(
   request: FastifyRequest<{ Body: CreateAuctionBody }>,

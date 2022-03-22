@@ -4,12 +4,11 @@ import {
   Homepage,
   PublishedPack,
 } from '@algomart/schemas'
+import { userInvariant } from '@algomart/shared/utils'
+import DirectusAdapter from '@api/lib/directus-adapter'
 
 import CollectiblesService from '../collectibles/collectibles.service'
 import PacksService from '../packs/packs.service'
-
-import DirectusAdapter from '@/lib/directus-adapter'
-import { userInvariant } from '@/utils/invariant'
 
 export default class HomepageService {
   constructor(

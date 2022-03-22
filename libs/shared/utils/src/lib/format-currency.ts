@@ -1,3 +1,4 @@
+import * as Currencies from '@dinero.js/currencies'
 import { USD } from '@dinero.js/currencies'
 import {
   add,
@@ -8,11 +9,10 @@ import {
   toFormat,
 } from 'dinero.js'
 
-import { Configuration } from '@/configuration'
-
-export const currency = Configuration.currency
-
-export function formatFloatToInt(float: number | string) {
+export function formatFloatToInt(
+  float: number | string,
+  currency: Currencies.Currency<number>
+) {
   const number = typeof float === 'string' ? Number.parseFloat(float) : float
   const factor = currency.base ** currency.exponent
   const amount = Math.round(number * factor)
@@ -20,7 +20,10 @@ export function formatFloatToInt(float: number | string) {
   return price.toJSON().amount
 }
 
-export function formatIntToFloat(amount: number) {
+export function formatIntToFloat(
+  amount: number,
+  currency: Currencies.Currency<number>
+) {
   const price = dinero({ amount, currency })
   const float = toFormat(price, ({ amount, currency }) =>
     amount.toFixed(currency.exponent)
@@ -28,13 +31,21 @@ export function formatIntToFloat(amount: number) {
   return Number(float)
 }
 
-export function addAmount(originalAmount: number, newAmount: number) {
+export function addAmount(
+  originalAmount: number,
+  newAmount: number,
+  currency: Currencies.Currency<number>
+) {
   const price1 = dinero({ amount: originalAmount, currency })
   const price2 = dinero({ amount: newAmount, currency })
   return add(price1, price2)
 }
 
-export function isGreaterThan(firstAmount: number, secondAmount: number) {
+export function isGreaterThan(
+  firstAmount: number,
+  secondAmount: number,
+  currency: Currencies.Currency<number>
+) {
   const price1 = dinero({ amount: firstAmount, currency })
   const price2 = dinero({ amount: secondAmount, currency })
   return greaterThan(price1, price2)
@@ -42,7 +53,8 @@ export function isGreaterThan(firstAmount: number, secondAmount: number) {
 
 export function isGreaterThanOrEqual(
   firstAmount: number,
-  secondAmount: number
+  secondAmount: number,
+  currency: Currencies.Currency<number>
 ) {
   const price1 = dinero({ amount: firstAmount, currency })
   const price2 = dinero({ amount: secondAmount, currency })
@@ -64,13 +76,14 @@ function getAmountAndScale(exchangeRate: string) {
 
 export function convertFromUSD(
   usdFloat: string | number,
-  rateForNonUSD: { [key: string]: string }
+  rateForNonUSD: { [key: string]: string },
+  currency: Currencies.Currency<number>
 ) {
   if (!rateForNonUSD[currency.code]) return null
   const rates = { [currency.code]: getAmountAndScale(rateForNonUSD.USD) }
   const usdFloatNumber =
     typeof usdFloat === 'string' ? Number.parseFloat(usdFloat) : usdFloat
-  const amount = formatFloatToInt(usdFloatNumber)
+  const amount = formatFloatToInt(usdFloatNumber, currency)
   const price = dinero({ amount, currency: USD })
   const finalPrice = currency === USD ? price : convert(price, currency, rates)
   const float = toFormat(finalPrice, ({ amount, currency }) =>
@@ -81,7 +94,8 @@ export function convertFromUSD(
 
 export function convertToUSD(
   amount: number,
-  rateForUSD: { [key: string]: string }
+  rateForUSD: { [key: string]: string },
+  currency: Currencies.Currency<number>
 ) {
   if (!rateForUSD.USD) return null
   const rates = { USD: getAmountAndScale(rateForUSD.USD) }

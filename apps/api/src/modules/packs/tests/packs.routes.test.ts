@@ -1,11 +1,10 @@
 import { PackStatus, PackType } from '@algomart/schemas'
+import { randomRedemptionCode } from '@algomart/shared/utils'
+import DirectusAdapter, { toPackBase } from '@api/lib/directus-adapter'
+import { packFactory, packTemplateFactory } from '@api/seeds/seed-test-data'
+import { buildTestApp } from '@api-tests/build-test-app'
+import { setupTestDatabase, teardownTestDatabase } from '@api-tests/setup-tests'
 import { FastifyInstance } from 'fastify'
-import { buildTestApp } from 'test/build-test-app'
-import { setupTestDatabase, teardownTestDatabase } from 'test/setup-tests'
-
-import DirectusAdapter, { toPackBase } from '@/lib/directus-adapter'
-import { packFactory, packTemplateFactory } from '@/seeds/seed-test-data'
-import { randomRedemptionCode } from '@/utils/random'
 
 let app: FastifyInstance
 

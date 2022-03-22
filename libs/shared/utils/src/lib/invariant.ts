@@ -1,7 +1,5 @@
-import { Configuration } from '@/configuration'
-import { UserError } from '@/utils/errors'
+import { UserError } from './errors'
 
-const isProduction = Configuration.env === 'production'
 const prefix = 'Invariant failed'
 
 /**
@@ -28,8 +26,6 @@ export function invariant(
 ): asserts condition {
   if (condition) return
 
-  // Condition failed, throw an error
-  if (isProduction) throw new Error(prefix)
   throw new Error(`${prefix}: ${message || ''}`)
 }
 

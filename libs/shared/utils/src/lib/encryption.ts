@@ -1,19 +1,21 @@
 import CryptoJS from 'crypto-js'
 import { randomBytes } from 'node:crypto'
 
-import { Configuration } from '@/configuration'
-
 const SALT_BYTES = 16
 const ENCODING = 'base64'
 
 /**
  * Helper function to create a key and salt.
  */
-function createKey(passphrase: string, salt?: string) {
+function createKey(
+  passphrase: string,
+  salt: string | undefined,
+  secret: string
+) {
   salt = salt || randomBytes(SALT_BYTES).toString(ENCODING)
-  const key = CryptoJS.SHA256(
-    salt + passphrase + Configuration.secret
-  ).toString(CryptoJS.enc.Base64)
+  const key = CryptoJS.SHA256(salt + passphrase + secret).toString(
+    CryptoJS.enc.Base64
+  )
   return {
     key,
     salt,
@@ -26,8 +28,8 @@ function createKey(passphrase: string, salt?: string) {
  * Internally generates a new key and salt. The result is a byte array with the
  * salt and the encrypted value.
  */
-export function encrypt(value: string, passphrase: string) {
-  const { key, salt } = createKey(passphrase)
+export function encrypt(value: string, passphrase: string, secret: string) {
+  const { key, salt } = createKey(passphrase, undefined, secret)
   const encrypted = CryptoJS.AES.encrypt(value, key).toString()
   const bytes = Buffer.concat([
     Buffer.from(salt, ENCODING),
@@ -43,7 +45,11 @@ export function encrypt(value: string, passphrase: string) {
  *
  * May return a zero-length string if the decryption fails.
  */
-export function decrypt(encryptedValue: string, passphrase: string) {
+export function decrypt(
+  encryptedValue: string,
+  passphrase: string,
+  secret: string
+) {
   try {
     const encryptedBytes = Buffer.from(encryptedValue, ENCODING)
     const salt = Buffer.from(encryptedBytes.slice(0, SALT_BYTES)).toString(
@@ -52,7 +58,7 @@ export function decrypt(encryptedValue: string, passphrase: string) {
     const encrypted = Buffer.from(encryptedBytes.slice(SALT_BYTES)).toString(
       ENCODING
     )
-    const { key } = createKey(passphrase, salt)
+    const { key } = createKey(passphrase, salt, secret)
     return CryptoJS.AES.decrypt(encrypted, key).toString(CryptoJS.enc.Utf8)
   } catch {
     return ''
