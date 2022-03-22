@@ -7,8 +7,9 @@ from algosdk.future import transaction
 from algosdk.kmd import KMDClient
 from algosdk.logic import get_application_address
 from algosdk.v2client.algod import AlgodClient
-from contracts.auction import approval_program, clear_state_program
 from pyteal import Expr, Mode, compileTeal
+
+from contracts.auction import approval_program, clear_state_program
 
 
 class Account:
@@ -194,6 +195,13 @@ def getLastBlockTimestamp(client: AlgodClient) -> Tuple[int, int]:
     timestamp = block["block"]["ts"]
 
     return block, timestamp
+
+
+def waitUntilTimestamp(client: AlgodClient, minTimestamp: int):
+    block, timestamp = getLastBlockTimestamp(client)
+    while timestamp < minTimestamp:
+        client.status_after_block(block["block"]["rnd"] + 1)
+        block, timestamp = getLastBlockTimestamp(client)
 
 
 def payAccount(
@@ -435,7 +443,7 @@ def setupAuctionApp(
         # additional min balance to opt into NFT
         + 100_000
         # 3 * min txn fee
-        + 3 * 1_000
+        + 4 * 1_000
     )
 
     fundAppTxn = transaction.PaymentTxn(
@@ -509,7 +517,9 @@ def placeBid(client: AlgodClient, appID: int, bidder: Account, bidAmount: int) -
         app_args=[b"bid"],
         foreign_assets=[nftID],
         # must include the previous lead bidder here to the app can refund that bidder's payment
-        accounts=[prevBidLeader] if prevBidLeader is not None else [],
+        accounts=[prevBidLeader, bidder.getAddress()]
+        if prevBidLeader is not None
+        else [bidder.getAddress()],
         sp=suggestedParams,
     )
 

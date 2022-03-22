@@ -13,6 +13,14 @@ def approval_program():
     num_bids_key = Bytes("num_bids")
     lead_bid_amount_key = Bytes("bid_amount")
     lead_bid_account_key = Bytes("bid_account")
+    # 0.1 ALGO (min account balance)
+    # 0.1 ALGO (holding asset)
+    # 4 x 1000 microAlgo (transaction fees, see below)
+    # 1. opt in to asset
+    # 2. transfer asset to winner
+    # 3. transfer bid amount to seller
+    # 4. transfer royalty to creator
+    escrow_min_balance = Int(204_000)
 
     @Subroutine(TealType.none)
     def closeNFTTo(assetID: Expr, account: Expr) -> Expr:
@@ -114,8 +122,37 @@ def approval_program():
         Approve(),
     )
 
+    on_setup_payment_txn_index = Txn.group_index() - Int(1)
+    on_setup_asset_txn_index = Txn.group_index() + Int(1)
     on_setup = Seq(
-        Assert(Global.latest_timestamp() < App.globalGet(start_time_key)),
+        Assert(
+            And(
+                Global.latest_timestamp() < App.globalGet(start_time_key),
+                # assert previous txn is payment of min balance
+                Gtxn[on_setup_payment_txn_index].type_enum() == TxnType.Payment,
+                Or(
+                    Gtxn[on_setup_payment_txn_index].sender()
+                    == Global.creator_address(),
+                    Gtxn[on_setup_payment_txn_index].sender()
+                    == App.globalGet(seller_key),
+                ),
+                Gtxn[on_setup_payment_txn_index].receiver()
+                == Global.current_application_address(),
+                Gtxn[on_setup_payment_txn_index].amount() == escrow_min_balance,
+                # assert next txn is transfer of NFT
+                Gtxn[on_setup_asset_txn_index].type_enum() == TxnType.AssetTransfer,
+                Or(
+                    Gtxn[on_setup_asset_txn_index].sender() == Global.creator_address(),
+                    Gtxn[on_setup_asset_txn_index].sender()
+                    == App.globalGet(seller_key),
+                ),
+                Gtxn[on_setup_asset_txn_index].asset_receiver()
+                == Global.current_application_address(),
+                Gtxn[on_setup_asset_txn_index].asset_amount() >= Int(1),
+                Gtxn[on_setup_asset_txn_index].xfer_asset()
+                == App.globalGet(nft_id_key),
+            )
+        ),
         # opt into NFT asset -- because you can't opt in if you're already opted in, this is what
         # we'll use to make sure the contract has been set up
         InnerTxnBuilder.Begin(),
@@ -134,8 +171,12 @@ def approval_program():
     on_bid_nft_holding = AssetHolding.balance(
         Global.current_application_address(), App.globalGet(nft_id_key)
     )
+    on_bid_bidder_holding = AssetHolding.balance(
+        Txn.sender(), App.globalGet(nft_id_key)
+    )
     on_bid = Seq(
         on_bid_nft_holding,
+        on_bid_bidder_holding,
         Assert(
             And(
                 # the auction has been set up
@@ -151,7 +192,9 @@ def approval_program():
                 Gtxn[on_bid_txn_index].receiver()
                 == Global.current_application_address(),
                 Gtxn[on_bid_txn_index].amount() >= Global.min_txn_fee(),
-                # TODO: should we prevent bids less than reserve amount?
+                # ensure the bidder is opted-in to the NFT
+                on_bid_bidder_holding.hasValue(),
+                on_bid_nft_holding.value() >= Int(0),
             )
         ),
         If(

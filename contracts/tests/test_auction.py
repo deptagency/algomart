@@ -1,15 +1,13 @@
-from time import sleep, time
+from time import time
 
 import pytest
 from algosdk import account, encoding
 from algosdk.logic import get_application_address
 
 from contracts.utils import (
-    Account,
     closeAuction,
     createAuctionApp,
     createDummyAsset,
-    fundAccount,
     getAlgodClient,
     getAppGlobalState,
     getBalances,
@@ -19,15 +17,16 @@ from contracts.utils import (
     optInToAsset,
     placeBid,
     setupAuctionApp,
+    waitUntilTimestamp,
 )
 
 # min balance: 0.1 ALGO
 # smart contract, base: 0.1 ALGO
 # smart contract, bytes: 0.05 * 2 = 0.1 ALGO
 # smart contract, ints: 0.0285 * 8 = 0.228 ALGO
-# smart contract, escrow: 0.1 + 0.1 + 0.003 = 0.203 ALGO (min, nft, txns)
+# smart contract, escrow: 0.1 + 0.1 + 0.004 = 0.204 ALGO (min, nft, 4 txns)
 # smart contract, create + setup + close txns: 0.001 * 3 = 0.003 ALGO
-CREATOR_FUNDS = 100_000 + 100_000 + 100_000 + 228_000 + 203_000 + 3000
+CREATOR_FUNDS = 100_000 + 100_000 + 100_000 + 228_000 + 204_000 + 3000
 
 
 def test_create():
@@ -123,7 +122,7 @@ def test_setup():
     assert actualState == expectedState
 
     actualBalances = getBalances(client, get_application_address(appID))
-    expectedBalances = {0: 2 * 100_000 + 2 * 1_000, nftID: nftAmount}
+    expectedBalances = {0: 2 * 100_000 + 3 * 1_000, nftID: nftAmount}
 
     assert actualBalances == expectedBalances
 
@@ -172,6 +171,7 @@ def test_first_bid_before_start():
 
     with pytest.raises(Exception):
         bidAmount = 500_000  # 0.5 Algos
+        optInToAsset(client, nftID, bidder)
         placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
 
 
@@ -214,11 +214,11 @@ def test_first_bid():
 
     bidder = getTemporaryAccount(client)
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < startTime + 5:
-        sleep(startTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, startTime + 5)
 
     bidAmount = 500_000  # 0.5 Algos
+
+    optInToAsset(client, nftID, bidder)
     placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
 
     actualState = getAppGlobalState(client, appID)
@@ -238,7 +238,7 @@ def test_first_bid():
     assert actualState == expectedState
 
     actualBalances = getBalances(client, get_application_address(appID))
-    expectedBalances = {0: 2 * 100_000 + 2 * 1_000 + bidAmount, nftID: nftAmount}
+    expectedBalances = {0: 2 * 100_000 + 3 * 1_000 + bidAmount, nftID: nftAmount}
 
     assert actualBalances == expectedBalances
 
@@ -283,17 +283,18 @@ def test_second_bid():
     bidder1 = getTemporaryAccount(client)
     bidder2 = getTemporaryAccount(client)
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < startTime + 5:
-        sleep(startTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, startTime + 5)
 
     bid1Amount = 500_000  # 0.5 Algos
+
+    optInToAsset(client, nftID, bidder1)
     placeBid(client=client, appID=appID, bidder=bidder1, bidAmount=bid1Amount)
 
     bidder1AlgosBefore = getBalances(client, bidder1.getAddress())[0]
 
     with pytest.raises(Exception):
         bid2Amount = bid1Amount + 1_000  # increase is less than min increment amount
+        optInToAsset(client, nftID, bidder2)
         placeBid(
             client=client,
             appID=appID,
@@ -321,7 +322,7 @@ def test_second_bid():
     assert actualState == expectedState
 
     actualAppBalances = getBalances(client, get_application_address(appID))
-    expectedAppBalances = {0: 2 * 100_000 + 2 * 1_000 + bid2Amount, nftID: nftAmount}
+    expectedAppBalances = {0: 2 * 100_000 + 3 * 1_000 + bid2Amount, nftID: nftAmount}
 
     assert actualAppBalances == expectedAppBalances
 
@@ -419,9 +420,7 @@ def test_close_no_bids():
         nftAmount=nftAmount,
     )
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < endTime + 5:
-        sleep(endTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, endTime + 5)
 
     closeAuction(client, appID, creator)
 
@@ -473,18 +472,15 @@ def test_close_reserve_not_met():
 
     bidder = getTemporaryAccount(client)
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < startTime + 5:
-        sleep(startTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, startTime + 5)
 
     bidAmount = 500_000  # 0.5 Algos
+    optInToAsset(client, nftID, bidder)
     placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
 
     bidderAlgosBefore = getBalances(client, bidder.getAddress())[0]
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < endTime + 5:
-        sleep(endTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, endTime + 5)
 
     closeAuction(client, appID, creator)
 
@@ -544,18 +540,14 @@ def test_close_reserve_met():
 
     bidder = getTemporaryAccount(client)
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < startTime + 5:
-        sleep(startTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, startTime + 5)
 
     bidAmount = reserve
-    placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
 
     optInToAsset(client, nftID, bidder)
+    placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < endTime + 5:
-        sleep(endTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, endTime + 5)
 
     closeAuction(client, appID, creator)
 
@@ -629,18 +621,14 @@ def test_close_reserve_met_no_royalty():
 
     bidder = getTemporaryAccount(client)
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < startTime + 5:
-        sleep(startTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, startTime + 5)
 
     bidAmount = reserve
-    placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
 
     optInToAsset(client, nftID, bidder)
+    placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < endTime + 5:
-        sleep(endTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, endTime + 5)
 
     closeAuction(client, appID, creator)
 
