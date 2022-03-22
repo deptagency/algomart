@@ -442,7 +442,11 @@ def setupAuctionApp(
         100_000
         # additional min balance to opt into NFT
         + 100_000
-        # 3 * min txn fee
+        # 4 * min txn fee
+        # 1. opt-in to asset
+        # 2. transfer asset to winner (or return to seller)
+        # 3. transfer bid amount to seller (or return to bidder)
+        # 4. transfer remaining amount back to creator
         + 4 * 1_000
     )
 
