@@ -7,7 +7,7 @@
 }
 
 .helpText {
-  @apply w-1/2 mt-1 text-sm font-light text-right text-base-gray-medium;
+  @apply w-1/2 mt-1 text-sm font-light text-right text-base-textTertiary;
 }
 
 .errorText {

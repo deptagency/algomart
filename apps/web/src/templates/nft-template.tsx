@@ -69,11 +69,19 @@ export default function NFTTemplate({
 
         {userAddress && isTransferrable ? (
           <div className={css.panelActions}>
-            {/* TODO: enable this for secondary marketplace */}
             <ButtonGroup>
-              <LinkButton group="left" size="small" disabled href={urls.home}>
-                {t('nft:actions.sellNFT')}
-              </LinkButton>
+              {Environment.isMarketplaceEnabled ? (
+                <LinkButton
+                  group="left"
+                  size="small"
+                  href={urls.nftSell.replace(
+                    ':assetId',
+                    String(collectible.address)
+                  )}
+                >
+                  {t('nft:actions.sellNFT')}
+                </LinkButton>
+              ) : null}
               <LinkButton
                 group="right"
                 href={urls.nftTransfer.replace(

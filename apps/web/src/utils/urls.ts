@@ -20,6 +20,7 @@ export const urls = {
   myShowcase: '/my/showcase',
   nft: '/nft/:assetId',
   nftTransfer: '/nft/:assetId/transfer',
+  nftSell: '/nft/:assetId/sell',
   packOpening: '/pack-opening/:packId',
   paymentFailure: '/payments/failure',
   paymentSuccess: '/payments/success',

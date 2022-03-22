@@ -13,6 +13,23 @@ import { Environment } from '@/environment'
 
 export const currency: Currency<number> = Environment.currency
 
+export const ALGO: Currency<number> = {
+  base: 10,
+  code: 'ALGO',
+  exponent: 6,
+}
+
+export function formatALGO(value?: number | null, locale = DEFAULT_LOCALE) {
+  return toFormat(
+    dinero({ amount: value, currency: ALGO }),
+    ({ amount, currency }) =>
+      `${amount.toLocaleString(locale, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: currency.exponent,
+      })} ${currency.code}`
+  )
+}
+
 export function formatCurrency(
   value?: string | number | null,
   locale = DEFAULT_LOCALE

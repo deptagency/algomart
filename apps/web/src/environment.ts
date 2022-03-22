@@ -71,4 +71,9 @@ export const Environment = {
     const isEnabled = this.config('NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED', '')
     return isEnabled.toLowerCase() === 'true'
   },
+
+  get isMarketplaceEnabled() {
+    const isEnabled = this.config('NEXT_PUBLIC_MARKETPLACE_ENABLED', '')
+    return isEnabled.toLowerCase() === 'true'
+  },
 }

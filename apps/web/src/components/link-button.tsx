@@ -56,7 +56,7 @@ export default function LinkButton({
         })}
         {...rest}
       >
-        {children}
+        <span className="flex items-center justify-center">{children}</span>
       </a>
     </Link>
   )
