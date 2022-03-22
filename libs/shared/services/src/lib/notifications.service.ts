@@ -1,3 +1,4 @@
+import pino from 'pino'
 import {
   CreateNotification,
   Email,
@@ -9,8 +10,6 @@ import {
 import { I18nAdapter, MailerAdapter } from '@algomart/shared/adapters'
 import { EventModel, NotificationModel } from '@algomart/shared/models'
 import { invariant } from '@algomart/shared/utils'
-import { Configuration } from '@api/configuration'
-import { logger } from '@api/configuration/logger'
 import { ResponseError } from '@sendgrid/mail'
 import { TFunction } from 'i18next'
 import { Transaction } from 'objection'
@@ -30,7 +29,11 @@ const isResponseError = (error: unknown): error is ResponseError => {
  * - For now this is good enough since sending a poorly interpolated email is preferable
  *   to not sending one at all.
  */
-const expectVariables = (variables, variableNames: string[]) => {
+const expectVariables = (
+  variables,
+  variableNames: string[],
+  logger: pino.Logger<unknown>
+) => {
   // Use warn & trace because it's easier to read the error message.
   if (!variables) {
     logger.warn('No variables were provided for this notification.')
@@ -44,8 +47,8 @@ const expectVariables = (variables, variableNames: string[]) => {
   }
 }
 
-export default class NotificationsService {
-  logger = logger.child({ context: this.constructor.name })
+export class NotificationsService {
+  logger: pino.Logger<unknown>
   dispatchStore: {
     [key in NotificationType]: (n: NotificationModel, t: TFunction) => Email
   } = {
@@ -74,8 +77,13 @@ export default class NotificationsService {
 
   constructor(
     private readonly mailer: MailerAdapter,
-    private readonly i18n: I18nAdapter
-  ) {}
+    private readonly i18n: I18nAdapter,
+    private readonly webUrl: string,
+    private readonly customerServiceEmail: string,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
+  }
 
   async createNotification(
     notification: CreateNotification,
@@ -139,13 +147,17 @@ export default class NotificationsService {
 
   getAuctionCompleteNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
-    expectVariables(variables, ['amount', 'canExpire', 'packSlug', 'packTitle'])
+    expectVariables(
+      variables,
+      ['amount', 'canExpire', 'packSlug', 'packTitle'],
+      this.logger
+    )
 
     // Build notification
     const body = (
       t('auctionComplete.body', {
         returnObjects: true,
-        ctaUrl: `${Configuration.webUrl}checkout/${variables.packSlug}`,
+        ctaUrl: `${this.webUrl}checkout/${variables.packSlug}`,
         ...variables,
       }) as string[]
     ).reduce((body: string, p: string) => body + `<p>${p}</p>`, '')
@@ -163,7 +175,7 @@ export default class NotificationsService {
 
   getBidExpiredNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
-    expectVariables(variables, ['packTitle'])
+    expectVariables(variables, ['packTitle'], this.logger)
 
     return {
       to: userAccount?.email as string,
@@ -177,11 +189,11 @@ export default class NotificationsService {
 
   getPaymentSuccessNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
-    expectVariables(variables, ['packTitle'])
+    expectVariables(variables, ['packTitle'], this.logger)
 
     const html = t<string[]>('paymentSuccess.body', {
       returnObjects: true,
-      transferUrl: `${Configuration.webUrl}`,
+      transferUrl: `${this.webUrl}`,
       ...variables,
     })
 
@@ -194,11 +206,11 @@ export default class NotificationsService {
 
   getTransferSuccessNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
-    expectVariables(variables, ['packTitle'])
+    expectVariables(variables, ['packTitle'], this.logger)
 
     const html = t<string[]>('transferSuccess.body', {
       returnObjects: true,
-      ctaUrl: `${Configuration.webUrl}my/collectibles`,
+      ctaUrl: `${this.webUrl}my/collectibles`,
       ...variables,
     })
 
@@ -211,7 +223,7 @@ export default class NotificationsService {
 
   getUserHighBidNotification(n: NotificationModel, t: TFunction): Email {
     const { userAccount, variables } = n
-    expectVariables(variables, ['packTitle', 'packSlug'])
+    expectVariables(variables, ['packTitle', 'packSlug'], this.logger)
 
     return {
       to: userAccount?.email as string,
@@ -219,7 +231,7 @@ export default class NotificationsService {
       html: (
         t('userHighBid.body', {
           returnObjects: true,
-          ctaUrl: `${Configuration.webUrl}releases/${variables.packSlug}`,
+          ctaUrl: `${this.webUrl}releases/${variables.packSlug}`,
           ...variables,
         }) as string[]
       ).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
@@ -228,7 +240,7 @@ export default class NotificationsService {
 
   getUserOutbidNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    expectVariables(variables, ['packTitle', 'packSlug'])
+    expectVariables(variables, ['packTitle', 'packSlug'], this.logger)
 
     return {
       to: userAccount?.email as string,
@@ -236,7 +248,7 @@ export default class NotificationsService {
       html: (
         t('userOutbid.body', {
           returnObjects: true,
-          ctaUrl: `${Configuration.webUrl}releases/${variables.packSlug}`,
+          ctaUrl: `${this.webUrl}releases/${variables.packSlug}`,
           ...variables,
         }) as string[]
       ).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
@@ -245,29 +257,33 @@ export default class NotificationsService {
 
   getWireInstructionsNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    expectVariables(variables, [
-      'packTitle',
-      'packSlug',
-      'amount',
-      'beneficiaryName',
-      'beneficiaryAddress1',
-      'beneficiaryAddress2',
-      'beneficiaryBankName',
-      'beneficiaryBankSwiftCode',
-      'beneficiaryBankRoutingNumber',
-      'beneficiaryBankAccountingNumber',
-      'beneficiaryBankAddress',
-      'beneficiaryBankCity',
-      'beneficiaryBankPostalCode',
-      'beneficiaryBankCountry',
-      'trackingRef',
-    ])
+    expectVariables(
+      variables,
+      [
+        'packTitle',
+        'packSlug',
+        'amount',
+        'beneficiaryName',
+        'beneficiaryAddress1',
+        'beneficiaryAddress2',
+        'beneficiaryBankName',
+        'beneficiaryBankSwiftCode',
+        'beneficiaryBankRoutingNumber',
+        'beneficiaryBankAccountingNumber',
+        'beneficiaryBankAddress',
+        'beneficiaryBankCity',
+        'beneficiaryBankPostalCode',
+        'beneficiaryBankCountry',
+        'trackingRef',
+      ],
+      this.logger
+    )
 
     // Build notification
     const body = (
       t('wireTransfer.body', {
         returnObjects: true,
-        ctaUrl: `${Configuration.webUrl}checkout/${variables.packSlug}`,
+        ctaUrl: `${this.webUrl}checkout/${variables.packSlug}`,
         ...variables,
       }) as string[]
     ).reduce((body: string, p: string) => body + `<p>${p}</p>`, '')
@@ -285,7 +301,7 @@ export default class NotificationsService {
 
   getPaymentFailedNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    expectVariables(variables, ['packTitle'])
+    expectVariables(variables, ['packTitle'], this.logger)
     return {
       to: userAccount?.email,
       subject: t('paymentFailed.subject'),
@@ -295,7 +311,7 @@ export default class NotificationsService {
 
   getPackRevokedNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    expectVariables(variables, ['packTitle'])
+    expectVariables(variables, ['packTitle'], this.logger)
     return {
       to: userAccount?.email,
       subject: t('packRevoked.subject'),
@@ -307,14 +323,18 @@ export default class NotificationsService {
 
   getCSWirePaymentFailedNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    expectVariables(variables, ['packTitle', 'paymentId', 'amount'])
+    expectVariables(
+      variables,
+      ['packTitle', 'paymentId', 'amount'],
+      this.logger
+    )
     const fields = {
       ...variables,
       userEmail: userAccount?.email,
-      ctaUrl: `${Configuration.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
+      ctaUrl: `${this.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
     }
     return {
-      to: Configuration.customerServiceEmail,
+      to: this.customerServiceEmail,
       subject: t('csWirePaymentFailed.subject', fields),
       html: t('csWirePaymentFailed.body', fields),
     }
@@ -322,14 +342,18 @@ export default class NotificationsService {
 
   getCSWirePaymentSuccessNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    expectVariables(variables, ['packTitle', 'paymentId', 'amount'])
+    expectVariables(
+      variables,
+      ['packTitle', 'paymentId', 'amount'],
+      this.logger
+    )
     const fields = {
       ...variables,
       userEmail: userAccount?.email,
-      ctaUrl: `${Configuration.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
+      ctaUrl: `${this.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
     }
     return {
-      to: Configuration.customerServiceEmail,
+      to: this.customerServiceEmail,
       subject: t('csWirePaymentSuccess.subject', fields),
       html: t('csWirePaymentSuccess.body', fields),
     }
@@ -337,14 +361,18 @@ export default class NotificationsService {
 
   getCSAwaitingWirePaymentNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    expectVariables(variables, ['packTitle', 'paymentId', 'amount'])
+    expectVariables(
+      variables,
+      ['packTitle', 'paymentId', 'amount'],
+      this.logger
+    )
     const fields = {
       ...variables,
       userEmail: userAccount?.email,
-      ctaUrl: `${Configuration.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
+      ctaUrl: `${this.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
     }
     return {
-      to: Configuration.customerServiceEmail,
+      to: this.customerServiceEmail,
       subject: t('csAwaitingWirePayment.subject', fields),
       html: t('csAwaitingWirePayment.body', fields),
     }

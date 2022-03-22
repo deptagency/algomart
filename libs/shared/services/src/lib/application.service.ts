@@ -1,12 +1,17 @@
+import pino from 'pino'
 import { Countries, DEFAULT_LOCALE } from '@algomart/schemas'
 import { DirectusAdapter } from '@algomart/shared/adapters'
 import { invariant } from '@algomart/shared/utils'
-import { logger } from '@api/configuration/logger'
 
-export default class ApplicationService {
-  logger = logger.child({ context: this.constructor.name })
+export class ApplicationService {
+  logger: pino.Logger<unknown>
 
-  constructor(private readonly cms: DirectusAdapter) {}
+  constructor(
+    private readonly cms: DirectusAdapter,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
+  }
 
   async getCountries(locale = DEFAULT_LOCALE): Promise<Countries> {
     // Find application details and compile IDs of supported countries

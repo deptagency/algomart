@@ -1,20 +1,28 @@
+import pino from 'pino'
 import { CreateAuctionBody } from '@algomart/schemas'
 import { AlgorandAdapter } from '@algomart/shared/adapters'
 import { CollectibleModel, UserAccountModel } from '@algomart/shared/models'
 import { decrypt, userInvariant } from '@algomart/shared/utils'
-import { Configuration } from '@api/configuration'
-import { logger } from '@api/configuration/logger'
 import algosdk from 'algosdk'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { Transaction } from 'objection'
 
-export default class AuctionsService {
-  logger = logger.child({ context: this.constructor.name })
+export class AuctionsService {
+  logger: pino.Logger<unknown>
 
-  constructor(private readonly algorand: AlgorandAdapter) {}
+  constructor(
+    private readonly algorand: AlgorandAdapter,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
+  }
 
-  async createAuction(request: CreateAuctionBody, trx?: Transaction) {
+  async createAuction(
+    request: CreateAuctionBody,
+    appSecret: string,
+    trx?: Transaction
+  ) {
     const user = await UserAccountModel.query(trx)
       .where({
         externalId: request.externalId,
@@ -25,7 +33,7 @@ export default class AuctionsService {
     const mnemonic = decrypt(
       user.algorandAccount?.encryptedKey,
       request.passphrase,
-      Configuration.secret // TODO: receive via argument
+      appSecret
     )
     userInvariant(mnemonic, 'Invalid passphrase', 400)
 
