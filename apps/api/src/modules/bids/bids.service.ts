@@ -5,13 +5,15 @@ import {
   EventEntityType,
   NotificationType,
 } from '@algomart/schemas'
+import {
+  BidModel,
+  EventModel,
+  PackModel,
+  UserAccountModel,
+} from '@algomart/shared/models'
 import { isGreaterThan, userInvariant } from '@algomart/shared/utils'
 import { Configuration } from '@api/configuration'
 import { logger } from '@api/configuration/logger'
-import { BidModel } from '@api/models/bid.model'
-import { EventModel } from '@api/models/event.model'
-import { PackModel } from '@api/models/pack.model'
-import { UserAccountModel } from '@api/models/user-account.model'
 import NotificationsService from '@api/modules/notifications/notifications.service'
 import PacksService from '@api/modules/packs/packs.service'
 import { Transaction } from 'objection'
@@ -89,7 +91,7 @@ export default class BidsService {
     if (previousHighBidder && !biddersAreTheSame) {
       const packWithBase = await this.packService.getPackById(
         bid.packId,
-        previousHighBidder.locale,
+        previousHighBidder.language,
         trx
       )
 
@@ -112,7 +114,7 @@ export default class BidsService {
     if (!biddersAreTheSame) {
       const packWithBase = await this.packService.getPackById(
         bid.packId,
-        newHighBidder.locale,
+        newHighBidder.language,
         trx
       )
       if (packWithBase) {

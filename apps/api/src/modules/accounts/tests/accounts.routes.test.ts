@@ -54,7 +54,7 @@ test('POST /accounts OK', async () => {
       username,
       externalId: userAccount.externalId,
       email: userAccount.email,
-      locale: userAccount.locale,
+      language: userAccount.language,
       passphrase,
     },
   })
@@ -69,7 +69,7 @@ test('POST /accounts OK', async () => {
     externalId: userAccount.externalId,
     showProfile: false,
     email: userAccount.email,
-    locale: userAccount.locale,
+    language: userAccount.language,
   })
 })
 
@@ -117,7 +117,7 @@ test('GET /accounts/:externalId OK', async () => {
     externalId: userAccount.externalId,
     showProfile: false,
     email: userAccount.email,
-    locale: userAccount.locale,
+    language: userAccount.language,
     status: AlgorandTransactionStatus.Confirmed,
   })
 })

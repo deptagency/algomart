@@ -8,7 +8,7 @@ import {
   CollectibleShowcaseQuerystring,
   CollectibleSortField,
   CollectibleWithDetails,
-  DEFAULT_LOCALE,
+  DEFAULT_LANG,
   EventAction,
   EventEntityType,
   InitializeTransferCollectible,
@@ -19,79 +19,48 @@ import {
   TransferCollectibleResult,
 } from '@algomart/schemas'
 import {
+  AlgorandAccountModel,
+  AlgorandTransactionGroupModel,
+  AlgorandTransactionModel,
+  CollectibleModel,
+  CollectibleOwnershipModel,
+  CollectibleShowcaseModel,
+  EventModel,
+  UserAccountModel,
+} from '@algomart/shared/models'
+import {
   addDays,
   invariant,
   isBeforeNow,
   isDefinedArray,
   userInvariant,
 } from '@algomart/shared/utils'
-import { Configuration } from '@api/configuration'
-import { logger } from '@api/configuration/logger'
 import AlgoExplorerAdapter from '@api/lib/algoexplorer-adapter'
 import AlgorandAdapter, {
   DEFAULT_INITIAL_BALANCE,
 } from '@api/lib/algorand-adapter'
-import DirectusAdapter, { ItemFilter } from '@api/lib/directus-adapter'
+import CMSCacheAdapter from '@api/lib/cms-cache-adapter'
 import NFTStorageAdapter from '@api/lib/nft-storage-adapter'
-import { AlgorandAccountModel } from '@api/models/algorand-account.model'
-import { AlgorandTransactionModel } from '@api/models/algorand-transaction.model'
-import { AlgorandTransactionGroupModel } from '@api/models/algorand-transaction-group.model'
-import { CollectibleModel } from '@api/models/collectible.model'
-import { CollectibleOwnershipModel } from '@api/models/collectible-ownership.model'
-import { CollectibleShowcaseModel } from '@api/models/collectible-showcase.model'
-import { EventModel } from '@api/models/event.model'
-import { UserAccountModel } from '@api/models/user-account.model'
 import { Transaction } from 'objection'
+import pino from 'pino'
 
 const MAX_SHOWCASES = 8
 
 export default class CollectiblesService {
-  logger = logger.child({ context: this.constructor.name })
+  logger: pino.Logger<unknown>
 
   constructor(
     private readonly cms: CMSCacheAdapter,
     private readonly algorand: AlgorandAdapter,
     private readonly storage: NFTStorageAdapter,
-    private readonly algoExplorer: AlgoExplorerAdapter
-  ) {}
-
-  async generateCollectibles(limit = 5, trx?: Transaction) {
-    const existingTemplates = await CollectibleModel.query(trx)
-      .groupBy('templateId')
-      .select('templateId')
-    const filter: ItemFilter = {}
-    if (existingTemplates.length > 0) {
-      filter.id = {
-        _nin: existingTemplates.map((c) => c.templateId),
-      }
-    }
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      undefined,
-      filter,
-      limit
-    )
-    if (templates.length === 0) {
-      return 0
-    }
-
-    const collectibles = await CollectibleModel.query(trx).insert(
-      templates.flatMap((t) =>
-        Array.from({ length: t.totalEditions }, (_, index) => ({
-          edition: index + 1,
-          templateId: t.templateId,
-        }))
-      )
-    )
-
-    await EventModel.query(trx).insert(
-      collectibles.flatMap((c) => ({
-        action: EventAction.Create,
-        entityType: EventEntityType.Collectible,
-        entityId: c.id,
-      }))
-    )
-
-    return collectibles.length
+    private readonly algoExplorer: AlgoExplorerAdapter,
+    private readonly minimumDaysBeforeTransfer: number,
+    private readonly creatorPassphrase: string,
+    private readonly cmsPublicUrl: string,
+    private readonly cmsUrl: string,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
   }
 
   getTransferrableAt(collectible: CollectibleModel): Date {
@@ -112,7 +81,7 @@ export default class CollectiblesService {
     const transferrableAt = wasPaidWithCard
       ? addDays(
           new Date(collectible.creationTransaction.createdAt),
-          Configuration.minimumDaysBeforeTransfer
+          this.minimumDaysBeforeTransfer
         )
       : new Date(collectible.creationTransaction.createdAt)
 
@@ -130,14 +99,9 @@ export default class CollectiblesService {
 
     const transferrableAt = this.getTransferrableAt(collectible)
 
-    const {
-      collectibles: [template],
-    } = await this.cms.findAllCollectibles(
-      query.locale,
-      {
-        id: { _eq: collectible.templateId },
-      },
-      1
+    const template = await this.cms.findCollectibleByTemplateId(
+      collectible.templateId,
+      query.language
     )
 
     invariant(template, `NFT Template ${collectible.templateId} not found`)
@@ -151,7 +115,7 @@ export default class CollectiblesService {
       .where('a.address', '=', currentOwner?.address || '-')
       .first()
 
-    const { collections } = await this.cms.findAllCollections(query.locale)
+    const { collections } = await this.cms.findAllCollections(query.language)
     const collection = collections.find(
       (c) =>
         c.id === template.collectionId ||
@@ -181,7 +145,7 @@ export default class CollectiblesService {
     }
   }
 
-  async storeCollectibles(limit = 10, trx: Transaction) {
+  async storeCollectibles(limit = 10, trx?: Transaction) {
     // Get unstored collectibles by their templateIds
     const collectibles = await CollectibleModel.query(trx)
       .whereNull('ipfsStatus')
@@ -190,25 +154,17 @@ export default class CollectiblesService {
       .limit(limit)
       .select('templateId')
 
-    if (collectibles.length === 0) {
+    const templateIds = collectibles.map((c) => c.templateId)
+    if (templateIds.length === 0) {
       return 0
     }
 
-    // Group collectibles into a map, keyed by their template ID
-    const collectiblesLookupByTemplate = new Map<string, CollectibleModel[]>(
-      collectibles.map((c) => [
-        c.templateId,
-        collectibles.filter(({ templateId }) => templateId === c.templateId),
-      ])
-    )
-
     // Get corresponding templates from CMS
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
+    const templates = await this.cms.findCollectiblesByTemplateIds(
+      templateIds,
       undefined,
-      { id: { _in: [...collectiblesLookupByTemplate.keys()] } },
-      limit
+      trx
     )
-
     if (templates.length === 0) {
       return 0
     }
@@ -224,7 +180,7 @@ export default class CollectiblesService {
   async getCollectiblesByAlgoAddress(
     algoAddress: string,
     {
-      locale = DEFAULT_LOCALE,
+      language = DEFAULT_LANG,
       page = 1,
       pageSize = 10,
       sortBy = CollectibleSortField.Title,
@@ -268,10 +224,8 @@ export default class CollectiblesService {
 
     // Get corresponding templates from CMS
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      locale,
-      { id: { _in: templateIds } }
-    )
+    const templates: CollectibleBase[] =
+      await this.cms.findCollectiblesByTemplateIds(templateIds, language)
 
     // Map and sort collectibles
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
@@ -310,7 +264,7 @@ export default class CollectiblesService {
 
   async storeCollectiblesByTemplate(
     template: CollectibleBase,
-    trx: Transaction
+    trx?: Transaction
   ) {
     // Set collectibles to be stored to a pending state
     await CollectibleModel.query()
@@ -326,6 +280,7 @@ export default class CollectiblesService {
         ? await this.storage.storeFile(animationField)
         : null
 
+      // Construct asset metadata
       const metadata = this.storage.mapToMetadata({
         ...(animationData && {
           animation_integrity: animationData.integrityHash,
@@ -391,14 +346,7 @@ export default class CollectiblesService {
 
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
 
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      undefined,
-      {
-        id: {
-          _in: templateIds,
-        },
-      }
-    )
+    const templates = await this.cms.findCollectiblesByTemplateIds(templateIds)
 
     invariant(templates.length > 0, 'templates not found')
 
@@ -409,6 +357,7 @@ export default class CollectiblesService {
       collectibles.length * 100_000 +
       // 1000 microAlgos per create transaction
       collectibles.length * 1000
+
     const creator = await this.algorand.getCreatorAccount(initialBalance)
 
     const transactions = await AlgorandTransactionModel.query(trx).insert([
@@ -537,6 +486,7 @@ export default class CollectiblesService {
 
     await this.algorand.submitTransaction(signedTransactions)
 
+    // TODO: Why is this coming back singular instead of as an array?
     const transactions = await AlgorandTransactionModel.query(trx).insert(
       transactionIds.map((id) => ({
         address: id,
@@ -654,7 +604,7 @@ export default class CollectiblesService {
   async getCollectibles({
     page = 1,
     pageSize = 10,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     sortBy = CollectibleSortField.Title,
     sortDirection = SortDirection.Ascending,
     ownerExternalId,
@@ -716,18 +666,10 @@ export default class CollectiblesService {
     })
 
     const foundTemplateIds = [...new Set(collectibles.map((c) => c.templateId))]
-
-    const cmsFilter: ItemFilter = {
-      id: {
-        _in: foundTemplateIds,
-      },
-    }
-
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      locale,
-      cmsFilter
+    const templates = await this.cms.findCollectiblesByTemplateIds(
+      foundTemplateIds,
+      language
     )
-
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
     const mappedCollectibles = collectibles
       .map((c) => {
@@ -767,54 +709,8 @@ export default class CollectiblesService {
     }
   }
 
-  async getCollectibleTemplates({
-    page = 1,
-    pageSize = 10,
-    locale = DEFAULT_LOCALE,
-    sortBy = CollectibleSortField.Title,
-    sortDirection = SortDirection.Ascending,
-    templateIds = [],
-    setId,
-    collectionId,
-  }: CollectibleListQuerystring): Promise<CollectibleBase[]> {
-    userInvariant(page > 0, 'page must be greater than 0')
-    userInvariant(
-      pageSize > 0 || pageSize === -1,
-      'pageSize must be greater than 0'
-    )
-    userInvariant(
-      [CollectibleSortField.ClaimedAt, CollectibleSortField.Title].includes(
-        sortBy
-      ),
-      'sortBy must be one of claimedAt or title'
-    )
-    userInvariant(
-      [SortDirection.Ascending, SortDirection.Descending].includes(
-        sortDirection
-      ),
-      'sortDirection must be one of asc or desc'
-    )
-
-    const filter: ItemFilter = {}
-    if (templateIds.length > 0) filter.id = { _in: templateIds }
-    if (setId) filter.set = { id: { _eq: setId } }
-    if (collectionId) filter.collection = { id: { _eq: collectionId } }
-
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      locale,
-      filter
-    )
-
-    const collectibles =
-      pageSize === -1
-        ? templates
-        : templates.slice((page - 1) * pageSize, page * pageSize)
-
-    return collectibles
-  }
-
   async getShowcaseCollectibles({
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     ownerUsername,
   }: CollectibleShowcaseQuerystring) {
     const user = await UserAccountModel.query()
@@ -844,12 +740,13 @@ export default class CollectiblesService {
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
 
     const { collectibles: templates } = await this.cms.findAllCollectibles(
-      locale,
+      language,
       {
         id: {
           _in: templateIds,
         },
-      }
+      },
+      templateIds.length
     )
 
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))

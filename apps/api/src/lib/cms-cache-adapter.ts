@@ -34,12 +34,6 @@ import {
   SortDirection,
 } from '@algomart/schemas'
 import {
-  invariant,
-  isAfterNow,
-  isNowBetweenDates,
-  isStringArray,
-} from '@algomart/shared/utils'
-import {
   CMSCacheApplicationModel,
   CMSCacheCollectibleTemplateModel,
   CMSCacheCollectionModel,
@@ -50,7 +44,13 @@ import {
   CMSCachePageModel,
   CMSCacheSetModel,
   CMSCacheTeamsModel,
-} from '@api/models'
+} from '@algomart/shared/models'
+import {
+  invariant,
+  isAfterNow,
+  isNowBetweenDates,
+  isStringArray,
+} from '@algomart/shared/utils'
 import { URL } from 'node:url'
 import Objection, { Transaction } from 'objection'
 import pino from 'pino'
@@ -616,7 +616,7 @@ export default class CMSCacheAdapter {
     templateIds,
     language = DEFAULT_LANG,
     trx?: Transaction
-  ) {
+  ): Promise<CollectibleBase[]> {
     const queryResult = await CMSCacheCollectibleTemplateModel.query(trx)
       .whereIn('id', templateIds)
       .select('content')

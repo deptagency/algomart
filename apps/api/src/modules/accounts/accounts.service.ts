@@ -6,12 +6,14 @@ import {
 } from '@algomart/schemas'
 import { UpdateUserAccount } from '@algomart/schemas'
 import { Username } from '@algomart/schemas'
+import {
+  AlgorandAccountModel,
+  AlgorandTransactionModel,
+  UserAccountModel,
+} from '@algomart/shared/models'
 import { invariant, userInvariant } from '@algomart/shared/utils'
 import { logger } from '@api/configuration/logger'
 import AlgorandAdapter from '@api/lib/algorand-adapter'
-import { AlgorandAccountModel } from '@api/models/algorand-account.model'
-import { AlgorandTransactionModel } from '@api/models/algorand-transaction.model'
-import { UserAccountModel } from '@api/models/user-account.model'
 import { Transaction } from 'objection'
 
 export default class AccountsService {
@@ -36,7 +38,7 @@ export default class AccountsService {
     await UserAccountModel.query(trx).insertGraph({
       username: request.username,
       email: request.email,
-      locale: request.locale,
+      language: request.language,
       externalId: request.externalId,
       algorandAccount: {
         address: result.address,
@@ -136,7 +138,7 @@ export default class AccountsService {
       externalId: userAccount.externalId,
       username: userAccount.username,
       email: userAccount.email,
-      locale: userAccount.locale,
+      language: userAccount.language,
       status: userAccount.algorandAccount.creationTransaction
         ? userAccount.algorandAccount.creationTransaction.status
         : undefined,

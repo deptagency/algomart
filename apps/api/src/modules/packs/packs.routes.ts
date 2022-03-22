@@ -24,13 +24,9 @@ export async function getPublishedPacks(
   }>,
   reply: FastifyReply
 ) {
-  console.log('IN HANDLER')
   const service = request.getContainer().get<PacksService>(PacksService.name)
-  console.log('IN HANDLER')
   const result = await service.getPublishedPacks(request.query)
-  console.log('IN HANDLER')
   reply.send(result)
-  console.log('IN HANDLER')
 }
 
 export async function getPacksByOwner(
@@ -58,7 +54,7 @@ export async function getPackWithCollectiblesById(
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.getPackWithCollectiblesById(
     request.params.packId,
-    request.query.locale
+    request.query.language
   )
   reply.send(result)
 }
@@ -83,7 +79,7 @@ export async function getRedeemablePack(
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.getPackByRedeemCode(
     request.params.redeemCode,
-    request.query.locale
+    request.query.language
   )
   reply.send({ pack: result })
 }
@@ -116,7 +112,7 @@ export async function claimRedeemPack(
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.claimRedeemPack(
     request.body,
-    request.query.locale,
+    request.query.language,
     request.transaction
   )
   if (!result) {

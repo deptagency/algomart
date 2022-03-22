@@ -10,6 +10,6 @@ export async function getHomepage(
   const service = request
     .getContainer()
     .get<HomepageService>(HomepageService.name)
-  const homepage = await service.getHomepage(request.query.locale)
+  const homepage = await service.getHomepage(request.query.language)
   reply.send(homepage)
 }

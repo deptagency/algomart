@@ -10,7 +10,7 @@ export async function getCountries(
   const countries = await request
     .getContainer()
     .get<ApplicationService>(ApplicationService.name)
-    .getCountries(request.query.locale)
+    .getCountries(request.query.language)
 
   reply.status(200).send(countries)
 }

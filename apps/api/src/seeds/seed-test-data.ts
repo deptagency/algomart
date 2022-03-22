@@ -3,7 +3,11 @@ import {
   AlgorandTransaction,
   AlgorandTransactionStatus,
   Collectible,
-  DEFAULT_LOCALE,
+  DEFAULT_LANG,
+  DirectusCollectibleTemplate,
+  DirectusPackTemplate,
+  DirectusRarity,
+  DirectusStatus,
   IPFSStatus,
   Pack,
   PackCollectibleDistribution,
@@ -12,12 +16,6 @@ import {
   UserAccount,
 } from '@algomart/schemas'
 import { encrypt } from '@algomart/shared/utils'
-import {
-  DirectusCollectibleTemplate,
-  DirectusPackTemplate,
-  DirectusRarity,
-  DirectusStatus,
-} from '@api/lib/directus-adapter'
 import { fakeAddressFor } from '@api-tests/setup-tests'
 import { Knex } from 'knex'
 import { Factory } from 'rosie'
@@ -64,13 +62,12 @@ export const userAccountFactory = Factory.define<UserAccount>('UserAccount')
     ['algorandAccount'],
     (algorandAccount) => algorandAccount.id
   )
-  .attr('locale', () => DEFAULT_LOCALE)
+  .attr('language', () => DEFAULT_LANG)
   .attr('createdAt', () => new Date().toISOString())
   .attr('updatedAt', () => new Date().toISOString())
   .attr('externalId', () => v4())
   .attr('username', () => 'test')
   .attr('email', ['username'], (username) => `${username}@test.local`)
-  .attr('locale', () => DEFAULT_LOCALE)
 
 export const rarityFactory = Factory.define<DirectusRarity>('DirectusRarity')
   .sequence('id', () => v4())
@@ -79,7 +76,7 @@ export const rarityFactory = Factory.define<DirectusRarity>('DirectusRarity')
   .attr('color', '#FF0000')
   .attr('translations', ['name'], (name) => [
     {
-      languages_code: DEFAULT_LOCALE,
+      languages_code: DEFAULT_LANG,
       name,
     },
   ])
@@ -101,7 +98,7 @@ export const collectibleTemplateFactory =
       ['title', 'subtitle', 'body'],
       (title, subtitle, body) => [
         {
-          languages_code: DEFAULT_LOCALE,
+          languages_code: DEFAULT_LANG,
           title,
           subtitle,
           body,
@@ -136,7 +133,7 @@ export const packTemplateFactory = Factory.define<DirectusPackTemplate>(
     ['title', 'subtitle', 'body'],
     (title, subtitle, body) => [
       {
-        languages_code: DEFAULT_LOCALE,
+        languages_code: DEFAULT_LANG,
         title,
         subtitle,
         body,

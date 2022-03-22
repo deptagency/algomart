@@ -1,14 +1,14 @@
-import { Countries, DEFAULT_LOCALE } from '@algomart/schemas'
+import { Countries, DEFAULT_LANG } from '@algomart/schemas'
 import { invariant } from '@algomart/shared/utils'
 import { logger } from '@api/configuration/logger'
-import DirectusAdapter from '@api/lib/directus-adapter'
+import CMSCacheAdapter from '@api/lib/cms-cache-adapter'
 
 export default class ApplicationService {
   logger = logger.child({ context: this.constructor.name })
 
   constructor(private readonly cms: CMSCacheAdapter) {}
 
-  async getCountries(locale = DEFAULT_LOCALE): Promise<Countries> {
+  async getCountries(language = DEFAULT_LANG): Promise<Countries> {
     // Find application details and compile IDs of supported countries
     const application = await this.cms.findApplication()
     invariant(application?.countries?.length > 0, 'No countries found')
@@ -17,12 +17,10 @@ export default class ApplicationService {
     )
 
     // Search for countries
-    const countries = await this.cms.findPublishedCountries(
-      {
-        code: { _in: countryCodes },
-      },
-      locale
+    // TODO: Make CMS cache adapter function
+    const countries = await this.cms.findAllCountries(language)
+    return countries.filter((country) =>
+      countryCodes.find(({ code }) => code === country.code)
     )
-    return countries
   }
 }

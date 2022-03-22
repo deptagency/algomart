@@ -1,46 +1,42 @@
 import {
   CollectibleBase,
-  DEFAULT_LOCALE,
+  DEFAULT_LANG,
   Homepage,
   PublishedPack,
 } from '@algomart/schemas'
 import { userInvariant } from '@algomart/shared/utils'
-import DirectusAdapter from '@api/lib/directus-adapter'
-
-import CollectiblesService from '../collectibles/collectibles.service'
-import PacksService from '../packs/packs.service'
+import CMSCacheAdapter from '@api/lib/cms-cache-adapter'
+import PacksService from '@api/modules/packs/packs.service'
 
 export default class HomepageService {
   constructor(
     private readonly cms: CMSCacheAdapter,
-    private readonly packsService: PacksService,
-    private readonly collectiblesService: CollectiblesService
+    private readonly packsService: PacksService
   ) {}
 
-  async getHomepage(locale = DEFAULT_LOCALE): Promise<Homepage> {
-    const homepageBase = await this.cms.findHomepage()
+  async getHomepage(language = DEFAULT_LANG): Promise<Homepage> {
+    const homepageBase = await this.cms.findHomepage(language)
     userInvariant(homepageBase, 'homepage not found', 404)
 
-    const { packs } = await this.packsService.getPublishedPacks({
-      locale,
-      pageSize: 1 + homepageBase.upcomingPackTemplateIds.length,
-      templateIds: homepageBase.featuredPackTemplateId
-        ? [
-            ...homepageBase.upcomingPackTemplateIds,
-            homepageBase.featuredPackTemplateId,
-          ]
-        : homepageBase.upcomingPackTemplateIds,
-    })
+    const templates = homepageBase.featuredPackTemplateId
+      ? [
+          ...homepageBase.upcomingPackTemplateIds,
+          homepageBase.featuredPackTemplateId,
+        ]
+      : homepageBase.upcomingPackTemplateIds
 
-    const collectibles = await this.collectiblesService.getCollectibleTemplates(
-      {
-        locale,
-        pageSize: 1 + homepageBase.notableCollectibleTemplateIds.length,
-        templateIds: homepageBase.notableCollectibleTemplateIds,
-      }
+    const packs = await this.packsService.getPublishedPacksByTemplates(
+      templates
     )
 
-    const packLookup = new Map(packs.map((pack) => [pack.templateId, pack]))
+    const collectibles = await this.cms.findCollectiblesByTemplateIds(
+      homepageBase.notableCollectibleTemplateIds,
+      language
+    )
+
+    const packLookup = new Map<string, PublishedPack>(
+      packs.map((pack) => [pack.templateId, pack as PublishedPack])
+    )
     const collectibleLookup = new Map(
       collectibles.map((collectible) => [collectible.templateId, collectible])
     )

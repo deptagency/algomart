@@ -15,7 +15,7 @@ handler.post(async (request: NextApiRequestApp, response: NextApiResponse) => {
 
   const { pack } = await ApiClient.instance.redeemablePack({
     redeemCode,
-    locale: request.query.locale as string,
+    locale: request.query.language as string,
   })
 
   return response.json({

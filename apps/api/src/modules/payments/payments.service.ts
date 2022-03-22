@@ -8,7 +8,7 @@ import {
   CreatePayment,
   CreateTransferPayment,
   DEFAULT_CURRENCY,
-  DEFAULT_LOCALE,
+  DEFAULT_LANG,
   EventAction,
   EventEntityType,
   NotificationType,
@@ -30,6 +30,15 @@ import {
   WirePayment,
 } from '@algomart/schemas'
 import {
+  BidModel,
+  EventModel,
+  PackModel,
+  PaymentBankAccountModel,
+  PaymentCardModel,
+  PaymentModel,
+  UserAccountModel,
+} from '@algomart/shared/models'
+import {
   convertFromUSD,
   convertToUSD,
   formatFloatToInt,
@@ -43,13 +52,6 @@ import { Configuration } from '@api/configuration'
 import { logger } from '@api/configuration/logger'
 import CircleAdapter from '@api/lib/circle-adapter'
 import CoinbaseAdapter from '@api/lib/coinbase-adapter'
-import { BidModel } from '@api/models/bid.model'
-import { EventModel } from '@api/models/event.model'
-import { PackModel } from '@api/models/pack.model'
-import { PaymentModel } from '@api/models/payment.model'
-import { PaymentBankAccountModel } from '@api/models/payment-bank-account.model'
-import { PaymentCardModel } from '@api/models/payment-card.model'
-import { UserAccountModel } from '@api/models/user-account.model'
 import NotificationService from '@api/modules/notifications/notifications.service'
 import PacksService from '@api/modules/packs/packs.service'
 import { enc, SHA256 } from 'crypto-js'
@@ -76,7 +78,7 @@ export default class PaymentsService {
   }
 
   async getPayments({
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     page = 1,
     pageSize = 10,
     packId,
@@ -123,9 +125,10 @@ export default class PaymentsService {
     // Add pack ID to packs array if available
     if (packId) {
       const packDetails = await this.packs.getPackById(packId)
-      const { packs: packTemplates } = await this.packs.getPublishedPacks({
-        templateIds: [packDetails.templateId],
-      })
+      const packTemplates = await this.packs.getPublishedPacksByTemplateIds(
+        [packDetails.templateId],
+        language
+      )
       const packTemplate = packTemplates.find(
         (t) => t.templateId === packDetails.templateId
       )
@@ -139,29 +142,23 @@ export default class PaymentsService {
     }
 
     // Find packs and add pack IDs to array if available
-    const packQuery: { locale?: string; slug?: string } = {}
-    if (locale) packQuery.locale = locale
-    if (packSlug) packQuery.slug = packSlug
-    if (Object.keys(packQuery).length > 0) {
-      const { packs: packTemplates } = await this.packs.getPublishedPacks(
-        packQuery
-      )
-      const templateIds = packTemplates.map((p) => p.templateId)
-      const templateLookup = new Map(
-        packTemplates.map((p) => [p.templateId, p])
-      )
-      const packList = await PackModel.query()
-        .whereIn('templateId', templateIds)
-        .withGraphFetched('activeBid')
-      packList.map((p) => {
-        packIds.push(p.id)
-        packLookup.set(p.id, {
-          template: templateLookup.get(p.templateId),
-          ...p,
-          activeBid: p?.activeBid?.amount,
-        })
+    const packTemplate = await this.packs.getPublishedPackBySlug(
+      packSlug,
+      language
+    )
+    const templateLookup = new Map([[packTemplate.templateId, packTemplate]])
+    const packList = await PackModel.query()
+      .where('templateId', packTemplate.templateId)
+      .withGraphFetched('activeBid')
+
+    packList.map((p) => {
+      packIds.push(p.id)
+      packLookup.set(p.id, {
+        template: templateLookup.get(p.templateId),
+        ...p,
+        activeBid: p?.activeBid?.amount,
       })
-    }
+    })
 
     // Find payments in the database
     const query = PaymentModel.query()
@@ -963,9 +960,9 @@ export default class PaymentsService {
     if (isAdmin) {
       const pack = payment.pack
       invariant(pack?.templateId, 'pack template not found')
-      const { packs: packTemplates } = await this.packs.getPublishedPacks({
-        templateIds: [pack.templateId],
-      })
+      const packTemplates = await this.packs.getPublishedPacksByTemplateIds([
+        pack.templateId,
+      ])
       const packTemplate = packTemplates[0]
       return {
         ...payment,

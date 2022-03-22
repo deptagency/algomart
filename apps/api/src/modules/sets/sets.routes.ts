@@ -8,7 +8,7 @@ export async function getSet(
   reply: FastifyReply
 ) {
   const setsService = request.getContainer().get<SetsService>(SetsService.name)
-  // TODO: get locale from request
+  // TODO: get language from request
   const set = await setsService.getBySlug(request.params.slug)
 
   if (set) reply.send(set)

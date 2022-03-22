@@ -1,13 +1,13 @@
-import { DEFAULT_LOCALE } from '@algomart/schemas'
+import { DEFAULT_LANG } from '@algomart/schemas'
 import { logger } from '@api/configuration/logger'
-import DirectusAdapter from '@api/lib/directus-adapter'
+import CMSCacheAdapter from '@api/lib/cms-cache-adapter'
 
 export default class SetsService {
   logger = logger.child({ context: this.constructor.name })
 
   constructor(private readonly cms: CMSCacheAdapter) {}
 
-  async getBySlug(slug: string, locale = DEFAULT_LOCALE) {
-    return await this.cms.findSetBySlug(slug, locale)
+  async getBySlug(slug: string, language = DEFAULT_LANG) {
+    return await this.cms.findSetBySlug(slug, language)
   }
 }
