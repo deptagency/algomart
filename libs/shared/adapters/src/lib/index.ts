@@ -1,6 +1,7 @@
 export * from './algoexplorer-adapter'
 export * from './algorand-adapter'
 export * from './circle-adapter'
+export * from './cms-cache-adapter'
 export * from './coinbase-adapter'
 export * from './directus-adapter'
 export * from './i18n-adapter'

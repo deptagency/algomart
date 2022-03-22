@@ -12,6 +12,7 @@ import {
   SortDirection,
 } from './shared'
 import { AlgorandTransactionStatus } from './transactions'
+import { CollectibleSchema } from '.'
 
 export enum PackType {
   Auction = 'auction',
@@ -97,9 +98,12 @@ export const PackBaseSchema = Type.Object({
   allowBidExpiration: Type.Boolean(),
   auctionUntil: Type.Optional(Type.String({ format: 'date-time' })),
   body: Type.Optional(Type.String()),
+  collectibleTemplates: Type.Array(CollectibleSchema),
   collectibleTemplateIds: Type.Array(IdSchema),
   config: PackConfigSchema,
   image: Type.String({ format: 'uri' }),
+  nftCategory: Type.Optional(Type.String()),
+  nftsPerPack: Type.Integer(),
   onePackPerCustomer: Type.Boolean(),
   price: Type.Number(),
   releasedAt: Type.Optional(Type.String({ format: 'date-time' })),
