@@ -1,3 +1,4 @@
+import pino from 'pino'
 import {
   CollectibleBase,
   CollectionBase,
@@ -20,7 +21,6 @@ import {
   isStringArray,
 } from '@algomart/shared/utils'
 import { invariant } from '@algomart/shared/utils'
-import { logger } from '@api/configuration/logger'
 import { URL } from 'node:url'
 
 // #region CMS Types
@@ -575,11 +575,15 @@ export interface DirectusAdapterOptions {
   accessToken: string
 }
 
-export default class DirectusAdapter {
-  logger = logger.child({ context: this.constructor.name })
+export class DirectusAdapter {
   http: HttpTransport
+  logger: pino.Logger<unknown>
 
-  constructor(private readonly options: DirectusAdapterOptions) {
+  constructor(
+    private readonly options: DirectusAdapterOptions,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
     this.http = new HttpTransport(options.url, undefined, {
       Authorization: `Bearer ${options.accessToken}`,
     })

@@ -1,6 +1,6 @@
+import pino from 'pino'
 import { Email } from '@algomart/schemas'
 import { invariant } from '@algomart/shared/utils'
-import { logger } from '@api/configuration/logger'
 import SendGridMail from '@sendgrid/mail'
 import NodeMailer from 'nodemailer'
 
@@ -21,11 +21,15 @@ export type MailerAdapterOptions =
       smtpPassword: string
     }
 
-export default class MailerAdapter {
-  logger = logger.child({ context: this.constructor.name })
+export class MailerAdapter {
+  logger: pino.Logger<unknown>
   transport: NodeMailer.Transporter | undefined
 
-  constructor(private readonly options: MailerAdapterOptions) {
+  constructor(
+    private readonly options: MailerAdapterOptions,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
     this.configureTransport()
   }
 

@@ -19,6 +19,14 @@ import {
   TransferCollectibleResult,
 } from '@algomart/schemas'
 import {
+  AlgoExplorerAdapter,
+  AlgorandAdapter,
+  DEFAULT_INITIAL_BALANCE,
+  DirectusAdapter,
+  ItemFilter,
+  NFTStorageAdapter,
+} from '@algomart/shared/adapters'
+import {
   AlgorandAccountModel,
   AlgorandTransactionGroupModel,
   AlgorandTransactionModel,
@@ -37,12 +45,6 @@ import {
 } from '@algomart/shared/utils'
 import { Configuration } from '@api/configuration'
 import { logger } from '@api/configuration/logger'
-import AlgoExplorerAdapter from '@api/lib/algoexplorer-adapter'
-import AlgorandAdapter, {
-  DEFAULT_INITIAL_BALANCE,
-} from '@api/lib/algorand-adapter'
-import DirectusAdapter, { ItemFilter } from '@api/lib/directus-adapter'
-import NFTStorageAdapter from '@api/lib/nft-storage-adapter'
 import { Transaction } from 'objection'
 
 const MAX_SHOWCASES = 8
@@ -411,7 +413,10 @@ export default class CollectiblesService {
       collectibles.length * 100_000 +
       // 1000 microAlgos per create transaction
       collectibles.length * 1000
-    const creator = await this.algorand.getCreatorAccount(initialBalance)
+    const creator = await this.algorand.getCreatorAccount(
+      initialBalance,
+      Configuration.creatorPassphrase
+    )
 
     const transactions = await AlgorandTransactionModel.query(trx).insert([
       {
@@ -446,7 +451,8 @@ export default class CollectiblesService {
       await this.algorand.generateCreateAssetTransactions(
         collectibles,
         templates,
-        creator
+        creator,
+        Configuration.creatorPassphrase
       )
 
     this.logger.info('Using creator account %s', creator?.address || '-')
@@ -456,7 +462,10 @@ export default class CollectiblesService {
     } catch (error) {
       if (creator) {
         this.logger.info('Closing creator account %s', creator.address)
-        await this.algorand.closeCreatorAccount(creator)
+        await this.algorand.closeCreatorAccount(
+          creator,
+          Configuration.creatorPassphrase
+        )
       }
       throw error
     }

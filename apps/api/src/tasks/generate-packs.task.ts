@@ -1,6 +1,6 @@
 import { logger } from '@api/configuration/logger'
 import PacksService from '@api/modules/packs/packs.service'
-import DependencyResolver from '@api/shared/dependency-resolver'
+import DependencyResolver from '@api/shared/configure-resolver'
 import { Model } from 'objection'
 
 export default async function generatePacksTask(registry: DependencyResolver) {

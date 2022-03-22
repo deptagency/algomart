@@ -1,5 +1,5 @@
 import { AlgorandTransactionStatus } from '@algomart/schemas'
-import AlgorandAdapter from '@api/lib/algorand-adapter'
+import { AlgorandAdapter } from '@algomart/shared/adapters'
 import {
   algorandAccountFactory,
   algorandTransactionFactory,

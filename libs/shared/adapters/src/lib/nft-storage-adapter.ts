@@ -1,7 +1,6 @@
+import pino from 'pino'
 import { HttpTransport } from '@algomart/shared/utils'
 import { invariant } from '@algomart/shared/utils'
-import { Configuration } from '@api/configuration'
-import { logger } from '@api/configuration/logger'
 import pinataSDK, { PinataClient } from '@pinata/sdk'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
@@ -47,12 +46,19 @@ export interface StoreMetadataInput extends StoreMediaOutput {
 export interface NFTStorageAdapterOptions {
   pinataApiKey: string
   pinataApiSecret: string
+  webUrl: string
+  cmsUrl: string
+  cmsPublicUrl: string
 }
-export default class NFTStorageAdapter {
+export class NFTStorageAdapter {
   client: PinataClient
-  logger = logger.child({ context: this.constructor.name })
+  logger: pino.Logger<unknown>
 
-  constructor(private readonly options: NFTStorageAdapterOptions) {
+  constructor(
+    private readonly options: NFTStorageAdapterOptions,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
     this.client = pinataSDK(options.pinataApiKey, options.pinataApiSecret)
 
     this.testConnection()
@@ -88,7 +94,7 @@ export default class NFTStorageAdapter {
     return {
       name: `${name} (${totalEditions} editions)`,
       decimals: 0,
-      external_url: Configuration.webUrl,
+      external_url: this.options.webUrl,
       external_url_mimetype: 'text/html',
       ...(description && { description }),
       ...rest,
@@ -99,8 +105,8 @@ export default class NFTStorageAdapter {
     const fileName = path.basename(new URL(url).pathname)
     try {
       // If CMS_PUBLIC_URL is set, we need to replace it with the internal URL
-      const internalURL = url.includes(Configuration.cmsPublicUrl)
-        ? url.replace(Configuration.cmsPublicUrl, Configuration.cmsUrl)
+      const internalURL = url.includes(this.options.cmsPublicUrl)
+        ? url.replace(this.options.cmsPublicUrl, this.options.cmsUrl)
         : url
       const pipeline = promisify(stream.pipeline)
       const http = new HttpTransport()
