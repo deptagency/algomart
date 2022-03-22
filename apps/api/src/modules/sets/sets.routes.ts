@@ -1,7 +1,6 @@
 import { Slug } from '@algomart/schemas'
+import { SetsService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import SetsService from './sets.service'
 
 export async function getSet(
   request: FastifyRequest<{ Params: Slug }>,

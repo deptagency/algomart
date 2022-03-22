@@ -1,3 +1,9 @@
+import {
+  fastifyContainerPlugin,
+  fastifyKnexPlugin,
+  fastifyTransactionPlugin,
+} from '@algomart/shared/plugins'
+import { DependencyResolver } from '@algomart/shared/utils'
 import swaggerOptions from '@api/configuration/swagger'
 import { accountsRoutes } from '@api/modules/accounts'
 import { applicationRoutes } from '@api/modules/application'
@@ -9,10 +15,6 @@ import { homepageRoutes } from '@api/modules/homepage'
 import { packsRoutes } from '@api/modules/packs'
 import { paymentRoutes } from '@api/modules/payments'
 import { setsRoutes } from '@api/modules/sets'
-import fastifyContainer from '@api/plugins/container.plugin'
-import fastifyKnex from '@api/plugins/knex.plugin'
-import fastifyTransaction from '@api/plugins/transaction.plugin'
-import DependencyResolver from '@api/shared/dependency-resolver'
 import fastifyTraps from '@dnlup/fastify-traps'
 import ajvCompiler from '@fastify/ajv-compiler'
 import ajvFormats from 'ajv-formats'
@@ -72,9 +74,9 @@ export default async function buildApp(config: AppConfig) {
   await app.register(fastifySensible)
 
   // Our Plugins
-  await app.register(fastifyKnex, { knex: config.knex })
-  await app.register(fastifyContainer, { container: config.container })
-  await app.register(fastifyTransaction)
+  await app.register(fastifyKnexPlugin, { knex: config.knex })
+  await app.register(fastifyContainerPlugin, { container: config.container })
+  await app.register(fastifyTransactionPlugin)
 
   // Decorators
   // no decorators yet

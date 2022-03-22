@@ -14,9 +14,8 @@ import {
   RevokePack,
   TransferPack,
 } from '@algomart/schemas'
+import { PacksService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import PacksService from './packs.service'
 
 export async function getPublishedPacks(
   request: FastifyRequest<{

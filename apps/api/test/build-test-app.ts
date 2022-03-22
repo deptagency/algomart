@@ -1,9 +1,11 @@
+import {
+  AlgorandAdapter,
+  CircleAdapter,
+  DirectusAdapter,
+  NFTStorageAdapter,
+} from '@algomart/shared/adapters'
 import buildApp from '@api/api/build-app'
-import AlgorandAdapter from '@api/lib/algorand-adapter'
-import CircleAdapter from '@api/lib/circle-adapter'
-import DirectusAdapter from '@api/lib/directus-adapter'
-import NFTStorageAdapter from '@api/lib/nft-storage-adapter'
-import { configureResolver } from '@api/shared/dependency-resolver'
+import { configureResolver } from '@api/configuration/configure-resolver'
 
 import { getTestDatabaseConfig } from './setup-tests'
 

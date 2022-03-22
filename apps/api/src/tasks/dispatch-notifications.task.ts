@@ -1,6 +1,6 @@
+import DependencyResolver from '@api/configuration/configure-resolver'
 import { logger } from '@api/configuration/logger'
 import NotificationsService from '@api/modules/notifications/notifications.service'
-import DependencyResolver from '@api/shared/dependency-resolver'
 import { Model } from 'objection'
 
 export default async function dispatchNotificationsTask(

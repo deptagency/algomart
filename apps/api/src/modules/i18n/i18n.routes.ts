@@ -1,7 +1,6 @@
 import { GetCurrencyConversion, Language } from '@algomart/schemas'
+import { I18nService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import I18nService from './i18n.service'
 
 export async function getLanguages(
   request: FastifyRequest<{ Querystring: Language }>,

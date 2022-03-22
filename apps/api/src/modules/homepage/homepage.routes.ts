@@ -1,7 +1,6 @@
 import { Language } from '@algomart/schemas'
+import { HomepageService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import HomepageService from './homepage.service'
 
 export async function getHomepage(
   request: FastifyRequest<{ Querystring: Language }>,

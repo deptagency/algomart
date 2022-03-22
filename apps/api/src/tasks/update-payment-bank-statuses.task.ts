@@ -1,6 +1,6 @@
+import DependencyResolver from '@api/configuration/configure-resolver'
 import { logger } from '@api/configuration/logger'
 import PaymentsService from '@api/modules/payments/payments.service'
-import DependencyResolver from '@api/shared/dependency-resolver'
 import { Model } from 'objection'
 
 export async function updatePaymentBankStatusesTask(
