@@ -1,3 +1,4 @@
+import pino from 'pino'
 import {
   AlgorandTransactionStatus,
   CollectibleBase,
@@ -41,21 +42,24 @@ import {
   isDefinedArray,
   userInvariant,
 } from '@algomart/shared/utils'
-import { Configuration } from '@api/configuration'
-import { logger } from '@api/configuration/logger'
 import { Transaction } from 'objection'
 
 const MAX_SHOWCASES = 8
 
-export default class CollectiblesService {
-  logger = logger.child({ context: this.constructor.name })
+export class CollectiblesService {
+  logger: pino.Logger<unknown>
 
   constructor(
     private readonly cms: DirectusAdapter,
     private readonly algorand: AlgorandAdapter,
     private readonly storage: NFTStorageAdapter,
-    private readonly algoExplorer: AlgoExplorerAdapter
-  ) {}
+    private readonly algoExplorer: AlgoExplorerAdapter,
+    private readonly minimumDaysBeforeTransfer: number,
+    private readonly creatorPassphrase: string,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
+  }
 
   async generateCollectibles(limit = 5, trx?: Transaction) {
     const existingTemplates = await CollectibleModel.query(trx)
@@ -114,7 +118,7 @@ export default class CollectiblesService {
     const transferrableAt = wasPaidWithCard
       ? addDays(
           new Date(collectible.creationTransaction.createdAt),
-          Configuration.minimumDaysBeforeTransfer
+          this.minimumDaysBeforeTransfer
         )
       : new Date(collectible.creationTransaction.createdAt)
 

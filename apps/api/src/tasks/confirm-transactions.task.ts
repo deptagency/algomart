@@ -1,6 +1,6 @@
+import { TransactionsService } from '@algomart/shared/services'
+import { DependencyResolver } from '@algomart/shared/utils'
 import { logger } from '@api/configuration/logger'
-import TransactionsService from '@api/modules/transactions/transactions.service'
-import DependencyResolver from '@api/shared/configure-resolver'
 import { Model } from 'objection'
 
 export default async function confirmTransactionsTask(

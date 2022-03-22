@@ -1,4 +1,5 @@
-// import { currency } from '@/utils/format-currency'
+import pino from 'pino'
+import * as Currencies from '@dinero.js/currencies'
 import {
   CreateBidRequest,
   EventAction,
@@ -12,19 +13,20 @@ import {
   UserAccountModel,
 } from '@algomart/shared/models'
 import { isGreaterThan, userInvariant } from '@algomart/shared/utils'
-import { Configuration } from '@api/configuration'
-import { logger } from '@api/configuration/logger'
-import NotificationsService from '@api/modules/notifications/notifications.service'
-import PacksService from '@api/modules/packs/packs.service'
+import { NotificationsService, PacksService } from './'
 import { Transaction } from 'objection'
 
-export default class BidsService {
-  logger = logger.child({ context: this.constructor.name })
+export class BidsService {
+  logger: pino.Logger<unknown>
 
   constructor(
     private readonly notifications: NotificationsService,
-    private readonly packService: PacksService
-  ) {}
+    private readonly packService: PacksService,
+    private currency: Currencies.Currency<number>,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
+  }
 
   async createBid(bid: CreateBidRequest, trx?: Transaction): Promise<boolean> {
     // Get and verify corresponding pack
@@ -37,11 +39,7 @@ export default class BidsService {
     // Check if the active bid amount is lower than the new bid
     if (pack.activeBid) {
       userInvariant(
-        isGreaterThan(
-          bid.amount,
-          pack.activeBid.amount,
-          Configuration.currency // TODO: receive via argument instead
-        ),
+        isGreaterThan(bid.amount, pack.activeBid.amount, this.currency),
         'bid is not higher than the previous bid'
       )
     }

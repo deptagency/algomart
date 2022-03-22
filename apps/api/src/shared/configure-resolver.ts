@@ -8,21 +8,23 @@ import {
   MailerAdapter,
   NFTStorageAdapter,
 } from '@algomart/shared/adapters'
+import {
+  AccountsService,
+  ApplicationService,
+  AuctionsService,
+  BidsService,
+  CollectiblesService,
+  CollectionsService,
+  HomepageService,
+  NotificationsService,
+  PacksService,
+  PaymentsService,
+  SetsService,
+  TransactionsService,
+} from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
 import { Configuration } from '@api/configuration'
 import { logger } from '@api/configuration/logger'
-import AccountsService from '@api/modules/accounts/accounts.service'
-import ApplicationService from '@api/modules/application/application.service'
-import AuctionsService from '@api/modules/auctions/auctions.service'
-import BidsService from '@api/modules/bids/bids.service'
-import CollectiblesService from '@api/modules/collectibles/collectibles.service'
-import CollectionsService from '@api/modules/collections/collections.service'
-import HomepageService from '@api/modules/homepage/homepage.service'
-import NotificationsService from '@api/modules/notifications/notifications.service'
-import PacksService from '@api/modules/packs/packs.service'
-import PaymentsService from '@api/modules/payments/payments.service'
-import SetsService from '@api/modules/sets/sets.service'
-import TransactionsService from '@api/modules/transactions/transactions.service'
 
 export function configureResolver() {
   const resolver = new DependencyResolver()
@@ -76,14 +78,17 @@ export function configureResolver() {
   )
   resolver.set(
     AccountsService.name,
-    (c) => new AccountsService(c.get<AlgorandAdapter>(AlgorandAdapter.name))
+    (c) =>
+      new AccountsService(c.get<AlgorandAdapter>(AlgorandAdapter.name), logger)
   )
   resolver.set(
     BidsService.name,
     (c) =>
       new BidsService(
         c.get<NotificationsService>(NotificationsService.name),
-        c.get<PacksService>(PacksService.name)
+        c.get<PacksService>(PacksService.name),
+        Configuration.currency,
+        logger
       )
   )
   resolver.set(
@@ -91,13 +96,20 @@ export function configureResolver() {
     (c) =>
       new NotificationsService(
         c.get<MailerAdapter>(MailerAdapter.name),
-        c.get<I18nAdapter>(I18nAdapter.name)
+        c.get<I18nAdapter>(I18nAdapter.name),
+        Configuration.webUrl,
+        Configuration.customerServiceEmail,
+        logger
       )
   )
   resolver.set(I18nAdapter.name, () => new I18nAdapter())
   resolver.set(
     TransactionsService.name,
-    (c) => new TransactionsService(c.get<AlgorandAdapter>(AlgorandAdapter.name))
+    (c) =>
+      new TransactionsService(
+        c.get<AlgorandAdapter>(AlgorandAdapter.name),
+        logger
+      )
   )
   resolver.set(
     PacksService.name,
@@ -106,7 +118,9 @@ export function configureResolver() {
         c.get<DirectusAdapter>(DirectusAdapter.name),
         c.get<CollectiblesService>(CollectiblesService.name),
         c.get<NotificationsService>(NotificationsService.name),
-        c.get<AccountsService>(AccountsService.name)
+        c.get<AccountsService>(AccountsService.name),
+        Configuration.currency,
+        logger
       )
   )
   resolver.set(
@@ -116,7 +130,10 @@ export function configureResolver() {
         c.get<DirectusAdapter>(DirectusAdapter.name),
         c.get<AlgorandAdapter>(AlgorandAdapter.name),
         c.get<NFTStorageAdapter>(NFTStorageAdapter.name),
-        c.get<AlgoExplorerAdapter>(AlgoExplorerAdapter.name)
+        c.get<AlgoExplorerAdapter>(AlgoExplorerAdapter.name),
+        Configuration.minimumDaysBeforeTransfer,
+        Configuration.creatorPassphrase,
+        logger
       )
   )
   resolver.set(
@@ -144,19 +161,31 @@ export function configureResolver() {
     PaymentsService.name,
     (c) =>
       new PaymentsService(
+        {
+          webUrl: Configuration.webUrl,
+          successPath: Configuration.successPath,
+          failurePath: Configuration.failurePath,
+          currency: Configuration.currency,
+          customerServiceEmail: Configuration.customerServiceEmail,
+        },
         c.get<CircleAdapter>(CircleAdapter.name),
         c.get<CoinbaseAdapter>(CoinbaseAdapter.name),
         c.get<NotificationsService>(NotificationsService.name),
-        c.get<PacksService>(PacksService.name)
+        c.get<PacksService>(PacksService.name),
+        logger
       )
   )
   resolver.set(
     SetsService.name,
-    (c) => new SetsService(c.get<DirectusAdapter>(DirectusAdapter.name))
+    (c) => new SetsService(c.get<DirectusAdapter>(DirectusAdapter.name), logger)
   )
   resolver.set(
     CollectionsService.name,
-    (c) => new CollectionsService(c.get<DirectusAdapter>(DirectusAdapter.name))
+    (c) =>
+      new CollectionsService(
+        c.get<DirectusAdapter>(DirectusAdapter.name),
+        logger
+      )
   )
   resolver.set(
     HomepageService.name,
@@ -169,11 +198,16 @@ export function configureResolver() {
   )
   resolver.set(
     AuctionsService.name,
-    (c) => new AuctionsService(c.get<AlgorandAdapter>(AlgorandAdapter.name))
+    (c) =>
+      new AuctionsService(c.get<AlgorandAdapter>(AlgorandAdapter.name), logger)
   )
   resolver.set(
     ApplicationService.name,
-    (c) => new ApplicationService(c.get<DirectusAdapter>(DirectusAdapter.name))
+    (c) =>
+      new ApplicationService(
+        c.get<DirectusAdapter>(DirectusAdapter.name),
+        logger
+      )
   )
   return resolver
 }
