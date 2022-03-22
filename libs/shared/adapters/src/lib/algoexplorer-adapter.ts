@@ -1,6 +1,5 @@
+import pino from 'pino'
 import { HttpTransport } from '@algomart/shared/utils'
-import { Configuration } from '@api/configuration'
-import { logger } from '@api/configuration/logger'
 
 /**
  * AlgoExplorer APIv2 Docs:
@@ -28,14 +27,13 @@ const AlgoExplorerIndexerURLs = {
   betanet: 'https://algoindexer.betanet.algoexplorerapi.io/v2',
 }
 
-export default class AlgoExplorerAdapter {
+export class AlgoExplorerAdapter {
   http: HttpTransport
-  logger = logger.child({ context: this.constructor.name })
+  logger: pino.Logger<unknown>
 
-  constructor() {
-    this.http = new HttpTransport(
-      AlgoExplorerIndexerURLs[Configuration.algodEnv]
-    )
+  constructor(private readonly algodEnv: string, logger: pino.Logger<unknown>) {
+    this.logger = logger.child({ context: this.constructor.name })
+    this.http = new HttpTransport(AlgoExplorerIndexerURLs[algodEnv])
   }
 
   async getAccount(address: string): Promise<AlgoExplorerAccount> {

@@ -1,3 +1,4 @@
+import pino from 'pino'
 import {
   CoinbaseExchangeRates,
   CoinbaseExchangeRatesOptions,
@@ -5,17 +6,20 @@ import {
   isCoinbaseSuccessResponse,
 } from '@algomart/schemas'
 import { HttpTransport } from '@algomart/shared/utils'
-import { logger } from '@api/configuration/logger'
 
 interface CoinbaseAdapterOptions {
   url: string
 }
 
-export default class CoinbaseAdapter {
-  logger = logger.child({ context: this.constructor.name })
+export class CoinbaseAdapter {
   http: HttpTransport
+  logger: pino.Logger<unknown>
 
-  constructor(readonly options: CoinbaseAdapterOptions) {
+  constructor(
+    readonly options: CoinbaseAdapterOptions,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
     this.http = new HttpTransport(options.url)
   }
 

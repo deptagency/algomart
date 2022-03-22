@@ -1,8 +1,7 @@
+import pino from 'pino'
 import { CollectibleBase, TransferCollectibleResult } from '@algomart/schemas'
 import { CollectibleModel } from '@algomart/shared/models'
 import { decrypt, encrypt, invariant } from '@algomart/shared/utils'
-import { Configuration } from '@api/configuration'
-import { logger } from '@api/configuration/logger'
 import algosdk from 'algosdk'
 
 // 100_000 microAlgos = 0.1 ALGO
@@ -20,6 +19,7 @@ export interface AlgorandAdapterOptions {
   algodServer: string
   algodPort: number
   fundingMnemonic: string
+  appSecret: string
 }
 
 export interface AccountInfo {
@@ -60,12 +60,16 @@ export interface AccountInfo {
   status: string
 }
 
-export default class AlgorandAdapter {
-  logger = logger.child({ context: this.constructor.name })
+export class AlgorandAdapter {
+  logger: pino.Logger<unknown>
   fundingAccount: algosdk.Account
   algod: algosdk.Algodv2
 
-  constructor(options: AlgorandAdapterOptions) {
+  constructor(
+    private options: AlgorandAdapterOptions,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
     this.algod = new algosdk.Algodv2(
       { 'X-Algo-API-Token': options.algodToken },
       options.algodServer,
@@ -93,7 +97,7 @@ export default class AlgorandAdapter {
     const encryptedMnemonic = encrypt(
       mnemonic,
       passphrase,
-      Configuration.secret // TODO: receive via argument
+      this.options.appSecret
     )
     return {
       address: account.addr,
@@ -112,7 +116,7 @@ export default class AlgorandAdapter {
     const encryptedMnemonic = encrypt(
       mnemonic,
       passphrase,
-      Configuration.secret // TODO: receive via argument
+      this.options.appSecret
     )
 
     const { signedTransactions, transactionIds } =
@@ -136,11 +140,7 @@ export default class AlgorandAdapter {
     initialBalance = DEFAULT_INITIAL_BALANCE
   ) {
     const account = algosdk.mnemonicToSecretKey(
-      decrypt(
-        encryptedMnemonic,
-        passphrase,
-        Configuration.secret // TODO: receive via argument
-      )
+      decrypt(encryptedMnemonic, passphrase, this.options.appSecret)
     )
 
     const fundingTransaction =
@@ -250,7 +250,7 @@ export default class AlgorandAdapter {
       const mnemonic = decrypt(
         encryptedMnemonic,
         passphrase,
-        Configuration.secret // TODO: receive via argument
+        this.options.appSecret
       )
       if (mnemonic) {
         algosdk.mnemonicToSecretKey(mnemonic)
@@ -264,13 +264,9 @@ export default class AlgorandAdapter {
     }
   }
 
-  async closeCreatorAccount(creator: PublicAccount) {
+  async closeCreatorAccount(creator: PublicAccount, passphrase: string) {
     const account = algosdk.mnemonicToSecretKey(
-      decrypt(
-        creator.encryptedMnemonic,
-        Configuration.creatorPassphrase,
-        Configuration.secret // TODO: receive via argument
-      )
+      decrypt(creator.encryptedMnemonic, passphrase, this.options.appSecret)
     )
     const suggestedParams = await this.algod.getTransactionParams().do()
     const transaction = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
@@ -335,7 +331,7 @@ export default class AlgorandAdapter {
     return total
   }
 
-  async getCreatorAccount(initialBalance: number) {
+  async getCreatorAccount(initialBalance: number, passphrase: string) {
     const fundingAccountInfo = await this.getAccountInfo(
       this.fundingAccount.addr
     )
@@ -347,10 +343,7 @@ export default class AlgorandAdapter {
       } microAlgos, need ${initialBalance + 100_000} microAlgos.`
     )
 
-    const creator = await this.createAccount(
-      Configuration.creatorPassphrase,
-      initialBalance
-    )
+    const creator = await this.createAccount(passphrase, initialBalance)
 
     await this.submitTransaction(creator.signedTransactions)
 
@@ -423,7 +416,7 @@ export default class AlgorandAdapter {
       decrypt(
         options.encryptedMnemonic,
         options.passphrase,
-        Configuration.secret // TODO: receive via argument
+        this.options.appSecret
       )
     )
 
@@ -658,7 +651,7 @@ export default class AlgorandAdapter {
       decrypt(
         options.encryptedMnemonic,
         options.passphrase,
-        Configuration.secret // TODO: receive via argument
+        this.options.appSecret
       )
     )
 

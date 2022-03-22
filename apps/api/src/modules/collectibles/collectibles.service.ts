@@ -18,18 +18,13 @@ import {
   TransferCollectible,
   TransferCollectibleResult,
 } from '@algomart/schemas'
-
 import {
-  AlgorandAccountModel,
-  AlgorandTransactionGroupModel,
-  AlgorandTransactionModel,
-  CollectibleModel,
-  CollectibleOwnershipModel,
-  CollectibleShowcaseModel,
-  EventModel,
-  UserAccountModel,
-} from '@algomart/shared/models'
-
+  AlgoExplorerAdapter,
+  AlgorandAdapter,
+  DirectusAdapter,
+  ItemFilter,
+  NFTStorageAdapter,
+} from '@algomart/shared/adapters'
 import {
   AlgorandTransactionGroupModel,
   AlgorandTransactionModel,
@@ -48,10 +43,6 @@ import {
 } from '@algomart/shared/utils'
 import { Configuration } from '@api/configuration'
 import { logger } from '@api/configuration/logger'
-import AlgoExplorerAdapter from '@api/lib/algoexplorer-adapter'
-import AlgorandAdapter from '@api/lib/algorand-adapter'
-import DirectusAdapter, { ItemFilter } from '@api/lib/directus-adapter'
-import NFTStorageAdapter from '@api/lib/nft-storage-adapter'
 import { Transaction } from 'objection'
 
 const MAX_SHOWCASES = 8
