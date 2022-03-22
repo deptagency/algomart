@@ -30,18 +30,8 @@ export function formatALGO(value?: number | null, locale = DEFAULT_LOCALE) {
   )
 }
 
-export function formatCurrency(
-  value?: string | number | null,
-  locale = DEFAULT_LOCALE
-) {
-  let amount = value
-  if (amount === null || amount === undefined) {
-    amount = 0
-  } else if (typeof amount === 'string') {
-    amount = Math.round(Number.parseFloat(amount) * 100)
-  }
-
-  function transformer({
+export function createTransformer(locale = DEFAULT_LOCALE) {
+  return function transformer({
     amount,
     currency,
   }: {
@@ -53,8 +43,20 @@ export function formatCurrency(
       currency: currency.code,
     })
   }
+}
 
-  return toFormat(dinero({ amount, currency }), transformer)
+export function formatCurrency(
+  value?: string | number | null,
+  locale = DEFAULT_LOCALE
+) {
+  let amount = value
+  if (amount === null || amount === undefined) {
+    amount = 0
+  } else if (typeof amount === 'string') {
+    amount = Math.round(Number.parseFloat(amount) * 100)
+  }
+
+  return toFormat(dinero({ amount, currency }), createTransformer(locale))
 }
 
 export function formatToDecimal(amount: number, decimalPlaces: number) {

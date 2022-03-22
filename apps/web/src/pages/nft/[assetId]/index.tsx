@@ -25,6 +25,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const collectible = await ApiClient.instance.getCollectible({
     assetId: Number(assetId),
   })
+
+  if (!collectible) {
+    return {
+      notFound: true,
+    }
+  }
+
   return {
     props: {
       collectible,

@@ -1,9 +1,8 @@
 import { CollectibleWithDetails } from '@algomart/schemas'
 import { USD } from '@dinero.js/currencies'
-import { convert, dinero, Rates, toFormat } from 'dinero.js'
+import { toFormat } from 'dinero.js'
 import { GetServerSideProps } from 'next'
 import { FormEvent, useCallback, useState } from 'react'
-import useSWR from 'swr'
 import {
   exact,
   ExtractError,
@@ -25,8 +24,10 @@ import PassphraseInput from '@/components/passphrase-input/passphrase-input'
 import CardPurchaseHeader from '@/components/purchase-form/cards/sections/card-header'
 import TextInput from '@/components/text-input/text-input'
 import { Environment } from '@/environment'
+import { useConvertFromALGO } from '@/hooks/use-convert-from-algo'
+import { useLocale } from '@/hooks/use-locale'
 import DefaultLayout from '@/layouts/default-layout'
-import { ALGO, formatALGO } from '@/utils/format-currency'
+import { createTransformer, formatALGO } from '@/utils/format-currency'
 import { urls } from '@/utils/urls'
 
 // Minimum reserve price is 1 ALGO (0.0000001 ALGO)
@@ -55,55 +56,24 @@ const validateForm = async (values: Record<string, unknown>) => {
   return await validate(values)
 }
 
-const toDineroRates = (
-  coinbaseRates: Record<string, string>
-): Rates<number> => {
-  return Object.fromEntries(
-    Object.entries(coinbaseRates).map(([code, value]) => {
-      return [
-        code,
-        {
-          amount: Math.floor(Number(value) * 1e6),
-          scale: 6,
-        },
-      ]
-    })
-  )
-}
-
-const convertAlgoToCurrency = (
-  algo: number,
-  rates: Rates<number>,
-  locale?: string
-) => {
-  return toFormat(
-    convert(dinero({ amount: algo, currency: ALGO }), USD, rates),
-    ({ amount, currency }) =>
-      amount.toLocaleString('en-US', {
-        style: 'currency',
-        currency: currency.code,
-      })
-  )
-}
-
 export default function SellNFTPage({
   collectible,
 }: {
   collectible: CollectibleWithDetails
 }) {
+  const locale = useLocale()
   const [values, setValues] = useState<{
     passphrase: string
     reservePrice: number | string
   }>({ passphrase: '', reservePrice: 1 })
-  const { data } = useSWR(
-    `https://api.coinbase.com/v2/exchange-rates?currency=ALGO`
-  )
 
   const [errors, setErrors] = useState<ExtractError<typeof validateForm>>({})
   const displayReservePrice =
     typeof values.reservePrice !== 'number' || Number.isNaN(values.reservePrice)
       ? 0
       : values.reservePrice * 1_000_000
+
+  const converted = useConvertFromALGO(displayReservePrice, USD)
 
   const createAuction = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -112,6 +82,7 @@ export default function SellNFTPage({
       const result = await validateForm(values)
 
       if (result.state === 'valid') {
+        // TODO: call new endpoint to create the auction
         console.log(result.value)
       } else {
         setErrors(result.errors)
@@ -185,13 +156,9 @@ export default function SellNFTPage({
               }}
             />
             <div className="mt-2 text-sm text-base-textTertiary">
-              {formatALGO(displayReservePrice, 'en-US')}
+              {formatALGO(displayReservePrice, locale)}
               {' currently equals about '}
-              {convertAlgoToCurrency(
-                displayReservePrice,
-                toDineroRates(data?.data?.rates ?? {}),
-                'en-US'
-              )}
+              {converted ? toFormat(converted, createTransformer(locale)) : '-'}
             </div>
           </div>
           <div className="flex flex-col mt-12">
@@ -223,6 +190,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const collectible = await ApiClient.instance.getCollectible({
     assetId: Number(assetId),
   })
+
+  if (!collectible) {
+    return {
+      notFound: true,
+    }
+  }
+
   return {
     props: {
       collectible,

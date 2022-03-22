@@ -261,6 +261,12 @@ export class ApiClient {
     return await this.http
       .get<CollectibleWithDetails>('collectibles/find-one', { params: request })
       .then((response) => response.data)
+      .catch((error) => {
+        if (axios.isAxiosError(error) && error.response.status === 404) {
+          return null
+        }
+        throw error
+      })
   }
   //#endregion
 
