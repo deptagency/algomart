@@ -1,4 +1,4 @@
-from time import sleep, time
+from time import time
 
 import pytest
 from algosdk import account, encoding
@@ -11,18 +11,29 @@ from contracts.utils import (
     getAlgodClient,
     getAppGlobalState,
     getBalances,
+    getCreatorAccount,
     getLastBlockTimestamp,
     getTemporaryAccount,
     optInToAsset,
     placeBid,
     setupAuctionApp,
+    waitUntilTimestamp,
 )
+
+# min balance: 0.1 ALGO
+# smart contract, base: 0.1 ALGO
+# smart contract, bytes: 0.05 * 2 = 0.1 ALGO
+# smart contract, ints: 0.0285 * 8 = 0.228 ALGO
+# smart contract, escrow: 0.1 + 0.1 + 0.004 = 0.204 ALGO (min, nft, 4 txns)
+# smart contract, create + setup + close txns: 0.001 * 3 = 0.003 ALGO
+CREATOR_FUNDS = 100_000 + 100_000 + 100_000 + 228_000 + 204_000 + 3000
 
 
 def test_create():
     client = getAlgodClient()
 
-    creator = getTemporaryAccount(client)
+    funder = getTemporaryAccount(client)
+    creator = getCreatorAccount(client, funder, CREATOR_FUNDS)
     _, seller_addr = account.generate_account()  # random address
 
     nftID = 1  # fake ID
@@ -30,6 +41,7 @@ def test_create():
     endTime = startTime + 60  # end time is 1 minute after start
     reserve = 1_000_000  # 1 Algo
     increment = 100_000  # 0.1 Algo
+    fee = 5  # 5% royalty
 
     appID = createAuctionApp(
         client=client,
@@ -40,6 +52,7 @@ def test_create():
         endTime=endTime,
         reserve=reserve,
         minBidIncrement=increment,
+        feePercent=fee,
     )
 
     actual = getAppGlobalState(client, appID)
@@ -51,6 +64,7 @@ def test_create():
         b"reserve_amount": reserve,
         b"min_bid_inc": increment,
         b"bid_account": bytes(32),  # decoded zero address
+        b"fee_percent": fee,
     }
 
     assert actual == expected
@@ -59,7 +73,8 @@ def test_create():
 def test_setup():
     client = getAlgodClient()
 
-    creator = getTemporaryAccount(client)
+    funder = getTemporaryAccount(client)
+    creator = getCreatorAccount(client, funder, CREATOR_FUNDS)
     seller = getTemporaryAccount(client)
 
     nftAmount = 1
@@ -69,6 +84,7 @@ def test_setup():
     endTime = startTime + 60  # end time is 1 minute after start
     reserve = 1_000_000  # 1 Algo
     increment = 100_000  # 0.1 Algo
+    fee = 5  # 5% royalty
 
     appID = createAuctionApp(
         client=client,
@@ -79,6 +95,7 @@ def test_setup():
         endTime=endTime,
         reserve=reserve,
         minBidIncrement=increment,
+        feePercent=fee,
     )
 
     setupAuctionApp(
@@ -99,12 +116,13 @@ def test_setup():
         b"reserve_amount": reserve,
         b"min_bid_inc": increment,
         b"bid_account": bytes(32),  # decoded zero address
+        b"fee_percent": fee,
     }
 
     assert actualState == expectedState
 
     actualBalances = getBalances(client, get_application_address(appID))
-    expectedBalances = {0: 2 * 100_000 + 2 * 1_000, nftID: nftAmount}
+    expectedBalances = {0: 2 * 100_000 + 3 * 1_000, nftID: nftAmount}
 
     assert actualBalances == expectedBalances
 
@@ -112,7 +130,8 @@ def test_setup():
 def test_first_bid_before_start():
     client = getAlgodClient()
 
-    creator = getTemporaryAccount(client)
+    funder = getTemporaryAccount(client)
+    creator = getCreatorAccount(client, funder, CREATOR_FUNDS)
     seller = getTemporaryAccount(client)
 
     nftAmount = 1
@@ -122,6 +141,7 @@ def test_first_bid_before_start():
     endTime = startTime + 60  # end time is 1 minute after start
     reserve = 1_000_000  # 1 Algo
     increment = 100_000  # 0.1 Algo
+    fee = 5  # 5% royalty
 
     appID = createAuctionApp(
         client=client,
@@ -132,6 +152,7 @@ def test_first_bid_before_start():
         endTime=endTime,
         reserve=reserve,
         minBidIncrement=increment,
+        feePercent=fee,
     )
 
     setupAuctionApp(
@@ -150,13 +171,15 @@ def test_first_bid_before_start():
 
     with pytest.raises(Exception):
         bidAmount = 500_000  # 0.5 Algos
+        optInToAsset(client, nftID, bidder)
         placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
 
 
 def test_first_bid():
     client = getAlgodClient()
 
-    creator = getTemporaryAccount(client)
+    funder = getTemporaryAccount(client)
+    creator = getCreatorAccount(client, funder, CREATOR_FUNDS)
     seller = getTemporaryAccount(client)
 
     nftAmount = 1
@@ -166,6 +189,7 @@ def test_first_bid():
     endTime = startTime + 60  # end time is 1 minute after start
     reserve = 1_000_000  # 1 Algo
     increment = 100_000  # 0.1 Algo
+    fee = 5  # 5% royalty
 
     appID = createAuctionApp(
         client=client,
@@ -176,6 +200,7 @@ def test_first_bid():
         endTime=endTime,
         reserve=reserve,
         minBidIncrement=increment,
+        feePercent=fee,
     )
 
     setupAuctionApp(
@@ -189,11 +214,11 @@ def test_first_bid():
 
     bidder = getTemporaryAccount(client)
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < startTime + 5:
-        sleep(startTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, startTime + 5)
 
     bidAmount = 500_000  # 0.5 Algos
+
+    optInToAsset(client, nftID, bidder)
     placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
 
     actualState = getAppGlobalState(client, appID)
@@ -205,6 +230,7 @@ def test_first_bid():
         b"reserve_amount": reserve,
         b"min_bid_inc": increment,
         b"num_bids": 1,
+        b"fee_percent": fee,
         b"bid_amount": bidAmount,
         b"bid_account": encoding.decode_address(bidder.getAddress()),
     }
@@ -212,7 +238,7 @@ def test_first_bid():
     assert actualState == expectedState
 
     actualBalances = getBalances(client, get_application_address(appID))
-    expectedBalances = {0: 2 * 100_000 + 2 * 1_000 + bidAmount, nftID: nftAmount}
+    expectedBalances = {0: 2 * 100_000 + 3 * 1_000 + bidAmount, nftID: nftAmount}
 
     assert actualBalances == expectedBalances
 
@@ -220,7 +246,8 @@ def test_first_bid():
 def test_second_bid():
     client = getAlgodClient()
 
-    creator = getTemporaryAccount(client)
+    funder = getTemporaryAccount(client)
+    creator = getCreatorAccount(client, funder, CREATOR_FUNDS)
     seller = getTemporaryAccount(client)
 
     nftAmount = 1
@@ -230,6 +257,7 @@ def test_second_bid():
     endTime = startTime + 60  # end time is 1 minute after start
     reserve = 1_000_000  # 1 Algo
     increment = 100_000  # 0.1 Algo
+    fee = 5  # 5% royalty
 
     appID = createAuctionApp(
         client=client,
@@ -240,6 +268,7 @@ def test_second_bid():
         endTime=endTime,
         reserve=reserve,
         minBidIncrement=increment,
+        feePercent=fee,
     )
 
     setupAuctionApp(
@@ -254,17 +283,18 @@ def test_second_bid():
     bidder1 = getTemporaryAccount(client)
     bidder2 = getTemporaryAccount(client)
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < startTime + 5:
-        sleep(startTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, startTime + 5)
 
     bid1Amount = 500_000  # 0.5 Algos
+
+    optInToAsset(client, nftID, bidder1)
     placeBid(client=client, appID=appID, bidder=bidder1, bidAmount=bid1Amount)
 
     bidder1AlgosBefore = getBalances(client, bidder1.getAddress())[0]
 
     with pytest.raises(Exception):
         bid2Amount = bid1Amount + 1_000  # increase is less than min increment amount
+        optInToAsset(client, nftID, bidder2)
         placeBid(
             client=client,
             appID=appID,
@@ -284,6 +314,7 @@ def test_second_bid():
         b"reserve_amount": reserve,
         b"min_bid_inc": increment,
         b"num_bids": 2,
+        b"fee_percent": fee,
         b"bid_amount": bid2Amount,
         b"bid_account": encoding.decode_address(bidder2.getAddress()),
     }
@@ -291,7 +322,7 @@ def test_second_bid():
     assert actualState == expectedState
 
     actualAppBalances = getBalances(client, get_application_address(appID))
-    expectedAppBalances = {0: 2 * 100_000 + 2 * 1_000 + bid2Amount, nftID: nftAmount}
+    expectedAppBalances = {0: 2 * 100_000 + 3 * 1_000 + bid2Amount, nftID: nftAmount}
 
     assert actualAppBalances == expectedAppBalances
 
@@ -304,7 +335,8 @@ def test_second_bid():
 def test_close_before_start():
     client = getAlgodClient()
 
-    creator = getTemporaryAccount(client)
+    funder = getTemporaryAccount(client)
+    creator = getCreatorAccount(client, funder, CREATOR_FUNDS)
     seller = getTemporaryAccount(client)
 
     nftAmount = 1
@@ -314,6 +346,7 @@ def test_close_before_start():
     endTime = startTime + 60  # end time is 1 minute after start
     reserve = 1_000_000  # 1 Algo
     increment = 100_000  # 0.1 Algo
+    fee = 5  # 5% royalty
 
     appID = createAuctionApp(
         client=client,
@@ -324,6 +357,7 @@ def test_close_before_start():
         endTime=endTime,
         reserve=reserve,
         minBidIncrement=increment,
+        feePercent=fee,
     )
 
     setupAuctionApp(
@@ -338,7 +372,7 @@ def test_close_before_start():
     _, lastRoundTime = getLastBlockTimestamp(client)
     assert lastRoundTime < startTime
 
-    closeAuction(client, appID, seller)
+    closeAuction(client, appID, creator)
 
     actualAppBalances = getBalances(client, get_application_address(appID))
     expectedAppBalances = {0: 0}
@@ -352,7 +386,8 @@ def test_close_before_start():
 def test_close_no_bids():
     client = getAlgodClient()
 
-    creator = getTemporaryAccount(client)
+    funder = getTemporaryAccount(client)
+    creator = getCreatorAccount(client, funder, CREATOR_FUNDS)
     seller = getTemporaryAccount(client)
 
     nftAmount = 1
@@ -362,6 +397,7 @@ def test_close_no_bids():
     endTime = startTime + 30  # end time is 30 seconds after start
     reserve = 1_000_000  # 1 Algo
     increment = 100_000  # 0.1 Algo
+    fee = 5  # 5% royalty
 
     appID = createAuctionApp(
         client=client,
@@ -372,6 +408,7 @@ def test_close_no_bids():
         endTime=endTime,
         reserve=reserve,
         minBidIncrement=increment,
+        feePercent=fee,
     )
 
     setupAuctionApp(
@@ -383,11 +420,9 @@ def test_close_no_bids():
         nftAmount=nftAmount,
     )
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < endTime + 5:
-        sleep(endTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, endTime + 5)
 
-    closeAuction(client, appID, seller)
+    closeAuction(client, appID, creator)
 
     actualAppBalances = getBalances(client, get_application_address(appID))
     expectedAppBalances = {0: 0}
@@ -401,7 +436,8 @@ def test_close_no_bids():
 def test_close_reserve_not_met():
     client = getAlgodClient()
 
-    creator = getTemporaryAccount(client)
+    funder = getTemporaryAccount(client)
+    creator = getCreatorAccount(client, funder, CREATOR_FUNDS)
     seller = getTemporaryAccount(client)
 
     nftAmount = 1
@@ -411,6 +447,7 @@ def test_close_reserve_not_met():
     endTime = startTime + 30  # end time is 30 seconds after start
     reserve = 1_000_000  # 1 Algo
     increment = 100_000  # 0.1 Algo
+    fee = 5  # 5% royalty
 
     appID = createAuctionApp(
         client=client,
@@ -421,6 +458,7 @@ def test_close_reserve_not_met():
         endTime=endTime,
         reserve=reserve,
         minBidIncrement=increment,
+        feePercent=fee,
     )
 
     setupAuctionApp(
@@ -434,20 +472,17 @@ def test_close_reserve_not_met():
 
     bidder = getTemporaryAccount(client)
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < startTime + 5:
-        sleep(startTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, startTime + 5)
 
     bidAmount = 500_000  # 0.5 Algos
+    optInToAsset(client, nftID, bidder)
     placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
 
     bidderAlgosBefore = getBalances(client, bidder.getAddress())[0]
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < endTime + 5:
-        sleep(endTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, endTime + 5)
 
-    closeAuction(client, appID, seller)
+    closeAuction(client, appID, creator)
 
     actualAppBalances = getBalances(client, get_application_address(appID))
     expectedAppBalances = {0: 0}
@@ -466,7 +501,8 @@ def test_close_reserve_not_met():
 def test_close_reserve_met():
     client = getAlgodClient()
 
-    creator = getTemporaryAccount(client)
+    funder = getTemporaryAccount(client)
+    creator = getCreatorAccount(client, funder, CREATOR_FUNDS)
     seller = getTemporaryAccount(client)
 
     nftAmount = 1
@@ -476,6 +512,7 @@ def test_close_reserve_met():
     endTime = startTime + 30  # end time is 30 seconds after start
     reserve = 1_000_000  # 1 Algo
     increment = 100_000  # 0.1 Algo
+    fee = 5  # 5% royalty
 
     appID = createAuctionApp(
         client=client,
@@ -486,6 +523,7 @@ def test_close_reserve_met():
         endTime=endTime,
         reserve=reserve,
         minBidIncrement=increment,
+        feePercent=fee,
     )
 
     setupAuctionApp(
@@ -497,24 +535,21 @@ def test_close_reserve_met():
         nftAmount=nftAmount,
     )
 
+    creatorAlgosBefore = getBalances(client, creator.getAddress())[0]
     sellerAlgosBefore = getBalances(client, seller.getAddress())[0]
 
     bidder = getTemporaryAccount(client)
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < startTime + 5:
-        sleep(startTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, startTime + 5)
 
     bidAmount = reserve
-    placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
 
     optInToAsset(client, nftID, bidder)
+    placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
 
-    _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < endTime + 5:
-        sleep(endTime + 5 - lastRoundTime)
+    waitUntilTimestamp(client, endTime + 5)
 
-    closeAuction(client, appID, seller)
+    closeAuction(client, appID, creator)
 
     actualAppBalances = getBalances(client, get_application_address(appID))
     expectedAppBalances = {0: 0}
@@ -525,9 +560,101 @@ def test_close_reserve_met():
 
     assert bidderNftBalance == nftAmount
 
+    actualCreatorBalances = getBalances(client, creator.getAddress())
     actualSellerBalances = getBalances(client, seller.getAddress())
 
     assert len(actualSellerBalances) == 2
-    # seller should receive the bid amount, minus the txn fee
-    assert actualSellerBalances[0] >= sellerAlgosBefore + bidAmount - 1_000
+    # seller should receive the bid amount, minus the txn fee and the royalty fee
+    assert actualSellerBalances[0] >= sellerAlgosBefore - 1_000 + (
+        bidAmount * (1 - fee / 100)
+    )
     assert actualSellerBalances[nftID] == 0
+
+    # creator should receive everything else (including the royalty fee)
+    assert actualCreatorBalances[0] >= creatorAlgosBefore - 1_000 + (
+        bidAmount * (fee / 100)
+    )
+
+    # note: at this point the creator account can be closed out
+    # i.e. return any remaining funds to a funding wallet
+
+
+def test_close_reserve_met_no_royalty():
+    client = getAlgodClient()
+
+    funder = getTemporaryAccount(client)
+    creator = getCreatorAccount(client, funder, CREATOR_FUNDS)
+    seller = getTemporaryAccount(client)
+
+    nftAmount = 1
+    nftID = createDummyAsset(client, nftAmount, seller)
+
+    startTime = int(time()) + 10  # start time is 10 seconds in the future
+    endTime = startTime + 30  # end time is 30 seconds after start
+    reserve = 1_000_000  # 1 Algo
+    increment = 100_000  # 0.1 Algo
+    fee = 0  # 0% royalty
+
+    appID = createAuctionApp(
+        client=client,
+        sender=creator,
+        seller=seller.getAddress(),
+        nftID=nftID,
+        startTime=startTime,
+        endTime=endTime,
+        reserve=reserve,
+        minBidIncrement=increment,
+        feePercent=fee,
+    )
+
+    setupAuctionApp(
+        client=client,
+        appID=appID,
+        funder=creator,
+        nftHolder=seller,
+        nftID=nftID,
+        nftAmount=nftAmount,
+    )
+
+    creatorAlgosBefore = getBalances(client, creator.getAddress())[0]
+    sellerAlgosBefore = getBalances(client, seller.getAddress())[0]
+
+    bidder = getTemporaryAccount(client)
+
+    waitUntilTimestamp(client, startTime + 5)
+
+    bidAmount = reserve
+
+    optInToAsset(client, nftID, bidder)
+    placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
+
+    waitUntilTimestamp(client, endTime + 5)
+
+    closeAuction(client, appID, creator)
+
+    actualAppBalances = getBalances(client, get_application_address(appID))
+    expectedAppBalances = {0: 0}
+
+    assert actualAppBalances == expectedAppBalances
+
+    bidderNftBalance = getBalances(client, bidder.getAddress())[nftID]
+
+    assert bidderNftBalance == nftAmount
+
+    actualCreatorBalances = getBalances(client, creator.getAddress())
+    actualSellerBalances = getBalances(client, seller.getAddress())
+
+    assert len(actualSellerBalances) == 2
+    # seller should receive the bid amount, minus the txn fee and the royalty fee
+    assert actualSellerBalances[0] >= sellerAlgosBefore - 1_000 + (
+        bidAmount * (1 - fee / 100)
+    )
+    assert actualSellerBalances[nftID] == 0
+
+    # creator should receive everything else (including the royalty fee)
+    assert actualCreatorBalances[0] >= creatorAlgosBefore - 1_000 + (
+        bidAmount * (fee / 100)
+    )
+
+    # note: at this point the creator account can be closed out
+    # i.e. return any remaining funds to a funding wallet
