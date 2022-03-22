@@ -11,13 +11,13 @@ import {
   PackType,
   UserAccount,
 } from '@algomart/schemas'
-import { encrypt } from '@algomart/shared/utils'
 import {
   DirectusCollectibleTemplate,
   DirectusPackTemplate,
   DirectusRarity,
   DirectusStatus,
-} from '@api/lib/directus-adapter'
+} from '@algomart/shared/adapters'
+import { encrypt } from '@algomart/shared/utils'
 import { fakeAddressFor } from '@api-tests/setup-tests'
 import { Knex } from 'knex'
 import { Factory } from 'rosie'

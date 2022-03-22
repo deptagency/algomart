@@ -3,7 +3,7 @@ import i18next, { TFunction } from 'i18next'
 import Backend from 'i18next-fs-backend'
 import path from 'node:path'
 
-export default class I18nAdapter {
+export class I18nAdapter {
   constructor() {
     if (i18next.isInitialized) return
     i18next.use(Backend).init({

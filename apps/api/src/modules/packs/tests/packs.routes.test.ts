@@ -1,6 +1,6 @@
 import { PackStatus, PackType } from '@algomart/schemas'
+import { DirectusAdapter, toPackBase } from '@algomart/shared/adapters'
 import { randomRedemptionCode } from '@algomart/shared/utils'
-import DirectusAdapter, { toPackBase } from '@api/lib/directus-adapter'
 import { packFactory, packTemplateFactory } from '@api/seeds/seed-test-data'
 import { buildTestApp } from '@api-tests/build-test-app'
 import { setupTestDatabase, teardownTestDatabase } from '@api-tests/setup-tests'

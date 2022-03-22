@@ -1,3 +1,4 @@
+import pino from 'pino'
 import {
   CheckoutMethod,
   CircleBankAccount,
@@ -33,7 +34,7 @@ import {
 } from '@algomart/schemas'
 import { HttpTransport } from '@algomart/shared/utils'
 import { invariant } from '@algomart/shared/utils'
-import { logger } from '@api/configuration/logger'
+// import { logger } from '@api/configuration/logger'
 
 export interface CircleAdapterOptions {
   url: string
@@ -143,11 +144,15 @@ function toPaymentBase(
   }
 }
 
-export default class CircleAdapter {
-  logger = logger.child({ context: this.constructor.name })
+export class CircleAdapter {
   http: HttpTransport
+  logger: pino.Logger<unknown>
 
-  constructor(readonly options: CircleAdapterOptions) {
+  constructor(
+    readonly options: CircleAdapterOptions,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
     this.http = new HttpTransport(options.url, undefined, {
       Authorization: `Bearer ${options.apiKey}`,
     })

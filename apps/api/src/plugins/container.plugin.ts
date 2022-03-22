@@ -1,4 +1,4 @@
-import DependencyResolver from '@api/shared/dependency-resolver'
+import { DependencyResolver } from '@algomart/shared/utils'
 import { FastifyInstance, FastifyPluginOptions } from 'fastify'
 import fp from 'fastify-plugin'
 

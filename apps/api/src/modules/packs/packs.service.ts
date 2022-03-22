@@ -33,6 +33,11 @@ import {
   TransferPackStatusList,
 } from '@algomart/schemas'
 import {
+  DirectusAdapter,
+  DirectusStatus,
+  ItemFilter,
+} from '@algomart/shared/adapters'
+import {
   BidModel,
   CollectibleModel,
   CollectibleOwnershipModel,
@@ -50,10 +55,6 @@ import {
 } from '@algomart/shared/utils'
 import { Configuration } from '@api/configuration'
 import { logger } from '@api/configuration/logger'
-import DirectusAdapter, {
-  DirectusStatus,
-  ItemFilter,
-} from '@api/lib/directus-adapter'
 import AccountsService from '@api/modules/accounts/accounts.service'
 import CollectiblesService from '@api/modules/collectibles/collectibles.service'
 import NotificationsService from '@api/modules/notifications/notifications.service'

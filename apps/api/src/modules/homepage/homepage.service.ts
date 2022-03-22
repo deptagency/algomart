@@ -4,8 +4,8 @@ import {
   Homepage,
   PublishedPack,
 } from '@algomart/schemas'
+import { DirectusAdapter } from '@algomart/shared/adapters'
 import { userInvariant } from '@algomart/shared/utils'
-import DirectusAdapter from '@api/lib/directus-adapter'
 
 import CollectiblesService from '../collectibles/collectibles.service'
 import PacksService from '../packs/packs.service'

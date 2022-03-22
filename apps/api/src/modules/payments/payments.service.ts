@@ -29,7 +29,6 @@ import {
   UserAccount,
   WirePayment,
 } from '@algomart/schemas'
-
 import {
   BidModel,
   EventModel,
@@ -39,16 +38,8 @@ import {
   PaymentModel,
   UserAccountModel,
 } from '@algomart/shared/models'
+import { CircleAdapter, CoinbaseAdapter } from '@algomart/shared/adapters'
 
-import {
-  BidModel,
-  EventModel,
-  PackModel,
-  PaymentBankAccountModel,
-  PaymentCardModel,
-  PaymentModel,
-  UserAccountModel,
-} from '@algomart/shared/models'
 import {
   convertFromUSD,
   convertToUSD,
@@ -61,8 +52,6 @@ import {
 } from '@algomart/shared/utils'
 import { Configuration } from '@api/configuration'
 import { logger } from '@api/configuration/logger'
-import CircleAdapter from '@api/lib/circle-adapter'
-import CoinbaseAdapter from '@api/lib/coinbase-adapter'
 import NotificationService from '@api/modules/notifications/notifications.service'
 import PacksService from '@api/modules/packs/packs.service'
 import { enc, SHA256 } from 'crypto-js'

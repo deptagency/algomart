@@ -12,12 +12,6 @@ import {
   UserAccountModel,
 } from '@algomart/shared/models'
 import { isGreaterThan, userInvariant } from '@algomart/shared/utils'
-import {
-  BidModel,
-  EventModel,
-  PackModel,
-  UserAccountModel,
-} from '@algomart/shared/models'
 import { Configuration } from '@api/configuration'
 import { logger } from '@api/configuration/logger'
 import NotificationsService from '@api/modules/notifications/notifications.service'

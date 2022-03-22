@@ -3,13 +3,13 @@ import {
   EventAction,
   EventEntityType,
 } from '@algomart/schemas'
+import { AlgorandAdapter } from '@algomart/shared/adapters'
 import {
   AlgorandTransactionModel,
   CollectibleModel,
   EventModel,
 } from '@algomart/shared/models'
 import { logger } from '@api/configuration/logger'
-import AlgorandAdapter from '@api/lib/algorand-adapter'
 import { Transaction } from 'objection'
 
 export default class TransactionsService {
