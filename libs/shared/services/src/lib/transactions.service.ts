@@ -1,3 +1,4 @@
+import pino from 'pino'
 import {
   AlgorandTransactionStatus,
   EventAction,
@@ -9,13 +10,16 @@ import {
   CollectibleModel,
   EventModel,
 } from '@algomart/shared/models'
-import { logger } from '@api/configuration/logger'
 import { Transaction } from 'objection'
 
-export default class TransactionsService {
-  logger = logger.child({ context: this.constructor.name })
-
-  constructor(private readonly algorand: AlgorandAdapter) {}
+export class TransactionsService {
+  logger: pino.Logger<unknown>
+  constructor(
+    private readonly algorand: AlgorandAdapter,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
+  }
 
   async confirmPendingTransactions(limit = 16, trx?: Transaction) {
     const transactions = await AlgorandTransactionModel.query(trx)

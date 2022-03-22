@@ -1,3 +1,5 @@
+import pino from 'pino'
+import * as Currencies from '@dinero.js/currencies'
 import {
   CirclePaymentErrorCode,
   CirclePaymentQueryType,
@@ -49,23 +51,33 @@ import {
   poll,
   userInvariant,
 } from '@algomart/shared/utils'
-import { Configuration } from '@api/configuration'
-import { logger } from '@api/configuration/logger'
-import NotificationService from '@api/modules/notifications/notifications.service'
-import PacksService from '@api/modules/packs/packs.service'
+import { NotificationsService, PacksService } from './'
 import { enc, SHA256 } from 'crypto-js'
 import { Transaction } from 'objection'
 import { v4 as uuid } from 'uuid'
 
-export default class PaymentsService {
-  logger = logger.child({ context: this.constructor.name })
+interface PaymentsServiceOptions {
+  successPath: string
+  failurePath: string
+  webUrl: string
+  currency: Currencies.Currency<number>
+  customerServiceEmail: string
+}
+
+export class PaymentsService {
+  logger: pino.Logger<unknown>
 
   constructor(
+    private readonly options: PaymentsServiceOptions,
     private readonly circle: CircleAdapter,
     private readonly coinbase: CoinbaseAdapter,
-    private readonly notifications: NotificationService,
-    private readonly packs: PacksService
-  ) {}
+    private readonly notifications: NotificationsService,
+    private readonly packs: PacksService,
+
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
+  }
 
   async getPublicKey() {
     try {
@@ -417,7 +429,7 @@ export default class PaymentsService {
       userAccountId: user.id,
     })
 
-    if (Configuration.customerServiceEmail) {
+    if (this.options.customerServiceEmail) {
       const packTemplate = await this.packs.getPackById(packId)
       await this.notifications.createNotification(
         {
@@ -502,7 +514,7 @@ export default class PaymentsService {
           isGreaterThanOrEqual(
             bid.amount,
             randomPack.price,
-            Configuration.currency // TODO: receive as argument
+            this.options.currency
           ),
         'active bid must be higher than the price of the item'
       )
@@ -510,7 +522,7 @@ export default class PaymentsService {
 
     // Retrieve exchange rates for app currency and USD
     const exchangeRates = await this.coinbase.getExchangeRates({
-      currency: Configuration.currency.code, // TODO: receive as argument
+      currency: this.options.currency.code,
     })
     invariant(exchangeRates, 'unable to find exchange rates')
 
@@ -518,7 +530,7 @@ export default class PaymentsService {
     const amount = convertToUSD(
       price,
       exchangeRates.rates,
-      Configuration.currency // TODO: receive as argument
+      this.options.currency
     )
     invariant(amount !== null, 'unable to convert to currency')
 
@@ -565,9 +577,9 @@ export default class PaymentsService {
     const card = await PaymentCardModel.query(trx).findById(cardId)
 
     // Circle only accepts loopback addresses
-    const verificationHostname = Configuration.webUrl.includes('localhost')
+    const verificationHostname = this.options.webUrl.includes('localhost')
       ? 'http://127.0.0.1:3000'
-      : Configuration.webUrl
+      : this.options.webUrl
 
     // Base payment details
     const basePayment = {
@@ -594,11 +606,11 @@ export default class PaymentsService {
         ...encryptedDetails,
         verification: CirclePaymentVerificationOptions.three_d_secure,
         verificationSuccessUrl: new URL(
-          Configuration.successPath,
+          this.options.successPath,
           verificationHostname
         ).toString(),
         verificationFailureUrl: new URL(
-          Configuration.failurePath,
+          this.options.failurePath,
           verificationHostname
         ).toString(),
       })
@@ -729,7 +741,7 @@ export default class PaymentsService {
 
     // Retrieve exchange rates for app currency and USD
     const exchangeRates = await this.coinbase.getExchangeRates({
-      currency: Configuration.currency.code, // TODO: receive as argument
+      currency: this.options.currency.code,
     })
     invariant(exchangeRates, 'unable to find exchange rates')
 
@@ -737,13 +749,10 @@ export default class PaymentsService {
     const amount = convertFromUSD(
       transfer.amount,
       exchangeRates.rates,
-      Configuration.currency // TODO: receive as argument
+      this.options.currency
     )
     invariant(amount !== null, 'unable to convert to currency')
-    const amountInt = formatFloatToInt(
-      amount,
-      Configuration.currency // TODO: receive as argument
-    )
+    const amountInt = formatFloatToInt(amount, this.options.currency)
 
     // Check the payment amount is correct
     const isCorrectAmount = amountInt === price
@@ -799,7 +808,7 @@ export default class PaymentsService {
 
     // Retrieve exchange rates for app currency and USD
     const exchangeRates = await this.coinbase.getExchangeRates({
-      currency: Configuration.currency.code, // TODO: receive as argument
+      currency: this.options.currency.code,
     })
     invariant(exchangeRates, 'unable to find exchange rates')
 
@@ -815,13 +824,10 @@ export default class PaymentsService {
       const amount = convertFromUSD(
         currentPayment.amount,
         exchangeRates.rates,
-        Configuration.currency // TODO: receive as argument
+        this.options.currency
       )
       invariant(amount !== null, 'unable to convert to currency')
-      const amountInt = formatFloatToInt(
-        amount,
-        Configuration.currency // receive as argument
-      )
+      const amountInt = formatFloatToInt(amount, this.options.currency)
       return amountInt === foundBankAccount.amount
     })
     if (!sourcePayment) return null
@@ -833,7 +839,7 @@ export default class PaymentsService {
         status: sourcePayment.status,
       })
       // Send Awaiting payment notification to customer service
-      if (Configuration.customerServiceEmail) {
+      if (this.options.customerServiceEmail) {
         const packTemplate = await this.packs.getPackById(payment.packId)
         await this.notifications.createNotification(
           {
@@ -850,7 +856,7 @@ export default class PaymentsService {
     }
 
     // Send email notification to  Customer service
-    if (Configuration.customerServiceEmail) {
+    if (this.options.customerServiceEmail) {
       if (sourcePayment.status === PaymentStatus.Failed) {
         const packTemplate = await this.packs.getPackById(payment.packId)
         await this.notifications.createNotification(
@@ -883,7 +889,7 @@ export default class PaymentsService {
     // STATUS CHANGED
     if (
       payment.status !== sourcePayment.status && // Automated notifications to customer service
-      Configuration.customerServiceEmail
+      this.options.customerServiceEmail
     ) {
       if (sourcePayment.status === PaymentStatus.Failed) {
         const packTemplate = await this.packs.getPackById(payment.packId)
@@ -1062,7 +1068,7 @@ export default class PaymentsService {
         variables: {
           amount: formatIntToFloat(
             foundBankAccount.amount,
-            Configuration.currency // TODO: receive as argument
+            this.options.currency
           ),
           packTitle: packTemplate.title,
           packSlug: packTemplate.slug,
@@ -1263,6 +1269,6 @@ export default class PaymentsService {
   }
 
   async getCurrency() {
-    return Configuration.currency
+    return this.options.currency
   }
 }

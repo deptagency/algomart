@@ -5,7 +5,7 @@ import {
   Username,
 } from '@algomart/schemas'
 import { UpdateUserAccount } from '@algomart/schemas'
-import AccountsService from '@api/modules/accounts/accounts.service'
+import { AccountsService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function createAccount(

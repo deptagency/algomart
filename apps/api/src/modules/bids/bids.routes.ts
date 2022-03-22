@@ -1,5 +1,5 @@
 import { CreateBidRequest } from '@algomart/schemas'
-import BidsService from '@api/modules/bids/bids.service'
+import { BidsService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function createBid(

@@ -7,10 +7,9 @@ import {
 import { DirectusAdapter } from '@algomart/shared/adapters'
 import { userInvariant } from '@algomart/shared/utils'
 
-import CollectiblesService from '../collectibles/collectibles.service'
-import PacksService from '../packs/packs.service'
+import { CollectiblesService, PacksService } from './'
 
-export default class HomepageService {
+export class HomepageService {
   constructor(
     private readonly cms: DirectusAdapter,
     private readonly packsService: PacksService,
