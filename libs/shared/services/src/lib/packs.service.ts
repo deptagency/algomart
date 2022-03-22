@@ -1,6 +1,5 @@
 import * as Currencies from '@dinero.js/currencies'
 import pino from 'pino'
-
 import {
   BidPublic,
   ClaimFreePack,

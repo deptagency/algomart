@@ -19,7 +19,6 @@ import {
   TransferCollectible,
   TransferCollectibleResult,
 } from '@algomart/schemas'
-import { Transaction } from 'objection'
 
 import {
   AlgoExplorerAdapter,
@@ -47,6 +46,7 @@ import {
   invariant,
   userInvariant,
 } from '@algomart/shared/utils'
+import { Transaction } from 'objection'
 
 const MAX_SHOWCASES = 8
 
