@@ -3,14 +3,11 @@ import {
   DirectusApplication,
   DirectusCollectibleTemplate,
   DirectusCollection,
-  DirectusFaqTemplate,
   DirectusHomepage,
   DirectusLanguageTemplate,
   DirectusPackTemplate,
-  DirectusPage,
   DirectusSet,
   DirectusStatus,
-  DirectusTeamsTemplate,
   DirectusWebhook,
 } from '@algomart/schemas'
 import { HttpTransport } from '@algomart/shared/utils'
@@ -20,11 +17,8 @@ import {
   CMSCacheLanguageModel,
   CMSCachePackTemplateModel,
   CMSCacheSetModel,
-  CMSCachePageModel,
-  CMSCacheFaqModel,
   CMSCacheHomepageModel,
   CMSCacheApplicationModel,
-  CMSCacheTeamsModel,
 } from '@algomart/shared/models'
 
 // #region Directus Helpers
@@ -322,34 +316,6 @@ export class DirectusAdapter {
     })
   }
 
-  private async findPages(query: ItemQuery<DirectusPage> = {}) {
-    const defaultQuery: ItemQuery<DirectusPage> = {
-      limit: -1,
-      fields: ['id', 'slug', 'hero_banner.*', 'translations.*'],
-    }
-
-    return await this.findMany<DirectusPage>('static_page', {
-      ...defaultQuery,
-      ...query,
-    })
-  }
-
-  private async findFaqs(query: ItemQuery<DirectusFaqTemplate> = {}) {
-    const defaultQuery: ItemQuery<DirectusFaqTemplate> = {
-      filter: {},
-      limit: -1,
-      fields: ['id', 'translations.*'],
-    }
-
-    return await this.findMany<DirectusFaqTemplate>(
-      'frequently_asked_questions',
-      {
-        ...defaultQuery,
-        ...query,
-      }
-    )
-  }
-
   // #region directus sync methods
   private async syncCollection(collectionId) {
     const response = await this.findCollections({
@@ -456,38 +422,6 @@ export class DirectusAdapter {
     }
   }
 
-  private async syncPage(pageId) {
-    const response = await this.findPages({
-      filter: {
-        id: {
-          _eq: pageId,
-        },
-      },
-    })
-
-    if (response.data.length > 0) {
-      await CMSCachePageModel.upsert(
-        response.data[0] as unknown as DirectusPage
-      )
-    }
-  }
-
-  private async syncFaq(faqId) {
-    const response = await this.findFaqs({
-      filter: {
-        id: {
-          _eq: faqId,
-        },
-      },
-    })
-
-    if (response.data.length > 0) {
-      await CMSCacheFaqModel.upsert(
-        response.data[0] as unknown as DirectusFaqTemplate
-      )
-    }
-  }
-
   // #endregion
 
   async syncAllLanguages() {
@@ -551,30 +485,6 @@ export class DirectusAdapter {
 
     for (const set of response.data) {
       await CMSCacheSetModel.upsert(set)
-    }
-  }
-
-  async syncAllPages() {
-    const response = await this.findPages({
-      filter: {},
-    })
-
-    for (const page of response.data) {
-      await CMSCachePageModel.upsert(page)
-    }
-  }
-
-  async syncAllFaqs() {
-    const response = await this.findFaqs({
-      filter: {
-        status: {
-          _eq: DirectusStatus.Published,
-        },
-      },
-    })
-
-    for (const faq of response.data) {
-      await CMSCacheFaqModel.upsert(faq)
     }
   }
 
@@ -676,17 +586,6 @@ export class DirectusAdapter {
     return null
   }
 
-  async syncTeams() {
-    const response = await this.http.get('items/teams', {
-      params: getParameters({
-        fields: ['id', 'team'],
-      }),
-    })
-    await CMSCacheTeamsModel.upsert(
-      response.data as unknown as DirectusTeamsTemplate
-    )
-  }
-
   // #region webhook handlers
 
   async processWebhook(webhook: DirectusWebhook) {
@@ -724,10 +623,6 @@ export class DirectusAdapter {
         return null
       case 'sets':
         return await this.syncSet(webhook.key)
-      case 'faqs':
-        return await this.syncFaq(webhook.key)
-      case 'pages':
-        return await this.syncPage(webhook.key)
       default:
         throw new Error(
           `unhandled directus webhook items.create event: ${webhook.collection}`
@@ -755,10 +650,6 @@ export class DirectusAdapter {
         return await this.syncRarities()
       case 'sets':
         return await this.syncSet(webhook.keys[0])
-      case 'faqs':
-        return await this.syncFaq(webhook.keys[0])
-      case 'pages':
-        return await this.syncPage(webhook.keys[0])
       default:
         throw new Error(
           `unhandled directus webhook items.update event: ${webhook.collection}`

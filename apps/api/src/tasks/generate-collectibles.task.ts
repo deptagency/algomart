@@ -1,6 +1,6 @@
-import DependencyResolver from '@api/configuration/configure-resolver'
+import { CollectiblesService } from '@algomart/shared/services'
+import { DependencyResolver } from '@algomart/shared/utils'
 import { logger } from '@api/configuration/logger'
-import CollectiblesService from '@api/modules/collectibles/collectibles.service'
 import { Model } from 'objection'
 
 export default async function generateCollectiblesTask(

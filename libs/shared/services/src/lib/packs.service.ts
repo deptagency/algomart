@@ -34,20 +34,22 @@ import {
   TransferPack,
   TransferPackStatusList,
 } from '@algomart/schemas'
+
 import {
+  UserAccountModel,
   BidModel,
-  CollectibleModel,
   EventModel,
   PackModel,
-  UserAccountModel,
+  CollectibleModel,
 } from '@algomart/shared/models'
+
 import {
   formatIntToFloat,
   invariant,
+  userInvariant,
   randomInteger,
   randomRedemptionCode,
   shuffleArray,
-  userInvariant,
 } from '@algomart/shared/utils'
 import {
   AccountsService,
@@ -1297,7 +1299,7 @@ export class PacksService {
               variables: {
                 amount: `${formatIntToFloat(
                   selectedBid.amount,
-                  this.currency // TODO: receive as argument
+                  this.currency
                 )}`,
                 canExpire: packTemplate.allowBidExpiration,
                 packSlug: packTemplate.slug,

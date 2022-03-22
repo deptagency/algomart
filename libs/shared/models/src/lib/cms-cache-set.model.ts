@@ -1,5 +1,5 @@
-import { DirectusSet } from '@algomart/schemas'
 import { Model } from 'objection'
+import { DirectusSet } from '@algomart/schemas'
 
 export class CMSCacheSetModel extends Model {
   static tableName = 'CmsCacheSets'

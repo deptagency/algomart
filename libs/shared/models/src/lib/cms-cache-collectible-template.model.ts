@@ -1,6 +1,5 @@
 import { DirectusCollectibleTemplate } from '@algomart/schemas'
 import { Model } from 'objection'
-
 import { CollectibleModel } from './collectible.model'
 
 export class CMSCacheCollectibleTemplateModel extends Model {

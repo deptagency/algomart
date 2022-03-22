@@ -1,5 +1,5 @@
-import { DirectusLanguageTemplate } from '@algomart/schemas'
 import { Model } from 'objection'
+import { DirectusLanguageTemplate } from '@algomart/schemas'
 
 export class CMSCacheLanguageModel extends Model {
   static tableName = 'CmsCacheLanguages'

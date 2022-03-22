@@ -1,5 +1,5 @@
-import { DirectusPackTemplate } from '@algomart/schemas'
 import { Model } from 'objection'
+import { DirectusPackTemplate } from '@algomart/schemas'
 
 export class CMSCachePackTemplateModel extends Model {
   static tableName = 'CmsCachePackTemplates'

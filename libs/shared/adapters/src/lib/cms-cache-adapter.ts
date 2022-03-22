@@ -11,19 +11,15 @@ import {
   DirectusCollectionTranslation,
   DirectusCountry,
   DirectusCountryTranslation,
-  DirectusFaqTemplate,
   DirectusFile,
   DirectusHomepage,
   DirectusLanguageTemplate,
   DirectusPackTemplate,
   DirectusPackTemplateTranslation,
-  DirectusPage,
-  DirectusPageTranslation,
   DirectusRarity,
   DirectusRarityTranslation,
   DirectusSet,
   DirectusSetTranslation,
-  DirectusTeamsTemplate,
   DirectusTranslation,
   HomepageBase,
   PackBase,
@@ -37,13 +33,10 @@ import {
   CMSCacheApplicationModel,
   CMSCacheCollectibleTemplateModel,
   CMSCacheCollectionModel,
-  CMSCacheFaqModel,
   CMSCacheHomepageModel,
   CMSCacheLanguageModel,
   CMSCachePackTemplateModel,
-  CMSCachePageModel,
   CMSCacheSetModel,
-  CMSCacheTeamsModel,
 } from '@algomart/shared/models'
 import {
   invariant,
@@ -436,11 +429,6 @@ export class CMSCacheAdapter {
     })
   }
 
-  async findAllTeams() {
-    const data = await CMSCacheTeamsModel.query().select('content')
-    return (data[0].content as unknown as DirectusTeamsTemplate).team
-  }
-
   async findAllPacksAuctionCompletion(
     startDate,
     language = DEFAULT_LANG,
@@ -707,45 +695,6 @@ export class CMSCacheAdapter {
     }
 
     return null
-  }
-
-  async getPage(slug, language = DEFAULT_LANG, trx?: Transaction) {
-    const result = await CMSCachePageModel.query(trx).findOne('slug', slug)
-
-    if (result) {
-      const page: DirectusPage = result.content as unknown as DirectusPage
-
-      const pageTranslations = getDirectusTranslation<DirectusPageTranslation>(
-        page.translations as DirectusPageTranslation[],
-        `No translations found for slug "${slug}"`,
-        language
-      )
-      return {
-        heroBanner: this.getFileURL(page.hero_banner),
-        heroBannerTitle: pageTranslations.hero_banner_title,
-        heroBannerSubtitle: pageTranslations.hero_banner_subtitle,
-        ...page,
-        ...pageTranslations,
-      }
-    }
-
-    return null
-  }
-
-  async getFaqs(language: string = DEFAULT_LANG, trx?: Transaction) {
-    const queryResult = await CMSCacheFaqModel.query(trx).select('content')
-    const data = queryResult.map(
-      (result: CMSCacheFaqModel): DirectusFaqTemplate =>
-        result.content as unknown as DirectusFaqTemplate
-    )
-
-    return data.map((d) =>
-      getDirectusTranslation(
-        d.translations,
-        `faq has no translations`,
-        language
-      )
-    )
   }
 
   async findHomepage(language: string = DEFAULT_LANG, trx?: Transaction) {

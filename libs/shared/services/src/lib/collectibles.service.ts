@@ -19,14 +19,16 @@ import {
   TransferCollectible,
   TransferCollectibleResult,
 } from '@algomart/schemas'
+
 import {
   AlgoExplorerAdapter,
   AlgorandAdapter,
   DEFAULT_INITIAL_BALANCE,
-  NFTStorageAdapter,
   CMSCacheAdapter,
+  NFTStorageAdapter,
   ItemFilters,
 } from '@algomart/shared/adapters'
+
 import {
   AlgorandAccountModel,
   AlgorandTransactionGroupModel,
@@ -37,11 +39,12 @@ import {
   EventModel,
   UserAccountModel,
 } from '@algomart/shared/models'
+
 import {
-  addDays,
-  invariant,
-  isBeforeNow,
   isDefinedArray,
+  addDays,
+  isBeforeNow,
+  invariant,
   userInvariant,
 } from '@algomart/shared/utils'
 import { Transaction } from 'objection'
@@ -58,6 +61,8 @@ export class CollectiblesService {
     private readonly algoExplorer: AlgoExplorerAdapter,
     private readonly minimumDaysBeforeTransfer: number,
     private readonly creatorPassphrase: string,
+    private readonly cmsPublicUrl: string,
+    private readonly cmsUrl: string,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
@@ -312,11 +317,19 @@ export class CollectiblesService {
 
     try {
       // Store template's media assets
-      const imageData = await this.storage.storeFile(template.image)
+      const imageData = await this.storage.storeFile(
+        template.image,
+        this.cmsPublicUrl,
+        this.cmsUrl
+      )
       const animationField: string | undefined =
         template.assetFile || template.previewVideo || template.previewAudio
       const animationData = animationField
-        ? await this.storage.storeFile(animationField)
+        ? await this.storage.storeFile(
+            animationField,
+            this.cmsPublicUrl,
+            this.cmsUrl
+          )
         : null
 
       // Construct asset metadata
@@ -396,6 +409,7 @@ export class CollectiblesService {
       collectibles.length * 100_000 +
       // 1000 microAlgos per create transaction
       collectibles.length * 1000
+
     const creator = await this.algorand.getCreatorAccount(
       initialBalance,
       this.creatorPassphrase

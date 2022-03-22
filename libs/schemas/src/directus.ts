@@ -85,20 +85,6 @@ export interface DirectusCollectionTranslation extends DirectusTranslation {
   reward_complete: string | null
 }
 
-export interface DirectusPageTranslation extends DirectusTranslation {
-  body: string
-  title: string
-  hero_banner_title?: string
-  hero_banner_subtitle?: string
-}
-
-export interface DirectusPage {
-  id: string
-  slug: string
-  hero_banner?: DirectusFile
-  translations: DirectusPageTranslation[]
-}
-
 export interface DirectusCollection {
   id: string
   status: DirectusStatus
@@ -158,24 +144,6 @@ export interface DirectusLanguageTemplate {
   code: string
   label: string
   sort: number
-}
-
-export interface DirectusFaqTemplateTranslation extends DirectusTranslation {
-  question: string | null
-  answer: string | null
-}
-
-export interface DirectusTeamsTemplate {
-  id: string
-  team: {
-    name: string
-    country_code: string
-  }[]
-}
-
-export interface DirectusFaqTemplate {
-  id: string
-  translations: DirectusFaqTemplateTranslation[]
 }
 
 export interface DirectusCountry {

@@ -1,5 +1,5 @@
-import { DirectusHomepage } from '@algomart/schemas'
 import { Model } from 'objection'
+import { DirectusHomepage } from '@algomart/schemas'
 
 export class CMSCacheHomepageModel extends Model {
   static tableName = 'CmsCacheHomepage'

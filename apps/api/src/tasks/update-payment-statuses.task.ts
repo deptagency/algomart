@@ -1,6 +1,6 @@
-import DependencyResolver from '@api/configuration/configure-resolver'
+import { PaymentsService } from '@algomart/shared/services'
+import { DependencyResolver } from '@algomart/shared/utils'
 import { logger } from '@api/configuration/logger'
-import PaymentsService from '@api/modules/payments/payments.service'
 import { Model } from 'objection'
 
 export async function updatePaymentStatusesTask(registry: DependencyResolver) {
