@@ -115,18 +115,19 @@ nx import cms
 
 ### Running with docker-compose
 
-The `docker-compose` [configuration](./docker-compose.yml) includes service definitions for the API service,
-the CMS & Web applications, and a PostgreSQL 13 database.
+Alternative to running the services manually, they can also be run via Docker. After creating the relevant `.env` files above, add a file called `.babelrc` to the root of the web project (`apps/web/`) and populate it with:
 
-After creating the relevant `.env` files above, simply run all services via:
+```json
+{ "presets": ["next/babel"] }
+```
+
+Then run all services:,
 
 ```bash
 $ docker-compose up
 ```
 
-This will load the various `.env` files for Algorand, Circle, etc. credentials -
-most other environment variables will be overridden in favor of those specified
-in the `docker-compose.yml` file.
+Note that page loads in the web app will be slower and tests will fail while this `.babelrc` is present (it is `.gitignore`'d by default). This known issue is an unfortunate incompatibility between Docker and Next's SWC integration at the time of this writing.
 
 ## 📦 Project packages
 

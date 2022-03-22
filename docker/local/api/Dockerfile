@@ -7,5 +7,4 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 # not copying anything else... relying on mapping volume from the host
-
-CMD ["npx", "nx", "serve", "api"]
+CMD ["./docker/local/api/run.sh"]
