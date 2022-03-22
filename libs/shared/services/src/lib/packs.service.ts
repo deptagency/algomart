@@ -1,3 +1,5 @@
+import * as Currencies from '@dinero.js/currencies'
+import pino from 'pino'
 import {
   BidPublic,
   ClaimFreePack,
@@ -53,11 +55,7 @@ import {
   shuffleArray,
   userInvariant,
 } from '@algomart/shared/utils'
-import { Configuration } from '@api/configuration'
-import { logger } from '@api/configuration/logger'
-import AccountsService from '@api/modules/accounts/accounts.service'
-import CollectiblesService from '@api/modules/collectibles/collectibles.service'
-import NotificationsService from '@api/modules/notifications/notifications.service'
+import { AccountsService, CollectiblesService, NotificationsService } from './'
 import { Model, raw, Transaction } from 'objection'
 
 interface PackFilters {
@@ -117,15 +115,19 @@ function mapToPublicBid(bid: BidModel, packId: string): BidPublic {
   }
 }
 
-export default class PacksService {
-  logger = logger.child({ context: this.constructor.name })
+export class PacksService {
+  logger: pino.Logger<unknown>
 
   constructor(
     private readonly cms: DirectusAdapter,
     private readonly collectibles: CollectiblesService,
     private readonly notifications: NotificationsService,
-    private readonly accounts: AccountsService
-  ) {}
+    private readonly accounts: AccountsService,
+    private currency: Currencies.Currency<number>,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
+  }
 
   // #region Private helpers
 
@@ -1195,7 +1197,7 @@ export default class PacksService {
             variables: {
               amount: `${formatIntToFloat(
                 pack.activeBid.amount,
-                Configuration.currency // TODO: receive as argument
+                this.currency
               )}`,
               canExpire: packTemplate.allowBidExpiration,
               packSlug: packTemplate.slug,
@@ -1335,7 +1337,7 @@ export default class PacksService {
               variables: {
                 amount: `${formatIntToFloat(
                   selectedBid.amount,
-                  Configuration.currency // TODO: receive as argument
+                  this.currency // TODO: receive as argument
                 )}`,
                 canExpire: packTemplate.allowBidExpiration,
                 packSlug: packTemplate.slug,

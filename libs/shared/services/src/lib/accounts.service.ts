@@ -1,3 +1,4 @@
+import pino from 'pino'
 import {
   AlgorandTransactionStatus,
   CreateUserAccountRequest,
@@ -13,13 +14,17 @@ import {
   UserAccountModel,
 } from '@algomart/shared/models'
 import { invariant, userInvariant } from '@algomart/shared/utils'
-import { logger } from '@api/configuration/logger'
 import { Transaction } from 'objection'
 
-export default class AccountsService {
-  logger = logger.child({ context: this.constructor.name })
+export class AccountsService {
+  logger: pino.Logger<unknown>
 
-  constructor(private readonly algorand: AlgorandAdapter) {}
+  constructor(
+    private readonly algorand: AlgorandAdapter,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
+  }
 
   async create(request: CreateUserAccountRequest, trx?: Transaction) {
     // 1. Check for a username or externalId collision

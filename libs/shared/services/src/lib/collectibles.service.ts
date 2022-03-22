@@ -1,3 +1,4 @@
+import pino from 'pino'
 import {
   AlgorandTransactionStatus,
   CollectibleBase,
@@ -43,21 +44,24 @@ import {
   isDefinedArray,
   userInvariant,
 } from '@algomart/shared/utils'
-import { Configuration } from '@api/configuration'
-import { logger } from '@api/configuration/logger'
 import { Transaction } from 'objection'
 
 const MAX_SHOWCASES = 8
 
-export default class CollectiblesService {
-  logger = logger.child({ context: this.constructor.name })
+export class CollectiblesService {
+  logger: pino.Logger<unknown>
 
   constructor(
     private readonly cms: DirectusAdapter,
     private readonly algorand: AlgorandAdapter,
     private readonly storage: NFTStorageAdapter,
-    private readonly algoExplorer: AlgoExplorerAdapter
-  ) {}
+    private readonly algoExplorer: AlgoExplorerAdapter,
+    private readonly minimumDaysBeforeTransfer: number,
+    private readonly creatorPassphrase: string,
+    logger: pino.Logger<unknown>
+  ) {
+    this.logger = logger.child({ context: this.constructor.name })
+  }
 
   async generateCollectibles(limit = 5, trx?: Transaction) {
     const existingTemplates = await CollectibleModel.query(trx)
@@ -116,7 +120,7 @@ export default class CollectiblesService {
     const transferrableAt = wasPaidWithCard
       ? addDays(
           new Date(collectible.creationTransaction.createdAt),
-          Configuration.minimumDaysBeforeTransfer
+          this.minimumDaysBeforeTransfer
         )
       : new Date(collectible.creationTransaction.createdAt)
 
@@ -415,7 +419,7 @@ export default class CollectiblesService {
       collectibles.length * 1000
     const creator = await this.algorand.getCreatorAccount(
       initialBalance,
-      Configuration.creatorPassphrase
+      this.creatorPassphrase
     )
 
     const transactions = await AlgorandTransactionModel.query(trx).insert([
@@ -452,7 +456,7 @@ export default class CollectiblesService {
         collectibles,
         templates,
         creator,
-        Configuration.creatorPassphrase
+        this.creatorPassphrase
       )
 
     this.logger.info('Using creator account %s', creator?.address || '-')
@@ -462,10 +466,7 @@ export default class CollectiblesService {
     } catch (error) {
       if (creator) {
         this.logger.info('Closing creator account %s', creator.address)
-        await this.algorand.closeCreatorAccount(
-          creator,
-          Configuration.creatorPassphrase
-        )
+        await this.algorand.closeCreatorAccount(creator, this.creatorPassphrase)
       }
       throw error
     }
