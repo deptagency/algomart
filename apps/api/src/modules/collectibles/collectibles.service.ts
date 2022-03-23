@@ -19,6 +19,16 @@ import {
   TransferCollectibleResult,
 } from '@algomart/schemas'
 import {
+  AlgorandAccountModel,
+  AlgorandTransactionGroupModel,
+  AlgorandTransactionModel,
+  CollectibleModel,
+  CollectibleOwnershipModel,
+  CollectibleShowcaseModel,
+  EventModel,
+  UserAccountModel,
+} from '@algomart/shared/models'
+import {
   addDays,
   invariant,
   isBeforeNow,
@@ -33,14 +43,6 @@ import AlgorandAdapter, {
 } from '@api/lib/algorand-adapter'
 import DirectusAdapter, { ItemFilter } from '@api/lib/directus-adapter'
 import NFTStorageAdapter from '@api/lib/nft-storage-adapter'
-import { AlgorandAccountModel } from '@api/models/algorand-account.model'
-import { AlgorandTransactionModel } from '@api/models/algorand-transaction.model'
-import { AlgorandTransactionGroupModel } from '@api/models/algorand-transaction-group.model'
-import { CollectibleModel } from '@api/models/collectible.model'
-import { CollectibleOwnershipModel } from '@api/models/collectible-ownership.model'
-import { CollectibleShowcaseModel } from '@api/models/collectible-showcase.model'
-import { EventModel } from '@api/models/event.model'
-import { UserAccountModel } from '@api/models/user-account.model'
 import { Transaction } from 'objection'
 
 const MAX_SHOWCASES = 8

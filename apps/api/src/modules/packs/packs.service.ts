@@ -33,6 +33,14 @@ import {
   TransferPackStatusList,
 } from '@algomart/schemas'
 import {
+  BidModel,
+  CollectibleModel,
+  CollectibleOwnershipModel,
+  EventModel,
+  PackModel,
+  UserAccountModel,
+} from '@algomart/shared/models'
+import {
   formatIntToFloat,
   invariant,
   randomInteger,
@@ -46,12 +54,6 @@ import DirectusAdapter, {
   DirectusStatus,
   ItemFilter,
 } from '@api/lib/directus-adapter'
-import { BidModel } from '@api/models/bid.model'
-import { CollectibleModel } from '@api/models/collectible.model'
-import { CollectibleOwnershipModel } from '@api/models/collectible-ownership.model'
-import { EventModel } from '@api/models/event.model'
-import { PackModel } from '@api/models/pack.model'
-import { UserAccountModel } from '@api/models/user-account.model'
 import AccountsService from '@api/modules/accounts/accounts.service'
 import CollectiblesService from '@api/modules/collectibles/collectibles.service'
 import NotificationsService from '@api/modules/notifications/notifications.service'
