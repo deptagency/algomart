@@ -1,7 +1,6 @@
 import { CollectibleBase, TransferCollectibleResult } from '@algomart/schemas'
 import { CollectibleModel } from '@algomart/shared/models'
-import { decrypt, encrypt } from '@algomart/shared/utils'
-import { invariant } from '@algomart/shared/utils'
+import { decrypt, encrypt, invariant } from '@algomart/shared/utils'
 import { Configuration } from '@api/configuration'
 import { logger } from '@api/configuration/logger'
 import algosdk from 'algosdk'
@@ -363,8 +362,7 @@ export default class AlgorandAdapter {
 
   async generateCreateAssetTransactions(
     collectibles: CollectibleModel[],
-    templates: CollectibleBase[],
-    creator?: PublicAccount
+    templates: CollectibleBase[]
   ) {
     invariant(
       collectibles.length <= 16,
@@ -373,17 +371,6 @@ export default class AlgorandAdapter {
 
     const suggestedParams = await this.algod.getTransactionParams().do()
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
-    let fromAccount = this.fundingAccount
-
-    if (creator) {
-      fromAccount = algosdk.mnemonicToSecretKey(
-        decrypt(
-          creator.encryptedMnemonic,
-          Configuration.creatorPassphrase,
-          Configuration.secret // TODO: receive via argument
-        )
-      )
-    }
 
     const transactions = collectibles.map((collectible) => {
       const template = templateLookup.get(collectible.templateId)
@@ -401,7 +388,7 @@ export default class AlgorandAdapter {
         assetMetadataHash: new Uint8Array(
           Buffer.from(collectible.assetMetadataHash, 'hex')
         ),
-        from: fromAccount.addr,
+        from: this.fundingAccount.addr,
         total: 1,
         decimals: 0,
         defaultFrozen: false,
@@ -415,7 +402,7 @@ export default class AlgorandAdapter {
     algosdk.assignGroupID(transactions)
 
     const signedTransactions = transactions.map((transaction) =>
-      transaction.signTxn(fromAccount.sk)
+      transaction.signTxn(this.fundingAccount.sk)
     )
 
     const transactionIds = transactions.map((transaction) => transaction.txID())
