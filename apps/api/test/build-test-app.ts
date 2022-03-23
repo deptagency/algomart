@@ -5,7 +5,7 @@ import {
   NFTStorageAdapter,
 } from '@algomart/shared/adapters'
 import buildApp from '@api/api/build-app'
-import { configureResolver } from '@api/configuration/configure-resolver'
+import { configureResolver } from '@api/shared/configure-resolver'
 
 import { getTestDatabaseConfig } from './setup-tests'
 

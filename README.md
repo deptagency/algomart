@@ -115,18 +115,19 @@ nx import cms
 
 ### Running with docker-compose
 
-The `docker-compose` [configuration](./docker-compose.yml) includes service definitions for the API service,
-the CMS & Web applications, and a PostgreSQL 13 database.
+Alternative to running the services manually, they can also be run via Docker. After creating the relevant `.env` files above, add a file called `.babelrc` to the root of the web project (`apps/web/`) and populate it with:
 
-After creating the relevant `.env` files above, simply run all services via:
+```json
+{ "presets": ["next/babel"] }
+```
+
+Then run all services:,
 
 ```bash
 $ docker-compose up
 ```
 
-This will load the various `.env` files for Algorand, Circle, etc. credentials -
-most other environment variables will be overridden in favor of those specified
-in the `docker-compose.yml` file.
+Note that page loads in the web app will be slower and tests will fail while this `.babelrc` is present (it is `.gitignore`'d by default). This known issue is an unfortunate incompatibility between Docker and Next's SWC integration at the time of this writing.
 
 ## 📦 Project packages
 
@@ -146,7 +147,8 @@ For performance and code organization reasons, the [https://nx.dev/structure/app
 putting as much functionality as possible into libs, even if the code is only used in a single app. In Nx, a lib is more than just a directory under the `libs/` directory. Each lib must have an entry in the workspace.json file for the lib to build and import correctly.
 
 Linting will fail for any lib code that tries to import code from an app. This means that lib code should never access things like
-global configuration variables or environment variables. (eg. `Configuration`)
+global configuration variables or environment variables. (eg. `Configuration`) Rather, lib code should receive any environment configuration via
+arguments that are passed in.
 
 If you wanted to create a new library at the path `libs/shared/utils`, you'd use the nx generator...
 `nx generate @nrwl/node:lib utils --directory shared`

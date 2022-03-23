@@ -7,8 +7,9 @@ from algosdk.future import transaction
 from algosdk.kmd import KMDClient
 from algosdk.logic import get_application_address
 from algosdk.v2client.algod import AlgodClient
-from contracts.auction import approval_program, clear_state_program
 from pyteal import Expr, Mode, compileTeal
+
+from contracts.auction import approval_program, clear_state_program
 
 
 class Account:
@@ -158,6 +159,11 @@ def decodeState(stateArray: List[Any]) -> Dict[bytes, Union[int, bytes]]:
     return state
 
 
+def getAppCreator(client: AlgodClient, appID: int) -> str:
+    app = client.application_info(appID)
+    return app["params"]["creator"]
+
+
 def getAppGlobalState(
     client: AlgodClient, appID: int
 ) -> Dict[bytes, Union[int, bytes]]:
@@ -189,6 +195,13 @@ def getLastBlockTimestamp(client: AlgodClient) -> Tuple[int, int]:
     timestamp = block["block"]["ts"]
 
     return block, timestamp
+
+
+def waitUntilTimestamp(client: AlgodClient, minTimestamp: int):
+    block, timestamp = getLastBlockTimestamp(client)
+    while timestamp < minTimestamp:
+        client.status_after_block(block["block"]["rnd"] + 1)
+        block, timestamp = getLastBlockTimestamp(client)
 
 
 def payAccount(
@@ -333,6 +346,7 @@ def createAuctionApp(
     endTime: int,
     reserve: int,
     minBidIncrement: int,
+    feePercent: int,
 ) -> int:
     """Create a new auction.
 
@@ -352,13 +366,14 @@ def createAuctionApp(
             the NFT will return to the seller.
         minBidIncrement: The minimum different required between a new bid and
             the current leading bid.
-
+        feePercent: The percentage of the bid amount that will be paid as a
+            royalty to the creator (0-100).
     Returns:
         The ID of the newly created auction app.
     """
     approval, clear = getContracts(client)
 
-    globalSchema = transaction.StateSchema(num_uints=7, num_byte_slices=2)
+    globalSchema = transaction.StateSchema(num_uints=8, num_byte_slices=2)
     localSchema = transaction.StateSchema(num_uints=0, num_byte_slices=0)
 
     app_args = [
@@ -368,6 +383,7 @@ def createAuctionApp(
         endTime.to_bytes(8, "big"),
         reserve.to_bytes(8, "big"),
         minBidIncrement.to_bytes(8, "big"),
+        feePercent.to_bytes(8, "big"),
     ]
 
     txn = transaction.ApplicationCreateTxn(
@@ -426,8 +442,12 @@ def setupAuctionApp(
         100_000
         # additional min balance to opt into NFT
         + 100_000
-        # 3 * min txn fee
-        + 3 * 1_000
+        # 4 * min txn fee
+        # 1. opt-in to asset
+        # 2. transfer asset to winner (or return to seller)
+        # 3. transfer bid amount to seller (or return to bidder)
+        # 4. transfer remaining amount back to creator
+        + 4 * 1_000
     )
 
     fundAppTxn = transaction.PaymentTxn(
@@ -501,7 +521,9 @@ def placeBid(client: AlgodClient, appID: int, bidder: Account, bidAmount: int) -
         app_args=[b"bid"],
         foreign_assets=[nftID],
         # must include the previous lead bidder here to the app can refund that bidder's payment
-        accounts=[prevBidLeader] if prevBidLeader is not None else [],
+        accounts=[prevBidLeader, bidder.getAddress()]
+        if prevBidLeader is not None
+        else [bidder.getAddress()],
         sp=suggestedParams,
     )
 
@@ -534,10 +556,14 @@ def closeAuction(client: AlgodClient, appID: int, closer: Account):
             auction before it starts. Otherwise, this can be any account.
     """
     appGlobalState = getAppGlobalState(client, appID)
+    appCreator = getAppCreator(client, appID)
 
     nftID = appGlobalState[b"nft_id"]
 
-    accounts: List[str] = [encoding.encode_address(appGlobalState[b"seller"])]
+    accounts: List[str] = [
+        encoding.encode_address(appGlobalState[b"seller"]),
+        appCreator,
+    ]
 
     if any(appGlobalState[b"bid_account"]):
         # if "bid_account" is not the zero address
@@ -555,3 +581,66 @@ def closeAuction(client: AlgodClient, appID: int, closer: Account):
     client.send_transaction(signedDeleteTxn)
 
     waitForTransaction(client, signedDeleteTxn.get_txid())
+
+
+def fundAccount(client: AlgodClient, funder: Account, recipient: Account, amount: int):
+    """Fund an account.
+
+    Args:
+        client: An Algod client.
+        funder: The account providing the funding.
+        recipient: The account address receiving the funding.
+        amount: The amount of the funding.
+    """
+
+    suggestedParams = client.suggested_params()
+
+    fundTxn = transaction.PaymentTxn(
+        sender=funder.getAddress(),
+        receiver=recipient.getAddress(),
+        amt=amount,
+        sp=suggestedParams,
+    )
+
+    signedFundTxn = fundTxn.sign(funder.getPrivateKey())
+
+    client.send_transaction(signedFundTxn)
+
+    waitForTransaction(client, signedFundTxn.get_txid())
+
+
+def getCreatorAccount(client: AlgodClient, funder: Account, amount: int):
+    """Get the creator account.
+
+    Args:
+        client: An Algod client.
+        funder: The account providing the funding.
+        amount: The amount of the funding.
+    """
+
+    creator = Account(account.generate_account()[0])
+    fundAccount(client, funder, creator, amount)
+    return creator
+
+
+def closeAccount(client: AlgodClient, closer: Account, recipient: Account):
+    """Close an account.
+
+    Args:
+        client: An Algod client.
+        closer: The account initiating the close transaction.
+        recipient: The account address receiving the funds.
+    """
+
+    suggestedParams = client.suggested_params()
+
+    closeTxn = transaction.PaymentTxn(
+        sender=closer.getAddress(),
+        close_remainder_to=recipient.getAddress(),
+        sp=suggestedParams,
+    )
+    signedCloseTxn = closeTxn.sign(closer.getPrivateKey())
+
+    client.send_transaction(signedCloseTxn)
+
+    waitForTransaction(client, signedCloseTxn.get_txid())

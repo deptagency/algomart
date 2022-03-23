@@ -20,33 +20,33 @@ import {
   TransferCollectibleResult,
 } from '@algomart/schemas'
 
+import { Transaction } from 'objection'
 import {
-  AlgoExplorerAdapter,
-  AlgorandAdapter,
-  DEFAULT_INITIAL_BALANCE,
   CMSCacheAdapter,
+  AlgorandAdapter,
   NFTStorageAdapter,
+  AlgoExplorerAdapter,
+  ItemFilter,
+  DEFAULT_INITIAL_BALANCE,
+  ItemFilters,
 } from '@algomart/shared/adapters'
-
 import {
-  AlgorandAccountModel,
-  AlgorandTransactionGroupModel,
-  AlgorandTransactionModel,
   CollectibleModel,
-  CollectibleOwnershipModel,
-  CollectibleShowcaseModel,
   EventModel,
   UserAccountModel,
+  AlgorandTransactionModel,
+  AlgorandAccountModel,
+  CollectibleOwnershipModel,
+  CollectibleShowcaseModel,
+  AlgorandTransactionGroupModel,
 } from '@algomart/shared/models'
-
 import {
-  isDefinedArray,
-  addDays,
-  isBeforeNow,
   invariant,
+  addDays,
   userInvariant,
+  isDefinedArray,
+  isBeforeNow,
 } from '@algomart/shared/utils'
-import { Transaction } from 'objection'
 
 const MAX_SHOWCASES = 8
 
@@ -65,6 +65,45 @@ export class CollectiblesService {
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
+  }
+
+  async generateCollectibles(limit = 5, trx?: Transaction) {
+    const existingTemplates = await CollectibleModel.query(trx)
+      .groupBy('templateId')
+      .select('templateId')
+    const filter: ItemFilters = {}
+    if (existingTemplates.length > 0) {
+      filter.id = {
+        _nin: existingTemplates.map((c) => c.templateId),
+      }
+    }
+    const { collectibles: templates } = await this.cms.findAllCollectibles(
+      undefined,
+      filter,
+      limit
+    )
+    if (templates.length === 0) {
+      return 0
+    }
+
+    const collectibles = await CollectibleModel.query(trx).insert(
+      templates.flatMap((t) =>
+        Array.from({ length: t.totalEditions }, (_, index) => ({
+          edition: index + 1,
+          templateId: t.templateId,
+        }))
+      )
+    )
+
+    await EventModel.query(trx).insert(
+      collectibles.flatMap((c) => ({
+        action: EventAction.Create,
+        entityType: EventEntityType.Collectible,
+        entityId: c.id,
+      }))
+    )
+
+    return collectibles.length
   }
 
   getTransferrableAt(collectible: CollectibleModel): Date {
@@ -279,19 +318,11 @@ export class CollectiblesService {
 
     try {
       // Store template's media assets
-      const imageData = await this.storage.storeFile(
-        template.image,
-        this.cmsPublicUrl,
-        this.cmsUrl
-      )
+      const imageData = await this.storage.storeFile(template.image)
       const animationField: string | undefined =
         template.assetFile || template.previewVideo || template.previewAudio
       const animationData = animationField
-        ? await this.storage.storeFile(
-            animationField,
-            this.cmsPublicUrl,
-            this.cmsUrl
-          )
+        ? await this.storage.storeFile(animationField)
         : null
 
       // Construct asset metadata
@@ -374,7 +405,6 @@ export class CollectiblesService {
       collectibles.length * 100_000 +
       // 1000 microAlgos per create transaction
       collectibles.length * 1000
-
     const creator = await this.algorand.getCreatorAccount(
       initialBalance,
       this.creatorPassphrase
