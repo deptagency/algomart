@@ -4,6 +4,7 @@ import {
   CircleAdapter,
   CMSCacheAdapter,
   CoinbaseAdapter,
+  DirectusAdapter,
   I18nAdapter,
   MailerAdapter,
   NFTStorageAdapter,
@@ -47,12 +48,13 @@ export function configureResolver() {
     () => new AlgoExplorerAdapter(Configuration.algodEnv, logger)
   )
   resolver.set(
-    CMSCacheAdapter.name,
+    DirectusAdapter.name,
     () =>
-      new CMSCacheAdapter(
+      new DirectusAdapter(
         {
           cmsUrl: Configuration.cmsUrl,
           gcpCdnUrl: Configuration.gcpCdnUrl,
+          accessToken: Configuration.cmsAccessToken,
         },
         logger
       )
