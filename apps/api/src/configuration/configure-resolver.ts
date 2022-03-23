@@ -48,6 +48,17 @@ export function configureResolver() {
     () => new AlgoExplorerAdapter(Configuration.algodEnv, logger)
   )
   resolver.set(
+    CMSCacheAdapter.name,
+    () =>
+      new CMSCacheAdapter(
+        {
+          cmsUrl: Configuration.cmsUrl,
+          gcpCdnUrl: Configuration.gcpCdnUrl,
+        },
+        logger
+      )
+  )
+  resolver.set(
     DirectusAdapter.name,
     () =>
       new DirectusAdapter(

@@ -451,99 +451,91 @@ export class DirectusAdapter {
   }
 
   async syncHomePage() {
-    const response = await this.http.get('items/homepage', {
-      params: getParameters({
-        fields: [
-          'id',
+    const response = await this.http.get<{ data: DirectusHomepage }>(
+      'items/homepage',
+      {
+        params: getParameters({
+          fields: [
+            'id',
 
-          'hero_banner.*',
-          'translations.*',
+            'translations.*',
 
-          'hero_pack.*',
-          'hero_pack.pack_image.*',
-          'hero_pack.translations.*',
-          'hero_pack.nft_templates.*',
-          'hero_pack.nft_templates.asset_file.*',
-          'hero_pack.nft_templates.translations.*',
-          'hero_pack.nft_templates.preview_audio.*',
-          'hero_pack.nft_templates.preview_image.*',
-          'hero_pack.nft_templates.preview_video.*',
-          'hero_pack.nft_templates.rarity.*',
-          'hero_pack.nft_templates.rarity.translations.*',
+            'upcoming_packs.*',
+            'upcoming_packs.pack_image.*',
+            'upcoming_packs.translations.*',
+            'upcoming_packs.nft_templates.*',
+            'upcoming_packs.nft_templates.asset_file.*',
+            'upcoming_packs.nft_templates.translations.*',
+            'upcoming_packs.nft_templates.preview_audio.*',
+            'upcoming_packs.nft_templates.preview_image.*',
+            'upcoming_packs.nft_templates.preview_video.*',
+            'upcoming_packs.nft_templates.rarity.*',
+            'upcoming_packs.nft_templates.rarity.translations.*',
 
-          'featured_packs.*',
-          'featured_packs.pack_image.*',
-          'featured_packs.translations.*',
-          'featured_packs.nft_templates.*',
-          'featured_packs.nft_templates.asset_file.*',
-          'featured_packs.nft_templates.translations.*',
-          'featured_packs.nft_templates.preview_audio.*',
-          'featured_packs.nft_templates.preview_image.*',
-          'featured_packs.nft_templates.preview_video.*',
-          'featured_packs.nft_templates.rarity.*',
-          'featured_packs.nft_templates.rarity.translations.*',
-
-          'featured_nfts.*',
-          'featured_nfts.*',
-          'featured_nfts.asset_file.*',
-          'featured_nfts.translations.*',
-          'featured_nfts.preview_audio.*',
-          'featured_nfts.preview_image.*',
-          'featured_nfts.preview_video.*',
-          'featured_nfts.rarity.*',
-          'featured_nfts.rarity.translations.*',
-        ],
-        deep: {
-          hero_pack: {
-            _filter: {
-              status: {
-                _eq: DirectusStatus.Published,
+            'featured_pack.*',
+            'featured_pack.pack_image.*',
+            'featured_pack.translations.*',
+            'featured_pack.nft_templates.*',
+            'featured_pack.nft_templates.asset_file.*',
+            'featured_pack.nft_templates.translations.*',
+            'featured_pack.nft_templates.preview_audio.*',
+            'featured_pack.nft_templates.preview_image.*',
+            'featured_pack.nft_templates.preview_video.*',
+            'featured_pack.nft_templates.rarity.*',
+            'featured_pack.nft_templates.rarity.translations.*',
+          ],
+          deep: {
+            hero_pack: {
+              _filter: {
+                status: {
+                  _eq: DirectusStatus.Published,
+                },
+              },
+            },
+            featured_packs: {
+              _filter: {
+                status: {
+                  _eq: DirectusStatus.Published,
+                },
+              },
+            },
+            featured_nfts: {
+              _filter: {
+                status: {
+                  _eq: DirectusStatus.Published,
+                },
               },
             },
           },
-          featured_packs: {
-            _filter: {
-              status: {
-                _eq: DirectusStatus.Published,
-              },
-            },
-          },
-          featured_nfts: {
-            _filter: {
-              status: {
-                _eq: DirectusStatus.Published,
-              },
-            },
-          },
-        },
-      }),
-    })
+        }),
+      }
+    )
 
-    const homepage = response.data
+    const homepage = response.data.data
 
-    await CMSCacheHomepageModel.upsert(homepage as unknown as DirectusHomepage)
+    await CMSCacheHomepageModel.upsert(homepage as DirectusHomepage)
 
     return null
   }
 
   async syncApplication() {
-    const response = await this.http.get('items/application', {
-      params: getParameters({
-        fields: [
-          'id',
-          'currency',
-          'countries.*',
-          'countries.countries_code.*',
-          'countries.countries_code.translations.*',
-        ],
-      }),
-    })
-
-    const application = response.data
-
-    await CMSCacheApplicationModel.upsert(
-      application as unknown as DirectusApplication
+    const response = await this.http.get<{ data: DirectusApplication }>(
+      'items/application',
+      {
+        params: getParameters({
+          fields: [
+            'id',
+            'currency',
+            'countries.*',
+            'countries.countries_code.*',
+            'countries.countries_code.translations.*',
+          ],
+        }),
+      }
     )
+    const application = response.data.data
+
+    await CMSCacheApplicationModel.upsert(application as DirectusApplication)
 
     return null
   }
