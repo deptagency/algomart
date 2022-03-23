@@ -17,9 +17,8 @@ import { PackFilterState } from '@/hooks/use-pack-filter'
  * Build a search parameter string to filter published packs
  */
 
-export const getPublishedPacksFilterQuery = (query: PublishedPacksQuery) => {
+export const searchPublishedPacksFilterQuery = (query: PublishedPacksQuery) => {
   return stringify({
-    locale: query.locale,
     page: query.page,
     pageSize: query.pageSize || PAGE_SIZE,
     priceHigh: query.priceHigh,
