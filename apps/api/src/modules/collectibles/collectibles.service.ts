@@ -19,7 +19,6 @@ import {
   TransferCollectibleResult,
 } from '@algomart/schemas'
 import {
-  AlgorandAccountModel,
   AlgorandTransactionGroupModel,
   AlgorandTransactionModel,
   CollectibleModel,
@@ -38,9 +37,7 @@ import {
 import { Configuration } from '@api/configuration'
 import { logger } from '@api/configuration/logger'
 import AlgoExplorerAdapter from '@api/lib/algoexplorer-adapter'
-import AlgorandAdapter, {
-  DEFAULT_INITIAL_BALANCE,
-} from '@api/lib/algorand-adapter'
+import AlgorandAdapter from '@api/lib/algorand-adapter'
 import DirectusAdapter, { ItemFilter } from '@api/lib/directus-adapter'
 import NFTStorageAdapter from '@api/lib/nft-storage-adapter'
 import { Transaction } from 'objection'
@@ -404,62 +401,13 @@ export default class CollectiblesService {
 
     invariant(templates.length > 0, 'templates not found')
 
-    // TODO: remove the creator account once the 1000 asset limit is removed
-    const initialBalance =
-      DEFAULT_INITIAL_BALANCE +
-      // 0.1 ALGO per collectible
-      collectibles.length * 100_000 +
-      // 1000 microAlgos per create transaction
-      collectibles.length * 1000
-    const creator = await this.algorand.getCreatorAccount(initialBalance)
-
-    const transactions = await AlgorandTransactionModel.query(trx).insert([
-      {
-        // funding transaction
-        address: creator.transactionIds[0],
-        // Creator must already be confirmed for us to get here
-        status: AlgorandTransactionStatus.Confirmed,
-      },
-      {
-        // non-participation transaction
-        address: creator.transactionIds[1],
-        status: AlgorandTransactionStatus.Pending,
-      },
-    ])
-
-    const creatorAccount = await AlgorandAccountModel.query(trx).insertGraph(
-      {
-        address: creator.address,
-        encryptedKey: creator.encryptedMnemonic,
-        creationTransactionId: transactions[0].id,
-      },
-      { relate: true }
-    )
-
-    await EventModel.query(trx).insert({
-      action: EventAction.Create,
-      entityType: EventEntityType.AlgorandAccount,
-      entityId: creatorAccount.id,
-    })
-
     const { signedTransactions, transactionIds } =
       await this.algorand.generateCreateAssetTransactions(
         collectibles,
-        templates,
-        creator
+        templates
       )
 
-    this.logger.info('Using creator account %s', creator?.address || '-')
-
-    try {
-      await this.algorand.submitTransaction(signedTransactions)
-    } catch (error) {
-      if (creator) {
-        this.logger.info('Closing creator account %s', creator.address)
-        await this.algorand.closeCreatorAccount(creator)
-      }
-      throw error
-    }
+    await this.algorand.submitTransaction(signedTransactions)
 
     await Promise.all(
       collectibles.map(async (collectible, index) => {
@@ -534,6 +482,10 @@ export default class CollectiblesService {
         assetIndex,
         encryptedMnemonic,
         passphrase,
+        // NOTE: Unless this is an older collectible, the creator account will
+        //       be the same as the funding account. Either way, we need to pass
+        //       the creator in here to ensure the clawback transaction is
+        //       transferring from the correct account.
         fromAccountAddress: info.creator,
       })
 
