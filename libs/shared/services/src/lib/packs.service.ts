@@ -1337,7 +1337,7 @@ export class PacksService {
               variables: {
                 amount: `${formatIntToFloat(
                   selectedBid.amount,
-                  this.currency // TODO: receive as argument
+                  this.currency
                 )}`,
                 canExpire: packTemplate.allowBidExpiration,
                 packSlug: packTemplate.slug,

@@ -34,7 +34,6 @@ import {
 } from '@algomart/schemas'
 import { HttpTransport } from '@algomart/shared/utils'
 import { invariant } from '@algomart/shared/utils'
-// import { logger } from '@api/configuration/logger'
 
 export interface CircleAdapterOptions {
   url: string
