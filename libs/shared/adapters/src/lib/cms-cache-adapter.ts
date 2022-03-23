@@ -881,7 +881,8 @@ export class CMSCacheAdapter {
       }
     }
 
-    for (const sort of query.sort) {
+    for (let i = 0; i < query.sort?.length; i++) {
+      const sort = query.sort[i]
       queryBuild = queryBuild.orderBy(sort.field, sort.order)
     }
 

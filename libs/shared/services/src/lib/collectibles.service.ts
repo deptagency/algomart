@@ -71,6 +71,7 @@ export class CollectiblesService {
     const existingTemplates = await CollectibleModel.query(trx)
       .groupBy('templateId')
       .select('templateId')
+
     const filter: ItemFilters = {}
     if (existingTemplates.length > 0) {
       filter.id = {
@@ -78,7 +79,7 @@ export class CollectiblesService {
       }
     }
     const { collectibles: templates } = await this.cms.findAllCollectibles(
-      undefined,
+      DEFAULT_LOCALE,
       filter,
       limit
     )

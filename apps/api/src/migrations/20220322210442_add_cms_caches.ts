@@ -12,6 +12,7 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary()
     table.string('slug').notNullable().unique()
     table.string('type').notNullable()
+    table.integer('price')
     table.dateTime('releasedAt')
     table.dateTime('auctionUntil')
     table.jsonb('content').notNullable()

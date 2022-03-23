@@ -534,7 +534,6 @@ export class DirectusAdapter {
       }
     )
     const application = response.data.data
-
     await CMSCacheApplicationModel.upsert(application as DirectusApplication)
 
     return null
