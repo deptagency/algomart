@@ -19,7 +19,8 @@ import { ColumnDefinitionType } from '@/components/table'
 import TextInput from '@/components/text-input/text-input'
 import usePagination from '@/hooks/use-pagination'
 import AdminLayout from '@/layouts/admin-layout'
-import adminService from '@/services/admin-service'
+import { AdminService } from '@/services/admin-service'
+import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { getUsersFilterQuery } from '@/utils/filters'
 import { useAuthApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
@@ -59,7 +60,7 @@ function CheckRole({ user, role }: CheckRoleProps) {
 
     // show in UI before it goes through
     setChecked(!checked)
-    const updatedClaims = await adminService.updateClaims(
+    const updatedClaims = await AdminService.instance.updateClaims(
       user.externalId,
       role.id,
       !checked
@@ -205,4 +206,21 @@ export default function AdminUsersPage() {
       </Panel>
     </AdminLayout>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  // Check if the user is admin (check again on render, to prevent caching of claims)
+  const user = await isAuthenticatedUserAdmin(context)
+  if (!user) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    }
+  }
+
+  return {
+    props: {},
+  }
 }
