@@ -102,11 +102,9 @@ export class AdminService implements AdminAPI {
     value: boolean
   ): Promise<AdminPermissions> {
     return await this.http
-      .patch<AdminPermissions>(urls.api.v1.adminUpdateClaims, {
-        userExternalId,
-        key,
-        value,
+      .patch(urls.api.v1.adminUpdateClaims, {
+        json: { userExternalId, key, value },
       })
-      .then((response) => response.data)
+      .json<AdminPermissions>()
   }
 }
