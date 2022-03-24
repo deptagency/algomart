@@ -67,7 +67,7 @@ export async function packsRoutes(app: FastifyInstance) {
       schema: {
         tags,
         security,
-        description: 'Get all published packs with pagination.',
+        description: 'Search all published packs with pagination.',
         querystring: PublishedPacksQuerySchema,
         response: {
           200: PublishedPacksSchema,

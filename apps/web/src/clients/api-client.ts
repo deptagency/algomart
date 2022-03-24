@@ -384,7 +384,7 @@ export class ApiClient {
   async getPublishedPacks(query: PublishedPacksQuery) {
     const searchQuery = searchPublishedPacksFilterQuery(query)
     return await this.http
-      .get<PublishedPacks>(`packs?${searchQuery}`)
+      .get<PublishedPacks>(`packs/search?${searchQuery}`)
       .then((response) => response.data)
   }
 

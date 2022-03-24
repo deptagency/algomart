@@ -203,6 +203,10 @@ export class PacksService {
       if (priceLow) filter.price._gte = Math.round(priceLow)
     }
 
+    filter.type = {
+      _in: type,
+    }
+
     const sort: ItemSort[] = [
       {
         field: sortBy,

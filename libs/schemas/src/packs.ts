@@ -39,7 +39,6 @@ export enum PackCollectibleDistribution {
 
 export enum PackSortField {
   ReleasedAt = 'releasedAt',
-  Title = 'title',
 }
 
 export enum PackSortByOwnerField {
@@ -155,7 +154,7 @@ export const PublishedPacksQuerySchema = Type.Intersect([
     status: Type.Optional(Type.Array(Type.Enum(PackStatus))),
     reserveMet: Type.Optional(Type.Boolean()),
     sortBy: Type.Optional(
-      Type.Enum(PackSortField, { default: PackSortField.Title })
+      Type.Enum(PackSortField, { default: PackSortField.ReleasedAt })
     ),
     sortDirection: Type.Optional(
       Type.Enum(SortDirection, { default: SortDirection.Ascending })
