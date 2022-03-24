@@ -191,21 +191,12 @@ export class PacksService {
     type = [],
     priceHigh,
     priceLow,
+    status,
+    reserveMet,
     sortBy = PackSortField.ReleasedAt,
     sortDirection = SortDirection.Descending,
   }: PublishedPacksQuery): Promise<{ packs: PublishedPack[]; total: number }> {
     invariant(page > 0, 'page must be greater than 0')
-
-    const filter: ItemFilters = {}
-    if (priceHigh || priceLow) {
-      filter.price = {}
-      if (priceHigh) filter.price._lte = Math.round(priceHigh)
-      if (priceLow) filter.price._gte = Math.round(priceLow)
-    }
-
-    filter.type = {
-      _in: type,
-    }
 
     const sort: ItemSort[] = [
       {
@@ -213,6 +204,30 @@ export class PacksService {
         order: sortDirection,
       },
     ]
+
+    const filter: ItemFilters = {
+      type: {
+        _in: type,
+      },
+    }
+
+    if (priceHigh || priceLow) {
+      filter.price = {}
+      if (priceHigh) filter.price._lte = Math.round(priceHigh)
+      if (priceLow) filter.price._gte = Math.round(priceLow)
+    }
+
+    if (status) {
+      filter.status = {
+        _in: status,
+      }
+    }
+
+    if (reserveMet) {
+      filter.reserveMet = {
+        _eq: reserveMet,
+      }
+    }
 
     const { packs: templates, total } = await this.cms.findAllPacks({
       filter,
