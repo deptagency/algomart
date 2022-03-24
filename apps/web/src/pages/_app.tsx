@@ -8,6 +8,7 @@ import '../styles/globals.css'
 import { Analytics } from '@/clients/firebase-analytics'
 import CookieConsent from '@/components/cookie-consent/cookie-consent'
 import { AuthProvider } from '@/contexts/auth-context'
+import { I18nProvider } from '@/contexts/i18n-context'
 import { RedemptionProvider } from '@/contexts/redemption-context'
 import { ThemeProvider } from '@/contexts/theme-context'
 import { fetcher } from '@/utils/swr'
@@ -34,10 +35,12 @@ function MyApp({ Component, pageProps }: AppProps) {
     <SWRConfig value={{ fetcher }}>
       <RedemptionProvider>
         <AuthProvider>
-          <ThemeProvider>
-            <Component {...pageProps} />
-            <CookieConsent />
-          </ThemeProvider>
+          <I18nProvider>
+            <ThemeProvider>
+              <Component {...pageProps} />
+              <CookieConsent />
+            </ThemeProvider>
+          </I18nProvider>
         </AuthProvider>
       </RedemptionProvider>
     </SWRConfig>
