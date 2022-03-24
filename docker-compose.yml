@@ -40,6 +40,7 @@ services:
     environment:
       # only put values in here that should override the CMS .env file
       DB_CONNECTION_STRING: postgres://cms:cms@cms-db:5432/cms
+      PORT: 8055
     networks:
       - algomart_test
     ports:
@@ -61,6 +62,8 @@ services:
       CMS_URL: http://cms:8055
       CMS_PUBLIC_URL: http://localhost:8055
       DATABASE_URL: postgres://api:api@api-db:5432/api
+      HOST: 0.0.0.0
+      PORT: 3001
     networks:
       - algomart_test
     ports:
@@ -81,6 +84,7 @@ services:
       # only put values in here that should override the Web .env file
       API_URL: http://api:3001
       IMAGE_DOMAINS: lh3.googleusercontent.com,firebasestorage.googleapis.com,localhost,cms
+      PORT: 3000
     networks:
       - algomart_test
     ports:

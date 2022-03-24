@@ -36,11 +36,11 @@ import {
 } from '@algomart/schemas'
 
 import {
-  UserAccountModel,
   BidModel,
   EventModel,
   PackModel,
   CollectibleModel,
+  UserAccountModel,
 } from '@algomart/shared/models'
 
 import {
@@ -91,6 +91,32 @@ export class PacksService {
   }
 
   // #region Private helpers
+  private createPackFilterFn({ status = [], reserveMet }) {
+    return (pack: PublishedPack) => {
+      if (pack.type === PackType.Auction) {
+        let include = true
+        if (status.length > 0) {
+          include = include && status.includes(pack.status)
+        }
+
+        if (typeof reserveMet === 'boolean') {
+          include = reserveMet
+            ? include &&
+              typeof pack.activeBid === 'number' &&
+              pack.price !== null &&
+              pack.activeBid >= pack.price
+            : include &&
+              (pack.price === null ||
+                pack.activeBid === undefined ||
+                pack.activeBid < pack.price)
+        }
+
+        return include
+      }
+
+      return true
+    }
+  }
 
   private createPackSortFn(sort: {
     sortBy: PackSortField
@@ -223,6 +249,8 @@ export class PacksService {
       type = [],
       priceHigh,
       priceLow,
+      status,
+      reserveMet,
       sortBy = PackSortField.ReleasedAt,
       sortDirection = SortDirection.Descending,
     }: PublishedPacksQuery,
@@ -230,7 +258,19 @@ export class PacksService {
   ): Promise<{ packs: PublishedPack[]; total: number }> {
     invariant(page > 0, 'page must be greater than 0')
 
-    const filter: ItemFilters = {}
+    const sort: ItemSort[] = [
+      {
+        field: sortBy,
+        order: sortDirection,
+      },
+    ]
+
+    const filter: ItemFilters = {
+      type: {
+        _in: type,
+      },
+    }
+
     if (priceHigh || priceLow) {
       if (currency !== this.currency.code) {
         const { exchangeRate } = await this.i18nService.getCurrencyConversion(
@@ -250,12 +290,11 @@ export class PacksService {
       if (priceLow) filter.price._gte = Math.round(priceLow)
     }
 
-    const sort: ItemSort[] = [
-      {
-        field: sortBy,
-        order: sortDirection,
-      },
-    ]
+    if (priceHigh || priceLow) {
+      filter.price = {}
+      if (priceHigh) filter.price._lte = Math.round(priceHigh)
+      if (priceLow) filter.price._gte = Math.round(priceLow)
+    }
 
     const { packs: templates, total } = await this.cms.findAllPacks({
       filter,
@@ -290,7 +329,11 @@ export class PacksService {
       packWithActiveBidsLookup
     )
 
-    const allPublicPacks = templates.map((pack) => assemblePack(pack))
+    const postQueryFilters = this.createPackFilterFn({ status, reserveMet })
+
+    const allPublicPacks = templates
+      .map((pack) => assemblePack(pack))
+      .filter((pack) => postQueryFilters(pack))
 
     return {
       packs: allPublicPacks,

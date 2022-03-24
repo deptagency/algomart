@@ -356,9 +356,7 @@ export class AlgorandAdapter {
 
   async generateCreateAssetTransactions(
     collectibles: CollectibleModel[],
-    templates: CollectibleBase[],
-    creator: PublicAccount | undefined,
-    passphrase: string
+    templates: CollectibleBase[]
   ) {
     invariant(
       collectibles.length <= 16,
@@ -367,13 +365,6 @@ export class AlgorandAdapter {
 
     const suggestedParams = await this.algod.getTransactionParams().do()
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
-    let fromAccount = this.fundingAccount
-
-    if (creator) {
-      fromAccount = algosdk.mnemonicToSecretKey(
-        decrypt(creator.encryptedMnemonic, passphrase, this.options.appSecret)
-      )
-    }
 
     const transactions = collectibles.map((collectible) => {
       const template = templateLookup.get(collectible.templateId)
@@ -391,7 +382,7 @@ export class AlgorandAdapter {
         assetMetadataHash: new Uint8Array(
           Buffer.from(collectible.assetMetadataHash, 'hex')
         ),
-        from: fromAccount.addr,
+        from: this.fundingAccount.addr,
         total: 1,
         decimals: 0,
         defaultFrozen: false,
@@ -405,7 +396,7 @@ export class AlgorandAdapter {
     algosdk.assignGroupID(transactions)
 
     const signedTransactions = transactions.map((transaction) =>
-      transaction.signTxn(fromAccount.sk)
+      transaction.signTxn(this.fundingAccount.sk)
     )
 
     const transactionIds = transactions.map((transaction) => transaction.txID())

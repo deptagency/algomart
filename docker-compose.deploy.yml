@@ -40,6 +40,7 @@ services:
     environment:
       # only put values in here that should override the CMS .env file
       DB_CONNECTION_STRING: postgres://cms:cms@cms-db-deploy:5432/cms
+      PORT: 8055
     networks:
       - algomart_deploy
     ports:
@@ -62,6 +63,8 @@ services:
       CMS_PUBLIC_URL: http://localhost:8055
       DATABASE_URL: postgres://api:api@api-db-deploy:5432/api
       ENABLE_JOBS: 'false'
+      HOST: 0.0.0.0
+      PORT: 3001
     networks:
       - algomart_deploy
     ports:
@@ -99,6 +102,7 @@ services:
     environment:
       # only put values in here that should override the Web .env file
       API_URL: http://api-deploy:3001
+      PORT: 3000
     networks:
       - algomart_deploy
     ports:

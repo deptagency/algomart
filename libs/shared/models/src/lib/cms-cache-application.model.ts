@@ -31,7 +31,9 @@ export class CMSCacheApplicationModel extends Model {
   }
 
   static async upsert(application: DirectusApplication) {
-    const record = await this.getById(application.id)
+    const record = application.id
+      ? await this.getById(application.id)
+      : undefined
     if (record) {
       this.update(application)
     } else {

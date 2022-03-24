@@ -39,7 +39,7 @@ export enum PackCollectibleDistribution {
 
 export enum PackSortField {
   ReleasedAt = 'releasedAt',
-  Title = 'title',
+  Title = 'name',
 }
 
 export enum PackSortByOwnerField {

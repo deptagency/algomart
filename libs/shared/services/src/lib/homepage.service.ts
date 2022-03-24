@@ -19,15 +19,15 @@ export class HomepageService {
     const homepageBase = await this.cms.findHomepage(language)
     userInvariant(homepageBase, 'homepage not found', 404)
 
-    const templates = homepageBase.featuredPackTemplateId
+    const templateIds = homepageBase.featuredPackTemplateId
       ? [
           ...homepageBase.upcomingPackTemplateIds,
           homepageBase.featuredPackTemplateId,
         ]
       : homepageBase.upcomingPackTemplateIds
 
-    const packs = await this.packsService.getPublishedPacksByTemplates(
-      templates
+    const packs = await this.packsService.getPublishedPacksByTemplateIds(
+      templateIds
     )
 
     const collectibles = await this.cms.findCollectiblesByTemplateIds(

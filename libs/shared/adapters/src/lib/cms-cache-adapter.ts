@@ -70,7 +70,7 @@ export enum ItemFilterType {
   nin = '_nin',
 }
 
-export type ItemFilter = {
+export type ItemFilter<T extends Objection.Model = Objection.Model> = {
   [key in ItemFilterType]?:
     | string
     | string[]
@@ -80,6 +80,7 @@ export type ItemFilter = {
     | boolean[]
     | Date
     | Date[]
+    | Objection.QueryBuilder<T>
 }
 
 export interface ItemFilters {
@@ -501,7 +502,7 @@ export class CMSCacheAdapter {
     trx?: Transaction
   ) {
     const queryResult = await CMSCachePackTemplateModel.query(trx)
-      .whereIn('templateId', templateIds)
+      .whereIn('id', templateIds)
       .select('content')
 
     const data = queryResult.map(
@@ -905,7 +906,8 @@ export class CMSCacheAdapter {
       }
     }
 
-    for (const sort of query.sort) {
+    for (let i = 0; i < query.sort?.length; i++) {
+      const sort = query.sort[i]
       queryBuild = queryBuild.orderBy(sort.field, sort.order)
     }
 

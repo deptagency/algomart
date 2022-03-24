@@ -101,12 +101,12 @@ export class NFTStorageAdapter {
     }
   }
 
-  async storeFile(url: string, cmsPublicUrl: string, cmsUrl: string) {
+  async storeFile(url: string) {
     const fileName = path.basename(new URL(url).pathname)
     try {
       // If CMS_PUBLIC_URL is set, we need to replace it with the internal URL
-      const internalURL = url.includes(cmsPublicUrl)
-        ? url.replace(cmsPublicUrl, cmsUrl)
+      const internalURL = url.includes(this.options.cmsPublicUrl)
+        ? url.replace(this.options.cmsPublicUrl, this.options.cmsUrl)
         : url
       const pipeline = promisify(stream.pipeline)
       const http = new HttpTransport()

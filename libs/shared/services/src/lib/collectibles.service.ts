@@ -21,31 +21,27 @@ import {
 } from '@algomart/schemas'
 
 import {
-  AlgoExplorerAdapter,
-  AlgorandAdapter,
-  DEFAULT_INITIAL_BALANCE,
   CMSCacheAdapter,
+  AlgorandAdapter,
   NFTStorageAdapter,
+  AlgoExplorerAdapter,
   ItemFilters,
 } from '@algomart/shared/adapters'
-
 import {
-  AlgorandAccountModel,
-  AlgorandTransactionGroupModel,
-  AlgorandTransactionModel,
   CollectibleModel,
-  CollectibleOwnershipModel,
-  CollectibleShowcaseModel,
   EventModel,
   UserAccountModel,
+  AlgorandTransactionModel,
+  CollectibleOwnershipModel,
+  CollectibleShowcaseModel,
+  AlgorandTransactionGroupModel,
 } from '@algomart/shared/models'
-
 import {
-  isDefinedArray,
-  addDays,
-  isBeforeNow,
   invariant,
+  addDays,
   userInvariant,
+  isDefinedArray,
+  isBeforeNow,
 } from '@algomart/shared/utils'
 import { Transaction } from 'objection'
 
@@ -60,9 +56,6 @@ export class CollectiblesService {
     private readonly storage: NFTStorageAdapter,
     private readonly algoExplorer: AlgoExplorerAdapter,
     private readonly minimumDaysBeforeTransfer: number,
-    private readonly creatorPassphrase: string,
-    private readonly cmsPublicUrl: string,
-    private readonly cmsUrl: string,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
@@ -72,6 +65,7 @@ export class CollectiblesService {
     const existingTemplates = await CollectibleModel.query(trx)
       .groupBy('templateId')
       .select('templateId')
+
     const filter: ItemFilters = {}
     if (existingTemplates.length > 0) {
       filter.id = {
@@ -79,7 +73,7 @@ export class CollectiblesService {
       }
     }
     const { collectibles: templates } = await this.cms.findAllCollectibles(
-      undefined,
+      DEFAULT_LANG,
       filter,
       limit
     )
@@ -317,19 +311,11 @@ export class CollectiblesService {
 
     try {
       // Store template's media assets
-      const imageData = await this.storage.storeFile(
-        template.image,
-        this.cmsPublicUrl,
-        this.cmsUrl
-      )
+      const imageData = await this.storage.storeFile(template.image)
       const animationField: string | undefined =
         template.assetFile || template.previewVideo || template.previewAudio
       const animationData = animationField
-        ? await this.storage.storeFile(
-            animationField,
-            this.cmsPublicUrl,
-            this.cmsUrl
-          )
+        ? await this.storage.storeFile(animationField)
         : null
 
       // Construct asset metadata
@@ -402,67 +388,13 @@ export class CollectiblesService {
 
     invariant(templates.length > 0, 'templates not found')
 
-    // TODO: remove the creator account once the 1000 asset limit is removed
-    const initialBalance =
-      DEFAULT_INITIAL_BALANCE +
-      // 0.1 ALGO per collectible
-      collectibles.length * 100_000 +
-      // 1000 microAlgos per create transaction
-      collectibles.length * 1000
-
-    const creator = await this.algorand.getCreatorAccount(
-      initialBalance,
-      this.creatorPassphrase
-    )
-
-    const transactions = await AlgorandTransactionModel.query(trx).insert([
-      {
-        // funding transaction
-        address: creator.transactionIds[0],
-        // Creator must already be confirmed for us to get here
-        status: AlgorandTransactionStatus.Confirmed,
-      },
-      {
-        // non-participation transaction
-        address: creator.transactionIds[1],
-        status: AlgorandTransactionStatus.Pending,
-      },
-    ])
-
-    const creatorAccount = await AlgorandAccountModel.query(trx).insertGraph(
-      {
-        address: creator.address,
-        encryptedKey: creator.encryptedMnemonic,
-        creationTransactionId: transactions[0].id,
-      },
-      { relate: true }
-    )
-
-    await EventModel.query(trx).insert({
-      action: EventAction.Create,
-      entityType: EventEntityType.AlgorandAccount,
-      entityId: creatorAccount.id,
-    })
-
     const { signedTransactions, transactionIds } =
       await this.algorand.generateCreateAssetTransactions(
         collectibles,
-        templates,
-        creator,
-        this.creatorPassphrase
+        templates
       )
 
-    this.logger.info('Using creator account %s', creator?.address || '-')
-
-    try {
-      await this.algorand.submitTransaction(signedTransactions)
-    } catch (error) {
-      if (creator) {
-        this.logger.info('Closing creator account %s', creator.address)
-        await this.algorand.closeCreatorAccount(creator, this.creatorPassphrase)
-      }
-      throw error
-    }
+    await this.algorand.submitTransaction(signedTransactions)
 
     await Promise.all(
       collectibles.map(async (collectible, index) => {
@@ -537,6 +469,10 @@ export class CollectiblesService {
         assetIndex,
         encryptedMnemonic,
         passphrase,
+        // NOTE: Unless this is an older collectible, the creator account will
+        //       be the same as the funding account. Either way, we need to pass
+        //       the creator in here to ensure the clawback transaction is
+        //       transferring from the correct account.
         fromAccountAddress: info.creator,
       })
 

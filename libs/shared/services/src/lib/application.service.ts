@@ -15,10 +15,16 @@ export class ApplicationService {
 
   async getCountries(language = DEFAULT_LANG): Promise<Countries> {
     // Find application details and compile IDs of supported countries
-    const countries = await this.cms.findAllCountries(language)
+    const application = await this.cms.findApplication()
+    invariant(application?.countries?.length > 0, 'No countries found')
+    const countryCodes = application.countries.map(
+      ({ countries_code }) => countries_code.code
+    )
 
-    invariant(countries.length > 0, 'No countries found')
-
+    // Search for countries
+    const countries = (await this.cms.findAllCountries(language)).filter(
+      ({ code }) => countryCodes.includes(code)
+    )
     return countries
   }
 }

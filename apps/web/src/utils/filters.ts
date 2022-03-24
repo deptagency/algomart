@@ -17,9 +17,8 @@ import { PackFilterState } from '@/hooks/use-pack-filter'
  * Build a search parameter string to filter published packs
  */
 
-export const getPublishedPacksFilterQuery = (query: PublishedPacksQuery) => {
+export const searchPublishedPacksFilterQuery = (query: PublishedPacksQuery) => {
   return stringify({
-    locale: query.locale,
     page: query.page,
     pageSize: query.pageSize || PAGE_SIZE,
     priceHigh: query.priceHigh,
@@ -62,7 +61,6 @@ export const getPublishedPacksFilterQueryFromState = (
   const type: PackType[] = []
   if (state.showAuction) type.push(PackType.Auction)
   if (state.showPurchase) type.push(PackType.Purchase)
-  if (type.length === 0) type.push(PackType.Auction, PackType.Purchase)
 
   return {
     locale,
@@ -121,6 +119,6 @@ export const getSelectSortingOptions = (t: Translate) => {
   return [
     { id: SortOptions.Newest, label: t('collection:sorting.Newest') },
     { id: SortOptions.Oldest, label: t('collection:sorting.Oldest') },
-    { id: SortOptions.Name, label: t('collection:sorting.Name') },
+    // { id: SortOptions.Name, label: t('collection:sorting.Name') },
   ]
 }

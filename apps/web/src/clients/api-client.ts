@@ -75,7 +75,7 @@ import {
   getCollectiblesFilterQuery,
   getPacksByOwnerFilterQuery,
   getPaymentsFilterQuery,
-  getPublishedPacksFilterQuery,
+  searchPublishedPacksFilterQuery,
 } from '@/utils/filters'
 import { HttpTransport, validateStatus } from '@/utils/http-transport'
 import { invariant } from '@/utils/invariant'
@@ -87,6 +87,10 @@ export class ApiClient {
   private static _instance: ApiClient | undefined
 
   static get instance() {
+    invariant(
+      typeof window === 'undefined',
+      'ApiClient is not available in browser'
+    )
     if (!this._instance)
       this._instance = new ApiClient(Environment.apiUrl, Environment.apiKey)
     return this._instance
@@ -382,9 +386,9 @@ export class ApiClient {
 
   //#region Packs
   async getPublishedPacks(query: PublishedPacksQuery) {
-    const searchQuery = getPublishedPacksFilterQuery(query)
+    const searchQuery = searchPublishedPacksFilterQuery(query)
     return await this.http
-      .get<PublishedPacks>(`packs?${searchQuery}`)
+      .get<PublishedPacks>(`packs/search?${searchQuery}`)
       .then((response) => response.data)
   }
 

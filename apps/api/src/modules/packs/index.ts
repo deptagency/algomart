@@ -11,9 +11,11 @@ import {
   PackIdSchema,
   PacksByOwnerQuerySchema,
   PacksByOwnerSchema,
+  PackSlugSchema,
   PackTemplateIdSchema,
   PackWithCollectiblesSchema,
   PackWithIdSchema,
+  PublishedPackSchema,
   PublishedPacksQuerySchema,
   PublishedPacksSchema,
   RedeemCodeSchema,
@@ -34,10 +36,11 @@ import {
   getAuctionPackByTemplateId,
   getPacksByOwner,
   getPackWithCollectiblesById,
-  getPublishedPacks,
+  getPublishedPackBySlug,
   getRedeemablePack,
   mintPackStatus,
   revokePack,
+  searchPublishedPacks,
   transferPack,
   transferPackStatus,
   untransferredPacks,
@@ -59,19 +62,36 @@ export async function packsRoutes(app: FastifyInstance) {
 
   // Services/Routes
   app.get(
-    '/',
+    '/search',
     {
       schema: {
         tags,
         security,
-        description: 'Get all published packs with pagination.',
+        description: 'Search all published packs with pagination.',
         querystring: PublishedPacksQuerySchema,
         response: {
           200: PublishedPacksSchema,
         },
       },
     },
-    getPublishedPacks
+    searchPublishedPacks
+  )
+
+  app.get(
+    '/by-slug/:packSlug',
+    {
+      schema: {
+        tags,
+        security,
+        description: 'Get a pack by slug with its collectibles.',
+        querystring: LocaleSchema,
+        params: PackSlugSchema,
+        response: {
+          200: PublishedPackSchema,
+        },
+      },
+    },
+    getPublishedPackBySlug
   )
 
   app.get(
