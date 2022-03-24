@@ -68,7 +68,7 @@ export enum ItemFilterType {
   nin = '_nin',
 }
 
-export type ItemFilter = {
+export type ItemFilter<T extends Objection.Model = Objection.Model> = {
   [key in ItemFilterType]?:
     | string
     | string[]
@@ -78,6 +78,7 @@ export type ItemFilter = {
     | boolean[]
     | Date
     | Date[]
+    | Objection.QueryBuilder<T>
 }
 
 export interface ItemFilters {
