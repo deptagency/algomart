@@ -144,9 +144,6 @@ export function configureResolver() {
         c.get<NFTStorageAdapter>(NFTStorageAdapter.name),
         c.get<AlgoExplorerAdapter>(AlgoExplorerAdapter.name),
         Configuration.minimumDaysBeforeTransfer,
-        Configuration.creatorPassphrase,
-        Configuration.cmsPublicUrl,
-        Configuration.cmsUrl,
         logger
       )
   )

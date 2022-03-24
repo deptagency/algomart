@@ -41,7 +41,6 @@ import {
   PaymentModel,
   UserAccountModel,
 } from '@algomart/shared/models'
-import { CircleAdapter, CoinbaseAdapter } from '@algomart/shared/adapters'
 
 import {
   convertFromUSD,

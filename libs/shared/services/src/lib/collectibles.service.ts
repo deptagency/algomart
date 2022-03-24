@@ -56,7 +56,6 @@ export class CollectiblesService {
     private readonly storage: NFTStorageAdapter,
     private readonly algoExplorer: AlgoExplorerAdapter,
     private readonly minimumDaysBeforeTransfer: number,
-    private readonly creatorPassphrase: string,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
