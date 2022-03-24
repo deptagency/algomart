@@ -498,7 +498,7 @@ export class CMSCacheAdapter {
     trx?: Transaction
   ) {
     const queryResult = await CMSCachePackTemplateModel.query(trx)
-      .whereIn('templateId', templateIds)
+      .whereIn('id', templateIds)
       .select('content')
 
     const data = queryResult.map(
