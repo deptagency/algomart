@@ -1,11 +1,10 @@
 import { PackStatus, PackType } from '@algomart/schemas'
 import { CMSCacheAdapter, toPackBase } from '@algomart/shared/adapters'
 import { randomRedemptionCode } from '@algomart/shared/utils'
+import { packFactory, packTemplateFactory } from '@api/seeds/seed-test-data'
+import { buildTestApp } from '@api-tests/build-test-app'
 import { setupTestDatabase, teardownTestDatabase } from '@api-tests/setup-tests'
 import { FastifyInstance } from 'fastify'
-
-import { buildTestApp } from '../../../../test/build-test-app'
-import { packFactory, packTemplateFactory } from '../../../seeds/seed-test-data'
 
 let app: FastifyInstance
 

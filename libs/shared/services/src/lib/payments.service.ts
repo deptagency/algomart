@@ -31,6 +31,7 @@ import {
   UserAccount,
   WirePayment,
 } from '@algomart/schemas'
+import { CircleAdapter, CoinbaseAdapter } from '@algomart/shared/adapters'
 import {
   BidModel,
   EventModel,

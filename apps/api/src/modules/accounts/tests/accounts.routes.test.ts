@@ -1,18 +1,17 @@
 import { AlgorandTransactionStatus } from '@algomart/schemas'
 import { AlgorandAdapter } from '@algomart/shared/adapters'
 import {
+  algorandAccountFactory,
+  algorandTransactionFactory,
+  userAccountFactory,
+} from '@api/seeds/seed-test-data'
+import { buildTestApp } from '@api-tests/build-test-app'
+import {
   fakeAddressFor,
   setupTestDatabase,
   teardownTestDatabase,
 } from '@api-tests/setup-tests'
 import { FastifyInstance } from 'fastify'
-
-import { buildTestApp } from '../../../../test/build-test-app'
-import {
-  algorandAccountFactory,
-  algorandTransactionFactory,
-  userAccountFactory,
-} from '../../../seeds/seed-test-data'
 
 let app: FastifyInstance
 

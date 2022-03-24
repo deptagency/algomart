@@ -43,11 +43,11 @@ import {
 } from '@algomart/shared/adapters'
 
 import {
-  UserAccountModel,
   BidModel,
   EventModel,
   PackModel,
   CollectibleModel,
+  UserAccountModel,
 } from '@algomart/shared/models'
 
 import {
