@@ -32,14 +32,14 @@ export async function searchPublishedPacks(
 export async function getPublishedPackBySlug(
   request: FastifyRequest<{
     Params: PackSlug
-    Querystring: Locale
+    Querystring: Language
   }>,
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.getPublishedPackBySlug(
     request.params.packSlug,
-    request.query.locale
+    request.query.language
   )
 
   reply.send(result)

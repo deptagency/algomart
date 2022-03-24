@@ -84,7 +84,7 @@ export async function packsRoutes(app: FastifyInstance) {
         tags,
         security,
         description: 'Get a pack by slug with its collectibles.',
-        querystring: LocaleSchema,
+        querystring: LanguageSchema,
         params: PackSlugSchema,
         response: {
           200: PublishedPackSchema,

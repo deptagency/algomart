@@ -17,6 +17,7 @@ import {
   CollectiblesService,
   CollectionsService,
   HomepageService,
+  I18nService,
   NotificationsService,
   PacksService,
   PaymentsService,
@@ -129,6 +130,7 @@ export function configureResolver() {
       new PacksService(
         c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
         c.get<CollectiblesService>(CollectiblesService.name),
+        c.get<I18nService>(I18nService.name),
         c.get<NotificationsService>(NotificationsService.name),
         c.get<AccountsService>(AccountsService.name),
         Configuration.currency,
@@ -216,6 +218,16 @@ export function configureResolver() {
     (c) =>
       new ApplicationService(
         c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
+        logger
+      )
+  )
+  resolver.set(
+    I18nService.name,
+    (c) =>
+      new I18nService(
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
+        c.get<CoinbaseAdapter>(CoinbaseAdapter.name),
+        Configuration.currency,
         logger
       )
   )
