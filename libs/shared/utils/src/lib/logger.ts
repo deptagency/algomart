@@ -41,9 +41,6 @@ export const createLogger = (logLevel: string, env: string) => {
           level: number,
         }
       },
-      log(message) {
-        return { message }
-      },
     },
     serializers: {
       ...pino.stdSerializers,

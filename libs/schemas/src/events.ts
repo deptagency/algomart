@@ -14,6 +14,7 @@ export enum EventEntityType {
   AlgorandTransactionGroup = 'algorand-transaction-group',
   Bid = 'bid',
   Collectible = 'collectible',
+  CollectibleAuction = 'collectible-auction',
   CollectibleOwnership = 'collectible-ownership',
   CollectibleShowcase = 'collectible-showcase',
   Notification = 'notification',

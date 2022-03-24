@@ -516,7 +516,6 @@ export class AlgorandAdapter {
     lease?: Uint8Array
     note?: Uint8Array
     rekeyTo?: string
-    from?: string
   }) {
     const suggestedParams = await this.algod.getTransactionParams().do()
 
@@ -524,7 +523,7 @@ export class AlgorandAdapter {
       suggestedParams,
       approvalProgram: options.approvalProgram,
       clearProgram: options.clearProgram,
-      from: options.from || this.fundingAccount.addr,
+      from: this.fundingAccount.addr,
       numGlobalByteSlices: options.numGlobalByteSlices || 0,
       numGlobalInts: options.numGlobalInts || 0,
       numLocalByteSlices: options.numLocalByteSlices || 0,
@@ -540,24 +539,25 @@ export class AlgorandAdapter {
       rekeyTo: options.rekeyTo,
     })
 
-    return txn
+    return {
+      transaction: txn,
+      signedTransaction: txn.signTxn(this.fundingAccount.sk),
+    }
   }
 
-  appMinBalance(options: {
+  appMinBalance({
+    extraPages = 0,
+    numGlobalByteSlices: numberGlobalByteSlices = 0,
+    numGlobalInts: numberGlobalInts = 0,
+    numLocalByteSlices: numberLocalByteSlices = 0,
+    numLocalInts: numberLocalInts = 0,
+  }: {
     extraPages?: number
     numGlobalByteSlices?: number
     numGlobalInts?: number
     numLocalByteSlices?: number
     numLocalInts?: number
   }): { create: number; optIn: number } {
-    const {
-      extraPages = 0,
-      numGlobalByteSlices: numberGlobalByteSlices = 0,
-      numGlobalInts: numberGlobalInts = 0,
-      numLocalByteSlices: numberLocalByteSlices = 0,
-      numLocalInts: numberLocalInts = 0,
-    } = options
-
     // https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#minimum-balance-requirement-for-a-smart-contract
 
     return {

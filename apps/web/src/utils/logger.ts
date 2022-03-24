@@ -36,9 +36,6 @@ export const logger = pino({
         level: number,
       }
     },
-    log(message) {
-      return { message }
-    },
   },
   serializers: {
     ...pino.stdSerializers,

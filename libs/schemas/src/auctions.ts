@@ -9,8 +9,7 @@ export const CreateAuctionBodySchema = Type.Intersect([
   Type.Object({
     collectibleId: Type.String({ format: 'uuid' }),
     reservePrice: Type.Integer({ minimum: 0 }),
-    startAt: Type.String({ format: 'date-time' }),
-    endAt: Type.String({ format: 'date-time' }),
+    durationInHours: Type.Integer({ minimum: 1 }),
   }),
 ])
 

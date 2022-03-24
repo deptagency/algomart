@@ -14,7 +14,7 @@ export class CollectibleAuctionModel extends BaseModel {
   static tableName = 'CollectibleAuction'
   static jsonSchema = CollectibleAuctionSchema
 
-  appId!: number
+  appId!: number | null
   collectibleId!: string
   endAt!: string
   reservePrice!: number

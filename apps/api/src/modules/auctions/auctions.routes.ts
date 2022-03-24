@@ -16,7 +16,7 @@ export async function createAuction(
     .getContainer()
     .get<AuctionsService>(AuctionsService.name)
 
-  await service.createAuction(request.body, Configuration.secret)
+  await service.createAuction(request.body, 5, request.transaction)
 
   reply.status(201).send()
 }
