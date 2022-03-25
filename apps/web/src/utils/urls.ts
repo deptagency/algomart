@@ -44,6 +44,7 @@ export const urls = {
     index: '/admin',
     transactions: '/admin/transactions',
     transaction: '/admin/transactions/:transactionId',
+    users: '/admin/users',
   },
 
   api: {
@@ -52,6 +53,7 @@ export const urls = {
         getPaymentsForBankAccount:
           '/api/v1/payments/get-payments-by-bank-account',
         getPayments: '/api/v1/payments/list-payments',
+        getUsers: '/api/v1/admin/list-users',
         revokePack: '/api/v1/asset/revoke',
         updatePayment: '/api/v1/payments/update-payment',
       },

@@ -1,6 +1,12 @@
 import { Static, Type } from '@sinclair/typebox'
 
-import { BaseSchema, ExternalIdSchema, Simplify } from './shared'
+import {
+  BaseSchema,
+  ExternalIdSchema,
+  PaginationSchema,
+  Simplify,
+  SortDirection,
+} from './shared'
 import { AlgorandTransactionStatus } from './transactions'
 
 export enum FirebaseClaim {
@@ -71,6 +77,7 @@ export const UserAccountSchema = Type.Intersect([
   BaseUserAccountSchema,
   Type.Object({
     algorandAccountId: Type.String({ format: 'uuid' }),
+    claims: Type.Optional(Type.Array(Type.String())),
   }),
 ])
 
@@ -84,3 +91,29 @@ export type PublicAccount = Simplify<Static<typeof PublicUserAccountSchema>>
 export type UserAccount = Simplify<Static<typeof UserAccountSchema>>
 export type Username = Simplify<Static<typeof UsernameSchema>>
 export type UpdateUserAccount = Simplify<Static<typeof UpdateUserAccountSchema>>
+
+export const UserAccountsSchema = Type.Object({
+  users: Type.Array(UserAccountSchema),
+  total: Type.Number(),
+})
+export type UserAccounts = Simplify<Static<typeof UserAccountsSchema>>
+
+export enum UserSortField {
+  Username = 'username',
+  Email = 'email',
+  CreatedAt = 'createdAt',
+}
+
+export const UsersQuerystringSchema = Type.Intersect([
+  PaginationSchema,
+  Type.Object({
+    search: Type.Optional(Type.String()),
+    sortBy: Type.Optional(
+      Type.Enum(UserSortField, { default: UserSortField.CreatedAt })
+    ),
+    sortDirection: Type.Optional(
+      Type.Enum(SortDirection, { default: SortDirection.Descending })
+    ),
+  }),
+])
+export type UsersQuerystring = Simplify<Static<typeof UsersQuerystringSchema>>

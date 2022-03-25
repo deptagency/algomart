@@ -60,7 +60,9 @@ import {
   UpdatePayment,
   UpdatePaymentCard,
   UpdateUserAccount,
+  UserAccounts,
   Username,
+  UsersQuerystring,
   WirePayment,
 } from '@algomart/schemas'
 import axios from 'axios'
@@ -72,6 +74,7 @@ import {
   getPacksByOwnerFilterQuery,
   getPaymentsFilterQuery,
   getPublishedPacksFilterQuery,
+  getUsersFilterQuery,
 } from '@/utils/filters'
 import { HttpTransport, validateStatus } from '@/utils/http-transport'
 import { invariant } from '@/utils/invariant'
@@ -141,6 +144,13 @@ export class ApiClient {
         }
         throw error
       })
+  }
+
+  async getUsers(query: UsersQuerystring): Promise<UserAccounts> {
+    const searchQuery = getUsersFilterQuery(query)
+    return await this.http
+      .get<UserAccounts>(`accounts/all?${searchQuery}`)
+      .then((response) => response.data)
   }
 
   async verifyPassphrase(externalId: string, passphrase: string) {
