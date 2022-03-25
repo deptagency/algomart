@@ -179,6 +179,8 @@ jobs:
           TF_VAR_private_ip_name: ${{ secrets.PRIVATE_IP_NAME }}
           TF_VAR_vpc_name: ${{ secrets.VPC_NAME }}
           TF_VAR_vpc_access_connector_name: ${{ secrets.VPC_ACCESS_CONNECTOR_NAME }}
+          TF_VAR_vpc_cloud_router_name: ${{ secrets.VPC_CLOUD_ROUTER_NAME }}
+          TF_VAR_vpc_nat_name: ${{ secrets.VPC_NAT_NAME }}
           TF_VAR_web_service_name: ${{ secrets.WEB_SERVICE_NAME }}
 
           TF_VAR_api_database_name: ${{ secrets.API_DATABASE_NAME }}
