@@ -17,11 +17,19 @@ export enum IPFSStatus {
 }
 
 export enum CollectibleAuctionStatus {
+  // Prior to having an app ID set
   New = 'new',
+  // After having app ID set, but before auction is setup
+  Created = 'created',
+  // After setup is called, but before auction starts
   SettingUp = 'setting-up',
+  // Auction is live
   Active = 'active',
+  // Auction is over, but not yet settled
   Closing = 'closing',
+  // Auction is over and settled
   Closed = 'closed',
+  // Auction was canceled
   Canceled = 'canceled',
 }
 

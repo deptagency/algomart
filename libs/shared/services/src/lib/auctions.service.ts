@@ -2,20 +2,22 @@ import {
   AlgorandTransactionStatus,
   CollectibleAuctionStatus,
   CreateAuctionBody,
+  CreateAuctionResponse,
   EventAction,
   EventEntityType,
+  SetupAuctionBody,
+  SetupAuctionResponse,
 } from '@algomart/schemas'
 import { AlgorandAdapter } from '@algomart/shared/adapters'
 import {
+  AlgorandTransactionGroupModel,
+  AlgorandTransactionModel,
   CollectibleAuctionModel,
   CollectibleModel,
   EventModel,
   UserAccountModel,
 } from '@algomart/shared/models'
 import { invariant, userInvariant } from '@algomart/shared/utils'
-import algosdk from 'algosdk'
-import fs from 'node:fs/promises'
-import path from 'node:path'
 import { Transaction } from 'objection'
 import pino from 'pino'
 
@@ -33,7 +35,7 @@ export class AuctionsService {
     request: CreateAuctionBody,
     feePercentage: number,
     trx?: Transaction
-  ) {
+  ): Promise<CreateAuctionResponse> {
     invariant(
       feePercentage >= 0,
       'feePercentage must be greater than or equal to 0'
@@ -66,11 +68,12 @@ export class AuctionsService {
       `Algorand account info not found for ${user.algorandAccount.address}`
     )
     const asset = accountInfo.assets.find(
-      (asset) => asset.assetId === collectible.address
+      (asset) => asset.assetId === collectible.address && asset.amount > 0
     )
+    // TODO: could improve this experience a bit and return the already created auction details, if one exists
     userInvariant(
       asset,
-      `Asset ${collectible.address} not owned by ${user.algorandAccount.address}`,
+      `Asset ${collectible.address} not owned by ${user.algorandAccount.address}, auction may already be active`,
       400
     )
 
@@ -78,54 +81,29 @@ export class AuctionsService {
       `Creating auction for ${user.algorandAccount.address} with NFT ${asset.assetId}...`
     )
 
-    const approvalProgramBytes = await this.algorand.compileContract(
-      await fs.readFile(
-        path.join(__dirname, 'contracts', 'auction_approval.teal'),
-        'utf8'
-      )
-    )
-
-    const clearStateProgramBytes = await this.algorand.compileContract(
-      await fs.readFile(
-        path.join(__dirname, 'contracts', 'auction_clear_state.teal'),
-        'utf8'
-      )
-    )
-
-    // Contract requires 2 global byte slices (strings) and 8 global uints
-    const numberGlobalByteSlices = 2
-    const numberGlobalInts = 8
-
     // Set min bid increase to 1% of reserve price
     const minBidPriceIncrease = Math.floor(request.reservePrice / 100)
 
     // Start auction in five minutes
-    const startAt = Math.floor(Date.now() / 1000) + 5 * 60
-    const startAtDate = new Date(startAt * 1000)
-    const endAt =
-      Math.floor(Date.now() / 1000) + request.durationInHours * 60 * 60
-    const endAtDate = new Date(endAt * 1000)
+    const startAtDate = new Date(Date.now() + 5 * 60 * 1000)
+    const endAtDate = new Date(
+      startAtDate.getTime() + request.durationInHours * 60 * 60 * 1000
+    )
     userInvariant(
-      startAt < endAt,
+      startAtDate < endAtDate,
       'Auction end time must be after start time',
       400
     )
 
     const { transaction, signedTransaction } =
-      await this.algorand.createApplicationTransaction({
-        appArgs: [
-          algosdk.decodeAddress(user.algorandAccount.address).publicKey,
-          algosdk.encodeUint64(collectible.address),
-          algosdk.encodeUint64(startAt),
-          algosdk.encodeUint64(endAt),
-          algosdk.encodeUint64(request.reservePrice),
-          algosdk.encodeUint64(minBidPriceIncrease),
-          algosdk.encodeUint64(Math.round(feePercentage)),
-        ],
-        approvalProgram: approvalProgramBytes,
-        clearProgram: clearStateProgramBytes,
-        numGlobalByteSlices: numberGlobalByteSlices,
-        numGlobalInts: numberGlobalInts,
+      await this.algorand.generateCreateAuctionTransactions({
+        assetId: asset.assetId,
+        endAt: endAtDate,
+        feePercentage,
+        reservePrice: request.reservePrice,
+        sellerAddress: user.algorandAccount.address,
+        startAt: startAtDate,
+        minBidPriceIncrease,
       })
 
     await this.algorand.submitTransaction(signedTransaction)
@@ -155,20 +133,98 @@ export class AuctionsService {
       auctionId: auction.id,
       collectibleId: collectible.id,
       status: auction.status,
-      startAt: startAtDate,
-      endAtDate: endAtDate,
+      startAt: startAtDate.toISOString(),
+      endAt: endAtDate.toISOString(),
+      transactionId: transaction.txID(),
     }
   }
 
-  async setupAuction(trx?: Transaction) {
-    throw new Error('Not yet implemented')
-    // TODO: call setup method on the auction
-    // Requires:
-    // - auction's id so the right auction can be found
-    // - user's passphrase to sign asset transfer transaction (transferring to escrow account)
-    // - auction.appId to be set (this should be set by the transaction background task)
-    // - funding account funds to cover escrow account min balance (204,000 microAlgos)
-    // - funding account min balance will be increased by around 1 ALGO
-    // - must be called before the auction's start time
+  async setupAuction(
+    request: SetupAuctionBody,
+    trx?: Transaction
+  ): Promise<SetupAuctionResponse> {
+    const auction = await CollectibleAuctionModel.query(trx)
+      .findById(request.auctionId)
+      .withGraphFetched('collectible')
+
+    const user = await UserAccountModel.query(trx)
+      .findOne('externalId', request.externalId)
+      .withGraphJoined('algorandAccount')
+
+    userInvariant(user, 'User not found', 404)
+    invariant(user.algorandAccount, `User ${user.id} has no Algorand account`)
+    userInvariant(auction, 'Auction not found', 404)
+    invariant(auction.collectible, 'Auction has no collectible')
+    userInvariant(
+      auction.status === CollectibleAuctionStatus.Created,
+      `Auction status must be ${CollectibleAuctionStatus.Created} but is ${auction.status}`,
+      400
+    )
+    userInvariant(
+      new Date() < new Date(auction.startAt),
+      'Auction has already started',
+      400
+    )
+    userInvariant(auction.appId, 'Auction has no appId', 400)
+    userInvariant(
+      auction.userAccountId === user.id,
+      'Auction not owned by user',
+      400
+    )
+
+    const { transactions, signedTransactions } =
+      await this.algorand.generateSetupAuctionTransactions({
+        appId: auction.appId,
+        sellerEncryptedMnemonic: user.algorandAccount.encryptedKey,
+        sellerPassphrase: request.passphrase,
+        assetId: auction.collectible.address,
+      })
+
+    await this.algorand.submitTransaction(signedTransactions)
+
+    const group = await AlgorandTransactionGroupModel.query(trx).insert({})
+
+    const savedTransactions = await AlgorandTransactionModel.query(trx).insert(
+      transactions.map((transaction) => ({
+        address: transaction.txID(),
+        status: AlgorandTransactionStatus.Pending,
+        groupId: group.id,
+      }))
+    )
+
+    await EventModel.query(trx).insert(
+      savedTransactions.map((transaction) => ({
+        action: EventAction.Create,
+        entityId: transaction.id,
+        entityType: EventEntityType.AlgorandTransaction,
+        userAccountId: user.id,
+      }))
+    )
+
+    await CollectibleAuctionModel.query(trx).where('id', auction.id).patch({
+      status: CollectibleAuctionStatus.SettingUp,
+      // the second transaction is the app call one that we need to track
+      setupTransactionId: savedTransactions[1].id,
+    })
+
+    await EventModel.query(trx).insert({
+      action: EventAction.Update,
+      entityId: auction.id,
+      entityType: EventEntityType.CollectibleAuction,
+      userAccountId: user.id,
+    })
+
+    await EventModel.query(trx).insert({
+      action: EventAction.Create,
+      entityId: group.id,
+      entityType: EventEntityType.AlgorandTransactionGroup,
+      userAccountId: user.id,
+    })
+
+    return {
+      auctionId: auction.id,
+      status: auction.status,
+      transactionIds: transactions.map((transaction) => transaction.txID()),
+    }
   }
 }

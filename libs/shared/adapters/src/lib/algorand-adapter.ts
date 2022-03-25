@@ -1,8 +1,10 @@
-import pino from 'pino'
 import { CollectibleBase, TransferCollectibleResult } from '@algomart/schemas'
 import { CollectibleModel } from '@algomart/shared/models'
 import { decrypt, encrypt, invariant } from '@algomart/shared/utils'
 import algosdk from 'algosdk'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import pino from 'pino'
 
 // 100_000 microAlgos = 0.1 ALGO
 export const DEFAULT_INITIAL_BALANCE = 100_000
@@ -215,7 +217,10 @@ export class AlgorandAdapter {
     const confirmedRound: number = info['confirmed-round'] || 0
     const poolError: string = info['pool-error'] || ''
     const assetIndex: number = info['asset-index'] || 0
-    return { confirmedRound, poolError, assetIndex }
+    const applicationIndex: number =
+      info['application-index'] || info['txn']?.['txn']?.['apid'] || 0
+
+    return { confirmedRound, poolError, assetIndex, applicationIndex }
   }
 
   async waitForConfirmation(transactionId: string, maxRounds = 5) {
@@ -542,6 +547,127 @@ export class AlgorandAdapter {
     return {
       transaction: txn,
       signedTransaction: txn.signTxn(this.fundingAccount.sk),
+    }
+  }
+
+  async generateCreateAuctionTransactions(options: {
+    assetId: number
+    sellerAddress: string
+    reservePrice: number
+    startAt: Date
+    endAt: Date
+    minBidPriceIncrease?: number
+    feePercentage?: number
+  }) {
+    const approvalProgramBytes = await this.compileContract(
+      await fs.readFile(
+        path.join(__dirname, 'contracts', 'auction_approval.teal'),
+        'utf8'
+      )
+    )
+
+    const clearStateProgramBytes = await this.compileContract(
+      await fs.readFile(
+        path.join(__dirname, 'contracts', 'auction_clear_state.teal'),
+        'utf8'
+      )
+    )
+
+    // Contract requires 2 global byte slices (strings) and 8 global uints
+    const numberGlobalByteSlices = 2
+    const numberGlobalInts = 8
+
+    // must be in proper unix timestamp (seconds)
+    const startAt = Math.floor(options.startAt.getTime() / 1000)
+    const endAt = Math.floor(options.endAt.getTime() / 1000)
+
+    const minBidPriceIncrease =
+      options.minBidPriceIncrease || Math.floor(options.reservePrice / 100)
+
+    const feePercentage = options.feePercentage || 0
+
+    return await this.createApplicationTransaction({
+      appArgs: [
+        algosdk.decodeAddress(options.sellerAddress).publicKey,
+        algosdk.encodeUint64(options.assetId),
+        algosdk.encodeUint64(startAt),
+        algosdk.encodeUint64(endAt),
+        algosdk.encodeUint64(options.reservePrice),
+        algosdk.encodeUint64(minBidPriceIncrease),
+        algosdk.encodeUint64(Math.round(feePercentage)),
+      ],
+      approvalProgram: approvalProgramBytes,
+      clearProgram: clearStateProgramBytes,
+      numGlobalByteSlices: numberGlobalByteSlices,
+      numGlobalInts: numberGlobalInts,
+    })
+  }
+
+  async generateSetupAuctionTransactions(options: {
+    sellerEncryptedMnemonic: string
+    sellerPassphrase: string
+    appId: number
+    assetId: number
+  }) {
+    const FUNDING_AMOUNT = 204_000
+    const suggestedParamsTripleFee = await this.algod
+      .getTransactionParams()
+      .do()
+    const suggestedParamsZeroFee = await this.algod.getTransactionParams().do()
+
+    suggestedParamsTripleFee.fee = algosdk.ALGORAND_MIN_TX_FEE * 3
+    suggestedParamsZeroFee.fee = 0
+    suggestedParamsZeroFee.flatFee = true
+
+    const sellerAccount = algosdk.mnemonicToSecretKey(
+      decrypt(
+        options.sellerEncryptedMnemonic,
+        options.sellerPassphrase,
+        this.options.appSecret
+      )
+    )
+
+    const appAddress = algosdk.getApplicationAddress(options.appId)
+
+    this.logger.info({ appAddress }, `Funding app ${options.appId}`)
+
+    const fundingTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      suggestedParams: suggestedParamsTripleFee,
+      amount: FUNDING_AMOUNT,
+      from: this.fundingAccount.addr,
+      to: appAddress,
+    })
+
+    const setupAppTxn = algosdk.makeApplicationNoOpTxnFromObject({
+      appIndex: options.appId,
+      from: this.fundingAccount.addr,
+      suggestedParams: suggestedParamsZeroFee,
+      appArgs: [new Uint8Array(Buffer.from('setup', 'utf8'))],
+      foreignAssets: [options.assetId],
+    })
+
+    const transferTxn =
+      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        suggestedParams: suggestedParamsZeroFee,
+        amount: 1,
+        assetIndex: options.assetId,
+        from: sellerAccount.addr,
+        to: appAddress,
+      })
+
+    const transactions = [fundingTxn, setupAppTxn, transferTxn]
+
+    algosdk.assignGroupID(transactions)
+
+    const signedTransactions = [
+      fundingTxn.signTxn(this.fundingAccount.sk),
+      setupAppTxn.signTxn(this.fundingAccount.sk),
+      transferTxn.signTxn(sellerAccount.sk),
+    ]
+
+    return {
+      transactions,
+      signedTransactions,
     }
   }
 

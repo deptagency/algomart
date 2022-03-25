@@ -1,12 +1,14 @@
 import pino from 'pino'
 import {
   AlgorandTransactionStatus,
+  CollectibleAuctionStatus,
   EventAction,
   EventEntityType,
 } from '@algomart/schemas'
 import { AlgorandAdapter } from '@algomart/shared/adapters'
 import {
   AlgorandTransactionModel,
+  CollectibleAuctionModel,
   CollectibleModel,
   EventModel,
 } from '@algomart/shared/models'
@@ -45,6 +47,7 @@ export class TransactionsService {
       let status = AlgorandTransactionStatus.Pending
       let error: string | null = null
       let updateCollectible = false
+      let updateApplication = false
 
       if (result.confirmedRound > 0) {
         // Confirmed
@@ -54,6 +57,10 @@ export class TransactionsService {
         if (result.assetIndex > 0) {
           // Created asset, need to update collectible
           updateCollectible = true
+        }
+
+        if (result.applicationIndex > 0) {
+          updateApplication = true
         }
       } else if (result.poolError) {
         // Failed
@@ -95,6 +102,57 @@ export class TransactionsService {
             action: EventAction.Update,
             entityId: collectible.id,
             entityType: EventEntityType.Collectible,
+          })
+        }
+      }
+
+      if (updateApplication) {
+        const newCollectibleAuction = await CollectibleAuctionModel.query(trx)
+          .where('transactionId', transaction.id)
+          .where('status', CollectibleAuctionStatus.New)
+          .first()
+
+        if (newCollectibleAuction) {
+          // this application is for a new collectible auction
+          await CollectibleAuctionModel.query(trx)
+            .patch({
+              appId: result.applicationIndex,
+              status: CollectibleAuctionStatus.Created,
+            })
+            .where('id', newCollectibleAuction.id)
+
+          await EventModel.query(trx).insert({
+            action: EventAction.Update,
+            entityId: newCollectibleAuction.id,
+            entityType: EventEntityType.CollectibleAuction,
+          })
+        }
+
+        console.log({
+          transaction,
+          result,
+        })
+
+        const setupCollectibleAuction = await CollectibleAuctionModel.query(trx)
+          .where('appId', result.applicationIndex)
+          .where('status', CollectibleAuctionStatus.SettingUp)
+          .where('setupTransactionId', transaction.id)
+          .first()
+
+        console.log({ setupCollectibleAuction })
+
+        if (setupCollectibleAuction) {
+          // this application is for a setup collectible auction
+          await CollectibleAuctionModel.query(trx)
+            .patch({
+              status: CollectibleAuctionStatus.Active,
+            })
+            .where('id', setupCollectibleAuction.id)
+
+          await EventModel.query(trx).insert({
+            action: EventAction.Update,
+            entityId: setupCollectibleAuction.id,
+            entityType: EventEntityType.CollectibleAuction,
           })
         }
       }

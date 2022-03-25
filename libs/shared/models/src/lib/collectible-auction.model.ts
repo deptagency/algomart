@@ -21,11 +21,13 @@ export class CollectibleAuctionModel extends BaseModel {
   startAt!: string
   status!: CollectibleAuctionStatus
   transactionId!: string
+  setupTransactionId!: string | null
   userAccountId!: string
 
   bids?: CollectibleAuctionBidModel[]
   collectible?: CollectibleModel
   transaction?: AlgorandTransactionModel
+  setupTransaction?: AlgorandTransactionModel
   userAccount?: UserAccountModel
 
   static relationMappings = () => ({
@@ -42,6 +44,14 @@ export class CollectibleAuctionModel extends BaseModel {
       modelClass: AlgorandTransactionModel,
       join: {
         from: 'CollectibleAuction.transactionId',
+        to: 'AlgorandTransaction.id',
+      },
+    },
+    setupTransaction: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: AlgorandTransactionModel,
+      join: {
+        from: 'CollectibleAuction.setupTransaction',
         to: 'AlgorandTransaction.id',
       },
     },
