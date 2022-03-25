@@ -85,34 +85,6 @@ export class PacksService {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  // #region Private helpers
-  private createPackFilterFn({ status = [], reserveMet }) {
-    return (pack: PublishedPack) => {
-      if (pack.type === PackType.Auction) {
-        let include = true
-        if (status.length > 0) {
-          include = include && status.includes(pack.status)
-        }
-
-        if (typeof reserveMet === 'boolean') {
-          include = reserveMet
-            ? include &&
-              typeof pack.activeBid === 'number' &&
-              pack.price !== null &&
-              pack.activeBid >= pack.price
-            : include &&
-              (pack.price === null ||
-                pack.activeBid === undefined ||
-                pack.activeBid < pack.price)
-        }
-
-        return include
-      }
-
-      return true
-    }
-  }
-
   private createPublishedPackFn(
     packLookup: Map<
       string,
@@ -243,6 +215,11 @@ export class PacksService {
       if (priceLow) filter.price._gte = Math.round(priceLow)
     }
 
+    if (status) {
+      filter.status = {
+        _in: status,
+      }
+    }
     const { packs: templates, total } = await this.cms.findAllPacks({
       filter,
       sort,
@@ -276,11 +253,7 @@ export class PacksService {
       packWithActiveBidsLookup
     )
 
-    const postQueryFilters = this.createPackFilterFn({ status, reserveMet })
-
-    const allPublicPacks = templates
-      .map((pack) => assemblePack(pack))
-      .filter((pack) => postQueryFilters(pack))
+    const allPublicPacks = templates.map((pack) => assemblePack(pack))
 
     return {
       packs: allPublicPacks,
