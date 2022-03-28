@@ -119,7 +119,7 @@
     "@types/rosie": "0.0.40",
     "@types/three": "0.138.0",
     "@types/uuid": "8.3.4",
-    "@typescript-eslint/eslint-plugin": "5.15.0",
+    "@typescript-eslint/eslint-plugin": "5.16.0",
     "@typescript-eslint/parser": "5.15.0",
     "@walletconnect/types": "1.7.5",
     "autoprefixer": "10.4.4",
