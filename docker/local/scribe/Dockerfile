@@ -1,14 +1,10 @@
-FROM node:16-bullseye
+FROM node:16-alpine
 
-RUN apt update && apt install -y python2
+RUN apk add --no-cache libc6-compat python2 make g++
 RUN npm config set python python2
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV CYPRESS_INSTALL_BINARY 0
-
 # not copying anything else... relying on mapping volume from the host
-
-CMD ["./run.sh"]
+CMD ["./docker/local/scribe/run.sh"]

@@ -11,7 +11,7 @@ services:
     networks:
       - algomart_local
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - api-db:/var/lib/postgresql/data
 
@@ -25,7 +25,7 @@ services:
     networks:
       - algomart_local
     ports:
-      - "5433:5432"
+      - "5435:5432"
     volumes:
       - cms-db:/var/lib/postgresql/data
 
@@ -73,24 +73,22 @@ services:
     volumes:
       - .:/app
 
-  api-jobs:
+  scribe:
     build:
       context: .
-      dockerfile: docker/local/api/Dockerfile
+      dockerfile: docker/local/scribe/Dockerfile
     restart: unless-stopped
     depends_on:
       - api-db
       - cms
-    command: "bash run.sh wait-for-cms"
-    env_file: apps/api/.env
+    env_file: apps/scribe/.env
     environment:
       # only put values in here that should override the API .env file
       CMS_URL: http://cms:8055
+      CMS_PUBLIC_URL: http://localhost:8055
       DATABASE_URL: postgres://api:api@api-db:5432/api
       HOST: 0.0.0.0
       PORT: 3002
-      ENABLE_JOBS: 'true'
-      NODE_ENV: development
     networks:
       - algomart_local
     ports:
