@@ -1,5 +1,6 @@
 import { Model } from 'objection'
 import { DirectusPackTemplate } from '@algomart/schemas'
+import { BidModel, PackModel } from '.'
 
 export class CMSCachePackTemplateModel extends Model {
   static tableName = 'CmsCachePackTemplates'
@@ -17,6 +18,17 @@ export class CMSCachePackTemplateModel extends Model {
   $beforeUpdate() {
     this.updatedAt = new Date().toISOString()
   }
+
+  static relationMappings = () => ({
+    pack: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: PackModel,
+      join: {
+        from: 'CmsCachePackTemplates.id',
+        to: 'Pack.templateId',
+      },
+    },
+  })
 
   static async insert(packTemplate: DirectusPackTemplate) {
     await CMSCachePackTemplateModel.query().insert({

@@ -35,6 +35,7 @@ import {
   CMSCacheHomepageModel,
   CMSCachePackTemplateModel,
   CMSCacheSetModel,
+  PackModel,
 } from '@algomart/shared/models'
 import {
   invariant,
@@ -870,9 +871,26 @@ export class CMSCacheAdapter {
               queryBuild = queryBuild.where(column, filter)
               break
             case ItemFilterType.gt:
-              queryBuild = queryBuild.where((builder) => {
-                builder.orWhere(column, null).orWhere(column, '>', filter)
-              })
+              console.log('column:', column)
+              queryBuild =
+                column !== 'reserveMet'
+                  ? queryBuild.where((builder) => {
+                      builder.orWhere(column, null).orWhere(column, '>', filter)
+                    })
+                  : queryBuild.where((builder) => {
+                      builder
+                        .orWhereIn('type', [
+                          PackType.Free,
+                          PackType.Purchase,
+                          PackType.Redeem,
+                        ])
+                        .orWhere((subBuilder) => {
+                          subBuilder
+                            .where('type', PackType.Auction)
+                            .withGraphFetched('pack.activeBid')
+                            .where('activeBid' > 'price')
+                        })
+                    })
               break
             case ItemFilterType.lt:
               queryBuild = queryBuild.where((builder) => {

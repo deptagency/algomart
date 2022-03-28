@@ -220,6 +220,13 @@ export class PacksService {
         _in: status,
       }
     }
+
+    if (reserveMet) {
+      filter.reserveMet = {
+        _gt: 0,
+      }
+    }
+
     const { packs: templates, total } = await this.cms.findAllPacks({
       filter,
       sort,
