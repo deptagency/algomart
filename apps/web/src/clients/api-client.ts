@@ -21,7 +21,6 @@ import {
   CreateUserAccountRequest,
   CurrencyConversionDict,
   DEFAULT_LANG,
-  DEFAULT_LOCALE,
   DropdownLanguageList,
   ExternalId,
   FindTransferByAddress,
@@ -30,8 +29,8 @@ import {
   Homepage,
   I18nInfo,
   InitializeTransferCollectible,
-  Locale,
-  LocaleAndExternalId,
+  Language,
+  LanguageAndExternalId,
   MintPack,
   MintPackStatusResponse,
   OwnerExternalId,
@@ -399,21 +398,21 @@ export class ApiClient {
       .then((response) => response.data)
   }
 
-  async packWithCollectibles(request: Locale & PackId) {
+  async packWithCollectibles(request: Language & PackId) {
     return await this.http
       .get<PackWithCollectibles>(`packs/${request.packId}`, {
         params: {
-          locale: request.locale || DEFAULT_LOCALE,
+          language: request.language || DEFAULT_LANG,
         },
       })
       .then((response) => response.data)
   }
 
-  async redeemablePack(request: RedeemCode & Locale) {
+  async redeemablePack(request: RedeemCode & Language) {
     return await this.http
       .get<{ pack: PackWithId }>(`packs/redeemable/${request.redeemCode}`, {
         params: {
-          locale: request.locale || DEFAULT_LOCALE,
+          language: request.language || DEFAULT_LANG,
         },
       })
       .then((response) => response.data)
@@ -459,7 +458,9 @@ export class ApiClient {
       .then((response) => response.data)
   }
 
-  async untransferredPacks(params: LocaleAndExternalId): Promise<PacksByOwner> {
+  async untransferredPacks(
+    params: LanguageAndExternalId
+  ): Promise<PacksByOwner> {
     return await this.http
       .get<PacksByOwner>('packs/untransferred', { params: params })
       .then((response) => response.data)

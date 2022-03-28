@@ -57,10 +57,6 @@ export default function AppFooterBottomNav() {
             )
           )}
         </nav>
-        <div>
-          <AppFooterLanguage />
-          <AppFooterCurrency />
-        </div>
       </div>
     </section>
   )

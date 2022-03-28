@@ -8,10 +8,10 @@ export default function MyProfileTemplate() {
   return (
     <>
       <MyProfileUsername />
-      <MyProfileImage />
-      <MyProfileWallet />
       <MyProfileCurrency />
       <MyProfileLanguage />
+      <MyProfileImage />
+      <MyProfileWallet />
     </>
   )
 }

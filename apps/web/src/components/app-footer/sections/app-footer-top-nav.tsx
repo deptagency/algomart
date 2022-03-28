@@ -2,6 +2,9 @@ import clsx from 'clsx'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 
+import AppFooterCurrency from './app-footer-currency'
+import AppFooterLanguage from './app-footer-language'
+
 import css from './app-footer-top-nav.module.css'
 
 import AppLink from '@/components/app-link/app-link'
@@ -34,6 +37,10 @@ export default function AppFooterTopNav() {
           )
         })}
       </nav>{' '}
+      <div>
+        <AppFooterLanguage />
+        <AppFooterCurrency />
+      </div>
     </section>
   )
 }

@@ -38,6 +38,7 @@ const BaseUserAccountSchema = Type.Intersect([
   UsernameSchema,
   Type.Object({
     email: Type.String({ format: 'email' }),
+    currency: Type.String(),
     language: Type.String({
       minLength: 2,
       maxLength: 5,
@@ -55,6 +56,8 @@ export const UpdateUserAccountSchema = Type.Object({
   email: Type.Optional(Type.String()),
   showProfile: Type.Optional(Type.Boolean()),
   username: Type.Optional(Type.String()),
+  language: Type.Optional(Type.String()),
+  currency: Type.Optional(Type.String()),
 })
 
 export const PublicUserAccountSchema = Type.Intersect([

@@ -140,6 +140,7 @@ export class AccountsService {
 
     return {
       address: userAccount.algorandAccount.address,
+      currency: userAccount.currency,
       externalId: userAccount.externalId,
       username: userAccount.username,
       email: userAccount.email,

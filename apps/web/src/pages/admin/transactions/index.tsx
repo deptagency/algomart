@@ -8,6 +8,9 @@ import Breadcrumbs from '@/components/breadcrumbs'
 import Pagination from '@/components/pagination/pagination'
 import Panel from '@/components/panel'
 import Table, { ColumnDefinitionType } from '@/components/table'
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
+import { useLocale } from '@/hooks/use-locale'
 import usePagination from '@/hooks/use-pagination'
 import AdminLayout from '@/layouts/admin-layout'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
@@ -19,7 +22,10 @@ import { urls } from '@/utils/urls'
 const PAYMENTS_PER_PAGE = 10
 
 export default function AdminTransactionsPage() {
-  const { t, lang } = useTranslation('admin')
+  const locale = useLocale()
+  const { t } = useTranslation('admin')
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const { page, setPage, handleTableHeaderClick, sortBy, sortDirection } =
     usePagination<PaymentSortField>(1, PaymentSortField.CreatedAt)
 
@@ -49,7 +55,7 @@ export default function AdminTransactionsPage() {
       key: 'createdAt',
       name: t('transactions.table.Date'),
       renderer: ({ value }) =>
-        value ? new Date(value).toLocaleDateString(lang) : null,
+        value ? new Date(value).toLocaleDateString(locale) : null,
       sortable: true,
     },
     {
@@ -57,8 +63,18 @@ export default function AdminTransactionsPage() {
       name: t('transactions.table.Amount'),
       renderer: ({ item }) =>
         item.pack.template.activeBid
-          ? formatCurrency(item.pack.template.activeBid, lang)
-          : formatCurrency(item.pack.template.price, lang),
+          ? formatCurrency(
+              item.pack.template.activeBid,
+              locale,
+              currency,
+              conversionRate
+            )
+          : formatCurrency(
+              item.pack.template.price,
+              locale,
+              currency,
+              conversionRate
+            ),
     },
     {
       key: 'pack.template.type',

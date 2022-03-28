@@ -104,6 +104,14 @@ export default function SignUpPage() {
     }
   }, []) /* eslint-disable-line react-hooks/exhaustive-deps */
 
+  useEffect(() => {
+    setDropdownLanguage(language)
+  }, [language])
+
+  useEffect(() => {
+    setDropdownCurrency(currency)
+  }, [currency])
+
   return (
     <DefaultLayout pageTitle={t('common:pageTitles.Sign Up')} panelPadding>
       <SignupTemplate

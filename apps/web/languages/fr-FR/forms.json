@@ -11,6 +11,7 @@
     "invalidClaim": "FR Invalid Claim",
     "invalidCredentials": "FR Invalid credentials",
     "invalidCreditCard": "FR Invalid credit card number",
+    "invalidCurrency": "FR Invalid currency",
     "invalidCountry": "FR Invalid country code",
     "invalidDetails": "FR Invalid details provided",
     "invalidName": "FR Invalid first and last name",
@@ -24,7 +25,7 @@
     "bidLessThanHighestBid": "FR Your bid was lower than the current high bid.",
     "maxCharacters": "FR Must be less than {max} characters",
     "minCharacters": "FR Must be at least {min} characters",
-    "minUSDC": "FR Found balance of {{balance}} USD, but the minimum needed is {{min}} USD",
+    "minUSDC": "FR Found balance of {{balance}} {{currency}}, but the minimum needed is {{min}} {{currency}}",
     "maxItems": "FR Must pick at most {max} items",
     "minImageFileSize": "FR Image must be {{fileSize}} or smaller",
     "noUSDC": "FR No USDC found in wallet",
@@ -101,6 +102,9 @@
         "US": "FR United States"
       }
     },
+    "currencies": {
+      "label": "FR Currency"
+    },
     "defaultCard": {
       "label": "FR Default",
       "helpText": "FR Make card my default for purchases"
@@ -120,6 +124,9 @@
     "fullName": {
       "label": "FR Full Name",
       "helpText": "FR As it appears on your card"
+    },
+    "languages": {
+      "label": "FR Language"
     },
     "password": {
       "label": "FR Password"
@@ -197,7 +204,8 @@
       }
     },
     "price": {
-      "label": "FR Price"
+      "label": "FR Price",
+      "disclaimer": "Price is shown in {{currency}} but will settle in {{amount}} USDC"
     },
     "profileImage": {
       "label": "FR Profile Image"

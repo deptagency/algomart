@@ -126,7 +126,7 @@ export const getServerSideProps: GetServerSideProps<
 
   // Find pack templates
   const { packs: packTemplates } = await ApiClient.instance.getPublishedPacks({
-    locale: context.locale,
+    language: context.locale,
     slug: params?.packSlug as string,
   })
 
