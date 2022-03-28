@@ -60,7 +60,9 @@ import {
   UpdatePayment,
   UpdatePaymentCard,
   UpdateUserAccount,
+  UserAccounts,
   Username,
+  UsersQuerystring,
   WirePayment,
 } from '@algomart/schemas'
 import axios from 'axios'
@@ -71,6 +73,7 @@ import {
   getCollectiblesFilterQuery,
   getPacksByOwnerFilterQuery,
   getPaymentsFilterQuery,
+  getUsersFilterQuery,
   searchPublishedPacksFilterQuery,
 } from '@/utils/filters'
 import { HttpTransport, validateStatus } from '@/utils/http-transport'
@@ -83,10 +86,6 @@ export class ApiClient {
   private static _instance: ApiClient | undefined
 
   static get instance() {
-    invariant(
-      typeof window === 'undefined',
-      'ApiClient is not available in browser'
-    )
     if (!this._instance)
       this._instance = new ApiClient(Environment.apiUrl, Environment.apiKey)
     return this._instance
@@ -145,6 +144,13 @@ export class ApiClient {
         }
         throw error
       })
+  }
+
+  async getUsers(query: UsersQuerystring): Promise<UserAccounts> {
+    const searchQuery = getUsersFilterQuery(query)
+    return await this.http
+      .get<UserAccounts>(`accounts/all?${searchQuery}`)
+      .then((response) => response.data)
   }
 
   async verifyPassphrase(externalId: string, passphrase: string) {

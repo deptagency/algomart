@@ -1,5 +1,6 @@
 import {
   AdminPermissions,
+  FirebaseClaim,
   Payment,
   UpdatePayment,
   WirePayment,
@@ -16,6 +17,11 @@ export interface AdminAPI {
   getPaymentsByBankAccountId(bankAccountId: string): Promise<WirePayment[]>
   revokePack: (packId: string, ownerId: string) => Promise<boolean>
   updatePayment(paymentId: string, json: UpdatePayment): Promise<Payment | null>
+  updateClaims(
+    userExternalId: string,
+    key: FirebaseClaim,
+    value: boolean
+  ): Promise<AdminPermissions>
 }
 
 export class AdminService implements AdminAPI {
@@ -88,5 +94,17 @@ export class AdminService implements AdminAPI {
       })
       .json<Payment | null>()
     return payment
+  }
+
+  async updateClaims(
+    userExternalId: string,
+    key: FirebaseClaim,
+    value: boolean
+  ): Promise<AdminPermissions> {
+    return await this.http
+      .patch(urls.api.v1.adminUpdateClaims, {
+        json: { userExternalId, key, value },
+      })
+      .json<AdminPermissions>()
   }
 }

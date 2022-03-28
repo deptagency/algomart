@@ -6,6 +6,7 @@ import {
   PaymentsQuerystring,
   PublishedPacksQuery,
   SortOptions,
+  UsersQuerystring,
 } from '@algomart/schemas'
 import { Translate } from 'next-translate'
 import { stringify } from 'query-string'
@@ -121,4 +122,17 @@ export const getSelectSortingOptions = (t: Translate) => {
     { id: SortOptions.Oldest, label: t('collection:sorting.Oldest') },
     // { id: SortOptions.Name, label: t('collection:sorting.Name') },
   ]
+}
+
+/**
+ * Build a search parameter string to filter payments
+ */
+export const getUsersFilterQuery = (query: UsersQuerystring) => {
+  return stringify({
+    page: query.page,
+    pageSize: query.pageSize || PAGE_SIZE,
+    sortBy: query.sortBy,
+    sortDirection: query.sortDirection,
+    search: query.search,
+  })
 }
