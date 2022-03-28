@@ -106,7 +106,7 @@
     "@tailwindcss/line-clamp": "0.3.1",
     "@testing-library/cypress": "8.0.2",
     "@testing-library/dom": "8.11.3",
-    "@testing-library/jest-dom": "5.16.2",
+    "@testing-library/jest-dom": "5.16.3",
     "@testing-library/react": "12.1.4",
     "@testing-library/user-event": "13.5.0",
     "@types/cookies": "0.7.7",
