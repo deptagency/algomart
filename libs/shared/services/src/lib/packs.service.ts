@@ -90,56 +90,6 @@ export class PacksService {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  // #region Private helpers
-  private createPackFilterFn({ status = [], reserveMet }) {
-    return (pack: PublishedPack) => {
-      if (pack.type === PackType.Auction) {
-        let include = true
-        if (status.length > 0) {
-          include = include && status.includes(pack.status)
-        }
-
-        if (typeof reserveMet === 'boolean') {
-          include = reserveMet
-            ? include &&
-              typeof pack.activeBid === 'number' &&
-              pack.price !== null &&
-              pack.activeBid >= pack.price
-            : include &&
-              (pack.price === null ||
-                pack.activeBid === undefined ||
-                pack.activeBid < pack.price)
-        }
-
-        return include
-      }
-
-      return true
-    }
-  }
-
-  private createPackSortFn(sort: {
-    sortBy: PackSortField
-    sortDirection: SortDirection
-  }) {
-    return (a: PublishedPack, b: PublishedPack) => {
-      const direction = sort.sortDirection === SortDirection.Ascending ? 1 : -1
-
-      switch (sort.sortBy) {
-        case PackSortField.Title:
-          return direction * a.title.localeCompare(b.title)
-        case PackSortField.ReleasedAt:
-          return (
-            direction * (a.releasedAt?.localeCompare(b.releasedAt ?? '') ?? 0)
-          )
-        default:
-          return 0
-      }
-    }
-  }
-
-  // #region Private helpers
-
   private createPublishedPackFn(
     packLookup: Map<
       string,
@@ -296,6 +246,18 @@ export class PacksService {
       if (priceLow) filter.price._gte = Math.round(priceLow)
     }
 
+    if (status) {
+      filter.status = {
+        _in: status,
+      }
+    }
+
+    if (reserveMet) {
+      filter.reserveMet = {
+        _gt: 0,
+      }
+    }
+
     const { packs: templates, total } = await this.cms.findAllPacks({
       filter,
       sort,
@@ -329,11 +291,7 @@ export class PacksService {
       packWithActiveBidsLookup
     )
 
-    const postQueryFilters = this.createPackFilterFn({ status, reserveMet })
-
-    const allPublicPacks = templates
-      .map((pack) => assemblePack(pack))
-      .filter((pack) => postQueryFilters(pack))
+    const allPublicPacks = templates.map((pack) => assemblePack(pack))
 
     return {
       packs: allPublicPacks,

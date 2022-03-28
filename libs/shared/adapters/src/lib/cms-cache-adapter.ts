@@ -37,6 +37,7 @@ import {
   CMSCacheLanguageModel,
   CMSCachePackTemplateModel,
   CMSCacheSetModel,
+  PackModel,
 } from '@algomart/shared/models'
 import {
   invariant,
@@ -871,7 +872,21 @@ export class CMSCacheAdapter {
           const filter = filters[filterKey]
           switch (filterKey) {
             case ItemFilterType.in:
-              queryBuild = queryBuild.whereIn(column, filter)
+              queryBuild =
+                column !== 'status'
+                  ? queryBuild.whereIn(column, filter)
+                  : queryBuild.where((builder) => {
+                      builder
+                        .orWhere((subBuilder) =>
+                          this.auctionUpcomingWhere(subBuilder, filter)
+                        )
+                        .orWhere((subBuilder) =>
+                          this.auctionActiveWhere(subBuilder, filter)
+                        )
+                        .orWhere((subBuilder) =>
+                          this.auctionExpiredWhere(subBuilder, filter)
+                        )
+                    })
               break
             case ItemFilterType.nin:
               queryBuild = queryBuild.whereNotIn(column, filter)
@@ -880,9 +895,26 @@ export class CMSCacheAdapter {
               queryBuild = queryBuild.where(column, filter)
               break
             case ItemFilterType.gt:
-              queryBuild = queryBuild.where((builder) => {
-                builder.orWhere(column, null).orWhere(column, '>', filter)
-              })
+              console.log('column:', column)
+              queryBuild =
+                column !== 'reserveMet'
+                  ? queryBuild.where((builder) => {
+                      builder.orWhere(column, null).orWhere(column, '>', filter)
+                    })
+                  : queryBuild.where((builder) => {
+                      builder
+                        .orWhereIn('type', [
+                          PackType.Free,
+                          PackType.Purchase,
+                          PackType.Redeem,
+                        ])
+                        .orWhere((subBuilder) => {
+                          subBuilder
+                            .where('type', PackType.Auction)
+                            .withGraphFetched('pack.activeBid')
+                            .where('activeBid' > 'price')
+                        })
+                    })
               break
             case ItemFilterType.lt:
               queryBuild = queryBuild.where((builder) => {
@@ -920,6 +952,26 @@ export class CMSCacheAdapter {
     }
 
     return queryBuild
+  }
+
+  private auctionUpcomingWhere(builder, statuses: PackStatus[]) {
+    return statuses.includes(PackStatus.Upcoming)
+      ? builder.where('releasedAt', '>', new Date())
+      : builder
+  }
+
+  private auctionActiveWhere(builder, statuses: PackStatus[]) {
+    return statuses.includes(PackStatus.Active)
+      ? builder
+          .where('releasedAt', '<', new Date())
+          .where('auctionUntil', '>', new Date())
+      : builder
+  }
+
+  private auctionExpiredWhere(builder, statuses: PackStatus[]) {
+    return statuses.includes(PackStatus.Expired)
+      ? builder.where('auctionUntil', '<', new Date())
+      : builder
   }
 
   private getFileURL(file: DirectusFile | null) {
