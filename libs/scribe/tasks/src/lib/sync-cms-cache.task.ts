@@ -1,8 +1,11 @@
 import { DirectusAdapter } from '@algomart/shared/adapters'
 import { DependencyResolver } from '@algomart/shared/utils'
-import { logger } from '@api/configuration/logger'
+import pino from 'pino'
 
-export default async function syncCMSCacheTask(registry: DependencyResolver) {
+export async function syncCMSCacheTask(
+  registry: DependencyResolver,
+  logger: pino.Logger<unknown>
+) {
   const log = logger.child({ task: 'store-collectibles' })
   const cms = registry.get<DirectusAdapter>(DirectusAdapter.name)
 
