@@ -1,10 +1,11 @@
 import { PacksService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
-import { logger } from '@api/configuration/logger'
 import { Model } from 'objection'
+import pino from 'pino'
 
-export default async function handlePackAuctionCompletionTask(
-  registry: DependencyResolver
+export async function handlePackAuctionCompletionTask(
+  registry: DependencyResolver,
+  logger: pino.Logger<unknown>
 ) {
   const log = logger.child({ task: 'handle-pack-auction-completion' })
   const packs = registry.get<PacksService>(PacksService.name)

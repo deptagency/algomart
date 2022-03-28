@@ -3,7 +3,6 @@ import { Configuration } from '@api/configuration'
 import { configureResolver } from '@api/configuration/configure-resolver'
 import buildKnexConfiguration from '@api/configuration/knex-config'
 import { logger } from '@api/configuration/logger'
-import { configureTasks } from '@api/tasks'
 
 buildApp({
   fastify: { logger },
@@ -12,7 +11,6 @@ buildApp({
   enableTrap: true,
 })
   .then((app) => {
-    configureTasks(app)
     return app.listen(Configuration.port, Configuration.host)
   })
   .catch((error) => {

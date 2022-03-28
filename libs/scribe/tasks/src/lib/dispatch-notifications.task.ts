@@ -1,10 +1,11 @@
 import { NotificationsService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
-import { logger } from '@api/configuration/logger'
 import { Model } from 'objection'
+import pino from 'pino'
 
-export default async function dispatchNotificationsTask(
-  registry: DependencyResolver
+export async function dispatchNotificationsTask(
+  registry: DependencyResolver,
+  logger: pino.Logger<unknown>
 ) {
   const log = logger.child({ task: 'dispatch-notifications' })
   const notifications = registry.get<NotificationsService>(

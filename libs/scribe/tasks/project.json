@@ -1,0 +1,23 @@
+{
+  "root": "libs/scribe/tasks",
+  "sourceRoot": "libs/scribe/tasks/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/scribe/tasks/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/scribe/tasks"],
+      "options": {
+        "jestConfig": "libs/scribe/tasks/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

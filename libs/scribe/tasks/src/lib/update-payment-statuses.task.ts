@@ -1,9 +1,12 @@
 import { PaymentsService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
-import { logger } from '@api/configuration/logger'
 import { Model } from 'objection'
+import pino from 'pino'
 
-export async function updatePaymentStatusesTask(registry: DependencyResolver) {
+export async function updatePaymentStatusesTask(
+  registry: DependencyResolver,
+  logger: pino.Logger<unknown>
+) {
   const log = logger.child({ task: 'update-payment-statuses' })
   const payments = registry.get<PaymentsService>(PaymentsService.name)
   const trx = await Model.startTransaction()

@@ -1,10 +1,11 @@
 import { TransactionsService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
-import { logger } from '@api/configuration/logger'
 import { Model } from 'objection'
+import pino from 'pino'
 
-export default async function confirmTransactionsTask(
-  registry: DependencyResolver
+export async function confirmTransactionsTask(
+  registry: DependencyResolver,
+  logger: pino.Logger<unknown>
 ) {
   const log = logger.child({ task: 'confirm-transactions' })
   const transactions = registry.get<TransactionsService>(
