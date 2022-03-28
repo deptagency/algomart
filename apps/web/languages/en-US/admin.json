@@ -15,5 +15,18 @@
     "resetPaymentDesc": "Resetting the transaction puts it back into the pending state which allows the buyer to attept to make the payment again using the original wire instructions.",
     "revokePack": "Revoke pack",
     "revokePackDesc": "If someone fails to pay you can revoke the pack. Note: Re-selling/auctioning revoked packs is not yet supported."
+  },
+  "users": {
+    "roles": {
+      "admin": "Admin"
+    },
+    "addRole": "Add {{username}} to {{role}}?",
+    "removeRole": "Remove {{username}} from {{role}}?",
+    "table": {
+      "Username": "Username",
+      "Email": "Email",
+      "Created": "Created",
+      "Role": "Role"
+    }
   }
 }

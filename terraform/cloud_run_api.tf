@@ -11,6 +11,8 @@ resource "google_cloud_run_service" "api" {
       annotations = {
         "run.googleapis.com/vpc-access-connector" = var.vpc_access_connector_name
 
+        "run.googleapis.com/vpc-access-egress" = "all"
+
         # BETA FEATURE
         #
         # Cloud Run by default will throttle CPU resources to near zero while a

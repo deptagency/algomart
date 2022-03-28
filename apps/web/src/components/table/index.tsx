@@ -1,7 +1,7 @@
 import { SortDirection } from '@algomart/schemas'
 import { ArrowUpIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
-import get from 'lodash.get'
+import get from 'lodash/get'
 
 import {
   Table as TableElement,
