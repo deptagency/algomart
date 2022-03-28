@@ -92,7 +92,7 @@
   "devDependencies": {
     "@babel/plugin-transform-runtime": "7.17.0",
     "@nrwl/cli": "13.9.3",
-    "@nrwl/cypress": "13.9.3",
+    "@nrwl/cypress": "13.9.5",
     "@nrwl/devkit": "13.9.3",
     "@nrwl/eslint-plugin-nx": "13.9.3",
     "@nrwl/jest": "13.9.3",
