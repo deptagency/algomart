@@ -127,13 +127,6 @@ async function main(args) {
     languages
     CASCADE`)
 
-  await knex.raw(
-    `INSERT INTO directus_webhooks (
-      "name", "method", "url", "status", "data", "actions", "collections", "headers"
-    ) VALUES (
-      'CMS Cache Content', 'POST', 'http://localhost:3002/webhooks/directus', 'active', 't', 'create,update,delete', 'application,collections,countries,faqs,homepage,languages,nft_templates,pack_templates,page,rarities,sets', NULL
-    )`
-  )
   /**
    * Read config file if it exists, or ask user to provide it.
    * Once credentials are provided, get an auth token from  directus.
