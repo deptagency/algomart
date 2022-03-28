@@ -1,2 +1,2 @@
-module.exports.SUPPORTED_LANGUAGES = ['ar', 'en', 'fr', 'es']
-module.exports.DEFAULT_LANG = 'en'
+module.exports.SUPPORTED_LANGUAGES = ['ar', 'en-US', 'fr-FR', 'es-ES']
+module.exports.DEFAULT_LANG = 'en-US'

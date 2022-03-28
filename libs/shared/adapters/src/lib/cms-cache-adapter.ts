@@ -715,7 +715,7 @@ export class CMSCacheAdapter {
     return queryResult
       .map((directusLanguageTemplate: DirectusLanguageTemplate) => ({
         languages_code: directusLanguageTemplate.code,
-        label: directusLanguageTemplate.label,
+        label: directusLanguageTemplate.name,
         sort: directusLanguageTemplate.sort,
       }))
       .sort(({ sort: a }, { sort: b }) => {

@@ -142,7 +142,7 @@ export interface DirectusPackTemplate {
 
 export interface DirectusLanguageTemplate {
   code: string
-  label: string
+  name: string
   sort: number
 }
 

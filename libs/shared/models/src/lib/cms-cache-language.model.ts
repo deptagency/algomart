@@ -5,7 +5,7 @@ export class CMSCacheLanguageModel extends Model {
   static tableName = 'CmsCacheLanguages'
 
   code!: string
-  label!: string
+  name!: string
   sort!: number
   createdAt!: string
   updatedAt!: string
@@ -18,7 +18,7 @@ export class CMSCacheLanguageModel extends Model {
     await CMSCacheLanguageModel.query()
       .insert({
         code: languageTemplate.code,
-        label: languageTemplate.label,
+        name: languageTemplate.name,
         sort: languageTemplate.sort,
       })
       .returning('code')
@@ -30,7 +30,7 @@ export class CMSCacheLanguageModel extends Model {
     await CMSCacheLanguageModel.query()
       .where({ code: languageTemplate.code })
       .update({
-        label: languageTemplate.label,
+        name: languageTemplate.name,
         sort: languageTemplate.sort,
       })
       .returning('code')

@@ -281,7 +281,7 @@ export class DirectusAdapter {
   private async findLanguages(query: ItemQuery<DirectusLanguageTemplate> = {}) {
     const defaultQuery: ItemQuery<DirectusLanguageTemplate> = {
       limit: -1,
-      fields: ['code', 'label', 'sort'],
+      fields: ['code', 'name', 'sort'],
     }
 
     return await this.findMany<DirectusLanguageTemplate>('languages', {
