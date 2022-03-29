@@ -22,12 +22,18 @@ jobs:
         name: Checkout [main]
         with:
           fetch-depth: 0
+      - uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
         uses: nrwl/nx-set-shas@v2
       - uses: actions/setup-node@v3
         with:
           node-version: '16'
-      - run: npm install
+      - run: npm ci
       - run: npx nx affected --target=build --parallel --max-parallel=3
       - run: docker-compose --project-name algorand-test --file docker-compose.test.yml up --detach
       - run: npx nx affected --target=test --parallel --max-parallel=2
@@ -40,12 +46,18 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
+      - uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
         uses: nrwl/nx-set-shas@v2
       - uses: actions/setup-node@v3
         with:
           node-version: '16'
-      - run: npm install
+      - run: npm ci
       - run: npx nx affected --target=build --parallel --max-parallel=3
       - run: docker-compose --project-name algorand-test --file docker-compose.test.yml up --detach
       - run: npx nx affected --target=test --parallel --max-parallel=2
