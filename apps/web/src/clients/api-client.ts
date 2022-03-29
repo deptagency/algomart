@@ -48,6 +48,7 @@ import {
   PaymentsQuerystring,
   PublicAccount,
   PublicKey,
+  PublishedPack,
   PublishedPacks,
   PublishedPacksQuery,
   RedeemCode,
@@ -390,10 +391,17 @@ export class ApiClient {
   //#endregion
 
   //#region Packs
-  async getPublishedPacks(query: PublishedPacksQuery) {
+  async searchPublishedPacks(query: PublishedPacksQuery) {
     const searchQuery = searchPublishedPacksFilterQuery(query)
     return await this.http
       .get<PublishedPacks>(`packs/search?${searchQuery}`)
+      .then((response) => response.data)
+  }
+
+  async getPublishedPackBySlug(slug: string, language: string) {
+    const searchQuery = searchPublishedPacksFilterQuery({ language })
+    return await this.http
+      .get<PublishedPack>(`packs/by-slug/${slug}?${searchQuery}`)
       .then((response) => response.data)
   }
 
@@ -512,11 +520,11 @@ export class ApiClient {
   //#endregion
 
   //#region Homepage
-  async getHomepage(locale: string) {
+  async getHomepage(language: string) {
     return await this.http
       .get<Homepage>('homepage', {
         params: {
-          locale,
+          language,
         },
       })
       .then((response) => response.data)

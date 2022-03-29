@@ -6,7 +6,7 @@ import createHandler, { NextApiRequestApp } from '@/middleware'
 const handler = createHandler()
 
 handler.get(async (request: NextApiRequestApp, response: NextApiResponse) => {
-  const { packs, total } = await ApiClient.instance.getPublishedPacks(
+  const { packs, total } = await ApiClient.instance.searchPublishedPacks(
     request.query
   )
   response.json({ packs, total })
