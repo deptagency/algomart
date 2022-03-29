@@ -73,8 +73,8 @@ import {
   getCollectiblesFilterQuery,
   getPacksByOwnerFilterQuery,
   getPaymentsFilterQuery,
-  getPublishedPacksFilterQuery,
   getUsersFilterQuery,
+  searchPublishedPacksFilterQuery,
 } from '@/utils/filters'
 import { HttpTransport, validateStatus } from '@/utils/http-transport'
 import { invariant } from '@/utils/invariant'
@@ -388,9 +388,9 @@ export class ApiClient {
 
   //#region Packs
   async getPublishedPacks(query: PublishedPacksQuery) {
-    const searchQuery = getPublishedPacksFilterQuery(query)
+    const searchQuery = searchPublishedPacksFilterQuery(query)
     return await this.http
-      .get<PublishedPacks>(`packs?${searchQuery}`)
+      .get<PublishedPacks>(`packs/search?${searchQuery}`)
       .then((response) => response.data)
   }
 

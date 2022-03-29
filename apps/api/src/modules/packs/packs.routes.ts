@@ -8,6 +8,7 @@ import {
   OwnerExternalId,
   PackId,
   PacksByOwnerQuery,
+  PackSlug,
   PackTemplateId,
   PublishedPacksQuery,
   RedeemCode,
@@ -17,14 +18,30 @@ import {
 import { PacksService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
-export async function getPublishedPacks(
+export async function searchPublishedPacks(
   request: FastifyRequest<{
     Querystring: PublishedPacksQuery
   }>,
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
-  const result = await service.getPublishedPacks(request.query)
+  const result = await service.searchPublishedPacks(request.query)
+  reply.send(result)
+}
+
+export async function getPublishedPackBySlug(
+  request: FastifyRequest<{
+    Params: PackSlug
+    Querystring: Locale
+  }>,
+  reply: FastifyReply
+) {
+  const service = request.getContainer().get<PacksService>(PacksService.name)
+  const result = await service.getPublishedPackBySlug(
+    request.params.packSlug,
+    request.query.locale
+  )
+
   reply.send(result)
 }
 
@@ -111,8 +128,8 @@ export async function claimRedeemPack(
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.claimRedeemPack(
     request.body,
-    request.query.locale,
-    request.transaction
+    request.transaction,
+    request.query.locale
   )
   if (!result) {
     reply.notFound()

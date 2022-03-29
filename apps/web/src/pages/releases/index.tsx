@@ -10,8 +10,8 @@ import { usePackFilter } from '@/hooks/use-pack-filter'
 import DefaultLayout from '@/layouts/default-layout'
 import ReleasesTemplate from '@/templates/releases-template'
 import {
-  getPublishedPacksFilterQuery,
   getPublishedPacksFilterQueryFromState,
+  searchPublishedPacksFilterQuery,
 } from '@/utils/filters'
 import { useApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
@@ -27,7 +27,7 @@ export default function Releases({ packs }: PublishedPacks) {
   const queryString = useMemo(() => {
     const query = getPublishedPacksFilterQueryFromState(locale, state)
     query.pageSize = RELEASES_PER_PAGE
-    return getPublishedPacksFilterQuery(query)
+    return searchPublishedPacksFilterQuery(query)
   }, [locale, state])
 
   const { data, isValidating } = useApi<PublishedPacks>(

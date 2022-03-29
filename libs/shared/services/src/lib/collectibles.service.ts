@@ -19,28 +19,29 @@ import {
   TransferCollectible,
   TransferCollectibleResult,
 } from '@algomart/schemas'
+
 import {
-  AlgoExplorerAdapter,
+  CMSCacheAdapter,
   AlgorandAdapter,
-  DirectusAdapter,
-  ItemFilter,
   NFTStorageAdapter,
+  AlgoExplorerAdapter,
+  ItemFilters,
 } from '@algomart/shared/adapters'
 import {
-  AlgorandTransactionGroupModel,
-  AlgorandTransactionModel,
   CollectibleModel,
-  CollectibleOwnershipModel,
-  CollectibleShowcaseModel,
   EventModel,
   UserAccountModel,
+  AlgorandTransactionModel,
+  CollectibleOwnershipModel,
+  CollectibleShowcaseModel,
+  AlgorandTransactionGroupModel,
 } from '@algomart/shared/models'
 import {
-  addDays,
   invariant,
-  isBeforeNow,
-  isDefinedArray,
+  addDays,
   userInvariant,
+  isDefinedArray,
+  isBeforeNow,
 } from '@algomart/shared/utils'
 import { Transaction } from 'objection'
 
@@ -50,12 +51,11 @@ export class CollectiblesService {
   logger: pino.Logger<unknown>
 
   constructor(
-    private readonly cms: DirectusAdapter,
+    private readonly cms: CMSCacheAdapter,
     private readonly algorand: AlgorandAdapter,
     private readonly storage: NFTStorageAdapter,
     private readonly algoExplorer: AlgoExplorerAdapter,
     private readonly minimumDaysBeforeTransfer: number,
-    private readonly creatorPassphrase: string,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
@@ -65,14 +65,15 @@ export class CollectiblesService {
     const existingTemplates = await CollectibleModel.query(trx)
       .groupBy('templateId')
       .select('templateId')
-    const filter: ItemFilter = {}
+
+    const filter: ItemFilters = {}
     if (existingTemplates.length > 0) {
       filter.id = {
         _nin: existingTemplates.map((c) => c.templateId),
       }
     }
     const { collectibles: templates } = await this.cms.findAllCollectibles(
-      undefined,
+      DEFAULT_LOCALE,
       filter,
       limit
     )
@@ -136,14 +137,9 @@ export class CollectiblesService {
 
     const transferrableAt = this.getTransferrableAt(collectible)
 
-    const {
-      collectibles: [template],
-    } = await this.cms.findAllCollectibles(
-      query.locale,
-      {
-        id: { _eq: collectible.templateId },
-      },
-      1
+    const template = await this.cms.findCollectibleByTemplateId(
+      collectible.templateId,
+      query.locale
     )
 
     invariant(template, `NFT Template ${collectible.templateId} not found`)
@@ -187,7 +183,7 @@ export class CollectiblesService {
     }
   }
 
-  async storeCollectibles(limit = 10, trx: Transaction) {
+  async storeCollectibles(limit = 10, trx?: Transaction) {
     // Get unstored collectibles by their templateIds
     const collectibles = await CollectibleModel.query(trx)
       .whereNull('ipfsStatus')
@@ -196,25 +192,17 @@ export class CollectiblesService {
       .limit(limit)
       .select('templateId')
 
-    if (collectibles.length === 0) {
+    const templateIds = collectibles.map((c) => c.templateId)
+    if (templateIds.length === 0) {
       return 0
     }
 
-    // Group collectibles into a map, keyed by their template ID
-    const collectiblesLookupByTemplate = new Map<string, CollectibleModel[]>(
-      collectibles.map((c) => [
-        c.templateId,
-        collectibles.filter(({ templateId }) => templateId === c.templateId),
-      ])
-    )
-
     // Get corresponding templates from CMS
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
+    const templates = await this.cms.findCollectiblesByTemplateIds(
+      templateIds,
       undefined,
-      { id: { _in: [...collectiblesLookupByTemplate.keys()] } },
-      limit
+      trx
     )
-
     if (templates.length === 0) {
       return 0
     }
@@ -274,9 +262,9 @@ export class CollectiblesService {
 
     // Get corresponding templates from CMS
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      locale,
-      { id: { _in: templateIds } }
+    const templates = await this.cms.findCollectiblesByTemplateIds(
+      templateIds,
+      locale
     )
 
     // Map and sort collectibles
@@ -316,7 +304,7 @@ export class CollectiblesService {
 
   async storeCollectiblesByTemplate(
     template: CollectibleBase,
-    trx: Transaction
+    trx?: Transaction
   ) {
     // Set collectibles to be stored to a pending state
     await CollectibleModel.query()
@@ -332,6 +320,7 @@ export class CollectiblesService {
         ? await this.storage.storeFile(animationField)
         : null
 
+      // Construct asset metadata
       const metadata = this.storage.mapToMetadata({
         ...(animationData && {
           animation_integrity: animationData.integrityHash,
@@ -397,13 +386,9 @@ export class CollectiblesService {
 
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
 
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      undefined,
-      {
-        id: {
-          _in: templateIds,
-        },
-      }
+    const templates = await this.cms.findCollectiblesByTemplateIds(
+      templateIds,
+      undefined
     )
 
     invariant(templates.length > 0, 'templates not found')
@@ -677,18 +662,10 @@ export class CollectiblesService {
     })
 
     const foundTemplateIds = [...new Set(collectibles.map((c) => c.templateId))]
-
-    const cmsFilter: ItemFilter = {
-      id: {
-        _in: foundTemplateIds,
-      },
-    }
-
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      locale,
-      cmsFilter
+    const templates = await this.cms.findCollectiblesByTemplateIds(
+      foundTemplateIds,
+      locale
     )
-
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
     const mappedCollectibles = collectibles
       .map((c) => {
@@ -728,52 +705,6 @@ export class CollectiblesService {
     }
   }
 
-  async getCollectibleTemplates({
-    page = 1,
-    pageSize = 10,
-    locale = DEFAULT_LOCALE,
-    sortBy = CollectibleSortField.Title,
-    sortDirection = SortDirection.Ascending,
-    templateIds = [],
-    setId,
-    collectionId,
-  }: CollectibleListQuerystring): Promise<CollectibleBase[]> {
-    userInvariant(page > 0, 'page must be greater than 0')
-    userInvariant(
-      pageSize > 0 || pageSize === -1,
-      'pageSize must be greater than 0'
-    )
-    userInvariant(
-      [CollectibleSortField.ClaimedAt, CollectibleSortField.Title].includes(
-        sortBy
-      ),
-      'sortBy must be one of claimedAt or title'
-    )
-    userInvariant(
-      [SortDirection.Ascending, SortDirection.Descending].includes(
-        sortDirection
-      ),
-      'sortDirection must be one of asc or desc'
-    )
-
-    const filter: ItemFilter = {}
-    if (templateIds.length > 0) filter.id = { _in: templateIds }
-    if (setId) filter.set = { id: { _eq: setId } }
-    if (collectionId) filter.collection = { id: { _eq: collectionId } }
-
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      locale,
-      filter
-    )
-
-    const collectibles =
-      pageSize === -1
-        ? templates
-        : templates.slice((page - 1) * pageSize, page * pageSize)
-
-    return collectibles
-  }
-
   async getShowcaseCollectibles({
     locale = DEFAULT_LOCALE,
     ownerUsername,
@@ -810,7 +741,8 @@ export class CollectiblesService {
         id: {
           _in: templateIds,
         },
-      }
+      },
+      templateIds.length
     )
 
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))

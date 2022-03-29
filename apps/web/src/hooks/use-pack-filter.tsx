@@ -119,7 +119,7 @@ export function packFilterReducer(
     case SET_SHOW_AUCTION_RESERVE_MET:
       return { ...state, currentPage: 1, showAuctionReserveMet: action.payload }
     case SET_SORT: {
-      let sortBy = PackSortField.Title
+      let sortBy = PackSortField.ReleasedAt
       let sortDirection = SortDirection.Ascending
       switch (action.payload.id) {
         case SortOptions.Newest:
