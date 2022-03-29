@@ -852,16 +852,7 @@ export class CMSCacheAdapter {
                 column !== 'status'
                   ? queryBuild.whereIn(column, filter)
                   : queryBuild.where((builder) => {
-                      builder
-                        .orWhere((subBuilder) =>
-                          this.auctionUpcomingWhere(subBuilder, filter)
-                        )
-                        .orWhere((subBuilder) =>
-                          this.auctionActiveWhere(subBuilder, filter)
-                        )
-                        .orWhere((subBuilder) =>
-                          this.auctionExpiredWhere(subBuilder, filter)
-                        )
+                      this.inStatusFilter(builder, filter)
                     })
               break
             case ItemFilterType.nin:
@@ -871,26 +862,14 @@ export class CMSCacheAdapter {
               queryBuild = queryBuild.where(column, filter)
               break
             case ItemFilterType.gt:
-              console.log('column:', column)
               queryBuild =
                 column !== 'reserveMet'
                   ? queryBuild.where((builder) => {
                       builder.orWhere(column, null).orWhere(column, '>', filter)
                     })
-                  : queryBuild.where((builder) => {
-                      builder
-                        .orWhereIn('type', [
-                          PackType.Free,
-                          PackType.Purchase,
-                          PackType.Redeem,
-                        ])
-                        .orWhere((subBuilder) => {
-                          subBuilder
-                            .where('type', PackType.Auction)
-                            .withGraphFetched('pack.activeBid')
-                            .where('activeBid' > 'price')
-                        })
-                    })
+                  : queryBuild.where((builder) =>
+                      this.gtReserveMetWhere(builder)
+                    )
               break
             case ItemFilterType.lt:
               queryBuild = queryBuild.where((builder) => {
@@ -930,6 +909,18 @@ export class CMSCacheAdapter {
     return queryBuild
   }
 
+  private inStatusFilter(queryBuild, statuses: PackStatus[]) {
+    return queryBuild.where((builder) => {
+      builder
+        .orWhereIn('type', [PackType.Free, PackType.Purchase, PackType.Redeem])
+        .orWhere((subBuilder) =>
+          this.auctionUpcomingWhere(subBuilder, statuses)
+        )
+        .orWhere((subBuilder) => this.auctionActiveWhere(subBuilder, statuses))
+        .orWhere((subBuilder) => this.auctionExpiredWhere(subBuilder, statuses))
+    })
+  }
+
   private auctionUpcomingWhere(builder, statuses: PackStatus[]) {
     return statuses.includes(PackStatus.Upcoming)
       ? builder.where('releasedAt', '>', new Date())
@@ -948,6 +939,17 @@ export class CMSCacheAdapter {
     return statuses.includes(PackStatus.Expired)
       ? builder.where('auctionUntil', '<', new Date())
       : builder
+  }
+
+  private gtReserveMetWhere(builder) {
+    return builder
+      .orWhereIn('type', [PackType.Free, PackType.Purchase, PackType.Redeem])
+      .orWhere((subBuilder) => {
+        subBuilder
+          .where('type', PackType.Auction)
+          .withGraphFetched('pack.activeBid')
+          .where('activeBid' > 'price')
+      })
   }
 
   private getFileURL(file: DirectusFile | null) {

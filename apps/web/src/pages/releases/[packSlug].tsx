@@ -96,18 +96,17 @@ export default function ReleasePage({
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const user = await getAuthenticatedUser(context)
 
-  const { packs: packTemplates } = await ApiClient.instance.getPublishedPacks({
-    locale: context.locale || DEFAULT_LOCALE,
-    slug: context?.params?.packSlug as string,
-  })
+  const packTemplate = await ApiClient.instance.getPublishedPackBySlug(
+    context?.params?.packSlug as string,
+    context.locale
+  )
 
-  if (!packTemplates || packTemplates.length === 0) {
+  if (!packTemplate) {
     return {
       notFound: true,
     }
   }
 
-  const packTemplate = packTemplates[0]
   const avatars: { [key: string]: string | null } = {}
   let auction = null,
     isHighestBidder = null,

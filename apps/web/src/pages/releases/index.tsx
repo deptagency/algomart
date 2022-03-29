@@ -57,7 +57,7 @@ export default function Releases({ packs }: PublishedPacks) {
 export const getServerSideProps: GetServerSideProps<PublishedPacks> = async ({
   locale,
 }) => {
-  const { packs, total } = await ApiClient.instance.getPublishedPacks({
+  const { packs, total } = await ApiClient.instance.searchPublishedPacks({
     locale: locale || DEFAULT_LOCALE,
     page: 1,
     pageSize: RELEASES_PER_PAGE,
