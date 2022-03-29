@@ -52,6 +52,7 @@ test('POST /accounts OK', async () => {
     },
     payload: {
       username,
+      currency: userAccount.currency,
       externalId: userAccount.externalId,
       email: userAccount.email,
       language: userAccount.language,
@@ -65,6 +66,7 @@ test('POST /accounts OK', async () => {
   const json = JSON.parse(body)
   expect(json).toEqual({
     address,
+    currency: userAccount.currency,
     username,
     externalId: userAccount.externalId,
     showProfile: false,
@@ -113,6 +115,7 @@ test('GET /accounts/:externalId OK', async () => {
   const json = JSON.parse(body)
   expect(json).toEqual({
     address: algorandAccount.address,
+    currency: userAccount.currency,
     username,
     externalId: userAccount.externalId,
     showProfile: false,

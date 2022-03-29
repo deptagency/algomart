@@ -3,6 +3,7 @@ import {
   AlgorandTransaction,
   AlgorandTransactionStatus,
   Collectible,
+  DEFAULT_CURRENCY,
   DEFAULT_LANG,
   IPFSStatus,
   Pack,
@@ -67,6 +68,7 @@ export const userAccountFactory = Factory.define<UserAccount>('UserAccount')
     (algorandAccount) => algorandAccount.id
   )
   .attr('language', () => DEFAULT_LANG)
+  .attr('currency', () => DEFAULT_CURRENCY)
   .attr('createdAt', () => new Date().toISOString())
   .attr('updatedAt', () => new Date().toISOString())
   .attr('externalId', () => v4())
