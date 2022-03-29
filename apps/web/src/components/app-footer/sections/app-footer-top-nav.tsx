@@ -18,28 +18,29 @@ export default function AppFooterTopNav() {
 
   return (
     <section className={css.topNav}>
-      <nav
-        aria-label={t('common:nav.aria.Main Navigation')}
-        className={css.topNavWrapper}
-      >
-        {mainNavItems.map(({ href, label }) => {
-          const isCurrentNavItem = isRootPathMatch(pathname, href)
-          return (
-            <AppLink
-              className={clsx(css.topNavLink, {
-                [css.topNavLinkActive]: isCurrentNavItem,
-              })}
-              href={href}
-              key={href}
-            >
-              {label}
-            </AppLink>
-          )
-        })}
-      </nav>{' '}
-      <div>
-        <AppFooterLanguage />
-        <AppFooterCurrency />
+      <div className={css.topNavWrapper}>
+        <div className={css.topNavFlexWrapper}>
+          <nav aria-label={t('common:nav.aria.Main Navigation')}>
+            {mainNavItems.map(({ href, label }) => {
+              const isCurrentNavItem = isRootPathMatch(pathname, href)
+              return (
+                <AppLink
+                  className={clsx(css.topNavLink, {
+                    [css.topNavLinkActive]: isCurrentNavItem,
+                  })}
+                  href={href}
+                  key={href}
+                >
+                  {label}
+                </AppLink>
+              )
+            })}
+          </nav>{' '}
+          <div className={css.topNavI18nWrapper}>
+            <AppFooterLanguage />
+            <AppFooterCurrency />
+          </div>
+        </div>
       </div>
     </section>
   )
