@@ -194,15 +194,6 @@ export class PacksService {
     sortBy = PackSortField.ReleasedAt,
     sortDirection = SortDirection.Descending,
   }: PublishedPacksQuery): Promise<{ packs: PublishedPack[]; total: number }> {
-    console.log('page:', page)
-    console.log('type:', type)
-    console.log('priceHigh:', priceHigh)
-    console.log('priceLow:', priceLow)
-    console.log('status:', status)
-    console.log('reserveMet:', reserveMet)
-    console.log('sortBy:', sortBy)
-    console.log('sortDirection:', sortDirection)
-
     invariant(page > 0, 'page must be greater than 0')
 
     const sort: ItemSort[] = [
