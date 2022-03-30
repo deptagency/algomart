@@ -37,7 +37,7 @@ resource "google_cloud_run_service" "web" {
 
         env {
           name  = "IMAGE_DOMAINS"
-          value = "lh3.googleusercontent.com,firebasestorage.googleapis.com,${var.cms_domain_mapping}"
+          value = "lh3.googleusercontent.com,firebasestorage.googleapis.com,storage.googleapis.com,${var.cms_domain_mapping}"
         }
 
         env {
