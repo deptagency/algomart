@@ -191,6 +191,7 @@ jobs:
           TF_VAR_cms_node_env: ${{ secrets.CMS_NODE_ENV }}
 
           TF_VAR_web_node_env: ${{ secrets.WEB_NODE_ENV }}
+          TF_VAR_gcp_cdn_url: ${{ secrets.GCP_CDN_URL }}
 
         # It's necessary to `unset` any `TF_VAR_*` variables if they're empty; otherwise
         # Terraform will override default values with empty ones. This needs to be done
