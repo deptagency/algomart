@@ -21,6 +21,7 @@
 
 .readMore {
   @apply relative block mx-auto font-bold text-center underline text-action-secondary;
+  @apply hover:text-action-primary;
 }
 
 .mask {
