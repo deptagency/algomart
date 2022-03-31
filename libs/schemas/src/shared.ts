@@ -1,13 +1,11 @@
 import { Static, TSchema, Type } from '@sinclair/typebox'
 
-import * as LanguageConsts from './language-consts.js'
-
 export const DEFAULT_CURRENCY = 'USD'
 export const DEFAULT_LOCALE = 'en-US'
-export const DEFAULT_LANG: string = LanguageConsts.DEFAULT_LANG
+export const DEFAULT_LANG = 'en-US'
 
 export const LANG_COOKIE = 'language'
-export const SUPPORTED_LANGUAGES: string[] = LanguageConsts.SUPPORTED_LANGUAGES
+export const SUPPORTED_LANGUAGES = ['ar', 'en-US', 'fr-FR', 'es-ES']
 export const RTL_LANGUAGES: string[] = [
   'ar',
   'arc',

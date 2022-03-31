@@ -1,11 +1,6 @@
-const {
-  DEFAULT_LANG,
-  SUPPORTED_LANGUAGES,
-} = require('../../libs/schemas/src/language-consts')
-
 module.exports = {
-  defaultLocale: DEFAULT_LANG,
-  locales: SUPPORTED_LANGUAGES,
+  defaultLocale: 'en-US', // THIS MUST MATCH DEFAULT_LOCALE CONST
+  locales: ['ar', 'en-US', 'fr-FR', 'es-ES'], // THIS MUST MATCH SUPPORTED_LANGUAGES CONST
   pages: {
     '*': ['admin', 'auth', 'collection', 'common', 'forms', 'release'],
     'rgx:/asset': ['asset'],
