@@ -35,7 +35,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/package.json ./
 
 # Copy and setup files for next-translate
 COPY --from=builder /app/apps/web/i18n.js ./i18n.js
-COPY --from=builder /app/apps/web/locales/ ./locales/
+COPY --from=builder /app/apps/web/languages/ ./languages/
 RUN mkdir pages && touch pages/_app.js
 RUN npm install --no-package-lock --production
 
