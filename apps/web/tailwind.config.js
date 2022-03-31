@@ -25,6 +25,9 @@ module.exports = {
       backgroundImage: {
         'pack-texture': "url('/images/textures/pack-texture.jpg')",
       },
+      borderColor: {
+        DEFAULT: generateColorClass('border'),
+      },
       borderRadius: {
         sm: '4px',
       },
