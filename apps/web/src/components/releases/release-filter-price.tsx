@@ -11,12 +11,14 @@ import CurrencyInput, {
 } from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
 import { usePackFilterContext } from '@/contexts/pack-filter-context'
+import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { packFilterActions } from '@/hooks/use-pack-filter'
 import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 
 export default function ReleaseFilterPrice() {
   const locale = useLocale()
+  const currency = useCurrency()
   const { t } = useTranslation()
   const { dispatch, state } = usePackFilterContext()
   const [priceLow, setPriceLow] = useState<string>(
@@ -71,8 +73,8 @@ export default function ReleaseFilterPrice() {
             }
             fullWidth
             onClick={() => {
-              const low = formatFloatToInt(priceLow)
-              const high = formatFloatToInt(priceHigh)
+              const low = formatFloatToInt(priceLow, currency)
+              const high = formatFloatToInt(priceHigh, currency)
               dispatch(
                 packFilterActions.setPrice({ priceLow: low, priceHigh: high })
               )

@@ -31,6 +31,7 @@ export class AccountsService {
   }
 
   async create(request: CreateUserAccountRequest, trx?: Transaction) {
+    console.log('IN CREATE')
     // 1. Check for a username or externalId collision
     const existing = await UserAccountModel.query(trx)
       .where({
@@ -40,14 +41,16 @@ export class AccountsService {
       .first()
     userInvariant(!existing, 'username or externalId already exists', 400)
 
+    console.log('existing')
     // 2. generate algorand account (i.e. wallet)
     const result = this.algorand.generateAccount(request.passphrase)
 
     // 3. save account with encrypted mnemonic
     await UserAccountModel.query(trx).insertGraph({
       username: request.username,
+      currency: request.currency,
       email: request.email,
-      locale: request.locale,
+      language: request.language,
       externalId: request.externalId,
       algorandAccount: {
         address: result.address,
@@ -55,12 +58,16 @@ export class AccountsService {
       },
     })
 
+    console.log('saved account')
+
     // 4. return "public" user account
     const userAccount = await UserAccountModel.query(trx)
       .findOne({
         username: request.username,
       })
       .withGraphJoined('algorandAccount.creationTransaction')
+
+    console.log('returning public account')
 
     return this.mapPublicAccount(userAccount)
   }
@@ -144,10 +151,11 @@ export class AccountsService {
 
     return {
       address: userAccount.algorandAccount.address,
+      currency: userAccount.currency,
       externalId: userAccount.externalId,
       username: userAccount.username,
       email: userAccount.email,
-      locale: userAccount.locale,
+      language: userAccount.language,
       status: userAccount.algorandAccount.creationTransaction
         ? userAccount.algorandAccount.creationTransaction.status
         : undefined,

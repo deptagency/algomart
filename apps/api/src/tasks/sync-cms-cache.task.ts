@@ -6,6 +6,9 @@ export default async function syncCMSCacheTask(registry: DependencyResolver) {
   const log = logger.child({ task: 'store-collectibles' })
   const cms = registry.get<DirectusAdapter>(DirectusAdapter.name)
 
+  logger.info('starting syncLanguages')
+  await cms.syncAllLanguages()
+  logger.info('finished syncLanguages')
   log.info('starting syncApplication')
   await cms.syncApplication()
   log.info('finished syncApplication')

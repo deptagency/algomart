@@ -36,7 +36,12 @@
 }
 
 .selectButtonText {
-  @apply block text-sm font-light truncate text-base-gray-dark;
+  @apply grid grid-flow-col grid-rows-1 text-base truncate text-base-gray-dark gap-4 justify-between;
+}
+
+.selectButtonText svg {
+  @apply stroke-current text-base-gray-light justify-self-end;
+  width: 22px;
 }
 
 .selectButtonIconContainer {

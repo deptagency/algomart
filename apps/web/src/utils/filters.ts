@@ -20,6 +20,8 @@ import { PackFilterState } from '@/hooks/use-pack-filter'
 
 export const searchPublishedPacksFilterQuery = (query: PublishedPacksQuery) => {
   return stringify({
+    currency: query.currency,
+    language: query.language,
     page: query.page,
     pageSize: query.pageSize || PAGE_SIZE,
     priceHigh: query.priceHigh,
@@ -36,7 +38,7 @@ export const searchPublishedPacksFilterQuery = (query: PublishedPacksQuery) => {
 
 export const getPacksByOwnerFilterQuery = (query: PacksByOwnerQuery) => {
   return stringify({
-    locale: query.locale,
+    language: query.language,
     page: query.page,
     pageSize: query.pageSize || PAGE_SIZE,
     templateIds: query.templateIds,
@@ -51,8 +53,9 @@ export const getPacksByOwnerFilterQuery = (query: PacksByOwnerQuery) => {
  * Formats a PublishedPacksQuery object from state of useFilterReducer
  */
 export const getPublishedPacksFilterQueryFromState = (
-  locale: string,
-  state: PackFilterState
+  language: string,
+  state: PackFilterState,
+  currency: string
 ): PublishedPacksQuery => {
   const status: PackStatus[] = []
   if (state.showAuctionExpired) status.push(PackStatus.Expired)
@@ -64,7 +67,8 @@ export const getPublishedPacksFilterQueryFromState = (
   if (state.showPurchase) type.push(PackType.Purchase)
 
   return {
-    locale,
+    language,
+    currency,
     page: state.currentPage,
     priceHigh: state.priceHigh,
     priceLow: state.priceLow,
@@ -84,7 +88,7 @@ export const getCollectiblesFilterQuery = (
   query: CollectibleListQuerystring
 ) => {
   return stringify({
-    locale: query.locale,
+    language: query.language,
     page: query.page,
     pageSize: query.pageSize || PAGE_SIZE,
     sortBy: query.sortBy,

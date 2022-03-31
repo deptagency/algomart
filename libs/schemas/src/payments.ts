@@ -584,12 +584,6 @@ export const CountrySchema = Type.Object({
 
 export const CountriesSchema = Type.Array(CountrySchema)
 
-export const CurrencySchema = Type.Object({
-  base: Type.Number(),
-  code: Type.String(),
-  exponent: Type.Number(),
-})
-
 export const GetPaymentBankAccountInstructionsSchema = Type.Object({
   trackingRef: Type.String(),
   beneficiary: Type.Object({
@@ -655,7 +649,7 @@ export const PaymentsSchema = Type.Object({
 export const PaymentsQuerystringSchema = Type.Intersect([
   PaginationSchema,
   Type.Object({
-    locale: Type.Optional(Type.String()),
+    language: Type.Optional(Type.String()),
     packId: Type.Optional(Type.String({ format: 'uuid' })),
     packSlug: Type.Optional(Type.String()),
     payerExternalId: Type.Optional(Type.String()),
@@ -832,7 +826,6 @@ export type CreateTransferPayment = Simplify<
 >
 export type Country = Simplify<Static<typeof CountrySchema>>
 export type Countries = Simplify<Static<typeof CountriesSchema>>
-export type Currency = Simplify<Static<typeof CurrencySchema>>
 export type FindTransferByAddress = Simplify<
   Static<typeof FindTransferByAddressSchema>
 >

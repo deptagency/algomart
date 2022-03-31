@@ -146,8 +146,10 @@ export const PacksByOwnerSchema = Type.Object({
 export const PublishedPacksQuerySchema = Type.Intersect([
   PaginationSchema,
   Type.Object({
-    locale: Type.Optional(Type.String()),
+    currency: Type.Optional(Type.String()),
+    language: Type.Optional(Type.String()),
     slug: Type.Optional(Type.String()),
+    templates: Type.Optional(Type.Array(PackBaseSchema)),
     templateIds: Type.Optional(Type.Array(IdSchema)),
     priceLow: Type.Optional(Type.Number()),
     priceHigh: Type.Optional(Type.Number()),
@@ -166,7 +168,7 @@ export const PublishedPacksQuerySchema = Type.Intersect([
 export const PacksByOwnerQuerySchema = Type.Intersect([
   PaginationSchema,
   Type.Object({
-    locale: Type.Optional(Type.String()),
+    language: Type.Optional(Type.String()),
     slug: Type.Optional(Type.String()),
     templateIds: Type.Optional(Type.Array(IdSchema)),
     type: Type.Optional(Type.Array(Type.Enum(PackType))),

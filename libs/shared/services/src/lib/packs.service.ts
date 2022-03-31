@@ -6,11 +6,11 @@ import {
   ClaimPack,
   ClaimRedeemPack,
   CollectibleWithDetails,
-  DEFAULT_LOCALE,
+  DEFAULT_LANG,
   EventAction,
   EventEntityType,
   IPFSStatus,
-  LocaleAndExternalId,
+  LanguageAndExternalId,
   MintPack,
   MintPackStatus,
   NotificationType,
@@ -34,13 +34,6 @@ import {
   TransferPack,
   TransferPackStatusList,
 } from '@algomart/schemas'
-import { raw, Transaction } from 'objection'
-
-import {
-  CMSCacheAdapter,
-  ItemFilters,
-  ItemSort,
-} from '@algomart/shared/adapters'
 
 import {
   BidModel,
@@ -58,7 +51,18 @@ import {
   randomRedemptionCode,
   shuffleArray,
 } from '@algomart/shared/utils'
-import { NotificationsService, AccountsService, CollectiblesService } from '.'
+import {
+  AccountsService,
+  CollectiblesService,
+  NotificationsService,
+  I18nService,
+} from './'
+import { raw, Transaction } from 'objection'
+import {
+  ItemFilters,
+  ItemSort,
+  CMSCacheAdapter,
+} from '@algomart/shared/adapters'
 
 function mapToPublicBid(bid: BidModel, packId: string): BidPublic {
   return {
@@ -77,6 +81,7 @@ export class PacksService {
   constructor(
     private readonly cms: CMSCacheAdapter,
     private readonly collectibles: CollectiblesService,
+    private readonly i18nService: I18nService,
     private readonly notifications: NotificationsService,
     private readonly accounts: AccountsService,
     private currency: Currencies.Currency<number>,
@@ -150,8 +155,11 @@ export class PacksService {
 
   // #endregion
 
-  async getPublishedPacksByTemplateIds(templateIds, locale = DEFAULT_LOCALE) {
-    const templates = await this.cms.findPacksByTemplateIds(templateIds, locale)
+  async getPublishedPacksByTemplateIds(templateIds, language = DEFAULT_LANG) {
+    const templates = await this.cms.findPacksByTemplateIds(
+      templateIds,
+      language
+    )
     const packCounts = await this.getPackCounts(
       templates.map((t) => t.templateId)
     )
@@ -175,25 +183,29 @@ export class PacksService {
     return templates.map((pack) => assemblePack(pack))
   }
 
-  async getPublishedPackBySlug(slug, locale = DEFAULT_LOCALE) {
-    const template = await this.cms.findPackBySlug(slug, locale)
-    const packCount = (await this.getPackCounts([template.templateId]))[0]
+  async getPublishedPackBySlug(slug, language = DEFAULT_LANG) {
+    const template = await this.cms.findPackBySlug(slug, language)
+    const [packCount] = await this.getPackCounts([template.templateId])
 
     return this.createPublishedPack(template, packCount, null)
   }
 
-  async searchPublishedPacks({
-    locale = DEFAULT_LOCALE,
-    page = 1,
-    pageSize = 10,
-    type = [],
-    priceHigh,
-    priceLow,
-    status,
-    reserveMet,
-    sortBy = PackSortField.ReleasedAt,
-    sortDirection = SortDirection.Descending,
-  }: PublishedPacksQuery): Promise<{ packs: PublishedPack[]; total: number }> {
+  async searchPublishedPacks(
+    {
+      currency = this.currency.code,
+      language = DEFAULT_LANG,
+      page = 1,
+      pageSize = 10,
+      type = [],
+      priceHigh,
+      priceLow,
+      status,
+      reserveMet,
+      sortBy = PackSortField.ReleasedAt,
+      sortDirection = SortDirection.Descending,
+    }: PublishedPacksQuery,
+    trx?: Transaction
+  ): Promise<{ packs: PublishedPack[]; total: number }> {
     invariant(page > 0, 'page must be greater than 0')
 
     const sort: ItemSort[] = [
@@ -207,6 +219,25 @@ export class PacksService {
       type: {
         _in: type,
       },
+    }
+
+    if (priceHigh || priceLow) {
+      if (currency !== this.currency.code) {
+        const { exchangeRate } = await this.i18nService.getCurrencyConversion(
+          {
+            sourceCurrency: currency,
+            targetCurrency: this.currency.code,
+          },
+          trx
+        )
+
+        if (priceHigh) priceHigh *= exchangeRate
+        if (priceLow) priceLow *= exchangeRate
+      }
+
+      filter.price = {}
+      if (priceHigh) filter.price._lte = Math.round(priceHigh)
+      if (priceLow) filter.price._gte = Math.round(priceLow)
     }
 
     if (priceHigh || priceLow) {
@@ -230,7 +261,7 @@ export class PacksService {
     const { packs: templates, total } = await this.cms.findAllPacks({
       filter,
       sort,
-      locale,
+      language,
       page,
       pageSize,
     })
@@ -269,7 +300,7 @@ export class PacksService {
   }
 
   async getPacksByOwner({
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     page = 1,
     pageSize = 10,
     templateIds = [],
@@ -331,7 +362,7 @@ export class PacksService {
 
     // Find templates for the packs owned by user
     const { packs: templates } = await this.cms.findAllPacks({
-      locale,
+      language,
       pageSize: -1,
       filter,
     })
@@ -391,7 +422,7 @@ export class PacksService {
 
   async getPackWithCollectiblesById(
     id: string,
-    locale = DEFAULT_LOCALE
+    language = DEFAULT_LANG
   ): Promise<PackWithCollectibles> {
     const pack = await PackModel.query()
       .findOne({ id })
@@ -403,14 +434,14 @@ export class PacksService {
 
     const packTemplate = await this.cms.findPackByTemplateId(
       pack.templateId,
-      locale
+      language
     )
     invariant(packTemplate, 'pack template missing in cms')
 
     const templateIds = pack.collectibles.map((c) => c.templateId)
     const collectibleTemplates = await this.cms.findCollectiblesByTemplateIds(
       templateIds,
-      locale
+      language
     )
 
     const collectibleTemplateLookup = new Map(
@@ -472,7 +503,7 @@ export class PacksService {
 
   async getPackById(
     id: string,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     trx?: Transaction
   ): Promise<PackWithId | null> {
     const pack = await PackModel.query(trx).where({ id }).first()
@@ -484,7 +515,7 @@ export class PacksService {
 
     const template = await this.cms.findPackByTemplateId(
       pack.templateId,
-      locale,
+      language,
       trx
     )
 
@@ -497,14 +528,14 @@ export class PacksService {
 
   async getPackByRedeemCode(
     redeemCode: string,
-    locale = DEFAULT_LOCALE
+    language = DEFAULT_LANG
   ): Promise<PackWithId> {
     const pack = await PackModel.query().where({ redeemCode }).first()
     userInvariant(pack && pack.ownerId === null, 'pack not found', 404)
 
     const template = await this.cms.findPackByTemplateId(
       pack.templateId,
-      locale
+      language
     )
 
     invariant(template, 'pack template not in cms')
@@ -522,7 +553,7 @@ export class PacksService {
   ): Promise<PackWithId> {
     const template = await this.cms.findPackByTemplateId(
       templateId,
-      DEFAULT_LOCALE,
+      DEFAULT_LANG,
       trx
     )
 
@@ -668,7 +699,7 @@ export class PacksService {
     // Create transfer success notification to be sent to user
     const packWithBase = await this.getPackById(
       request.packId,
-      DEFAULT_LOCALE,
+      DEFAULT_LANG,
       trx
     )
     if (packWithBase) {
@@ -689,8 +720,8 @@ export class PacksService {
 
   async untransferredPacks({
     externalId,
-    locale = DEFAULT_LOCALE,
-  }: LocaleAndExternalId) {
+    language = DEFAULT_LANG,
+  }: LanguageAndExternalId) {
     const packs = await PackModel.query()
       .join('UserAccount', 'UserAccount.id', 'Pack.ownerId')
       .join('Collectible', 'Collectible.packId', 'Pack.id')
@@ -729,7 +760,7 @@ export class PacksService {
     if (templateIds.length > 0) filter.id = { _in: templateIds }
 
     const { packs: templates } = await this.cms.findAllPacks({
-      locale,
+      language,
       pageSize: -1,
       filter,
     })
@@ -786,9 +817,9 @@ export class PacksService {
   async claimRedeemPack(
     request: ClaimRedeemPack,
     trx?: Transaction,
-    locale = DEFAULT_LOCALE
+    language = DEFAULT_LANG
   ) {
-    const pack = await this.getPackByRedeemCode(request.redeemCode, locale)
+    const pack = await this.getPackByRedeemCode(request.redeemCode, language)
     userInvariant(pack, 'pack not found', 404)
     userInvariant(pack.type === PackType.Redeem, 'pack is not redeemable')
 
@@ -1106,7 +1137,7 @@ export class PacksService {
     let numberCompletedPackAuctions = 0
     await Promise.all(
       packs.map(async (pack) => {
-        // Verify user account and get the template in their locale
+        // Verify user account and get the template in their language
         invariant(
           pack.activeBid?.userAccount,
           'activeBid has no associated user'
@@ -1114,7 +1145,7 @@ export class PacksService {
 
         const packTemplate = await this.cms.findPackByTemplateId(
           pack.templateId,
-          pack.activeBid.userAccount.locale,
+          pack.activeBid.userAccount.language,
           trx
         )
         invariant(packTemplate, 'packTemplate not found')
@@ -1172,7 +1203,7 @@ export class PacksService {
     let numberExpiredPackAuctions = 0
     await Promise.all(
       packs.map(async (pack) => {
-        // Verify user account and get the template in their locale
+        // Verify user account and get the template in their language
         invariant(
           pack.activeBid?.userAccount,
           'activeBid has no associated user'
@@ -1180,7 +1211,7 @@ export class PacksService {
 
         const packTemplate = await this.cms.findPackByTemplateId(
           pack.templateId,
-          pack.activeBid.userAccount.locale,
+          pack.activeBid.userAccount.language,
           trx
         )
         invariant(packTemplate, 'packTemplate not found')
@@ -1256,7 +1287,7 @@ export class PacksService {
 
           const packTemplate = await this.cms.findPackByTemplateId(
             pack.templateId,
-            selectedBid.userAccount.locale,
+            selectedBid.userAccount.language,
             trx
           )
           invariant(packTemplate, 'packTemplate not found')

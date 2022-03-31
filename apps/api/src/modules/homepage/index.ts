@@ -1,4 +1,4 @@
-import { HomepageSchema, LocaleSchema } from '@algomart/schemas'
+import { HomepageSchema, LanguageSchema } from '@algomart/schemas'
 import { appErrorHandler } from '@algomart/shared/utils'
 import bearerAuthOptions from '@api/configuration/bearer-auth'
 import { FastifyInstance } from 'fastify'
@@ -27,7 +27,7 @@ export async function homepageRoutes(app: FastifyInstance) {
       schema: {
         tags,
         security,
-        querystring: LocaleSchema,
+        querystring: LanguageSchema,
         response: {
           200: HomepageSchema,
         },

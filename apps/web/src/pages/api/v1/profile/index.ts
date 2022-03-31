@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, FirebaseClaim } from '@algomart/schemas'
+import { DEFAULT_LANG, FirebaseClaim } from '@algomart/schemas'
 import { BadRequest } from 'http-errors'
 import { NextApiRequest, NextApiResponse } from 'next'
 
@@ -22,8 +22,7 @@ handler.post(
   validateBodyMiddleware(validateUserRegistration),
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
     const body = request.validResult.value as BodyType
-    const locale =
-      request.headers['accept-language']?.split(',')[0] || DEFAULT_LOCALE
+    const language = body.language || DEFAULT_LANG
 
     const user = await ApiClient.instance.getAccountByExternalId(
       request.token.uid
@@ -35,9 +34,10 @@ handler.post(
 
     try {
       await ApiClient.instance.createAccount({
+        currency: body.currency,
         email: body.email,
         externalId: request.token.uid,
-        locale,
+        language,
         passphrase: body.passphrase,
         username: body.username,
       })

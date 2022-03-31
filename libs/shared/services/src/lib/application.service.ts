@@ -1,5 +1,5 @@
 import pino from 'pino'
-import { Countries, DEFAULT_LOCALE } from '@algomart/schemas'
+import { Countries, DEFAULT_LANG } from '@algomart/schemas'
 import { CMSCacheAdapter } from '@algomart/shared/adapters'
 import { invariant } from '@algomart/shared/utils'
 
@@ -13,7 +13,7 @@ export class ApplicationService {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  async getCountries(locale = DEFAULT_LOCALE): Promise<Countries> {
+  async getCountries(language = DEFAULT_LANG): Promise<Countries> {
     // Find application details and compile IDs of supported countries
     const application = await this.cms.findApplication()
     invariant(application?.countries?.length > 0, 'No countries found')
@@ -22,7 +22,7 @@ export class ApplicationService {
     )
 
     // Search for countries
-    const countries = (await this.cms.findAllCountries(locale)).filter(
+    const countries = (await this.cms.findAllCountries(language)).filter(
       ({ code }) => countryCodes.includes(code)
     )
     return countries

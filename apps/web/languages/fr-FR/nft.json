@@ -1,0 +1,45 @@
+{
+  "walletConnect": {
+    "title": "FR Algorand WalletConnect",
+    "connect": "FR Open WalletConnect",
+    "description": "FR Use WalletConnect to link your Algorand wallet to AlgoMart.",
+    "helpText": "FR Need a wallet? Get one here:",
+    "destinationWallet": "FR Destination wallet:",
+    "selectAccount": "FR Select Account",
+    "nfts": "FR NFTs",
+    "selectNFT": "FR Select NFT",
+    "transfer": "FR Transfer",
+    "orCancel": "FR or cancel and disconnect from wallet",
+    "transferring": "FR Transferring NFT...",
+    "sent": "FR Sent!",
+    "backToMyCollection": "FR Back to My Collection"
+  },
+  "actions": {
+    "sellNFT": "FR Sell NFT",
+    "transferNFT": "FR Transfer NFT"
+  },
+  "labels": {
+    "Owner": "FR Owner",
+    "Edition": "FR Edition",
+    "Rarity": "FR Rarity",
+    "Collection": "FR Collection",
+    "Set": "FR Set",
+    "Address": "FR Address",
+    "editionX": "FR #{{edition}} of {{totalEditions}}",
+    "uniqueId": "FR Unique ID",
+    "cannotTransfer": {
+      "frozen": "FR This NFT is frozen and cannot be transferred.",
+      "mintedRecently": "FR Cannot be transferred until {{date}}."
+    }
+  },
+  "exportStatus": {
+    "idle": "FR Loading...",
+    "optingIn": "FR Please confirm the transactions in your wallet to opt-in to the NFT.",
+    "optIn": "FR Verifying opt-in transaction...",
+    "pending": "FR Transferring NFT...",
+    "success": "FR NFT transferred!",
+    "error": "FR Error transferring NFT.",
+    "generatingTransactions": "FR Generating transactions for import...",
+    "signTransaction": "FR Please confirm the transactions in your wallet to transfer the NFT."
+  }
+}

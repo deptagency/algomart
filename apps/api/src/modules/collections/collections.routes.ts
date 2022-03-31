@@ -9,7 +9,7 @@ export async function getAllCollections(
   const collectionsService = request
     .getContainer()
     .get<CollectionsService>(CollectionsService.name)
-  // TODO: get locale from request
+  // TODO: get language from request
   const collections = await collectionsService.getAllCollections()
   reply.send(collections)
 }
@@ -21,7 +21,7 @@ export async function getCollection(
   const collectionsService = request
     .getContainer()
     .get<CollectionsService>(CollectionsService.name)
-  // TODO: get locale from request
+  // TODO: get language from request
   const collection = await collectionsService.getCollectionBySlug(
     request.params.slug
   )

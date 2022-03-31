@@ -9,7 +9,7 @@ import {
   CollectibleShowcaseQuerystring,
   CollectibleSortField,
   CollectibleWithDetails,
-  DEFAULT_LOCALE,
+  DEFAULT_LANG,
   EventAction,
   EventEntityType,
   InitializeTransferCollectible,
@@ -73,7 +73,7 @@ export class CollectiblesService {
       }
     }
     const { collectibles: templates } = await this.cms.findAllCollectibles(
-      DEFAULT_LOCALE,
+      DEFAULT_LANG,
       filter,
       limit
     )
@@ -139,7 +139,7 @@ export class CollectiblesService {
 
     const template = await this.cms.findCollectibleByTemplateId(
       collectible.templateId,
-      query.locale
+      query.language
     )
 
     invariant(template, `NFT Template ${collectible.templateId} not found`)
@@ -153,7 +153,7 @@ export class CollectiblesService {
       .where('a.address', '=', currentOwner?.address || '-')
       .first()
 
-    const { collections } = await this.cms.findAllCollections(query.locale)
+    const { collections } = await this.cms.findAllCollections(query.language)
     const collection = collections.find(
       (c) =>
         c.id === template.collectionId ||
@@ -218,7 +218,7 @@ export class CollectiblesService {
   async getCollectiblesByAlgoAddress(
     algoAddress: string,
     {
-      locale = DEFAULT_LOCALE,
+      language = DEFAULT_LANG,
       page = 1,
       pageSize = 10,
       sortBy = CollectibleSortField.Title,
@@ -262,10 +262,8 @@ export class CollectiblesService {
 
     // Get corresponding templates from CMS
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
-    const templates = await this.cms.findCollectiblesByTemplateIds(
-      templateIds,
-      locale
-    )
+    const templates: CollectibleBase[] =
+      await this.cms.findCollectiblesByTemplateIds(templateIds, language)
 
     // Map and sort collectibles
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
@@ -386,10 +384,7 @@ export class CollectiblesService {
 
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
 
-    const templates = await this.cms.findCollectiblesByTemplateIds(
-      templateIds,
-      undefined
-    )
+    const templates = await this.cms.findCollectiblesByTemplateIds(templateIds)
 
     invariant(templates.length > 0, 'templates not found')
 
@@ -483,6 +478,7 @@ export class CollectiblesService {
 
     await this.algorand.submitTransaction(signedTransactions)
 
+    // TODO: Why is this coming back singular instead of as an array?
     const transactions = await AlgorandTransactionModel.query(trx).insert(
       transactionIds.map((id) => ({
         address: id,
@@ -600,7 +596,7 @@ export class CollectiblesService {
   async getCollectibles({
     page = 1,
     pageSize = 10,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     sortBy = CollectibleSortField.Title,
     sortDirection = SortDirection.Ascending,
     ownerExternalId,
@@ -664,7 +660,7 @@ export class CollectiblesService {
     const foundTemplateIds = [...new Set(collectibles.map((c) => c.templateId))]
     const templates = await this.cms.findCollectiblesByTemplateIds(
       foundTemplateIds,
-      locale
+      language
     )
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
     const mappedCollectibles = collectibles
@@ -706,7 +702,7 @@ export class CollectiblesService {
   }
 
   async getShowcaseCollectibles({
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     ownerUsername,
   }: CollectibleShowcaseQuerystring) {
     const user = await UserAccountModel.query()
@@ -736,7 +732,7 @@ export class CollectiblesService {
     const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
 
     const { collectibles: templates } = await this.cms.findAllCollectibles(
-      locale,
+      language,
       {
         id: {
           _in: templateIds,

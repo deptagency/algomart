@@ -3,7 +3,7 @@ import {
   CollectionBase,
   CollectionWithSets,
   Country,
-  DEFAULT_LOCALE,
+  DEFAULT_LANG,
   DirectusApplication,
   DirectusCollectibleTemplate,
   DirectusCollectibleTemplateTranslation,
@@ -13,6 +13,7 @@ import {
   DirectusCountryTranslation,
   DirectusFile,
   DirectusHomepage,
+  DirectusLanguageTemplate,
   DirectusPackTemplate,
   DirectusPackTemplateTranslation,
   DirectusRarity,
@@ -33,6 +34,7 @@ import {
   CMSCacheCollectibleTemplateModel,
   CMSCacheCollectionModel,
   CMSCacheHomepageModel,
+  CMSCacheLanguageModel,
   CMSCachePackTemplateModel,
   CMSCacheSetModel,
   PackModel,
@@ -105,7 +107,7 @@ export interface ItemQuery {
 function getDirectusTranslation<TItem extends DirectusTranslation>(
   translations: TItem[] & DirectusTranslation[],
   invariantLabel: string,
-  locale = DEFAULT_LOCALE
+  language = DEFAULT_LANG
 ): TItem {
   invariant(
     typeof translations != 'number' && translations?.length > 0,
@@ -113,8 +115,9 @@ function getDirectusTranslation<TItem extends DirectusTranslation>(
   )
 
   const translation =
-    translations.find((translation) => translation.locale_code === locale) ||
-    translations[0]
+    translations.find(
+      (translation) => translation.languages_code === language
+    ) || translations[0]
   invariant(
     translation !== undefined && typeof translation !== 'number',
     invariantLabel
@@ -132,7 +135,7 @@ export type GetFileURL = (file: DirectusFile) => string
 export function toHomepageBase(
   homepage: DirectusHomepage,
   getFileURL: GetFileURL,
-  locale = DEFAULT_LOCALE
+  language = DEFAULT_LANG
 ): HomepageBase {
   return {
     featuredPackTemplateId:
@@ -140,22 +143,22 @@ export function toHomepageBase(
         ? homepage.featured_pack
         : homepage.featured_pack?.id,
     upcomingPackTemplateIds: (homepage.upcoming_packs ?? []).map(
-      (pack) => toPackBase(pack, getFileURL, locale).templateId
+      (pack) => toPackBase(pack, getFileURL, language).templateId
     ),
     notableCollectibleTemplateIds: (homepage.notable_collectibles ?? []).map(
       (collectible) =>
-        toCollectibleBase(collectible, getFileURL, locale).templateId
+        toCollectibleBase(collectible, getFileURL, language).templateId
     ),
   }
 }
 
-export function toSetBase(set: DirectusSet, locale = DEFAULT_LOCALE): SetBase {
+export function toSetBase(set: DirectusSet, language = DEFAULT_LANG): SetBase {
   const { id, slug, translations, nft_templates } = set
 
   const { name } = getDirectusTranslation<DirectusSetTranslation>(
     translations as DirectusSetTranslation[],
     `set ${id} has no translations`,
-    locale
+    language
   )
 
   const collectibleTemplateIds = isStringArray(nft_templates)
@@ -173,7 +176,7 @@ export function toSetBase(set: DirectusSet, locale = DEFAULT_LOCALE): SetBase {
 export function toCollectionBase(
   collection: DirectusCollection,
   getFileURL: GetFileURL,
-  locale: string
+  language: string
 ): CollectionBase {
   const {
     id,
@@ -187,7 +190,7 @@ export function toCollectionBase(
   const translation = getDirectusTranslation<DirectusCollectionTranslation>(
     translations as DirectusCollectionTranslation[],
     `collection ${id} has no translations`,
-    locale
+    language
   )
 
   const collectibleTemplateIds = isStringArray(nft_templates)
@@ -219,43 +222,43 @@ export function toCollectionBase(
 export function toSetWithCollection(
   set: DirectusSet,
   getFileURL: GetFileURL,
-  locale = DEFAULT_LOCALE
+  language = DEFAULT_LANG
 ): SetWithCollection {
-  const base = toSetBase(set, locale)
+  const base = toSetBase(set, language)
 
   invariant(typeof set.collection !== 'string', 'collection must be an object')
 
   return {
     ...base,
-    collection: toCollectionBase(set.collection, getFileURL, locale),
+    collection: toCollectionBase(set.collection, getFileURL, language),
   }
 }
 
 export function toCollectionWithSets(
   collection: DirectusCollection,
   getFileURL: GetFileURL,
-  locale = DEFAULT_LOCALE
+  language = DEFAULT_LANG
 ): CollectionWithSets {
-  const base = toCollectionBase(collection, getFileURL, locale)
+  const base = toCollectionBase(collection, getFileURL, language)
 
   invariant(!isStringArray(collection.sets), 'sets must be an array of objects')
 
   return {
     ...base,
-    sets: collection.sets.map((set) => toSetBase(set, locale)),
+    sets: collection.sets.map((set) => toSetBase(set, language)),
   }
 }
 
 export function toCollectibleBase(
   template: DirectusCollectibleTemplate,
   getFileURL: GetFileURL,
-  locale = DEFAULT_LOCALE
+  language = DEFAULT_LANG
 ): CollectibleBase {
   const translation =
     getDirectusTranslation<DirectusCollectibleTemplateTranslation>(
       template.translations as DirectusCollectibleTemplateTranslation[],
       `collectible ${template.id} has no translations`,
-      locale
+      language
     )
 
   const rarity = template.rarity as DirectusRarity
@@ -264,7 +267,7 @@ export function toCollectibleBase(
     ? getDirectusTranslation<DirectusRarityTranslation>(
         rarity?.translations as DirectusRarityTranslation[],
         'expected rarity to include translations',
-        locale
+        language
       )
     : undefined
 
@@ -337,12 +340,12 @@ export function toStatus(template: DirectusPackTemplate) {
 
 export function toCountryBase(
   country: DirectusCountry,
-  locale: string
+  language: string
 ): Country {
   const translation = getDirectusTranslation<DirectusCountryTranslation>(
     country.countries_code.translations as DirectusCountryTranslation[],
     `country ${country.countries_code} has no translations`,
-    locale
+    language
   )
   return {
     code: country.countries_code.code,
@@ -353,12 +356,12 @@ export function toCountryBase(
 export function toPackBase(
   template: DirectusPackTemplate,
   getFileURL: GetFileURL,
-  locale = DEFAULT_LOCALE
+  language = DEFAULT_LANG
 ): PackBase {
   const translation = getDirectusTranslation<DirectusPackTemplateTranslation>(
     template.translations as DirectusPackTemplateTranslation[],
     `pack ${template.id} has no translations`,
-    locale
+    language
   )
 
   return {
@@ -371,7 +374,7 @@ export function toPackBase(
       (nft_template) => nft_template.id
     ),
     collectibleTemplates: template.nft_templates.map((nft_template) =>
-      toCollectibleBase(nft_template, getFileURL, locale)
+      toCollectibleBase(nft_template, getFileURL, language)
     ),
     config: {
       collectibleDistribution: template.nft_distribution,
@@ -420,17 +423,17 @@ export class CMSCacheAdapter {
     return result
   }
 
-  async findAllCountries(locale = DEFAULT_LOCALE, trx?: Transaction) {
+  async findAllCountries(language = DEFAULT_LANG, trx?: Transaction) {
     const application = await this.findApplication(trx)
 
     return application.countries.map((country) => {
-      return toCountryBase(country, locale)
+      return toCountryBase(country, language)
     })
   }
 
   async findAllPacksAuctionCompletion(
     startDate,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     trx?: Transaction
   ) {
     const queryResult = await CMSCachePackTemplateModel.query(trx)
@@ -445,13 +448,13 @@ export class CMSCacheAdapter {
     )
 
     return data.map((template) =>
-      toPackBase(template, this.getFileURL.bind(this), locale)
+      toPackBase(template, this.getFileURL.bind(this), language)
     )
   }
 
   async findAllPacks(
     {
-      locale = DEFAULT_LOCALE,
+      language = DEFAULT_LANG,
       page = 1,
       pageSize = 10,
       filter = {},
@@ -462,7 +465,7 @@ export class CMSCacheAdapter {
         },
       ],
     }: {
-      locale?: string
+      language?: string
       page?: number
       pageSize?: number
       filter?: ItemFilters
@@ -488,7 +491,7 @@ export class CMSCacheAdapter {
 
     return {
       packs: response.data.map((template) =>
-        toPackBase(template, this.getFileURL.bind(this), locale)
+        toPackBase(template, this.getFileURL.bind(this), language)
       ),
       total: response.meta.total_count,
     }
@@ -496,7 +499,7 @@ export class CMSCacheAdapter {
 
   async findPacksByTemplateIds(
     templateIds,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     trx?: Transaction
   ) {
     const queryResult = await CMSCachePackTemplateModel.query(trx)
@@ -506,7 +509,7 @@ export class CMSCacheAdapter {
     const data = queryResult.map(
       (result: CMSCachePackTemplateModel): PackBase => {
         const packTemplate = result.content as unknown as DirectusPackTemplate
-        return toPackBase(packTemplate, this.getFileURL.bind(this), locale)
+        return toPackBase(packTemplate, this.getFileURL.bind(this), language)
       }
     )
 
@@ -516,7 +519,7 @@ export class CMSCacheAdapter {
   async findPacksByType(
     type,
     limit,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     trx?: Transaction
   ) {
     const queryResult = await CMSCachePackTemplateModel.query(trx)
@@ -527,25 +530,25 @@ export class CMSCacheAdapter {
     const data = queryResult.map(
       (result: CMSCachePackTemplateModel): PackBase => {
         const packTemplate = result.content as unknown as DirectusPackTemplate
-        return toPackBase(packTemplate, this.getFileURL.bind(this), locale)
+        return toPackBase(packTemplate, this.getFileURL.bind(this), language)
       }
     )
 
     return data
   }
 
-  async findPackBySlug(slug, locale = DEFAULT_LOCALE, trx?: Transaction) {
+  async findPackBySlug(slug, language = DEFAULT_LANG, trx?: Transaction) {
     const queryResult = await CMSCachePackTemplateModel.query(trx)
       .findOne('slug', slug)
       .select('content')
 
     const packTemplate = queryResult.content as unknown as DirectusPackTemplate
-    return toPackBase(packTemplate, this.getFileURL.bind(this), locale)
+    return toPackBase(packTemplate, this.getFileURL.bind(this), language)
   }
 
   async findPackByTemplateId(
     templateId,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     trx?: Transaction
   ) {
     const queryResult = await CMSCachePackTemplateModel.query(trx)
@@ -553,10 +556,10 @@ export class CMSCacheAdapter {
       .select('content')
 
     const packTemplate = queryResult.content as unknown as DirectusPackTemplate
-    return toPackBase(packTemplate, this.getFileURL.bind(this), locale)
+    return toPackBase(packTemplate, this.getFileURL.bind(this), language)
   }
 
-  async findPacksPendingGeneration(locale = DEFAULT_LOCALE, trx?: Transaction) {
+  async findPacksPendingGeneration(language = DEFAULT_LANG, trx?: Transaction) {
     const queryResult = await CMSCachePackTemplateModel.query(trx)
       .leftJoin('Pack', 'Pack.templateId', 'CmsCachePackTemplates.id')
       .whereNull('Pack.templateId')
@@ -566,7 +569,7 @@ export class CMSCacheAdapter {
     const data = queryResult.map(
       (result: CMSCachePackTemplateModel): PackBase => {
         const packTemplate = result.content as unknown as DirectusPackTemplate
-        return toPackBase(packTemplate, this.getFileURL.bind(this), locale)
+        return toPackBase(packTemplate, this.getFileURL.bind(this), language)
       }
     )
 
@@ -574,7 +577,7 @@ export class CMSCacheAdapter {
   }
 
   async findAllCollectibles(
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     filter: ItemFilters = {},
     limit = -1,
     trx?: Transaction
@@ -594,7 +597,7 @@ export class CMSCacheAdapter {
 
     return {
       collectibles: response.data.map((template) =>
-        toCollectibleBase(template, this.getFileURL.bind(this), locale)
+        toCollectibleBase(template, this.getFileURL.bind(this), language)
       ),
       total: response.meta.filter_count,
     }
@@ -602,7 +605,7 @@ export class CMSCacheAdapter {
 
   async findCollectiblesByTemplateIds(
     templateIds,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     trx?: Transaction
   ): Promise<CollectibleBase[]> {
     const queryResult = await CMSCacheCollectibleTemplateModel.query(trx)
@@ -616,7 +619,7 @@ export class CMSCacheAdapter {
         return toCollectibleBase(
           collectibleTemplate,
           this.getFileURL.bind(this),
-          locale
+          language
         )
       }
     )
@@ -626,7 +629,7 @@ export class CMSCacheAdapter {
 
   async findCollectibleByTemplateId(
     templateId: string,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     trx?: Transaction
   ) {
     const queryResult = await CMSCacheCollectibleTemplateModel.query(trx)
@@ -638,11 +641,11 @@ export class CMSCacheAdapter {
     return toCollectibleBase(
       collectibleTemplate,
       this.getFileURL.bind(this),
-      locale
+      language
     )
   }
 
-  async findAllCollections(locale = DEFAULT_LOCALE, trx?: Transaction) {
+  async findAllCollections(language = DEFAULT_LANG, trx?: Transaction) {
     const response = await this.findCollections(undefined, trx)
 
     invariant(
@@ -652,7 +655,7 @@ export class CMSCacheAdapter {
 
     return {
       collections: response.data.map((c) =>
-        toCollectionWithSets(c, this.getFileURL.bind(this), locale)
+        toCollectionWithSets(c, this.getFileURL.bind(this), language)
       ),
       total: response.meta.filter_count,
     }
@@ -660,7 +663,7 @@ export class CMSCacheAdapter {
 
   async findCollectionBySlug(
     slug: string,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     trx?: Transaction
   ) {
     const result = await CMSCacheCollectionModel.query(trx).findOne(
@@ -674,7 +677,7 @@ export class CMSCacheAdapter {
       return toCollectionWithSets(
         collection,
         this.getFileURL.bind(this),
-        locale
+        language
       )
     }
 
@@ -683,27 +686,48 @@ export class CMSCacheAdapter {
 
   async findSetBySlug(
     slug: string,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     trx?: Transaction
   ) {
     const result = await CMSCacheSetModel.query(trx).findOne('slug', slug)
 
     if (result) {
       const set: DirectusSet = result.content as unknown as DirectusSet
-      return toSetWithCollection(set, this.getFileURL.bind(this), locale)
+      return toSetWithCollection(set, this.getFileURL.bind(this), language)
     }
 
     return null
   }
 
-  async findHomepage(locale: string = DEFAULT_LOCALE, trx?: Transaction) {
+  async findHomepage(language: string = DEFAULT_LANG, trx?: Transaction) {
     const queryResult = await CMSCacheHomepageModel.query(trx)
       .select('content')
       .first()
     const result: DirectusHomepage =
       queryResult.content as unknown as DirectusHomepage
 
-    return toHomepageBase(result, this.getFileURL.bind(this), locale)
+    return toHomepageBase(result, this.getFileURL.bind(this), language)
+  }
+
+  async getLanguages(trx?: Transaction) {
+    const queryResult = await CMSCacheLanguageModel.query(trx)
+
+    return queryResult
+      .map((directusLanguageTemplate: DirectusLanguageTemplate) => ({
+        languages_code: directusLanguageTemplate.code,
+        label: directusLanguageTemplate.name,
+        sort: directusLanguageTemplate.sort,
+      }))
+      .sort(({ sort: a }, { sort: b }) => {
+        if (a < b) {
+          return -1
+        }
+        if (a > b) {
+          return 1
+        }
+
+        return 0
+      })
   }
 
   private async findPackTemplates(query: ItemQuery = {}, trx?: Transaction) {

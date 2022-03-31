@@ -1,6 +1,6 @@
 import {
   CollectibleBase,
-  DEFAULT_LOCALE,
+  DEFAULT_LANG,
   Homepage,
   PublishedPack,
 } from '@algomart/schemas'
@@ -15,8 +15,8 @@ export class HomepageService {
     private readonly packsService: PacksService
   ) {}
 
-  async getHomepage(locale = DEFAULT_LOCALE): Promise<Homepage> {
-    const homepageBase = await this.cms.findHomepage(locale)
+  async getHomepage(language = DEFAULT_LANG): Promise<Homepage> {
+    const homepageBase = await this.cms.findHomepage(language)
     userInvariant(homepageBase, 'homepage not found', 404)
 
     const templateIds = homepageBase.featuredPackTemplateId
@@ -32,7 +32,7 @@ export class HomepageService {
 
     const collectibles = await this.cms.findCollectiblesByTemplateIds(
       homepageBase.notableCollectibleTemplateIds,
-      locale
+      language
     )
 
     const packLookup = new Map<string, PublishedPack>(

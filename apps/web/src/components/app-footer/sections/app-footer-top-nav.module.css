@@ -9,6 +9,10 @@
   @apply md:space-x-20 md:px-4 md:py-12;
 }
 
+.topNavFlexWrapper {
+  @apply flex items-center justify-between;
+}
+
 .topNavLink {
   /* Base */
   @apply block py-5 text-lg font-bold text-center no-underline transition duration-300 border-t focus:outline-none text-base-textPrimary focus:text-action-secondary hover:text-action-secondary;
@@ -16,10 +20,27 @@
   @apply md:border-t-0 md:inline md:text-left md:py-0 md:text-base;
 }
 
+.topNavLink {
+  @apply md:ml-10;
+}
+
 .topNavLink:first-child {
+  @apply md:ml-0;
   border-top: none;
 }
 
 .topNavLinkActive {
   @apply border-t-base-border text-action-secondary;
+}
+
+.topNavI18nWrapper {
+  @apply flex items-center;
+}
+
+.topNavI18nWrapper > div {
+  @apply mb-0;
+}
+
+.topNavI18nWrapper > div:first-child {
+  @apply mr-5;
 }

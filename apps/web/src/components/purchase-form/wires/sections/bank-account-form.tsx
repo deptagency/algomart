@@ -12,13 +12,12 @@ import BillingAddress from '@/components/purchase-form/shared/billing-address'
 import FullName from '@/components/purchase-form/shared/full-name'
 import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
+import { useI18n } from '@/contexts/i18n-context'
 import { FormValidation } from '@/contexts/payment-context'
+import { useCurrency } from '@/hooks/use-currency'
+import { useLocale } from '@/hooks/use-locale'
 import { isAfterNow } from '@/utils/date-time'
-import {
-  currency,
-  formatCurrency,
-  formatIntToFloat,
-} from '@/utils/format-currency'
+import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 
 export interface BankAccountFormProps {
   bid: string | null
@@ -41,14 +40,17 @@ export default function BankAccountForm({
   release,
   setBid,
 }: BankAccountFormProps) {
-  const { t, lang } = useTranslation()
+  const locale = useLocale()
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
+  const { t } = useTranslation()
   const isAuctionActive =
     release?.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))
   const price =
     release?.type === PackType.Auction
       ? bid
-      : formatIntToFloat(release?.price || 0)
+      : formatIntToFloat(release?.price || 0, currency)
 
   return (
     <div className={className}>
@@ -205,7 +207,7 @@ export default function BankAccountForm({
       <div className={css.priceContainer}>
         <p className={css.priceLabel}>{t('release:Total')}</p>
         <p className={css.priceValue}>
-          {formatCurrency(price, lang)} {currency?.code && currency.code}
+          {formatCurrency(price, locale, currency, conversionRate)}
         </p>
       </div>
 

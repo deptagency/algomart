@@ -18,6 +18,7 @@ export interface DirectusHomepage {
   featured_pack: DirectusPackTemplate | null
   upcoming_packs: DirectusPackTemplate[] | null
   notable_collectibles: DirectusCollectibleTemplate[] | null
+  translations: DirectusHomepageTranslation[]
 }
 
 export enum DirectusStatus {
@@ -27,7 +28,7 @@ export enum DirectusStatus {
 }
 
 export interface DirectusTranslation {
-  locale_code: string
+  languages_code: string
 }
 
 export interface DirectusPackTemplateTranslation extends DirectusTranslation {
@@ -139,6 +140,12 @@ export interface DirectusPackTemplate {
   type: PackType
 }
 
+export interface DirectusLanguageTemplate {
+  code: string
+  name: string
+  sort: number
+}
+
 export interface DirectusCountry {
   id: string
   countries_code: {
@@ -156,6 +163,6 @@ export interface DirectusApplication {
 export interface DirectusCountryTranslation extends DirectusTranslation {
   id: number
   countries_code: string
-  locale_code: string
+  languages_code: string
   title: string | null
 }

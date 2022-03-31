@@ -27,6 +27,7 @@ export interface SelectProps
   label?: string
   options: SelectOption[]
   selectedValue?: SelectOption | null
+  Icon?: ReactNode
 }
 
 export default function Select({
@@ -39,6 +40,7 @@ export default function Select({
   label,
   options,
   selectedValue,
+  Icon,
 }: SelectProps) {
   const [selected, setSelected] = useState(defaultOption || options[0])
   const value = selectedValue || selected
@@ -66,7 +68,10 @@ export default function Select({
               [css.selectButtonError]: error,
             })}
           >
-            <span className={css.selectButtonText}>{value.label}</span>
+            <span className={css.selectButtonText}>
+              {Icon ? Icon : <svg viewBox={'0 0 24 24'} />}
+              {value.label}
+            </span>
             <span className={css.selectButtonIconContainer}>
               <SelectorIcon
                 className={css.selectButtonIcon}

@@ -122,10 +122,10 @@ export class NotificationsService {
           type,
           id,
           userAccountId,
-          userAccount: { locale },
+          userAccount: { language: language },
         } = notification
-        // Get user's locale
-        const t = this.i18n.getFixedT(locale, 'emails')
+        // Get user's language
+        const t = this.i18n.getFixedT(language, 'emails')
 
         // Attempt to send notification
         try {

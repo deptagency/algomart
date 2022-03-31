@@ -10,7 +10,7 @@ import {
   CreatePayment,
   CreateTransferPayment,
   DEFAULT_CURRENCY,
-  DEFAULT_LOCALE,
+  DEFAULT_LANG,
   EventAction,
   EventEntityType,
   NotificationType,
@@ -90,7 +90,7 @@ export class PaymentsService {
   }
 
   async getPayments({
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     page = 1,
     pageSize = 10,
     packId,
@@ -139,7 +139,7 @@ export class PaymentsService {
       const packDetails = await this.packs.getPackById(packId)
       const packTemplates = await this.packs.getPublishedPacksByTemplateIds(
         [packDetails.templateId],
-        locale
+        language
       )
       const packTemplate = packTemplates.find(
         (t) => t.templateId === packDetails.templateId
@@ -156,7 +156,7 @@ export class PaymentsService {
     // Find packs and add pack IDs to array if available
     const packTemplate = await this.packs.getPublishedPackBySlug(
       packSlug,
-      locale
+      language
     )
     const templateLookup = new Map([[packTemplate.templateId, packTemplate]])
     const packList = await PackModel.query()
@@ -966,10 +966,9 @@ export class PaymentsService {
     if (isAdmin) {
       const pack = payment.pack
       invariant(pack?.templateId, 'pack template not found')
-      const packTemplates = await this.packs.getPublishedPacksByTemplateIds(
-        [pack.templateId],
-        undefined
-      )
+      const packTemplates = await this.packs.getPublishedPacksByTemplateIds([
+        pack.templateId,
+      ])
       const packTemplate = packTemplates[0]
       return {
         ...payment,

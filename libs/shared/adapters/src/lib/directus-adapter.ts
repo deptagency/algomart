@@ -4,6 +4,7 @@ import {
   DirectusCollectibleTemplate,
   DirectusCollection,
   DirectusHomepage,
+  DirectusLanguageTemplate,
   DirectusPackTemplate,
   DirectusSet,
   DirectusStatus,
@@ -13,6 +14,7 @@ import { HttpTransport } from '@algomart/shared/utils'
 import {
   CMSCacheCollectionModel,
   CMSCacheCollectibleTemplateModel,
+  CMSCacheLanguageModel,
   CMSCachePackTemplateModel,
   CMSCacheSetModel,
   CMSCacheHomepageModel,
@@ -276,6 +278,18 @@ export class DirectusAdapter {
     })
   }
 
+  private async findLanguages(query: ItemQuery<DirectusLanguageTemplate> = {}) {
+    const defaultQuery: ItemQuery<DirectusLanguageTemplate> = {
+      limit: -1,
+      fields: ['code', 'name', 'sort'],
+    }
+
+    return await this.findMany<DirectusLanguageTemplate>('languages', {
+      ...defaultQuery,
+      ...query,
+    })
+  }
+
   private async findSets(query: ItemQuery<DirectusSet> = {}) {
     const defaultQuery: ItemQuery<DirectusSet> = {
       filter: {
@@ -341,6 +355,22 @@ export class DirectusAdapter {
     }
   }
 
+  private async syncLanguage(languageCode) {
+    const response = await this.findLanguages({
+      filter: {
+        code: {
+          _eq: languageCode,
+        },
+      },
+    })
+
+    if (response.data.length > 0) {
+      await CMSCacheLanguageModel.upsert(
+        response.data[0] as unknown as DirectusLanguageTemplate
+      )
+    }
+  }
+
   private async syncPackTemplate(packId) {
     const response = await this.findPackTemplates({
       filter: {
@@ -393,6 +423,14 @@ export class DirectusAdapter {
   }
 
   // #endregion
+
+  async syncAllLanguages() {
+    const response = await this.findLanguages()
+
+    for (const language of response.data) {
+      await CMSCacheLanguageModel.upsert(language)
+    }
+  }
 
   async syncAllPackTemplates() {
     const response = await this.findPackTemplates({
@@ -565,6 +603,8 @@ export class DirectusAdapter {
         return null
       case 'homepage':
         return await this.syncHomePage()
+      case 'languages':
+        return await this.syncLanguage(webhook.key)
       case 'nft_templates':
         return await this.syncCollectibleTemplate(webhook.key)
       case 'pack_templates':
@@ -591,6 +631,8 @@ export class DirectusAdapter {
         return await this.syncCountries()
       case 'homepage':
         return await this.syncHomePage()
+      case 'languages':
+        return await this.syncLanguage(webhook.keys[0])
       case 'nft_templates':
         return await this.syncCollectibleTemplate(webhook.keys[0])
       case 'pack_templates':
