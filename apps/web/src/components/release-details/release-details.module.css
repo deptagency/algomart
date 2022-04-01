@@ -4,7 +4,7 @@
 }
 
 .header {
-  @apply border-b border-base-border;
+  @apply border-b;
 }
 
 .title {

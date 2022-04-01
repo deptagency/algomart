@@ -1,5 +1,5 @@
 .root {
-  @apply relative p-6 border-t border-base-border;
+  @apply relative p-6 border-t;
 }
 
 .collapseContainer {

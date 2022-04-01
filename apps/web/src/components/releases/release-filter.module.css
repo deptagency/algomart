@@ -10,12 +10,8 @@
   @apply p-5;
 }
 
-.filterRow {
-  @apply border-t border-t-base-border;
-}
-
-.filterRow:first-child {
-  @apply border-t-0;
+.filterRow + .filterRow {
+  @apply border-t;
 }
 
 .filterHeader {
