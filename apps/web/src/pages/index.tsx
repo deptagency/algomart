@@ -1,5 +1,5 @@
 import { DEFAULT_LOCALE, Homepage } from '@algomart/schemas'
-import { GetServerSidePropsContext } from 'next'
+import { GetStaticPropsContext, GetStaticPropsResult } from 'next'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
@@ -33,12 +33,23 @@ export default function Home({ page }: HomeProps) {
   )
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export async function getStaticProps(
+  context: GetStaticPropsContext
+): Promise<GetStaticPropsResult<HomeProps>> {
+  let page: Homepage = null
+
+  try {
+    page = await ApiClient.instance.getHomepage(
+      context.locale || DEFAULT_LOCALE
+    )
+  } catch {
+    // ignore
+  }
+
   return {
+    revalidate: 300,
     props: {
-      page: await ApiClient.instance.getHomepage(
-        context.locale || DEFAULT_LOCALE
-      ),
+      page,
     },
   }
 }

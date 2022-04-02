@@ -2,7 +2,6 @@ import { DEFAULT_CURRENCY, DEFAULT_LANG } from '@algomart/schemas'
 import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
-import loadFirebase from '@/clients/firebase-client'
 import { invariant } from '@/utils/invariant'
 import { urls } from '@/utils/urls'
 
@@ -34,7 +33,7 @@ export class AuthService implements AuthAPI {
         beforeRequest: [
           async (request) => {
             try {
-              const auth = getAuth(loadFirebase())
+              const auth = getAuth()
               const token = await auth.currentUser?.getIdToken()
               if (token) {
                 request.headers.set('Authorization', `Bearer ${token}`)

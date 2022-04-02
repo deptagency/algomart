@@ -48,7 +48,6 @@ export interface NFTStorageAdapterOptions {
   pinataApiSecret: string
   webUrl: string
   cmsUrl: string
-  cmsPublicUrl: string
 }
 export class NFTStorageAdapter {
   client: PinataClient
@@ -102,17 +101,14 @@ export class NFTStorageAdapter {
   }
 
   async storeFile(url: string) {
-    const fileName = path.basename(new URL(url).pathname)
+    const fullURL = new URL(url)
+    const fileName = path.basename(fullURL.pathname)
     try {
-      // If CMS_PUBLIC_URL is set, we need to replace it with the internal URL
-      const internalURL = url.includes(this.options.cmsPublicUrl)
-        ? url.replace(this.options.cmsPublicUrl, this.options.cmsUrl)
-        : url
       const pipeline = promisify(stream.pipeline)
       const http = new HttpTransport()
 
       // Kick off download stream, intercept file metadata
-      const downloadStream = await http.stream(internalURL)
+      const downloadStream = await http.stream(fullURL.toString())
       const { mime, stream: outStream } = await getMimeType(downloadStream)
       outStream.on('error', (error: Error) => {
         this.logger.error(error, `Failed to download ${fileName}`)

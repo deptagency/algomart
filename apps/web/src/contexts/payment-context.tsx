@@ -23,9 +23,9 @@ import {
 } from 'react'
 import { ExtractError } from 'validator-fns'
 
-import { Analytics } from '@/clients/firebase-analytics'
 import { useAuth } from '@/contexts/auth-context'
 import { useI18n } from '@/contexts/i18n-context'
+import { useAnalytics } from '@/hooks/use-analytics'
 import { useCurrency } from '@/hooks/use-currency'
 import { BidService } from '@/services/bid-service'
 import {
@@ -106,6 +106,7 @@ export function usePaymentProvider({
   currentBid,
   release,
 }: PaymentProviderProps) {
+  const analytics = useAnalytics()
   const { t } = useTranslation()
   const currency = useCurrency()
   const { conversionRate } = useI18n()
@@ -231,7 +232,7 @@ export function usePaymentProvider({
         throw new Error('No card selected')
       }
 
-      Analytics.instance.addPaymentInfo({
+      analytics.addPaymentInfo({
         itemName: release.title,
         value: release.price,
       })
@@ -276,7 +277,7 @@ export function usePaymentProvider({
 
       return paymentResponse
     },
-    [release, t]
+    [analytics, release, t]
   )
 
   const handleAddCard = useCallback(

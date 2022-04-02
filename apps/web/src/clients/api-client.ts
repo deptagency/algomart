@@ -82,7 +82,7 @@ import {
 } from '@/utils/filters'
 import { HttpTransport, validateStatus } from '@/utils/http-transport'
 import { invariant } from '@/utils/invariant'
-import { logger } from '@/utils/logger'
+import { createLogger } from '@/utils/logger'
 
 export class ApiClient {
   http: HttpTransport
@@ -104,7 +104,7 @@ export class ApiClient {
       typeof window === 'undefined',
       'ApiClient must not be used in browser'
     )
-    this.logger = logger.child({ context: 'ApiClient' })
+    this.logger = createLogger(Environment.logLevel, { context: 'ApiClient' })
     this.http = new HttpTransport(prefixUrl, defaultTimeout, {
       Authorization: `Bearer ${apiKey}`,
     })

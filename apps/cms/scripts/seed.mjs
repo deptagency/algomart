@@ -153,7 +153,7 @@ async function main(args) {
   try {
     await createEntityRecords(
       'languages',
-      [{ code: 'en-US', name: 'English' }],
+      [{ code: 'en-US', name: 'English', sort: 1 }],
       token
     )
   } catch (err) {
