@@ -77,7 +77,7 @@ export default function MyShowcaseTemplate({
   return (
     <>
       {/* Tabs */}
-      <Tabs activeTab={2} tabs={getCollectionTabs(t)} />
+      <Tabs activeTab={2} tabs={getCollectionTabs(t)} className="-mt-8" />
 
       {/* Showcase Grid */}
       <section>

@@ -1,6 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nextTranslate = require('next-translate')
 const withNx = require('@nrwl/next/plugins/with-nx')
+const { destination } = require('pino')
 
 process.env.NEXT_TRANSLATE_PATH = __dirname
 
@@ -44,7 +45,13 @@ module.exports = withNx(
         process.env.NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED,
       NODE_ENV: process.env.NODE_ENV,
     },
-    redirects: async () => [],
+    redirects: async () => [
+      {
+        source: '/nft/:id',
+        destination: '/nft/:id/details',
+        permanent: false,
+      },
+    ],
   })
 )
 
