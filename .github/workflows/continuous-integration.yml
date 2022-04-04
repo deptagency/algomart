@@ -15,10 +15,11 @@ env:
   CREATOR_PASSPHRASE: fake-creator-passphrase
   DATABASE_URL: postgres://localhost:5432/postgres
   EMAIL_TRANSPORT: smtp
-  FUNDING_MNEMONIC: fake-funding-mnemonic
   PINATA_API_KEY: fake-pinata-api-key
   PINATA_API_SECRET: fake-pinata-api-secret
   SECRET: fake-secret
+  # Throw-away account, do not use anywhere else
+  FUNDING_MNEMONIC: unveil wrist wreck stool drop lamp modify slot magnet purse naive glow public author panther mercy derive script shuffle lend equal start quiz above vague
 
 jobs:
   pre-run:
