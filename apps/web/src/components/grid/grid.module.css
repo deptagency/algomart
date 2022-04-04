@@ -2,19 +2,19 @@
   /* Base */
   @apply grid items-start flex-1 grid-cols-1 gap-8 auto-rows-max;
   /* Tablet */
-  @apply sm:grid-cols-2 sm:gap-5 sm:mx-0;
+  @apply sm:grid-cols-2 sm:gap-5;
   /* Desktop */
   @apply md:grid-cols-4;
 }
 
 .columns2 {
-  @apply md:grid-cols-2 md:gap-10 md:mx-0;
+  @apply md:grid-cols-2 md:gap-10;
 }
 
 .columns3 {
-  @apply md:grid-cols-3 md:gap-5 md:mx-0;
+  @apply md:grid-cols-3 md:gap-5;
 }
 
 .columns4 {
-  @apply md:grid-cols-4 md:gap-5 md:mx-0;
+  @apply md:grid-cols-4 md:gap-5;
 }
