@@ -60,7 +60,7 @@
 
 .mainNavLink {
   /* Base */
-  @apply block py-5 text-3xl font-bold transition duration-300 border-t focus:outline-none border-t-base-border text-base-textPrimary hover:text-base-gray-dark;
+  @apply block py-5 text-3xl font-bold transition duration-300 border-t focus:outline-none text-base-textPrimary hover:text-base-gray-dark;
   /* Tablet + */
   @apply md:border-b-6 md:border-action-secondary md:border-opacity-0 md:border-t-0 md:inline md:no-underline md:p-6 md:text-base md:focus:border-opacity-50 md:hover:border-opacity-50 md:hover:text-base-textPrimary;
 }

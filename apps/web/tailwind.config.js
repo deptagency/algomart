@@ -25,6 +25,9 @@ module.exports = {
       backgroundImage: {
         'pack-texture': "url('/images/textures/pack-texture.jpg')",
       },
+      borderColor: {
+        DEFAULT: generateColorClass('border'),
+      },
       borderRadius: {
         sm: '4px',
       },
@@ -34,8 +37,8 @@ module.exports = {
         20: '20px',
       },
       boxShadow: {
-        medium: '0px 1px 10px rgba(0, 0, 0, 0.15)',
-        large: '0px 5px 40px rgba(0, 0, 0, 0.15)',
+        medium: 'var(--shadowMedium)',
+        large: 'var(--shadowLarge)',
       },
       colors: {
         action: {

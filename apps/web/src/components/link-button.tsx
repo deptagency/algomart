@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import Link, { LinkProps } from 'next/link'
 import { AnchorHTMLAttributes, DetailedHTMLProps } from 'react'
 
@@ -45,15 +46,18 @@ export default function LinkButton({
       locale={locale}
     >
       <a
-        className={buttonClasses({
-          className,
-          disablePadding,
-          size,
-          fullWidth,
-          disabled,
-          variant,
-          group,
-        })}
+        className={clsx(
+          'inline-block',
+          buttonClasses({
+            className,
+            disablePadding,
+            size,
+            fullWidth,
+            disabled,
+            variant,
+            group,
+          })
+        )}
         {...rest}
       >
         {children}

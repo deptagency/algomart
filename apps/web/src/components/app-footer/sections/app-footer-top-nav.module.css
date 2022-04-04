@@ -30,7 +30,7 @@
 }
 
 .topNavLinkActive {
-  @apply border-t-base-border text-action-secondary;
+  @apply text-action-secondary;
 }
 
 .topNavI18nWrapper {

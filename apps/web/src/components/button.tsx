@@ -42,8 +42,8 @@ export function buttonClasses(
       // TODO: This should be a "ghost" variant
       'bg-transparent border-none hover:border-none': variant === 'tertiary',
       'bg-transparent border-none float-left mb-5': variant === 'link',
-      'font-bold text-xl': size === 'medium',
-      'px-10 py-5': size === 'medium' && !disablePadding,
+      'font-bold text-lg': size === 'medium',
+      'px-10 py-4': size === 'medium' && !disablePadding,
       'px-6 py-2': size === 'small' && !disablePadding,
       'bg-gray-400 cursor-not-allowed pointer-events-none focus:ring-secondary opacity-30':
         disabled,

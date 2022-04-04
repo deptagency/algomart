@@ -23,7 +23,7 @@
 }
 
 .selectButton {
-  @apply relative w-full text-left bg-white border rounded-sm cursor-default border-base-border;
+  @apply relative w-full text-left bg-white border rounded-sm cursor-default;
   padding: 10px 50px 10px 10px;
 }
 
@@ -53,7 +53,7 @@
 }
 
 .selectOptions {
-  @apply absolute w-full py-1 mt-1 overflow-auto text-sm bg-white border rounded-sm shadow-md border-base-border max-h-60;
+  @apply absolute w-full py-1 mt-1 overflow-auto text-sm bg-white border rounded-sm shadow-md max-h-60;
 }
 
 .selectOption {
