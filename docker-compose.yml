@@ -3,13 +3,13 @@ version: '3'
 services:
   api-db:
     image: postgres:14-alpine
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: api
       POSTGRES_PASSWORD: api
       POSTGRES_DB: api
     networks:
-      - algomart_test
+      - algomart_local
     ports:
       - "5432:5432"
     volumes:
@@ -17,13 +17,13 @@ services:
 
   cms-db:
     image: postgres:14-alpine
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: cms
       POSTGRES_PASSWORD: cms
       POSTGRES_DB: cms
     networks:
-      - algomart_test
+      - algomart_local
     ports:
       - "5433:5432"
     volumes:
@@ -33,7 +33,7 @@ services:
     build:
       context: .
       dockerfile: docker/local/cms/Dockerfile
-    restart: always
+    restart: unless-stopped
     depends_on:
       - cms-db
     env_file: apps/cms/.env
@@ -42,7 +42,7 @@ services:
       DB_CONNECTION_STRING: postgres://cms:cms@cms-db:5432/cms
       PORT: 8055
     networks:
-      - algomart_test
+      - algomart_local
     ports:
       - "8055:8055"
     volumes:
@@ -52,22 +52,49 @@ services:
     build:
       context: .
       dockerfile: docker/local/api/Dockerfile
-    restart: always
+    restart: unless-stopped
     depends_on:
       - api-db
       - cms
+    command: "bash run.sh wait-for-cms"
     env_file: apps/api/.env
     environment:
       # only put values in here that should override the API .env file
       CMS_URL: http://cms:8055
-      CMS_PUBLIC_URL: http://localhost:8055
       DATABASE_URL: postgres://api:api@api-db:5432/api
       HOST: 0.0.0.0
       PORT: 3001
+      ENABLE_JOBS: 'false'
+      NODE_ENV: development
     networks:
-      - algomart_test
+      - algomart_local
     ports:
       - "3001:3001"
+    volumes:
+      - .:/app
+
+  api-jobs:
+    build:
+      context: .
+      dockerfile: docker/local/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api-db
+      - cms
+    command: "bash run.sh wait-for-cms"
+    env_file: apps/api/.env
+    environment:
+      # only put values in here that should override the API .env file
+      CMS_URL: http://cms:8055
+      DATABASE_URL: postgres://api:api@api-db:5432/api
+      HOST: 0.0.0.0
+      PORT: 3002
+      ENABLE_JOBS: 'true'
+      NODE_ENV: development
+    networks:
+      - algomart_local
+    ports:
+      - "3002:3002"
     volumes:
       - .:/app
 
@@ -75,25 +102,27 @@ services:
     build:
       context: .
       dockerfile: docker/local/web/Dockerfile
-    restart: always
+    restart: unless-stopped
     depends_on:
       - api
       - cms
+    command: "bash run.sh wait-for-api"
     env_file: apps/web/.env
     environment:
       # only put values in here that should override the Web .env file
       API_URL: http://api:3001
       IMAGE_DOMAINS: lh3.googleusercontent.com,firebasestorage.googleapis.com,localhost,cms
       PORT: 3000
+      NODE_ENV: development
     networks:
-      - algomart_test
+      - algomart_local
     ports:
       - "3000:3000"
     volumes:
       - .:/app
 
 networks:
-  algomart_test:
+  algomart_local:
 
 volumes:
   api-db:

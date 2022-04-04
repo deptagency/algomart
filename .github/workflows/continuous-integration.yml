@@ -5,6 +5,22 @@ on:
       - main
   pull_request:
 
+env:
+  ALGOD_PORT: 4001
+  ALGOD_SERVER: http://localhost
+  ALGOD_TOKEN: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  API_KEY: fake-api-key
+  CIRCLE_API_KEY: fake-circle-api-key
+  CMS_ACCESS_TOKEN: fake-cms-access-token
+  CREATOR_PASSPHRASE: fake-creator-passphrase
+  DATABASE_URL: postgres://localhost:5432/postgres
+  EMAIL_TRANSPORT: smtp
+  PINATA_API_KEY: fake-pinata-api-key
+  PINATA_API_SECRET: fake-pinata-api-secret
+  SECRET: fake-secret
+  # Throw-away account, do not use anywhere else
+  FUNDING_MNEMONIC: unveil wrist wreck stool drop lamp modify slot magnet purse naive glow public author panther mercy derive script shuffle lend equal start quiz above vague
+
 jobs:
   pre-run:
     runs-on: ubuntu-latest

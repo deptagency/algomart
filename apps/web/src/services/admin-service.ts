@@ -8,7 +8,6 @@ import {
 import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
-import loadFirebase from '@/clients/firebase-client'
 import { invariant } from '@/utils/invariant'
 import { urls } from '@/utils/urls'
 
@@ -44,7 +43,7 @@ export class AdminService implements AdminAPI {
         beforeRequest: [
           async (request) => {
             try {
-              const auth = getAuth(loadFirebase())
+              const auth = getAuth()
               // Force refresh of Firebase token on the first render
               const token = await auth.currentUser?.getIdToken(true)
               if (token) {

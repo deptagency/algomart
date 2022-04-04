@@ -1,16 +1,11 @@
-import {
-  DEFAULT_LOCALE,
-  PackAuction,
-  PackType,
-  PublishedPack,
-} from '@algomart/schemas'
+import { PackAuction, PackType, PublishedPack } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
-import { Analytics } from '@/clients/firebase-analytics'
 import { useRedemption } from '@/contexts/redemption-context'
+import { useAnalytics } from '@/hooks/use-analytics'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
@@ -42,14 +37,15 @@ export default function ReleasePage({
   packTemplate,
 }: ReleasePageProps) {
   const { setRedeemable } = useRedemption()
+  const analytics = useAnalytics()
   const { t } = useTranslation()
 
   useEffect(() => {
-    Analytics.instance.viewItem({
+    analytics.viewItem({
       itemName: packTemplate.title,
       value: packAuction?.activeBid?.amount ?? packTemplate.price,
     })
-  }, [packAuction, packTemplate])
+  }, [analytics, packAuction, packTemplate])
 
   const handleClaimNFT = async (
     redeemCode: string

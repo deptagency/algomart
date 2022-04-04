@@ -98,5 +98,9 @@ export default async function buildApp(config: AppConfig) {
   await app.register(paymentRoutes, { prefix: '/payments' })
   await app.register(setsRoutes, { prefix: '/sets' })
 
+  app.all('/', (_, reply) => {
+    reply.send('ok')
+  })
+
   return app
 }

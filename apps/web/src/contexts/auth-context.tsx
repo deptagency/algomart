@@ -24,8 +24,8 @@ import {
   useReducer,
 } from 'react'
 
-import { Analytics } from '@/clients/firebase-analytics'
-import loadFirebase from '@/clients/firebase-client'
+import { useAnalytics } from '@/hooks/use-analytics'
+import { useFirebaseApp } from '@/hooks/use-firebase-app'
 import {
   AuthState,
   AuthUtils,
@@ -119,8 +119,11 @@ export function useAuth(throwError = true) {
 }
 
 export function useAuthProvider() {
+  const firebaseApp = useFirebaseApp()
+  const analytics = useAnalytics()
+
   const reloadProfile = useCallback(async () => {
-    const auth = getAuth(loadFirebase())
+    const auth = getAuth(firebaseApp)
     const token = await auth.currentUser?.getIdToken(true)
     if (auth.currentUser && token) {
       setCookie(TOKEN_COOKIE_NAME, token, TOKEN_COOKIE_EXPIRES_IN_DAYS)
@@ -160,7 +163,7 @@ export function useAuthProvider() {
         })
       )
     }
-  }, [])
+  }, [firebaseApp])
 
   const getRedirectPath = useCallback(() => {
     return window.localStorage.getItem('redirect')
@@ -171,44 +174,50 @@ export function useAuthProvider() {
   }, [])
 
   const sendNewEmailVerification = useCallback(async () => {
-    const auth = getAuth(loadFirebase())
+    const auth = getAuth(firebaseApp)
     if (auth.currentUser) {
       await sendEmailVerification(auth.currentUser)
     }
-  }, [])
+  }, [firebaseApp])
 
-  const sendPasswordReset = useCallback(async (email: string) => {
-    const auth = getAuth(loadFirebase())
-    try {
-      await sendPasswordResetEmail(auth, email)
-      return { isValid: true }
-    } catch {
-      // For security purposes, suppress error even if user doesn't exist
-      return { isValid: true }
-    }
-  }, [])
-
-  const updateAuthSession = useCallback(async (password: string) => {
-    const auth = getAuth(loadFirebase())
-    if (auth?.currentUser?.email) {
+  const sendPasswordReset = useCallback(
+    async (email: string) => {
+      const auth = getAuth(firebaseApp)
       try {
-        // Reauthenticate user
-        const credential = EmailAuthProvider.credential(
-          auth.currentUser.email,
-          password
-        )
-        await reauthenticateWithCredential(auth.currentUser, credential)
+        await sendPasswordResetEmail(auth, email)
         return { isValid: true }
       } catch {
-        return { isValid: false }
+        // For security purposes, suppress error even if user doesn't exist
+        return { isValid: true }
       }
-    }
-    return { isValid: false }
-  }, [])
+    },
+    [firebaseApp]
+  )
+
+  const updateAuthSession = useCallback(
+    async (password: string) => {
+      const auth = getAuth(firebaseApp)
+      if (auth?.currentUser?.email) {
+        try {
+          // Reauthenticate user
+          const credential = EmailAuthProvider.credential(
+            auth.currentUser.email,
+            password
+          )
+          await reauthenticateWithCredential(auth.currentUser, credential)
+          return { isValid: true }
+        } catch {
+          return { isValid: false }
+        }
+      }
+      return { isValid: false }
+    },
+    [firebaseApp]
+  )
 
   const updateEmailAddress = useCallback(
     async (newEmail: string) => {
-      const auth = getAuth(loadFirebase())
+      const auth = getAuth(firebaseApp)
       if (auth?.currentUser?.email) {
         try {
           // Update user's firbase account and trigger re-verification
@@ -234,17 +243,17 @@ export function useAuthProvider() {
       }
       return { isValid: false }
     },
-    [reloadProfile]
+    [firebaseApp, reloadProfile]
   )
 
   const updateProfilePic = useCallback(
     async (profilePic: FileWithPreview | null) => {
-      const auth = getAuth(loadFirebase())
+      const auth = getAuth(firebaseApp)
       if (auth.currentUser) {
         let photoURL = ''
         if (profilePic) {
           const storageReference = ref(
-            getStorage(loadFirebase()),
+            getStorage(firebaseApp),
             `/users/${auth.currentUser.uid}/${profilePic.name}`
           )
           await uploadBytes(storageReference, profilePic)
@@ -255,7 +264,7 @@ export function useAuthProvider() {
       }
       return
     },
-    [reloadProfile]
+    [firebaseApp, reloadProfile]
   )
 
   const registerWithEmailAndPassword = useCallback(
@@ -268,7 +277,7 @@ export function useAuthProvider() {
     }: SignUpPayload) => {
       dispatch(authActions.setLoading())
       try {
-        const auth = getAuth(loadFirebase())
+        const auth = getAuth(firebaseApp)
         const { user } = await createUserWithEmailAndPassword(
           auth,
           email,
@@ -304,14 +313,14 @@ export function useAuthProvider() {
         return { isValid: false }
       }
     },
-    [updateProfilePic]
+    [firebaseApp, updateProfilePic]
   )
 
   const authenticateWithEmailAndPassword = useCallback(
     async ({ email, password }: SignInPayload) => {
       dispatch(authActions.setLoading())
       try {
-        const auth = getAuth(loadFirebase())
+        const auth = getAuth(firebaseApp)
         await signInWithEmailAndPassword(auth, email, password)
         dispatch(authActions.setMethod('email'))
         return { isValid: true }
@@ -322,24 +331,28 @@ export function useAuthProvider() {
         return { isValid: false }
       }
     },
-    []
+    [firebaseApp]
   )
 
   const authenticateWithGoogle = useCallback(async () => {
     dispatch(authActions.setLoading())
-    const auth = getAuth(loadFirebase())
+    const auth = getAuth(firebaseApp)
     await signInWithRedirect(auth, new GoogleAuthProvider())
-  }, [])
+  }, [firebaseApp])
 
   const signOut = useCallback(async () => {
     dispatch(authActions.setLoading())
     removeCookie(TOKEN_COOKIE_NAME)
-    await getAuth(loadFirebase()).signOut()
+    await getAuth(firebaseApp).signOut()
     dispatch(authActions.signOut())
-  }, [])
+  }, [firebaseApp])
 
   useEffect(() => {
-    const auth = getAuth(loadFirebase())
+    if (!firebaseApp) {
+      return
+    }
+
+    const auth = getAuth(firebaseApp)
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       dispatch(authActions.setLoading())
       if (user) {
@@ -355,12 +368,12 @@ export function useAuthProvider() {
           ? 'email'
           : 'google'
       dispatch(authActions.setMethod(method))
-      Analytics.instance.login(method)
+      analytics.login(method)
     })
     return () => {
       unsubscribe()
     }
-  }, []) /* eslint-disable-line react-hooks/exhaustive-deps */
+  }, [analytics, firebaseApp, reloadProfile])
 
   const [state, dispatch] = useReducer(authReducer, {
     error: null,

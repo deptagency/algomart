@@ -31,7 +31,7 @@ export async function buildTestApp(database: string) {
     knex: getTestDatabaseConfig(database),
     fastify: {
       // uncomment to enable fastify logger
-      // logger: { prettyPrint: true },
+      // logger: true,
     },
   })
 }

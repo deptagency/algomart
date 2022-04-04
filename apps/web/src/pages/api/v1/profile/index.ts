@@ -11,10 +11,12 @@ import validateBodyMiddleware, {
   ExtractBodyType,
 } from '@/middleware/validate-body-middleware'
 import { validateUserRegistration } from '@/utils/auth-validation'
-import { logger } from '@/utils/logger'
+import { createLogger } from '@/utils/logger'
 
 const handler = createHandler()
 handler.use(authMiddleware())
+
+const logger = createLogger(Environment.logLevel)
 
 type BodyType = ExtractBodyType<typeof validateUserRegistration>
 

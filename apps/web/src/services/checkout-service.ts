@@ -15,7 +15,6 @@ import {
 import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
-import loadFirebase from '@/clients/firebase-client'
 import { ExtractBodyType } from '@/middleware/validate-body-middleware'
 import { getPaymentsFilterQuery } from '@/utils/filters'
 import { invariant } from '@/utils/invariant'
@@ -80,7 +79,7 @@ export class CheckoutService implements CheckoutAPI {
         beforeRequest: [
           async (request) => {
             try {
-              const auth = getAuth(loadFirebase())
+              const auth = getAuth()
               const token = await auth.currentUser?.getIdToken()
               if (token) {
                 request.headers.set('Authorization', `Bearer ${token}`)

@@ -32,14 +32,14 @@ export async function fetcher(url: string, token?: string) {
 
 export function useApi<T>(
   url: string | null,
-  options?: { refreshInterval?: number }
+  options?: { refreshInterval?: number; revalidateOnFocus?: boolean }
 ) {
   return useSWR<T, ErrorResponse>(url, fetcher, options)
 }
 
 export function useAuthApi<T>(
   url: string | null,
-  options?: { refreshInterval?: number }
+  options?: { refreshInterval?: number; revalidateOnFocus?: boolean }
 ) {
   const auth = useAuth()
   return useSWR<T, ErrorResponse>([url, auth.user?.token], fetcher, options)

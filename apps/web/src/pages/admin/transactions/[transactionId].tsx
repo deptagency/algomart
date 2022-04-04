@@ -15,8 +15,7 @@ import Button from '@/components/button'
 import { Flex } from '@/components/flex'
 import Heading from '@/components/heading'
 import Panel from '@/components/panel'
-import Table from '@/components/table'
-import { ColumnDefinitionType } from '@/components/table'
+import Table, { ColumnDefinitionType } from '@/components/table'
 import { useI18n } from '@/contexts/i18n-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
@@ -24,7 +23,6 @@ import AdminLayout from '@/layouts/admin-layout'
 import { AdminService } from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { formatCurrency } from '@/utils/format-currency'
-import { logger } from '@/utils/logger'
 import { useAuthApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
 
@@ -73,18 +71,13 @@ export default function AdminTransactionPage({
     if (!confirm('Are you sure you want to reset this transaction?')) return
     const paymentId = typeof transactionId === 'string' ? transactionId : null
     try {
-      const updatedPayment = await AdminService.instance.updatePayment(
-        paymentId,
-        {
-          externalId: '',
-          status: PaymentStatus.Pending,
-        }
-      )
+      await AdminService.instance.updatePayment(paymentId, {
+        externalId: '',
+        status: PaymentStatus.Pending,
+      })
       alert('Payment was reset')
-      logger.info('Payment was reset.', updatedPayment)
-    } catch (error) {
+    } catch {
       alert('Unable to reset pack.')
-      logger.error('Unable to reset pack', error)
     }
   }, [transactionId])
 
@@ -93,17 +86,12 @@ export default function AdminTransactionPage({
       return
     const paymentId = typeof transactionId === 'string' ? transactionId : null
     try {
-      const updatedPayment = await AdminService.instance.updatePayment(
-        paymentId,
-        {
-          status: PaymentStatus.Paid,
-        }
-      )
+      await AdminService.instance.updatePayment(paymentId, {
+        status: PaymentStatus.Paid,
+      })
       alert('Payment was marked as paid')
-      logger.info('Payment marked as paid.', updatedPayment)
-    } catch (error) {
+    } catch {
       alert('Unable to update pack as paid.')
-      logger.error('Unable to update pack as paid', error)
     }
   }, [transactionId])
 
@@ -120,11 +108,9 @@ export default function AdminTransactionPage({
         payment.pack?.ownerId
       )
       alert('Pack successfully revoked.')
-      logger.info('Pack was revoked')
       setIsRevoking(false)
-    } catch (error) {
+    } catch {
       alert('Unable to revoke pack.')
-      logger.error('Unable to revoke pack', error)
       setIsRevoking(false)
     }
   }, [payment.pack?.id, payment.pack?.ownerId])

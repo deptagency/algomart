@@ -79,7 +79,6 @@ export function configureResolver() {
           pinataApiKey: Configuration.pinataApiKey,
           pinataApiSecret: Configuration.pinataApiSecret,
           cmsUrl: Configuration.cmsUrl,
-          cmsPublicUrl: Configuration.cmsPublicUrl,
           webUrl: Configuration.webUrl,
         },
         logger
