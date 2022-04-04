@@ -60,7 +60,8 @@
     "View My Collection": "View My Collection",
     "View On AlgoExplorer": "View on AlgoExplorer",
     "View Release": "View Release",
-    "View Set": "View Set"
+    "View Set": "View Set",
+    "View image X of Y":"View image X of Y"
   },
   "dateTime": {
     "Days_one": "Day",
@@ -169,6 +170,7 @@
     "Collected": "Collected",
     "Checking for Payment": "Checking for Payment",
     "Connected to Wallet": "Connected to Wallet",
+    "Cover Image": "Cover Image",
     "Creating Payment": "Creating Payment",
     "Free": "Free",
     "I don’t have a code": "I don’t have a code",

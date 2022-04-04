@@ -76,7 +76,7 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
               alt={t('common:statuses.Selected Image')}
               className={css.contain}
               layout="fill"
-              src={`${currentMedia}?width=700&quality=95`}
+              src={currentMedia}
               objectFit="cover"
               sizes="(min-width: 700px) 700px, 100vw"
               priority
@@ -103,11 +103,12 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                 onClick={() => handleMediaChange(media)}
               >
                 <Image
-                  alt="media"
+                  alt={t('common:actions.View image X of Y')}
                   className={clsx(css.cover, css.fullWidth, css.rounded)}
                   layout="fill"
-                  src={`${media}?width=300`}
+                  src={media}
                   objectFit="cover"
+                  sizes="25vw"
                 />
               </button>
             </li>
