@@ -3,19 +3,20 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react'
 
 import { Environment } from '@/environment'
 
+export const themeOptions = ['light', 'dark', null]
+
 /** Returns the theme set in localStorage, else the OS preferred theme */
 function getThemeFromBrowser(): string {
-  return !Environment.isProduction && typeof window !== 'undefined'
-    ? localStorage.getItem('theme') ??
-        (window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark'
-          : 'light')
-    : 'light'
+  return (
+    localStorage.getItem('theme') ??
+    (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+  )
 }
 
 /** Sets 'dark' class & css variables on <html>  */
@@ -28,6 +29,9 @@ const applyTheme = (theme: string): void => {
   }
 }
 
+const handleOsThemeChange = (event_: { matches: boolean }) => {
+  applyTheme(event_.matches ? 'dark' : 'light')
+}
 interface IThemeContext {
   theme?: string
   toggleTheme: () => void
@@ -43,10 +47,12 @@ const ThemeContext = createContext<IThemeContext>({
 export const useThemeContext = () => useContext(ThemeContext)
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<string | null>()
+  const browserTheme = useRef<string | null>(null)
+  const [theme, setTheme] = useState<string | null>(null)
 
   const toggleTheme = useCallback(() => {
     setTheme((theme) => {
+      // return themeOptions[(themeOptions.indexOf(theme) + 1) % themeOptions.length]
       const actualTheme = theme ?? getThemeFromBrowser()
       return actualTheme === 'dark' ? 'light' : 'dark'
     })
@@ -75,6 +81,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, [handleThemeChangeShortcut])
 
   useEffect(() => {
+    if (!browserTheme.current) return
+
     if (theme) {
       localStorage.setItem('theme', theme)
       applyTheme(theme)
@@ -82,11 +90,24 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       // use OS theme
       localStorage.removeItem('theme')
       applyTheme(getThemeFromBrowser())
+      const media = matchMedia('(prefers-color-scheme: dark)')
+      media.addEventListener('change', handleOsThemeChange)
+      return () => {
+        media.removeEventListener('change', handleOsThemeChange)
+      }
     }
   }, [theme])
 
+  useEffect(() => {
+    if (window && !browserTheme.current) {
+      const localTheme = getThemeFromBrowser()
+      browserTheme.current = localTheme
+      setTheme(localTheme)
+    }
+  }, [])
+
   const value = {
-    theme: theme || getThemeFromBrowser(),
+    theme,
     setTheme,
     useOSTheme,
     toggleTheme,
