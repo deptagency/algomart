@@ -3,7 +3,7 @@
 }
 
 .rootCard {
-  @apply h-full pb-4 overflow-hidden bg-white rounded-md shadow-lg;
+  @apply h-full pb-4 overflow-hidden rounded-md shadow-lg bg-base-bgCard;
 }
 
 .rootCard > div {
@@ -64,7 +64,7 @@
 }
 
 .setNumber {
-  @apply text-2xl font-black text-base-border;
+  @apply text-2xl font-black text-opacity-20 text-base-textPrimary;
 }
 
 .rarity {
