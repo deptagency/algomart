@@ -9,26 +9,28 @@ import HomeTemplate from '@/templates/home-template'
 import { urls } from '@/utils/urls'
 
 interface HomeProps {
-  page: Homepage
+  page: Homepage | null
 }
 
 export default function Home({ page }: HomeProps) {
   const { push } = useRouter()
 
   const onClickFeatured = useCallback(() => {
-    if (page.featuredPack) {
+    if (page?.featuredPack) {
       push(urls.release.replace(':packSlug', page.featuredPack.slug))
     }
-  }, [page.featuredPack, push])
+  }, [page?.featuredPack, push])
 
   return (
     <DefaultLayout noPanel>
-      <HomeTemplate
-        onClickFeatured={onClickFeatured}
-        featuredPack={page.featuredPack}
-        upcomingPacks={page.upcomingPacks}
-        notableCollectibles={page.notableCollectibles}
-      />
+      {page ? (
+        <HomeTemplate
+          onClickFeatured={onClickFeatured}
+          featuredPack={page.featuredPack}
+          upcomingPacks={page.upcomingPacks}
+          notableCollectibles={page.notableCollectibles}
+        />
+      ) : null}
     </DefaultLayout>
   )
 }
