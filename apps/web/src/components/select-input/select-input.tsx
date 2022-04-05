@@ -23,7 +23,6 @@ export interface SelectProps
   options: SelectOption[]
   value?: string
   Icon?: ReactNode
-  fullWidth?: boolean
 }
 
 export default function Select({
