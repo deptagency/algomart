@@ -8,11 +8,13 @@ import Button from '../button'
 import css from './my-profile-nav.module.css'
 
 import AppLink from '@/components/app-link/app-link'
-import Select, { SelectOption } from '@/components/select/select'
+import Select, { SelectOption } from '@/components/select-input/select-input'
 import { useAuth } from '@/contexts/auth-context'
 import { useRedemption } from '@/contexts/redemption-context'
 import useAdmin from '@/hooks/use-admin'
 import { urls } from '@/utils/urls'
+
+const LOG_OUT = 'LOG_OUT'
 
 interface ProfileNavProps {
   screen: 'desktop' | 'mobile'
@@ -25,16 +27,18 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
   const { setRedeemable } = useRedemption()
   const { t } = useTranslation()
 
-  const getCurrentPage = useCallback(
-    (href: string) => {
-      return href === pathname || `${href}/add` === pathname
-    },
-    [pathname]
-  )
+  // const getCurrentPage = useCallback(
+  //   (href: string) => href === pathname || `${href}/add` === pathname,
+  //   [pathname]
+  // )
 
   const handleChange = useCallback(
-    (option: SelectOption) => {
-      push(option.id)
+    (value) => {
+      if (value === LOG_OUT) {
+        signOut()
+      } else {
+        push(value)
+      }
     },
     [push]
   )
@@ -46,24 +50,27 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
   }, [auth, push, setRedeemable])
 
   const navItems = [
-    { id: urls.myProfile, label: t('common:pageTitles.My Profile') },
-    { id: urls.myProfileSecurity, label: t('common:pageTitles.Security') },
+    { key: urls.myProfile, label: t('common:pageTitles.My Profile') },
+    { key: urls.myProfileSecurity, label: t('common:pageTitles.Security') },
     {
-      id: urls.myProfilePaymentMethods,
+      key: urls.myProfilePaymentMethods,
       label: t('common:pageTitles.Payment Methods'),
     },
     {
-      id: urls.myProfileTransactions,
+      key: urls.myProfileTransactions,
       label: t('common:pageTitles.Transactions'),
     },
     {
-      id: urls.myProfileImportNFT,
+      key: urls.myProfileImportNFT,
       label: t('common:pageTitles.Import NFT'),
     },
   ] as SelectOption[]
 
   if (isAdmin) {
-    navItems.push({ id: urls.admin.index, label: t('common:pageTitles.Admin') })
+    navItems.push({
+      key: urls.admin.index,
+      label: t('common:pageTitles.Admin'),
+    })
   }
 
   return (
@@ -75,22 +82,28 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
     >
       <div className={css.mobileWrapper}>
         <Select
-          handleChange={handleChange}
-          options={navItems}
-          selectedValue={navItems.find(({ id }) => getCurrentPage(id))}
+          onChange={handleChange}
+          options={[
+            ...navItems,
+            {
+              key: LOG_OUT,
+              label: t('common:actions.Sign Out'),
+            },
+          ]}
+          value={pathname.replace(/\/add$/, '')}
         />
       </div>
       <div className={css.desktopWrapper}>
         <ul className={css.listWrapper}>
-          {navItems.map(({ id, label }) => (
+          {navItems.map(({ key, label }) => (
             <li
               className={clsx(css.listItem, {
                 [css.listItemActive]:
-                  id === pathname || `${id}/add` === pathname,
+                  key === pathname || `${key}/add` === pathname,
               })}
-              key={id}
+              key={key}
             >
-              <AppLink href={id}>{label}</AppLink>
+              <AppLink href={key}>{label}</AppLink>
             </li>
           ))}
         </ul>
