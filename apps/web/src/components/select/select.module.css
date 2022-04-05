@@ -19,7 +19,7 @@
 }
 
 .selectContainer {
-  @apply relative z-20;
+  @apply relative;
 }
 
 .selectButton {
@@ -40,7 +40,7 @@
 }
 
 .selectButtonText svg {
-  @apply stroke-current text-base-gray-light justify-self-end;
+  @apply opacity-75 stroke-current justify-self-end;
   width: 22px;
 }
 
@@ -53,7 +53,7 @@
 }
 
 .selectOptions {
-  @apply absolute w-full py-1 mt-1 overflow-auto text-sm bg-white border rounded-sm shadow-md max-h-60;
+  @apply absolute z-10 w-full py-1 mt-1 overflow-auto text-sm bg-white border rounded-sm shadow-md max-h-60;
 }
 
 .selectOption {
