@@ -1,6 +1,8 @@
 import { DEFAULT_LANG, PackType, PublishedPacks } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
+import { parse, stringify } from 'query-string'
 import { useEffect, useMemo, useRef } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
@@ -10,6 +12,7 @@ import { useLanguage } from '@/hooks/use-language'
 import { usePackFilter } from '@/hooks/use-pack-filter'
 import DefaultLayout from '@/layouts/default-layout'
 import ReleasesTemplate from '@/templates/releases-template'
+import { getSelectSortingOptions } from '@/utils/filters'
 import {
   getPublishedPacksFilterQueryFromState,
   searchPublishedPacksFilterQuery,
@@ -23,7 +26,28 @@ export default function Releases({ packs }: PublishedPacks) {
   const { t } = useTranslation()
   const language = useLanguage()
   const currency = useCurrency()
-  const { dispatch, state } = usePackFilter()
+  const { pathname, push, query } = useRouter()
+
+  // Get URL search params from router, stringify them...
+  const searchParams = stringify(query)
+  // ...so they can be processed by query-string
+  const initialState = parse(searchParams, {
+    parseBooleans: true,
+    parseNumbers: true,
+  })
+
+  // selectedOption is an object, so key off its id so it can live in URL
+  const initialSelectOptions = getSelectSortingOptions(t)
+  const selectedOption = getSelectSortingOptions(t).find(
+    (option) => option.id === initialState.selectedOption
+  )
+
+  // Set initial filter state based off of URL parsing
+  const { dispatch, state } = usePackFilter({
+    ...initialState,
+    selectedOption: selectedOption ? selectedOption : initialSelectOptions[0],
+  })
+
   const pageTop = useRef<HTMLDivElement | null>(null)
 
   const queryString = useMemo(() => {
@@ -45,6 +69,23 @@ export default function Releases({ packs }: PublishedPacks) {
       pageTop.current.scrollIntoView({ behavior: 'smooth' })
     }
   }, [isValidating, state.currentPage])
+
+  // If state changes, update the URL
+  useEffect(() => {
+    const previousState = stringify(parse(location.search))
+    const nextState = stringify(state)
+    if (previousState !== nextState) {
+      // location.search = nextState
+      const { selectOptions, ...rest } = state
+      push({
+        pathname: pathname,
+        query: {
+          ...rest,
+          selectedOption: state.selectedOption.id,
+        },
+      })
+    }
+  }, [pathname, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <DefaultLayout pageTitle={t('common:pageTitles.Releases')} width="full">
