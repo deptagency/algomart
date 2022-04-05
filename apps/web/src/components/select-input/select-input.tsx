@@ -1,7 +1,13 @@
 import { Listbox } from '@headlessui/react'
 import { SelectorIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
-import { DetailedHTMLProps, InputHTMLAttributes, ReactNode } from 'react'
+import {
+  DetailedHTMLProps,
+  InputHTMLAttributes,
+  ReactNode,
+  useMemo,
+  useState,
+} from 'react'
 
 import css from './select.module.css'
 
@@ -26,18 +32,37 @@ export interface SelectProps
 }
 
 export default function Select({
+  defaultValue,
   disabled,
   error,
   onChange,
   helpText,
   id,
+  name,
   label,
   options,
   value,
   Icon,
 }: SelectProps) {
   const _id = id ?? crypto.randomUUID()
-  const selectedOption = options.find((option) => option.key === value)
+  const [internalValue, setInternalValue] = useState(
+    defaultValue || options[0].key
+  )
+
+  const actualValue = value ?? internalValue
+  const selectedOption = useMemo(() => {
+    return value
+      ? options.find((option) => option.key === value)
+      : options.find((option) => option.key === internalValue)
+  }, [options, internalValue, value])
+
+  const handleChange = (value: string) => {
+    if (onChange) {
+      onChange(value)
+    } else {
+      setInternalValue(value)
+    }
+  }
 
   return (
     <label className={css.root} data-input="select" htmlFor={_id}>
@@ -46,7 +71,7 @@ export default function Select({
         {error && <div className={css.errorText}>{error}</div>}
         {!error && helpText && <div className={css.helpText}>{helpText}</div>}
       </div>
-      <Listbox disabled={disabled} onChange={onChange} value={value}>
+      <Listbox disabled={disabled} onChange={handleChange} value={actualValue}>
         <div className={css.selectContainer}>
           <Listbox.Button
             className={clsx(css.selectButton, {
@@ -91,7 +116,7 @@ export default function Select({
         className="sr-only"
         readOnly
         value={selectedOption.key}
-        name={id}
+        name={name}
         id={id}
       />
     </label>

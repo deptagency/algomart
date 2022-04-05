@@ -21,6 +21,8 @@ import FormField from '@/components/form-field'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
 import TextInput from '@/components/text-input/text-input'
 import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
+import { useLanguage } from '@/hooks/use-language'
 import { FileWithPreview } from '@/types/file'
 
 /**
@@ -48,6 +50,7 @@ export function Currency({
   const [options, setOptions] = useState<SelectOption[]>([])
   const { currencyConversions } = useI18n()
   const { t } = useTranslation()
+  const currency = useCurrency()
 
   useEffect(() => {
     if (currencyConversions) {
@@ -59,7 +62,6 @@ export function Currency({
           key: targetCurrency,
           label: targetCurrency,
         }))
-
       setOptions(intersection)
     }
   }, [currencyConversions]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -68,6 +70,8 @@ export function Currency({
     <FormField className={clsx({ [css.formField]: !className }, className)}>
       {options.length > 0 && (
         <Select
+          name="currency"
+          defaultValue={currency}
           error={error as string}
           disabled={disabled}
           label={showLabel ? t('forms:fields.currencies.label') : undefined}
@@ -108,6 +112,7 @@ export function Language({
   const [options, setOptions] = useState<SelectOption[]>([])
   const { languages, getI18nInfo } = useI18n()
   const { t } = useTranslation()
+  const language = useLanguage()
 
   useEffect(() => {
     const run = async () => {
@@ -141,6 +146,8 @@ export function Language({
     <FormField className={clsx({ [css.formField]: !className }, className)}>
       {options.length > 0 && (
         <Select
+          name="language"
+          defaultValue={language}
           error={error as string}
           disabled={disabled}
           label={showLabel ? t('forms:fields.languages.label') : undefined}
