@@ -36,7 +36,7 @@
 }
 
 .selectButtonText {
-  @apply grid justify-between grid-flow-col grid-rows-1 gap-4 text-base truncate;
+  @apply grid justify-start grid-flow-col grid-rows-1 gap-4 text-base truncate;
 }
 
 .selectButtonText svg {
