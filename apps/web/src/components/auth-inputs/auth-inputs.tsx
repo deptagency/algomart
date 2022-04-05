@@ -68,7 +68,6 @@ export function Currency({
     <FormField className={clsx({ [css.formField]: !className }, className)}>
       {options.length > 0 && (
         <Select
-          className="pl-8"
           error={error as string}
           disabled={disabled}
           label={showLabel ? t('forms:fields.currencies.label') : undefined}
@@ -142,7 +141,6 @@ export function Language({
     <FormField className={clsx({ [css.formField]: !className }, className)}>
       {options.length > 0 && (
         <Select
-          className="pl-8"
           error={error as string}
           disabled={disabled}
           label={showLabel ? t('forms:fields.languages.label') : undefined}
@@ -160,7 +158,6 @@ export function Username({ error }: AuthInputProps) {
   return (
     <FormField className={css.formField}>
       <TextInput
-        className="pl-8"
         error={error as string}
         helpText={t('forms:fields.username.helpText')}
         id="username"
