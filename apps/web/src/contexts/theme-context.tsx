@@ -52,9 +52,11 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   const toggleTheme = useCallback(() => {
     setTheme((theme) => {
-      // return themeOptions[(themeOptions.indexOf(theme) + 1) % themeOptions.length]
-      const actualTheme = theme ?? getThemeFromBrowser()
-      return actualTheme === 'dark' ? 'light' : 'dark'
+      return themeOptions[
+        (themeOptions.indexOf(theme) + 1) % themeOptions.length
+      ]
+      // const actualTheme = theme ?? getThemeFromBrowser()
+      // return actualTheme === 'dark' ? 'light' : 'dark'
     })
   }, [setTheme])
 

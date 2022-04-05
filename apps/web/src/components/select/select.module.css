@@ -23,12 +23,12 @@
 }
 
 .selectButton {
-  @apply relative w-full text-left bg-white border rounded-sm cursor-default;
+  @apply relative w-full text-left bg-white border rounded-sm cursor-default text-base-gray-dark;
   padding: 10px 50px 10px 10px;
 }
 
 .selectButtonDisabled {
-  @apply bg-base-bg border-base-bg;
+  @apply text-opacity-50 bg-base-bg border-base-bg dark:bg-white dark:bg-opacity-80;
 }
 
 .selectButtonError {
@@ -36,7 +36,7 @@
 }
 
 .selectButtonText {
-  @apply grid grid-flow-col grid-rows-1 text-base truncate text-base-gray-dark gap-4 justify-between;
+  @apply grid justify-between grid-flow-col grid-rows-1 gap-4 text-base truncate;
 }
 
 .selectButtonText svg {
