@@ -40,7 +40,7 @@ export default function LoginEmailTemplate({
             variant="red"
           />
         )}
-        <Email error={formErrors?.email} t={t} />
+        <Email error={formErrors?.email} />
         <Password
           error={formErrors?.password}
           helpLink={
@@ -48,9 +48,8 @@ export default function LoginEmailTemplate({
               {t('auth:Forgot your password?')}
             </AppLink>
           }
-          t={t}
         />
-        <Submit disabled={status === 'loading'} t={t} />
+        <Submit disabled={status === 'loading'} />
 
         <p className="mt-4 text-center">
           <AppLink href={urls.signUp}>

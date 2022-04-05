@@ -27,9 +27,7 @@ export default function AppFooterCurrency() {
 
   // callback to handle dropdown changes
   const handleDropdownCurrencyChange = useCallback(
-    async (selectedOption: SelectOption) => {
-      const currency = selectedOption?.id
-
+    async (currency: string) => {
       setLoading(true)
 
       // Validate form body
@@ -82,8 +80,7 @@ export default function AppFooterCurrency() {
       disabled={loading}
       showLabel={false}
       value={dropdownCurrency}
-      handleChange={handleDropdownCurrencyChange}
-      t={t}
+      onChange={handleDropdownCurrencyChange}
     />
   )
 }

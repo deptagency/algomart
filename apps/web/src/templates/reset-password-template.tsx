@@ -51,8 +51,8 @@ export default function ResetPasswordTemplate({
             variant="green"
           />
         )}
-        <Email error={formErrors?.email} t={t} />
-        <Submit disabled={status === 'loading'} t={t} />
+        <Email error={formErrors?.email} />
+        <Submit disabled={status === 'loading'} />
 
         <p className="mt-4 text-center">
           <AppLink href={urls.signUp}>

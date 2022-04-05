@@ -4,7 +4,6 @@ import useTranslation from 'next-translate/useTranslation'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Language } from '@/components/auth-inputs/auth-inputs'
-import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useLanguage } from '@/hooks/use-language'
 import { AuthService } from '@/services/auth-service'
@@ -25,9 +24,7 @@ export default function AppFooterLanguage() {
 
   // callback to handle dropdown changes
   const handleDropdownLanguageChange = useCallback(
-    async (selectedOption: SelectOption) => {
-      const language = selectedOption?.id
-
+    async (language: string) => {
       setLoading(true)
 
       // Validate form body
@@ -77,8 +74,7 @@ export default function AppFooterLanguage() {
       disabled={loading}
       showLabel={false}
       value={dropdownLanguage}
-      handleChange={handleDropdownLanguageChange}
-      t={t}
+      onChange={handleDropdownLanguageChange}
     />
   )
 }

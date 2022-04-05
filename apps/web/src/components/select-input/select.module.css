@@ -1,0 +1,73 @@
+.root {
+  @apply relative block text-black;
+}
+
+.labelContainer {
+  @apply relative flex flex-wrap justify-between w-full font-bold text-base-textPrimary;
+}
+
+.label {
+  @apply w-1/2 mb-1;
+}
+
+.helpText {
+  @apply w-1/2 mt-1 text-xs font-light text-right text-base-gray-medium;
+}
+
+.errorText {
+  @apply text-xs font-light text-right text-base-error;
+}
+
+.selectContainer {
+  @apply relative;
+}
+
+.selectButton {
+  @apply relative w-full text-left bg-white border rounded-sm cursor-default text-base-gray-dark;
+  padding: 10px 50px 10px 10px;
+}
+
+.selectButtonDisabled {
+  @apply text-opacity-50 bg-base-bg border-base-bg dark:bg-white dark:bg-opacity-80;
+}
+
+.selectButtonError {
+  @apply border-base-error;
+}
+
+.selectButtonText {
+  @apply grid justify-start grid-flow-col grid-rows-1 gap-4 text-base truncate;
+}
+
+.selectButtonText svg {
+  @apply opacity-75 stroke-current justify-self-end;
+  width: 22px;
+}
+
+.selectButtonIconContainer {
+  @apply absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none;
+}
+
+.selectButtonIcon {
+  @apply w-5 h-5 text-gray-400;
+}
+
+.selectOptions {
+  @apply absolute z-10 w-full py-1 mt-1 overflow-auto text-sm bg-white border rounded-sm shadow-md max-h-60;
+}
+
+.selectOption {
+  @apply relative p-3 font-light cursor-default select-none;
+}
+
+.selectOptionActive {
+  @apply bg-action-secondary;
+}
+
+.selectOptionSelected {
+  @apply font-semibold bg-gray-200;
+}
+
+.selectOptionDisabled {
+  @apply text-base-textDisabled;
+}
