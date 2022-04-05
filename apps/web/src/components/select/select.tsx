@@ -69,7 +69,7 @@ export default function Select({
             })}
           >
             <span className={css.selectButtonText}>
-              {Icon ? Icon : <svg viewBox={'0 0 24 24'} />}
+              {Icon ? Icon : null}
               {value.label}
             </span>
             <span className={css.selectButtonIconContainer}>
