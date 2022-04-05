@@ -2,8 +2,8 @@ import {
   ClaimFreePackSchema,
   ClaimPackSchema,
   ClaimRedeemPackSchema,
-  LocaleAndExternalIdSchema,
-  LocaleSchema,
+  LanguageAndExternalIdSchema,
+  LanguageSchema,
   MintPackSchema,
   MintPackStatusResponseSchema,
   OwnerExternalIdSchema,
@@ -11,9 +11,11 @@ import {
   PackIdSchema,
   PacksByOwnerQuerySchema,
   PacksByOwnerSchema,
+  PackSlugSchema,
   PackTemplateIdSchema,
   PackWithCollectiblesSchema,
   PackWithIdSchema,
+  PublishedPackSchema,
   PublishedPacksQuerySchema,
   PublishedPacksSchema,
   RedeemCodeSchema,
@@ -34,10 +36,11 @@ import {
   getAuctionPackByTemplateId,
   getPacksByOwner,
   getPackWithCollectiblesById,
-  getPublishedPacks,
+  getPublishedPackBySlug,
   getRedeemablePack,
   mintPackStatus,
   revokePack,
+  searchPublishedPacks,
   transferPack,
   transferPackStatus,
   untransferredPacks,
@@ -59,19 +62,36 @@ export async function packsRoutes(app: FastifyInstance) {
 
   // Services/Routes
   app.get(
-    '/',
+    '/search',
     {
       schema: {
         tags,
         security,
-        description: 'Get all published packs with pagination.',
+        description: 'Search all published packs with pagination.',
         querystring: PublishedPacksQuerySchema,
         response: {
           200: PublishedPacksSchema,
         },
       },
     },
-    getPublishedPacks
+    searchPublishedPacks
+  )
+
+  app.get(
+    '/by-slug/:packSlug',
+    {
+      schema: {
+        tags,
+        security,
+        description: 'Get a pack by slug with its collectibles.',
+        querystring: LanguageSchema,
+        params: PackSlugSchema,
+        response: {
+          200: PublishedPackSchema,
+        },
+      },
+    },
+    getPublishedPackBySlug
   )
 
   app.get(
@@ -98,7 +118,7 @@ export async function packsRoutes(app: FastifyInstance) {
         tags,
         security,
         description: 'Get a pack by id with its collectibles.',
-        querystring: LocaleSchema,
+        querystring: LanguageSchema,
         params: PackIdSchema,
         response: {
           200: PackWithCollectiblesSchema,
@@ -183,7 +203,7 @@ export async function packsRoutes(app: FastifyInstance) {
         tags,
         security,
         body: ClaimRedeemPackSchema,
-        querystring: LocaleSchema,
+        querystring: LanguageSchema,
         description: 'Used to claim a redeemable pack.',
         response: {
           200: Type.Object({ pack: PackWithIdSchema }),
@@ -267,7 +287,7 @@ export async function packsRoutes(app: FastifyInstance) {
         tags,
         security,
         description: 'Get all packs that have not been transferred.',
-        querystring: LocaleAndExternalIdSchema,
+        querystring: LanguageAndExternalIdSchema,
         response: {
           200: PacksByOwnerSchema,
         },

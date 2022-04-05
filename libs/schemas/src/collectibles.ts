@@ -4,7 +4,7 @@ import { CollectionWithSetsSchema, SetBaseSchema } from './collections'
 import {
   BaseSchema,
   IdSchema,
-  LocaleSchema,
+  LanguageSchema,
   Nullable,
   PaginationSchema,
   Simplify,
@@ -133,7 +133,7 @@ export enum CollectibleSortField {
 }
 
 export const CollectiblesByAlgoAddressQuerystringSchema = Type.Intersect([
-  LocaleSchema,
+  LanguageSchema,
   PaginationSchema,
   Type.Object({
     sortBy: Type.Optional(
@@ -146,7 +146,7 @@ export const CollectiblesByAlgoAddressQuerystringSchema = Type.Intersect([
 ])
 
 export const SingleCollectibleQuerystringSchema = Type.Intersect([
-  LocaleSchema,
+  LanguageSchema,
   Type.Object({
     assetId: Type.Integer({ minimum: 0 }),
     externalId: Type.Optional(Type.String({ format: 'uuid' })),
@@ -155,7 +155,7 @@ export const SingleCollectibleQuerystringSchema = Type.Intersect([
 
 export const CollectibleListQuerystringSchema = Type.Intersect([
   PaginationSchema,
-  LocaleSchema,
+  LanguageSchema,
   Type.Object({
     ownerUsername: Type.Optional(Type.String()),
     ownerExternalId: Type.Optional(Type.String()),
@@ -172,7 +172,7 @@ export const CollectibleListQuerystringSchema = Type.Intersect([
 ])
 
 export const CollectibleShowcaseQuerystringSchema = Type.Intersect([
-  LocaleSchema,
+  LanguageSchema,
   Type.Object({
     ownerUsername: Type.String(),
   }),

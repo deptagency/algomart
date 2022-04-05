@@ -12,6 +12,7 @@ import { bidsRoutes } from '@api/modules/bids'
 import { collectiblesRoutes } from '@api/modules/collectibles'
 import { collectionsRoutes } from '@api/modules/collections'
 import { homepageRoutes } from '@api/modules/homepage'
+import { i18nRoutes } from '@api/modules/i18n'
 import { packsRoutes } from '@api/modules/packs'
 import { paymentRoutes } from '@api/modules/payments'
 import { setsRoutes } from '@api/modules/sets'
@@ -92,9 +93,14 @@ export default async function buildApp(config: AppConfig) {
   await app.register(collectiblesRoutes, { prefix: '/collectibles' })
   await app.register(collectionsRoutes, { prefix: '/collections' })
   await app.register(homepageRoutes, { prefix: '/homepage' })
+  await app.register(i18nRoutes, { prefix: '/i18n' })
   await app.register(packsRoutes, { prefix: '/packs' })
   await app.register(paymentRoutes, { prefix: '/payments' })
   await app.register(setsRoutes, { prefix: '/sets' })
+
+  app.all('/', (_, reply) => {
+    reply.send('ok')
+  })
 
   return app
 }

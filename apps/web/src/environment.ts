@@ -1,20 +1,39 @@
 import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import * as Currencies from '@dinero.js/currencies'
+import { Currency } from 'dinero.js'
 import { FirebaseOptions } from 'firebase/app'
 import { ServiceAccount } from 'firebase-admin'
 import getConfig from 'next/config'
+import { Level } from 'pino'
 
 import { ChainType } from './libs/algorand-adapter'
 
-export const Environment = {
-  config(key: string, fallback: string): string {
-    const { publicRuntimeConfig = {}, serverRuntimeConfig = {} } =
-      getConfig() || {}
-    return publicRuntimeConfig[key] || serverRuntimeConfig[key] || fallback
-  },
+export interface PublicConfig {
+  chainType: ChainType
+  algoExplorerBaseUrl: string
+  firebaseConfig: FirebaseOptions
+  currency: Currency<number>
+  isWireEnabled: boolean
+  isCryptoEnabled: boolean
+  isProduction: boolean
+}
 
+export interface PrivateConfig {
+  firebaseServiceAccount: ServiceAccount
+  firebaseAdminEmail: string
+  apiKey: string
+  apiUrl: string
+  logLevel: Level
+}
+
+function getConfigByKey(key: string, fallback: string): string {
+  const { serverRuntimeConfig = {} } = getConfig() || {}
+  return serverRuntimeConfig[key] || fallback
+}
+
+export const Environment: PublicConfig & PrivateConfig = {
   get chainType(): ChainType {
-    return this.config('chainType', ChainType.TestNet)
+    return getConfigByKey('chainType', ChainType.TestNet) as ChainType
   },
 
   get algoExplorerBaseUrl(): string {
@@ -27,48 +46,48 @@ export const Environment = {
 
   get firebaseConfig() {
     return JSON.parse(
-      this.config('NEXT_PUBLIC_FIREBASE_CONFIG', '{}')
+      getConfigByKey('NEXT_PUBLIC_FIREBASE_CONFIG', '{}')
     ) as FirebaseOptions
   },
 
   get firebaseServiceAccount() {
     return JSON.parse(
-      this.config('FIREBASE_SERVICE_ACCOUNT', '{}')
+      getConfigByKey('FIREBASE_SERVICE_ACCOUNT', '{}')
     ) as ServiceAccount
   },
 
   get firebaseAdminEmail() {
-    return this.config('FIREBASE_ADMIN_EMAIL', '')
+    return getConfigByKey('FIREBASE_ADMIN_EMAIL', '')
   },
 
   get isProduction() {
-    return this.config('NODE_ENV', 'development') === 'production'
+    return getConfigByKey('NODE_ENV', 'development') === 'production'
   },
 
   get apiKey() {
-    return this.config('API_KEY', '')
+    return getConfigByKey('API_KEY', '')
   },
 
   get apiUrl() {
-    return this.config('API_URL', '')
+    return getConfigByKey('API_URL', '')
   },
 
   get logLevel() {
-    return this.config('LOG_LEVEL', 'info')
+    return getConfigByKey('LOG_LEVEL', 'info') as Level
   },
 
   get currency() {
-    const code = this.config('CURRENCY', DEFAULT_CURRENCY)
+    const code = getConfigByKey('CURRENCY', DEFAULT_CURRENCY)
     return Currencies[code as keyof typeof Currencies]
   },
 
   get isWireEnabled() {
-    const isEnabled = this.config('NEXT_PUBLIC_WIRE_PAYMENT_ENABLED', '')
+    const isEnabled = getConfigByKey('NEXT_PUBLIC_WIRE_PAYMENT_ENABLED', '')
     return isEnabled.toLowerCase() === 'true'
   },
 
   get isCryptoEnabled() {
-    const isEnabled = this.config('NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED', '')
+    const isEnabled = getConfigByKey('NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED', '')
     return isEnabled.toLowerCase() === 'true'
   },
 }

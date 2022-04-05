@@ -11,6 +11,8 @@ import css from './crypto-form.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
 import { AlgorandAdapter, ChainType, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
 import { CheckoutService } from '@/services/checkout-service'
@@ -43,6 +45,8 @@ export default function CryptoFormWalletConnect({
   setStatus,
 }: CryptoFormWalletConnectProps) {
   const { t } = useTranslation()
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
   const [connected, setConnected] = useState(false)
   const [account, setAccount] = useState<string>('')
   const connectorReference = useRef<IConnector>()
@@ -91,11 +95,27 @@ export default function CryptoFormWalletConnect({
 
     // Check USDC balance
     const usdcBalance = formatToDecimal(usdcAsset.amount, usdcAsset.decimals)
+    const currencyBalance = formatToDecimal(
+      usdcAsset.amount,
+      usdcAsset.decimals,
+      currency,
+      conversionRate
+    )
+
     const usdcBalanceInt = formatFloatToInt(usdcBalance)
-    const priceInt = formatFloatToInt(price)
-    if (!isGreaterThanOrEqual(usdcBalanceInt, priceInt)) {
+
+    const usdcPriceInt = formatFloatToInt(price)
+    const currencyPriceInt = formatFloatToInt(price, currency, conversionRate)
+
+    if (!isGreaterThanOrEqual(usdcBalanceInt, usdcPriceInt, currency)) {
       // Not enough USDC
-      setError(t('forms:errors.minUSDC', { balance: usdcBalance, min: price }))
+      setError(
+        t('forms:errors.minUSDC', {
+          balance: currencyBalance,
+          currency,
+          min: currencyPriceInt,
+        })
+      )
       setStatus(CheckoutStatus.error)
       return
     }
@@ -105,7 +125,7 @@ export default function CryptoFormWalletConnect({
     if (connector) {
       setLoadingText(t('common:statuses.Connected to Wallet'))
       const assetTx = await algorand.makeAssetTransferTransaction({
-        amount: priceInt * 10_000,
+        amount: usdcPriceInt * 10_000,
         from: account,
         to: address,
         assetIndex: usdcAsset.id,
@@ -151,6 +171,8 @@ export default function CryptoFormWalletConnect({
     account,
     address,
     connected,
+    conversionRate,
+    currency,
     handlePurchase,
     price,
     release?.templateId,

@@ -43,29 +43,30 @@ export default function MyProfileTransactionsPage({
   )
 }
 
-export const getServerSideProps: GetServerSideProps<MyProfileTransactionsPageProps> =
-  async (context) => {
-    // Verify authentication
-    const user = await getAuthenticatedUser(context)
-    if (!user) {
-      return handleUnauthenticatedRedirect(context.resolvedUrl)
-    }
-
-    const { packs, total } = await ApiClient.instance.getPacksByOwnerId(
-      user.externalId,
-      {
-        locale: context.locale,
-        sortBy: PackSortByOwnerField.ClaimedAt,
-        sortDirection: SortDirection.Descending,
-      }
-    )
-
-    return {
-      props: {
-        releaseDetails: {
-          packs: packs ?? [],
-          total: total ?? 0,
-        },
-      },
-    }
+export const getServerSideProps: GetServerSideProps<
+  MyProfileTransactionsPageProps
+> = async (context) => {
+  // Verify authentication
+  const user = await getAuthenticatedUser(context)
+  if (!user) {
+    return handleUnauthenticatedRedirect(context.resolvedUrl)
   }
+
+  const { packs, total } = await ApiClient.instance.getPacksByOwnerId(
+    user.externalId,
+    {
+      language: context.locale,
+      sortBy: PackSortByOwnerField.ClaimedAt,
+      sortDirection: SortDirection.Descending,
+    }
+  )
+
+  return {
+    props: {
+      releaseDetails: {
+        packs: packs ?? [],
+        total: total ?? 0,
+      },
+    },
+  }
+}

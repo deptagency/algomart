@@ -1,11 +1,14 @@
-import { PublishedPack } from '@algomart/schemas'
+import { DEFAULT_CURRENCY, PublishedPack } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 
 import css from './card-summary.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
-import { currency, formatCurrency } from '@/utils/format-currency'
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
+import { useLocale } from '@/hooks/use-locale'
+import { formatCurrency } from '@/utils/format-currency'
 
 interface CardSummaryProps {
   isAuctionActive: boolean
@@ -18,7 +21,22 @@ export default function CardSummary({
   price,
   release,
 }: CardSummaryProps) {
-  const { t, lang } = useTranslation()
+  const { t } = useTranslation()
+  const locale = useLocale()
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
+  const userCurrencyAmount = formatCurrency(
+    price,
+    locale,
+    currency,
+    isAuctionActive ? 1 : conversionRate
+  )
+  const settlementCurrencyAmount = formatCurrency(
+    price,
+    locale,
+    DEFAULT_CURRENCY,
+    1
+  )
   return (
     <div className={css.root}>
       <Heading level={1}>{t('forms:sections.Summary')}</Heading>
@@ -30,14 +48,16 @@ export default function CardSummary({
           </tr>
           <tr>
             <th scope="row">{release?.title}</th>
-            <td>
-              <span>
-                {formatCurrency(price, lang)} {currency?.code && (currency.code)}
-              </span>
-            </td>
+            <td>{userCurrencyAmount}</td>
           </tr>
         </tbody>
       </table>
+      <p className={css.disclaimer}>
+        {t('forms:fields.price.disclaimer', {
+          currency,
+          amount: settlementCurrencyAmount,
+        })}
+      </p>
       {/* Submit */}
       <Button disabled={!release} fullWidth type="submit" variant="primary">
         {isAuctionActive

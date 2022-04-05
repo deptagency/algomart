@@ -95,8 +95,8 @@ nx build api
 ## Folder structure
 
 ```bash
-locales/ # Interpolated i18n translation files used for email notifications
-  [locale]/ # e.g. en-US
+languages/ # Interpolated i18n translation files used for email notifications
+  [language]/ # e.g. en-US
     emails.json # Grouping of translatable JSON
 scripts/ # Utilities (e.g. create algorand account)
 src/ # Main source code

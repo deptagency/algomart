@@ -2,6 +2,7 @@ import {
   AlgoExplorerAdapter,
   AlgorandAdapter,
   CircleAdapter,
+  CMSCacheAdapter,
   CoinbaseAdapter,
   DirectusAdapter,
   I18nAdapter,
@@ -16,6 +17,7 @@ import {
   CollectiblesService,
   CollectionsService,
   HomepageService,
+  I18nService,
   NotificationsService,
   PacksService,
   PaymentsService,
@@ -47,13 +49,24 @@ export function configureResolver() {
     () => new AlgoExplorerAdapter(Configuration.algodEnv, logger)
   )
   resolver.set(
+    CMSCacheAdapter.name,
+    () =>
+      new CMSCacheAdapter(
+        {
+          cmsUrl: Configuration.cmsUrl,
+          gcpCdnUrl: Configuration.gcpCdnUrl,
+        },
+        logger
+      )
+  )
+  resolver.set(
     DirectusAdapter.name,
     () =>
       new DirectusAdapter(
         {
+          cmsUrl: Configuration.cmsUrl,
+          gcpCdnUrl: Configuration.gcpCdnUrl,
           accessToken: Configuration.cmsAccessToken,
-          url: Configuration.cmsUrl,
-          publicUrl: Configuration.cmsPublicUrl,
         },
         logger
       )
@@ -66,7 +79,6 @@ export function configureResolver() {
           pinataApiKey: Configuration.pinataApiKey,
           pinataApiSecret: Configuration.pinataApiSecret,
           cmsUrl: Configuration.cmsUrl,
-          cmsPublicUrl: Configuration.cmsPublicUrl,
           webUrl: Configuration.webUrl,
         },
         logger
@@ -85,6 +97,7 @@ export function configureResolver() {
     BidsService.name,
     (c) =>
       new BidsService(
+        c.get<I18nService>(I18nService.name),
         c.get<NotificationsService>(NotificationsService.name),
         c.get<PacksService>(PacksService.name),
         Configuration.currency,
@@ -115,8 +128,9 @@ export function configureResolver() {
     PacksService.name,
     (c) =>
       new PacksService(
-        c.get<DirectusAdapter>(DirectusAdapter.name),
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
         c.get<CollectiblesService>(CollectiblesService.name),
+        c.get<I18nService>(I18nService.name),
         c.get<NotificationsService>(NotificationsService.name),
         c.get<AccountsService>(AccountsService.name),
         Configuration.currency,
@@ -127,12 +141,11 @@ export function configureResolver() {
     CollectiblesService.name,
     (c) =>
       new CollectiblesService(
-        c.get<DirectusAdapter>(DirectusAdapter.name),
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
         c.get<AlgorandAdapter>(AlgorandAdapter.name),
         c.get<NFTStorageAdapter>(NFTStorageAdapter.name),
         c.get<AlgoExplorerAdapter>(AlgoExplorerAdapter.name),
         Configuration.minimumDaysBeforeTransfer,
-        Configuration.creatorPassphrase,
         logger
       )
   )
@@ -177,13 +190,13 @@ export function configureResolver() {
   )
   resolver.set(
     SetsService.name,
-    (c) => new SetsService(c.get<DirectusAdapter>(DirectusAdapter.name), logger)
+    (c) => new SetsService(c.get<CMSCacheAdapter>(CMSCacheAdapter.name), logger)
   )
   resolver.set(
     CollectionsService.name,
     (c) =>
       new CollectionsService(
-        c.get<DirectusAdapter>(DirectusAdapter.name),
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
         logger
       )
   )
@@ -191,9 +204,8 @@ export function configureResolver() {
     HomepageService.name,
     (c) =>
       new HomepageService(
-        c.get<DirectusAdapter>(DirectusAdapter.name),
-        c.get<PacksService>(PacksService.name),
-        c.get<CollectiblesService>(CollectiblesService.name)
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
+        c.get<PacksService>(PacksService.name)
       )
   )
   resolver.set(
@@ -205,7 +217,17 @@ export function configureResolver() {
     ApplicationService.name,
     (c) =>
       new ApplicationService(
-        c.get<DirectusAdapter>(DirectusAdapter.name),
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
+        logger
+      )
+  )
+  resolver.set(
+    I18nService.name,
+    (c) =>
+      new I18nService(
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
+        c.get<CoinbaseAdapter>(CoinbaseAdapter.name),
+        Configuration.currency,
         logger
       )
   )

@@ -10,6 +10,7 @@ import handlePackAuctionCompletionTask from './handle-pack-auction-completion.ta
 import handlePackAuctionExpirationTask from './handle-pack-auction-expiration.task'
 import mintCollectiblesTask from './mint-collectibles.task'
 import storeCollectiblesTask from './store-collectibles.task'
+import syncCMSCacheTask from './sync-cms-cache.task'
 import { updatePaymentBankStatusesTask } from './update-payment-bank-statuses.task'
 import { updatePaymentCardStatusesTask } from './update-payment-card-statuses.task'
 import { updatePaymentStatusesTask } from './update-payment-statuses.task'
@@ -21,6 +22,19 @@ export function configureTasks(app: FastifyInstance) {
   }
 
   app.log.info('Tasks enabled')
+
+  //#region Sync CMS
+  app.scheduler.addIntervalJob(
+    new SimpleIntervalJob(
+      { minutes: 60, runImmediately: true },
+      new AsyncTask(
+        'sync-cms-cache',
+        async () => await syncCMSCacheTask(app.container),
+        (error) => app.log.error(error)
+      )
+    )
+  )
+  //#endregion
 
   //#region Pack & Collectible generation/storage/minting
   app.scheduler.addSimpleIntervalJob(

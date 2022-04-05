@@ -176,6 +176,10 @@ variable "customer_service_email" {
   sensitive = true
 }
 
+variable "gcp_cdn_url" {
+  sensitive = true
+}
+
 variable "pinata_api_key" {
   sensitive = true
   default   = ""

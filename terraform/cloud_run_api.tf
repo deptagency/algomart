@@ -202,6 +202,11 @@ resource "google_cloud_run_service" "api" {
           name  = "LOG_LEVEL"
           value = "debug"
         }
+
+        env {
+          name  = "GCP_CDN_URL"
+          value = var.gcp_cdn_url
+        }
       }
     }
   }

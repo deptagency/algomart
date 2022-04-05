@@ -12,9 +12,9 @@ import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
-import { Analytics } from '@/clients/firebase-analytics'
 import { usePaymentProvider } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
+import { useAnalytics } from '@/hooks/use-analytics'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
@@ -37,6 +37,7 @@ export default function CheckoutMethodPage({
   release,
 }: CheckoutMethodPageProps) {
   const { t } = useTranslation()
+  const analytics = useAnalytics()
   const { query } = useRouter()
   const paymentProps = usePaymentProvider({
     auctionPackId,
@@ -62,11 +63,11 @@ export default function CheckoutMethodPage({
   }, [query.step, setStatus])
 
   useEffect(() => {
-    Analytics.instance.beginCheckout({
+    analytics.beginCheckout({
       itemName: release.title,
       value: currentBid ?? release.price,
     })
-  }, [currentBid, release])
+  }, [analytics, currentBid, release])
 
   return (
     <DefaultLayout
@@ -125,20 +126,19 @@ export const getServerSideProps: GetServerSideProps<
   }
 
   // Find pack templates
-  const { packs: packTemplates } = await ApiClient.instance.getPublishedPacks({
-    locale: context.locale,
-    slug: params?.packSlug as string,
-  })
+  const packTemplate = await ApiClient.instance.getPublishedPackBySlug(
+    params?.packSlug as string,
+    context.locale
+  )
 
   // If no pack templates were found, return 404
-  if (!packTemplates || packTemplates.length === 0) {
+  if (!packTemplate) {
     return {
       notFound: true,
     }
   }
 
   // If there are no remaining packs, prohibit purchase
-  const packTemplate = packTemplates[0]
   if (!packTemplate.available) {
     return {
       redirect: {

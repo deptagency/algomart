@@ -1,4 +1,4 @@
-import pino from 'pino'
+import pino, { Level } from 'pino'
 
 // import { Configuration } from '../configuration'
 
@@ -17,20 +17,9 @@ const PinoLevelToSeverityLookup = {
  * Creates a general purpose logger.  (note: if you are logging in a fastify request
  * handler then you should use the logger attached to the request)
  */
-export const createLogger = (logLevel: string, env: string) => {
+export const createLogger = (logLevel: Level) => {
   return pino({
     level: logLevel,
-    ...(env !== 'production' && {
-      transport: {
-        target: 'pino-pretty',
-        options: {
-          translateTime: 'HH:MM:ss Z',
-          colorize: true,
-          messageKey: 'message',
-          ignore: 'severity',
-        },
-      },
-    }),
     messageKey: 'message',
     formatters: {
       level(label, number) {
@@ -40,9 +29,6 @@ export const createLogger = (logLevel: string, env: string) => {
             PinoLevelToSeverityLookup['info'],
           level: number,
         }
-      },
-      log(message) {
-        return { message }
       },
     },
     serializers: {

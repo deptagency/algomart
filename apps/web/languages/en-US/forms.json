@@ -12,6 +12,7 @@
     "invalidCredentials": "Invalid credentials",
     "invalidCreditCard": "Invalid credit card number",
     "invalidCountry": "Invalid country code",
+    "invalidCurrency": "Invalid currency",
     "invalidDetails": "Invalid details provided",
     "invalidName": "Invalid first and last name",
     "invalidPassphrase": "Invalid Passphrase",
@@ -24,7 +25,7 @@
     "bidLessThanHighestBid": "Your bid was lower than the current high bid.",
     "maxCharacters": "Must be less than {max} characters",
     "minCharacters": "Must be at least {min} characters",
-    "minUSDC": "Found balance of {{balance}} USD, but the minimum needed is {{min}} USD",
+    "minUSDC": "Found balance of {{balance}} {{currency}}, but the minimum needed is {{min}} {{currency}}",
     "maxItems": "Must pick at most {max} items",
     "minImageFileSize": "Image must be {{fileSize}} or smaller",
     "noUSDC": "No USDC found in wallet",
@@ -101,6 +102,9 @@
         "US": "United States"
       }
     },
+    "currencies": {
+      "label": "Currency"
+    },
     "defaultCard": {
       "label": "Default",
       "helpText": "Make card my default for purchases"
@@ -120,6 +124,9 @@
     "fullName": {
       "label": "Full Name",
       "helpText": "As it appears on your card"
+    },
+    "languages": {
+      "label": "Language"
     },
     "password": {
       "label": "Password"
@@ -197,7 +204,8 @@
       }
     },
     "price": {
-      "label": "Price"
+      "label": "Price",
+      "disclaimer": "Price is shown in {{currency}} but will settle in {{amount}} USDC"
     },
     "profileImage": {
       "label": "Profile Image"

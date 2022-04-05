@@ -10,6 +10,9 @@ import useTranslation from 'next-translate/useTranslation'
 import css from './release-metadata.module.css'
 
 import Counter from '@/components/counter/counter'
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
+import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/format-currency'
 
 const { Active, Expired, Upcoming } = PackStatus
@@ -24,7 +27,10 @@ export default function ReleaseMetadata({
   packAuction,
   packTemplate,
 }: ReleaseMetadataProps) {
-  const { t, lang } = useTranslation()
+  const locale = useLocale()
+  const { t } = useTranslation()
+  const currency = useCurrency()
+  const { conversionRate } = useI18n()
 
   const highestBid = packAuction?.activeBid?.amount || 0
   const price = packTemplate.price || 0
@@ -81,7 +87,7 @@ export default function ReleaseMetadata({
                 [css.completeSuccess]: isExpired && isReserveMet,
               })}
             >
-              {formatCurrency(highestBid, lang)}
+              {formatCurrency(highestBid, locale, currency, conversionRate)}
             </div>
           </>
         ) : (
@@ -138,7 +144,8 @@ export default function ReleaseMetadata({
           </>
         ) : (
           <div className={css.metadataValue}>
-            {packTemplate.type === Purchase && formatCurrency(price, lang)}
+            {packTemplate.type === Purchase &&
+              formatCurrency(price, locale, currency, conversionRate)}
             {packTemplate.type === Free && t('common:statuses.Free')}
             {packTemplate.type === Redeem && t('common:statuses.Redeemable')}
           </div>

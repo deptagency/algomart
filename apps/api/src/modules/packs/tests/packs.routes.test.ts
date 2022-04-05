@@ -1,5 +1,5 @@
 import { PackStatus, PackType } from '@algomart/schemas'
-import { DirectusAdapter, toPackBase } from '@algomart/shared/adapters'
+import { CMSCacheAdapter, toPackBase } from '@algomart/shared/adapters'
 import { randomRedemptionCode } from '@algomart/shared/utils'
 import { packFactory, packTemplateFactory } from '@api/seeds/seed-test-data'
 import { buildTestApp } from '@api-tests/build-test-app'
@@ -26,7 +26,7 @@ test('GET /packs OK', async () => {
       ? packTemplate.translations[0]
       : null
 
-  jest.spyOn(DirectusAdapter.prototype, 'findAllPacks').mockResolvedValue({
+  jest.spyOn(CMSCacheAdapter.prototype, 'findAllPacks').mockResolvedValue({
     packs: [toPackBase(packTemplate, () => 'http://localhost/image.jpg')],
     total: 1,
   })
@@ -44,7 +44,7 @@ test('GET /packs OK', async () => {
   // Act
   const { body, statusCode, headers } = await app.inject({
     method: 'GET',
-    url: '/packs',
+    url: '/packs/search',
     headers: {
       authorization: 'Bearer test-api-key',
     },
@@ -62,6 +62,7 @@ test('GET /packs OK', async () => {
         available: 5,
         body: translation?.body,
         collectibleTemplateIds: [],
+        collectibleTemplates: [],
         config: {
           collectibleDistribution: packTemplate.nft_distribution,
           collectibleOrder: packTemplate.nft_order,
@@ -71,6 +72,7 @@ test('GET /packs OK', async () => {
         onePackPerCustomer: false,
         price: packTemplate.price,
         image: 'http://localhost/image.jpg',
+        nftsPerPack: 1,
         releasedAt: packTemplate.released_at,
         slug: packTemplate.slug,
         subtitle: translation?.subtitle,
@@ -97,7 +99,7 @@ test('GET /packs/redeemable/:redeemCode', async () => {
       : null
 
   jest
-    .spyOn(DirectusAdapter.prototype, 'findPack')
+    .spyOn(CMSCacheAdapter.prototype, 'findPackByTemplateId')
     .mockResolvedValue(
       toPackBase(packTemplate, () => 'http://localhost/image.jpg')
     )
@@ -132,6 +134,7 @@ test('GET /packs/redeemable/:redeemCode', async () => {
       allowBidExpiration: false,
       body: translation?.body,
       collectibleTemplateIds: [],
+      collectibleTemplates: [],
       config: {
         collectibleDistribution: packTemplate.nft_distribution,
         collectibleOrder: packTemplate.nft_order,
@@ -141,6 +144,7 @@ test('GET /packs/redeemable/:redeemCode', async () => {
       onePackPerCustomer: false,
       price: packTemplate.price,
       image: 'http://localhost/image.jpg',
+      nftsPerPack: 1,
       id: pack.id,
       releasedAt: packTemplate.released_at,
       slug: packTemplate.slug,

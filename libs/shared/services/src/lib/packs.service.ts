@@ -6,11 +6,11 @@ import {
   ClaimPack,
   ClaimRedeemPack,
   CollectibleWithDetails,
-  DEFAULT_LOCALE,
+  DEFAULT_LANG,
   EventAction,
   EventEntityType,
   IPFSStatus,
-  LocaleAndExternalId,
+  LanguageAndExternalId,
   MintPack,
   MintPackStatus,
   NotificationType,
@@ -34,75 +34,35 @@ import {
   TransferPack,
   TransferPackStatusList,
 } from '@algomart/schemas'
-import {
-  DirectusAdapter,
-  DirectusStatus,
-  ItemFilter,
-} from '@algomart/shared/adapters'
+
 import {
   BidModel,
-  CollectibleModel,
-  CollectibleOwnershipModel,
   EventModel,
   PackModel,
+  CollectibleModel,
   UserAccountModel,
 } from '@algomart/shared/models'
+
 import {
   formatIntToFloat,
   invariant,
+  userInvariant,
   randomInteger,
   randomRedemptionCode,
   shuffleArray,
-  userInvariant,
 } from '@algomart/shared/utils'
-import { AccountsService, CollectiblesService, NotificationsService } from './'
-import { Model, raw, Transaction } from 'objection'
-
-interface PackFilters {
-  priceLow: number
-  priceHigh: number
-  status: PackStatus[]
-  reserveMet?: boolean
-}
-
-function shouldIncludeAuctionPack(
-  pack: PublishedPack,
-  filters: PackFilters
-): boolean {
-  let include = true
-
-  if (typeof pack.activeBid === 'number') {
-    include =
-      include &&
-      pack.activeBid >= filters.priceLow &&
-      pack.activeBid <= filters.priceHigh
-  }
-
-  if (filters.status.length > 0) {
-    include = include && filters.status.includes(pack.status)
-  }
-
-  if (typeof filters.reserveMet === 'boolean') {
-    include = filters.reserveMet
-      ? include &&
-        typeof pack.activeBid === 'number' &&
-        pack.price !== null &&
-        pack.activeBid >= pack.price
-      : include &&
-        (pack.price === null ||
-          pack.activeBid === undefined ||
-          pack.activeBid < pack.price)
-  }
-
-  return include
-}
-
-function shouldIncludePurchasePack(
-  pack: PublishedPack,
-  filters: PackFilters
-): boolean {
-  return pack.price >= filters.priceLow && pack.price <= filters.priceHigh
-}
+import {
+  AccountsService,
+  CollectiblesService,
+  NotificationsService,
+  I18nService,
+} from './'
+import { raw, Transaction } from 'objection'
+import {
+  ItemFilters,
+  ItemSort,
+  CMSCacheAdapter,
+} from '@algomart/shared/adapters'
 
 function mapToPublicBid(bid: BidModel, packId: string): BidPublic {
   return {
@@ -119,55 +79,15 @@ export class PacksService {
   logger: pino.Logger<unknown>
 
   constructor(
-    private readonly cms: DirectusAdapter,
+    private readonly cms: CMSCacheAdapter,
     private readonly collectibles: CollectiblesService,
+    private readonly i18nService: I18nService,
     private readonly notifications: NotificationsService,
     private readonly accounts: AccountsService,
     private currency: Currencies.Currency<number>,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
-  }
-
-  // #region Private helpers
-
-  private createPackSortFn(sort: {
-    sortBy: PackSortField
-    sortDirection: SortDirection
-  }) {
-    return (a: PublishedPack, b: PublishedPack) => {
-      const direction = sort.sortDirection === SortDirection.Ascending ? 1 : -1
-
-      switch (sort.sortBy) {
-        case PackSortField.Title:
-          return direction * a.title.localeCompare(b.title)
-        case PackSortField.ReleasedAt:
-          return (
-            direction * (a.releasedAt?.localeCompare(b.releasedAt ?? '') ?? 0)
-          )
-        default:
-          return 0
-      }
-    }
-  }
-
-  private createPackFilterFn(filters: PackFilters) {
-    return (pack: PublishedPack) => {
-      if (pack.total === 0) {
-        // still waiting for NFTs to be minted
-        return false
-      }
-
-      if (pack.type === PackType.Auction) {
-        return shouldIncludeAuctionPack(pack, filters)
-      }
-
-      if (pack.type === PackType.Purchase) {
-        return shouldIncludePurchasePack(pack, filters)
-      }
-
-      return true
-    }
   }
 
   private createPublishedPackFn(
@@ -182,20 +102,28 @@ export class PacksService {
       const packWithActiveBid = packWithActiveBidsLookup.get(
         template.templateId
       )
-      const available = packCount ? Number.parseInt(packCount.available, 10) : 0
-      const total = packCount ? Number.parseInt(packCount.total, 10) : 0
-      const status =
-        template.type !== PackType.Auction && !available
-          ? PackStatus.Expired
-          : template.status
-      return {
-        ...template,
-        status,
-        available,
-        total,
-        activeBid:
-          (packWithActiveBid?.activeBid?.amount as number) ?? undefined,
-      }
+
+      return this.createPublishedPack(template, packCount, packWithActiveBid)
+    }
+  }
+
+  private createPublishedPack(
+    template: PackBase,
+    packCount,
+    packWithActiveBid
+  ) {
+    const available = packCount ? Number.parseInt(packCount.available, 10) : 0
+    const total = packCount ? Number.parseInt(packCount.total, 10) : 0
+    const status =
+      template.type !== PackType.Auction && !available
+        ? PackStatus.Expired
+        : template.status
+    return {
+      ...template,
+      status,
+      available,
+      total,
+      activeBid: (packWithActiveBid?.activeBid?.amount as number) ?? undefined,
     }
   }
 
@@ -227,38 +155,115 @@ export class PacksService {
 
   // #endregion
 
-  async getPublishedPacks({
-    locale = DEFAULT_LOCALE,
-    page = 1,
-    pageSize = 10,
-    templateIds = [],
-    slug,
-    type = [],
-    status = [],
-    priceHigh = Number.POSITIVE_INFINITY,
-    priceLow = 0,
-    reserveMet,
-    sortBy = PackSortField.Title,
-    sortDirection = SortDirection.Ascending,
-  }: PublishedPacksQuery): Promise<{ packs: PublishedPack[]; total: number }> {
+  async getPublishedPacksByTemplateIds(templateIds, language = DEFAULT_LANG) {
+    const templates = await this.cms.findPacksByTemplateIds(
+      templateIds,
+      language
+    )
+    const packCounts = await this.getPackCounts(
+      templates.map((t) => t.templateId)
+    )
+    const assemblePack = this.createPublishedPackFn(
+      new Map(packCounts.map((p) => [p.templateId, p])),
+      new Map()
+    )
+
+    return templates.map((pack) => assemblePack(pack))
+  }
+
+  async getPublishedPacksByTemplates(templates) {
+    const packCounts = await this.getPackCounts(
+      templates.map((t) => t.templateId)
+    )
+    const assemblePack = this.createPublishedPackFn(
+      new Map(packCounts.map((p) => [p.templateId, p])),
+      new Map()
+    )
+
+    return templates.map((pack) => assemblePack(pack))
+  }
+
+  async getPublishedPackBySlug(slug, language = DEFAULT_LANG) {
+    const template = await this.cms.findPackBySlug(slug, language)
+    const [packCount] = await this.getPackCounts([template.templateId])
+
+    return this.createPublishedPack(template, packCount, null)
+  }
+
+  async searchPublishedPacks(
+    {
+      currency = this.currency.code,
+      language = DEFAULT_LANG,
+      page = 1,
+      pageSize = 10,
+      type = [],
+      priceHigh,
+      priceLow,
+      status,
+      reserveMet,
+      sortBy = PackSortField.ReleasedAt,
+      sortDirection = SortDirection.Descending,
+    }: PublishedPacksQuery,
+    trx?: Transaction
+  ): Promise<{ packs: PublishedPack[]; total: number }> {
     invariant(page > 0, 'page must be greater than 0')
 
-    const filter: ItemFilter = {
-      status: {
-        _eq: DirectusStatus.Published,
+    const sort: ItemSort[] = [
+      {
+        field: sortBy,
+        order: sortDirection,
+      },
+    ]
+
+    const filter: ItemFilters = {
+      type: {
+        _in: type,
       },
     }
 
-    if (slug) filter.slug = { _eq: slug }
-    if (templateIds.length > 0) filter.id = { _in: templateIds }
-    if (type.length > 0) filter.type = { _in: type }
+    if (priceHigh || priceLow) {
+      if (currency !== this.currency.code) {
+        const { exchangeRate } = await this.i18nService.getCurrencyConversion(
+          {
+            sourceCurrency: currency,
+            targetCurrency: this.currency.code,
+          },
+          trx
+        )
 
-    const { packs: templates } = await this.cms.findAllPacks({
-      locale,
-      // need to load all packs into memory
-      // TODO: optimize when/if this becomes a problem
-      pageSize: -1,
+        if (priceHigh) priceHigh *= exchangeRate
+        if (priceLow) priceLow *= exchangeRate
+      }
+
+      filter.price = {}
+      if (priceHigh) filter.price._lte = Math.round(priceHigh)
+      if (priceLow) filter.price._gte = Math.round(priceLow)
+    }
+
+    if (priceHigh || priceLow) {
+      filter.price = {}
+      if (priceHigh) filter.price._lte = Math.round(priceHigh)
+      if (priceLow) filter.price._gte = Math.round(priceLow)
+    }
+
+    if (status) {
+      filter.status = {
+        _in: status,
+      }
+    }
+
+    if (reserveMet) {
+      filter.reserveMet = {
+        _gt: 0,
+      }
+    }
+
+    const { packs: templates, total } = await this.cms.findAllPacks({
       filter,
+      sort,
+      language,
+      page,
+      pageSize,
     })
 
     const packCounts = await this.getPackCounts(
@@ -281,36 +286,21 @@ export class PacksService {
       packsWithActiveBids.map((p) => [p.templateId, p])
     )
 
-    const filterPack = this.createPackFilterFn({
-      priceHigh,
-      priceLow,
-      status,
-      reserveMet,
-    })
-
-    const sortPack = this.createPackSortFn({
-      sortBy,
-      sortDirection,
-    })
-
     const assemblePack = this.createPublishedPackFn(
       packLookup,
       packWithActiveBidsLookup
     )
 
-    const allPublicPacks = templates
-      .map((pack) => assemblePack(pack))
-      .filter((pack) => filterPack(pack))
-      .sort(sortPack)
+    const allPublicPacks = templates.map((pack) => assemblePack(pack))
 
     return {
-      packs: allPublicPacks.slice((page - 1) * pageSize, page * pageSize),
-      total: allPublicPacks.length,
+      packs: allPublicPacks,
+      total,
     }
   }
 
   async getPacksByOwner({
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     page = 1,
     pageSize = 10,
     templateIds = [],
@@ -323,11 +313,7 @@ export class PacksService {
     invariant(page > 0, 'page must be greater than 0')
     invariant(ownerExternalId, 'owner ID is required')
 
-    const filter: ItemFilter = {
-      status: {
-        _eq: DirectusStatus.Published,
-      },
-    }
+    const filter: ItemFilters = {}
     if (slug) filter.slug = { _eq: slug }
     if (templateIds.length > 0) filter.id = { _in: templateIds }
     if (type.length > 0) filter.type = { _in: type }
@@ -376,7 +362,7 @@ export class PacksService {
 
     // Find templates for the packs owned by user
     const { packs: templates } = await this.cms.findAllPacks({
-      locale,
+      language,
       pageSize: -1,
       filter,
     })
@@ -436,7 +422,7 @@ export class PacksService {
 
   async getPackWithCollectiblesById(
     id: string,
-    locale = DEFAULT_LOCALE
+    language = DEFAULT_LANG
   ): Promise<PackWithCollectibles> {
     const pack = await PackModel.query()
       .findOne({ id })
@@ -446,18 +432,17 @@ export class PacksService {
     invariant(pack.collectibles, 'pack collectibles were not fetched')
     invariant(pack.collectibles.length > 0, 'pack has no collectibles')
 
-    const packTemplate = await this.cms.findPack(
-      { id: { _eq: pack.templateId } },
-      locale
+    const packTemplate = await this.cms.findPackByTemplateId(
+      pack.templateId,
+      language
     )
     invariant(packTemplate, 'pack template missing in cms')
 
-    const { collectibles: collectibleTemplates } =
-      await this.cms.findAllCollectibles(locale, {
-        id: {
-          _in: pack.collectibles.map((c) => c.templateId),
-        },
-      })
+    const templateIds = pack.collectibles.map((c) => c.templateId)
+    const collectibleTemplates = await this.cms.findCollectiblesByTemplateIds(
+      templateIds,
+      language
+    )
 
     const collectibleTemplateLookup = new Map(
       collectibleTemplates.map((t) => [t.templateId, t])
@@ -518,7 +503,7 @@ export class PacksService {
 
   async getPackById(
     id: string,
-    locale = DEFAULT_LOCALE,
+    language = DEFAULT_LANG,
     trx?: Transaction
   ): Promise<PackWithId | null> {
     const pack = await PackModel.query(trx).where({ id }).first()
@@ -528,9 +513,10 @@ export class PacksService {
       return null
     }
 
-    const template = await this.cms.findPack(
-      { id: { _eq: pack.templateId } },
-      locale
+    const template = await this.cms.findPackByTemplateId(
+      pack.templateId,
+      language,
+      trx
     )
 
     if (!template) {
@@ -542,16 +528,14 @@ export class PacksService {
 
   async getPackByRedeemCode(
     redeemCode: string,
-    locale = DEFAULT_LOCALE
+    language = DEFAULT_LANG
   ): Promise<PackWithId> {
     const pack = await PackModel.query().where({ redeemCode }).first()
     userInvariant(pack && pack.ownerId === null, 'pack not found', 404)
 
-    const template = await this.cms.findPack(
-      {
-        id: { _eq: pack.templateId },
-      },
-      locale
+    const template = await this.cms.findPackByTemplateId(
+      pack.templateId,
+      language
     )
 
     invariant(template, 'pack template not in cms')
@@ -567,7 +551,11 @@ export class PacksService {
     templateId: string,
     trx?: Transaction
   ): Promise<PackWithId> {
-    const template = await this.cms.findPack({ id: { _eq: templateId } })
+    const template = await this.cms.findPackByTemplateId(
+      templateId,
+      DEFAULT_LANG,
+      trx
+    )
 
     userInvariant(template, 'pack template not found', 404)
 
@@ -579,6 +567,11 @@ export class PacksService {
     invariant(
       template.type !== PackType.Purchase || template.price !== null,
       'pack does not have a price set'
+    )
+
+    invariant(
+      new Date(template.releasedAt) < new Date(),
+      'pack has not been released yet'
     )
 
     // Auctions will only have a single pack, so no randomness needed
@@ -704,7 +697,11 @@ export class PacksService {
     )
 
     // Create transfer success notification to be sent to user
-    const packWithBase = await this.getPackById(request.packId)
+    const packWithBase = await this.getPackById(
+      request.packId,
+      DEFAULT_LANG,
+      trx
+    )
     if (packWithBase) {
       await this.notifications.createNotification(
         {
@@ -723,22 +720,32 @@ export class PacksService {
 
   async untransferredPacks({
     externalId,
-    locale = DEFAULT_LOCALE,
-  }: LocaleAndExternalId) {
+    language = DEFAULT_LANG,
+  }: LanguageAndExternalId) {
     const packs = await PackModel.query()
-      .alias('p')
-      .join('UserAccount as ua', 'ua.id', 'p.ownerId')
-      .join('Collectible as c', 'c.packId', 'p.id')
-      .whereRaw('"ua"."externalId" = ?', [externalId])
-      .whereNotNull('c.address')
-      .whereNotExists(
-        CollectibleOwnershipModel.query()
-          .alias('co')
-          .select('id')
-          .where('co.collectibleId', '=', raw('"c"."id"'))
-          .where('co.ownerId', '=', raw('"ua"."id"'))
-      )
-      .distinct('p.id', 'p.templateId', 'p.claimedAt')
+      .join('UserAccount', 'UserAccount.id', 'Pack.ownerId')
+      .join('Collectible', 'Collectible.packId', 'Pack.id')
+      .leftJoin('CollectibleOwnership', function () {
+        this.on('CollectibleOwnership.collectibleId', 'Collectible.id').on(
+          'CollectibleOwnership.ownerId',
+          'Pack.ownerId'
+        )
+      })
+      .whereRaw('"UserAccount"."externalId" = ?', [externalId])
+      .whereNull('CollectibleOwnership.id')
+      .distinct('Pack.*')
+      .intersect(function () {
+        this.from('Pack')
+          .join('UserAccount', 'UserAccount.id', 'Pack.ownerId')
+          .leftJoin('Collectible', function () {
+            this.on('Collectible.packId', 'Pack.id').onNull(
+              'Collectible.address'
+            )
+          })
+          .groupBy('Pack.id')
+          .havingRaw('count("Collectible"."id") = 0')
+          .select('Pack.*')
+      })
 
     if (packs.length === 0) {
       return {
@@ -749,15 +756,11 @@ export class PacksService {
 
     const templateIds = [...new Set(packs.map((p) => p.templateId))]
 
-    const filter: ItemFilter = {
-      status: {
-        _eq: DirectusStatus.Published,
-      },
-    }
+    const filter: ItemFilters = {}
     if (templateIds.length > 0) filter.id = { _in: templateIds }
 
     const { packs: templates } = await this.cms.findAllPacks({
-      locale,
+      language,
       pageSize: -1,
       filter,
     })
@@ -784,11 +787,11 @@ export class PacksService {
   }
 
   async claimRandomFreePack(request: ClaimFreePack, trx?: Transaction) {
-    const pack = await this.randomPackByTemplateId(request.templateId, trx)
+    const pack = await this.randomPackByTemplateId(request.templateId)
     userInvariant(pack, 'pack not found', 404)
     userInvariant(pack.type === PackType.Free, 'pack is not free')
 
-    const user = await UserAccountModel.query(trx).findOne({
+    const user = await UserAccountModel.query().findOne({
       externalId: request.externalId,
     })
 
@@ -813,14 +816,14 @@ export class PacksService {
 
   async claimRedeemPack(
     request: ClaimRedeemPack,
-    locale = DEFAULT_LOCALE,
-    trx?: Transaction
+    trx?: Transaction,
+    language = DEFAULT_LANG
   ) {
-    const pack = await this.getPackByRedeemCode(request.redeemCode, locale)
+    const pack = await this.getPackByRedeemCode(request.redeemCode, language)
     userInvariant(pack, 'pack not found', 404)
     userInvariant(pack.type === PackType.Redeem, 'pack is not redeemable')
 
-    const user = await UserAccountModel.query(trx).findOne({
+    const user = await UserAccountModel.query().findOne({
       externalId: request.externalId,
     })
 
@@ -943,57 +946,40 @@ export class PacksService {
   }
 
   async generatePacks(trx?: Transaction) {
-    const existingTemplates = await PackModel.query(trx)
-      .groupBy('templateId')
-      .select('templateId')
+    const packTemplates = await this.cms.findPacksPendingGeneration()
 
-    const filter: ItemFilter = {}
+    let total = 0
 
-    if (existingTemplates.length > 0) {
-      filter.id = {
-        _nin: existingTemplates.map((c) => c.templateId),
-      }
+    for (const template of packTemplates) {
+      total += await this.generatePack(template, trx)
     }
 
-    const { packs: packTemplates } = await this.cms.findAllPacks({ filter })
-
-    const results = await Promise.all(
-      packTemplates.map(async (packTemplate) => {
-        const trx = await Model.startTransaction()
-        try {
-          const result = await this.generatePack(packTemplate, trx)
-          await trx.commit()
-          return result
-        } catch (error) {
-          await trx.rollback()
-          this.logger.error(
-            error,
-            `error generating pack ${packTemplate.templateId}`
-          )
-          return 0
-        }
-      })
-    )
-
-    return results.reduce((a, b) => a + b, 0)
+    return total
   }
 
-  async generatePack(template: PackBase, trx?: Transaction) {
+  private async generatePack(template, trx?: Transaction) {
     const { collectibleTemplateIds, templateId, config } = template
     const collectibleTemplateIdsCount = collectibleTemplateIds.length
-    const { collectibles: collectibleTemplates } =
-      await this.cms.findAllCollectibles(undefined, {
-        id: {
-          _in: collectibleTemplateIds,
-        },
-      })
+
+    if (collectibleTemplateIdsCount === 0) {
+      this.logger.warn(
+        'no nft templates associated with pack template %s',
+        templateId
+      )
+
+      return 0
+    }
+
+    const collectibleTemplates = await this.cms.findCollectiblesByTemplateIds(
+      collectibleTemplateIds
+    )
 
     const totalCollectibles = collectibleTemplates.reduce(
       (sum, t) => sum + t.totalEditions,
       0
     )
 
-    const unassignedCollectibles = await CollectibleModel.query(trx)
+    const unassignedCollectibles = await CollectibleModel.query()
       .whereIn('templateId', collectibleTemplateIds)
       .whereNull('packId')
       .where('ipfsStatus', IPFSStatus.Stored)
@@ -1003,6 +989,7 @@ export class PacksService {
         'still generating collectibles for pack template %s',
         templateId
       )
+
       return 0
     }
 
@@ -1103,7 +1090,7 @@ export class PacksService {
       return 0
     }
 
-    await PackModel.query(trx).upsertGraph(
+    const packs = await PackModel.query(trx).upsertGraph(
       balancedPacks.map((p) => ({
         templateId: p.templateId,
         redeemCode: p.redeemCode,
@@ -1113,11 +1100,6 @@ export class PacksService {
       })),
       { relate: true }
     )
-
-    // Find newly created packs
-    const packs = await PackModel.query(trx)
-      .where('templateId', templateId)
-      .select('id')
 
     // Create events for pack creation
     await EventModel.query(trx).insert(
@@ -1134,29 +1116,11 @@ export class PacksService {
   async handlePackAuctionCompletion(trx?: Transaction) {
     const past7Days = new Date(new Date().setDate(new Date().getDate() - 7))
     // Get pack templates recently completed auctions
-    const { packs: packTemplates } = await this.cms.findAllPacks({
-      pageSize: -1,
-      filter: {
-        _and: [
-          {
-            type: {
-              _eq: PackType.Auction,
-            },
-          },
-          // Shouldn't need every historical auction
-          {
-            auction_until: {
-              _lt: new Date(),
-            },
-          },
-          {
-            auction_until: {
-              _gt: past7Days,
-            },
-          },
-        ],
-      },
-    })
+    const packTemplates = await this.cms.findAllPacksAuctionCompletion(
+      past7Days,
+      undefined,
+      trx
+    )
 
     // Find their associated packs that haven't been handled yet
     const packs = await PackModel.query(trx)
@@ -1179,13 +1143,10 @@ export class PacksService {
           'activeBid has no associated user'
         )
 
-        const packTemplate = await this.cms.findPack(
-          {
-            id: {
-              _eq: pack.templateId,
-            },
-          },
-          pack.activeBid.userAccount.locale
+        const packTemplate = await this.cms.findPackByTemplateId(
+          pack.templateId,
+          pack.activeBid.userAccount.language,
+          trx
         )
         invariant(packTemplate, 'packTemplate not found')
 
@@ -1248,9 +1209,10 @@ export class PacksService {
           'activeBid has no associated user'
         )
 
-        const packTemplate = await this.cms.findPack(
-          { id: { _eq: pack.templateId } },
-          pack.activeBid.userAccount.locale
+        const packTemplate = await this.cms.findPackByTemplateId(
+          pack.templateId,
+          pack.activeBid.userAccount.language,
+          trx
         )
         invariant(packTemplate, 'packTemplate not found')
 
@@ -1323,9 +1285,10 @@ export class PacksService {
             'next highest bid has no associated user account'
           )
 
-          const packTemplate = await this.cms.findPack(
-            { id: { _eq: pack.templateId } },
-            selectedBid.userAccount.locale
+          const packTemplate = await this.cms.findPackByTemplateId(
+            pack.templateId,
+            selectedBid.userAccount.language,
+            trx
           )
           invariant(packTemplate, 'packTemplate not found')
 

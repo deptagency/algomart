@@ -9,13 +9,14 @@ import { useRouter } from 'next/router'
 import { ApiClient } from '@/clients/api-client'
 import Loading from '@/components/loading/loading'
 import { useAuth } from '@/contexts/auth-context'
+import { Environment } from '@/environment'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
 import MySetTemplate from '@/templates/my-set-template'
-import { logger } from '@/utils/logger'
+import { createLogger } from '@/utils/logger'
 import { useApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
 
@@ -53,6 +54,8 @@ export default function MySetPage({ set, collection }: MySetPageProps) {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const user = await getAuthenticatedUser(context)
+  const logger = createLogger(Environment.logLevel)
+
   if (!user) {
     return handleUnauthenticatedRedirect(context.resolvedUrl)
   }

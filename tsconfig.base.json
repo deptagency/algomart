@@ -24,6 +24,7 @@
       "@algomart/shared/utils": ["libs/shared/utils/src/index.ts"],
       "@api-tests/*": ["apps/api/test/*"],
       "@api/*": ["apps/api/src/*"]
+      
     }
   },
   "exclude": ["node_modules", "tmp"]

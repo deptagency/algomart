@@ -26,8 +26,10 @@ export interface AuthUtils extends AuthState {
 }
 
 export interface Profile {
+  currency: string | null
   email: string | null
   emailVerified: boolean
+  language: string | null
   name: string | null
   photo: string | null
   token: string
@@ -42,7 +44,9 @@ export interface SignInPayload {
 }
 
 export interface SignUpPayload {
+  currency: string
   email: string
+  language: string
   password: string
   passphrase: string
   profilePic: FileWithPreview | null

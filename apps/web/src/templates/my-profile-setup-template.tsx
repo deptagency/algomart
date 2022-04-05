@@ -3,6 +3,7 @@ import { FormEvent } from 'react'
 
 import AlertMessage from '@/components/alert-message/alert-message'
 import {
+  Currency,
   Passphrase,
   Submit,
   Username,
@@ -15,6 +16,7 @@ export interface MyProfileSetupTemplateProps {
   formErrors: Partial<{
     username?: unknown
     passphrase?: unknown
+    currency?: unknown
   }>
   handleCreateProfile: (event: FormEvent<HTMLFormElement>) => Promise<void>
   status: AuthState['status']
@@ -41,6 +43,7 @@ export default function MyProfileSetupTemplate({
         )}
         <Username error={formErrors.username} t={t} />
         <Passphrase error={formErrors.passphrase} t={t} />
+        <Currency error={formErrors.currency} t={t} />
         <Submit disabled={status === 'loading'} t={t} />
       </form>
     </>

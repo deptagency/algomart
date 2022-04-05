@@ -52,9 +52,10 @@ test('POST /accounts OK', async () => {
     },
     payload: {
       username,
+      currency: userAccount.currency,
       externalId: userAccount.externalId,
       email: userAccount.email,
-      locale: userAccount.locale,
+      language: userAccount.language,
       passphrase,
     },
   })
@@ -65,11 +66,12 @@ test('POST /accounts OK', async () => {
   const json = JSON.parse(body)
   expect(json).toEqual({
     address,
+    currency: userAccount.currency,
     username,
     externalId: userAccount.externalId,
     showProfile: false,
     email: userAccount.email,
-    locale: userAccount.locale,
+    language: userAccount.language,
   })
 })
 
@@ -113,11 +115,12 @@ test('GET /accounts/:externalId OK', async () => {
   const json = JSON.parse(body)
   expect(json).toEqual({
     address: algorandAccount.address,
+    currency: userAccount.currency,
     username,
     externalId: userAccount.externalId,
     showProfile: false,
     email: userAccount.email,
-    locale: userAccount.locale,
+    language: userAccount.language,
     status: AlgorandTransactionStatus.Confirmed,
   })
 })

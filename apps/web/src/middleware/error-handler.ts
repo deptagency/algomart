@@ -2,7 +2,10 @@ import { HttpError } from 'http-errors'
 import { HTTPError } from 'ky'
 import { NextApiRequest, NextApiResponse } from 'next'
 
-import { logger } from '@/utils/logger'
+import { Environment } from '@/environment'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger(Environment.logLevel)
 
 export default async function errorHandler(
   error: Error | HttpError,

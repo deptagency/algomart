@@ -11,8 +11,8 @@ export class I18nAdapter {
       lng: DEFAULT_LOCALE,
       ns: ['emails'],
       backend: {
-        loadPath: path.join(__dirname, 'locales/{{lng}}/{{ns}}.json'),
-        addPath: path.join(__dirname, 'locales/{{lng}}/{{ns}}.missing.json'),
+        loadPath: path.join(__dirname, 'languages/{{lng}}/{{ns}}.json'),
+        addPath: path.join(__dirname, 'languages/{{lng}}/{{ns}}.missing.json'),
       },
     })
   }

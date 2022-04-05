@@ -32,17 +32,15 @@ module.exports = withNx(
     serverRuntimeConfig: {
       API_KEY: process.env.API_KEY,
       API_URL: process.env.API_URL,
+      LOG_LEVEL: process.env.LOG_LEVEL,
       FIREBASE_SERVICE_ACCOUNT: process.env.FIREBASE_SERVICE_ACCOUNT,
       NODE_ENV: process.env.NODE_ENV,
       FIREBASE_ADMIN_EMAIL: process.env.FIREBASE_ADMIN_EMAIL,
-    },
-    publicRuntimeConfig: {
       NEXT_PUBLIC_FIREBASE_CONFIG: process.env.NEXT_PUBLIC_FIREBASE_CONFIG,
       NEXT_PUBLIC_WIRE_PAYMENT_ENABLED:
         process.env.NEXT_PUBLIC_WIRE_PAYMENT_ENABLED,
       NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED:
         process.env.NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED,
-      NODE_ENV: process.env.NODE_ENV,
     },
     redirects: async () => [
       {

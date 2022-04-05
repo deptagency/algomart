@@ -5,7 +5,7 @@ import {
   NFTStorageAdapter,
 } from '@algomart/shared/adapters'
 import buildApp from '@api/api/build-app'
-import { configureResolver } from '@api/shared/configure-resolver'
+import { configureResolver } from '@api/configuration/configure-resolver'
 
 import { getTestDatabaseConfig } from './setup-tests'
 
@@ -31,7 +31,7 @@ export async function buildTestApp(database: string) {
     knex: getTestDatabaseConfig(database),
     fastify: {
       // uncomment to enable fastify logger
-      // logger: { prettyPrint: true },
+      // logger: true,
     },
   })
 }

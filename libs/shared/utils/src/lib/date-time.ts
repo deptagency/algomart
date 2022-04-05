@@ -1,6 +1,5 @@
 export function isAfterNow(date: Date) {
-  const now = new Date()
-  return date > now
+  return date > new Date()
 }
 
 export function isBeforeNow(date: Date) {

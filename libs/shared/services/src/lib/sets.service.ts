@@ -1,17 +1,17 @@
 import pino from 'pino'
-import { DEFAULT_LOCALE } from '@algomart/schemas'
-import { DirectusAdapter } from '@algomart/shared/adapters'
+import { DEFAULT_LANG } from '@algomart/schemas'
+import { CMSCacheAdapter } from '@algomart/shared/adapters'
 
 export class SetsService {
   logger: pino.Logger<unknown>
   constructor(
-    private readonly cms: DirectusAdapter,
+    private readonly cms: CMSCacheAdapter,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  async getBySlug(slug: string, locale = DEFAULT_LOCALE) {
-    return await this.cms.findSetBySlug(slug, locale)
+  async getBySlug(slug: string, language = DEFAULT_LANG) {
+    return await this.cms.findSetBySlug(slug, language)
   }
 }
