@@ -75,14 +75,10 @@ export default function Releases({ packs }: PublishedPacks) {
     const previousState = stringify(parse(location.search))
     const nextState = stringify(state)
     if (previousState !== nextState) {
-      // location.search = nextState
-      const { selectOptions, ...rest } = state
+      const { selectedOption, selectOptions, ...rest } = state
       push({
         pathname: pathname,
-        query: {
-          ...rest,
-          selectedOption: state.selectedOption.id,
-        },
+        query: { ...rest, selectedOption: selectedOption.id },
       })
     }
   }, [pathname, state]) // eslint-disable-line react-hooks/exhaustive-deps
