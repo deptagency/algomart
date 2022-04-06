@@ -1,17 +1,19 @@
-resource "google_cloud_run_service" "api" {
-  name     = var.api_service_name
+resource "google_cloud_run_service" "scribe_service" {
+  name     = var.scribe_service_name
   location = var.region
 
   autogenerate_revision_name = false
 
   template {
     metadata {
-      name = var.api_revision_name
+      name = var.scribe_service_revision_name
 
       annotations = {
         "run.googleapis.com/vpc-access-connector" = var.vpc_access_connector_name
-
         "run.googleapis.com/vpc-access-egress" = "all"
+
+        # Disable CPU throttling to ensure background jobs keep running
+        "run.googleapis.com/cpu-throttling" = "false"
 
         # Limit the Web to run a single instance at all times
         # This may need to be tweaked to improve performance on a per-project basis
@@ -22,7 +24,8 @@ resource "google_cloud_run_service" "api" {
 
     spec {
       containers {
-        image = var.api_image
+
+        image = var.scribe_image
 
         env {
           name  = "ALGOD_ENV"
@@ -88,11 +91,9 @@ resource "google_cloud_run_service" "api" {
           value = var.api_database_schema
         }
 
-        # Set this to false and add a separate Cloud Run service for the
-        # jobs if you need to run multiple API instances.
         env {
           name  = "ENABLE_JOBS"
-          value = false
+          value = true
         }
 
         env {
@@ -174,11 +175,6 @@ resource "google_cloud_run_service" "api" {
           name  = "LOG_LEVEL"
           value = "info"
         }
-
-        env {
-          name  = "GCP_CDN_URL"
-          value = var.gcp_cdn_url
-        }
       }
     }
   }
@@ -195,22 +191,9 @@ resource "google_cloud_run_service" "api" {
   ]
 }
 
-resource "google_cloud_run_domain_mapping" "api" {
-  location = var.region
-  name     = var.api_domain_mapping
-
-  metadata {
-    namespace = var.project
-  }
-
-  spec {
-    route_name = google_cloud_run_service.api.name
-  }
-}
-
-resource "google_cloud_run_service_iam_member" "api_all_users" {
-  service  = google_cloud_run_service.api.name
-  location = google_cloud_run_service.api.location
+resource "google_cloud_run_service_iam_member" "scribe_service_all_users" {
+  service  = google_cloud_run_service.scribe_service.name
+  location = google_cloud_run_service.scribe_service.location
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
