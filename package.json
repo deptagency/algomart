@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@dinero.js/currencies": "2.0.0-alpha.8",
+    "@directus/sdk": "9.8.0",
     "@dnlup/fastify-traps": "1.2.0",
     "@fastify/ajv-compiler": "3.1.0",
     "@headlessui/react": "1.5.0",
