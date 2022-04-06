@@ -9,9 +9,30 @@ import { useThemeContext } from '@/contexts/theme-context'
 const OS_THEME = 'OS'
 
 const THEME_OPTIONS: SelectOption[] = [
-  { label: '🌑 Dark', key: 'dark' },
-  { label: '🌕 Light', key: 'light' },
-  { label: '🌗 OS Theme', key: OS_THEME },
+  {
+    label: (
+      <span>
+        <span aria-hidden="true">🌑 </span>Dark
+      </span>
+    ),
+    key: 'dark',
+  },
+  {
+    label: (
+      <span>
+        <span aria-hidden="true">🌕 </span>Light
+      </span>
+    ),
+    key: 'light',
+  },
+  {
+    label: (
+      <span>
+        <span aria-hidden="true">🌗 </span>OS Theme
+      </span>
+    ),
+    key: OS_THEME,
+  },
 ]
 
 export default function MyProfileCurrency() {
