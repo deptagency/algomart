@@ -113,6 +113,7 @@ export default function Select({
       </Listbox>
       {/* Used to capture value of select */}
       <input
+        tabIndex={-1}
         className="sr-only"
         readOnly
         value={selectedOption.key}
