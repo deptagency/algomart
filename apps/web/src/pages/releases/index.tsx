@@ -3,7 +3,7 @@ import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { parse, stringify } from 'query-string'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import { PackFilterProvider } from '@/contexts/pack-filter-context'
@@ -29,17 +29,25 @@ export default function Releases({ packs }: PublishedPacks) {
   const { pathname, push, query } = useRouter()
 
   // Get URL search params from router, stringify them...
-  const searchParams = stringify(query)
+  const searchParams = useMemo(() => stringify(query), [query])
   // ...so they can be processed by query-string
-  const initialState = parse(searchParams, {
-    parseBooleans: true,
-    parseNumbers: true,
-  })
+  const initialState = useMemo(
+    () =>
+      parse(searchParams, {
+        parseBooleans: true,
+        parseNumbers: true,
+      }),
+    [searchParams]
+  )
 
   // selectedOption is an object, so key off its id so it can live in URL
-  const initialSelectOptions = getSelectSortingOptions(t)
-  const selectedOption = getSelectSortingOptions(t).find(
-    (option) => option.id === initialState.selectedOption
+  const initialSelectOptions = useMemo(() => getSelectSortingOptions(t), [t])
+  const selectedOption = useMemo(
+    () =>
+      getSelectSortingOptions(t).find(
+        (option) => option.id === initialState.selectedOption
+      ),
+    [initialState]
   )
 
   // Set initial filter state based off of URL parsing
@@ -47,8 +55,6 @@ export default function Releases({ packs }: PublishedPacks) {
     ...initialState,
     selectedOption: selectedOption ? selectedOption : initialSelectOptions[0],
   })
-
-  const pageTop = useRef<HTMLDivElement | null>(null)
 
   const queryString = useMemo(() => {
     const query = getPublishedPacksFilterQueryFromState(
@@ -64,28 +70,25 @@ export default function Releases({ packs }: PublishedPacks) {
     `${urls.api.v1.getPublishedPacks}?${queryString}`
   )
 
-  useEffect(() => {
-    if (!isValidating && pageTop.current) {
-      pageTop.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  }, [isValidating, state.currentPage])
-
   // If state changes, update the URL
   useEffect(() => {
     const previousState = stringify(parse(location.search))
     const nextState = stringify(state)
     if (previousState !== nextState) {
       const { selectedOption, selectOptions, ...rest } = state
-      push({
-        pathname: pathname,
-        query: { ...rest, selectedOption: selectedOption.id },
-      })
+      push(
+        {
+          pathname: pathname,
+          query: { ...rest, selectedOption: selectedOption.id },
+        },
+        undefined,
+        { scroll: false }
+      )
     }
   }, [pathname, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <DefaultLayout pageTitle={t('common:pageTitles.Releases')} width="full">
-      <div ref={pageTop} />
       <PackFilterProvider value={{ dispatch, state }}>
         <ReleasesTemplate
           isLoading={isValidating}
