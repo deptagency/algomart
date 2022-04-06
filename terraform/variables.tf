@@ -243,6 +243,10 @@ variable "scribe_image" {
   sensitive = true
 }
 
+variable "scribe_revision_name" {
+  sensitive = true
+}
+
 ##
 ## CMS service
 ##

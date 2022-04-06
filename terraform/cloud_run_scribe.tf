@@ -1,4 +1,4 @@
-resource "google_cloud_run_service" "scribe_service" {
+resource "google_cloud_run_service" "scribe" {
   name     = var.scribe_service_name
   location = var.region
 
@@ -6,7 +6,7 @@ resource "google_cloud_run_service" "scribe_service" {
 
   template {
     metadata {
-      name = var.scribe_service_revision_name
+      name = var.scribe_revision_name
 
       annotations = {
         "run.googleapis.com/vpc-access-connector" = var.vpc_access_connector_name
@@ -191,9 +191,9 @@ resource "google_cloud_run_service" "scribe_service" {
   ]
 }
 
-resource "google_cloud_run_service_iam_member" "scribe_service_all_users" {
-  service  = google_cloud_run_service.scribe_service.name
-  location = google_cloud_run_service.scribe_service.location
+resource "google_cloud_run_service_iam_member" "scribe_all_users" {
+  service  = google_cloud_run_service.scribe.name
+  location = google_cloud_run_service.scribe.location
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
