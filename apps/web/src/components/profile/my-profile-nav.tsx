@@ -27,11 +27,6 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
   const { setRedeemable } = useRedemption()
   const { t } = useTranslation()
 
-  // const getCurrentPage = useCallback(
-  //   (href: string) => href === pathname || `${href}/add` === pathname,
-  //   [pathname]
-  // )
-
   const handleChange = useCallback(
     (value) => {
       if (value === LOG_OUT) {
