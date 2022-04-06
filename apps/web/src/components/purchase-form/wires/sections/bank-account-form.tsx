@@ -10,7 +10,7 @@ import Heading from '@/components/heading'
 import Bid from '@/components/purchase-form/shared/bid'
 import BillingAddress from '@/components/purchase-form/shared/billing-address'
 import FullName from '@/components/purchase-form/shared/full-name'
-import Select from '@/components/select/select'
+import Select, { SelectOption } from '@/components/select-input/select-input'
 import TextInput from '@/components/text-input/text-input'
 import { useI18n } from '@/contexts/i18n-context'
 import { FormValidation } from '@/contexts/payment-context'
@@ -22,7 +22,7 @@ import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 export interface BankAccountFormProps {
   bid: string | null
   className?: string
-  countries: { label: string | null; id: string }[]
+  countries: SelectOption[]
   formErrors?: FormValidation
   handleContinue: () => void
   initialBid?: string

@@ -23,6 +23,7 @@ import {
 } from 'react'
 import { ExtractError } from 'validator-fns'
 
+import { SelectOption } from '@/components/select-input/select-input'
 import { useAuth } from '@/contexts/auth-context'
 import { useI18n } from '@/contexts/i18n-context'
 import { useAnalytics } from '@/hooks/use-analytics'
@@ -68,7 +69,7 @@ export interface PaymentContextProps {
   address: string | null
   auctionPackId?: string | null
   bid: string | null
-  countries: { label: string | null; id: string }[]
+  countries: SelectOption[]
   currentBid: number | null
   formErrors?: FormValidation
   handleAddBankAccount(
@@ -124,9 +125,7 @@ export function usePaymentProvider({
   const [bid, setBid] = useState<string | null>(initialBid)
   const [address, setAddress] = useState<string | null>(null)
   const [promptLeaving, setPromptLeaving] = useState(false)
-  const [countries, setCountries] = useState<
-    { label: string | null; id: string }[]
-  >([])
+  const [countries, setCountries] = useState<SelectOption[]>([])
   const validateFormForBankAccount = useMemo(() => validateBankAccount(t), [t])
   const validateFormForPurchase = useMemo(() => validatePurchaseForm(t), [t])
   const validateFormForPurchaseWithSavedCard = useMemo(
@@ -156,11 +155,12 @@ export function usePaymentProvider({
     try {
       const countries = await CheckoutService.instance.getCountries()
       if (countries) {
-        const list = countries.map(({ code, name }) => ({
-          label: name,
-          id: code,
-        }))
-        return setCountries(list)
+        return setCountries(
+          countries.map(({ code, name }) => ({
+            label: name as string,
+            key: code as string,
+          }))
+        )
       }
       return setCountries([])
     } catch {
