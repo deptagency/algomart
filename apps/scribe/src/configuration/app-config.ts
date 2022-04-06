@@ -2,6 +2,7 @@ import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import { MailerAdapterOptions } from '@algomart/shared/adapters'
 import * as Currencies from '@dinero.js/currencies'
 import env from 'env-var'
+import { Level } from 'pino'
 
 export const Configuration = {
   get env() {
@@ -9,7 +10,7 @@ export const Configuration = {
   },
 
   get logLevel() {
-    return env.get('LOG_LEVEL').default('info').asString()
+    return env.get('LOG_LEVEL').default('info').asString() as Level
   },
 
   get host() {
