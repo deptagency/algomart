@@ -221,5 +221,15 @@ export function configureResolver() {
         logger
       )
   )
+  resolver.set(
+    I18nService.name,
+    (c) =>
+      new I18nService(
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
+        c.get<CoinbaseAdapter>(CoinbaseAdapter.name),
+        Configuration.currency,
+        logger
+      )
+  )
   return resolver
 }

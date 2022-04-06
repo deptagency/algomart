@@ -5,12 +5,17 @@
   "targets": {
     "build": {
       "executor": "@nrwl/node:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
+        "generatePackageJson": true,
         "outputPath": "dist/apps/scribe",
         "main": "apps/scribe/src/main.ts",
         "tsConfig": "apps/scribe/tsconfig.app.json",
-        "assets": ["apps/scribe/src/assets"]
+        "assets": [
+          "apps/scribe/src/assets"
+        ]
       },
       "configurations": {
         "production": {
@@ -34,14 +39,20 @@
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/scribe/**/*.ts"]
+        "lintFilePatterns": [
+          "apps/scribe/**/*.ts"
+        ]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/scribe"],
+      "outputs": [
+        "coverage/apps/scribe"
+      ],
       "options": {
         "jestConfig": "apps/scribe/jest.config.js",
         "passWithNoTests": true

@@ -1,12 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 set -e
 
-if [ "$1" == "wait-for-cms" ]; then
-  echo "waiting for cms to start at $CMS_URL..."
-  npx wait-on -t 10000 $CMS_URL
-  echo "cms started"
-fi
+cd /app
 
 # We rely on the ENABLE_JOBS environment variable to decide whether to apply migrations
 ENABLE_MIGRATIONS="${ENABLE_JOBS:-false}"
@@ -25,4 +21,5 @@ else
 fi
 
 echo 'starting api...'
-npx nx serve api | npx pino-pretty
+cd /app/dist/apps/scribe
+node main.js
