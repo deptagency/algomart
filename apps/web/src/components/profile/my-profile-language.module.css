@@ -3,7 +3,7 @@
 }
 
 .inputWrapper > div {
-  @apply h-full py-3 ml-0 mb-0 flex-grow pt-0 pb-0;
+  @apply flex-grow h-full py-3 pt-0 pb-0 mb-0 ml-0;
 }
 
 .inputWrapper button {
@@ -15,11 +15,11 @@
 }
 
 .inputWrapper input[disabled] {
-  @apply text-opacity-50 bg-white shadow-none;
+  @apply text-opacity-50 shadow-none bg-base-bgCard;
 }
 
 .editButton {
-  @apply right-0 text-black underline;
+  @apply right-0 ml-4 underline text-base-textPrimary;
 }
 
 .cancelButton {

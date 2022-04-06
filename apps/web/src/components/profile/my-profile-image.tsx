@@ -81,7 +81,6 @@ export default function MyProfileImage() {
           profilePic={profilePic}
           showHelpText={false}
           showLabel={false}
-          t={t}
         />
         <Button
           disabled={loading || !profilePicChanged}

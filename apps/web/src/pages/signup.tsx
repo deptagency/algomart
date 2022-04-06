@@ -3,7 +3,6 @@ import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { ExtractError } from 'validator-fns'
 
-import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useRedemption } from '@/contexts/redemption-context'
 import { useCurrency } from '@/hooks/use-currency'
@@ -89,14 +88,6 @@ export default function SignUpPage() {
     setProfilePic(null)
   }, [])
 
-  const handleLanguageChange = useCallback((selectOption: SelectOption) => {
-    setDropdownLanguage(selectOption.id as string)
-  }, [])
-
-  const handleCurrencyChange = useCallback((selectOption: SelectOption) => {
-    setDropdownCurrency(selectOption.id as string)
-  }, [])
-
   useEffect(() => {
     if (auth.status === 'authenticated') {
       // prevent authenticated users from trying to register
@@ -118,8 +109,8 @@ export default function SignUpPage() {
         dropdownCurrency={dropdownCurrency}
         dropdownLanguage={dropdownLanguage}
         handleCreateProfile={handleCreateProfile}
-        handleCurrencyChange={handleCurrencyChange}
-        handleLanguageChange={handleLanguageChange}
+        handleCurrencyChange={setDropdownCurrency}
+        handleLanguageChange={setDropdownLanguage}
         handleProfilePicAccept={handleProfilePicAccept}
         handleProfilePicClear={handleProfilePicClear}
         error={auth.error}

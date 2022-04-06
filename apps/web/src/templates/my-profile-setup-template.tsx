@@ -41,10 +41,10 @@ export default function MyProfileSetupTemplate({
         {status === 'error' && error && (
           <AlertMessage className="mb-6" content={error} variant="red" />
         )}
-        <Username error={formErrors.username} t={t} />
-        <Passphrase error={formErrors.passphrase} t={t} />
-        <Currency error={formErrors.currency} t={t} />
-        <Submit disabled={status === 'loading'} t={t} />
+        <Username error={formErrors.username} />
+        <Passphrase error={formErrors.passphrase} />
+        <Currency error={formErrors.currency} />
+        <Submit disabled={status === 'loading'} />
       </form>
     </>
   )

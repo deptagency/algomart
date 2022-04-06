@@ -13,7 +13,6 @@ import {
   Username,
 } from '@/components/auth-inputs/auth-inputs'
 import Heading from '@/components/heading'
-import { SelectOption } from '@/components/select/select'
 import { AuthState } from '@/types/auth'
 import { FileWithPreview } from '@/types/file'
 
@@ -30,8 +29,8 @@ export interface SignupTemplateProps {
     passphrase?: unknown
   }>
   handleCreateProfile: (event: FormEvent<HTMLFormElement>) => Promise<void>
-  handleCurrencyChange: (selectOption: SelectOption) => void
-  handleLanguageChange: (selectOption: SelectOption) => void
+  handleCurrencyChange: (value: string) => void
+  handleLanguageChange: (value: string) => void
   handleProfilePicAccept: (files: File[]) => void
   handleProfilePicClear: () => void
   profilePic: FileWithPreview | null
@@ -68,29 +67,26 @@ export default function SignupTemplate({
             variant="red"
           />
         )}
-        <Email error={formErrors.email} t={t} />
-        <Username error={formErrors.username} t={t} />
-        <Password error={formErrors.password} t={t} />
+        <Email error={formErrors.email} />
+        <Username error={formErrors.username} />
+        <Password error={formErrors.password} />
         <ProfileImage
           handleProfilePicAccept={handleProfilePicAccept}
           handleProfilePicClear={handleProfilePicClear}
-          t={t}
           profilePic={profilePic}
         />
         <Language
           error={formErrors.language}
-          t={t}
           value={dropdownLanguage}
-          handleChange={handleLanguageChange}
+          onChange={handleLanguageChange}
         />
         <Currency
           error={formErrors.currency}
-          t={t}
           value={dropdownCurrency}
-          handleChange={handleCurrencyChange}
+          onChange={handleCurrencyChange}
         />
-        <Passphrase error={formErrors.passphrase} t={t} />
-        <Submit disabled={status === 'loading'} t={t} />
+        <Passphrase error={formErrors.passphrase} />
+        <Submit disabled={status === 'loading'} />
       </form>
     </>
   )

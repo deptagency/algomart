@@ -10,7 +10,6 @@ import css from './my-profile-language.module.css'
 import { Currency } from '@/components/auth-inputs/auth-inputs'
 import Button from '@/components/button'
 import Heading from '@/components/heading'
-import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { AuthService } from '@/services/auth-service'
@@ -90,10 +89,6 @@ export default function MyProfileCurrency() {
     setIsEditing(false)
   }, [user])
 
-  const handleCurrencyChange = useCallback((selectOption: SelectOption) => {
-    setCurrency(selectOption.id as string)
-  }, [])
-
   return (
     <section className={common.section}>
       <div className={common.sectionHeader}>
@@ -118,8 +113,7 @@ export default function MyProfileCurrency() {
               disabled={!isEditing}
               showLabel={false}
               value={currency}
-              handleChange={handleCurrencyChange}
-              t={t}
+              onChange={setCurrency}
             />
             {isEditing ? (
               <>

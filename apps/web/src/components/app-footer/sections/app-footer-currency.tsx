@@ -4,7 +4,6 @@ import useTranslation from 'next-translate/useTranslation'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Currency } from '@/components/auth-inputs/auth-inputs'
-import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLanguage } from '@/hooks/use-language'
@@ -27,9 +26,7 @@ export default function AppFooterCurrency() {
 
   // callback to handle dropdown changes
   const handleDropdownCurrencyChange = useCallback(
-    async (selectedOption: SelectOption) => {
-      const currency = selectedOption?.id
-
+    async (currency: string) => {
       setLoading(true)
 
       // Validate form body
@@ -82,8 +79,7 @@ export default function AppFooterCurrency() {
       disabled={loading}
       showLabel={false}
       value={dropdownCurrency}
-      handleChange={handleDropdownCurrencyChange}
-      t={t}
+      onChange={handleDropdownCurrencyChange}
     />
   )
 }

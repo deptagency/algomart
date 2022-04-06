@@ -10,7 +10,6 @@ import css from './my-profile-language.module.css'
 import { Language } from '@/components/auth-inputs/auth-inputs'
 import Button from '@/components/button'
 import Heading from '@/components/heading'
-import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useLanguage } from '@/hooks/use-language'
 import { AuthService } from '@/services/auth-service'
@@ -92,10 +91,6 @@ export default function MyProfileLanguage() {
     setIsEditing(false)
   }, [user])
 
-  const handleLanguageChange = useCallback((selectOption: SelectOption) => {
-    setFormLanguage(selectOption.id as string)
-  }, [])
-
   useEffect(() => {
     setFormLanguage(language)
   }, [language])
@@ -124,8 +119,7 @@ export default function MyProfileLanguage() {
               disabled={!isEditing}
               showLabel={false}
               value={formLanguage}
-              handleChange={handleLanguageChange}
-              t={t}
+              onChange={setFormLanguage}
             />
             {isEditing ? (
               <>
