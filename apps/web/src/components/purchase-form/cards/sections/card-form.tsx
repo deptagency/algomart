@@ -11,7 +11,7 @@ import Bid from '@/components/purchase-form/shared/bid'
 import BillingAddress from '@/components/purchase-form/shared/billing-address'
 import CardDetails from '@/components/purchase-form/shared/card-details'
 import FullName from '@/components/purchase-form/shared/full-name'
-import Select, { SelectOption } from '@/components/select/select'
+import Select, { SelectOption } from '@/components/select-input/select-input'
 import TextInput from '@/components/text-input/text-input'
 import Toggle from '@/components/toggle/toggle'
 import { FormValidation } from '@/contexts/payment-context'
@@ -42,10 +42,10 @@ export default function CardPurchaseForm({
 }: CardPurchaseFormProps) {
   const { t } = useTranslation()
 
-  const [savedCard, setSavedCard] = useState<SelectOption | null>(null)
+  const [savedCard, setSavedCard] = useState<string | null>(null)
   const [saveCard, setSaveCard] = useState<boolean>(false)
   const [defaultCard, setDefaultCard] = useState<boolean>(false)
-  const [options, setOptions] = useState<Record<'id' | 'label', string>[]>([])
+  const [options, setOptions] = useState<SelectOption[]>([])
 
   useEffect(() => {
     const run = async () => {
@@ -61,12 +61,12 @@ export default function CardPurchaseForm({
           return isAfterNow(expDate)
         })
         .map((card) => ({
-          id: card.id as string,
+          key: card.id as string,
           label: `${card.network} *${card.lastFour}, ${card.expirationMonth}/${card.expirationYear}`,
         }))
 
       setOptions([
-        { id: '', label: t('forms:fields.savedCard.placeholder') },
+        { key: '', label: t('forms:fields.savedCard.placeholder') },
         ...cardsList,
       ])
 
@@ -75,9 +75,7 @@ export default function CardPurchaseForm({
       const noFormErrors =
         !formErrors || (formErrors && Object.keys(formErrors).length === 0)
       if (isDefault && noFormErrors) {
-        const defaultCard = cardsList.find(
-          (card) => card.id === sortedCards[0].id
-        )
+        const defaultCard = sortedCards[0].id
         if (defaultCard) setSavedCard(defaultCard)
       }
     }
@@ -85,13 +83,8 @@ export default function CardPurchaseForm({
     run()
   }, [t]) /* eslint-disable-line react-hooks/exhaustive-deps */
 
-  // Handle selection/deselection of saved cards
-  const handleSavedCardChoice = (option: SelectOption) => {
-    setSavedCard(option?.id ? option : null)
-  }
-
   // Handle clearing the card on
-  const handleClearCard = async () => {
+  const handleClearCard = () => {
     setSavedCard(null)
   }
 
@@ -134,11 +127,11 @@ export default function CardPurchaseForm({
 
         {options.length > 1 && (
           <Select
-            handleChange={handleSavedCardChoice}
-            id="savedCard"
+            name="savedCard"
+            onChange={setSavedCard}
             label={t('forms:fields.savedCard.label')}
             options={options}
-            selectedValue={savedCard}
+            value={savedCard}
           />
         )}
 
@@ -179,7 +172,7 @@ export default function CardPurchaseForm({
               <TextInput
                 className={css.hiddenField}
                 name="cardId"
-                value={savedCard.id}
+                value={savedCard}
               />
               <TextInput
                 error={
@@ -262,12 +255,7 @@ export default function CardPurchaseForm({
       )}
 
       {/* Submit */}
-      <Button
-        fullWidth
-        type="button"
-        variant="primary"
-        onClick={handleContinue}
-      >
+      <Button fullWidth variant="primary" onClick={handleContinue}>
         {t('common:actions.Continue to Summary')}
       </Button>
     </div>
