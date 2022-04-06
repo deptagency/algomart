@@ -11,4 +11,4 @@ ENV CYPRESS_INSTALL_BINARY 0
 
 # not copying anything else... relying on mapping volume from the host
 
-CMD ["./run.sh"]
+CMD ["./docker/local/web/run.sh"]

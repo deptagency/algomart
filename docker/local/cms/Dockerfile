@@ -1,10 +1,9 @@
-FROM node:16-alpine
+FROM node:16-bullseye
 
-RUN apk add --no-cache libc6-compat python2 make g++
+RUN apt update && apt install -y python2
 RUN npm config set python python2
 WORKDIR /app
-RUN npm install directus@9.8.0 --global
-COPY docker/local/cms/run.sh ./
-COPY apps/cms/ ./
+COPY package.json package-lock.json ./
+RUN npm ci
 
-CMD ["./run.sh"]
+CMD ["./docker/local/cms/run.sh"]

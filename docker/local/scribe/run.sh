@@ -1,8 +1,6 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 set -e
-
-cd /app
 
 # We rely on the ENABLE_JOBS environment variable to decide whether to apply migrations
 ENABLE_MIGRATIONS="${ENABLE_JOBS:-false}"
@@ -21,4 +19,4 @@ else
 fi
 
 echo 'starting scribe...'
-npx nx serve scribe
+npx nx serve scribe | npx pino-pretty
