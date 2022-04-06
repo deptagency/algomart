@@ -55,8 +55,6 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       return themeOptions[
         (themeOptions.indexOf(theme) + 1) % themeOptions.length
       ]
-      // const actualTheme = theme ?? getThemeFromBrowser()
-      // return actualTheme === 'dark' ? 'light' : 'dark'
     })
   }, [setTheme])
 
