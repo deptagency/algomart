@@ -10,10 +10,10 @@ resource "google_storage_bucket" "cms_bucket" {
 }
 
 // Make storage bucket publicly readable
-resource "google_storage_bucket_access_control" "cms_bucket_access_control" {
+resource "google_storage_bucket_iam_binding" "cms_bucket_iam_binding" {
   bucket = google_storage_bucket.cms_bucket.name
-  role   = "READER"
-  entity = "allUsers"
+  role = "roles/storage.objectViewer"
+  member = "allUsers"
 }
 
 resource "google_cloud_run_service" "cms" {
