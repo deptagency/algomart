@@ -8,6 +8,7 @@
     "scribe-tasks": "libs/scribe/tasks",
     "shared-adapters": "libs/shared/adapters",
     "shared-models": "libs/shared/models",
+    "shared-modules": "libs/shared/modules",
     "shared-plugins": "libs/shared/plugins",
     "shared-services": "libs/shared/services",
     "shared-utils": "libs/shared/utils",

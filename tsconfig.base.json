@@ -20,6 +20,7 @@
       "@algomart/scribe/tasks": ["libs/scribe/tasks/src/index.ts"],
       "@algomart/shared/adapters": ["libs/shared/adapters/src/index.ts"],
       "@algomart/shared/models": ["libs/shared/models/src/index.ts"],
+      "@algomart/shared/modules": ["libs/shared/modules/src/index.ts"],
       "@algomart/shared/plugins": ["libs/shared/plugins/src/index.ts"],
       "@algomart/shared/services": ["libs/shared/services/src/index.ts"],
       "@algomart/shared/utils": ["libs/shared/utils/src/index.ts"],
