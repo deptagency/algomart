@@ -9,7 +9,7 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "start": "nx run-many --target=serve --projects=api,cms,web --parallel | pino-pretty -c -i pid,hostname -t SYS:HH:MM:ss -m message -S",
+    "start": "nx run-many --target=serve --projects=api,cms,web --parallel | pino-pretty -c -i pid,hostname,severity -t SYS:HH:MM:ss -m message -S",
     "build": "nx run-many --target=build --all",
     "pretest": "docker-compose --project-name algomart-test --file docker-compose.test.yml up --detach",
     "test": "nx run-many --target=test --all",
