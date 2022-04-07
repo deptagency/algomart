@@ -129,16 +129,6 @@ resource "google_cloud_run_service" "cms" {
           name  = "STORAGE_GCP_BUCKET"
           value = google_storage_bucket.cms_bucket.name
         }
-
-        env {
-          name  = "STORAGE_GCP_CREDENTIALS"
-          value = var.credentials
-        }
-
-        env {
-          name = "STORAGE_GCP_KEY_FILENAME"
-          value = "/app/gcp-credentials.json"
-        }
       }
     }
   }
