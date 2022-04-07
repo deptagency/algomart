@@ -9,6 +9,12 @@ resource "google_storage_bucket" "cms_bucket" {
   force_destroy = false
 }
 
+// Make storage bucket publicly readable
+resource "google_storage_bucket_acl" "cms_bucket_acl" {
+  bucket = google_storage_bucket.cms_bucket.name
+  predefined_acl = "publicRead"
+}
+
 resource "google_cloud_run_service" "cms" {
   name     = var.cms_service_name
   location = var.region
