@@ -3,16 +3,17 @@ resource "google_storage_bucket" "cms_bucket" {
   project  = var.project
   location = var.bucket_location
 
-  uniform_bucket_level_access = true
+  uniform_bucket_level_access = false
 
   // Require all objects to be manually deleted prior to bucket removal
   force_destroy = false
 }
 
 // Make storage bucket publicly readable
-resource "google_storage_bucket_acl" "cms_bucket_acl" {
+resource "google_storage_bucket_access_control" "cms_bucket_access_control" {
   bucket = google_storage_bucket.cms_bucket.name
-  predefined_acl = "publicRead"
+  role   = "READER"
+  entity = "allUsers"
 }
 
 resource "google_cloud_run_service" "cms" {
