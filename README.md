@@ -145,9 +145,8 @@ If doing any updates to the Directus version, the version numbers must match acr
 1. Run `npm install` from root to generate latest `package-lock.json`
 1. Run `nx export cms` to generate latest `snapshot.yml`
 1. Rebuild cms extensions
-   1. `cd apps/cms`
-   1. Run `npm run build-price-display` to generate latest js file
-   1. Run `npm run build-price-interface` to generate latest js file
+   1. Run `nx build-price-display cms` to generate latest js file
+   1. Run `nx build-price-interface cms` to generate latest js file
 
 ## 📦 Project packages
 
