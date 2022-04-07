@@ -75,6 +75,7 @@ export interface PaymentContextProps {
   countries: SelectOption[]
   currentBid: number | null
   formErrors?: FormValidation
+  getError: (field: string) => string
   handleAddBankAccount(
     data: FormData
   ): Promise<PaymentBankAccountInstructions | undefined>
@@ -99,7 +100,7 @@ export interface PaymentContextProps {
 
 export const PaymentContext = createContext<PaymentContextProps | null>(null)
 
-export function usePayment() {
+export function usePaymentContext() {
   const payment = useContext(PaymentContext)
   if (!payment) throw new Error('PaymentProvider missing')
   return payment
@@ -153,6 +154,12 @@ export function usePaymentProvider({
   )
   const [formErrors, setFormErrors] = useState<FormValidation>()
   const [price, setPrice] = useState<string | null>()
+
+  const getError = useCallback(
+    (field: string) =>
+      formErrors && field in formErrors ? (formErrors[field] as string) : '',
+    [formErrors]
+  )
 
   const findCountries = useCallback(async () => {
     try {
@@ -731,6 +738,7 @@ export function usePaymentProvider({
       countries,
       currentBid: currentBid || null,
       formErrors,
+      getError,
       handleAddBankAccount,
       handleRetry,
       handleSubmitBid,
@@ -757,6 +765,7 @@ export function usePaymentProvider({
       countries,
       currentBid,
       formErrors,
+      getError,
       handleAddBankAccount,
       handleRetry,
       handleSubmitBid,

@@ -43,16 +43,7 @@ export default function AddMethodsForm({
           securityCode: getError('securityCode', formErrors),
         }}
       />
-      <BillingAddress
-        countries={countries}
-        formErrors={{
-          address1: getError('address1', formErrors),
-          city: getError('city', formErrors),
-          state: getError('state', formErrors),
-          country: getError('country', formErrors),
-          zipCode: getError('zipCode', formErrors),
-        }}
-      />
+      <BillingAddress />
       {/* Submit */}
       <Button
         fullWidth

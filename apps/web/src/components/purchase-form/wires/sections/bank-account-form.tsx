@@ -13,7 +13,7 @@ import FullName from '@/components/purchase-form/shared/full-name'
 import Select, { SelectOption } from '@/components/select-input/select-input'
 import TextInput from '@/components/text-input/text-input'
 import { useI18n } from '@/contexts/i18n-context'
-import { FormValidation,getError } from '@/contexts/payment-context'
+import { FormValidation, getError } from '@/contexts/payment-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { isAfterNow } from '@/utils/date-time'
@@ -92,16 +92,7 @@ export default function BankAccountForm({
               formErrors={{ fullName: getError('fullName', formErrors) }}
             />
 
-            <BillingAddress
-              countries={countryOptions}
-              formErrors={{
-                address1: getError('address1', formErrors),
-                city: getError('city', formErrors),
-                state: getError('state', formErrors),
-                country: getError('country', formErrors),
-                zipCode: getError('zipCode', formErrors),
-              }}
-            />
+            <BillingAddress />
 
             <Heading level={2}>{t('forms:sections.Bank Address')}</Heading>
 

@@ -13,29 +13,30 @@ import css from './card-form.module.css'
 import Loading from '@/components/loading/loading'
 import Failure from '@/components/purchase-form/shared/failure'
 import Success from '@/components/purchase-form/shared/success'
-import { PaymentContextProps } from '@/contexts/payment-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 import { useWarningOnExit } from '@/hooks/use-warning-on-exit'
 import { isAfterNow } from '@/utils/date-time'
 import { urls } from '@/utils/urls'
 
-export default function CardForm({
-  bid,
-  countries,
-  release,
-  formErrors,
-  handleRetry,
-  handleSubmitBid: onSubmitBid,
-  handleSubmitPurchase: onSubmitPurchase,
-  loadingText,
-  packId,
-  price,
-  promptLeaving,
-  setBid,
-  setPromptLeaving,
-  status,
-}: PaymentContextProps) {
+export default function CardForm() {
   const { t } = useTranslation()
   const { asPath, push } = useRouter()
+  const {
+    bid,
+    countries,
+    release,
+    formErrors,
+    handleRetry,
+    handleSubmitBid: onSubmitBid,
+    handleSubmitPurchase: onSubmitPurchase,
+    loadingText,
+    packId,
+    price,
+    promptLeaving,
+    setBid,
+    setPromptLeaving,
+    status,
+  } = usePaymentContext()
   const isAuctionActive =
     release?.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))

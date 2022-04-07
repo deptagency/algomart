@@ -16,7 +16,7 @@ import CryptoSuccess from './sections/crypto-success'
 import css from './crypto-purchase-form.module.css'
 
 import Loading from '@/components/loading/loading'
-import { PaymentContextProps } from '@/contexts/payment-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 import { CheckoutService } from '@/services/checkout-service'
 import { isAfterNow } from '@/utils/date-time'
 
@@ -24,24 +24,25 @@ export interface CryptoPurchaseFormProps {
   address: string | null
 }
 
-export default function CryptoPurchaseForm({
-  address,
-  bid,
-  formErrors,
-  handleRetry,
-  handleSubmitBid: onSubmitBid,
-  loadingText,
-  packId,
-  price,
-  release,
-  setBid,
-  setLoadingText,
-  setPackId,
-  setStatus,
-  status,
-}: PaymentContextProps & CryptoPurchaseFormProps) {
+export default function CryptoPurchaseForm() {
   const { t } = useTranslation()
   const router = useRouter()
+  const {
+    address,
+    bid,
+    formErrors,
+    handleRetry,
+    handleSubmitBid: onSubmitBid,
+    loadingText,
+    packId,
+    price,
+    release,
+    setBid,
+    setLoadingText,
+    setPackId,
+    setStatus,
+    status,
+  } = usePaymentContext()
   const isAuctionActive =
     release?.type === PackType.Auction &&
     isAfterNow(new Date(release.auctionUntil as string))

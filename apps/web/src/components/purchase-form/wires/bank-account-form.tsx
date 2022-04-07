@@ -18,25 +18,26 @@ import BankAccountSummary from './sections/bank-account-summary'
 import css from './bank-account-form.module.css'
 
 import Loading from '@/components/loading/loading'
-import { PaymentContextProps } from '@/contexts/payment-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 import { isAfterNow } from '@/utils/date-time'
 
-export default function BankAccountPurchaseForm({
-  bid,
-  countries,
-  formErrors,
-  handleAddBankAccount: onSubmitBankAccount,
-  handleRetry,
-  handleSubmitBid: onSubmitBid,
-  initialBid,
-  loadingText,
-  price,
-  release,
-  setBid,
-  status,
-}: PaymentContextProps) {
+export default function BankAccountPurchaseForm() {
   const { t } = useTranslation()
   const { asPath, push } = useRouter()
+  const {
+    bid,
+    countries,
+    formErrors,
+    handleAddBankAccount: onSubmitBankAccount,
+    handleRetry,
+    handleSubmitBid: onSubmitBid,
+    initialBid,
+    loadingText,
+    price,
+    release,
+    setBid,
+    status,
+  } = usePaymentContext()
   const [bankAccountInstructions, setBankAccountInstructions] =
     useState<PaymentBankAccountInstructions | null>(null)
   const isAuctionActive =

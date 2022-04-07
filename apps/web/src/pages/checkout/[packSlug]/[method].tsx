@@ -12,7 +12,7 @@ import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
-import { usePaymentProvider } from '@/contexts/payment-context'
+import { PaymentProvider, usePaymentProvider } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
 import { useAnalytics } from '@/hooks/use-analytics'
 import DefaultLayout from '@/layouts/default-layout'
@@ -38,29 +38,6 @@ export default function CheckoutMethodPage({
 }: CheckoutMethodPageProps) {
   const { t } = useTranslation()
   const analytics = useAnalytics()
-  const { query } = useRouter()
-  const paymentProps = usePaymentProvider({
-    auctionPackId,
-    currentBid,
-    release,
-  })
-  const { setStatus, setAddress } = paymentProps
-
-  // Set the address retrieved in server side props
-  useEffect(() => {
-    if (address) {
-      setAddress(address)
-    }
-  }, [address, setAddress])
-
-  // Set the status to the status listed as a query param:
-  useEffect(() => {
-    if (query.step) {
-      const status =
-        query?.step === 'details' ? CheckoutStatus.form : CheckoutStatus.summary
-      setStatus(status)
-    }
-  }, [query.step, setStatus])
 
   useEffect(() => {
     analytics.beginCheckout({
@@ -78,7 +55,9 @@ export default function CheckoutMethodPage({
       }
       panelPadding
     >
-      <CheckoutTemplate {...paymentProps} />
+      <PaymentProvider {...{ auctionPackId, currentBid, release }}>
+        <CheckoutTemplate address={address} />
+      </PaymentProvider>
     </DefaultLayout>
   )
 }
