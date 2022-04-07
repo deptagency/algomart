@@ -1,4 +1,4 @@
-import { PackType, PublishedPack } from '@algomart/schemas'
+import { PackType } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 
@@ -10,43 +10,36 @@ import Heading from '@/components/heading'
 import Bid from '@/components/purchase-form/shared/bid'
 import BillingAddress from '@/components/purchase-form/shared/billing-address'
 import FullName from '@/components/purchase-form/shared/full-name'
-import Select, { SelectOption } from '@/components/select-input/select-input'
+import Select from '@/components/select-input/select-input'
 import TextInput from '@/components/text-input/text-input'
 import { useI18n } from '@/contexts/i18n-context'
-import { FormValidation, getError } from '@/contexts/payment-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
-import { isAfterNow } from '@/utils/date-time'
 import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
 
 export interface BankAccountFormProps {
-  bid: string | null
   className?: string
-  countries: SelectOption[]
-  formErrors?: FormValidation
   handleContinue: () => void
-  initialBid?: string
-  release?: PublishedPack
-  setBid: (bid: string | null) => void
 }
 
 export default function BankAccountForm({
-  bid,
   className,
-  countries: countryOptions,
-  formErrors,
   handleContinue,
-  initialBid,
-  release,
-  setBid,
 }: BankAccountFormProps) {
+  const {
+    bid,
+    countries: countryOptions,
+    getError,
+    initialBid,
+    isAuctionActive,
+    release,
+    setBid,
+  } = usePaymentContext()
   const locale = useLocale()
   const currency = useCurrency()
   const { conversionRate } = useI18n()
   const { t } = useTranslation()
-  const isAuctionActive =
-    release?.type === PackType.Auction &&
-    isAfterNow(new Date(release.auctionUntil as string))
   const price =
     release?.type === PackType.Auction
       ? bid
@@ -54,16 +47,16 @@ export default function BankAccountForm({
 
   return (
     <div className={className}>
-      {getError('bid', formErrors) ? (
+      {getError('bid') ? (
         <AlertMessage
           className={css.notification}
-          content={getError('bid', formErrors)}
+          content={getError('bid')}
           variant="red"
         />
       ) : null}
 
       <div className={clsx(css.formSection)}>
-        {isAuctionActive ? (
+        {isAuctionActive() ? (
           <Bid
             bid={bid}
             className={css.bid}
@@ -75,54 +68,52 @@ export default function BankAccountForm({
             <Heading level={2}>{t('forms:sections.Bank Account')}</Heading>
 
             <TextInput
-              error={getError('accountNumber', formErrors)}
+              error={getError('accountNumber')}
               label={t('forms:fields.accountNumber.label')}
               name="accountNumber"
               variant="small"
             />
 
             <TextInput
-              error={getError('routingNumber', formErrors)}
+              error={getError('routingNumber')}
               label={t('forms:fields.routingNumber.label')}
               name="routingNumber"
               variant="small"
             />
 
-            <FullName
-              formErrors={{ fullName: getError('fullName', formErrors) }}
-            />
+            <FullName formErrors={{ fullName: getError('fullName') }} />
 
             <BillingAddress />
 
             <Heading level={2}>{t('forms:sections.Bank Address')}</Heading>
 
             <TextInput
-              error={getError('bankName', formErrors)}
+              error={getError('bankName')}
               label={t('forms:fields.bankAddress.bankName.label')}
               name="bankName"
               variant="small"
             />
             <TextInput
-              error={getError('bankAddress1', formErrors)}
+              error={getError('bankAddress1')}
               label={t('forms:fields.bankAddress.bankAddress1.label')}
               name="bankAddress1"
               variant="small"
             />
             <TextInput
-              error={getError('bankAddress2', formErrors)}
+              error={getError('bankAddress2')}
               label={t('forms:fields.bankAddress.bankAddress2.label')}
               name="bankAddress2"
               variant="small"
             />
             <div className={css.formMultiRow}>
               <TextInput
-                error={getError('bankCity', formErrors)}
+                error={getError('bankCity')}
                 label={t('forms:fields.city.label')}
                 name="bankCity"
                 variant="small"
               />
               <TextInput
-                error={getError('bankDistrict', formErrors)}
+                error={getError('bankDistrict')}
                 label={t('forms:fields.state.label')}
                 name="bankDistrict"
                 variant="small"
@@ -130,7 +121,7 @@ export default function BankAccountForm({
             </div>
             {countryOptions.length > 0 && (
               <Select
-                error={getError('bankCountry', formErrors)}
+                error={getError('bankCountry')}
                 label={t('forms:fields.country.label')}
                 id="bankCountry"
                 name="bankCountry"

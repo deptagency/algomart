@@ -27,16 +27,11 @@ export default function CryptoPurchaseForm() {
   const router = useRouter()
   const {
     address,
-    bid,
-    formErrors,
     handleRetry,
     handleSubmitBid: onSubmitBid,
-    isAuctionActive,
     loadingText,
     packId,
-    price,
     release,
-    setBid,
     setLoadingText,
     setPackId,
     setStatus,
@@ -110,21 +105,12 @@ export default function CryptoPurchaseForm() {
 
       {status === CheckoutStatus.form && (
         <CryptoForm
-          address={address}
-          bid={bid}
           className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
-          formErrors={formErrors}
           handleCheckForPurchase={handleCheckForPurchase}
           handlePurchase={handlePurchase}
-          setStatus={setStatus}
           handleSubmitBid={handleSubmitBid}
-          isAuctionActive={isAuctionActive()}
           isLoading={isLoading}
-          price={price}
-          release={release}
-          setBid={setBid}
           setError={setError}
-          setLoadingText={setLoadingText}
         />
       )}
 

@@ -1,18 +1,16 @@
 import {
   CheckoutMethod,
-  CheckoutStatus,
   PackAuction,
   PackStatus,
   PackType,
   PublishedPack,
 } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
-import { PaymentProvider, usePaymentProvider } from '@/contexts/payment-context'
+import { PaymentProvider } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
 import { useAnalytics } from '@/hooks/use-analytics'
 import DefaultLayout from '@/layouts/default-layout'
@@ -20,7 +18,7 @@ import {
   getAuthenticatedUser,
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
-import CheckoutTemplate from '@/templates/checkout-method-template'
+import CheckoutMethodsTemplate from '@/templates/checkout-method-template'
 import { urls } from '@/utils/urls'
 
 export interface CheckoutMethodPageProps {
@@ -56,7 +54,7 @@ export default function CheckoutMethodPage({
       panelPadding
     >
       <PaymentProvider {...{ auctionPackId, currentBid, release }}>
-        <CheckoutTemplate address={address} />
+        <CheckoutMethodsTemplate address={address} />
       </PaymentProvider>
     </DefaultLayout>
   )

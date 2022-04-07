@@ -14,7 +14,7 @@ import FullName from '@/components/purchase-form/shared/full-name'
 import Select, { SelectOption } from '@/components/select-input/select-input'
 import TextInput from '@/components/text-input/text-input'
 import Toggle from '@/components/toggle/toggle'
-import { getError, usePaymentContext } from '@/contexts/payment-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 import { CheckoutService } from '@/services/checkout-service'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
@@ -29,7 +29,7 @@ export default function CardPurchaseForm({
   handleContinue,
 }: CardPurchaseFormProps) {
   const { t } = useTranslation()
-  const { bid, formErrors, initialBid, isAuctionActive, setBid } =
+  const { bid, formErrors, getError, initialBid, isAuctionActive, setBid } =
     usePaymentContext()
 
   const [savedCard, setSavedCard] = useState<string | null>(null)
@@ -80,18 +80,18 @@ export default function CardPurchaseForm({
 
   return (
     <div className={className}>
-      {getError('bid', formErrors) ? (
+      {getError('bid') ? (
         <AlertMessage
           className={css.notification}
-          content={getError('bid', formErrors)}
+          content={getError('bid')}
           variant="red"
         />
       ) : null}
 
-      {getError('expirationDate', formErrors) ? (
+      {getError('expirationDate') ? (
         <AlertMessage
           className={css.notification}
-          content={getError('expirationDate', formErrors)}
+          content={getError('expirationDate')}
           variant="red"
         />
       ) : null}
@@ -127,9 +127,7 @@ export default function CardPurchaseForm({
 
         {!savedCard ? (
           <>
-            <FullName
-              formErrors={{ fullName: getError('fullName', formErrors) }}
-            />
+            <FullName formErrors={{ fullName: getError('fullName') }} />
             <CardDetails />
           </>
         ) : (
@@ -141,7 +139,7 @@ export default function CardPurchaseForm({
                 value={savedCard}
               />
               <TextInput
-                error={getError('securityCode', formErrors)}
+                error={getError('securityCode')}
                 label={t('forms:fields.securityCode.label')}
                 maxLength={3}
                 name="securityCode"

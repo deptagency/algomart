@@ -1,7 +1,6 @@
 import {
   CheckoutMethod,
   CheckoutStatus,
-  PackType,
   PaymentBankAccountInstructions,
 } from '@algomart/schemas'
 import clsx from 'clsx'
@@ -24,18 +23,12 @@ export default function BankAccountPurchaseForm() {
   const { t } = useTranslation()
   const { asPath, push } = useRouter()
   const {
-    bid,
-    countries,
-    formErrors,
     handleAddBankAccount: onSubmitBankAccount,
     handleRetry,
     handleSubmitBid: onSubmitBid,
-    initialBid,
     isAuctionActive,
     loadingText,
-    price,
     release,
-    setBid,
     status,
   } = usePaymentContext()
   const [bankAccountInstructions, setBankAccountInstructions] =
@@ -69,22 +62,10 @@ export default function BankAccountPurchaseForm() {
         onSubmit={handleSubmit}
       >
         <BankAccountForm
-          bid={bid}
           className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
-          countries={countries}
-          formErrors={formErrors}
           handleContinue={() => push(`${asPath.split('?')[0]}?step=summary`)}
-          initialBid={initialBid}
-          release={release}
-          setBid={setBid}
         />
-        {status === CheckoutStatus.summary && (
-          <BankAccountSummary
-            isAuctionActive={isAuctionActive()}
-            price={price}
-            release={release}
-          />
-        )}
+        {status === CheckoutStatus.summary && <BankAccountSummary />}
       </form>
 
       {status === CheckoutStatus.loading && (
