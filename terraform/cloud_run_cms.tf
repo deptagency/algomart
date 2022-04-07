@@ -13,7 +13,7 @@ resource "google_storage_bucket" "cms_bucket" {
 resource "google_storage_bucket_iam_binding" "cms_bucket_iam_binding" {
   bucket = google_storage_bucket.cms_bucket.name
   role = "roles/storage.objectViewer"
-  member = "allUsers"
+  members = ["allUsers"]
 }
 
 resource "google_cloud_run_service" "cms" {
