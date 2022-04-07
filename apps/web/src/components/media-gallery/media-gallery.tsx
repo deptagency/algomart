@@ -21,8 +21,8 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
   const isSingularAsset = media.length === 1
 
   // Triggered when selecting a thumbnail
-  const handleMediaChange = (media: string) => {
-    setCurrentMedia(media)
+  const handleMediaChange = (medium: string) => {
+    setCurrentMedia(medium)
   }
 
   // Triggered when selecting the previous/next arrows
@@ -88,8 +88,8 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
       {/* Media thumbnails */}
       {!isSingularAsset && (
         <ul className={css.mediaListGrid}>
-          {media.map((media) => (
-            <li className={css.aspect} key={media}>
+          {media.map((medium, index) => (
+            <li className={css.aspect} key={medium}>
               <button
                 aria-label={t('common:actions.Select Image')}
                 className={clsx(
@@ -97,16 +97,19 @@ export default function MediaGallery({ media }: MediaGalleryProps) {
                   css.overflowHidden,
                   css.mediaHyperlinkedWrapper,
                   {
-                    [css.opaque]: media === currentMedia,
+                    [css.opaque]: medium === currentMedia,
                   }
                 )}
-                onClick={() => handleMediaChange(media)}
+                onClick={() => handleMediaChange(medium)}
               >
                 <Image
-                  alt={t('common:actions.View image X of Y')}
+                  alt={t('common:actions.View image X of Y', {
+                    x: index + 1,
+                    y: media.length,
+                  })}
                   className={clsx(css.cover, css.fullWidth, css.rounded)}
                   layout="fill"
-                  src={media}
+                  src={medium}
                   objectFit="cover"
                   sizes="25vw"
                 />
