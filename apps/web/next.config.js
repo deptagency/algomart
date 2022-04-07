@@ -42,7 +42,13 @@ module.exports = withNx(
       NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED:
         process.env.NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED,
     },
-    redirects: async () => [],
+    redirects: async () => [
+      {
+        source: '/nft/:id',
+        destination: '/nft/:id/details',
+        permanent: false,
+      },
+    ],
   })
 )
 

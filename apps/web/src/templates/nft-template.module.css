@@ -3,23 +3,15 @@
 }
 
 .panel {
-  @apply shadow-large bg-base-bgPanel;
+  @apply overflow-auto shadow-large bg-base-bgCard;
 }
 
 .panelHeader {
-  @apply p-6;
-}
-
-.title {
-  @apply font-bold text-center;
+  @apply p-6 text-center;
 }
 
 .subtitle {
-  @apply text-center text-base-textTertiary;
-}
-
-.panelActions {
-  @apply px-6 pb-6 text-center;
+  @apply text-base-textTertiary;
 }
 
 .nftMeta {
@@ -27,7 +19,7 @@
 }
 
 .nftMetaContent {
-  @apply overflow-hidden text-sm border rounded-md border-base-border;
+  @apply overflow-hidden text-sm border rounded-md;
 }
 
 .nftMetaList {
@@ -44,4 +36,46 @@
 
 .root .alert {
   @apply bg-action-primary text-action-primaryContrastText;
+}
+
+.releaseDesc {
+  @apply border-0 !important;
+  @apply md:mb-6;
+}
+
+.tabContentNarrow {
+  @apply max-w-sm mx-auto;
+}
+.tabContent {
+  @apply max-w-lg p-6 mx-auto mb-6 text-center;
+}
+.tabContent hr {
+  @apply my-6;
+}
+.tabContent p {
+  @apply mb-8;
+}
+
+/* Activity list */
+.activityList {
+  @apply mb-6 -mt-6;
+}
+.activityItem {
+  @apply flex items-center gap-5 py-5 text-left border-b-1;
+}
+.activityItem .icon {
+  @apply w-10 h-10 p-2 rounded-full shadow-medium text-base-textSecondary;
+  @apply dark:text-action-secondary;
+}
+.activityItem .body {
+  @apply flex-1;
+}
+.activityItem .activity {
+  @apply font-semibold;
+}
+.activityItem .date {
+  @apply text-sm text-base-textTertiary;
+}
+.activityItem .contentRight {
+  @apply font-bold;
 }

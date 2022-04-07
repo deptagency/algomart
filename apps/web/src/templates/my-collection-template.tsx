@@ -49,7 +49,7 @@ export default function MyCollectionTemplate({
   return (
     <>
       {/* Tabs */}
-      <Tabs activeTab={1} tabs={getCollectionTabs(t)} negativeMargin />
+      <Tabs activeTab={1} tabs={getCollectionTabs(t)} className="-mx-8 -mt-8" />
 
       <CollectionHeader collection={collection} />
 

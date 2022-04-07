@@ -4,20 +4,32 @@ import css from './tabs.module.css'
 
 import AppLink from '@/components/app-link/app-link'
 
-interface TabProps {
+export interface ITabItem {
   href: string
   label: string
 }
 
 export interface TabsProps {
-  activeTab: number
-  tabs: TabProps[]
-  negativeMargin?: boolean
+  activeTab?: number
+  tabs: ITabItem[]
+  variant?: 'responsive' | 'fullWidth'
+  className?: string
+  scroll?: boolean
 }
 
-export default function Tabs({ activeTab, tabs, negativeMargin }: TabsProps) {
+export default function Tabs({
+  activeTab,
+  tabs,
+  className,
+  variant = 'responsive',
+  scroll,
+}: TabsProps) {
   return (
-    <div className={clsx(css.root, { [css.negativeMargin]: negativeMargin })}>
+    <div
+      className={clsx(css.root, className, {
+        [css.responsive]: variant === 'responsive',
+      })}
+    >
       <div className={css.tabsContainer}>
         {tabs.map(({ href, label }, index) => (
           <AppLink
@@ -26,6 +38,7 @@ export default function Tabs({ activeTab, tabs, negativeMargin }: TabsProps) {
             })}
             href={href}
             key={label}
+            scroll={scroll}
           >
             {label}
           </AppLink>
