@@ -65,9 +65,6 @@ export type FormValidation = ExtractError<
   >
 >
 
-export const getError = (field: string, formErrors?: FormValidation) =>
-  formErrors && field in formErrors ? (formErrors[field] as string) : ''
-
 export interface PaymentContextProps {
   address: string | null
   auctionPackId?: string | null

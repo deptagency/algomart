@@ -16,7 +16,7 @@ import Checkbox from '@/components/checkbox'
 import Heading from '@/components/heading'
 import Bid from '@/components/purchase-form/shared/bid'
 import { useI18n } from '@/contexts/i18n-context'
-import { getError, usePaymentContext } from '@/contexts/payment-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/format-currency'
@@ -43,7 +43,7 @@ export default function CryptoForm({
   const { t } = useTranslation()
   const {
     address,
-    formErrors,
+    getError,
     isAuctionActive,
     price,
     release,
@@ -72,10 +72,10 @@ export default function CryptoForm({
 
   return (
     <form className={className} onSubmit={handleSubmitBid}>
-      {getError('bid', formErrors) ? (
+      {getError('bid') ? (
         <AlertMessage
           className={css.notification}
-          content={getError('bid', formErrors)}
+          content={getError('bid')}
           variant="red"
         />
       ) : null}
