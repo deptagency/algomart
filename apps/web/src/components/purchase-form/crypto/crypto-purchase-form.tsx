@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useState } from 'react'
 
-import CryptoPurchaseError from './sections/crypto-error'
+import CryptoError from './sections/crypto-error'
 import CryptoForm from './sections/crypto-form'
 import CryptoHeader from './sections/crypto-header'
 import CryptoSuccess from './sections/crypto-success'
@@ -22,11 +22,12 @@ export interface CryptoPurchaseFormProps {
   address: string | null
 }
 
-export default function CryptoPurchaseForm() {
+export default function CryptoPurchaseForm({
+  address,
+}: CryptoPurchaseFormProps) {
   const { t } = useTranslation()
   const router = useRouter()
   const {
-    address,
     handleRetry,
     handleSubmitBid: onSubmitBid,
     loadingText,
@@ -118,12 +119,10 @@ export default function CryptoPurchaseForm() {
         <Loading loadingText={loadingText} variant="primary" />
       )}
 
-      {status === CheckoutStatus.success && packId && (
-        <CryptoSuccess packId={packId} release={release} />
-      )}
+      {status === CheckoutStatus.success && packId && <CryptoSuccess />}
 
       {status === CheckoutStatus.error && (
-        <CryptoPurchaseError error={error} handleRetry={handleRetry} />
+        <CryptoError error={error} handleRetry={handleRetry} />
       )}
     </section>
   )

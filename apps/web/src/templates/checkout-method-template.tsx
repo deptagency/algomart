@@ -11,13 +11,15 @@ import BankAccountForm from '@/components/purchase-form/wires/bank-account-form'
 import StepLinks from '@/components/step-links'
 import { useAuth } from '@/contexts/auth-context'
 import { usePaymentContext } from '@/contexts/payment-context'
-import { urls } from '@/utils/urls'
+import { urlFor, urls } from '@/utils/urls'
+
+interface CheckoutMethodsTemplateProps {
+  address: string
+}
 
 export default function CheckoutMethodsTemplate({
   address,
-}: {
-  address: string
-}) {
+}: CheckoutMethodsTemplateProps) {
   const { user } = useAuth()
   const { query } = useRouter()
   const { t } = useTranslation()
@@ -42,13 +44,11 @@ export default function CheckoutMethodsTemplate({
   const { packSlug } = query
 
   const getPaymentNavItems = (t: Translate) => {
-    const basePath = urls.checkoutPackWithMethod
-      .replace(':packSlug', packSlug as string)
-      .replace(':method', method as string)
+    const basePath = urlFor(urls.checkoutPackWithMethod, { packSlug, method })
     const navItemsBase = [
       {
         label: t('common:nav.payment.Payment Methods'),
-        href: urls.checkoutPack.replace(':packSlug', packSlug as string),
+        href: urlFor(urls.checkoutPack, { packSlug }),
       },
       {
         label:
