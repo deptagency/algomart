@@ -4,6 +4,7 @@ import { invariant } from '@algomart/shared/utils'
 import pinataSDK, { PinataClient } from '@pinata/sdk'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import stream from 'node:stream'
 import { promisify } from 'node:util'
@@ -111,15 +112,18 @@ export class NFTStorageAdapter {
       const downloadStream = await http.stream(fullURL.toString())
       const { mime, stream: outStream } = await getMimeType(downloadStream)
       outStream.on('error', (error: Error) => {
-        this.logger.error(error, `Failed to download ${fileName}`)
+        this.logger.error(`Failed to download ${fileName}: ${error.message}`)
         throw error
       })
 
       // Pipe downloaded file to fs
       const fileWriteStream = fs
-        .createWriteStream(fileName)
+        .createWriteStream(path.join(os.tmpdir(), fileName))
         .on('error', (error: Error) => {
-          this.logger.error(error, `Failed to save ${fileName}`)
+          this.logger.error(
+            error,
+            `Failed to save ${fileName}: ${error.message}`
+          )
           throw error
         })
       await pipeline(outStream, fileWriteStream)
