@@ -1,7 +1,6 @@
 import {
   CheckoutMethod,
   CheckoutStatus,
-  PackType,
   ToPaymentBase,
 } from '@algomart/schemas'
 import { useRouter } from 'next/router'
@@ -18,7 +17,6 @@ import css from './crypto-purchase-form.module.css'
 import Loading from '@/components/loading/loading'
 import { usePaymentContext } from '@/contexts/payment-context'
 import { CheckoutService } from '@/services/checkout-service'
-import { isAfterNow } from '@/utils/date-time'
 
 export interface CryptoPurchaseFormProps {
   address: string | null
@@ -33,6 +31,7 @@ export default function CryptoPurchaseForm() {
     formErrors,
     handleRetry,
     handleSubmitBid: onSubmitBid,
+    isAuctionActive,
     loadingText,
     packId,
     price,
@@ -43,9 +42,6 @@ export default function CryptoPurchaseForm() {
     setStatus,
     status,
   } = usePaymentContext()
-  const isAuctionActive =
-    release?.type === PackType.Auction &&
-    isAfterNow(new Date(release.auctionUntil as string))
   const [error, setError] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -122,7 +118,7 @@ export default function CryptoPurchaseForm() {
           handlePurchase={handlePurchase}
           setStatus={setStatus}
           handleSubmitBid={handleSubmitBid}
-          isAuctionActive={isAuctionActive}
+          isAuctionActive={isAuctionActive()}
           isLoading={isLoading}
           price={price}
           release={release}

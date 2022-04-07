@@ -22,10 +22,8 @@ export default function CardForm() {
   const { t } = useTranslation()
   const { asPath, push } = useRouter()
   const {
-    bid,
-    countries,
+    isAuctionActive,
     release,
-    formErrors,
     handleRetry,
     handleSubmitBid: onSubmitBid,
     handleSubmitPurchase: onSubmitPurchase,
@@ -33,13 +31,9 @@ export default function CardForm() {
     packId,
     price,
     promptLeaving,
-    setBid,
     setPromptLeaving,
     status,
   } = usePaymentContext()
-  const isAuctionActive =
-    release?.type === PackType.Auction &&
-    isAfterNow(new Date(release.auctionUntil as string))
   useWarningOnExit(promptLeaving, t('common:statuses.processingPayment'))
 
   const handleSubmitPurchase = useCallback(
@@ -72,7 +66,7 @@ export default function CardForm() {
   const handleCompleteAuction = useCallback(
     () =>
       push(
-        isAuctionActive
+        isAuctionActive()
           ? urls.release.replace(':packSlug', release.slug)
           : urls.myCollectibles
       ),
@@ -93,17 +87,12 @@ export default function CardForm() {
         onSubmit={handleSubmitPurchase}
       >
         <CardPurchaseForm
-          bid={bid}
           className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
-          countries={countries}
-          formErrors={formErrors}
-          isAuctionActive={isAuctionActive}
-          setBid={setBid}
           handleContinue={() => push(`${asPath.split('?')[0]}?step=summary`)}
         />
         {status === CheckoutStatus.summary && (
           <CardPurchaseSummary
-            isAuctionActive={isAuctionActive}
+            isAuctionActive={isAuctionActive()}
             price={price}
             release={release}
           />
@@ -117,7 +106,7 @@ export default function CardForm() {
       {status === CheckoutStatus.success && packId && (
         <Success
           buttonText={
-            release?.type === PackType.Auction && isAuctionActive
+            release?.type === PackType.Auction && isAuctionActive()
               ? t('common:actions.Back to Listing')
               : release?.type === PackType.Auction
               ? t('common:actions.View My Collection')
@@ -130,13 +119,13 @@ export default function CardForm() {
           }
           headingClassName={release?.type === PackType.Purchase && 'mb-16'}
           headingText={
-            release?.type === PackType.Auction && isAuctionActive
+            release?.type === PackType.Auction && isAuctionActive()
               ? t('common:statuses.Bid placed!')
               : t('common:statuses.Success!')
           }
           notice={
             release?.type === PackType.Auction &&
-            isAuctionActive &&
+            isAuctionActive() &&
             t('forms:fields.bid.success', { title: release.title })
           }
         />

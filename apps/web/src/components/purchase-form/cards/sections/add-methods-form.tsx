@@ -9,17 +9,14 @@ import Heading from '@/components/heading'
 import BillingAddress from '@/components/purchase-form/shared/billing-address'
 import CardDetails from '@/components/purchase-form/shared/card-details'
 import FullName from '@/components/purchase-form/shared/full-name'
-import { SelectOption } from '@/components/select-input/select-input'
 import { FormValidation, getError } from '@/contexts/payment-context'
 
 export interface AddMethodsFormProps {
-  countries: SelectOption[]
   formErrors?: FormValidation
   onSubmit(event: FormEvent<HTMLFormElement>): void
 }
 
 export default function AddMethodsForm({
-  countries,
   formErrors,
   onSubmit,
 }: AddMethodsFormProps) {
@@ -35,14 +32,7 @@ export default function AddMethodsForm({
       ) : null}
       <Heading level={2}>{t('forms:sections.Credit Card')}</Heading>
       <FullName formErrors={{ fullName: getError('fullName', formErrors) }} />
-      <CardDetails
-        formErrors={{
-          ccNumber: getError('ccNumber', formErrors),
-          expMonth: getError('expMonth', formErrors),
-          expYear: getError('expYear', formErrors),
-          securityCode: getError('securityCode', formErrors),
-        }}
-      />
+      <CardDetails />
       <BillingAddress />
       {/* Submit */}
       <Button

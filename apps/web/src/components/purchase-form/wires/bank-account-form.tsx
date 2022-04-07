@@ -19,7 +19,6 @@ import css from './bank-account-form.module.css'
 
 import Loading from '@/components/loading/loading'
 import { usePaymentContext } from '@/contexts/payment-context'
-import { isAfterNow } from '@/utils/date-time'
 
 export default function BankAccountPurchaseForm() {
   const { t } = useTranslation()
@@ -32,6 +31,7 @@ export default function BankAccountPurchaseForm() {
     handleRetry,
     handleSubmitBid: onSubmitBid,
     initialBid,
+    isAuctionActive,
     loadingText,
     price,
     release,
@@ -40,18 +40,12 @@ export default function BankAccountPurchaseForm() {
   } = usePaymentContext()
   const [bankAccountInstructions, setBankAccountInstructions] =
     useState<PaymentBankAccountInstructions | null>(null)
-  const isAuctionActive =
-    release?.type === PackType.Auction &&
-    isAfterNow(new Date(release.auctionUntil as string))
 
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
       const data = new FormData(event.currentTarget)
-      if (
-        release?.type === PackType.Auction &&
-        isAfterNow(new Date(release.auctionUntil as string))
-      ) {
+      if (isAuctionActive()) {
         await onSubmitBid(data, CheckoutMethod.wire)
       } else {
         const bankInstructions = await onSubmitBankAccount(data)
@@ -86,7 +80,7 @@ export default function BankAccountPurchaseForm() {
         />
         {status === CheckoutStatus.summary && (
           <BankAccountSummary
-            isAuctionActive={isAuctionActive}
+            isAuctionActive={isAuctionActive()}
             price={price}
             release={release}
           />

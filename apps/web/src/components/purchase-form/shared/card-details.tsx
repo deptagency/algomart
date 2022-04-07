@@ -3,22 +3,15 @@ import useTranslation from 'next-translate/useTranslation'
 import css from './card-details.module.css'
 
 import TextInput from '@/components/text-input/text-input'
+import { usePaymentContext } from '@/contexts/payment-context'
 
-export interface CardDetailsProps {
-  formErrors?: {
-    ccNumber?: string
-    expMonth?: string
-    expYear?: string
-    securityCode?: string
-  }
-}
-
-export default function CardDetails({ formErrors }: CardDetailsProps) {
+export default function CardDetails() {
   const { t } = useTranslation()
+  const { getError } = usePaymentContext()
   return (
     <>
       <TextInput
-        error={formErrors?.ccNumber}
+        error={getError('ccNumber')}
         label={t('forms:fields.ccNumber.label')}
         maxLength={20}
         name="ccNumber"
@@ -32,14 +25,14 @@ export default function CardDetails({ formErrors }: CardDetailsProps) {
           </label>
           <div className={css.formMultiRow}>
             <TextInput
-              error={formErrors?.expMonth}
+              error={getError('expMonth')}
               maxLength={2}
               name="expMonth"
               placeholder="MM"
               variant="small"
             />
             <TextInput
-              error={formErrors?.expYear}
+              error={getError('expYear')}
               maxLength={2}
               name="expYear"
               placeholder="YY"
@@ -49,7 +42,7 @@ export default function CardDetails({ formErrors }: CardDetailsProps) {
         </div>
         <div>
           <TextInput
-            error={formErrors?.securityCode}
+            error={getError('securityCode')}
             label={t('forms:fields.securityCode.label')}
             maxLength={3}
             name="securityCode"

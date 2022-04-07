@@ -34,7 +34,7 @@ import {
   CreateBankAccountRequest,
   CreateCardRequest,
 } from '@/services/checkout-service'
-import { getExpirationDate } from '@/utils/date-time'
+import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { encryptCardDetails } from '@/utils/encryption'
 import { toJSON } from '@/utils/form-to-json'
 import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
@@ -83,6 +83,7 @@ export interface PaymentContextProps {
   handleSubmitBid(data: FormData, method: CheckoutMethod): void
   handleSubmitPurchase(data: FormData, isPurchase: boolean): void
   initialBid?: string
+  isAuctionActive?: () => boolean
   loadingText: string
   method?: string | string[]
   packId: string | null
@@ -730,6 +731,10 @@ export function usePaymentProvider({
     )
   }, [currency, bid]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const isAuctionActive = () =>
+    release?.type === PackType.Auction &&
+    isAfterNow(new Date(release.auctionUntil as string))
+
   const value = useMemo(
     () => ({
       address,
@@ -744,6 +749,7 @@ export function usePaymentProvider({
       handleSubmitBid,
       handleSubmitPurchase,
       initialBid,
+      isAuctionActive,
       loadingText,
       method,
       packId,
@@ -771,6 +777,7 @@ export function usePaymentProvider({
       handleSubmitBid,
       handleSubmitPurchase,
       initialBid,
+      isAuctionActive,
       loadingText,
       method,
       packId,
