@@ -274,6 +274,8 @@ export function useAuthProvider() {
       passphrase,
       profilePic,
       username,
+      currency,
+      language,
     }: SignUpPayload) => {
       dispatch(authActions.setLoading())
       try {
@@ -287,7 +289,13 @@ export function useAuthProvider() {
           // Set profile
           const token = await user.getIdToken()
           await fetch(urls.api.v1.profile, {
-            body: JSON.stringify({ email, passphrase, username }),
+            body: JSON.stringify({
+              email,
+              passphrase,
+              username,
+              currency,
+              language,
+            }),
             headers: {
               authorization: `bearer ${token}`,
               'content-type': 'application/json',
