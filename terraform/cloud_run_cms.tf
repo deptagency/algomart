@@ -3,7 +3,7 @@ resource "google_storage_bucket" "cms_bucket" {
   project  = var.project
   location = var.bucket_location
 
-  uniform_bucket_level_access = false
+  uniform_bucket_level_access = true
 
   // Require all objects to be manually deleted prior to bucket removal
   force_destroy = false
