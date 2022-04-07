@@ -46,7 +46,7 @@ export default function Select({
 }: SelectProps) {
   const _id = id ?? crypto.randomUUID()
   const [internalValue, setInternalValue] = useState(
-    defaultValue || options[0].key
+    defaultValue || (options?.length ? options[0].key : '')
   )
 
   const actualValue = value ?? internalValue
