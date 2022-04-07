@@ -2,10 +2,11 @@
 
 set -e
 
-if [ -z "$STORAGE_GCP_CREDENTIALS" ]; then
-  echo "No STORAGE_GCP_CREDENTIALS provided."
+if [ -z "$STORAGE_GCP_CREDENTIALS" ] || [ -z "$STORAGE_GCP_KEY_FILENAME" ]; then
+  echo "No STORAGE_GCP_CREDENTIALS or STORAGE_GCP_KEY_FILENAME provided."
 else
-  echo $STORAGE_GCP_CREDENTIALS > /app/gcp-credentials.json
+  echo "Writing GCP credentials to $STORAGE_GCP_KEY_FILENAME"
+  echo $STORAGE_GCP_CREDENTIALS > $STORAGE_GCP_KEY_FILENAME
 fi
 
 directus bootstrap
