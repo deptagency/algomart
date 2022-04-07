@@ -14,7 +14,7 @@ import FullName from '@/components/purchase-form/shared/full-name'
 import Select, { SelectOption } from '@/components/select-input/select-input'
 import TextInput from '@/components/text-input/text-input'
 import Toggle from '@/components/toggle/toggle'
-import { FormValidation } from '@/contexts/payment-context'
+import { FormValidation, getError } from '@/contexts/payment-context'
 import { CheckoutService } from '@/services/checkout-service'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
@@ -22,7 +22,7 @@ import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
 export interface CardPurchaseFormProps {
   bid: string | null
   className?: string
-  countries: { label: string | null; id: string }[]
+  countries: SelectOption[]
   formErrors?: FormValidation
   handleContinue: () => void
   initialBid?: string
@@ -90,21 +90,21 @@ export default function CardPurchaseForm({
 
   return (
     <div className={className}>
-      {formErrors && 'bid' in formErrors && (
+      {getError('bid', formErrors) ? (
         <AlertMessage
           className={css.notification}
-          content={formErrors.bid}
+          content={getError('bid', formErrors)}
           variant="red"
         />
-      )}
+      ) : null}
 
-      {formErrors && 'expirationDate' in formErrors && (
+      {getError('expirationDate', formErrors) ? (
         <AlertMessage
           className={css.notification}
-          content={formErrors.expirationDate}
+          content={getError('expirationDate', formErrors)}
           variant="red"
         />
-      )}
+      ) : null}
 
       <div
         className={clsx(css.formSection, {
@@ -138,31 +138,14 @@ export default function CardPurchaseForm({
         {!savedCard ? (
           <>
             <FullName
-              formErrors={{
-                fullName:
-                  formErrors && 'fullName' in formErrors
-                    ? (formErrors.fullName as string)
-                    : '',
-              }}
+              formErrors={{ fullName: getError('fullName', formErrors) }}
             />
             <CardDetails
               formErrors={{
-                ccNumber:
-                  formErrors && 'ccNumber' in formErrors
-                    ? (formErrors.ccNumber as string)
-                    : '',
-                expMonth:
-                  formErrors && 'expMonth' in formErrors
-                    ? (formErrors.expMonth as string)
-                    : '',
-                expYear:
-                  formErrors && 'expYear' in formErrors
-                    ? (formErrors.expYear as string)
-                    : '',
-                securityCode:
-                  formErrors && 'securityCode' in formErrors
-                    ? (formErrors.securityCode as string)
-                    : '',
+                ccNumber: getError('ccNumber', formErrors),
+                expMonth: getError('expMonth', formErrors),
+                expYear: getError('expYear', formErrors),
+                securityCode: getError('securityCode', formErrors),
               }}
             />
           </>
@@ -175,11 +158,7 @@ export default function CardPurchaseForm({
                 value={savedCard}
               />
               <TextInput
-                error={
-                  formErrors && 'securityCode' in formErrors
-                    ? (formErrors.securityCode as string)
-                    : ''
-                }
+                error={getError('securityCode', formErrors)}
                 label={t('forms:fields.securityCode.label')}
                 maxLength={3}
                 name="securityCode"
@@ -230,26 +209,11 @@ export default function CardPurchaseForm({
         <BillingAddress
           countries={countries}
           formErrors={{
-            address1:
-              formErrors && 'address1' in formErrors
-                ? (formErrors.address1 as string)
-                : '',
-            city:
-              formErrors && 'city' in formErrors
-                ? (formErrors.city as string)
-                : '',
-            state:
-              formErrors && 'state' in formErrors
-                ? (formErrors.state as string)
-                : '',
-            country:
-              formErrors && 'country' in formErrors
-                ? (formErrors.country as string)
-                : '',
-            zipCode:
-              formErrors && 'zipCode' in formErrors
-                ? (formErrors.zipCode as string)
-                : '',
+            address1: getError('address1', formErrors),
+            city: getError('city', formErrors),
+            state: getError('state', formErrors),
+            country: getError('country', formErrors),
+            zipCode: getError('zipCode', formErrors),
           }}
         />
       )}

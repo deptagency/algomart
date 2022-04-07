@@ -4,11 +4,11 @@ import useTranslation from 'next-translate/useTranslation'
 import css from './card-details.module.css'
 
 import Heading from '@/components/heading'
-import Select from '@/components/select/select'
+import Select, { SelectOption } from '@/components/select-input/select-input'
 import TextInput from '@/components/text-input/text-input'
 
 export interface BillingAddressProps {
-  countries: { label: string | null; id: string }[]
+  countries: SelectOption[]
   formErrors?: {
     address1?: string
     city?: string
@@ -26,7 +26,7 @@ export interface BillingAddressProps {
 }
 
 export default function BillingAddress({
-  countries: countryOptions,
+  countries,
   formErrors,
   initialValues,
 }: BillingAddressProps) {
@@ -62,13 +62,13 @@ export default function BillingAddress({
         />
       </div>
       <div className={css.formMultiRow}>
-        {countryOptions.length > 0 && (
+        {countries.length > 0 && (
           <Select
             error={formErrors?.country}
             label={t('forms:fields.country.label')}
             id="country"
             name="country"
-            options={countryOptions}
+            options={countries}
             placeholder="US"
           />
         )}

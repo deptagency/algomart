@@ -8,7 +8,7 @@ import CollectibleItem from '@/components/collectibles/collectible-item'
 import NoCollectiblesContent from '@/components/collectibles/no-collectibles-content'
 import Grid from '@/components/grid/grid'
 import Pagination, { PAGE_SIZE } from '@/components/pagination/pagination'
-import Select, { SelectOption } from '@/components/select/select'
+import Select, { SelectOption } from '@/components/select-input/select-input'
 import Tabs from '@/components/tabs/tabs'
 import {
   collectibleIsNumberOfDaysOld,
@@ -19,22 +19,22 @@ import { urls } from '@/utils/urls'
 export interface MyCollectiblesTemplateProps {
   assets: CollectibleWithDetails[]
   currentPage: number
-  handleRedirectBrands: () => void
-  handlePageChange: (pageNumber: number) => void
-  handleSortChange: (option: SelectOption) => void
-  selectedOption: SelectOption
-  selectOptions: SelectOption[]
+  onRedirectBrands: () => void
+  onPageChange: (pageNumber: number) => void
+  onSortChange: (option: string) => void
+  sortMode: string
+  sortOptions: SelectOption[]
   totalCollectibles: number
 }
 
 export default function MyCollectiblesTemplate({
   assets,
   currentPage,
-  handleRedirectBrands,
-  handlePageChange,
-  handleSortChange,
-  selectedOption,
-  selectOptions,
+  onRedirectBrands,
+  onPageChange,
+  onSortChange,
+  sortMode,
+  sortOptions,
   totalCollectibles,
 }: MyCollectiblesTemplateProps) {
   const { t } = useTranslation()
@@ -51,10 +51,10 @@ export default function MyCollectiblesTemplate({
           {/* Sorting filter */}
           <div className={css.selectWrapper}>
             <Select
-              handleChange={handleSortChange}
               id="sortOption"
-              options={selectOptions}
-              selectedValue={selectedOption}
+              options={sortOptions}
+              value={sortMode}
+              onChange={onSortChange}
             />
           </div>
           <Grid>
@@ -82,13 +82,13 @@ export default function MyCollectiblesTemplate({
             <Pagination
               currentPage={currentPage}
               pageSize={PAGE_SIZE}
-              setPage={handlePageChange}
+              setPage={onPageChange}
               total={totalCollectibles}
             />
           </div>
         </>
       ) : (
-        <NoCollectiblesContent handleRedirect={handleRedirectBrands} />
+        <NoCollectiblesContent onRedirect={onRedirectBrands} />
       )}
     </>
   )

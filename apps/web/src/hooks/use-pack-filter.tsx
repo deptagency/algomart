@@ -2,7 +2,7 @@ import { PackSortField, SortDirection, SortOptions } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 import { Dispatch, useMemo, useReducer } from 'react'
 
-import { SelectOption } from '@/components/select/select'
+import { SelectOption } from '@/components/select-input/select-input'
 import { getSelectSortingOptions } from '@/utils/filters'
 import {
   ActionsUnion,
@@ -17,7 +17,7 @@ export interface PackFilterState {
   currentPage: number
   priceHigh: number
   priceLow: number
-  selectedOption: SelectOption
+  sortMode: string
   selectOptions: SelectOption[]
   showAuction: boolean
   showPurchase: boolean
@@ -69,7 +69,7 @@ export const packFilterActions = {
     typeof SET_SHOW_AUCTION_RESERVE_MET,
     boolean
   >(SET_SHOW_AUCTION_RESERVE_MET),
-  setSort: createActionPayload<typeof SET_SORT, SelectOption>(SET_SORT),
+  setSort: createActionPayload<typeof SET_SORT, string>(SET_SORT),
 }
 
 export type PackFilterActions = Dispatch<
@@ -84,7 +84,7 @@ export type PackFilterActions = Dispatch<
   | ActionsWithPayload<typeof SET_SHOW_AUCTION_ACTIVE, boolean>
   | ActionsWithPayload<typeof SET_SHOW_AUCTION_EXPIRED, boolean>
   | ActionsWithPayload<typeof SET_SHOW_AUCTION_RESERVE_MET, boolean>
-  | ActionsWithPayload<typeof SET_SORT, SelectOption>
+  | ActionsWithPayload<typeof SET_SORT, string>
 >
 
 export interface PackFilter {
@@ -119,26 +119,21 @@ export function packFilterReducer(
     case SET_SHOW_AUCTION_RESERVE_MET:
       return { ...state, currentPage: 1, showAuctionReserveMet: action.payload }
     case SET_SORT: {
-      let sortBy = PackSortField.ReleasedAt
-      let sortDirection = SortDirection.Ascending
-      switch (action.payload.id) {
-        case SortOptions.Newest:
-          sortBy = PackSortField.ReleasedAt
-          sortDirection = SortDirection.Descending
-          break
-        case SortOptions.Oldest:
-          sortBy = PackSortField.ReleasedAt
-          sortDirection = SortDirection.Ascending
-          break
-        case SortOptions.Name:
-          sortBy = PackSortField.Title
-          sortDirection = SortDirection.Ascending
-          break
-      }
+      const [sortBy, sortDirection] = {
+        [SortOptions.Newest]: [
+          PackSortField.ReleasedAt,
+          SortDirection.Descending,
+        ],
+        [SortOptions.Oldest]: [
+          PackSortField.ReleasedAt,
+          SortDirection.Ascending,
+        ],
+        [SortOptions.Name]: [PackSortField.Title, SortDirection.Ascending],
+      }[action.payload] as [PackSortField, SortDirection]
       return {
         ...state,
         currentPage: 1,
-        selectedOption: action.payload,
+        sortMode: action.payload,
         sortBy,
         sortDirection,
       }
@@ -156,7 +151,7 @@ export function usePackFilter() {
     currentPage: 1,
     priceHigh: 50_000,
     priceLow: 0,
-    selectedOption: selectOptions[0],
+    sortMode: selectOptions[0].key,
     selectOptions,
     showAuction: true,
     showPurchase: true,

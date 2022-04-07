@@ -9,7 +9,7 @@ import ExternalLink from '@/components/external-link'
 import Grid from '@/components/grid/grid'
 import Heading from '@/components/heading'
 import Pagination, { PAGE_SIZE } from '@/components/pagination/pagination'
-import Select, { SelectOption } from '@/components/select/select'
+import Select, { SelectOption } from '@/components/select-input/select-input'
 import { useAuth } from '@/contexts/auth-context'
 import { formatAlgoAddress } from '@/utils/format-string'
 
@@ -20,10 +20,10 @@ export interface AlgoAddressTemplateProps {
   assets: CollectibleWithDetails[]
   currentPage: number
   handlePageChange: (pageNumber: number) => void
-  handleSortChange: (option: SelectOption) => void
+  onSortChange: (value: string) => void
   isViewerActive: boolean
-  selectedOption: SelectOption
-  selectOptions: SelectOption[]
+  sortMode: string
+  sortOptions: SelectOption[]
   toggleViewer: (asset?: CollectibleWithDetails | undefined) => void
   totalCollectibles: number
 }
@@ -35,10 +35,10 @@ export default function AlgoAddressTemplate({
   assets,
   currentPage,
   handlePageChange,
-  handleSortChange,
+  onSortChange,
   isViewerActive,
-  selectedOption,
-  selectOptions,
+  sortMode,
+  sortOptions,
   toggleViewer,
   totalCollectibles,
 }: AlgoAddressTemplateProps) {
@@ -122,10 +122,10 @@ export default function AlgoAddressTemplate({
       {/* Sorting filter */}
       <div className={css.selectWrapper}>
         <Select
-          handleChange={handleSortChange}
+          onChange={onSortChange}
           id="sortOption"
-          options={selectOptions}
-          selectedValue={selectedOption}
+          options={sortOptions}
+          value={sortMode}
         />
       </div>
 

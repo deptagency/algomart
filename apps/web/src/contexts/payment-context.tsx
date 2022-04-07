@@ -65,6 +65,9 @@ export type FormValidation = ExtractError<
   >
 >
 
+export const getError = (field: string, formErrors?: FormValidation) =>
+  formErrors && field in formErrors ? (formErrors[field] as string) : ''
+
 export interface PaymentContextProps {
   address: string | null
   auctionPackId?: string | null
@@ -155,14 +158,15 @@ export function usePaymentProvider({
     try {
       const countries = await CheckoutService.instance.getCountries()
       if (countries) {
-        return setCountries(
+        setCountries(
           countries.map(({ code, name }) => ({
             label: name as string,
             key: code as string,
           }))
         )
+      } else {
+        setCountries([])
       }
-      return setCountries([])
     } catch {
       setCountries([])
       setStatus(CheckoutStatus.error)
@@ -181,9 +185,8 @@ export function usePaymentProvider({
       const step = status === CheckoutStatus.form ? 'details' : 'summary'
       const path = `${asPath.split('?')[0]}?step=${step}`
       if (path !== asPath) {
-        return push(`${asPath.split('?')[0]}?step=${step}`)
+        push(`${asPath.split('?')[0]}?step=${step}`)
       }
-      return
     },
     [asPath, push]
   )
@@ -210,7 +213,7 @@ export function usePaymentProvider({
       }[code]
 
       if (errors) {
-        return setFormErrors(errors)
+        setFormErrors(errors)
       }
     },
     [t]

@@ -9,10 +9,11 @@ import Heading from '@/components/heading'
 import BillingAddress from '@/components/purchase-form/shared/billing-address'
 import CardDetails from '@/components/purchase-form/shared/card-details'
 import FullName from '@/components/purchase-form/shared/full-name'
-import { FormValidation } from '@/contexts/payment-context'
+import { SelectOption } from '@/components/select-input/select-input'
+import { FormValidation, getError } from '@/contexts/payment-context'
 
 export interface AddMethodsFormProps {
-  countries: { label: string | null; id: string }[]
+  countries: SelectOption[]
   formErrors?: FormValidation
   onSubmit(event: FormEvent<HTMLFormElement>): void
 }
@@ -25,65 +26,31 @@ export default function AddMethodsForm({
   const { t } = useTranslation()
   return (
     <form className={css.form} onSubmit={onSubmit}>
-      {formErrors && 'expirationDate' in formErrors && (
+      {getError('expirationDate', formErrors) ? (
         <AlertMessage
           className={css.notification}
-          content={formErrors.expirationDate}
+          content={getError('expirationDate', formErrors)}
           variant="red"
         />
-      )}
+      ) : null}
       <Heading level={2}>{t('forms:sections.Credit Card')}</Heading>
-      <FullName
-        formErrors={{
-          fullName:
-            formErrors && 'fullName' in formErrors
-              ? (formErrors.fullName as string)
-              : '',
-        }}
-      />
+      <FullName formErrors={{ fullName: getError('fullName', formErrors) }} />
       <CardDetails
         formErrors={{
-          ccNumber:
-            formErrors && 'ccNumber' in formErrors
-              ? (formErrors.ccNumber as string)
-              : '',
-          expMonth:
-            formErrors && 'expMonth' in formErrors
-              ? (formErrors.expMonth as string)
-              : '',
-          expYear:
-            formErrors && 'expYear' in formErrors
-              ? (formErrors.expYear as string)
-              : '',
-          securityCode:
-            formErrors && 'securityCode' in formErrors
-              ? (formErrors.securityCode as string)
-              : '',
+          ccNumber: getError('ccNumber', formErrors),
+          expMonth: getError('expMonth', formErrors),
+          expYear: getError('expYear', formErrors),
+          securityCode: getError('securityCode', formErrors),
         }}
       />
       <BillingAddress
         countries={countries}
         formErrors={{
-          address1:
-            formErrors && 'address1' in formErrors
-              ? (formErrors.address1 as string)
-              : '',
-          city:
-            formErrors && 'city' in formErrors
-              ? (formErrors.city as string)
-              : '',
-          state:
-            formErrors && 'state' in formErrors
-              ? (formErrors.state as string)
-              : '',
-          country:
-            formErrors && 'country' in formErrors
-              ? (formErrors.country as string)
-              : '',
-          zipCode:
-            formErrors && 'zipCode' in formErrors
-              ? (formErrors.zipCode as string)
-              : '',
+          address1: getError('address1', formErrors),
+          city: getError('city', formErrors),
+          state: getError('state', formErrors),
+          country: getError('country', formErrors),
+          zipCode: getError('zipCode', formErrors),
         }}
       />
       {/* Submit */}

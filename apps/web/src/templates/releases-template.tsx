@@ -13,7 +13,7 @@ import ReleaseFilterPrice from '@/components/releases/release-filter-price'
 import ReleaseFilterType from '@/components/releases/release-filter-type'
 import ReleaseFiltersMobile from '@/components/releases/release-filters-mobile'
 import ReleaseItem from '@/components/releases/release-item'
-import Select from '@/components/select/select'
+import Select from '@/components/select-input/select-input'
 import { usePackFilterContext } from '@/contexts/pack-filter-context'
 import { packFilterActions } from '@/hooks/use-pack-filter'
 import { RELEASES_PER_PAGE } from '@/pages/releases'
@@ -39,10 +39,10 @@ export default function ReleasesTemplate({
       <div className={css.selectWrapper}>
         <Select
           className={css.select}
-          handleChange={(option) => dispatch(packFilterActions.setSort(option))}
+          onChange={(value) => dispatch(packFilterActions.setSort(value))}
           id="sortOption"
           options={state.selectOptions}
-          selectedValue={state.selectedOption}
+          value={state.sortMode}
         />
       </div>
       <div className={clsx(css.columns)}>

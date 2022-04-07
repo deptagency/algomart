@@ -13,13 +13,13 @@ import { urlFor, urls } from '@/utils/urls'
 export interface MyCollectionsTemplateProps {
   assets: CollectibleWithDetails[]
   collections: CollectionWithSets[]
-  handleRedirectBrands: () => void
+  onRedirectBrands: () => void
 }
 
 export default function MyCollectionsTemplate({
   assets,
   collections,
-  handleRedirectBrands,
+  onRedirectBrands,
 }: MyCollectionsTemplateProps) {
   const { t } = useTranslation()
 
@@ -52,7 +52,7 @@ export default function MyCollectionsTemplate({
             })}
           </Grid>
         ) : (
-          <NoCollectiblesContent handleRedirect={handleRedirectBrands} />
+          <NoCollectiblesContent onRedirect={onRedirectBrands} />
         )}
       </section>
     </>

@@ -6,10 +6,11 @@ import AddMethodsForm from './sections/add-methods-form'
 import AddMethodsSuccess from './sections/add-methods-success'
 
 import Loading from '@/components/loading/loading'
+import { SelectOption } from '@/components/select-input/select-input'
 import { FormValidation } from '@/contexts/payment-context'
 
 export interface PaymentMethodsFormProps {
-  countries: { label: string | null; id: string }[]
+  countries: SelectOption[]
   formErrors?: FormValidation
   handleRetry: () => void
   loadingText: string

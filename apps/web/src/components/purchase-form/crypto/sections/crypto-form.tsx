@@ -16,7 +16,7 @@ import Checkbox from '@/components/checkbox'
 import Heading from '@/components/heading'
 import Bid from '@/components/purchase-form/shared/bid'
 import { useI18n } from '@/contexts/i18n-context'
-import { FormValidation } from '@/contexts/payment-context'
+import { FormValidation,getError } from '@/contexts/payment-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/format-currency'
@@ -85,13 +85,13 @@ export default function CryptoForm({
 
   return (
     <form className={className} onSubmit={handleSubmitBid}>
-      {formErrors && 'bid' in formErrors && (
+      {getError('bid', formErrors) ? (
         <AlertMessage
           className={css.notification}
-          content={formErrors.bid}
+          content={getError('bid', formErrors)}
           variant="red"
         />
-      )}
+      ) : null}
 
       <Heading className={css.heading} level={1}>
         {t('common:nav.payment.Pay with Crypto Wallet')}

@@ -10,7 +10,6 @@ import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useState } from 'react'
 
 import Loading from '@/components/loading/loading'
-import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import DefaultLayout from '@/layouts/default-layout'
 import {
@@ -34,10 +33,8 @@ export default function MyCollectiblesPage() {
   )
 
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const selectOptions = getSelectSortingOptions(t)
-  const [selectedOption, setSelectedOption] = useState<SelectOption>(
-    selectOptions[0]
-  )
+  const sortOptions = getSelectSortingOptions(t)
+  const [sortMode, setSortMode] = useState<string>(sortOptions[0].key)
 
   const { data } = useApi<CollectibleListWithTotal>(
     user?.username
@@ -51,27 +48,20 @@ export default function MyCollectiblesPage() {
     setCurrentPage(pageNumber)
   }, [])
 
-  const handleSortChange = useCallback((option: SelectOption) => {
+  const handleSortChange = useCallback((value: string) => {
     setCurrentPage(1)
-    setSelectedOption(option)
-    let newSortBy = CollectibleSortField.Title
-    let newSortDirection = SortDirection.Ascending
-
-    switch (option.id) {
-      case SortOptions.Newest:
-        newSortBy = CollectibleSortField.ClaimedAt
-        newSortDirection = SortDirection.Descending
-        break
-      case SortOptions.Oldest:
-        newSortBy = CollectibleSortField.ClaimedAt
-        newSortDirection = SortDirection.Ascending
-        break
-      case SortOptions.Name:
-        newSortBy = CollectibleSortField.Title
-        newSortDirection = SortDirection.Ascending
-        break
-    }
-
+    setSortMode(value)
+    const [newSortBy, newSortDirection] = {
+      [SortOptions.Newest]: [
+        CollectibleSortField.ClaimedAt,
+        SortDirection.Descending,
+      ],
+      [SortOptions.Oldest]: [
+        CollectibleSortField.ClaimedAt,
+        SortDirection.Ascending,
+      ],
+      [SortOptions.Name]: [CollectibleSortField.Title, SortDirection.Ascending],
+    }[value] as [CollectibleSortField, SortDirection]
     setSortBy(newSortBy)
     setSortDirection(newSortDirection)
   }, [])
@@ -88,11 +78,11 @@ export default function MyCollectiblesPage() {
         <MyCollectiblesTemplate
           assets={collectibles}
           currentPage={currentPage}
-          handlePageChange={handlePageChange}
-          handleRedirectBrands={() => router.push(urls.releases)}
-          handleSortChange={handleSortChange}
-          selectedOption={selectedOption}
-          selectOptions={selectOptions}
+          onPageChange={handlePageChange}
+          onRedirectBrands={() => router.push(urls.releases)}
+          onSortChange={handleSortChange}
+          sortMode={sortMode}
+          sortOptions={sortOptions}
           totalCollectibles={total}
         />
       )}

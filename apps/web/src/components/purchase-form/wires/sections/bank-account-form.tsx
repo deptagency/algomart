@@ -13,7 +13,7 @@ import FullName from '@/components/purchase-form/shared/full-name'
 import Select, { SelectOption } from '@/components/select-input/select-input'
 import TextInput from '@/components/text-input/text-input'
 import { useI18n } from '@/contexts/i18n-context'
-import { FormValidation } from '@/contexts/payment-context'
+import { FormValidation,getError } from '@/contexts/payment-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { isAfterNow } from '@/utils/date-time'
@@ -54,13 +54,13 @@ export default function BankAccountForm({
 
   return (
     <div className={className}>
-      {formErrors && 'bid' in formErrors && (
+      {getError('bid', formErrors) ? (
         <AlertMessage
           className={css.notification}
-          content={formErrors.bid}
+          content={getError('bid', formErrors)}
           variant="red"
         />
-      )}
+      ) : null}
 
       <div className={clsx(css.formSection)}>
         {isAuctionActive ? (
@@ -75,111 +75,63 @@ export default function BankAccountForm({
             <Heading level={2}>{t('forms:sections.Bank Account')}</Heading>
 
             <TextInput
-              error={
-                formErrors && 'accountNumber' in formErrors
-                  ? (formErrors.accountNumber as string)
-                  : ''
-              }
+              error={getError('accountNumber', formErrors)}
               label={t('forms:fields.accountNumber.label')}
               name="accountNumber"
               variant="small"
             />
 
             <TextInput
-              error={
-                formErrors && 'routingNumber' in formErrors
-                  ? (formErrors.routingNumber as string)
-                  : ''
-              }
+              error={getError('routingNumber', formErrors)}
               label={t('forms:fields.routingNumber.label')}
               name="routingNumber"
               variant="small"
             />
 
             <FullName
-              formErrors={{
-                fullName:
-                  formErrors && 'fullName' in formErrors
-                    ? (formErrors.fullName as string)
-                    : '',
-              }}
+              formErrors={{ fullName: getError('fullName', formErrors) }}
             />
 
             <BillingAddress
               countries={countryOptions}
               formErrors={{
-                address1:
-                  formErrors && 'address1' in formErrors
-                    ? (formErrors.address1 as string)
-                    : '',
-                city:
-                  formErrors && 'city' in formErrors
-                    ? (formErrors.city as string)
-                    : '',
-                state:
-                  formErrors && 'state' in formErrors
-                    ? (formErrors.state as string)
-                    : '',
-                country:
-                  formErrors && 'country' in formErrors
-                    ? (formErrors.country as string)
-                    : '',
-                zipCode:
-                  formErrors && 'zipCode' in formErrors
-                    ? (formErrors.zipCode as string)
-                    : '',
+                address1: getError('address1', formErrors),
+                city: getError('city', formErrors),
+                state: getError('state', formErrors),
+                country: getError('country', formErrors),
+                zipCode: getError('zipCode', formErrors),
               }}
             />
 
             <Heading level={2}>{t('forms:sections.Bank Address')}</Heading>
 
             <TextInput
-              error={
-                formErrors && 'bankName' in formErrors
-                  ? (formErrors.bankName as string)
-                  : ''
-              }
+              error={getError('bankName', formErrors)}
               label={t('forms:fields.bankAddress.bankName.label')}
               name="bankName"
               variant="small"
             />
             <TextInput
-              error={
-                formErrors && 'bankAddress1' in formErrors
-                  ? (formErrors.bankAddress1 as string)
-                  : ''
-              }
+              error={getError('bankAddress1', formErrors)}
               label={t('forms:fields.bankAddress.bankAddress1.label')}
               name="bankAddress1"
               variant="small"
             />
             <TextInput
-              error={
-                formErrors && 'bankAddress2' in formErrors
-                  ? (formErrors.bankAddress2 as string)
-                  : ''
-              }
+              error={getError('bankAddress2', formErrors)}
               label={t('forms:fields.bankAddress.bankAddress2.label')}
               name="bankAddress2"
               variant="small"
             />
             <div className={css.formMultiRow}>
               <TextInput
-                error={
-                  formErrors && 'bankCity' in formErrors
-                    ? (formErrors.bankCity as string)
-                    : ''
-                }
+                error={getError('bankCity', formErrors)}
                 label={t('forms:fields.city.label')}
                 name="bankCity"
                 variant="small"
               />
               <TextInput
-                error={
-                  formErrors && 'bankDistrict' in formErrors
-                    ? (formErrors.bankDistrict as string)
-                    : ''
-                }
+                error={getError('bankDistrict', formErrors)}
                 label={t('forms:fields.state.label')}
                 name="bankDistrict"
                 variant="small"
@@ -187,11 +139,7 @@ export default function BankAccountForm({
             </div>
             {countryOptions.length > 0 && (
               <Select
-                error={
-                  formErrors && 'bankCountry' in formErrors
-                    ? (formErrors.bankCountry as string)
-                    : ''
-                }
+                error={getError('bankCountry', formErrors)}
                 label={t('forms:fields.country.label')}
                 id="bankCountry"
                 name="bankCountry"
