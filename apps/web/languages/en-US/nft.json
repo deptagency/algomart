@@ -14,9 +14,32 @@
     "sent": "Sent!",
     "backToMyCollection": "Back to My Collection"
   },
-  "actions": {
-    "sellNFT": "Sell NFT",
-    "transferNFT": "Transfer NFT"
+  "tabs": {
+    "details": "Details",
+    "activity": "Activity",
+    "sell": "Sell",
+    "transfer": "Transfer"
+  },
+  "activity": {
+    "title": "NFT Activity"
+  },
+  "activities": {
+    "purchase": "Purchased by @{{username}}",
+    "list": "Listed",
+    "mint": "Minted",
+    "transfer": "Transferred to {{address}}"
+  },
+  "sell": {
+    "title": "List for sale",
+    "body": "List your NFT for sale on our secondary market, get paid in ALGO. Listings can be removed at any time.",
+    "learnMore": "Learn more about selling NFTs on Algomart",
+    "sellMyNFT": "Sell My NFT"
+  },
+  "transfer": {
+    "title": "Transfer to wallet",
+    "body": "Transfer your NFT to an external Algorand wallet. NFTs transferred to an external wallet will no longer appear in your collection.",
+    "learnMore": "Learn more about transferring NFTs",
+    "transferMyNFT": "Transfer My NFT"
   },
   "labels": {
     "Owner": "Owner",

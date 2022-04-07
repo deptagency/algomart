@@ -19,7 +19,11 @@ export const urls = {
   mySet: '/my/sets/:setSlug',
   myShowcase: '/my/showcase',
   nft: '/nft/:assetId',
+  nftDetails: '/nft/:assetId/details',
+  nftActivity: '/nft/:assetId/activity',
+  nftSell: '/nft/:assetId/sell',
   nftTransfer: '/nft/:assetId/transfer',
+  nftInitiateTransfer: '/nft/:assetId/initiate-transfer',
   packOpening: '/pack-opening/:packId',
   paymentFailure: '/payments/failure',
   paymentSuccess: '/payments/success',
@@ -105,6 +109,19 @@ export const urls = {
     },
   } as const,
 } as const
+
+/**
+ * Interpolates params into the given path.
+ * eg:
+ *   urlFor('/:foo/:bar', { foo: 'foo', bar: 'bar' }) => '/foo/bar'
+ *   urlFor(urls.nft, { assetId: 123 }) => '/nft/123'
+ */
+export function urlFor(path: string, params?: object) {
+  return Object.keys(params).reduce(
+    (accumulator, key) => accumulator.replace(`:${key}`, String(params[key])),
+    path
+  )
+}
 
 /**
  * Verifies if path1 and path2 are matching the first "directory". For example,
