@@ -551,7 +551,10 @@ export class DirectusAdapter {
 
     const homepage = response.data.data
 
-    await CMSCacheHomepageModel.upsert(homepage as DirectusHomepage)
+    // If the homepage has not yet been saved, it won't have an id set.
+    if (homepage.id) {
+      await CMSCacheHomepageModel.upsert(homepage as DirectusHomepage)
+    }
 
     return null
   }
