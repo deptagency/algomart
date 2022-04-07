@@ -17,6 +17,7 @@ COPY ./package.json ./package-lock.json ./workspace.json ./tsconfig.base.json ./
 COPY ./libs ./libs
 COPY ./apps/cms/project.json ./apps/cms/project.json
 COPY ./apps/api/project.json ./apps/api/project.json
+COPY ./apps/scribe/project.json ./apps/scribe/project.json
 COPY ./apps/web-e2e/project.json ./apps/web-e2e/project.json
 COPY ./apps/web ./apps/web
 ENV NEXT_TELEMETRY_DISABLED 1

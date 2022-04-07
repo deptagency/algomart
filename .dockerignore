@@ -9,9 +9,7 @@
 **/.vercel
 **/cypress
 **/Dockerfile*
-**/node_modules
 contracts
-dist
 docker-compose*.yml
 docs
 terraform

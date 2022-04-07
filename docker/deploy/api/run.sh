@@ -25,7 +25,7 @@ if [ "$ENABLE_MIGRATIONS" == "true" ]; then
   echo 'current version, after:'
   npx nx run api:migrate:currentVersion
 else
-  echo 'skipping migrations'
+  echo 'skipping database migrations'
 fi
 
 echo 'starting api...'

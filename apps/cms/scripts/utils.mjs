@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 
-import 'dotenv/config'
-
 import axios from 'axios'
-import { exec } from 'child_process'
-import { readFile } from 'fs'
-import { createInterface } from 'readline'
+import 'dotenv/config'
+import path from 'node:path'
+import { exec } from 'node:child_process'
+import { readFile } from 'node:fs'
+import { createInterface } from 'node:readline'
+import * as stream from 'node:stream'
+import PureImage from 'pureimage'
+import FormData from 'form-data'
 
 /** Group flat array into a multi-dimensional array of N items. */
 export function chunkArray(array, chunkSize) {
@@ -14,11 +17,16 @@ export function chunkArray(array, chunkSize) {
   )
 }
 
-/** Post CMS assets to CMS DB. */
-export async function createAssetRecords(formData, token) {
+/**
+ * Post CMS assets to CMS DB
+ * @param {FormData} formData
+ * @param {import('@directus/sdk').Directus} directus
+ */
+export async function createAssetRecords(formData, directus) {
   try {
+    // Manually using Axios...
     const res = await axios.post(
-      `${process.env.PUBLIC_URL}/files?access_token=${token}`,
+      `${process.env.PUBLIC_URL}/files?access_token=${directus.auth.token}`,
       formData,
       {
         headers: {
@@ -34,109 +42,32 @@ export async function createAssetRecords(formData, token) {
   }
 }
 
-/** Update entity in CMS DB. */
-export async function updateEntityRecord(entity, id, body, token) {
+/**
+ * Update entity in CMS DB.
+ * @param {import('@directus/sdk').Directus} directus
+ * @param {string} entity
+ * @param {any} id
+ * @param {object} body
+ */
+export async function updateEntityRecord(directus, entity, id, body) {
   try {
-    const res = await axios.patch(
-      `${process.env.PUBLIC_URL}/items/${entity}/${id}?access_token=${token}`,
-      body
-    )
-    return res.data.data
+    return await directus.items(entity).updateOne(id, body)
   } catch (error) {
     console.log(error.response.data.errors)
     process.exit(1)
   }
 }
 
-/** Import csv data file into CMS. Does not override existing data. */
-export async function importCsvFile(formData, collection, token) {
+/**
+ * Post CMS collection record(s) to CMS DB.
+ * @param {import('@directus/sdk').Directus} directus
+ * @param {string} entity
+ * @param {object[]} items
+ */
+export async function createEntityRecords(directus, entity, items) {
   try {
-    const response = await axios.post(
-      `${process.env.PUBLIC_URL}/utils/import/${collection}?access_token=${token}&export=csv`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          ...formData.getHeaders(),
-        },
-      }
-    )
-    return response.data.data
-  } catch (error) {
-    console.error(error.response?.data?.errors)
-    process.exit(1)
-  }
-}
-
-/** Download file from directus */
-export async function downloadFile(id, token) {
-  try {
-    const res = await axios.get(
-      `${process.env.PUBLIC_URL}/assets/${id}?download&access_token=${token}`,
-      {
-        responseEncoding: 'binary',
-      }
-    )
-    return res.data
-  } catch (error) {
-    console.log(error.response?.data?.errors)
-    process.exit(1)
-  }
-}
-
-/** Get list of files from directus */
-export async function getAllFilesMeta(token) {
-  try {
-    const res = await axios.get(
-      `${process.env.PUBLIC_URL}/files?access_token=${token}`
-    )
-    return res.data.data
-  } catch (error) {
-    console.log(error.response?.data?.errors)
-    process.exit(1)
-  }
-}
-
-/** Get all collections */
-export async function getCollections(token) {
-  try {
-    const response = await axios.get(
-      `${process.env.PUBLIC_URL}/collections?access_token=${token}&export=json`
-    )
-    const data = response.data
-    const filteredData = data.filter(
-      (item) => !item.collection.includes('directus_')
-    )
-    const collections = filteredData.map((item) => item.collection)
-    return collections
-  } catch (error) {
-    console.log(error.response.data.errors)
-    process.exit(1)
-  }
-}
-
-/** Get collection data as csv string. */
-export async function getCollectionItemsAsCsv(collectionName, fields, token) {
-  try {
-    const fieldsString = fields?.length ? '&fields=' + fields.join(',') : ''
-    const response = await axios.get(
-      `${process.env.PUBLIC_URL}/items/${collectionName}?access_token=${token}${fieldsString}&export=csv`
-    )
-    return response.data
-  } catch (error) {
-    console.log(error.response.data.errors)
-    process.exit(1)
-  }
-}
-
-/** Post CMS collection record(s) to CMS DB. */
-export async function createEntityRecords(entity, body, token) {
-  try {
-    const res = await axios.post(
-      `${process.env.PUBLIC_URL}/items/${entity}?access_token=${token}`,
-      body
-    )
-    return res.data.data
+    const result = await directus.items(entity).createMany(items)
+    return result.data
   } catch (error) {
     console.log(error.response.data.errors)
     process.exit(1)
@@ -163,44 +94,6 @@ export function execCommandAndGetOutput(command) {
   })
 }
 
-/** Retrieve a temporary auth token from the CMS. */
-export async function getCMSAuthToken(body) {
-  try {
-    const tokenResponse = await axios.post(
-      `${process.env.PUBLIC_URL}/auth/login`,
-      body
-    )
-    return tokenResponse.data.data.access_token
-  } catch (error) {
-    console.error(`Authentication Failed: ${error}`)
-    process.exit(1)
-  }
-}
-
-/** Get CLI input from the user. */
-export async function getConfigFromStdin() {
-  console.log('Enter the CMS configuration.')
-  const email = await readlineAsync('> Email address: ')
-  const password = await readlineAsync('> Password: ')
-  return {
-    email,
-    password,
-  }
-}
-
-/** Read CMS configuration file. */
-export function readFileAsync(file) {
-  return new Promise((resolve, reject) => {
-    readFile(file, (err, data) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(data)
-      }
-    })
-  })
-}
-
 /** Prompt individual CLI user input. */
 export function readlineAsync(prompt) {
   return new Promise((resolve) => {
@@ -213,4 +106,77 @@ export function readlineAsync(prompt) {
       resolve(answer)
     })
   })
+}
+
+export function registerFonts() {
+  PureImage.registerFont(
+    path.resolve('scripts/seed-data/Inter.ttf'),
+    'Inter'
+  ).loadSync()
+}
+
+export function streamToBuffer() {
+  let chunks = []
+  let buffer = null
+
+  const writableStream = new stream.Writable({
+    write(chunk, _encoding, next) {
+      chunks.push(chunk)
+      next()
+    },
+  })
+
+  writableStream.on('finish', () => {
+    buffer = Buffer.concat(chunks)
+  })
+
+  const getBuffer = () => {
+    return new Promise((resolve) => {
+      const tick = () => {
+        setImmediate(() => {
+          if (buffer) resolve(buffer)
+          else tick()
+        })
+      }
+
+      tick()
+    })
+  }
+
+  return { writableStream, getBuffer }
+}
+
+export async function makeImage({
+  width = 1024,
+  height = 1024,
+  text = 'Placeholder',
+  filename = 'image.png',
+  color = '#ffffff',
+  backgroundColor = '#000000',
+  font = '64px Inter',
+  lineWidth = 16,
+  borderColor,
+  directus,
+} = {}) {
+  const canvas = PureImage.make(width, height)
+  const ctx = canvas.getContext('2d')
+  ctx.fillStyle = backgroundColor
+  ctx.fillRect(0, 0, width, height)
+  ctx.font = font
+  ctx.fillStyle = color
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(text, width / 2, height / 2)
+  ctx.strokeStyle = borderColor || color
+  ctx.lineWidth = lineWidth
+  ctx.strokeRect(24, 24, width - 48, height - 48)
+  const { getBuffer, writableStream } = streamToBuffer()
+
+  PureImage.encodePNGToStream(canvas, writableStream)
+
+  const formData = new FormData()
+  formData.append('title', text)
+  formData.append('file', await getBuffer(), { filename })
+
+  return await createAssetRecords(formData, directus)
 }

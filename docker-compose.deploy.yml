@@ -73,16 +73,15 @@ services:
     ports:
       - "3001:3001"
 
-  api-jobs-deploy:
+  scribe-deploy:
     build:
       context: .
-      dockerfile: docker/deploy/api/Dockerfile
+      dockerfile: docker/deploy/scribe/Dockerfile
     restart: unless-stopped
     depends_on:
       - api-db-deploy
       - cms-deploy
-    command: "bash run.sh wait-for-cms"
-    env_file: apps/api/.env
+    env_file: apps/scribe/.env
     environment:
       # only put values in here that should override the API .env file
       CMS_URL: http://cms-deploy:8055
@@ -110,6 +109,7 @@ services:
     environment:
       # only put values in here that should override the Web .env file
       API_URL: http://api-deploy:3001
+      IMAGE_DOMAINS: lh3.googleusercontent.com,firebasestorage.googleapis.com,localhost,cms-deploy
       PORT: 3000
       NODE_ENV: production
       LOG_LEVEL: info

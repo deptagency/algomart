@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
 set -e
 
-directus bootstrap
-directus schema apply --yes ./snapshot.yml
-directus start
+npx nx bootstrap cms
+npx nx import cms
+npx nx serve cms

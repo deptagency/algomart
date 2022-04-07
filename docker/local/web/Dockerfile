@@ -8,8 +8,7 @@ RUN npm ci
 
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV CYPRESS_INSTALL_BINARY 0
-ENV NEXT_SWC_MINIFY_DISABLED 1
 
 # not copying anything else... relying on mapping volume from the host
 
-CMD ["./run.sh"]
+CMD ["./docker/local/web/run.sh"]

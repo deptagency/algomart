@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        app: [api, cms, web]
+        app: [api, cms, web, scribe]
     steps:
       - uses: actions/checkout@v3
 
@@ -115,6 +115,7 @@ jobs:
           # updating an environment variable) leads to revisions with same name and
           # conflicting state
           TF_VAR_api_revision_name: algomart-api-terraform-${{ needs.tag.outputs.value }}
+          TF_VAR_scribe_revision_name: algomart-scribe-terraform-${{ needs.tag.outputs.value }}
           TF_VAR_cms_revision_name: algomart-cms-terraform-${{ needs.tag.outputs.value }}
           TF_VAR_web_revision_name: algomart-web-terraform-${{ needs.tag.outputs.value }}
 
@@ -136,6 +137,8 @@ jobs:
           TF_VAR_api_key: ${{ secrets.API_KEY }}
           TF_VAR_api_secret: ${{ secrets.API_SECRET }}
           TF_VAR_customer_service_email: ${{ secrets.CUSTOMER_SERVICE_EMAIL }}
+
+          TF_VAR_scribe_image: '${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/scribe:${{ needs.tag.outputs.value }}'
 
           TF_VAR_circle_key: ${{ secrets.CIRCLE_KEY }}
           TF_VAR_circle_url: ${{ secrets.CIRCLE_URL }}
@@ -174,6 +177,7 @@ jobs:
           TF_VAR_database_server_tier: ${{ secrets.DATABASE_SERVER_TIER }}
 
           TF_VAR_api_service_name: ${{ secrets.API_SERVICE_NAME }}
+          TF_VAR_scribe_service_name: ${{ secrets.SCRIBE_SERVICE_NAME }}
           TF_VAR_cms_service_name: ${{ secrets.CMS_SERVICE_NAME }}
           TF_VAR_database_server_name: ${{ secrets.DATABASE_SERVER_NAME }}
           TF_VAR_private_ip_name: ${{ secrets.PRIVATE_IP_NAME }}

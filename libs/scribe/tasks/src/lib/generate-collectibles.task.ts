@@ -1,10 +1,11 @@
 import { CollectiblesService } from '@algomart/shared/services'
 import { DependencyResolver } from '@algomart/shared/utils'
-import { logger } from '@api/configuration/logger'
 import { Model } from 'objection'
+import pino from 'pino'
 
-export default async function generateCollectiblesTask(
-  registry: DependencyResolver
+export async function generateCollectiblesTask(
+  registry: DependencyResolver,
+  logger: pino.Logger<unknown>
 ) {
   const log = logger.child({ task: 'generate-collectibles' })
   const collectibles = registry.get<CollectiblesService>(

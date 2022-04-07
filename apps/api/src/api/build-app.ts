@@ -64,9 +64,9 @@ export default async function buildApp(config: AppConfig) {
   if (config.enableTrap) {
     await app.register(fastifyTraps, {
       async onClose() {
-        app.log.info('Closing database connection...')
+        app.log.info('API service closing database connection...')
         app.knex.destroy()
-        app.log.info('Closed database connection.')
+        app.log.info('API service closed database connection.')
       },
     })
   }
