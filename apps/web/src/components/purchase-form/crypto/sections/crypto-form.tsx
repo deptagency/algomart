@@ -43,13 +43,10 @@ export default function CryptoForm({
   const { t } = useTranslation()
   const {
     address,
-    bid,
     formErrors,
-    initialBid,
     isAuctionActive,
     price,
     release,
-    setBid,
     setLoadingText,
     setStatus,
   } = usePaymentContext()
@@ -89,12 +86,7 @@ export default function CryptoForm({
 
       {isAuctionActive() ? (
         <>
-          <Bid
-            bid={bid}
-            className={css.bid}
-            initialBid={initialBid}
-            setBid={setBid}
-          />
+          <Bid className={css.bid} />
           <Checkbox
             checked={isConfirmed}
             name="confirmBid"

@@ -27,15 +27,8 @@ export default function BankAccountForm({
   className,
   handleContinue,
 }: BankAccountFormProps) {
-  const {
-    bid,
-    countries: countryOptions,
-    getError,
-    initialBid,
-    isAuctionActive,
-    release,
-    setBid,
-  } = usePaymentContext()
+  const { bid, countries, getError, isAuctionActive, release } =
+    usePaymentContext()
   const locale = useLocale()
   const currency = useCurrency()
   const { conversionRate } = useI18n()
@@ -57,12 +50,7 @@ export default function BankAccountForm({
 
       <div className={clsx(css.formSection)}>
         {isAuctionActive() ? (
-          <Bid
-            bid={bid}
-            className={css.bid}
-            initialBid={initialBid}
-            setBid={setBid}
-          />
+          <Bid className={css.bid} />
         ) : (
           <>
             <Heading level={2}>{t('forms:sections.Bank Account')}</Heading>
@@ -119,13 +107,13 @@ export default function BankAccountForm({
                 variant="small"
               />
             </div>
-            {countryOptions.length > 0 && (
+            {countries.length > 0 && (
               <Select
                 error={getError('bankCountry')}
                 label={t('forms:fields.country.label')}
                 id="bankCountry"
                 name="bankCountry"
-                options={countryOptions}
+                options={countries}
                 placeholder="US"
               />
             )}

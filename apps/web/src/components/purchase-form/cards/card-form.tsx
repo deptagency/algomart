@@ -5,8 +5,8 @@ import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback } from 'react'
 
 import CardPurchaseForm from './sections/card-form'
-import CardPurchaseHeader from './sections/card-header'
-import CardPurchaseSummary from './sections/card-summary'
+import CardHeader from './sections/card-header'
+import CardSummary from './sections/card-summary'
 
 import css from './card-form.module.css'
 
@@ -29,7 +29,6 @@ export default function CardForm() {
     handleSubmitPurchase: onSubmitPurchase,
     loadingText,
     packId,
-    price,
     promptLeaving,
     setPromptLeaving,
     status,
@@ -75,7 +74,7 @@ export default function CardForm() {
 
   return (
     <section className={css.root}>
-      <CardPurchaseHeader title={release.title} image={release.image} />
+      <CardHeader title={release.title} image={release.image} />
 
       <form
         className={clsx(
@@ -90,13 +89,7 @@ export default function CardForm() {
           className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
           handleContinue={() => push(`${asPath.split('?')[0]}?step=summary`)}
         />
-        {status === CheckoutStatus.summary && (
-          <CardPurchaseSummary
-            isAuctionActive={isAuctionActive()}
-            price={price}
-            release={release}
-          />
-        )}
+        {status === CheckoutStatus.summary && <CardSummary />}
       </form>
 
       {status === CheckoutStatus.loading && (

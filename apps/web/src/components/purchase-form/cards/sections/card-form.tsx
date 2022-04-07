@@ -29,8 +29,7 @@ export default function CardPurchaseForm({
   handleContinue,
 }: CardPurchaseFormProps) {
   const { t } = useTranslation()
-  const { bid, formErrors, getError, initialBid, isAuctionActive, setBid } =
-    usePaymentContext()
+  const { formErrors, getError, isAuctionActive } = usePaymentContext()
 
   const [savedCard, setSavedCard] = useState<string | null>(null)
   const [saveCard, setSaveCard] = useState<boolean>(false)
@@ -103,12 +102,7 @@ export default function CardPurchaseForm({
       >
         {isAuctionActive() && (
           <>
-            <Bid
-              bid={bid}
-              className={css.bid}
-              initialBid={initialBid}
-              setBid={setBid}
-            />
+            <Bid className={css.bid} />
             <p className={css.notice}>{t('forms:fields.bid.description')}</p>
           </>
         )}
