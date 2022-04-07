@@ -104,6 +104,7 @@ export class NFTStorageAdapter {
   async storeFile(url: string) {
     const fullURL = new URL(url)
     const fileName = path.basename(fullURL.pathname)
+    const filepath = path.join(os.tmpdir(), fileName)
     try {
       const pipeline = promisify(stream.pipeline)
       const http = new HttpTransport()
@@ -118,7 +119,7 @@ export class NFTStorageAdapter {
 
       // Pipe downloaded file to fs
       const fileWriteStream = fs
-        .createWriteStream(path.join(os.tmpdir(), fileName))
+        .createWriteStream(filepath)
         .on('error', (error: Error) => {
           this.logger.error(
             error,
@@ -129,18 +130,18 @@ export class NFTStorageAdapter {
       await pipeline(outStream, fileWriteStream)
 
       // Read file and send to IPFS
-      const fileReadStream = fs.createReadStream(fileName)
+      const fileReadStream = fs.createReadStream(filepath)
       const fileUpload = await this.client.pinFileToIPFS(fileReadStream)
 
       // Read file and hash it
       const hash = crypto.createHash('sha256').setEncoding('base64')
-      const hashReadStream = fs.createReadStream(fileName).on('end', () => {
+      const hashReadStream = fs.createReadStream(filepath).on('end', () => {
         hash.end()
       })
       await pipeline(hashReadStream, hash)
 
       // Remove file
-      fs.unlinkSync(fileName)
+      fs.unlinkSync(filepath)
 
       // Provide file information
       return {
@@ -149,8 +150,8 @@ export class NFTStorageAdapter {
         uri: `ipfs://${fileUpload.IpfsHash}`,
       }
     } finally {
-      if (fs.existsSync(fileName)) {
-        fs.unlinkSync(fileName)
+      if (fs.existsSync(filepath)) {
+        fs.unlinkSync(filepath)
       }
     }
   }
