@@ -1,7 +1,9 @@
 import { DEFAULT_LANG, PackType, PublishedPacks } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useEffect, useMemo, useRef } from 'react'
+import { parse, stringify } from 'query-string'
+import { useEffect, useMemo } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import { PackFilterProvider } from '@/contexts/pack-filter-context'
@@ -10,6 +12,7 @@ import { useLanguage } from '@/hooks/use-language'
 import { usePackFilter } from '@/hooks/use-pack-filter'
 import DefaultLayout from '@/layouts/default-layout'
 import ReleasesTemplate from '@/templates/releases-template'
+import { getSelectSortingOptions } from '@/utils/filters'
 import {
   getPublishedPacksFilterQueryFromState,
   searchPublishedPacksFilterQuery,
@@ -23,8 +26,35 @@ export default function Releases({ packs }: PublishedPacks) {
   const { t } = useTranslation()
   const language = useLanguage()
   const currency = useCurrency()
-  const { dispatch, state } = usePackFilter()
-  const pageTop = useRef<HTMLDivElement | null>(null)
+  const { pathname, push, query } = useRouter()
+
+  // Get URL search params from router, stringify them...
+  const searchParams = useMemo(() => stringify(query), [query])
+  // ...so they can be processed by query-string
+  const initialState = useMemo(
+    () =>
+      parse(searchParams, {
+        parseBooleans: true,
+        parseNumbers: true,
+      }),
+    [searchParams]
+  )
+
+  // selectedOption is an object, so key off its id so it can live in URL
+  const initialSelectOptions = useMemo(() => getSelectSortingOptions(t), [t])
+  const selectedOption = useMemo(
+    () =>
+      getSelectSortingOptions(t).find(
+        (option) => option.id === initialState.selectedOption
+      ),
+    [initialState]
+  )
+
+  // Set initial filter state based off of URL parsing
+  const { dispatch, state } = usePackFilter({
+    ...initialState,
+    selectedOption: selectedOption ? selectedOption : initialSelectOptions[0],
+  })
 
   const queryString = useMemo(() => {
     const query = getPublishedPacksFilterQueryFromState(
@@ -40,15 +70,25 @@ export default function Releases({ packs }: PublishedPacks) {
     `${urls.api.v1.getPublishedPacks}?${queryString}`
   )
 
+  // If state changes, update the URL
   useEffect(() => {
-    if (!isValidating && pageTop.current) {
-      pageTop.current.scrollIntoView({ behavior: 'smooth' })
+    const previousState = stringify(parse(location.search))
+    const nextState = stringify(state)
+    if (previousState !== nextState) {
+      const { selectedOption, selectOptions, ...rest } = state
+      push(
+        {
+          pathname: pathname,
+          query: { ...rest, selectedOption: selectedOption.id },
+        },
+        undefined,
+        { scroll: false }
+      )
     }
-  }, [isValidating, state.currentPage])
+  }, [pathname, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <DefaultLayout pageTitle={t('common:pageTitles.Releases')} width="full">
-      <div ref={pageTop} />
       <PackFilterProvider value={{ dispatch, state }}>
         <ReleasesTemplate
           isLoading={isValidating}

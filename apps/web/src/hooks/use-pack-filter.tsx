@@ -149,7 +149,7 @@ export function packFilterReducer(
 }
 
 // usePackFilter hook
-export function usePackFilter() {
+export function usePackFilter(initialState?: Partial<PackFilterState>) {
   const { t } = useTranslation()
   const selectOptions = getSelectSortingOptions(t)
   const [state, dispatch] = useReducer(packFilterReducer, {
@@ -166,6 +166,7 @@ export function usePackFilter() {
     showAuctionReserveMet: false,
     sortBy: PackSortField.ReleasedAt,
     sortDirection: SortDirection.Descending,
+    ...initialState,
   })
 
   const value = useMemo(
