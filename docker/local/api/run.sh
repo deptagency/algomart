@@ -2,10 +2,6 @@
 
 set -e
 
-cd /app
-
-echo $0
-
 if [ "$1" == "wait-for-cms" ]; then
   echo "waiting for cms to start at $CMS_URL..."
   npx wait-on -t 10000 $CMS_URL
@@ -25,8 +21,8 @@ if [ "$ENABLE_MIGRATIONS" == "true" ]; then
   echo 'current version, after:'
   npx nx run api:migrate:currentVersion
 else
-  echo 'skipping migrations'
+  echo 'skipping database migrations'
 fi
 
 echo 'starting api...'
-npx nx serve api
+npx nx serve api | npx pino-pretty

@@ -2,8 +2,6 @@
 
 set -e
 
-echo $0
-
 if [ "$1" == "wait-for-api" ]; then
   echo "waiting for api to start at $API_URL..."
   npx wait-on -t 10000 $API_URL
@@ -11,5 +9,5 @@ if [ "$1" == "wait-for-api" ]; then
 fi
 
 echo 'starting web...'
-npx nx serve web
+npx nx serve web | npx pino-pretty
 

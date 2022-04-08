@@ -17,6 +17,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY ./package.json ./package-lock.json ./workspace.json ./tsconfig.base.json ./nx.json ./babel.config.json ./
 COPY ./libs ./libs
 COPY ./apps/cms/project.json ./apps/cms/project.json
+COPY ./apps/scribe/project.json ./apps/scribe/project.json
 COPY ./apps/web/project.json ./apps/web/project.json
 COPY ./apps/web-e2e/project.json ./apps/web-e2e/project.json
 COPY ./apps/api ./apps/api
@@ -36,7 +37,8 @@ RUN adduser --system --uid 1001 algomart
 COPY --from=builder /app/ .
 
 WORKDIR /app/dist/apps/api
-RUN npm install --no-package-lock && \
+RUN npm set-script prepare "" && \
+  npm install --no-package-lock --legacy-peer-deps && \
   npm install tslib@2 pino-pretty@7 pg@8 --no-package-lock
 
 COPY ./docker/deploy/api/run.sh .

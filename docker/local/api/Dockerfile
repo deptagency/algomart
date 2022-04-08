@@ -1,6 +1,6 @@
-FROM node:16-alpine
+FROM node:16-bullseye
 
-RUN apk add --no-cache libc6-compat python2 make g++
+RUN apt update && apt install -y python2
 RUN npm config set python python2
 WORKDIR /app
 COPY package.json package-lock.json ./

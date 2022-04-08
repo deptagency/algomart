@@ -9,7 +9,7 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "start": "nx run-many --target=serve --projects=api,cms,web --parallel | pino-pretty -c -i pid,hostname -t SYS:HH:MM:ss -m message -S",
+    "start": "nx run-many --target=serve --projects=api,cms,web,scribe --parallel --maxParallel 10 | pino-pretty",
     "build": "nx run-many --target=build --all",
     "pretest": "docker-compose --project-name algomart-test --file docker-compose.test.yml up --detach",
     "test": "nx run-many --target=test --all",
@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@dinero.js/currencies": "2.0.0-alpha.8",
+    "@directus/sdk": "9.8.0",
     "@dnlup/fastify-traps": "1.2.0",
     "@fastify/ajv-compiler": "3.1.0",
     "@headlessui/react": "1.5.0",
@@ -73,6 +74,7 @@
     "pino": "7.9.2",
     "pino-http": "6.6.0",
     "pino-pretty": "7.6.0",
+    "query-string": "7.1.1",
     "react": "17.0.2",
     "react-currency-input-field": "3.6.4",
     "react-dom": "17.0.2",

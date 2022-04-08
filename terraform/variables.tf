@@ -47,6 +47,11 @@ variable "cms_service_name" {
   sensitive = true
 }
 
+variable "scribe_service_name" {
+  default   = "algomart-scribe"
+  sensitive = true
+}
+
 variable "database_server_name" {
   default   = "algomart"
   sensitive = true
@@ -178,6 +183,7 @@ variable "customer_service_email" {
 
 variable "gcp_cdn_url" {
   sensitive = true
+  default   = ""
 }
 
 variable "pinata_api_key" {
@@ -225,6 +231,20 @@ variable "smtp_user" {
 variable "smtp_port" {
   sensitive = true
   default   = ""
+}
+
+##
+## Scribe service
+##
+## Scribe uses most of the API variables
+##
+
+variable "scribe_image" {
+  sensitive = true
+}
+
+variable "scribe_revision_name" {
+  sensitive = true
 }
 
 ##

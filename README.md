@@ -129,6 +129,25 @@ $ docker-compose up
 
 Note that page loads in the web app will be slower and tests will fail while this `.babelrc` is present (it is `.gitignore`'d by default). This known issue is an unfortunate incompatibility between Docker and Next's SWC integration at the time of this writing.
 
+## ⚙️ Project dependencies
+
+When updating dependencies, there are a few things that must be kept in mind.
+
+### Directus
+
+If doing any updates to the Directus version, the version numbers must match across the application and the snapshot.yml file must be created with the updated version
+
+1. Update versions
+   1. Pin `directus` and `@directus/sdk` versions in `package.json`
+   1. Pin `host` version in `/apps/cms/extensions/displays/pack-price/package.json`
+   1. Pin `host` version in `/apps/cms/extensions/interfaces/price-conversion/package.json`
+   1. Set npm install step of `/docker/deploy/cms/Dockerfile` to version
+1. Run `npm install` from root to generate latest `package-lock.json`
+1. Run `nx export cms` to generate latest `snapshot.yml`
+1. Rebuild cms extensions
+   1. Run `nx build-price-display cms` to generate latest js file
+   1. Run `nx build-price-interface cms` to generate latest js file
+
 ## 📦 Project packages
 
 When creating a new package, first determine which kind of package you are creating. If it doesn't fit any of the listed ones, discuss with your development team first to decide where it belongs or if a new one is warranted.

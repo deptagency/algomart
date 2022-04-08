@@ -1,107 +1,55 @@
 #!/usr/bin/env node
 
 import 'dotenv/config'
-
-import PureImage from 'pureimage'
-import FormData from 'form-data'
-import Knex from 'knex'
-import { resolve as _resolve } from 'path'
-import * as stream from 'node:stream'
-
+import { configureDirectus } from './directus.mjs'
+import { configureKnex } from './knex.mjs'
 import { randColor } from './seed-data/color.mjs'
 import { Factory } from './seed-data/factories.mjs'
 import {
   chunkArray,
-  createAssetRecords,
   createEntityRecords,
-  getCMSAuthToken,
-  getConfigFromStdin,
-  readFileAsync,
+  makeImage,
   readlineAsync,
+  registerFonts,
+  updateEntityRecord,
 } from './utils.mjs'
-import { updateEntityRecord } from './utils.mjs'
 
-const knex = Knex({
-  client: 'pg',
-  connection: process.env.DB_CONNECTION_STRING,
-  searchPath: process.env.DB_SEARCH_PATH,
-})
+const knex = configureKnex()
 
-function registerFonts() {
-  PureImage.registerFont(
-    _resolve('scripts/seed-data/Inter.ttf'),
-    'Inter'
-  ).loadSync()
-}
+async function main() {
+  registerFonts()
 
-function streamToBuffer() {
-  let chunks = []
-  let buffer = null
+  console.log('Configure Directus SDK...')
+  const directus = await configureDirectus()
 
-  const writableStream = new stream.Writable({
-    write(chunk, _encoding, next) {
-      chunks.push(chunk)
-      next()
-    },
+  console.log('Setting access token...')
+  await directus.users.me.update({
+    token: process.env.ADMIN_ACCESS_TOKEN,
   })
 
-  writableStream.on('finish', () => {
-    buffer = Buffer.concat(chunks)
-  })
-
-  const getBuffer = () => {
-    return new Promise((resolve) => {
-      const tick = () => {
-        setImmediate(() => {
-          if (buffer) resolve(buffer)
-          else tick()
-        })
-      }
-
-      tick()
+  console.log('Setting read file permissions...')
+  const existingFilePermission = (
+    await directus.permissions.readByQuery({
+      filter: {
+        role: {
+          _null: true,
+        },
+        collection: {
+          _eq: 'directus_files',
+        },
+        action: {
+          _eq: 'read',
+        },
+      },
+    })
+  ).data[0]
+  if (!existingFilePermission) {
+    await directus.permissions.createOne({
+      collection: 'directus_files',
+      action: 'read',
+      fields: ['*'],
     })
   }
-
-  return { writableStream, getBuffer }
-}
-
-async function makeImage({
-  width = 1024,
-  height = 1024,
-  text = 'Placeholder',
-  filename = 'image.png',
-  color = '#ffffff',
-  backgroundColor = '#000000',
-  font = '64px Inter',
-  lineWidth = 16,
-  borderColor,
-  token,
-} = {}) {
-  const canvas = PureImage.make(width, height)
-  const ctx = canvas.getContext('2d')
-  ctx.fillStyle = backgroundColor
-  ctx.fillRect(0, 0, width, height)
-  ctx.font = font
-  ctx.fillStyle = color
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.fillText(text, width / 2, height / 2)
-  ctx.strokeStyle = borderColor || color
-  ctx.lineWidth = lineWidth
-  ctx.strokeRect(24, 24, width - 48, height - 48)
-  const { getBuffer, writableStream } = streamToBuffer()
-
-  PureImage.encodePNGToStream(canvas, writableStream)
-
-  const formData = new FormData()
-  formData.append('title', text)
-  formData.append('file', await getBuffer(), { filename })
-
-  return await createAssetRecords(formData, token)
-}
-
-async function main(args) {
-  registerFonts()
 
   /**
    * To prevent errors when seeding, it's best to start from a fresh DB.
@@ -114,84 +62,58 @@ async function main(args) {
     console.log('Operation canceled.')
     process.exit(0)
   }
+
   await knex.raw(`TRUNCATE TABLE
+    application_countries,
+    application,
+    collections_translations,
+    collections,
+    countries_translations,
+    countries,
+    countries,
     directus_files,
     homepage,
-    rarities, rarities_translations,
-    nft_templates, nft_templates_translations,
-    pack_templates, pack_templates_translations, pack_templates_directus_files,
-    collections, collections_translations,
-    sets, sets_translations,
-    application, application_countries,
-    countries, countries_translations,
-    languages
+    languages,
+    nft_templates_translations,
+    nft_templates,
+    pack_templates_directus_files,
+    pack_templates_translations,
+    pack_templates,
+    rarities_translations,
+    rarities,
+    sets_translations,
+    sets
     CASCADE`)
-
-  /**
-   * Read config file if it exists, or ask user to provide it.
-   * Once credentials are provided, get an auth token from  directus.
-   */
-  console.log('Authenticating...')
-  let config = {
-    email: process.env.ADMIN_EMAIL,
-    password: process.env.ADMIN_PASSWORD,
-  }
-  if (!config.email || !config.password) {
-    if (args.length < 3) {
-      config = await getConfigFromStdin()
-    } else {
-      config = JSON.parse(await readFileAsync(_resolve(args[2])))
-    }
-  }
-  const token = await getCMSAuthToken(config)
 
   /**
    * Begin seeding data.
    */
   console.log('Seeding database...')
 
-  try {
-    await createEntityRecords(
-      'languages',
-      [{ code: 'en-US', name: 'English', sort: 1 }],
-      token
-    )
-  } catch (err) {
-    console.log('Language already exists.')
-  }
+  console.log('- Languages')
+  await createEntityRecords(directus, 'languages', [
+    { code: 'en-US', name: 'English', sort: 1 },
+  ])
 
-  try {
-    await createEntityRecords(
-      'countries',
-      [{ code: 'US' }, { code: 'CA' }],
-      token
-    )
-  } catch (err) {
-    console.log('Countries already exist.')
-  }
-
-  try {
-    await createEntityRecords(
-      'countries_translations',
-      [
-        {
-          id: 1,
-          countries_code: 'US',
-          languages_code: 'en-US',
-          title: 'United States',
-        },
-        {
-          id: 2,
-          countries_code: 'CA',
-          languages_code: 'en-US',
-          title: 'Canada',
-        },
-      ],
-      token
-    )
-  } catch (err) {
-    console.log('Country translations already exist.')
-  }
+  console.log('- Countries')
+  await createEntityRecords(directus, 'countries', [
+    { code: 'US' },
+    { code: 'CA' },
+  ])
+  await createEntityRecords(directus, 'countries_translations', [
+    {
+      id: 1,
+      countries_code: 'US',
+      languages_code: 'en-US',
+      title: 'United States',
+    },
+    {
+      id: 2,
+      countries_code: 'CA',
+      languages_code: 'en-US',
+      title: 'Canada',
+    },
+  ])
 
   /**
    * These numbers can be adjusted, just be mindful of the implications.
@@ -223,39 +145,45 @@ async function main(args) {
   /**
    * Create application and application countries
    */
+  console.log('- Application')
   const appId = '6048041f-2d72-4eb7-9a2c-3ab44aace8d5'
-  await updateEntityRecord(
-    'application',
-    '',
-    { id: appId, currency: 'USD' },
-    token
-  )
-  await createEntityRecords(
-    'application_countries',
-    { id: 1, application_id: appId, countries_code: 'US' },
-    token
-  )
+  await updateEntityRecord(directus, 'application', '', {
+    id: appId,
+    currency: 'USD',
+  })
+  await createEntityRecords(directus, 'application_countries', {
+    id: 1,
+    application_id: appId,
+    countries_code: 'US',
+  })
 
   /**
    * Create homepage
    */
+  console.log('- Homepage')
   const homepageFactory = Factory.build('homepage')
   const homepage = await updateEntityRecord(
+    directus,
     'homepage',
     '',
-    homepageFactory,
-    token
+    homepageFactory
   )
 
   /**
    * Create rarities.
    */
+  console.log('- Rarities')
   const rarityFactories = Factory.buildList('rarity', numRarities)
-  const rarities = await createEntityRecords('rarities', rarityFactories, token)
+  const rarities = await createEntityRecords(
+    directus,
+    'rarities',
+    rarityFactories
+  )
 
   /**
    * Creates N collectibles with mixed rarities.
    */
+  console.log('- NFT Files')
   let notableCount = 0
   const collectibleFactories = await Promise.all(
     Factory.buildList('collectible', numCollectibles).map(async (item, i) => {
@@ -268,7 +196,7 @@ async function main(args) {
       item.rarity = rarity?.id || null // no rarity if null
 
       const previewImage = await makeImage({
-        token,
+        directus,
         text: item.translations[0].title,
         color: '#000000',
         borderColor: rarity?.color || '#000000',
@@ -284,14 +212,15 @@ async function main(args) {
   )
 
   // Directus only supports 100 items per batch, so split them up into groups of 100
+  console.log('- NFT Templates')
   const collectibles = []
   const collectibleChunks = chunkArray(collectibleFactories, 100)
   await Promise.all(
     collectibleChunks.map(async (group) => {
       const collectibleGroup = await createEntityRecords(
+        directus,
         'nft_templates',
-        group,
-        token
+        group
       )
       collectibles.push(...collectibleGroup)
     })
@@ -302,6 +231,7 @@ async function main(args) {
    * This distributes all of the collectibles evenly across packs.
    * Example: if we have 48 collectibles and we want 6 collectibles per pack, we'll have 8 packs.
    */
+  console.log('- Pack Files')
   const chunkedPacks = chunkArray(collectibles, numCollectiblesPerPack)
   let upcomingCount = 0
   const packFactories = await Promise.all(
@@ -319,7 +249,7 @@ async function main(args) {
       })
 
       const packImage = await makeImage({
-        token,
+        directus,
         text: pack.translations[0].title,
         color: '#000000',
         backgroundColor: color,
@@ -330,29 +260,26 @@ async function main(args) {
       return pack
     })
   )
+  console.log('- Pack Templates')
   const packTemplates = await createEntityRecords(
+    directus,
     'pack_templates',
-    packFactories,
-    token
+    packFactories
   )
-  await updateEntityRecord(
-    'homepage',
-    '',
-    {
-      featured_pack: packTemplates[packTemplates.length - 1].id,
-    },
-    token
-  )
+  await updateEntityRecord(directus, 'homepage', '', {
+    featured_pack: packTemplates[packTemplates.length - 1].id,
+  })
 
   /**
    * Create collections.
    */
+  console.log('- Collections Files')
   const collectionFactories = await Promise.all(
     Factory.buildList('collection', numCollections).map(async (item) => {
       const color = randColor()
 
       const collectionImage = await makeImage({
-        token,
+        directus,
         text: item.translations[0].name,
         color: '#000000',
         backgroundColor: color,
@@ -361,7 +288,7 @@ async function main(args) {
       const rewardImage = await makeImage({
         width: 700,
         height: 300,
-        token,
+        directus,
         text: `Reward for ${item.translations[0].name}`,
         font: '24px Inter',
         color: '#ffffff',
@@ -375,15 +302,17 @@ async function main(args) {
       return item
     })
   )
+  console.log('- Collections')
   const collections = await createEntityRecords(
+    directus,
     'collections',
-    collectionFactories,
-    token
+    collectionFactories
   )
 
   /**
    * Create sets.
    */
+  console.log('- Sets')
   // Determine the number of of collectibles per collection based on input params.
   // For example, if we have 48 collectibles and we want 3 collections, numCollectiblesPerCollection = 16.
   const numCollectiblesPerCollection = numCollectibles / numCollections
@@ -406,14 +335,14 @@ async function main(args) {
           nft_templates: chunk.map((item) => item.id),
         })
       )
-      return await createEntityRecords('sets', setFactories, token)
+      return await createEntityRecords(directus, 'sets', setFactories)
     })
   )
+
+  console.log('Done!')
 }
 
-console.log('Done!')
-
-main(process.argv)
+main()
   .catch((err) => {
     console.error(err)
     process.exit(1)

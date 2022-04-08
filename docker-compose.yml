@@ -11,7 +11,7 @@ services:
     networks:
       - algomart_local
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - api-db:/var/lib/postgresql/data
 
@@ -25,7 +25,7 @@ services:
     networks:
       - algomart_local
     ports:
-      - "5433:5432"
+      - "5435:5432"
     volumes:
       - cms-db:/var/lib/postgresql/data
 
@@ -46,7 +46,8 @@ services:
     ports:
       - "8055:8055"
     volumes:
-      - cms-uploads:/app/uploads
+      - .:/app
+      - node-modules:/app/node_modules
 
   api:
     build:
@@ -56,7 +57,7 @@ services:
     depends_on:
       - api-db
       - cms
-    command: "bash run.sh wait-for-cms"
+    command: "bash ./docker/local/api/run.sh wait-for-cms"
     env_file: apps/api/.env
     environment:
       # only put values in here that should override the API .env file
@@ -72,31 +73,32 @@ services:
       - "3001:3001"
     volumes:
       - .:/app
+      - node-modules:/app/node_modules
 
-  api-jobs:
+  scribe:
     build:
       context: .
-      dockerfile: docker/local/api/Dockerfile
+      dockerfile: docker/local/scribe/Dockerfile
     restart: unless-stopped
     depends_on:
       - api-db
       - cms
-    command: "bash run.sh wait-for-cms"
-    env_file: apps/api/.env
+    command: "bash ./docker/local/scribe/run.sh wait-for-cms"
+    env_file: apps/scribe/.env
     environment:
       # only put values in here that should override the API .env file
       CMS_URL: http://cms:8055
+      CMS_PUBLIC_URL: http://localhost:8055
       DATABASE_URL: postgres://api:api@api-db:5432/api
       HOST: 0.0.0.0
       PORT: 3002
-      ENABLE_JOBS: 'true'
-      NODE_ENV: development
     networks:
       - algomart_local
     ports:
       - "3002:3002"
     volumes:
       - .:/app
+      - node-modules:/app/node_modules
 
   web:
     build:
@@ -106,7 +108,7 @@ services:
     depends_on:
       - api
       - cms
-    command: "bash run.sh wait-for-api"
+    command: "bash ./docker/local/web/run.sh wait-for-api"
     env_file: apps/web/.env
     environment:
       # only put values in here that should override the Web .env file
@@ -120,6 +122,7 @@ services:
       - "3000:3000"
     volumes:
       - .:/app
+      - node-modules:/app/node_modules
 
 networks:
   algomart_local:
@@ -127,4 +130,4 @@ networks:
 volumes:
   api-db:
   cms-db:
-  cms-uploads:
+  node-modules:
