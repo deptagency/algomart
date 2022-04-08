@@ -1,0 +1,7 @@
+{
+  "colorize": true,
+  "ignore": "pid,hostname,severity",
+  "translateTime": "SYS:HH:MM:ss",
+  "messageKey": "message",
+  "singleLine": true
+}
