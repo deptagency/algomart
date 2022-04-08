@@ -78,7 +78,9 @@ export default function CheckoutMethodsTemplate({
       {/* Wire payments */}
       {method === CheckoutMethod.wire && <BankAccountForm />}
       {/* Crypto payments */}
-      {method === CheckoutMethod.crypto && <CryptoPurchaseForm />}
+      {method === CheckoutMethod.crypto && (
+        <CryptoPurchaseForm address={address} />
+      )}
     </>
   )
 }

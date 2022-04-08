@@ -18,7 +18,7 @@ import {
   getAuthenticatedUser,
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
-import CheckoutMethodsTemplate from '@/templates/checkout-method-template'
+import CheckoutMethodsTemplate from '@/templates/checkout-methods-template'
 import { urls } from '@/utils/urls'
 
 export interface CheckoutMethodPageProps {
