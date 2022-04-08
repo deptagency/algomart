@@ -61,7 +61,7 @@ export default function SignUpPage() {
       const result = await auth.registerWithEmailAndPassword(body)
       if (result.isValid) {
         await auth.reloadProfile()
-        router.push(redeemable ? urls.login : urls.home, router.asPath, {
+        router.push(redeemable ? urls.login : urls.home, undefined, {
           locale: body.language,
         })
       }
