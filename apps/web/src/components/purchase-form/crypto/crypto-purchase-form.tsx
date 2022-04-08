@@ -116,7 +116,7 @@ export default function CryptoPurchaseForm({
       )}
 
       {status === CheckoutStatus.loading && (
-        <Loading loadingText={loadingText} variant="primary" />
+        <Loading loadingText={loadingText} />
       )}
 
       {status === CheckoutStatus.success && packId && <CryptoSuccess />}

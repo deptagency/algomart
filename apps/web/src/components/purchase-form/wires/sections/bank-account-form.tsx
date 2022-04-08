@@ -130,12 +130,7 @@ export default function BankAccountForm({
       </div>
 
       {/* Submit */}
-      <Button
-        disabled={!release}
-        fullWidth
-        type="button"
-        onClick={handleContinue}
-      >
+      <Button disabled={!release} fullWidth onClick={handleContinue}>
         {t('common:actions.Continue to Summary')}
       </Button>
     </div>

@@ -21,13 +21,10 @@ export default function PaymentMethodsForm({
       <div className={status === CheckoutStatus.form ? '' : 'hidden'}>
         <AddMethodsForm onSubmit={onSubmit} />
       </div>
-
       {status === CheckoutStatus.loading && (
-        <Loading loadingText={loadingText} variant="primary" />
+        <Loading loadingText={loadingText} />
       )}
-
       {status === CheckoutStatus.success && <AddMethodsSuccess />}
-
       {status === CheckoutStatus.error && (
         <AddMethodsError handleRetry={handleRetry} />
       )}
