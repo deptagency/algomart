@@ -19,7 +19,7 @@ import {
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
 import CheckoutMethodsTemplate from '@/templates/checkout-methods-template'
-import { urls } from '@/utils/urls'
+import { urlFor, urls } from '@/utils/urls'
 
 export interface CheckoutMethodPageProps {
   address: string | null
@@ -64,6 +64,8 @@ export const getServerSideProps: GetServerSideProps<
   CheckoutMethodPageProps
 > = async (context) => {
   const params = context.params
+  const packSlug = context?.params?.packSlug as string
+
   // Verify authentication
   const user = await getAuthenticatedUser(context)
   if (!user) {
@@ -77,10 +79,7 @@ export const getServerSideProps: GetServerSideProps<
   ) {
     return {
       redirect: {
-        destination: urls.checkoutPack.replace(
-          ':packSlug',
-          context?.params?.packSlug as string
-        ),
+        destination: urlFor(urls.checkoutPack, { packSlug }),
         permanent: false,
       },
     }
@@ -94,9 +93,10 @@ export const getServerSideProps: GetServerSideProps<
   ) {
     return {
       redirect: {
-        destination: urls.checkoutPackWithMethod
-          .replace(':packSlug', context?.params?.packSlug as string)
-          .replace(':method', 'card'),
+        destination: urlFor(urls.checkoutPackWithMethod, {
+          packSlug,
+          method: 'card',
+        }),
         permanent: false,
       },
     }
@@ -119,10 +119,7 @@ export const getServerSideProps: GetServerSideProps<
   if (!packTemplate.available) {
     return {
       redirect: {
-        destination: urls.release.replace(
-          ':packSlug',
-          context?.params?.packSlug as string
-        ),
+        destination: urlFor(urls.release, { packSlug }),
         permanent: false,
       },
     }
@@ -140,10 +137,7 @@ export const getServerSideProps: GetServerSideProps<
     ) {
       return {
         redirect: {
-          destination: urls.release.replace(
-            ':packSlug',
-            context?.params?.packSlug as string
-          ),
+          destination: urlFor(urls.release, { packSlug }),
           permanent: false,
         },
       }
@@ -158,10 +152,7 @@ export const getServerSideProps: GetServerSideProps<
     if (total > 0) {
       return {
         redirect: {
-          destination: urls.release.replace(
-            ':packSlug',
-            context?.params?.packSlug as string
-          ),
+          destination: urlFor(urls.release, { packSlug }),
           permanent: false,
         },
       }
