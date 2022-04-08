@@ -16,7 +16,7 @@ import Success from '@/components/purchase-form/shared/success'
 import { usePaymentContext } from '@/contexts/payment-context'
 import { useWarningOnExit } from '@/hooks/use-warning-on-exit'
 import { isAfterNow } from '@/utils/date-time'
-import { urls } from '@/utils/urls'
+import { urlFor, urls } from '@/utils/urls'
 
 export default function CardForm() {
   const { t } = useTranslation()
@@ -56,8 +56,8 @@ export default function CardForm() {
   )
 
   const handlePackOpening = useCallback(() => {
-    const path = urls.packOpening.replace(':packId', packId)
     if (typeof window !== 'undefined') {
+      const path = urlFor(urls.packOpening, { packId })
       window.location.assign(new URL(path, window.location.origin).href)
     }
   }, [packId])
@@ -66,7 +66,7 @@ export default function CardForm() {
     () =>
       push(
         isAuctionActive()
-          ? urls.release.replace(':packSlug', release.slug)
+          ? urlFor(urls.release, { packSlug: release.slug })
           : urls.myCollectibles
       ),
     [isAuctionActive, push, release?.slug]
@@ -93,7 +93,7 @@ export default function CardForm() {
       </form>
 
       {status === CheckoutStatus.loading && (
-        <Loading loadingText={loadingText} variant="primary" />
+        <Loading loadingText={loadingText} />
       )}
 
       {status === CheckoutStatus.success && packId && (
