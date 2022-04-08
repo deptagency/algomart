@@ -1,5 +1,4 @@
 import Knex from 'knex'
-
 import config from './configuration/knex-config'
 
 type KnexMigrationCommand =

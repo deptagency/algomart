@@ -3,7 +3,10 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
-    "types": ["jest", "node"],
+    "types": [
+      "jest",
+      "node"
+    ],
   },
   "include": [
     "src/**/*.ts",
@@ -11,6 +14,13 @@
     "**/*.spec.ts",
     "**/*.d.ts",
     "test/**/*.ts",
-    "**/seeds/*.ts"
-, "../../libs/shared/models/src/lib/algorand-account.model.ts", "../../libs/shared/adapters/src/lib/algoexplorer-adapter.ts", "../../libs/shared/services/src/lib/application.service.ts", "../../libs/shared/services/src/lib/auctions.service.ts", "../../libs/shared/services/src/lib/bids.service.ts", "../../libs/shared/services/src/lib/collectibles.service.ts"  ]
+    "**/seeds/*.ts",
+    "../../libs/shared/models/src/lib/algorand-account.model.ts",
+    "../../libs/shared/adapters/src/lib/algoexplorer-adapter.ts",
+    "../../libs/shared/services/src/lib/application.service.ts",
+    "../../libs/shared/services/src/lib/auctions.service.ts",
+    "../../libs/shared/services/src/lib/bids.service.ts",
+    "../../libs/shared/services/src/lib/collectibles.service.ts",
+    "../scribe/src/migrate.ts"
+  ]
 }
