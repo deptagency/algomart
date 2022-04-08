@@ -273,9 +273,7 @@ export function ProfileImage({
             <div className={css.profileImageChange}>
               <div {...getRootProps()}>
                 <input {...getInputProps()} />
-                <Button size="small" type="button">
-                  {t('common:actions.Change')}
-                </Button>
+                <Button size="small">{t('common:actions.Change')}</Button>
               </div>
               <Button
                 className={css.profileImageRemove}
@@ -292,9 +290,7 @@ export function ProfileImage({
           ) : (
             <div {...getRootProps()}>
               <input {...getInputProps()} />
-              <Button size="small" type="button">
-                {t('common:actions.Select Image')}
-              </Button>
+              <Button size="small">{t('common:actions.Select Image')}</Button>
             </div>
           )}
         </div>

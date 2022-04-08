@@ -9,50 +9,28 @@ import Heading from '@/components/heading'
 import BillingAddress from '@/components/purchase-form/shared/billing-address'
 import CardDetails from '@/components/purchase-form/shared/card-details'
 import FullName from '@/components/purchase-form/shared/full-name'
-import { SelectOption } from '@/components/select-input/select-input'
-import { FormValidation, getError } from '@/contexts/payment-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 
 export interface AddMethodsFormProps {
-  countries: SelectOption[]
-  formErrors?: FormValidation
   onSubmit(event: FormEvent<HTMLFormElement>): void
 }
 
-export default function AddMethodsForm({
-  countries,
-  formErrors,
-  onSubmit,
-}: AddMethodsFormProps) {
+export default function AddMethodsForm({ onSubmit }: AddMethodsFormProps) {
   const { t } = useTranslation()
+  const { getError } = usePaymentContext()
   return (
     <form className={css.form} onSubmit={onSubmit}>
-      {getError('expirationDate', formErrors) ? (
+      {getError('expirationDate') ? (
         <AlertMessage
           className={css.notification}
-          content={getError('expirationDate', formErrors)}
+          content={getError('expirationDate')}
           variant="red"
         />
       ) : null}
       <Heading level={2}>{t('forms:sections.Credit Card')}</Heading>
-      <FullName formErrors={{ fullName: getError('fullName', formErrors) }} />
-      <CardDetails
-        formErrors={{
-          ccNumber: getError('ccNumber', formErrors),
-          expMonth: getError('expMonth', formErrors),
-          expYear: getError('expYear', formErrors),
-          securityCode: getError('securityCode', formErrors),
-        }}
-      />
-      <BillingAddress
-        countries={countries}
-        formErrors={{
-          address1: getError('address1', formErrors),
-          city: getError('city', formErrors),
-          state: getError('state', formErrors),
-          country: getError('country', formErrors),
-          zipCode: getError('zipCode', formErrors),
-        }}
-      />
+      <FullName formErrors={{ fullName: getError('fullName') }} />
+      <CardDetails />
+      <BillingAddress />
       {/* Submit */}
       <Button
         fullWidth

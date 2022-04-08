@@ -1,4 +1,4 @@
-import { CheckoutStatus, PublishedPack, ToPaymentBase } from '@algomart/schemas'
+import { ToPaymentBase } from '@algomart/schemas'
 import { RefreshIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
 import { useRouter } from 'next/router'
@@ -16,51 +16,40 @@ import Checkbox from '@/components/checkbox'
 import Heading from '@/components/heading'
 import Bid from '@/components/purchase-form/shared/bid'
 import { useI18n } from '@/contexts/i18n-context'
-import { FormValidation,getError } from '@/contexts/payment-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/format-currency'
-import { urls } from '@/utils/urls'
+import { urlFor, urls } from '@/utils/urls'
 
 export interface CryptoFormProps {
-  address: string | null
-  bid: string | null
   className?: string
-  formErrors?: FormValidation
+  isLoading?: boolean
   handleCheckForPurchase: () => Promise<void>
   handlePurchase: (transfer: ToPaymentBase) => Promise<void>
   handleSubmitBid: (event: FormEvent<HTMLFormElement>) => Promise<void>
-  initialBid?: string
-  isAuctionActive: boolean
-  isLoading: boolean
-  price: string | null
-  release?: PublishedPack
-  setBid: (bid: string | null) => void
   setError: (error: string) => void
-  setLoadingText: (loadingText: string) => void
-  setStatus: (status: CheckoutStatus) => void
 }
 
 export default function CryptoForm({
-  address,
-  bid,
   className,
-  formErrors,
   handlePurchase,
   handleCheckForPurchase,
   handleSubmitBid,
-  initialBid,
-  isAuctionActive,
   isLoading,
-  price,
-  release,
-  setBid,
   setError,
-  setLoadingText,
-  setStatus,
 }: CryptoFormProps) {
   const locale = useLocale()
   const { t } = useTranslation()
+  const {
+    address,
+    getError,
+    isAuctionActive,
+    price,
+    release,
+    setLoadingText,
+    setStatus,
+  } = usePaymentContext()
   const currency = useCurrency()
   const { conversionRate } = useI18n()
   const { push } = useRouter()
@@ -72,9 +61,7 @@ export default function CryptoForm({
         <p>{t('forms:errors.addressNotFound')}</p>
         <Button
           onClick={() =>
-            push(
-              urls.checkoutPack.replace(':packSlug', release?.slug as string)
-            )
+            push(urlFor(urls.checkoutPack, { packSlug: release?.slug }))
           }
         >
           {t('common:actions.Go Back')}
@@ -85,10 +72,10 @@ export default function CryptoForm({
 
   return (
     <form className={className} onSubmit={handleSubmitBid}>
-      {getError('bid', formErrors) ? (
+      {getError('bid') ? (
         <AlertMessage
           className={css.notification}
-          content={getError('bid', formErrors)}
+          content={getError('bid')}
           variant="red"
         />
       ) : null}
@@ -97,14 +84,9 @@ export default function CryptoForm({
         {t('common:nav.payment.Pay with Crypto Wallet')}
       </Heading>
 
-      {isAuctionActive ? (
+      {isAuctionActive() ? (
         <>
-          <Bid
-            bid={bid}
-            className={css.bid}
-            initialBid={initialBid}
-            setBid={setBid}
-          />
+          <Bid className={css.bid} />
           <Checkbox
             checked={isConfirmed}
             name="confirmBid"
@@ -136,12 +118,12 @@ export default function CryptoForm({
             price,
             locale,
             currency,
-            isAuctionActive ? 1 : conversionRate
+            isAuctionActive() ? 1 : conversionRate
           )}
         </p>
       </div>
 
-      {!isAuctionActive ? (
+      {!isAuctionActive() ? (
         <Button
           className={css.checkForTransfer}
           disabled={isLoading}

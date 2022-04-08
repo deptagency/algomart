@@ -14,33 +14,22 @@ import FullName from '@/components/purchase-form/shared/full-name'
 import Select, { SelectOption } from '@/components/select-input/select-input'
 import TextInput from '@/components/text-input/text-input'
 import Toggle from '@/components/toggle/toggle'
-import { FormValidation, getError } from '@/contexts/payment-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 import { CheckoutService } from '@/services/checkout-service'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
 
 export interface CardPurchaseFormProps {
-  bid: string | null
   className?: string
-  countries: SelectOption[]
-  formErrors?: FormValidation
   handleContinue: () => void
-  initialBid?: string
-  isAuctionActive: boolean
-  setBid: (bid: string | null) => void
 }
 
 export default function CardPurchaseForm({
-  bid,
   className,
-  countries,
-  formErrors,
   handleContinue,
-  initialBid,
-  isAuctionActive,
-  setBid,
 }: CardPurchaseFormProps) {
   const { t } = useTranslation()
+  const { formErrors, getError, isAuctionActive } = usePaymentContext()
 
   const [savedCard, setSavedCard] = useState<string | null>(null)
   const [saveCard, setSaveCard] = useState<boolean>(false)
@@ -90,18 +79,18 @@ export default function CardPurchaseForm({
 
   return (
     <div className={className}>
-      {getError('bid', formErrors) ? (
+      {getError('bid') ? (
         <AlertMessage
           className={css.notification}
-          content={getError('bid', formErrors)}
+          content={getError('bid')}
           variant="red"
         />
       ) : null}
 
-      {getError('expirationDate', formErrors) ? (
+      {getError('expirationDate') ? (
         <AlertMessage
           className={css.notification}
-          content={getError('expirationDate', formErrors)}
+          content={getError('expirationDate')}
           variant="red"
         />
       ) : null}
@@ -111,14 +100,9 @@ export default function CardPurchaseForm({
           [css.formSectionNoMargin]: savedCard,
         })}
       >
-        {isAuctionActive && (
+        {isAuctionActive() && (
           <>
-            <Bid
-              bid={bid}
-              className={css.bid}
-              initialBid={initialBid}
-              setBid={setBid}
-            />
+            <Bid className={css.bid} />
             <p className={css.notice}>{t('forms:fields.bid.description')}</p>
           </>
         )}
@@ -137,17 +121,8 @@ export default function CardPurchaseForm({
 
         {!savedCard ? (
           <>
-            <FullName
-              formErrors={{ fullName: getError('fullName', formErrors) }}
-            />
-            <CardDetails
-              formErrors={{
-                ccNumber: getError('ccNumber', formErrors),
-                expMonth: getError('expMonth', formErrors),
-                expYear: getError('expYear', formErrors),
-                securityCode: getError('securityCode', formErrors),
-              }}
-            />
+            <FullName formErrors={{ fullName: getError('fullName') }} />
+            <CardDetails />
           </>
         ) : (
           <div>
@@ -158,7 +133,7 @@ export default function CardPurchaseForm({
                 value={savedCard}
               />
               <TextInput
-                error={getError('securityCode', formErrors)}
+                error={getError('securityCode')}
                 label={t('forms:fields.securityCode.label')}
                 maxLength={3}
                 name="securityCode"
@@ -205,18 +180,7 @@ export default function CardPurchaseForm({
         )}
       </div>
 
-      {!savedCard && (
-        <BillingAddress
-          countries={countries}
-          formErrors={{
-            address1: getError('address1', formErrors),
-            city: getError('city', formErrors),
-            state: getError('state', formErrors),
-            country: getError('country', formErrors),
-            zipCode: getError('zipCode', formErrors),
-          }}
-        />
-      )}
+      {!savedCard && <BillingAddress />}
 
       {/* Submit */}
       <Button fullWidth variant="primary" onClick={handleContinue}>

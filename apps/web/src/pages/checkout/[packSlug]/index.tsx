@@ -9,7 +9,7 @@ import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
-import { usePaymentProvider } from '@/contexts/payment-context'
+import { PaymentProvider } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
 import { useAnalytics } from '@/hooks/use-analytics'
 import DefaultLayout from '@/layouts/default-layout'
@@ -18,7 +18,7 @@ import {
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
 import CheckoutTemplate from '@/templates/checkout-template'
-import { urlFor,urls } from '@/utils/urls'
+import { urlFor, urls } from '@/utils/urls'
 
 export interface CheckoutPageProps {
   auctionPackId: string | null
@@ -33,11 +33,6 @@ export default function Checkout({
 }: CheckoutPageProps) {
   const { t } = useTranslation()
   const analytics = useAnalytics()
-  const paymentProps = usePaymentProvider({
-    auctionPackId,
-    currentBid,
-    release,
-  })
 
   useEffect(() => {
     analytics.beginCheckout({
@@ -55,7 +50,9 @@ export default function Checkout({
       }
       panelPadding
     >
-      <CheckoutTemplate {...paymentProps} />
+      <PaymentProvider {...{ auctionPackId, currentBid, release }}>
+        <CheckoutTemplate />
+      </PaymentProvider>
     </DefaultLayout>
   )
 }
