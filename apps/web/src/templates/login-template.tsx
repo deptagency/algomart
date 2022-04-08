@@ -38,7 +38,7 @@ export default function LoginTemplate({
         {t('auth:contentTitle')}
       </Heading>
       {redeemable && (
-        <p className="px-4 mb-12 text-center">
+        <p className="px-4 text-center">
           {t('auth:contentBody', { name: redeemable.pack.title })}
         </p>
       )}
