@@ -190,7 +190,7 @@ export function usePaymentProvider({
       const step = status === CheckoutStatus.form ? 'details' : 'summary'
       const path = `${asPath.split('?')[0]}?step=${step}`
       if (path !== asPath) {
-        push(`${asPath.split('?')[0]}?step=${step}`)
+        push(path)
       }
     },
     [asPath, push]
