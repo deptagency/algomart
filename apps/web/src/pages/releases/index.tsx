@@ -40,21 +40,8 @@ export default function Releases({ packs }: PublishedPacks) {
     [searchParams]
   )
 
-  // selectedOption is an object, so key off its id so it can live in URL
-  const initialSelectOptions = useMemo(() => getSelectSortingOptions(t), [t])
-  const selectedOption = useMemo(
-    () =>
-      getSelectSortingOptions(t).find(
-        (option) => option.id === initialState.selectedOption
-      ),
-    [initialState]
-  )
-
   // Set initial filter state based off of URL parsing
-  const { dispatch, state } = usePackFilter({
-    ...initialState,
-    selectedOption: selectedOption ? selectedOption : initialSelectOptions[0],
-  })
+  const { dispatch, state } = usePackFilter(initialState)
 
   const queryString = useMemo(() => {
     const query = getPublishedPacksFilterQueryFromState(
@@ -73,13 +60,13 @@ export default function Releases({ packs }: PublishedPacks) {
   // If state changes, update the URL
   useEffect(() => {
     const previousState = stringify(parse(location.search))
-    const nextState = stringify(state)
+    const nextState = stringify(state as any)
     if (previousState !== nextState) {
-      const { selectedOption, selectOptions, ...rest } = state
+      const { selectOptions, ...rest } = state
       push(
         {
           pathname: pathname,
-          query: { ...rest, selectedOption: selectedOption.id },
+          query: { ...rest },
         },
         undefined,
         { scroll: false }
