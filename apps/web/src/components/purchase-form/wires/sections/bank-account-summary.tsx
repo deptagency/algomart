@@ -1,4 +1,3 @@
-import { PublishedPack } from '@algomart/schemas'
 import { InformationCircleIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
