@@ -1,18 +1,16 @@
 import {
   CheckoutMethod,
-  CheckoutStatus,
   PackAuction,
   PackStatus,
   PackType,
   PublishedPack,
 } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
-import { usePaymentProvider } from '@/contexts/payment-context'
+import { PaymentProvider } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
 import { useAnalytics } from '@/hooks/use-analytics'
 import DefaultLayout from '@/layouts/default-layout'
@@ -20,8 +18,8 @@ import {
   getAuthenticatedUser,
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
-import CheckoutTemplate from '@/templates/checkout-method-template'
-import { urls } from '@/utils/urls'
+import CheckoutMethodsTemplate from '@/templates/checkout-methods-template'
+import { urlFor, urls } from '@/utils/urls'
 
 export interface CheckoutMethodPageProps {
   address: string | null
@@ -38,29 +36,6 @@ export default function CheckoutMethodPage({
 }: CheckoutMethodPageProps) {
   const { t } = useTranslation()
   const analytics = useAnalytics()
-  const { query } = useRouter()
-  const paymentProps = usePaymentProvider({
-    auctionPackId,
-    currentBid,
-    release,
-  })
-  const { setStatus, setAddress } = paymentProps
-
-  // Set the address retrieved in server side props
-  useEffect(() => {
-    if (address) {
-      setAddress(address)
-    }
-  }, [address, setAddress])
-
-  // Set the status to the status listed as a query param:
-  useEffect(() => {
-    if (query.step) {
-      const status =
-        query?.step === 'details' ? CheckoutStatus.form : CheckoutStatus.summary
-      setStatus(status)
-    }
-  }, [query.step, setStatus])
 
   useEffect(() => {
     analytics.beginCheckout({
@@ -78,7 +53,9 @@ export default function CheckoutMethodPage({
       }
       panelPadding
     >
-      <CheckoutTemplate {...paymentProps} />
+      <PaymentProvider {...{ auctionPackId, currentBid, release }}>
+        <CheckoutMethodsTemplate address={address} />
+      </PaymentProvider>
     </DefaultLayout>
   )
 }
@@ -87,6 +64,8 @@ export const getServerSideProps: GetServerSideProps<
   CheckoutMethodPageProps
 > = async (context) => {
   const params = context.params
+  const packSlug = context?.params?.packSlug as string
+
   // Verify authentication
   const user = await getAuthenticatedUser(context)
   if (!user) {
@@ -100,10 +79,7 @@ export const getServerSideProps: GetServerSideProps<
   ) {
     return {
       redirect: {
-        destination: urls.checkoutPack.replace(
-          ':packSlug',
-          context?.params?.packSlug as string
-        ),
+        destination: urlFor(urls.checkoutPack, { packSlug }),
         permanent: false,
       },
     }
@@ -117,9 +93,10 @@ export const getServerSideProps: GetServerSideProps<
   ) {
     return {
       redirect: {
-        destination: urls.checkoutPackWithMethod
-          .replace(':packSlug', context?.params?.packSlug as string)
-          .replace(':method', 'card'),
+        destination: urlFor(urls.checkoutPackWithMethod, {
+          packSlug,
+          method: 'card',
+        }),
         permanent: false,
       },
     }
@@ -142,10 +119,7 @@ export const getServerSideProps: GetServerSideProps<
   if (!packTemplate.available) {
     return {
       redirect: {
-        destination: urls.release.replace(
-          ':packSlug',
-          context?.params?.packSlug as string
-        ),
+        destination: urlFor(urls.release, { packSlug }),
         permanent: false,
       },
     }
@@ -163,10 +137,7 @@ export const getServerSideProps: GetServerSideProps<
     ) {
       return {
         redirect: {
-          destination: urls.release.replace(
-            ':packSlug',
-            context?.params?.packSlug as string
-          ),
+          destination: urlFor(urls.release, { packSlug }),
           permanent: false,
         },
       }
@@ -181,10 +152,7 @@ export const getServerSideProps: GetServerSideProps<
     if (total > 0) {
       return {
         redirect: {
-          destination: urls.release.replace(
-            ':packSlug',
-            context?.params?.packSlug as string
-          ),
+          destination: urlFor(urls.release, { packSlug }),
           permanent: false,
         },
       }

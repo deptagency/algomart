@@ -1,7 +1,6 @@
 import {
   CheckoutMethod,
   CheckoutStatus,
-  PackType,
   PaymentBankAccountInstructions,
 } from '@algomart/schemas'
 import clsx from 'clsx'
@@ -18,39 +17,28 @@ import BankAccountSummary from './sections/bank-account-summary'
 import css from './bank-account-form.module.css'
 
 import Loading from '@/components/loading/loading'
-import { PaymentContextProps } from '@/contexts/payment-context'
-import { isAfterNow } from '@/utils/date-time'
+import { usePaymentContext } from '@/contexts/payment-context'
 
-export default function BankAccountPurchaseForm({
-  bid,
-  countries,
-  formErrors,
-  handleAddBankAccount: onSubmitBankAccount,
-  handleRetry,
-  handleSubmitBid: onSubmitBid,
-  initialBid,
-  loadingText,
-  price,
-  release,
-  setBid,
-  status,
-}: PaymentContextProps) {
+export default function BankAccountPurchaseForm() {
   const { t } = useTranslation()
   const { asPath, push } = useRouter()
+  const {
+    handleAddBankAccount: onSubmitBankAccount,
+    handleRetry,
+    handleSubmitBid: onSubmitBid,
+    isAuctionActive,
+    loadingText,
+    release,
+    status,
+  } = usePaymentContext()
   const [bankAccountInstructions, setBankAccountInstructions] =
     useState<PaymentBankAccountInstructions | null>(null)
-  const isAuctionActive =
-    release?.type === PackType.Auction &&
-    isAfterNow(new Date(release.auctionUntil as string))
 
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
       const data = new FormData(event.currentTarget)
-      if (
-        release?.type === PackType.Auction &&
-        isAfterNow(new Date(release.auctionUntil as string))
-      ) {
+      if (isAuctionActive()) {
         await onSubmitBid(data, CheckoutMethod.wire)
       } else {
         const bankInstructions = await onSubmitBankAccount(data)
@@ -74,22 +62,10 @@ export default function BankAccountPurchaseForm({
         onSubmit={handleSubmit}
       >
         <BankAccountForm
-          bid={bid}
           className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
-          countries={countries}
-          formErrors={formErrors}
           handleContinue={() => push(`${asPath.split('?')[0]}?step=summary`)}
-          initialBid={initialBid}
-          release={release}
-          setBid={setBid}
         />
-        {status === CheckoutStatus.summary && (
-          <BankAccountSummary
-            isAuctionActive={isAuctionActive}
-            price={price}
-            release={release}
-          />
-        )}
+        {status === CheckoutStatus.summary && <BankAccountSummary />}
       </form>
 
       {status === CheckoutStatus.loading && (
