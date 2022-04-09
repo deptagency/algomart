@@ -12,7 +12,6 @@ import { useLanguage } from '@/hooks/use-language'
 import { usePackFilter } from '@/hooks/use-pack-filter'
 import DefaultLayout from '@/layouts/default-layout'
 import ReleasesTemplate from '@/templates/releases-template'
-import { getSelectSortingOptions } from '@/utils/filters'
 import {
   getPublishedPacksFilterQueryFromState,
   searchPublishedPacksFilterQuery,
