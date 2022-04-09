@@ -59,9 +59,9 @@ export default function Releases({ packs }: PublishedPacks) {
   // If state changes, update the URL
   useEffect(() => {
     const previousState = stringify(parse(location.search))
-    const nextState = stringify(state as any)
+    const { selectOptions, ...rest } = state
+    const nextState = stringify(rest)
     if (previousState !== nextState) {
-      const { selectOptions, ...rest } = state
       push(
         {
           pathname: pathname,
