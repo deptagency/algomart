@@ -8,7 +8,7 @@ export default function buildKnexConfiguration(): Knex.Config {
     client: 'pg',
     connection: Configuration.databaseUrl,
     searchPath: [Configuration.databaseSchema],
-    pool: { min: 2, max: 8 },
+    pool: { min: 2, max: 20 },
     migrations: {
       extension: 'ts',
       directory: path.resolve('src/migrations'),
