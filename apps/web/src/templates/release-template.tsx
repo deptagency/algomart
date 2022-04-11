@@ -92,11 +92,7 @@ export default function ReleaseTemplate({
       } else if (isEnded) {
         return `🎬 ${t('release:This auction has ended')}.`
       }
-      if (
-        packTemplate.status === PackStatus.Active &&
-        isActive &&
-        endDateTime
-      ) {
+      if (isActive && endDateTime) {
         return `🚨 ${t('release:This auction is live')}:`
       }
       if (isInFuture && !isEnded) {
