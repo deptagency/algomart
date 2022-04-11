@@ -34,7 +34,7 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 algomart
 
 # Copy it all... unable to copy just part of the files as we'll need "everything" to apply the migrations
-COPY --from=builder /app/ .
+COPY --from=builder --chown=algomart:nodejs /app/ .
 
 WORKDIR /app/dist/apps/scribe
 RUN npm set-script prepare "" && \
