@@ -23,7 +23,7 @@ import {
 } from 'react'
 import { ExtractError } from 'validator-fns'
 
-import { SelectOption } from '@/components/select-input/select-input'
+import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useI18n } from '@/contexts/i18n-context'
 import { useAnalytics } from '@/hooks/use-analytics'

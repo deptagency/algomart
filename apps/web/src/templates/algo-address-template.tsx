@@ -9,7 +9,7 @@ import ExternalLink from '@/components/external-link'
 import Grid from '@/components/grid/grid'
 import Heading from '@/components/heading'
 import Pagination, { PAGE_SIZE } from '@/components/pagination/pagination'
-import Select, { SelectOption } from '@/components/select-input/select-input'
+import Select, { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { formatAlgoAddress } from '@/utils/format-string'
 

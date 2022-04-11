@@ -12,7 +12,7 @@ import useTranslation from 'next-translate/useTranslation'
 import React, { ReactNode, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 
-import Select, { SelectOption } from '../select-input/select-input'
+import Select, { SelectOption } from '../select/select'
 
 import css from './auth-inputs.module.css'
 

@@ -4,7 +4,7 @@ import useTranslation from 'next-translate/useTranslation'
 import css from './card-details.module.css'
 
 import Heading from '@/components/heading'
-import Select from '@/components/select-input/select-input'
+import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import { usePaymentContext } from '@/contexts/payment-context'
 

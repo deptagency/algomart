@@ -8,7 +8,7 @@ import CollectibleItem from '@/components/collectibles/collectible-item'
 import NoCollectiblesContent from '@/components/collectibles/no-collectibles-content'
 import Grid from '@/components/grid/grid'
 import Pagination, { PAGE_SIZE } from '@/components/pagination/pagination'
-import Select, { SelectOption } from '@/components/select-input/select-input'
+import Select, { SelectOption } from '@/components/select/select'
 import Tabs from '@/components/tabs/tabs'
 import {
   collectibleIsNumberOfDaysOld,

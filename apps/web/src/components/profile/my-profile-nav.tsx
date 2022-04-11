@@ -8,7 +8,7 @@ import Button from '../button'
 import css from './my-profile-nav.module.css'
 
 import AppLink from '@/components/app-link/app-link'
-import Select, { SelectOption } from '@/components/select-input/select-input'
+import Select, { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useRedemption } from '@/contexts/redemption-context'
 import useAdmin from '@/hooks/use-admin'

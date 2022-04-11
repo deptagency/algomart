@@ -3,7 +3,7 @@ import useTranslation from 'next-translate/useTranslation'
 import common from './my-profile-common.module.css'
 
 import Heading from '@/components/heading'
-import Select, { SelectOption } from '@/components/select-input/select-input'
+import Select, { SelectOption } from '@/components/select/select'
 import { useThemeContext } from '@/contexts/theme-context'
 
 const OS_THEME = 'OS'

@@ -12,7 +12,7 @@ import { Translate } from 'next-translate'
 import { stringify } from 'query-string'
 
 import { PAGE_SIZE } from '@/components/pagination/pagination'
-import { SelectOption } from '@/components/select-input/select-input'
+import { SelectOption } from '@/components/select/select'
 import { PackFilterState } from '@/hooks/use-pack-filter'
 
 /**

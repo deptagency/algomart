@@ -2,7 +2,7 @@ import { PackSortField, SortDirection, SortOptions } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 import { Dispatch, useMemo, useReducer } from 'react'
 
-import { SelectOption } from '@/components/select-input/select-input'
+import { SelectOption } from '@/components/select/select'
 import { getSelectSortingOptions } from '@/utils/filters'
 import {
   ActionsUnion,
