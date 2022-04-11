@@ -30,7 +30,7 @@ export default function AlgoAddressPage({ algoAddress }: AlgoAddressPageProps) {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isViewerActive, setIsViewerActive] = useState<boolean>(false)
   const sortOptions = getSelectSortingOptions(t)
-  const [sortMode, setSortMode] = useState(sortOptions[0].key)
+  const [sortMode, setSortMode] = useState(sortOptions[0].value)
   const [sortBy, setSortBy] = useState<CollectibleSortField>(
     CollectibleSortField.ClaimedAt
   )

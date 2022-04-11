@@ -59,7 +59,7 @@ export function Currency({
           Object.keys(currencyConversions).includes(dineroCurrencyKey)
         )
         .map((targetCurrency) => ({
-          key: targetCurrency,
+          value: targetCurrency,
           label: targetCurrency,
         }))
       setOptions(intersection)
@@ -125,7 +125,7 @@ export function Language({
 
         setOptions(
           i18nStateLanguages.map((language) => ({
-            key: language.languages_code,
+            value: language.languages_code,
             label: language.label,
           }))
         )
@@ -133,7 +133,7 @@ export function Language({
         // if service fails, at least let them set English
         setOptions([
           {
-            key: DEFAULT_LANG,
+            value: DEFAULT_LANG,
             label: t('common:global.language'),
           },
         ])

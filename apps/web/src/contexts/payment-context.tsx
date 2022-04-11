@@ -165,8 +165,8 @@ export function usePaymentProvider({
       if (countries) {
         setCountries(
           countries.map(({ code, name }) => ({
-            label: name as string,
-            key: code as string,
+            label: name,
+            value: code,
           }))
         )
       } else {

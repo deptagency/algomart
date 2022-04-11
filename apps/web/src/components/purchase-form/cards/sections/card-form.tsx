@@ -41,21 +41,19 @@ export default function CardPurchaseForm({
       const cards = await CheckoutService.instance.getCards()
       const sortedCardsByExpDate = sortByExpirationDate(cards)
       const sortedCards = sortByDefault(sortedCardsByExpDate)
-      const cardsList = sortedCards
-        .filter((card) => {
-          const expDate = getExpirationDate(
-            card.expirationMonth as string,
-            card.expirationYear as string
+      const cardsList: SelectOption[] = sortedCards
+        .filter((card) =>
+          isAfterNow(
+            getExpirationDate(card.expirationMonth, card.expirationYear)
           )
-          return isAfterNow(expDate)
-        })
+        )
         .map((card) => ({
-          key: card.id as string,
+          value: card.id,
           label: `${card.network} *${card.lastFour}, ${card.expirationMonth}/${card.expirationYear}`,
         }))
 
       setOptions([
-        { key: '', label: t('forms:fields.savedCard.placeholder') },
+        { value: '', label: t('forms:fields.savedCard.placeholder') },
         ...cardsList,
       ])
 

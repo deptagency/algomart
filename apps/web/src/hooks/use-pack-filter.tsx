@@ -151,7 +151,7 @@ export function usePackFilter(initialState?: Partial<PackFilterState>) {
     currentPage: 1,
     priceHigh: 50_000,
     priceLow: 0,
-    sortMode: selectOptions[0].key,
+    sortMode: selectOptions[0].value,
     selectOptions,
     showAuction: true,
     showPurchase: true,

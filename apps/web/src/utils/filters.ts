@@ -123,9 +123,9 @@ export const getPaymentsFilterQuery = (query: PaymentsQuerystring) => {
  */
 export function getSelectSortingOptions(t: Translate): SelectOption[] {
   return [
-    { key: SortOptions.Newest, label: t('collection:sorting.Newest') },
-    { key: SortOptions.Oldest, label: t('collection:sorting.Oldest') },
-    // { key: SortOptions.Name, label: t('collection:sorting.Name') },
+    { value: SortOptions.Newest, label: t('collection:sorting.Newest') },
+    { value: SortOptions.Oldest, label: t('collection:sorting.Oldest') },
+    // { value: SortOptions.Name, label: t('collection:sorting.Name') },
   ]
 }
 

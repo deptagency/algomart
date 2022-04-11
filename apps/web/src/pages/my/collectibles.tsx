@@ -34,7 +34,7 @@ export default function MyCollectiblesPage() {
 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const sortOptions = getSelectSortingOptions(t)
-  const [sortMode, setSortMode] = useState<string>(sortOptions[0].key)
+  const [sortMode, setSortMode] = useState<string>(sortOptions[0].value)
 
   const { data } = useApi<CollectibleListWithTotal>(
     user?.username

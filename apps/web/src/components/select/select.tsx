@@ -12,7 +12,7 @@ import {
 import css from './select.module.css'
 
 export interface SelectOption {
-  key: string
+  value: string
   label: string | ReactNode
   disabled?: boolean
 }
@@ -46,14 +46,14 @@ export default function Select({
 }: SelectProps) {
   const _id = id ?? crypto.randomUUID()
   const [internalValue, setInternalValue] = useState(
-    defaultValue || (options?.length ? options[0].key : '')
+    defaultValue || (options?.length ? options[0].value : '')
   )
 
   const actualValue = value ?? internalValue
   const selectedOption = useMemo(() => {
     return value
-      ? options.find((option) => option.key === value)
-      : options.find((option) => option.key === internalValue)
+      ? options.find((option) => option.value === value)
+      : options.find((option) => option.value === internalValue)
   }, [options, internalValue, value])
 
   const handleChange = (value: string) => {
@@ -102,8 +102,8 @@ export default function Select({
                     [css.selectOptionDisabled]: option.disabled,
                   })
                 }
-                key={option.key}
-                value={option.key}
+                key={option.value}
+                value={option.value}
               >
                 {option.label}
               </Listbox.Option>
@@ -116,7 +116,7 @@ export default function Select({
         tabIndex={-1}
         className="sr-only"
         readOnly
-        value={selectedOption.key}
+        value={selectedOption.value}
         name={name}
         id={id}
       />

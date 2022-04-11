@@ -15,7 +15,7 @@ const THEME_OPTIONS: SelectOption[] = [
         <span aria-hidden="true">🌑 </span>Dark
       </span>
     ),
-    key: 'dark',
+    value: 'dark',
   },
   {
     label: (
@@ -23,7 +23,7 @@ const THEME_OPTIONS: SelectOption[] = [
         <span aria-hidden="true">🌕 </span>Light
       </span>
     ),
-    key: 'light',
+    value: 'light',
   },
   {
     label: (
@@ -31,7 +31,7 @@ const THEME_OPTIONS: SelectOption[] = [
         <span aria-hidden="true">🌗 </span>OS Theme
       </span>
     ),
-    key: OS_THEME,
+    value: OS_THEME,
   },
 ]
 
