@@ -99,7 +99,7 @@
     "@nrwl/devkit": "13.9.6",
     "@nrwl/eslint-plugin-nx": "13.9.6",
     "@nrwl/jest": "13.9.6",
-    "@nrwl/linter": "13.9.6",
+    "@nrwl/linter": "13.10.1",
     "@nrwl/node": "13.9.6",
     "@nrwl/react": "13.9.6",
     "@nrwl/tao": "13.9.6",
