@@ -9,7 +9,7 @@ import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
-import { usePaymentProvider } from '@/contexts/payment-context'
+import { PaymentProvider } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
 import { useAnalytics } from '@/hooks/use-analytics'
 import DefaultLayout from '@/layouts/default-layout'
@@ -18,7 +18,7 @@ import {
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
 import CheckoutTemplate from '@/templates/checkout-template'
-import { urls } from '@/utils/urls'
+import { urlFor, urls } from '@/utils/urls'
 
 export interface CheckoutPageProps {
   auctionPackId: string | null
@@ -33,11 +33,6 @@ export default function Checkout({
 }: CheckoutPageProps) {
   const { t } = useTranslation()
   const analytics = useAnalytics()
-  const paymentProps = usePaymentProvider({
-    auctionPackId,
-    currentBid,
-    release,
-  })
 
   useEffect(() => {
     analytics.beginCheckout({
@@ -55,7 +50,9 @@ export default function Checkout({
       }
       panelPadding
     >
-      <CheckoutTemplate {...paymentProps} />
+      <PaymentProvider {...{ auctionPackId, currentBid, release }}>
+        <CheckoutTemplate />
+      </PaymentProvider>
     </DefaultLayout>
   )
 }
@@ -69,20 +66,23 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
     return handleUnauthenticatedRedirect(context.resolvedUrl)
   }
 
+  const packSlug = context?.params?.packSlug as string
+
   // Redirect to the card page if the feature flags aren't enabled
   if (!Environment.isWireEnabled && !Environment.isCryptoEnabled) {
     return {
       redirect: {
-        destination: urls.checkoutPackWithMethod
-          .replace(':packSlug', context?.params?.packSlug as string)
-          .replace(':method', 'card'),
+        destination: urlFor(urls.checkoutPackWithMethod, {
+          packSlug,
+          method: 'card',
+        }),
         permanent: false,
       },
     }
   }
 
   const packTemplate = await ApiClient.instance.getPublishedPackBySlug(
-    context?.params?.packSlug as string,
+    packSlug,
     context.locale
   )
 
@@ -97,10 +97,7 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
   if (!packTemplate.available) {
     return {
       redirect: {
-        destination: urls.release.replace(
-          ':packSlug',
-          context?.params?.packSlug as string
-        ),
+        destination: urlFor(urls.release, { packSlug }),
         permanent: false,
       },
     }
@@ -118,10 +115,7 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
     ) {
       return {
         redirect: {
-          destination: urls.release.replace(
-            ':packSlug',
-            context?.params?.packSlug as string
-          ),
+          destination: urlFor(urls.release, { packSlug }),
           permanent: false,
         },
       }
@@ -136,10 +130,7 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
     if (total > 0) {
       return {
         redirect: {
-          destination: urls.release.replace(
-            ':packSlug',
-            context?.params?.packSlug as string
-          ),
+          destination: urlFor(urls.release, { packSlug }),
           permanent: false,
         },
       }

@@ -23,6 +23,7 @@ import {
 } from 'react'
 import { ExtractError } from 'validator-fns'
 
+import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useI18n } from '@/contexts/i18n-context'
 import { useAnalytics } from '@/hooks/use-analytics'
@@ -33,7 +34,7 @@ import {
   CreateBankAccountRequest,
   CreateCardRequest,
 } from '@/services/checkout-service'
-import { getExpirationDate } from '@/utils/date-time'
+import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { encryptCardDetails } from '@/utils/encryption'
 import { toJSON } from '@/utils/form-to-json'
 import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
@@ -68,9 +69,10 @@ export interface PaymentContextProps {
   address: string | null
   auctionPackId?: string | null
   bid: string | null
-  countries: { label: string | null; id: string }[]
+  countries: SelectOption[]
   currentBid: number | null
   formErrors?: FormValidation
+  getError: (field: string) => string
   handleAddBankAccount(
     data: FormData
   ): Promise<PaymentBankAccountInstructions | undefined>
@@ -78,6 +80,7 @@ export interface PaymentContextProps {
   handleSubmitBid(data: FormData, method: CheckoutMethod): void
   handleSubmitPurchase(data: FormData, isPurchase: boolean): void
   initialBid?: string
+  isAuctionActive?: () => boolean
   loadingText: string
   method?: string | string[]
   packId: string | null
@@ -95,7 +98,7 @@ export interface PaymentContextProps {
 
 export const PaymentContext = createContext<PaymentContextProps | null>(null)
 
-export function usePayment() {
+export function usePaymentContext() {
   const payment = useContext(PaymentContext)
   if (!payment) throw new Error('PaymentProvider missing')
   return payment
@@ -124,9 +127,7 @@ export function usePaymentProvider({
   const [bid, setBid] = useState<string | null>(initialBid)
   const [address, setAddress] = useState<string | null>(null)
   const [promptLeaving, setPromptLeaving] = useState(false)
-  const [countries, setCountries] = useState<
-    { label: string | null; id: string }[]
-  >([])
+  const [countries, setCountries] = useState<SelectOption[]>([])
   const validateFormForBankAccount = useMemo(() => validateBankAccount(t), [t])
   const validateFormForPurchase = useMemo(() => validatePurchaseForm(t), [t])
   const validateFormForPurchaseWithSavedCard = useMemo(
@@ -152,17 +153,25 @@ export function usePaymentProvider({
   const [formErrors, setFormErrors] = useState<FormValidation>()
   const [price, setPrice] = useState<string | null>()
 
+  const getError = useCallback(
+    (field: string) =>
+      formErrors && field in formErrors ? (formErrors[field] as string) : '',
+    [formErrors]
+  )
+
   const findCountries = useCallback(async () => {
     try {
       const countries = await CheckoutService.instance.getCountries()
       if (countries) {
-        const list = countries.map(({ code, name }) => ({
-          label: name,
-          id: code,
-        }))
-        return setCountries(list)
+        setCountries(
+          countries.map(({ code, name }) => ({
+            label: name,
+            value: code,
+          }))
+        )
+      } else {
+        setCountries([])
       }
-      return setCountries([])
     } catch {
       setCountries([])
       setStatus(CheckoutStatus.error)
@@ -181,9 +190,8 @@ export function usePaymentProvider({
       const step = status === CheckoutStatus.form ? 'details' : 'summary'
       const path = `${asPath.split('?')[0]}?step=${step}`
       if (path !== asPath) {
-        return push(`${asPath.split('?')[0]}?step=${step}`)
+        push(path)
       }
-      return
     },
     [asPath, push]
   )
@@ -210,7 +218,7 @@ export function usePaymentProvider({
       }[code]
 
       if (errors) {
-        return setFormErrors(errors)
+        setFormErrors(errors)
       }
     },
     [t]
@@ -720,6 +728,10 @@ export function usePaymentProvider({
     )
   }, [currency, bid]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const isAuctionActive = () =>
+    release?.type === PackType.Auction &&
+    isAfterNow(new Date(release.auctionUntil as string))
+
   const value = useMemo(
     () => ({
       address,
@@ -728,11 +740,13 @@ export function usePaymentProvider({
       countries,
       currentBid: currentBid || null,
       formErrors,
+      getError,
       handleAddBankAccount,
       handleRetry,
       handleSubmitBid,
       handleSubmitPurchase,
       initialBid,
+      isAuctionActive,
       loadingText,
       method,
       packId,
@@ -754,11 +768,13 @@ export function usePaymentProvider({
       countries,
       currentBid,
       formErrors,
+      getError,
       handleAddBankAccount,
       handleRetry,
       handleSubmitBid,
       handleSubmitPurchase,
       initialBid,
+      isAuctionActive,
       loadingText,
       method,
       packId,

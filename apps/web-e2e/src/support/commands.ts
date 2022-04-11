@@ -13,10 +13,8 @@ import { configure } from '@testing-library/cypress'
 configure({})
 
 /*
- *
  * Custom command for initiating the creation of a user
- * @example cy.createUser()
- *
+ * @example cy.createUser({ ... })
  */
 Cypress.Commands.add(
   'createUser',
@@ -28,10 +26,8 @@ Cypress.Commands.add(
 )
 
 /*
- *
  * Custom command for cleaning up test users
- * @example cy.cleanupUser()
- *
+ * @example cy.cleanupUser('user@email.com')
  */
 Cypress.Commands.add('cleanupUser', (email: string) => {
   return cy.exec('node ./src/utils/cleanupUser.js', {
@@ -40,10 +36,8 @@ Cypress.Commands.add('cleanupUser', (email: string) => {
 })
 
 /*
- *
  * Custom command for verifying a user's email
- * @example cy.verifyEmail()
- *
+ * @example cy.verifyEmail('user@email.com')
  */
 Cypress.Commands.add('verifyEmail', (email: string) => {
   return cy.exec('node ./src/utils/cleanupUser.js', {

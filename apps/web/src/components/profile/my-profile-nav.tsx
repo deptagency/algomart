@@ -8,7 +8,7 @@ import Button from '../button'
 import css from './my-profile-nav.module.css'
 
 import AppLink from '@/components/app-link/app-link'
-import Select, { SelectOption } from '@/components/select-input/select-input'
+import Select, { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useRedemption } from '@/contexts/redemption-context'
 import useAdmin from '@/hooks/use-admin'
@@ -45,25 +45,25 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
   }, [auth, push, setRedeemable])
 
   const navItems = [
-    { key: urls.myProfile, label: t('common:pageTitles.My Profile') },
-    { key: urls.myProfileSecurity, label: t('common:pageTitles.Security') },
+    { value: urls.myProfile, label: t('common:pageTitles.My Profile') },
+    { value: urls.myProfileSecurity, label: t('common:pageTitles.Security') },
     {
-      key: urls.myProfilePaymentMethods,
+      value: urls.myProfilePaymentMethods,
       label: t('common:pageTitles.Payment Methods'),
     },
     {
-      key: urls.myProfileTransactions,
+      value: urls.myProfileTransactions,
       label: t('common:pageTitles.Transactions'),
     },
     {
-      key: urls.myProfileImportNFT,
+      value: urls.myProfileImportNFT,
       label: t('common:pageTitles.Import NFT'),
     },
   ] as SelectOption[]
 
   if (isAdmin) {
     navItems.push({
-      key: urls.admin.index,
+      value: urls.admin.index,
       label: t('common:pageTitles.Admin'),
     })
   }
@@ -81,7 +81,7 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
           options={[
             ...navItems,
             {
-              key: LOG_OUT,
+              value: LOG_OUT,
               label: t('common:actions.Sign Out'),
             },
           ]}
@@ -90,15 +90,15 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
       </div>
       <div className={css.desktopWrapper}>
         <ul className={css.listWrapper}>
-          {navItems.map(({ key, label }) => (
+          {navItems.map(({ value, label }) => (
             <li
               className={clsx(css.listItem, {
                 [css.listItemActive]:
-                  key === pathname || `${key}/add` === pathname,
+                  value === pathname || `${value}/add` === pathname,
               })}
-              key={key}
+              key={value}
             >
-              <AppLink href={key}>{label}</AppLink>
+              <AppLink href={value}>{label}</AppLink>
             </li>
           ))}
         </ul>

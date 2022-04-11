@@ -39,10 +39,10 @@ export default function ReleasesTemplate({
       <div className={css.selectWrapper}>
         <Select
           className={css.select}
-          handleChange={(option) => dispatch(packFilterActions.setSort(option))}
+          onChange={(value) => dispatch(packFilterActions.setSort(value))}
           id="sortOption"
           options={state.selectOptions}
-          selectedValue={state.selectedOption}
+          value={state.sortMode}
         />
       </div>
       <div className={clsx(css.columns)}>

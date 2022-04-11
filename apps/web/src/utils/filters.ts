@@ -12,6 +12,7 @@ import { Translate } from 'next-translate'
 import { stringify } from 'query-string'
 
 import { PAGE_SIZE } from '@/components/pagination/pagination'
+import { SelectOption } from '@/components/select/select'
 import { PackFilterState } from '@/hooks/use-pack-filter'
 
 /**
@@ -120,11 +121,11 @@ export const getPaymentsFilterQuery = (query: PaymentsQuerystring) => {
 /**
  * Build selection options for sorting
  */
-export const getSelectSortingOptions = (t: Translate) => {
+export function getSelectSortingOptions(t: Translate): SelectOption[] {
   return [
-    { id: SortOptions.Newest, label: t('collection:sorting.Newest') },
-    { id: SortOptions.Oldest, label: t('collection:sorting.Oldest') },
-    // { id: SortOptions.Name, label: t('collection:sorting.Name') },
+    { value: SortOptions.Newest, label: t('collection:sorting.Newest') },
+    { value: SortOptions.Oldest, label: t('collection:sorting.Oldest') },
+    // { value: SortOptions.Name, label: t('collection:sorting.Name') },
   ]
 }
 

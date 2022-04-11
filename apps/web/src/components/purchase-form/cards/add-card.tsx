@@ -6,41 +6,25 @@ import AddMethodsForm from './sections/add-methods-form'
 import AddMethodsSuccess from './sections/add-methods-success'
 
 import Loading from '@/components/loading/loading'
-import { FormValidation } from '@/contexts/payment-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 
 export interface PaymentMethodsFormProps {
-  countries: { label: string | null; id: string }[]
-  formErrors?: FormValidation
-  handleRetry: () => void
-  loadingText: string
   onSubmit(event: FormEvent<HTMLFormElement>): void
-  status?: CheckoutStatus
 }
 
 export default function PaymentMethodsForm({
-  countries,
-  handleRetry,
-  formErrors,
-  loadingText,
   onSubmit,
-  status,
 }: PaymentMethodsFormProps) {
+  const { handleRetry, loadingText, status } = usePaymentContext()
   return (
     <section className="pt-5">
       <div className={status === CheckoutStatus.form ? '' : 'hidden'}>
-        <AddMethodsForm
-          countries={countries}
-          formErrors={formErrors}
-          onSubmit={onSubmit}
-        />
+        <AddMethodsForm onSubmit={onSubmit} />
       </div>
-
       {status === CheckoutStatus.loading && (
-        <Loading loadingText={loadingText} variant="primary" />
+        <Loading loadingText={loadingText} />
       )}
-
       {status === CheckoutStatus.success && <AddMethodsSuccess />}
-
       {status === CheckoutStatus.error && (
         <AddMethodsError handleRetry={handleRetry} />
       )}

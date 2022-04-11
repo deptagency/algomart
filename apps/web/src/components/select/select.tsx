@@ -5,62 +5,73 @@ import {
   DetailedHTMLProps,
   InputHTMLAttributes,
   ReactNode,
+  useMemo,
   useState,
 } from 'react'
 
 import css from './select.module.css'
 
 export interface SelectOption {
-  id: string
+  value: string
   label: string | ReactNode
+  disabled?: boolean
 }
 
 export interface SelectProps
   extends DetailedHTMLProps<
-    InputHTMLAttributes<HTMLSelectElement>,
+    Omit<InputHTMLAttributes<HTMLSelectElement>, 'onChange'>,
     HTMLSelectElement
   > {
-  defaultOption?: SelectOption
   error?: string
-  handleChange?(option: SelectOption): void
+  onChange?(value: string): void
   helpText?: string
   label?: string
   options: SelectOption[]
-  selectedValue?: SelectOption | null
+  value?: string
   Icon?: ReactNode
 }
 
 export default function Select({
-  defaultOption,
+  defaultValue,
   disabled,
   error,
-  handleChange,
+  onChange,
   helpText,
   id,
+  name,
   label,
   options,
-  selectedValue,
+  value,
   Icon,
 }: SelectProps) {
-  const [selected, setSelected] = useState(defaultOption || options[0])
-  const value = selectedValue || selected
+  const _id = id ?? crypto.randomUUID()
+  const [internalValue, setInternalValue] = useState(
+    defaultValue || (options?.length ? options[0].value : '')
+  )
 
-  const onChange = (option: SelectOption) => {
-    if (handleChange) {
-      handleChange(option)
+  const actualValue = value ?? internalValue
+  const selectedOption = useMemo(() => {
+    return value
+      ? options.find((option) => option.value === value)
+      : options.find((option) => option.value === internalValue)
+  }, [options, internalValue, value])
+
+  const handleChange = (value: string) => {
+    if (onChange) {
+      onChange(value)
     } else {
-      setSelected(option)
+      setInternalValue(value)
     }
   }
 
   return (
-    <label className={css.root} data-input="select" htmlFor={id}>
+    <label className={css.root} data-input="select" htmlFor={_id}>
       <div className={css.labelContainer}>
-        {label && <span className={css.label}>{label}</span>}
-        {error && <span className={css.errorText}>{error}</span>}
-        {!error && helpText && <span className={css.helpText}>{helpText}</span>}
+        {label && <div className={css.label}>{label}</div>}
+        {error && <div className={css.errorText}>{error}</div>}
+        {!error && helpText && <div className={css.helpText}>{helpText}</div>}
       </div>
-      <Listbox disabled={disabled} onChange={onChange} value={value}>
+      <Listbox disabled={disabled} onChange={handleChange} value={actualValue}>
         <div className={css.selectContainer}>
           <Listbox.Button
             className={clsx(css.selectButton, {
@@ -68,31 +79,33 @@ export default function Select({
               [css.selectButtonError]: error,
             })}
           >
-            <span className={css.selectButtonText}>
-              {Icon ? Icon : null}
-              {value.label}
-            </span>
-            <span className={css.selectButtonIconContainer}>
+            <div className={css.selectButtonText}>
+              {Icon}
+              {selectedOption.label}
+            </div>
+            <div className={css.selectButtonIconContainer}>
               <SelectorIcon
                 className={css.selectButtonIcon}
                 aria-hidden="true"
               />
-            </span>
+            </div>
           </Listbox.Button>
 
           <Listbox.Options className={css.selectOptions}>
             {options.map((option) => (
               <Listbox.Option
+                disabled={option.disabled}
                 className={({ active, selected }) =>
                   clsx(css.selectOption, {
                     [css.selectOptionActive]: active,
                     [css.selectOptionSelected]: selected,
+                    [css.selectOptionDisabled]: option.disabled,
                   })
                 }
-                key={option.id}
-                value={option}
+                key={option.value}
+                value={option.value}
               >
-                <span>{option.label}</span>
+                {option.label}
               </Listbox.Option>
             ))}
           </Listbox.Options>
@@ -100,11 +113,12 @@ export default function Select({
       </Listbox>
       {/* Used to capture value of select */}
       <input
+        tabIndex={-1}
         className="sr-only"
-        id={id}
-        name={id}
         readOnly
-        value={selected.id}
+        value={selectedOption.value}
+        name={name}
+        id={id}
       />
     </label>
   )

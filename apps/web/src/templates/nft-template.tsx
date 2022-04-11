@@ -22,7 +22,7 @@ import { Environment } from '@/environment'
 import { useLocale } from '@/hooks/use-locale'
 import { isAfterNow } from '@/utils/date-time'
 import { formatCurrency } from '@/utils/format-currency'
-import { urlFor,urls } from '@/utils/urls'
+import { urlFor, urls } from '@/utils/urls'
 
 export interface NFTTemplateProps {
   collectible: CollectibleWithDetails

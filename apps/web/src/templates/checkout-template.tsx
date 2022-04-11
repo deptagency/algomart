@@ -8,7 +8,7 @@ import Heading from '@/components/heading'
 import PaymentOptions from '@/components/payment-options'
 import EmailVerification from '@/components/profile/email-verification'
 import { useAuth } from '@/contexts/auth-context'
-import { PaymentContextProps } from '@/contexts/payment-context'
+import { PaymentProvider, usePaymentContext } from '@/contexts/payment-context'
 import { Environment } from '@/environment'
 import { useCurrency } from '@/hooks/use-currency'
 import { isGreaterThanOrEqual } from '@/utils/format-currency'
@@ -17,12 +17,12 @@ import { MAX_BID_FOR_CARD_PAYMENT } from '@/utils/purchase-validation'
 const mastercardIcon = '/images/logos/mastercard.svg'
 const visaIcon = '/images/logos/visa.svg'
 
-export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
+export default function CheckoutTemplate() {
   const currency = useCurrency()
   const { t } = useTranslation()
   const { user } = useAuth()
   const { pathname, query } = useRouter()
-  const { currentBid, release } = paymentProps
+  const { currentBid, release } = usePaymentContext()
 
   const doesRequireNonCardPayment =
     (Environment.isWireEnabled || Environment.isCryptoEnabled) &&
@@ -97,11 +97,11 @@ export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
     return <EmailVerification inline />
   }
   return (
-    <>
+    <PaymentProvider>
       <Heading className="mb-10" level={1}>
         {t('forms:fields.paymentMethods.helpText')}
       </Heading>
       <PaymentOptions cards={getCardList(t)} />
-    </>
+    </PaymentProvider>
   )
 }

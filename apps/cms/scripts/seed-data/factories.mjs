@@ -57,7 +57,10 @@ Factory.define('pack')
   .attr('nft_distribution', 'one-of-each')
   .attr('nfts_per_pack', null)
   .attr('price', 1000)
-  .attr('released_at', new Date().toISOString())
+  .sequence('released_at', (seq) => 
+    // stagger release times by 1 minute for sortability
+    new Date(Date.now() + 1000 * 60 * seq).toISOString()
+  )
   .attr('type', ['idx'], (idx) => {
     const types = ['free', 'redeem', 'purchase', 'auction']
     return types[idx % types.length]

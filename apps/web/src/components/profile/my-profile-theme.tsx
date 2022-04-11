@@ -3,7 +3,7 @@ import useTranslation from 'next-translate/useTranslation'
 import common from './my-profile-common.module.css'
 
 import Heading from '@/components/heading'
-import Select, { SelectOption } from '@/components/select-input/select-input'
+import Select, { SelectOption } from '@/components/select/select'
 import { useThemeContext } from '@/contexts/theme-context'
 
 const OS_THEME = 'OS'
@@ -15,7 +15,7 @@ const THEME_OPTIONS: SelectOption[] = [
         <span aria-hidden="true">🌑 </span>Dark
       </span>
     ),
-    key: 'dark',
+    value: 'dark',
   },
   {
     label: (
@@ -23,7 +23,7 @@ const THEME_OPTIONS: SelectOption[] = [
         <span aria-hidden="true">🌕 </span>Light
       </span>
     ),
-    key: 'light',
+    value: 'light',
   },
   {
     label: (
@@ -31,7 +31,7 @@ const THEME_OPTIONS: SelectOption[] = [
         <span aria-hidden="true">🌗 </span>OS Theme
       </span>
     ),
-    key: OS_THEME,
+    value: OS_THEME,
   },
 ]
 

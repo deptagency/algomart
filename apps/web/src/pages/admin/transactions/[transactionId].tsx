@@ -24,7 +24,7 @@ import { AdminService } from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { formatCurrency } from '@/utils/format-currency'
 import { useAuthApi } from '@/utils/swr'
-import { urls } from '@/utils/urls'
+import { urlFor, urls } from '@/utils/urls'
 
 interface AdminTransactionPageProps {
   payment: Payment
@@ -41,6 +41,7 @@ export default function AdminTransactionPage({
   const { transactionId } = query
   const isAuction = !!payment.pack?.template?.auctionUntil
   const isWire = !!payment.paymentBankId
+  const packTemplate = payment.pack?.template
 
   // WIRE PAYMENTS
   const { data } = useAuthApi<WirePayment[]>(
@@ -127,31 +128,30 @@ export default function AdminTransactionPage({
       <Flex gap={12}>
         <Flex item flex="0 0 auto" className={css.leftSide} gap={2}>
           <Panel fullWidth>
-            <Image src={payment.pack?.template?.image} alt="Pack image" />
+            <Image src={packTemplate?.image} alt="Pack image" />
           </Panel>
 
           <Flex flex="1" flexDirection="column" gap={6}>
             <Panel className={css.userInfoPanel}>
               <dl>
                 <dt>Type</dt>
-                <dd>{payment.pack?.template?.type}</dd>
+                <dd>{packTemplate?.type}</dd>
                 <dt>Title</dt>
-                <dd>{payment.pack?.template?.title}</dd>
+                <dd>{packTemplate?.title}</dd>
                 <dt>Slug</dt>
                 <dd>
                   <AppLink
-                    href={urls.release.replace(
-                      ':packSlug',
-                      payment.pack?.template?.slug
-                    )}
+                    href={urlFor(urls.release, {
+                      packSlug: packTemplate?.slug,
+                    })}
                   >
-                    {payment.pack?.template?.slug}
+                    {packTemplate?.slug}
                   </AppLink>
                 </dd>
                 <dt>Price</dt>
                 <dd>
                   {formatCurrency(
-                    payment.pack?.template?.price,
+                    packTemplate?.price,
                     locale,
                     currency,
                     conversionRate
@@ -199,7 +199,7 @@ export default function AdminTransactionPage({
                   <dt>Winning Bid</dt>
                   <dd>
                     {formatCurrency(
-                      payment.pack?.template?.activeBid,
+                      packTemplate?.activeBid,
                       locale,
                       currency,
                       conversionRate
@@ -213,9 +213,9 @@ export default function AdminTransactionPage({
                 <div className={css.packMeta}>
                   <dt>Ended At</dt>
                   <dd>
-                    {new Date(
-                      payment.pack?.template?.auctionUntil
-                    ).toLocaleString(locale)}
+                    {new Date(packTemplate?.auctionUntil).toLocaleString(
+                      locale
+                    )}
                   </dd>
                 </div>
               </Flex>

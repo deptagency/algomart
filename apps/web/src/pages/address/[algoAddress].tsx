@@ -11,7 +11,6 @@ import { useCallback, useState } from 'react'
 
 import Loading from '@/components/loading/loading'
 import { PAGE_SIZE } from '@/components/pagination/pagination'
-import { SelectOption } from '@/components/select/select'
 import DefaultLayout from '@/layouts/default-layout'
 import AlgoAddressTemplate from '@/templates/algo-address-template'
 import { getSelectSortingOptions } from '@/utils/filters'
@@ -30,10 +29,8 @@ export default function AlgoAddressPage({ algoAddress }: AlgoAddressPageProps) {
   )
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isViewerActive, setIsViewerActive] = useState<boolean>(false)
-  const selectOptions = getSelectSortingOptions(t)
-  const [selectedOption, setSelectedOption] = useState<SelectOption>(
-    selectOptions[0]
-  )
+  const sortOptions = getSelectSortingOptions(t)
+  const [sortMode, setSortMode] = useState(sortOptions[0].value)
   const [sortBy, setSortBy] = useState<CollectibleSortField>(
     CollectibleSortField.ClaimedAt
   )
@@ -49,26 +46,20 @@ export default function AlgoAddressPage({ algoAddress }: AlgoAddressPageProps) {
     setCurrentPage(pageNumber)
   }, [])
 
-  const handleSortChange = useCallback((option: SelectOption) => {
+  const handleSortChange = useCallback((value: string) => {
     setCurrentPage(1)
-    setSelectedOption(option)
-    let newSortBy = CollectibleSortField.Title
-    let newSortDirection = SortDirection.Ascending
-
-    switch (option.id) {
-      case SortOptions.Newest:
-        newSortBy = CollectibleSortField.ClaimedAt
-        newSortDirection = SortDirection.Descending
-        break
-      case SortOptions.Oldest:
-        newSortBy = CollectibleSortField.ClaimedAt
-        newSortDirection = SortDirection.Ascending
-        break
-      case SortOptions.Name:
-        newSortBy = CollectibleSortField.Title
-        newSortDirection = SortDirection.Ascending
-        break
-    }
+    setSortMode(value)
+    const [newSortBy, newSortDirection] = {
+      [SortOptions.Newest]: [
+        CollectibleSortField.ClaimedAt,
+        SortDirection.Descending,
+      ],
+      [SortOptions.Oldest]: [
+        CollectibleSortField.ClaimedAt,
+        SortDirection.Ascending,
+      ],
+      [SortOptions.Name]: [CollectibleSortField.Title, SortDirection.Ascending],
+    }[value] as [CollectibleSortField, SortDirection]
 
     setSortBy(newSortBy)
     setSortDirection(newSortDirection)
@@ -100,10 +91,10 @@ export default function AlgoAddressPage({ algoAddress }: AlgoAddressPageProps) {
           assets={data?.collectibles || []}
           currentPage={currentPage}
           handlePageChange={handlePageChange}
-          handleSortChange={handleSortChange}
+          onSortChange={handleSortChange}
           isViewerActive={isViewerActive}
-          selectedOption={selectedOption}
-          selectOptions={selectOptions}
+          sortMode={sortMode}
+          sortOptions={sortOptions}
           totalCollectibles={data?.total || 0}
           toggleViewer={toggleViewer}
         />

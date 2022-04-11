@@ -12,7 +12,7 @@ import useTranslation from 'next-translate/useTranslation'
 import React, { ReactNode, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 
-import Select, { SelectOption } from '../select-input/select-input'
+import Select, { SelectOption } from '../select/select'
 
 import css from './auth-inputs.module.css'
 
@@ -59,7 +59,7 @@ export function Currency({
           Object.keys(currencyConversions).includes(dineroCurrencyKey)
         )
         .map((targetCurrency) => ({
-          key: targetCurrency,
+          value: targetCurrency,
           label: targetCurrency,
         }))
       setOptions(intersection)
@@ -125,7 +125,7 @@ export function Language({
 
         setOptions(
           i18nStateLanguages.map((language) => ({
-            key: language.languages_code,
+            value: language.languages_code,
             label: language.label,
           }))
         )
@@ -133,7 +133,7 @@ export function Language({
         // if service fails, at least let them set English
         setOptions([
           {
-            key: DEFAULT_LANG,
+            value: DEFAULT_LANG,
             label: t('common:global.language'),
           },
         ])
@@ -273,9 +273,7 @@ export function ProfileImage({
             <div className={css.profileImageChange}>
               <div {...getRootProps()}>
                 <input {...getInputProps()} />
-                <Button size="small" type="button">
-                  {t('common:actions.Change')}
-                </Button>
+                <Button size="small">{t('common:actions.Change')}</Button>
               </div>
               <Button
                 className={css.profileImageRemove}
@@ -292,9 +290,7 @@ export function ProfileImage({
           ) : (
             <div {...getRootProps()}>
               <input {...getInputProps()} />
-              <Button size="small" type="button">
-                {t('common:actions.Select Image')}
-              </Button>
+              <Button size="small">{t('common:actions.Select Image')}</Button>
             </div>
           )}
         </div>

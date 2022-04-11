@@ -2,22 +2,21 @@ import useTranslation from 'next-translate/useTranslation'
 
 import CurrencyInput from '@/components/currency-input/currency-input'
 import { useI18n } from '@/contexts/i18n-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/format-currency'
 
 export interface BidProps {
-  bid: string | null
   className?: string
-  initialBid?: string
-  setBid: (bid: string | null) => void
 }
 
-export default function Bid({ bid, className, initialBid, setBid }: BidProps) {
+export default function Bid({ className }: BidProps) {
   const locale = useLocale()
   const currency = useCurrency()
   const { conversionRate } = useI18n()
   const { t } = useTranslation()
+  const { bid, initialBid, setBid } = usePaymentContext()
 
   return (
     <>
@@ -42,10 +41,10 @@ export default function Bid({ bid, className, initialBid, setBid }: BidProps) {
         label={t('forms:fields.bid.label')}
         name="bid-input"
         value={bid || ''}
-        variant={'small'}
+        variant="small"
       />
       {/* Force formData to be built from this "unmasked" value */}
-      <input id="bid" name="bid" type="hidden" value={bid as string} />
+      <input tabIndex={-1} id="bid" name="bid" type="hidden" value={bid} />
     </>
   )
 }
