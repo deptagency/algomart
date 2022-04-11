@@ -2,9 +2,12 @@ import Knex, { Knex as KnexInstance } from 'knex'
 import fs from 'node:fs'
 import path from 'node:path'
 
-const migrationPaths = path.resolve(__dirname, '..', 'src', 'migrations')
-for (const file of fs.readdirSync(migrationPaths)) {
-  require(path.resolve(migrationPaths, file))
+const migrationsPath = path.resolve('apps', 'scribe', 'src', 'migrations')
+
+const seedsPath = path.resolve('apps', 'api', 'src', 'seeds')
+
+for (const file of fs.readdirSync(migrationsPath)) {
+  require(path.resolve(migrationsPath, file))
 }
 
 require('../src/seeds/seed-test-data')
@@ -29,10 +32,10 @@ export function getTestDatabaseConfig(database: string): KnexInstance.Config {
     useNullAsDefault: true,
     connection: `postgres://postgres:postgres@localhost:6543/${database}`,
     migrations: {
-      directory: path.join(__dirname, '..', 'src', 'migrations'),
+      directory: migrationsPath,
     },
     seeds: {
-      directory: path.join(__dirname, '..', 'src', 'seeds'),
+      directory: seedsPath,
     },
   }
 }

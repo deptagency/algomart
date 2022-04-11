@@ -67,7 +67,7 @@ services:
       HOST: 0.0.0.0
       PORT: 3001
       NODE_ENV: production
-      LOG_LEVEL: info
+      LOG_LEVEL: warn
     networks:
       - algomart_deploy
     ports:
@@ -82,6 +82,7 @@ services:
       - api-db-deploy
       - cms-deploy
     env_file: apps/scribe/.env
+    command: "bash run.sh wait-for-cms"
     environment:
       # only put values in here that should override the API .env file
       CMS_URL: http://cms-deploy:8055
@@ -90,7 +91,7 @@ services:
       HOST: 0.0.0.0
       PORT: 3002
       NODE_ENV: production
-      LOG_LEVEL: info
+      LOG_LEVEL: warn
     networks:
       - algomart_deploy
     ports:
@@ -112,7 +113,7 @@ services:
       IMAGE_DOMAINS: lh3.googleusercontent.com,firebasestorage.googleapis.com,localhost,cms-deploy
       PORT: 3000
       NODE_ENV: production
-      LOG_LEVEL: info
+      LOG_LEVEL: warn
     networks:
       - algomart_deploy
     ports:

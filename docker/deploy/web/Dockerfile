@@ -36,14 +36,14 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/node_modules/ ./node_modules/
-COPY --from=builder /app/dist/apps/web/.next/ ./.next/
-COPY --from=builder /app/dist/apps/web/public ./public
-COPY --from=builder /app/dist/apps/web/next.config.js ./
-COPY --from=builder /app/dist/apps/web/package.json ./
+COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/.next/ ./.next/
+COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/next.config.js ./
+COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/web/package.json ./
 
 # Copy and setup files for next-translate
-COPY --from=builder /app/apps/web/i18n.js .
-COPY --from=builder /app/apps/web/languages ./languages
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/i18n.js .
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/languages ./languages
 RUN mkdir pages && touch pages/_app.js
 RUN npm install --no-package-lock --production && \
   npm cache clear --force && \

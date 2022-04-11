@@ -170,4 +170,8 @@ export const Configuration = {
   get enableJobs(): boolean {
     return env.get('ENABLE_JOBS').default('false').asBool()
   },
+
+  get enableCluster(): boolean {
+    return env.get('ENABLE_CLUSTER').default('false').asBool()
+  },
 }
