@@ -117,7 +117,7 @@
     "@types/http-errors": "1.8.2",
     "@types/jest": "27.4.1",
     "@types/node": "17.0.23",
-    "@types/react": "17.0.43",
+    "@types/react": "18.0.1",
     "@types/react-dom": "17.0.14",
     "@types/rosie": "0.0.40",
     "@types/three": "0.139.0",
