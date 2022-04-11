@@ -1,47 +1,14 @@
 # API
 
-This package within the monorepo is the heart of the web application and is responsible for many key pieces of functionality:
-
-- Polling for and generating new blockchain assets
-- Orchestrating payments and their statuses
-- User wallet management and on-chain asset transferring
-- Dispatching email notifications
-- Consuming and disseminating CMS data
-- Providing a REST API interface for the frontend (`web` package)
-- And more!
-
-While the `api` is responsible for many complex operations, its architecture is clean and relatively straightforward. It is built on [Fastify](https://www.fastify.io/), runs on a [Postgres](https://www.postgresql.org/) database using [Objection](https://vincit.github.io/objection.js) as an ORM, leverages [Typebox](https://github.com/sinclairzx81/typebox) for validation and Swagger generation, and runs a number of routine in-memory background tasks using [Toad Scheduler](https://github.com/kibertoad/toad-scheduler) as well as providing API endpoints for the frontend.
+The API provides REST endpoints for the Web frontend. These endpoints include: user account and wallet management, creating payments, blockchain abstractions, reading cached CMS data and merging it with user data. Some key tech: Fastify, Postgres, Objection/Knex, Typebox, and Swagger docs.
 
 ## Get started
 
-Install all dependencies from the root of the monorepo:
-
-```bash
-npm install
-```
-
 In the `api` service, you'll want to ensure that you've configured your `.env` file and set up a database. Make sure you've created a Postgres databases that matches what's set in the `DATABASE_URL` key in your `.env` file.
 
-If you're not using the default `DATABASE_SCHEMA=public` in your `.env` file, then you'll need to make sure to create the schema you choose:
-
-```bash
-CREATE SCHEMA <name>
-```
-
-Finally, apply migrations:
-
-```bash
-nx run api:migrate:latest
-```
-
-To initialize the API database:
-
-```bash
-nx drop api &&\
-nx run api:migrate:latest
-```
-
 Per the `.env`, you'll also need to be connected to an Algorand node, whether in development or production.
+
+Note for existing users: migrations have been moved to the Scribe app.
 
 ### Creating a local Algorand Sandbox account
 
@@ -95,61 +62,41 @@ nx build api
 ## Folder structure
 
 ```bash
-languages/ # Interpolated i18n translation files used for email notifications
-  [language]/ # e.g. en-US
-    emails.json # Grouping of translatable JSON
-scripts/ # Utilities (e.g. create algorand account)
 src/ # Main source code
   api/ # Root setup for the api server
   configuration/ # Environment configurations
-  lib/ # Third-party service adapters
-  migrations/ # Database migrations
-  models/ # Knex database entity models
+  contracts/ # Compiled TEAL contracts
+  languages/ # Interpolated i18n translation files used for email notifications
+    [language]/ # e.g. en-US
+      emails.json # Grouping of translatable JSON
   modules/ # API service layer (routes, handlers, db interactions)
-  plugins/ # Helpful api plugins
   seeds/ # Database seeding scripts
-  shared/ # Shared service utilties
-  tasks/ # Routine in-memory task configurations
-  utils/ # Handy utilities used throughout app
 test/ # Test environment configurations
 ... # various dot files and configuration for the project
 ```
 
 ## General conventions
 
-The server is configured in `./packages/api/src/api/build-app.ts` and bootstrapped in `./packages/api/src/index.ts`. The latter file connects the server to the database and kicks off routine in-memory tasks.
+The server is configured in `./apps/api/src/api/build-app.ts` and bootstrapped in `./apps/api/src/index.ts`. The latter file connects the server to the database and kicks off routine in-memory tasks.
 
 ### Public API
 
-Routes are also registered during this configuration stage and requests to those routes are intercepted by the corresponding controllers in the `./packages/api/src/modules` directory. These controllers call services where database interactions take place.
+Routes are also registered during this configuration stage and requests to those routes are intercepted by the corresponding controllers in the `./apps/api/src/modules` directory. These controllers call services where database interactions take place.
 
-### CMS
+### CMS Cache
 
 In addition to the information stored in the `api` database, the CMS is also leveraged to provide the frontend with pertinent data. The CMS data holds "templates", which are content/imagery oriented representations of an NFT. The `api` layer will fetch these templates from the database and use them to either mint NFTs, or just to associate already-minted NFTs (or packs of NFTs) with the corresponding content.
 
-CMS implementation details can be found in `./packages/api/src/lib/directus-adapter.ts`.
+CMS implementation details can be found in `./libs/shared/adapters/src/lib/cms-cache-adapter.ts`.
 
 ### Notifications
 
-Emails are scheduled and dispatched to the appropriate users when certain asynchronous actions occur (e.g. assets are transferred, and auction is won, etc.). These leverage [Sendgrid](https://sendgrid.com/) (see `./packages/api/src/lib/sendgrid-adapter.ts` for more implementation details), but the adapter can be subbed out in favor of another email distributor with minimal effort.
+Emails are scheduled and dispatched to the appropriate users when certain asynchronous actions occur (e.g. assets are transferred, and auction is won, etc.). These leverage [Sendgrid](https://sendgrid.com/) (see `./libs/shared/adapters/src/lib/mailer-adapter.ts` for more implementation details), but the adapter can be subbed out in favor of another email distributor with minimal effort.
 
 ### Tasks
 
-[Toad Scheduler](https://github.com/kibertoad/toad-scheduler) is used to run routine in-memory tasks at set intervals. A list of scheduled tasks can be found in `./packages/api/src/tasks/index.ts`.
+Moved to [Scribe](../scribe/README.md).
 
 ## Migrations
 
-Any updates to database models should be accompanied by a database migrations (see existing migrations in `./apps/api/src/migrations` for inspiration). Each migration must include a downward migration in case a rollback is needed.
-
-Each of the following is mapped to the corresponding Knex migration command:
-
-```bash
-nx run api:migrate:up
-nx run api:migrate:down
-nx run api:migrate:latest
-nx run api:migrate:rollback
-nx run api:migrate:status
-nx run api:migrate:list
-nx run api:migrate:currentVersion
-nx run api:migrate:make --args="--name=NewMigrationName"
-```
+Moved to [Scribe](../scribe/README.md).
