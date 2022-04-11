@@ -24,6 +24,7 @@ export default function TextInput({
   ...props
 }: TextInputProps &
   DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) {
+  const _id = id ?? crypto.randomUUID()
   const inputField = (
     <input
       className={clsx(
@@ -38,7 +39,7 @@ export default function TextInput({
         className
       )}
       disabled={disabled}
-      id={id}
+      id={_id}
       onChange={(event: ChangeEvent & { target: { value: string } }) => {
         event.preventDefault()
         if (event && event.target && handleChange) {
@@ -50,32 +51,15 @@ export default function TextInput({
     />
   )
   return label ? (
-    <label htmlFor={id} className={css.labelContainer}>
-      <span
-        className={clsx(css.label, {
-          [css.labelSmall]: variant === 'small',
-        })}
-      >
-        {label}
-      </span>
-      {error && (
-        <span
-          className={clsx(css.errorText, {
-            [css.errorTextSmall]: variant === 'small',
-          })}
-        >
-          {error}
-        </span>
-      )}
-      {!error && helpText && (
-        <span
-          className={clsx(css.helpText, {
-            [css.helpTextSmall]: variant === 'small',
-          })}
-        >
-          {helpText}
-        </span>
-      )}
+    <label
+      htmlFor={_id}
+      className={clsx(css.labelContainer, {
+        [css.small]: variant === 'small',
+      })}
+    >
+      <span className={css.label}>{label}</span>
+      {error && <span className={css.errorText}>{error}</span>}
+      {!error && helpText && <span className={css.helpText}>{helpText}</span>}
       {inputField}
     </label>
   ) : (

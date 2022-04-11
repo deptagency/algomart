@@ -31,22 +31,20 @@
   @apply w-1/2;
 }
 
-.labelSmall {
-  @apply text-sm;
-}
-
 .helpText {
   @apply w-1/2 mt-1 text-sm font-light text-right text-base-textTertiary;
-}
-
-.helpTextSmall {
-  @apply text-xs;
 }
 
 .errorText {
   @apply w-1/2 mt-1 text-sm font-light text-right text-base-error;
 }
 
-.errorTextSmall {
+/* Small variant */
+.small .label {
+  @apply text-sm;
+}
+
+.small .helpText,
+.small .errorText {
   @apply text-xs;
 }
