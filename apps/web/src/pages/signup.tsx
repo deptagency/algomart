@@ -12,6 +12,7 @@ import { AuthService } from '@/services/auth-service'
 import SignupTemplate from '@/templates/signup-template'
 import { FileWithPreview } from '@/types/file'
 import { validateEmailAndPasswordRegistration } from '@/utils/auth-validation'
+import { setCurrencyCookie, setLanguageCookie } from '@/utils/cookies-web'
 import { urls } from '@/utils/urls'
 
 export default function SignUpPage() {
@@ -60,6 +61,8 @@ export default function SignUpPage() {
 
       const result = await auth.registerWithEmailAndPassword(body)
       if (result.isValid) {
+        setCurrencyCookie(body.currency)
+        setLanguageCookie(body.language)
         await auth.reloadProfile()
         router.push(redeemable ? urls.login : urls.home, undefined, {
           locale: body.language,

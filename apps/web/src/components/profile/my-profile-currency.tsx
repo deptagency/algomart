@@ -1,4 +1,4 @@
-import { CURRENCY_COOKIE, DEFAULT_CURRENCY } from '@algomart/schemas'
+import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useMemo, useState } from 'react'
@@ -14,7 +14,6 @@ import { useAuth } from '@/contexts/auth-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { AuthService } from '@/services/auth-service'
 import { validateCurrency } from '@/utils/auth-validation'
-import { setCookie } from '@/utils/cookies-web'
 
 export default function MyProfileCurrency() {
   const { user, reloadProfile } = useAuth()
@@ -57,7 +56,6 @@ export default function MyProfileCurrency() {
         return
       }
 
-      setCookie(CURRENCY_COOKIE, currency, 365)
       await reloadProfile()
       setLoading(false)
       setIsEditing(false)
