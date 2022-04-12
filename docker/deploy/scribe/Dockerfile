@@ -4,7 +4,8 @@ FROM node:16-bullseye AS deps
 # RUN apk add --no-cache libc6-compat python2 make g++
 # RUN npm config set python python2
 RUN apt update && apt install -y python2
-RUN npm config set python python2
+RUN npm config set python python2 && \
+  npm config set legacy-peer-deps true
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -30,8 +31,9 @@ WORKDIR /app
 
 ENV NODE_ENV production
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 algomart
+RUN addgroup --system --gid 1001 nodejs && \
+  adduser --system --uid 1001 algomart && \
+  npm config set legacy-peer-deps true
 
 # Copy it all... unable to copy just part of the files as we'll need "everything" to apply the migrations
 COPY --from=builder --chown=algomart:nodejs /app/ .
