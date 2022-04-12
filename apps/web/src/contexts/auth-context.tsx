@@ -160,6 +160,8 @@ export function useAuthProvider() {
           ...profile,
           username: profileResponse?.username || null,
           address: profileResponse?.address || null,
+          currency: profileResponse?.currency || null,
+          language: profileResponse?.language || null,
         })
       )
     }
