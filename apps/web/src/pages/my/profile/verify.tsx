@@ -9,6 +9,7 @@ import {
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
 import VerificationTemplate from '@/templates/kyc-verification-template'
+import { urls } from '@/utils/urls'
 
 export interface VerifyPageProps {
   stripe: Stripe
@@ -36,7 +37,18 @@ export const getServerSideProps: GetServerSideProps<VerifyPageProps> = async (
     return handleUnauthenticatedRedirect(context.resolvedUrl)
   }
 
-  const stripe = await loadStripe(Environment.stripeKey)
+  // Confirm stripe key is available
+  if (!Environment.stripeKey) {
+    return {
+      redirect: {
+        destination: urls.myProfile,
+        permanent: false,
+      },
+    }
+  }
+
+  const stripePromise = loadStripe(Environment.stripeKey)
+  const stripe = await stripePromise
 
   return {
     props: {

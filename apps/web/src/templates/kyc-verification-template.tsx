@@ -1,8 +1,9 @@
 import { Stripe } from '@stripe/stripe-js'
 import useTranslation from 'next-translate/useTranslation'
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 
 import Button from '@/components/button'
+import { Environment } from '@/environment'
 
 interface VerificationTemplateProps {
   stripe: Stripe
@@ -11,12 +12,39 @@ interface VerificationTemplateProps {
 export default function VerificationTemplate({
   stripe,
 }: VerificationTemplateProps) {
+  console.log('stripe:', stripe?.elements)
   const { t } = useTranslation()
+  // const stripePromise = loadStripe(Environment.stripeKey)
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
+  // const [stripe, setStripe] = useState<Stripe | null>(null)
+
+  // useEffect(() => {
+  //   const stripePromiseResolved = async () => {
+  //     const stripePromise = loadStripe(Environment.stripeKey)
+  //     const stripeResponse = await stripePromise
+  //     if (stripeResponse) {
+  //       setStripe(stripeResponse)
+  //     }
+  //   }
+  //   if (Environment.stripeKey) {
+  //     stripePromiseResolved()
+  //   }
+  // }, [])
+
+  // useEffect(() => {
+  //   const stripePromiseResolved = async () => {
+  //     const stripeResponse = await stripePromise
+  //     if (stripeResponse) {
+  //       setStripe(stripeResponse)
+  //     }
+  //   }
+  //   stripePromiseResolved()
+  // }, [stripePromise])
 
   const handleVerification = async (event: FormEvent<HTMLElement>) => {
     event.preventDefault()
 
+    // @TODO: Setup API endpoint
     // Call your backend to create the VerificationSession.
     const response = await fetch('/create-verification-session', {
       method: 'POST',
@@ -34,11 +62,11 @@ export default function VerificationTemplate({
     }
   }
 
-  if (!stripe) {
-    // Stripe.js has not loaded yet. Make sure to disable
-    // the button until Stripe.js has loaded.
-    return
-  }
+  // if (!stripe) {
+  //   // Stripe.js has not loaded yet. Make sure to disable
+  //   // the button until Stripe.js has loaded.
+  //   return
+  // }
 
   if (isSubmitted) {
     return (
