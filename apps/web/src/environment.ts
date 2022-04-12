@@ -16,6 +16,7 @@ export interface PublicConfig {
   isWireEnabled: boolean
   isCryptoEnabled: boolean
   isProduction: boolean
+  stripeKey: string
 }
 
 export interface PrivateConfig {
@@ -89,5 +90,9 @@ export const Environment: PublicConfig & PrivateConfig = {
   get isCryptoEnabled() {
     const isEnabled = getConfigByKey('NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED', '')
     return isEnabled.toLowerCase() === 'true'
+  },
+
+  get stripeKey() {
+    return getConfigByKey('STRIPE_API_KEY', '')
   },
 }
