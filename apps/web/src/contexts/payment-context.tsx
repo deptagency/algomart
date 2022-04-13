@@ -137,15 +137,15 @@ export function usePaymentProvider({
     [t]
   )
   const validateFormForBids = useMemo(
-    () => validateBidsForm(t, highestBid),
+    () => validateBidsForm(t, highestBid * conversionRate),
     [t, highestBid]
   )
   const validateFormForBidsWithoutCard = useMemo(
-    () => validateBidsFormWithoutCard(t, highestBid),
+    () => validateBidsFormWithoutCard(t, highestBid * conversionRate),
     [t, highestBid]
   )
   const validateFormForBidsWithSavedCard = useMemo(
-    () => validateBidsFormWithSavedCard(t, highestBid),
+    () => validateBidsFormWithSavedCard(t, highestBid * conversionRate),
     [t, highestBid]
   )
   const validateFormExpirationDate = useMemo(
@@ -609,7 +609,7 @@ export function usePaymentProvider({
 
         // Create bid
         const isBidValid = await BidService.instance.addToPack(
-          bid,
+          Math.round(bid * (1 / conversionRate)),
           auctionPackId
         )
         if (isBidValid) {
@@ -721,6 +721,10 @@ export function usePaymentProvider({
       validateFormForPurchaseWithSavedCard,
     ]
   )
+
+  useEffect(() => {
+    setBid(highestBidLocalized)
+  }, [highestBidLocalized])
 
   useEffect(() => {
     setPrice(

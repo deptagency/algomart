@@ -21,13 +21,13 @@ export default function CardSummary() {
     price,
     locale,
     currency,
-    isAuctionActive() ? 1 : conversionRate
+    isAuctionActive() ? 1 : conversionRate // Why?
   )
   const settlementCurrencyAmount = formatCurrency(
     price,
     locale,
     DEFAULT_CURRENCY,
-    1
+    1 / conversionRate // TODO: This is approximate. We generally shouldn't back-convert like this.
   )
   return (
     <div className={css.root}>

@@ -23,15 +23,6 @@ handler.post(
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
     const { amount, packId } = request.validResult.value as BodyType
 
-    const currency =
-      request.cookies.currency || request.user.currency || DEFAULT_CURRENCY
-    const currencyConversion = await ApiClient.instance.getCurrencyConversion({
-      sourceCurrency: currency,
-    })
-    const conversionRate = currencyConversion
-      ? currencyConversion.exchangeRate
-      : 1
-
     // Get corresponding pack and its auction data
     const pack = await ApiClient.instance.packWithCollectibles({
       packId,
@@ -44,19 +35,16 @@ handler.post(
     )
 
     // Validate the bid is higher than a previous active bid
-    if (activeBid) {
-      activeBid.amount *= conversionRate // bids are stored in CMS currency, so need to be converted
-      if (isGreaterThanOrEqual(activeBid.amount, amount)) {
+    if (activeBid && isGreaterThanOrEqual(activeBid.amount, amount)) {
         throw new BadRequest('Bid is not higher than the previous bid')
       }
-    }
 
     // Create the bid
     const result = await ApiClient.instance.createPackBid({
       amount,
       externalId: request.user.externalId,
       packId,
-      currency,
+      currency: DEFAULT_CURRENCY,
     })
 
     if (!result) {
