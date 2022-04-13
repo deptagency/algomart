@@ -34,6 +34,10 @@ export const GetCurrencyConversionSchema = Type.Object({
   targetCurrency: Type.Optional(Type.String()),
 })
 
+export const GetCurrencyConversionsSchema = Type.Object({
+  sourceCurrency: Type.Optional(Type.String()),
+})
+
 export const I18nInfoSchema = Type.Object({
   languages: DropdownLanguageListSchema,
   currencyConversions: CurrencyConversionDictSchema,
@@ -53,6 +57,9 @@ export type CurrencyConversionDict = Simplify<
 >
 export type GetCurrencyConversion = Simplify<
   Static<typeof GetCurrencyConversionSchema>
+>
+export type GetCurrencyConversions = Simplify<
+  Static<typeof GetCurrencyConversionsSchema>
 >
 
 export type I18nInfo = Simplify<Static<typeof I18nInfoSchema>>

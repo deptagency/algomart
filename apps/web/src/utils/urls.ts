@@ -87,6 +87,7 @@ export const urls = {
       getCardsByOwner: '/api/v1/payments/get-cards-by-owner',
       getCardStatus: '/api/v1/payments/get-card-status',
       getCountries: '/api/v1/payments/get-countries',
+      getCurrencyConversion: '/api/v1/payments/get-currency-conversion',
       getCurrencyConversions: '/api/v1/payments/get-currency-conversions',
       getI18nInfo: '/api/v1/i18n/get-i18n-info',
       getLanguages: '/api/v1/i18n/get-languages',

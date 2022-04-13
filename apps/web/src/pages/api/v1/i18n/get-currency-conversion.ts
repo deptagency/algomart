@@ -7,15 +7,16 @@ import createHandler, { NextApiRequestApp } from '@/middleware'
 const handler = createHandler()
 
 handler.get(async (request: NextApiRequestApp, response: NextApiResponse) => {
-  const currencyConversions = await ApiClient.instance.getCurrencyConversions({
+  const currencyConversion = await ApiClient.instance.getCurrencyConversion({
     sourceCurrency: request.query.sourceCurrency as string,
+    targetCurrency: request.query.targetCurrency as string,
   })
 
-  if (!currencyConversions) {
+  if (!currencyConversion) {
     throw new NotFound('Currency conversions not found')
   }
 
-  response.status(200).json(currencyConversions)
+  response.status(200).json(currencyConversion)
 })
 
 export default handler

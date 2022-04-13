@@ -24,6 +24,8 @@ import {
   DropdownLanguageList,
   ExternalId,
   FindTransferByAddress,
+  GetCurrencyConversion,
+  GetCurrencyConversions,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
@@ -75,6 +77,8 @@ import pino from 'pino'
 import { Environment } from '@/environment'
 import {
   getCollectiblesFilterQuery,
+  getCurrencyConversionQuery,
+  getCurrencyConversionsQuery,
   getPacksByOwnerFilterQuery,
   getPaymentsFilterQuery,
   getUsersFilterQuery,
@@ -542,9 +546,17 @@ export class ApiClient {
       .then((response) => response.data)
   }
 
-  async getCurrencyConversions() {
+  async getCurrencyConversion(params: GetCurrencyConversion) {
+    const queryParams = getCurrencyConversionQuery(params)
     return await this.http
-      .get<CurrencyConversionDict>('i18n/currencyConversions')
+      .get<CurrencyConversionDict>(`i18n/currencyConversion?${queryParams}`)
+      .then((response) => response.data)
+  }
+
+  async getCurrencyConversions(params: GetCurrencyConversions) {
+    const queryParams = getCurrencyConversionsQuery(params)
+    return await this.http
+      .get<CurrencyConversionDict>(`i18n/currencyConversions?${queryParams}`)
       .then((response) => response.data)
   }
 
