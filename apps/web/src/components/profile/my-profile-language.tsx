@@ -1,4 +1,4 @@
-import { DEFAULT_LANG, LANG_COOKIE } from '@algomart/schemas'
+import { DEFAULT_LANG } from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
@@ -14,7 +14,6 @@ import { useAuth } from '@/contexts/auth-context'
 import { useLanguage } from '@/hooks/use-language'
 import { AuthService } from '@/services/auth-service'
 import { validateLanguage } from '@/utils/auth-validation'
-import { setCookie } from '@/utils/cookies-web'
 
 export default function MyProfileLanguage() {
   const language = useLanguage()
@@ -58,7 +57,6 @@ export default function MyProfileLanguage() {
         return
       }
 
-      setCookie(LANG_COOKIE, body.language, 365)
       await reloadProfile()
       setLoading(false)
       setIsEditing(false)

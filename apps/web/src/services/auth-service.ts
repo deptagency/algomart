@@ -2,6 +2,7 @@ import { DEFAULT_CURRENCY, DEFAULT_LANG } from '@algomart/schemas'
 import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
+import { setCurrencyCookie, setLanguageCookie } from '@/utils/cookies-web'
 import { invariant } from '@/utils/invariant'
 import { urls } from '@/utils/urls'
 
@@ -65,6 +66,9 @@ export class AuthService implements AuthAPI {
       await this.http
         .put(urls.api.v1.updateLanguage, { json: { language } })
         .json()
+
+      setLanguageCookie(language)
+
       return true
     } catch {
       return false
@@ -80,6 +84,9 @@ export class AuthService implements AuthAPI {
       await this.http
         .put(urls.api.v1.updateCurrency, { json: { currency } })
         .json()
+
+      setCurrencyCookie(currency)
+
       return true
     } catch {
       return false

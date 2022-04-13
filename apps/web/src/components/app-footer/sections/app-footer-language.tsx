@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { useLanguage } from '@/hooks/use-language'
 import { AuthService } from '@/services/auth-service'
 import { validateLanguage } from '@/utils/auth-validation'
-import { setCookie } from '@/utils/cookies-web'
+import { setCookie, setLanguageCookie } from '@/utils/cookies-web'
 
 export default function AppFooterLanguage() {
   const { t } = useTranslation()
@@ -37,8 +37,6 @@ export default function AppFooterLanguage() {
         return
       }
 
-      setCookie(LANG_COOKIE, language, 365)
-
       if (user) {
         // Update language
         const updateLanguage = await AuthService.instance.updateLanguage(
@@ -50,6 +48,8 @@ export default function AppFooterLanguage() {
         }
 
         await reloadProfile()
+      } else {
+        setLanguageCookie(body.language)
       }
 
       setLoading(false)

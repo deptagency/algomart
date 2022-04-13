@@ -9,7 +9,7 @@ import { useCurrency } from '@/hooks/use-currency'
 import { useLanguage } from '@/hooks/use-language'
 import { AuthService } from '@/services/auth-service'
 import { validateCurrency } from '@/utils/auth-validation'
-import { setCookie } from '@/utils/cookies-web'
+import { setCookie, setCurrencyCookie } from '@/utils/cookies-web'
 
 export default function AppFooterCurrency() {
   const { t } = useTranslation()
@@ -39,8 +39,6 @@ export default function AppFooterCurrency() {
         return
       }
 
-      setCookie(CURRENCY_COOKIE, currency, 365)
-
       if (user) {
         // Update currency
         const updateCurrency = await AuthService.instance.updateCurrency(
@@ -53,6 +51,8 @@ export default function AppFooterCurrency() {
 
         await reloadProfile()
       } else {
+        setCurrencyCookie(body.currency)
+
         // TODO: fix race condition to avoid having to do the router push when not logged in
         router.push(
           { pathname: router.pathname, query: router.query },

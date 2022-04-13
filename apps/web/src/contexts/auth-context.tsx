@@ -1,3 +1,4 @@
+import { CURRENCY_COOKIE, LANG_COOKIE } from '@algomart/schemas'
 import {
   Auth,
   createUserWithEmailAndPassword,
@@ -34,7 +35,7 @@ import {
   SignUpPayload,
 } from '@/types/auth'
 import { FileWithPreview } from '@/types/file'
-import { removeCookie, setCookie } from '@/utils/cookies-web'
+import { getCookie, removeCookie, setCookie } from '@/utils/cookies-web'
 import {
   ActionsUnion,
   createAction,
@@ -154,12 +155,56 @@ export function useAuthProvider() {
         })
       }
 
+      /**
+       * If an anonymous user changes their preferred language, then logs in,
+       * we need to update the db to reflect this preference
+       */
+      const languageCookie = getCookie(LANG_COOKIE)
+      const parsedLanguageCookie =
+        languageCookie && languageCookie !== 'null' ? languageCookie : null
+      if (
+        parsedLanguageCookie &&
+        profileResponse.language !== parsedLanguageCookie
+      ) {
+        await fetch(urls.api.v1.updateLanguage, {
+          body: JSON.stringify({ parsedLanguageCookie }),
+          headers: {
+            authorization: `bearer ${token}`,
+            'content-type': 'application/json',
+          },
+          method: 'PUT',
+        })
+      }
+
+      /**
+       * If an anonymous user changes their preferred currency, then logs in,
+       * we need to update the db to reflect this preference
+       */
+      const currencyCookie = getCookie(CURRENCY_COOKIE)
+      const parsedCurrencyCookie =
+        currencyCookie && currencyCookie !== 'null' ? currencyCookie : null
+      if (
+        parsedCurrencyCookie &&
+        profileResponse.currency !== parsedCurrencyCookie
+      ) {
+        await fetch(urls.api.v1.updateCurrency, {
+          body: JSON.stringify({ parsedCurrencyCookie }),
+          headers: {
+            authorization: `bearer ${token}`,
+            'content-type': 'application/json',
+          },
+          method: 'PUT',
+        })
+      }
+
       // Set user
       dispatch(
         authActions.setUser({
           ...profile,
           username: profileResponse?.username || null,
           address: profileResponse?.address || null,
+          currency: profileResponse?.currency || null,
+          language: profileResponse?.language || null,
         })
       )
     }
