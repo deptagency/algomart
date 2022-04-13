@@ -25,8 +25,8 @@ export default function CardForm() {
     isAuctionActive,
     release,
     handleRetry,
-    handleSubmitBid: onSubmitBid,
-    handleSubmitPurchase: onSubmitPurchase,
+    handleSubmitBid,
+    handleSubmitPurchase,
     loadingText,
     packId,
     promptLeaving,
@@ -35,22 +35,22 @@ export default function CardForm() {
   } = usePaymentContext()
   useWarningOnExit(promptLeaving, t('common:statuses.processingPayment'))
 
-  const handleSubmitPurchase = useCallback(
+  const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
       setPromptLeaving(true)
       const data = new FormData(event.currentTarget)
       await (release?.type === PackType.Auction &&
       isAfterNow(new Date(release.auctionUntil as string))
-        ? onSubmitBid(data, CheckoutMethod.card)
-        : onSubmitPurchase(data, true))
+        ? handleSubmitBid(data, CheckoutMethod.card)
+        : handleSubmitPurchase(data, true))
       setPromptLeaving(false)
     },
     [
       release?.type,
       release.auctionUntil,
-      onSubmitBid,
-      onSubmitPurchase,
+      handleSubmitBid,
+      handleSubmitPurchase,
       setPromptLeaving,
     ]
   )
@@ -83,7 +83,7 @@ export default function CardForm() {
             ? 'w-full'
             : 'hidden'
         )}
-        onSubmit={handleSubmitPurchase}
+        onSubmit={handleSubmit}
       >
         <CardPurchaseForm
           className={status === CheckoutStatus.form ? 'w-full' : 'hidden'}
