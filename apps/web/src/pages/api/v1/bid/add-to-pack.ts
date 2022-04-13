@@ -1,9 +1,8 @@
+import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import { BadRequest, NotFound } from 'http-errors'
 import { NextApiResponse } from 'next'
 
 import { ApiClient } from '@/clients/api-client'
-import { useI18n } from '@/contexts/i18n-context'
-import { useCurrency } from '@/hooks/use-currency'
 import createHandler, { NextApiRequestApp } from '@/middleware'
 import authMiddleware from '@/middleware/auth-middleware'
 import userMiddleware from '@/middleware/user-middleware'
@@ -23,8 +22,15 @@ handler.post(
   validateBodyMiddleware(validateBidForPack),
   async (request: NextApiRequestApp<BodyType>, response: NextApiResponse) => {
     const { amount, packId } = request.validResult.value as BodyType
-    const currency = useCurrency()
-    const { conversionRate } = useI18n()
+
+    const currency =
+      request.cookies.currency || request.user.currency || DEFAULT_CURRENCY
+    const currencyConversion = await ApiClient.instance.getCurrencyConversion({
+      sourceCurrency: currency,
+    })
+    const conversionRate = currencyConversion
+      ? currencyConversion.exchangeRate
+      : 1
 
     // Get corresponding pack and its auction data
     const pack = await ApiClient.instance.packWithCollectibles({
