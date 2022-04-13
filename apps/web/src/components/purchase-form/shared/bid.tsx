@@ -16,7 +16,7 @@ export default function Bid({ className }: BidProps) {
   const currency = useCurrency()
   const { conversionRate } = useI18n()
   const { t } = useTranslation()
-  const { bid, initialBid, setBid } = usePaymentContext()
+  const { bid, highestBid, setBid } = usePaymentContext()
 
   return (
     <>
@@ -25,10 +25,10 @@ export default function Bid({ className }: BidProps) {
         decimalsLimit={2}
         handleChange={(value) => setBid(value)}
         helpText={
-          initialBid
+          highestBid
             ? t('forms:fields.bid.helpTextCurrentBid', {
                 amount: formatCurrency(
-                  initialBid,
+                  highestBid,
                   locale,
                   currency,
                   conversionRate

@@ -79,7 +79,7 @@ export interface PaymentContextProps {
   handleRetry: () => void
   handleSubmitBid(data: FormData, method: CheckoutMethod): void
   handleSubmitPurchase(data: FormData, isPurchase: boolean): void
-  initialBid?: string
+  highestBid?: string
   isAuctionActive?: () => boolean
   loadingText: string
   method?: string | string[]
@@ -121,10 +121,12 @@ export function usePaymentProvider({
   const [status, setStatus] = useState<CheckoutStatus>(CheckoutStatus.form)
   const [loadingText, setLoadingText] = useState<string>('')
   const highestBid = currentBid || 0
-  const initialBid = currentBid
-    ? formatIntToFloat(currentBid, currency, conversionRate)
-    : '0'
-  const [bid, setBid] = useState<string | null>(initialBid)
+  const highestBidLocalized = formatIntToFloat(
+    highestBid,
+    currency,
+    conversionRate
+  )
+  const [bid, setBid] = useState<string | null>(highestBidLocalized)
   const [address, setAddress] = useState<string | null>(null)
   const [promptLeaving, setPromptLeaving] = useState(false)
   const [countries, setCountries] = useState<SelectOption[]>([])
@@ -745,7 +747,7 @@ export function usePaymentProvider({
       handleRetry,
       handleSubmitBid,
       handleSubmitPurchase,
-      initialBid,
+      highestBid,
       isAuctionActive,
       loadingText,
       method,
@@ -773,7 +775,7 @@ export function usePaymentProvider({
       handleRetry,
       handleSubmitBid,
       handleSubmitPurchase,
-      initialBid,
+      highestBid,
       isAuctionActive,
       loadingText,
       method,
