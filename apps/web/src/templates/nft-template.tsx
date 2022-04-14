@@ -44,7 +44,7 @@ export default function NFTTemplate({
   userAddress,
   collectible,
 }: NFTTemplateProps) {
-  const Environment = useConfig()
+  const config = useConfig()
   const { t } = useTranslation()
   const router = useRouter()
   const transferrableStatus = getTransferrableStatus(collectible, userAddress)
@@ -195,7 +195,7 @@ export default function NFTTemplate({
                   />
                   <CollectibleMetaListItem label={t('nft:labels.Address')}>
                     <ExternalLink
-                      href={`${Environment.algoExplorerBaseUrl}/asset/${collectible.address}`}
+                      href={`${config.algoExplorerBaseUrl}/asset/${collectible.address}`}
                     >
                       {collectible.address}
                     </ExternalLink>

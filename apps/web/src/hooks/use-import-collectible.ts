@@ -24,8 +24,8 @@ export function useImportCollectible(passphrase: string) {
   const [selectedAccount, selectAccount] = useState('')
   const [importStatus, setImportStatus] = useState<ImportStatus>('idle')
   const connectorReference = useRef<IConnector>()
-  const Environment = useConfig()
-  const algorand = new AlgorandAdapter(Environment.chainType)
+  const config = useConfig()
+  const algorand = new AlgorandAdapter(config.chainType)
 
   const connect = useCallback(async () => {
     setConnected(false)

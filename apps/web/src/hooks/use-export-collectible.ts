@@ -24,11 +24,11 @@ export function useExportCollectible(passphrase: string) {
   const [selectedAccount, selectAccount] = useState('')
   const [exportStatus, setExportStatus] = useState<ExportStatus>('idle')
   const connectorReference = useRef<IConnector>()
-  const Environment = useConfig()
+  const config = useConfig()
 
   const algorand = useMemo(
-    () => new AlgorandAdapter(Environment.chainType),
-    [Environment.chainType]
+    () => new AlgorandAdapter(config.chainType),
+    [config.chainType]
   )
 
   const connect = useCallback(async () => {

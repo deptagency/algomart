@@ -23,10 +23,10 @@ export default function CheckoutTemplate() {
   const { user } = useAuth()
   const { pathname, query } = useRouter()
   const { currentBid, release } = usePaymentContext()
-  const Environment = useConfig()
+  const config = useConfig()
 
   const doesRequireNonCardPayment =
-    (Environment.isWireEnabled || Environment.isCryptoEnabled) &&
+    (config.isWireEnabled || config.isCryptoEnabled) &&
     ((currentBid &&
       isGreaterThanOrEqual(currentBid, MAX_BID_FOR_CARD_PAYMENT, currency)) ||
       (release?.price &&
@@ -65,7 +65,7 @@ export default function CheckoutTemplate() {
         ),
       },
     ]
-    if (Environment.isWireEnabled) {
+    if (config.isWireEnabled) {
       baseCards.push({
         helpText: t('forms:fields.paymentMethods.options.wire.helpText'),
         icon: <LibraryIcon />,
@@ -78,7 +78,7 @@ export default function CheckoutTemplate() {
         body: null,
       })
     }
-    if (Environment.isCryptoEnabled) {
+    if (config.isCryptoEnabled) {
       baseCards.push({
         helpText: t('forms:fields.paymentMethods.options.crypto.helpText'),
         icon: <CashIcon />,
