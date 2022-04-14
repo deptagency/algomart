@@ -79,7 +79,7 @@ export interface PaymentContextProps {
   handleRetry: () => void
   handleSubmitBid(data: FormData, method: CheckoutMethod): void
   handleSubmitPurchase(data: FormData, isPurchase: boolean): void
-  highestBid?: string
+  highestBid?: number
   isAuctionActive?: () => boolean
   loadingText: string
   method?: string | string[]
