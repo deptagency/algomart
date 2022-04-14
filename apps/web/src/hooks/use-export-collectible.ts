@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 
-import { Environment } from '../environment'
+import { useConfig } from './use-config'
 
 import {
   AlgorandAdapter,
@@ -9,8 +9,6 @@ import {
 } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
 import { CollectibleService } from '@/services/collectible-service'
-
-const algorand = new AlgorandAdapter(Environment.chainType)
 
 export type ExportStatus =
   | 'idle'
@@ -26,6 +24,12 @@ export function useExportCollectible(passphrase: string) {
   const [selectedAccount, selectAccount] = useState('')
   const [exportStatus, setExportStatus] = useState<ExportStatus>('idle')
   const connectorReference = useRef<IConnector>()
+  const config = useConfig()
+
+  const algorand = useMemo(
+    () => new AlgorandAdapter(config.chainType),
+    [config.chainType]
+  )
 
   const connect = useCallback(async () => {
     setConnected(false)
@@ -41,7 +45,7 @@ export function useExportCollectible(passphrase: string) {
     })
 
     await connector.connect()
-  }, [])
+  }, [algorand])
 
   const disconnect = useCallback(async () => {
     if (connectorReference.current) {
