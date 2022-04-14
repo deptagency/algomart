@@ -724,7 +724,7 @@ export function usePaymentProvider({
     () =>
       release?.type === PackType.Auction &&
       isAfterNow(new Date(release.auctionUntil as string)),
-    [release.auctionUntil, release?.type]
+    [release?.auctionUntil, release?.type]
   )
 
   useEffect(() => {
