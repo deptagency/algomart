@@ -48,16 +48,16 @@ export default function CheckoutTemplate() {
           query: { ...query, method: 'card', step: 'details' },
         },
         body: (
-          <div>
+          <div className="mt-2">
             <Image
               width={60}
-              height={60}
+              height={40}
               alt={t('forms:fields.ccNumber.logos.visa')}
               src={visaIcon}
             />
             <Image
               width={60}
-              height={60}
+              height={40}
               alt={t('forms:fields.ccNumber.logos.mastercard')}
               src={mastercardIcon}
             />

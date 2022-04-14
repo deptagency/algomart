@@ -3,7 +3,13 @@
 }
 
 .button svg {
-  @apply w-14;
+  @apply flex-shrink-0 w-8;
+  /* Tablet+ */
+  @apply sm:w-12;
+}
+
+.button svg path {
+  @apply stroke-1;
 }
 
 .button h2 {
