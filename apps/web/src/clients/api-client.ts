@@ -172,9 +172,9 @@ export class ApiClient {
       .then((response) => response.data)
   }
 
-  async createVerificationSession(request: {
-    type: Stripe.Identity.VerificationSession.Type
-  }) {
+  async createVerificationSession(
+    request: ExternalId & Stripe.Identity.VerificationSessionCreateParams
+  ) {
     return await this.http
       .post<{ clientSecret: string | null }>(
         'accounts/verification-session',
@@ -183,11 +183,11 @@ export class ApiClient {
       .then((response) => response.data)
   }
 
-  async retrieveVerificationSession(id: string) {
+  async retrieveVerificationSession(externalId: string) {
     return await this.http
-      .get<Stripe.Identity.VerificationSession>(
-        `accounts/verification-session/${id}`
-      )
+      .get<{ clientSecret: string | null }>('accounts/verification-session', {
+        params: { externalId },
+      })
       .then((response) => response.data)
   }
   //#endregion

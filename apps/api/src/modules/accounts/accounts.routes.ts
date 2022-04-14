@@ -7,8 +7,8 @@ import {
 } from '@algomart/schemas'
 import { UpdateUserAccount } from '@algomart/schemas'
 import { AccountsService } from '@algomart/shared/services'
-import { Stripe } from '@stripe/stripe-js'
 import { FastifyReply, FastifyRequest } from 'fastify'
+import type { Stripe } from 'stripe'
 
 export async function createAccount(
   request: FastifyRequest<{ Body: CreateUserAccountRequest }>,
@@ -112,14 +112,16 @@ export async function removeUser(
 }
 
 export async function createVerificationSession(
-  request: FastifyRequest<{ Params: ExternalId }>,
+  request: FastifyRequest<{
+    Params: ExternalId & Stripe.Identity.VerificationSessionCreateParams
+  }>,
   reply: FastifyReply
 ) {
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
-  await accounts.createVerificationSession(request.params)
-  reply.status(204).send()
+  const session = await accounts.createVerificationSession(request.params)
+  reply.status(201).send(session)
 }
 
 export async function retrieveVerificationSession(
@@ -129,6 +131,6 @@ export async function retrieveVerificationSession(
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
-  await accounts.retrieveVerificationSession(request.params)
-  reply.status(204).send()
+  const session = await accounts.retrieveVerificationSession(request.params)
+  reply.status(200).send(session)
 }

@@ -166,7 +166,7 @@ export async function accountsRoutes(app: FastifyInstance) {
         schema: {
           tags,
           security,
-          // params: ExternalIdSchema,
+          params: ExternalIdSchema,
           response: {
             204: Type.Null(),
           },
@@ -175,12 +175,12 @@ export async function accountsRoutes(app: FastifyInstance) {
       createVerificationSession
     )
     .get(
-      '/verification-session/:id',
+      '/verification-session',
       {
         schema: {
           tags,
           security,
-          params: Type.String(),
+          params: ExternalIdSchema,
           response: {
             204: Type.Null(),
           },

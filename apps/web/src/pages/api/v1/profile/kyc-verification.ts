@@ -1,13 +1,21 @@
 import { BadRequest } from 'http-errors'
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiResponse } from 'next'
 
 import { ApiClient } from '@/clients/api-client'
 import createHandler, { NextApiRequestApp } from '@/middleware'
+import authMiddleware from '@/middleware/auth-middleware'
+import userMiddleware from '@/middleware/user-middleware'
 
 const handler = createHandler()
 
-handler.post(async (request: NextApiRequest, response: NextApiResponse) => {
+handler.use(authMiddleware()).use(userMiddleware())
+
+handler.post(async (request: NextApiRequestApp, response: NextApiResponse) => {
+  if (!request.user.externalId) {
+    throw new BadRequest('No externalId provided')
+  }
   const result = await ApiClient.instance.createVerificationSession({
+    externalId: request.user.externalId,
     type: 'document',
   })
   return response.json(result)
