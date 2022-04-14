@@ -9,7 +9,7 @@ import PaymentOptions from '@/components/payment-options'
 import EmailVerification from '@/components/profile/email-verification'
 import { useAuth } from '@/contexts/auth-context'
 import { PaymentProvider, usePaymentContext } from '@/contexts/payment-context'
-import { Environment } from '@/environment'
+import { useConfig } from '@/hooks/use-config'
 import { useCurrency } from '@/hooks/use-currency'
 import { isGreaterThanOrEqual } from '@/utils/format-currency'
 import { MAX_BID_FOR_CARD_PAYMENT } from '@/utils/purchase-validation'
@@ -23,6 +23,7 @@ export default function CheckoutTemplate() {
   const { user } = useAuth()
   const { pathname, query } = useRouter()
   const { currentBid, release } = usePaymentContext()
+  const Environment = useConfig()
 
   const doesRequireNonCardPayment =
     (Environment.isWireEnabled || Environment.isCryptoEnabled) &&
