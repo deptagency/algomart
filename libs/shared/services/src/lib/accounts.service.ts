@@ -273,28 +273,28 @@ export class AccountsService {
     const session = await this.stripe.identity.verificationSessions.create(
       request
     )
-    if (session?.id) {
-      await UserAccountModel.query()
-        .findOne({ externalId: request.externalId })
-        .patch({ verificationId: session.id })
-      // Only return the client secret
-      return { clientSecret: session.client_secret }
-    }
-    return false
+    userInvariant(session?.id, 'verification session could not be created', 400)
+    // Update the user with the active session
+    await UserAccountModel.query()
+      .findOne({ externalId: request.externalId })
+      .patch({ verificationId: session.id })
+    // Only return client secret
+    return { clientSecret: session.client_secret }
   }
 
   async retrieveVerificationSession(request: ExternalId) {
-    const user = await UserAccountModel.query().findOne({
-      externalId: request.externalId,
-    })
-    if (!user?.verificationId) return false
+    const user = await UserAccountModel.query()
+      .findOne({
+        externalId: request.externalId,
+      })
+      .select('verificationId')
+    userInvariant(user?.verificationId, 'verification not found for user', 404)
+    // Find active Stripe session
     const session = await this.stripe.identity.verificationSessions.retrieve(
       user.verificationId
     )
-    if (session?.id) {
-      // Only return the client secret
-      return { clientSecret: session.client_secret }
-    }
-    return false
+    invariant(session?.id, 'verification not found', 400)
+    // Only return client secret
+    return { clientSecret: session.client_secret }
   }
 }
