@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, Homepage } from '@algomart/schemas'
+import { DEFAULT_LANG, Homepage } from '@algomart/schemas'
 import { GetStaticPropsContext, GetStaticPropsResult } from 'next'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
@@ -41,9 +41,7 @@ export async function getStaticProps(
   let page: Homepage = null
 
   try {
-    page = await ApiClient.instance.getHomepage(
-      context.locale || DEFAULT_LOCALE
-    )
+    page = await ApiClient.instance.getHomepage(context.locale || DEFAULT_LANG)
   } catch {
     // ignore
   }
