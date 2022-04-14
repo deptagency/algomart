@@ -1,18 +1,20 @@
 #!/usr/bin/env node
 
 import 'dotenv/config'
-import { configureDirectus } from './directus.mjs'
+
+import { setupSDK, setAccessToken, setFilePermission } from './directus.mjs'
 import { configureKnex } from './knex.mjs'
 import { randColor } from './seed-data/color.mjs'
 import { Factory } from './seed-data/factories.mjs'
+import { setupWebhooks } from './webhooks.mjs'
 import {
   chunkArray,
-  createEntityRecords,
   makeImage,
   readlineAsync,
-  registerFonts,
-  updateEntityRecord,
+  registerFonts
 } from './utils.mjs'
+import { seedLanguages } from './seed-languages.mjs'
+import { seedCountries } from "./seed-countries.mjs"
 
 const knex = configureKnex()
 
@@ -20,36 +22,16 @@ async function main() {
   registerFonts()
 
   console.log('Configure Directus SDK...')
-  const directus = await configureDirectus()
-
-  console.log('Setting access token...')
-  await directus.users.me.update({
-    token: process.env.ADMIN_ACCESS_TOKEN,
+  const directus = await setupSDK({
+    email: process.env.ADMIN_EMAIL,
+    password: process.env.ADMIN_PASSWORD,
   })
 
-  console.log('Setting read file permissions...')
-  const existingFilePermission = (
-    await directus.permissions.readByQuery({
-      filter: {
-        role: {
-          _null: true,
-        },
-        collection: {
-          _eq: 'directus_files',
-        },
-        action: {
-          _eq: 'read',
-        },
-      },
-    })
-  ).data[0]
-  if (!existingFilePermission) {
-    await directus.permissions.createOne({
-      collection: 'directus_files',
-      action: 'read',
-      fields: ['*'],
-    })
-  }
+  // Set the Access Token for the Admin user
+  await setAccessToken(directus)
+
+  // set file access permisiosns
+  await setFilePermission(directus)
 
   /**
    * To prevent errors when seeding, it's best to start from a fresh DB.
@@ -70,7 +52,6 @@ async function main() {
     collections,
     countries_translations,
     countries,
-    countries,
     directus_files,
     homepage,
     languages,
@@ -90,29 +71,18 @@ async function main() {
    */
   console.log('Seeding database...')
 
-  console.log('- Languages')
-  await createEntityRecords(directus, 'languages', [
-    { code: 'en-US', name: 'English', sort: 1 },
-  ])
-
-  console.log('- Countries')
-  await createEntityRecords(directus, 'countries', [
-    { code: 'US' },
-    { code: 'CA' },
-  ])
-  await createEntityRecords(directus, 'countries_translations', [
-    {
-      id: 1,
-      countries_code: 'US',
-      languages_code: 'en-US',
-      title: 'United States',
-    },
-    {
-      id: 2,
-      countries_code: 'CA',
-      languages_code: 'en-US',
-      title: 'Canada',
-    },
+  await seedLanguages(directus)
+  await seedCountries(directus)
+  await setupWebhooks(directus, 'CMS Cache Content', process.env.SCRIBE_WEBHOOK_URL, [
+    'application',
+    'collections',
+    'countries',
+    'homepage',
+    'languages',
+    'nft_templates',
+    'pack_templates',
+    'rarities',
+    'sets',
   ])
 
   /**
@@ -146,15 +116,12 @@ async function main() {
    * Create application and application countries
    */
   console.log('- Application')
-  const appId = '6048041f-2d72-4eb7-9a2c-3ab44aace8d5'
-  await updateEntityRecord(directus, 'application', '', {
-    id: appId,
-    currency: 'USD',
+  const application = await directus.singleton('application').update({
+    currency: 'USD'
   })
-  await createEntityRecords(directus, 'application_countries', {
-    id: 1,
-    application_id: appId,
-    countries_code: 'US',
+  await directus.items('application_countries').createOne({
+    application_id: application.id,
+    countries_code: 'US'
   })
 
   /**
@@ -162,54 +129,49 @@ async function main() {
    */
   console.log('- Homepage')
   const homepageFactory = Factory.build('homepage')
-  const homepage = await updateEntityRecord(
-    directus,
-    'homepage',
-    '',
-    homepageFactory
-  )
-
+  const homepage = (await directus.singleton('homepage').update(homepageFactory))
   /**
    * Create rarities.
    */
   console.log('- Rarities')
   const rarityFactories = Factory.buildList('rarity', numRarities)
-  const rarities = await createEntityRecords(
-    directus,
-    'rarities',
-    rarityFactories
-  )
+  const rarities = (await directus.items('rarities').createMany(rarityFactories)).data
 
   /**
    * Creates N collectibles with mixed rarities.
    */
   console.log('- NFT Files')
   let notableCount = 0
-  const collectibleFactories = await Promise.all(
-    Factory.buildList('collectible', numCollectibles).map(async (item, i) => {
-      const isNotable = notableCount < 8
-      if (isNotable) {
-        notableCount++
-      }
-      // Using rarityLikelihood will apply rarities to some of the items.
-      const rarity = rarities[i % rarityLikelihood]
-      item.rarity = rarity?.id || null // no rarity if null
+  const buildList = Factory.buildList('collectible', numCollectibles)
+  const collectibleFactories = []
+  let i = 0
+  console.group()
+  for (let item of buildList) {
+    console.log(`- NFT File image ${i + 1} of ${numCollectibles}`)
 
-      const previewImage = await makeImage({
-        directus,
-        text: item.translations[0].title,
-        color: '#000000',
-        borderColor: rarity?.color || '#000000',
-        backgroundColor: randColor(),
-      })
+    const isNotable = notableCount < 8
+    if (isNotable) {
+      notableCount++
+    }
+    // Using rarityLikelihood will apply rarities to some of the items.
+    const rarity = rarities[i % rarityLikelihood]
+    item.rarity = rarity?.id || null // no rarity if null
 
-      item.preview_image = previewImage.id
-
-      item.homepage = isNotable ? homepage.id : null
-
-      return item
+    const previewImage = await makeImage({
+      directus,
+      text: item.translations[0].title,
+      color: '#000000',
+      borderColor: rarity?.color || '#000000',
+      backgroundColor: randColor(),
     })
-  )
+
+    item.preview_image = previewImage.id
+    item.homepage = isNotable ? homepage.id : null
+
+    collectibleFactories.push(item)
+    i++
+  }
+  console.groupEnd()
 
   // Directus only supports 100 items per batch, so split them up into groups of 100
   console.log('- NFT Templates')
@@ -217,11 +179,7 @@ async function main() {
   const collectibleChunks = chunkArray(collectibleFactories, 100)
   await Promise.all(
     collectibleChunks.map(async (group) => {
-      const collectibleGroup = await createEntityRecords(
-        directus,
-        'nft_templates',
-        group
-      )
+      const collectibleGroup = (await directus.items('nft_templates').createMany(group)).data
       collectibles.push(...collectibleGroup)
     })
   )
@@ -261,12 +219,8 @@ async function main() {
     })
   )
   console.log('- Pack Templates')
-  const packTemplates = await createEntityRecords(
-    directus,
-    'pack_templates',
-    packFactories
-  )
-  await updateEntityRecord(directus, 'homepage', '', {
+  const packTemplates = (await directus.items('pack_templates').createMany(packFactories)).data
+  await directus.singleton('homepage').update({
     featured_pack: packTemplates[packTemplates.length - 1].id,
   })
 
@@ -302,12 +256,9 @@ async function main() {
       return item
     })
   )
+
   console.log('- Collections')
-  const collections = await createEntityRecords(
-    directus,
-    'collections',
-    collectionFactories
-  )
+  const collections = (await directus.items('collections').createMany(collectionFactories)).data
 
   /**
    * Create sets.
@@ -335,7 +286,7 @@ async function main() {
           nft_templates: chunk.map((item) => item.id),
         })
       )
-      return await createEntityRecords(directus, 'sets', setFactories)
+      return (await directus.items('sets').createMany(setFactories)).data
     })
   )
 
