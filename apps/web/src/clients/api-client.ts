@@ -67,11 +67,12 @@ import {
   UserAccounts,
   Username,
   UsersQuerystring,
+  VerificationSessionCreate,
+  VerificationSessions,
   WirePayment,
 } from '@algomart/schemas'
 import axios from 'axios'
 import pino from 'pino'
-import { Stripe } from 'stripe'
 
 import { Environment } from '@/environment'
 import {
@@ -172,20 +173,17 @@ export class ApiClient {
       .then((response) => response.data)
   }
 
-  async createVerificationSession(
-    request: ExternalId & Stripe.Identity.VerificationSessionCreateParams
-  ) {
+  async createVerificationSession(request: VerificationSessionCreate) {
+    console.log('createVerificationSession request', request)
     return await this.http
-      .post<{ clientSecret: string | null }>(
-        'accounts/verification-session',
-        request
-      )
+      .post<VerificationSessions>('accounts/verification-session', request)
       .then((response) => response.data)
   }
 
   async retrieveVerificationSession(externalId: string) {
+    console.log('retrieveVerificationSession externalId', externalId)
     return await this.http
-      .get<{ clientSecret: string | null }>('accounts/verification-session', {
+      .get<VerificationSessions>('accounts/verification-session', {
         params: { externalId },
       })
       .then((response) => response.data)

@@ -32,6 +32,12 @@ export default function VerificationTemplate() {
 
     // @TODO: Setup API endpoint
     const session = await AccountsService.instance.createVerificationSession()
+    console.log('session', session)
+
+    if (!session?.clientSecret) {
+      console.log('Verification session could not be created')
+      return
+    }
 
     // Show the verification modal.
     const { error } = await stripe.verifyIdentity(session.clientSecret)

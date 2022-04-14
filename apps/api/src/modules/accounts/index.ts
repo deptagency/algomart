@@ -7,6 +7,8 @@ import {
   UserAccountsSchema,
   UsernameSchema,
   UsersQuerystringSchema,
+  VerificationSessionCreateSchema,
+  VerificationSessionsSchema,
 } from '@algomart/schemas'
 import { appErrorHandler } from '@algomart/shared/utils'
 import bearerAuthOptions from '@api/configuration/bearer-auth'
@@ -166,9 +168,9 @@ export async function accountsRoutes(app: FastifyInstance) {
         schema: {
           tags,
           security,
-          params: ExternalIdSchema,
+          body: VerificationSessionCreateSchema,
           response: {
-            204: Type.Null(),
+            201: VerificationSessionsSchema,
           },
         },
       },
@@ -182,7 +184,7 @@ export async function accountsRoutes(app: FastifyInstance) {
           security,
           params: ExternalIdSchema,
           response: {
-            204: Type.Null(),
+            200: VerificationSessionsSchema,
           },
         },
       },

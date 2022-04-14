@@ -8,7 +8,6 @@ import {
   I18nAdapter,
   MailerAdapter,
   NFTStorageAdapter,
-  StripeAdapter,
 } from '@algomart/shared/adapters'
 import {
   AccountsService,
@@ -233,17 +232,6 @@ export function configureResolver() {
         c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
         c.get<CoinbaseAdapter>(CoinbaseAdapter.name),
         Configuration.currency,
-        logger
-      )
-  )
-  resolver.set(
-    StripeAdapter.name,
-    () =>
-      new StripeAdapter(
-        {
-          apiKey: Configuration.stripeApiKey,
-          url: 'https://api.stripe.com',
-        },
         logger
       )
   )

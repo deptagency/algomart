@@ -10,6 +10,7 @@ import {
   Username,
   UserSortField,
   UsersQuerystring,
+  VerificationSessionCreate,
 } from '@algomart/schemas'
 import { AlgorandAdapter } from '@algomart/shared/adapters'
 import {
@@ -267,16 +268,15 @@ export class AccountsService {
     return false
   }
 
-  async createVerificationSession(
-    request: ExternalId & StripeType.Identity.VerificationSessionCreateParams
-  ) {
-    const session = await this.stripe.identity.verificationSessions.create(
-      request
-    )
+  async createVerificationSession(request: VerificationSessionCreate) {
+    const { externalId, ...rest } = request
+    console.log('verification session request', request)
+    const session = await this.stripe.identity.verificationSessions.create(rest)
+    console.log('created verification session', session)
     userInvariant(session?.id, 'verification session could not be created', 400)
     // Update the user with the active session
     await UserAccountModel.query()
-      .findOne({ externalId: request.externalId })
+      .findOne({ externalId: externalId })
       .patch({ verificationId: session.id })
     // Only return client secret
     return { clientSecret: session.client_secret }
