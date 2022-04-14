@@ -1,9 +1,16 @@
-import pino from 'pino'
+import {
+  createConfigureCustodialAccountTransactions,
+  createNFTTransactions,
+  decryptAccount,
+  encryptAccount,
+  generateAccount,
+  NewNFT,
+} from '@algomart/algorand'
 import { CollectibleBase, TransferCollectibleResult } from '@algomart/schemas'
 import { CollectibleModel } from '@algomart/shared/models'
-import { decrypt, encrypt } from '@algomart/shared/utils'
-import { invariant } from '@algomart/shared/utils'
+import { decrypt, invariant } from '@algomart/shared/utils'
 import algosdk from 'algosdk'
+import pino from 'pino'
 
 // 100_000 microAlgos = 0.1 ALGO
 export const DEFAULT_INITIAL_BALANCE = 100_000
@@ -92,11 +99,10 @@ export class AlgorandAdapter {
     }
   }
 
-  generateAccount(passphrase: string): PublicAccount {
-    const account = algosdk.generateAccount()
-    const mnemonic = algosdk.secretKeyToMnemonic(account.sk)
-    const encryptedMnemonic = encrypt(
-      mnemonic,
+  async generateAccount(passphrase: string): Promise<PublicAccount> {
+    const account = await generateAccount()
+    const encryptedMnemonic = await encryptAccount(
+      account,
       passphrase,
       this.options.appSecret
     )
@@ -108,75 +114,27 @@ export class AlgorandAdapter {
     }
   }
 
-  async createAccount(
-    passphrase: string,
-    initialBalance = DEFAULT_INITIAL_BALANCE
-  ): Promise<PublicAccount> {
-    const account = algosdk.generateAccount()
-    const mnemonic = algosdk.secretKeyToMnemonic(account.sk)
-    const encryptedMnemonic = encrypt(
-      mnemonic,
-      passphrase,
-      this.options.appSecret
-    )
-
-    const { signedTransactions, transactionIds } =
-      await this.initialFundTransactions(
-        encryptedMnemonic,
-        passphrase,
-        initialBalance
-      )
-
-    return {
-      address: account.addr,
-      encryptedMnemonic,
-      transactionIds,
-      signedTransactions,
-    }
-  }
-
   async initialFundTransactions(
     encryptedMnemonic: string,
     passphrase: string,
     initialBalance = DEFAULT_INITIAL_BALANCE
   ) {
-    const account = algosdk.mnemonicToSecretKey(
-      decrypt(encryptedMnemonic, passphrase, this.options.appSecret)
+    const custodialAccount = await decryptAccount(
+      encryptedMnemonic,
+      passphrase,
+      this.options.appSecret
     )
 
-    const fundingTransaction =
-      algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        // initial balance plus non-participation transaction fee
-        amount: initialBalance + 1000,
-        from: this.fundingAccount.addr,
-        suggestedParams: await this.algod.getTransactionParams().do(),
-        to: account.addr,
-        closeRemainderTo: undefined,
-        note: undefined,
-        rekeyTo: undefined,
-      })
-
-    const nonParticipationTransaction =
-      algosdk.makeKeyRegistrationTxnWithSuggestedParamsFromObject({
-        suggestedParams: await this.algod.getTransactionParams().do(),
-        from: account.addr,
-        // this opts the account out of staking rewards
-        nonParticipation: true,
-      })
-
-    const transactions = [fundingTransaction, nonParticipationTransaction]
-    algosdk.assignGroupID(transactions)
-
-    const transactionIds = transactions.map((transaction) => transaction.txID())
-
-    const signedTransactions = [
-      fundingTransaction.signTxn(this.fundingAccount.sk),
-      nonParticipationTransaction.signTxn(account.sk),
-    ]
+    const result = await createConfigureCustodialAccountTransactions({
+      algod: this.algod,
+      custodialAccount,
+      fundingAccount: this.fundingAccount,
+      initialFunds: initialBalance,
+    })
 
     return {
-      transactionIds,
-      signedTransactions,
+      transactionIds: result.txIDs,
+      signedTransactions: result.signedTxns,
     }
   }
 
@@ -246,40 +204,22 @@ export class AlgorandAdapter {
     )
   }
 
-  isValidPassphrase(encryptedMnemonic: string, passphrase: string) {
+  async isValidPassphrase(
+    encryptedMnemonic: string,
+    passphrase: string
+  ): Promise<boolean> {
     try {
-      const mnemonic = decrypt(
+      await decryptAccount(
         encryptedMnemonic,
         passphrase,
         this.options.appSecret
       )
-      if (mnemonic) {
-        algosdk.mnemonicToSecretKey(mnemonic)
-        return true
-      }
-
-      return false
+      // If we get here, the passphrase is valid
+      return true
     } catch {
       // ignore error, passphrase is invalid
       return false
     }
-  }
-
-  async closeCreatorAccount(creator: PublicAccount, passphrase: string) {
-    const account = algosdk.mnemonicToSecretKey(
-      decrypt(creator.encryptedMnemonic, passphrase, this.options.appSecret)
-    )
-    const suggestedParams = await this.algod.getTransactionParams().do()
-    const transaction = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-      amount: 0,
-      from: account.addr,
-      to: this.fundingAccount.addr,
-      suggestedParams,
-      closeRemainderTo: this.fundingAccount.addr,
-    })
-    const signedTransaction = transaction.signTxn(account.sk)
-    await this.submitTransaction(signedTransaction)
-    await this.waitForConfirmation(transaction.txID())
   }
 
   async getAccountInfo(account: string): Promise<AccountInfo> {
@@ -332,78 +272,38 @@ export class AlgorandAdapter {
     return total
   }
 
-  async getCreatorAccount(initialBalance: number, passphrase: string) {
-    const fundingAccountInfo = await this.getAccountInfo(
-      this.fundingAccount.addr
-    )
-
-    invariant(
-      fundingAccountInfo.amount > initialBalance + 100_000,
-      `Not enough funds on account ${fundingAccountInfo.address}. Have ${
-        fundingAccountInfo.amount
-      } microAlgos, need ${initialBalance + 100_000} microAlgos.`
-    )
-
-    const creator = await this.createAccount(passphrase, initialBalance)
-
-    await this.submitTransaction(creator.signedTransactions)
-
-    // Just need to wait for the funding transaction to complete
-    await this.waitForConfirmation(creator.transactionIds[0])
-
-    return creator
-  }
-
   async generateCreateAssetTransactions(
     collectibles: CollectibleModel[],
     templates: CollectibleBase[]
   ) {
-    invariant(
-      collectibles.length <= 16,
-      'Can only mint up to 16 assets at a time'
-    )
-
-    const suggestedParams = await this.algod.getTransactionParams().do()
     const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
-
-    const transactions = collectibles.map((collectible) => {
+    const nfts: NewNFT[] = collectibles.map((collectible) => {
       const template = templateLookup.get(collectible.templateId)
       if (!template) {
         throw new Error(`Missing template ${collectible.templateId}`)
       }
 
-      /**
-       * These ASA parameters should follow the following conventions to meet ARC3 compliance
-       * https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md#asa-parameters-conventions
-       */
-      return algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
+      return {
         assetName: `${template.uniqueCode} ${collectible.edition}/${template.totalEditions}`,
         assetURL: `${collectible.assetUrl}#arc3`,
         assetMetadataHash: new Uint8Array(
           Buffer.from(collectible.assetMetadataHash, 'hex')
         ),
-        from: this.fundingAccount.addr,
-        total: 1,
-        decimals: 0,
-        defaultFrozen: false,
-        clawback: this.fundingAccount.addr,
-        manager: this.fundingAccount.addr,
+        edition: collectible.edition,
+        totalEditions: template.totalEditions,
         unitName: template.uniqueCode,
-        suggestedParams,
-      })
+      }
     })
 
-    algosdk.assignGroupID(transactions)
-
-    const signedTransactions = transactions.map((transaction) =>
-      transaction.signTxn(this.fundingAccount.sk)
-    )
-
-    const transactionIds = transactions.map((transaction) => transaction.txID())
+    const result = await createNFTTransactions({
+      algod: this.algod,
+      creatorAccount: this.fundingAccount,
+      nfts,
+    })
 
     return {
-      signedTransactions,
-      transactionIds,
+      signedTransactions: result.signedTxns,
+      transactionIds: result.txIDs,
     }
   }
 

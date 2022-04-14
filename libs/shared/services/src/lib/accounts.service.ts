@@ -43,7 +43,7 @@ export class AccountsService {
 
     console.log('existing')
     // 2. generate algorand account (i.e. wallet)
-    const result = this.algorand.generateAccount(request.passphrase)
+    const result = await this.algorand.generateAccount(request.passphrase)
 
     // 3. save account with encrypted mnemonic
     await UserAccountModel.query(trx).insertGraph({
@@ -238,7 +238,7 @@ export class AccountsService {
       return false
     }
 
-    return this.algorand.isValidPassphrase(
+    return await this.algorand.isValidPassphrase(
       userAccount.algorandAccount.encryptedKey,
       passphrase
     )
