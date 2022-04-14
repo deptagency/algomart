@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "seed": "./scripts/seed.mjs",
+    "seed": "./scripts/seed-dev.mjs",
     "drop": "./scripts/drop.mjs",
     "build-price-display": "cd extensions/displays/pack-price && npx directus-extension build",
     "build-price-interface": "cd extensions/interfaces/price-conversion && npx directus-extension build"
