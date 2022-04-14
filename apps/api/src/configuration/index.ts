@@ -174,4 +174,8 @@ export const Configuration = {
   get enableCluster(): boolean {
     return env.get('ENABLE_CLUSTER').default('false').asBool()
   },
+
+  get stripeApiKey() {
+    return env.get('STRIPE_API_SECRET').required().asString()
+  },
 }

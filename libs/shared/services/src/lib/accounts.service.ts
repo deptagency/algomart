@@ -18,16 +18,20 @@ import {
   UserAccountModel,
 } from '@algomart/shared/models'
 import { invariant, userInvariant } from '@algomart/shared/utils'
-import { Stripe } from '@stripe/stripe-js'
+import Stripe from 'stripe'
+import type { Stripe as StripeType } from 'stripe'
 import { Transaction } from 'objection'
 
 export class AccountsService {
+  stripe: StripeType
   logger: pino.Logger<unknown>
 
   constructor(
     private readonly algorand: AlgorandAdapter,
+    stripeKey: string,
     logger: pino.Logger<unknown>
   ) {
+    this.stripe = new Stripe(stripeKey, { apiVersion: '2020-08-27' })
     this.logger = logger.child({ context: this.constructor.name })
   }
 
@@ -263,25 +267,34 @@ export class AccountsService {
     return false
   }
 
-  async createVerificationSession(request: ExternalId) {
-    // const user = await UserAccountModel.query().findOne({
-    //   externalId: request.externalId,
-    // })
-    // if (user) {
-    //   await UserAccountModel.query().deleteById(user.id)
-    //   return true
-    // }
-    // return false
+  async createVerificationSession(
+    request: ExternalId & StripeType.Identity.VerificationSessionCreateParams
+  ) {
+    const session = await this.stripe.identity.verificationSessions.create(
+      request
+    )
+    if (session?.id) {
+      await UserAccountModel.query()
+        .findOne({ externalId: request.externalId })
+        .patch({ verificationId: session.id })
+      // Only return the client secret
+      return { clientSecret: session.client_secret }
+    }
+    return false
   }
 
   async retrieveVerificationSession(request: ExternalId) {
-    // const user = await UserAccountModel.query().findOne({
-    //   externalId: request.externalId,
-    // })
-    // if (user) {
-    //   await UserAccountModel.query().deleteById(user.id)
-    //   return true
-    // }
-    // return false
+    const user = await UserAccountModel.query().findOne({
+      externalId: request.externalId,
+    })
+    if (!user?.verificationId) return false
+    const session = await this.stripe.identity.verificationSessions.retrieve(
+      user.verificationId
+    )
+    if (session?.id) {
+      // Only return the client secret
+      return { clientSecret: session.client_secret }
+    }
+    return false
   }
 }

@@ -195,4 +195,8 @@ export const Configuration = {
   get enableJobs(): boolean {
     return env.get('ENABLE_JOBS').default('false').asBool()
   },
+
+  get stripeApiKey() {
+    return env.get('STRIPE_API_SECRET').required().asString()
+  },
 }
