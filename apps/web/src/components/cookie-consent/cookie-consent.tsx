@@ -13,7 +13,7 @@ const CONSENT_COOKIE = 'cookie-consent'
 
 export default function CookieConsent() {
   const [cookieValue, setCookieValue] = useState('')
-  const [hasAccepted, setHasAccepted] = useState<boolean>(!!cookieValue)
+  const [hasAccepted, setHasAccepted] = useState(!cookieValue)
   const { t } = useTranslation()
 
   const handleAccept = useCallback(() => {

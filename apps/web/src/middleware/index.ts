@@ -5,6 +5,7 @@ import pinoHttp from 'pino-http'
 
 import i18n from '../../i18n'
 
+import { WithAdminPermission } from './admin-middleware'
 import { WithToken } from './auth-middleware'
 import errorHandler from './error-handler'
 import loggingMiddleware from './logging-middleware'
@@ -25,6 +26,7 @@ global.i18nConfig = i18n
 export type NextApiRequestApp<T = unknown> = NextApiRequest &
   WithToken &
   WithUser &
+  WithAdminPermission &
   WithValidResult<T>
 
 export default function createHandler() {

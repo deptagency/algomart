@@ -722,6 +722,13 @@ export function usePaymentProvider({
     ]
   )
 
+  const isAuctionActive = useCallback(
+    () =>
+      release?.type === PackType.Auction &&
+      isAfterNow(new Date(release.auctionUntil as string)),
+    [release?.auctionUntil, release?.type]
+  )
+
   useEffect(() => {
     setBid(highestBidLocalized)
   }, [highestBidLocalized])
@@ -733,10 +740,6 @@ export function usePaymentProvider({
         : formatIntToFloat(release?.price || 0, currency, conversionRate)
     )
   }, [currency, bid]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const isAuctionActive = () =>
-    release?.type === PackType.Auction &&
-    isAfterNow(new Date(release.auctionUntil as string))
 
   const value = useMemo(
     () => ({
@@ -787,12 +790,6 @@ export function usePaymentProvider({
       price,
       promptLeaving,
       release,
-      setAddress,
-      setBid,
-      setLoadingText,
-      setPackId,
-      setPromptLeaving,
-      setStatus,
       status,
     ]
   )
