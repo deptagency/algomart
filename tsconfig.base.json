@@ -20,6 +20,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@algomart/algorand": [
+        "libs/algorand/src/index.ts"
+      ],
       "@algomart/schemas": [
         "libs/schemas/src/index.ts"
       ],
@@ -28,9 +31,6 @@
       ],
       "@algomart/shared/adapters": [
         "libs/shared/adapters/src/index.ts"
-      ],
-      "@algomart/shared/algorand": [
-        "libs/shared/algorand/src/index.ts"
       ],
       "@algomart/shared/models": [
         "libs/shared/models/src/index.ts"
