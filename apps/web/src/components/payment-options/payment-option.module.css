@@ -19,3 +19,7 @@
 .disabled {
   @apply opacity-50 pointer-events-none;
 }
+
+.description {
+  @apply text-base-textTertiary;
+}

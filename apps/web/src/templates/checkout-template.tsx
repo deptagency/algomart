@@ -48,7 +48,7 @@ export default function CheckoutTemplate() {
           query: { ...query, method: 'card', step: 'details' },
         },
         body: (
-          <div className="mt-2">
+          <div className="mt-2 -mb-2">
             <Image
               width={60}
               height={40}
