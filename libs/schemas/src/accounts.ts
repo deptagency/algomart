@@ -81,6 +81,7 @@ export const UserAccountSchema = Type.Intersect([
   Type.Object({
     algorandAccountId: Type.String({ format: 'uuid' }),
     claims: Type.Optional(Type.Array(Type.String())),
+    verificationId: Type.Optional(Type.String()),
   }),
 ])
 

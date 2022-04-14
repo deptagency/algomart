@@ -293,7 +293,7 @@ export class AccountsService {
     const session = await this.stripe.identity.verificationSessions.retrieve(
       user.verificationId
     )
-    invariant(session?.id, 'verification not found', 400)
+    invariant(session?.id, 'verification not found')
     // Only return client secret
     return { clientSecret: session.client_secret }
   }

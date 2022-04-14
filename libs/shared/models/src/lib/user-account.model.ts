@@ -17,6 +17,7 @@ export class UserAccountModel extends BaseModel {
   showProfile!: boolean
 
   algorandAccount?: AlgorandAccountModel
+  verificationId?: string
 
   static relationMappings = () => ({
     algorandAccount: {
