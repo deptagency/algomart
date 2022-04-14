@@ -8,7 +8,7 @@ import Heading from '@/components/heading'
 import PaymentOptions from '@/components/payment-options'
 import EmailVerification from '@/components/profile/email-verification'
 import { useAuth } from '@/contexts/auth-context'
-import { PaymentProvider, usePaymentContext } from '@/contexts/payment-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 import { useConfig } from '@/hooks/use-config'
 import { useCurrency } from '@/hooks/use-currency'
 import { isGreaterThanOrEqual } from '@/utils/format-currency'
@@ -98,11 +98,11 @@ export default function CheckoutTemplate() {
     return <EmailVerification inline />
   }
   return (
-    <PaymentProvider>
+    <>
       <Heading className="mb-10" level={1}>
         {t('forms:fields.paymentMethods.helpText')}
       </Heading>
       <PaymentOptions cards={getCardList(t)} />
-    </PaymentProvider>
+    </>
   )
 }
