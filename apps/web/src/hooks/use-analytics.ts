@@ -1,6 +1,11 @@
 import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import { useMemo } from 'react'
 
+import {
+  useFirebaseApp,
+  waitForFirebaseAppToBeConfigured,
+} from './use-firebase-app'
+
 import { AuthState } from '@/types/auth'
 import { formatIntToFloat } from '@/utils/format-currency'
 
@@ -19,26 +24,32 @@ function buildPackPayload({ itemName, paymentId, value }: AnalyticsPack) {
   }
 }
 
+export async function getFirebaseAnalyticsAsync() {
+  return import('firebase/analytics')
+}
+
 async function dispatchEvent(
   event: string,
   payload?: { [key: string]: string | number | { item_name: string }[] }
 ) {
-  const { getAnalytics, logEvent } = await getFirebaseAnalyticsAsync()
-  const analytics = getAnalytics()
-  logEvent(analytics, event, payload)
+  if (await waitForFirebaseAppToBeConfigured()) {
+    const { getAnalytics, logEvent } = await getFirebaseAnalyticsAsync()
+    const analytics = getAnalytics()
+    logEvent(analytics, event, payload)
+  }
 }
 
 async function setCurrentScreenAsync(screenName: string) {
-  const { getAnalytics, setCurrentScreen } = await getFirebaseAnalyticsAsync()
-  const analytics = getAnalytics()
-  setCurrentScreen(analytics, screenName)
-}
-
-async function getFirebaseAnalyticsAsync() {
-  return import('firebase/analytics')
+  if (await waitForFirebaseAppToBeConfigured()) {
+    const { getAnalytics, setCurrentScreen } = await getFirebaseAnalyticsAsync()
+    const analytics = getAnalytics()
+    setCurrentScreen(analytics, screenName)
+  }
 }
 
 export function useAnalytics() {
+  // Ensure firebase is loaded and configured, no need to process the result
+  useFirebaseApp()
   return useMemo(
     () => ({
       addPaymentInfo(packPayload: AnalyticsPack) {
