@@ -40,6 +40,7 @@ export default function AppHeader() {
               setShowMenu(!showMenu)
             }}
           >
+            <span className="sr-only">{t('common:nav.aria.Toggle Menu')}</span>
             {showMenu ? <XIcon /> : <MenuIcon />}
           </button>
         </div>

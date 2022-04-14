@@ -1,4 +1,3 @@
-import { CURRENCY_COOKIE } from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -9,7 +8,7 @@ import { useCurrency } from '@/hooks/use-currency'
 import { useLanguage } from '@/hooks/use-language'
 import { AuthService } from '@/services/auth-service'
 import { validateCurrency } from '@/utils/auth-validation'
-import { setCookie, setCurrencyCookie } from '@/utils/cookies-web'
+import { setCurrencyCookie } from '@/utils/cookies-web'
 
 export default function AppFooterCurrency() {
   const { t } = useTranslation()

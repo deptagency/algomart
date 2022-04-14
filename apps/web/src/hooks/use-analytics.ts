@@ -1,13 +1,5 @@
 import { DEFAULT_CURRENCY } from '@algomart/schemas'
-import {
-  Analytics,
-  getAnalytics,
-  logEvent,
-  setCurrentScreen,
-} from 'firebase/analytics'
 import { useMemo } from 'react'
-
-import { useFirebaseApp } from './use-firebase-app'
 
 import { AuthState } from '@/types/auth'
 import { formatIntToFloat } from '@/utils/format-currency'
@@ -27,75 +19,65 @@ function buildPackPayload({ itemName, paymentId, value }: AnalyticsPack) {
   }
 }
 
-function dispatchEvent(
-  analytics: Analytics,
+async function dispatchEvent(
   event: string,
   payload?: { [key: string]: string | number | { item_name: string }[] }
 ) {
+  const { getAnalytics, logEvent } = await getFirebaseAnalyticsAsync()
+  const analytics = getAnalytics()
   logEvent(analytics, event, payload)
 }
 
+async function setCurrentScreenAsync(screenName: string) {
+  const { getAnalytics, setCurrentScreen } = await getFirebaseAnalyticsAsync()
+  const analytics = getAnalytics()
+  setCurrentScreen(analytics, screenName)
+}
+
+async function getFirebaseAnalyticsAsync() {
+  return import('firebase/analytics')
+}
+
 export function useAnalytics() {
-  const firebaseApp = useFirebaseApp()
-  const analytics = useMemo(() => {
-    if (firebaseApp?.options.projectId) {
-      return getAnalytics()
-    }
-
-    return null
-  }, [firebaseApp])
-
   return useMemo(
     () => ({
       addPaymentInfo(packPayload: AnalyticsPack) {
-        if (analytics) {
-          const payload = buildPackPayload(packPayload)
-          dispatchEvent(analytics, 'add_payment_info', payload)
-        }
+        const payload = buildPackPayload(packPayload)
+        dispatchEvent('add_payment_info', payload)
       },
 
       // Triggered when a user initiates a checkout flow
       beginCheckout(packPayload: AnalyticsPack) {
-        if (analytics) {
-          const payload = buildPackPayload(packPayload)
-          dispatchEvent(analytics, 'begin_checkout', payload)
-        }
+        const payload = buildPackPayload(packPayload)
+        dispatchEvent('begin_checkout', payload)
       },
 
       // Triggered when a user is successfully authenticated
       login(method: AuthState['method']) {
-        if (analytics) {
-          dispatchEvent(analytics, 'login', {
-            method: method as string,
-          })
-        }
+        dispatchEvent('login', {
+          method: method as string,
+        })
       },
 
       // Triggered when a user completes a checkout flow
       purchase(packPayload: AnalyticsPack) {
-        if (analytics) {
-          const payload = buildPackPayload(packPayload)
-          dispatchEvent(analytics, 'purchase', payload)
-        }
+        const payload = buildPackPayload(packPayload)
+        dispatchEvent('purchase', payload)
       },
 
       // Triggered on initial app load as well as each route change
       screenView(url: string) {
-        if (analytics) {
-          setCurrentScreen(analytics, url)
-          dispatchEvent(analytics, 'screen_view')
-        }
+        setCurrentScreenAsync(url)
+        dispatchEvent('screen_view')
       },
 
       // Triggered when a user views a pack release
       viewItem(packPayload: AnalyticsPack) {
-        if (analytics) {
-          const payload = buildPackPayload(packPayload)
-          dispatchEvent(analytics, 'view_item', payload)
-        }
+        const payload = buildPackPayload(packPayload)
+        dispatchEvent('view_item', payload)
       },
       //#endregion
     }),
-    [analytics]
+    []
   )
 }

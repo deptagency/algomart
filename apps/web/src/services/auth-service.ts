@@ -1,9 +1,9 @@
 import { DEFAULT_CURRENCY, DEFAULT_LANG } from '@algomart/schemas'
-import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
 import { setCurrencyCookie, setLanguageCookie } from '@/utils/cookies-web'
 import { invariant } from '@/utils/invariant'
+import { setBearerToken } from '@/utils/ky-hooks'
 import { urls } from '@/utils/urls'
 
 export interface AuthAPI {
@@ -31,19 +31,7 @@ export class AuthService implements AuthAPI {
       throwHttpErrors: false,
       timeout: 10_000,
       hooks: {
-        beforeRequest: [
-          async (request) => {
-            try {
-              const auth = getAuth()
-              const token = await auth.currentUser?.getIdToken()
-              if (token) {
-                request.headers.set('Authorization', `Bearer ${token}`)
-              }
-            } catch {
-              // ignore, firebase probably not initialized
-            }
-          },
-        ],
+        beforeRequest: [setBearerToken],
       },
     })
   }
