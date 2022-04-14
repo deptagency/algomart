@@ -6,6 +6,7 @@
     "build": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
+        "parallel": false,
         "commands": [
           "npx nx build-next web",
           "cp -r apps/web/languages apps/web/i18n.js dist/apps/web/",
