@@ -91,7 +91,11 @@ export function configureResolver() {
   resolver.set(
     AccountsService.name,
     (c) =>
-      new AccountsService(c.get<AlgorandAdapter>(AlgorandAdapter.name), logger)
+      new AccountsService(
+        c.get<AlgorandAdapter>(AlgorandAdapter.name),
+        Configuration.stripeApiKey,
+        logger
+      )
   )
   resolver.set(
     BidsService.name,
