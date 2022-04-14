@@ -14,6 +14,7 @@ handler.get(async (_: NextApiRequestApp, response: NextApiResponse) => {
     firebaseConfig: Environment.firebaseConfig,
     isCryptoEnabled: Environment.isCryptoEnabled,
     isProduction: Environment.isProduction,
+    stripeKey: Environment.stripeKey,
   }
   response.json(config)
 })

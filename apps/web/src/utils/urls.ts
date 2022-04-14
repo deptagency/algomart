@@ -95,6 +95,7 @@ export const urls = {
       getRedeemable: '/api/v1/asset/get-redeemable',
       getTransfer: '/api/v1/payments/get-transfer-payment',
       getUntransferredPacks: '/api/v1/pack/untransferred',
+      kycVerification: '/api/v1/profile/kyc-verification',
       profile: '/api/v1/profile',
       publicKey: '/api/v1/payments/public-key',
       removeCard: '/api/v1/payments/remove-card',

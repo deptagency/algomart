@@ -5,12 +5,12 @@ import {
   ExternalId,
   PublicAccount,
   SortDirection,
+  UpdateUserAccount,
   UserAccounts,
+  Username,
   UserSortField,
   UsersQuerystring,
 } from '@algomart/schemas'
-import { UpdateUserAccount } from '@algomart/schemas'
-import { Username } from '@algomart/schemas'
 import { AlgorandAdapter } from '@algomart/shared/adapters'
 import {
   AlgorandAccountModel,
@@ -18,6 +18,7 @@ import {
   UserAccountModel,
 } from '@algomart/shared/models'
 import { invariant, userInvariant } from '@algomart/shared/utils'
+import { Stripe } from '@stripe/stripe-js'
 import { Transaction } from 'objection'
 
 export class AccountsService {
@@ -260,5 +261,27 @@ export class AccountsService {
       return true
     }
     return false
+  }
+
+  async createVerificationSession(request: ExternalId) {
+    // const user = await UserAccountModel.query().findOne({
+    //   externalId: request.externalId,
+    // })
+    // if (user) {
+    //   await UserAccountModel.query().deleteById(user.id)
+    //   return true
+    // }
+    // return false
+  }
+
+  async retrieveVerificationSession(request: ExternalId) {
+    // const user = await UserAccountModel.query().findOne({
+    //   externalId: request.externalId,
+    // })
+    // if (user) {
+    //   await UserAccountModel.query().deleteById(user.id)
+    //   return true
+    // }
+    // return false
   }
 }

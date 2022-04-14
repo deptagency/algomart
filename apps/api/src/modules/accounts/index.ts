@@ -16,10 +16,12 @@ import fastifyBearerAuth from 'fastify-bearer-auth'
 
 import {
   createAccount,
+  createVerificationSession,
   getByExternalId,
   getByUsername,
   getUsers,
   removeUser,
+  retrieveVerificationSession,
   updateAccount,
   verifyPassphrase,
   verifyUsername,
@@ -157,5 +159,33 @@ export async function accountsRoutes(app: FastifyInstance) {
         },
       },
       removeUser
+    )
+    .post(
+      '/verification-session',
+      {
+        schema: {
+          tags,
+          security,
+          // params: ExternalIdSchema,
+          response: {
+            204: Type.Null(),
+          },
+        },
+      },
+      createVerificationSession
+    )
+    .get(
+      '/verification-session/:id',
+      {
+        schema: {
+          tags,
+          security,
+          params: Type.String(),
+          response: {
+            204: Type.Null(),
+          },
+        },
+      },
+      retrieveVerificationSession
     )
 }

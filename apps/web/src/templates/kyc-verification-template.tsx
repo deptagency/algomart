@@ -1,58 +1,40 @@
-import { Stripe } from '@stripe/stripe-js'
+import { loadStripe, Stripe } from '@stripe/stripe-js'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useEffect, useState } from 'react'
 
 import Button from '@/components/button'
-import { Environment } from '@/environment'
+import Loading from '@/components/loading/loading'
+import { useConfig } from '@/hooks/use-config'
+import { AccountsService } from '@/services/account-service'
 
-interface VerificationTemplateProps {
-  stripe: Stripe
-}
-
-export default function VerificationTemplate({
-  stripe,
-}: VerificationTemplateProps) {
-  console.log('stripe:', stripe?.elements)
+export default function VerificationTemplate() {
   const { t } = useTranslation()
-  // const stripePromise = loadStripe(Environment.stripeKey)
+  const config = useConfig()
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
-  // const [stripe, setStripe] = useState<Stripe | null>(null)
+  const [stripe, setStripe] = useState<Stripe | null>(null)
 
-  // useEffect(() => {
-  //   const stripePromiseResolved = async () => {
-  //     const stripePromise = loadStripe(Environment.stripeKey)
-  //     const stripeResponse = await stripePromise
-  //     if (stripeResponse) {
-  //       setStripe(stripeResponse)
-  //     }
-  //   }
-  //   if (Environment.stripeKey) {
-  //     stripePromiseResolved()
-  //   }
-  // }, [])
-
-  // useEffect(() => {
-  //   const stripePromiseResolved = async () => {
-  //     const stripeResponse = await stripePromise
-  //     if (stripeResponse) {
-  //       setStripe(stripeResponse)
-  //     }
-  //   }
-  //   stripePromiseResolved()
-  // }, [stripePromise])
+  useEffect(() => {
+    const stripePromiseResolved = async () => {
+      const stripePromise = loadStripe(config.stripeKey)
+      const stripeResponse = await stripePromise
+      if (stripeResponse) {
+        setStripe(stripeResponse)
+      }
+    }
+    if (config.stripeKey) {
+      stripePromiseResolved()
+    }
+  }, [config?.stripeKey])
 
   const handleVerification = async (event: FormEvent<HTMLElement>) => {
     event.preventDefault()
+    console.log('stripe', stripe)
 
     // @TODO: Setup API endpoint
-    // Call your backend to create the VerificationSession.
-    const response = await fetch('/create-verification-session', {
-      method: 'POST',
-    })
-    const session = await response.json()
+    const session = await AccountsService.instance.createVerificationSession()
 
     // Show the verification modal.
-    const { error } = await stripe.verifyIdentity(session.client_secret)
+    const { error } = await stripe.verifyIdentity(session.clientSecret)
 
     if (error) {
       console.log('[error]', error)
@@ -62,11 +44,10 @@ export default function VerificationTemplate({
     }
   }
 
-  // if (!stripe) {
-  //   // Stripe.js has not loaded yet. Make sure to disable
-  //   // the button until Stripe.js has loaded.
-  //   return
-  // }
+  if (!stripe) {
+    // Stripe.js has not loaded yet.
+    return <Loading />
+  }
 
   if (isSubmitted) {
     return (

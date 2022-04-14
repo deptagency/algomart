@@ -93,6 +93,6 @@ export const Environment: PublicConfig & PrivateConfig = {
   },
 
   get stripeKey() {
-    return getConfigByKey('STRIPE_API_KEY', '')
+    return getConfigByKey('NEXT_PUBLIC_STRIPE_API_KEY', '')
   },
 }

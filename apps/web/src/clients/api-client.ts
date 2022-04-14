@@ -71,6 +71,7 @@ import {
 } from '@algomart/schemas'
 import axios from 'axios'
 import pino from 'pino'
+import { Stripe } from 'stripe'
 
 import { Environment } from '@/environment'
 import {
@@ -168,6 +169,25 @@ export class ApiClient {
   async verifyUsername(request: Username) {
     return await this.http
       .post<{ isAvailable: boolean }>('accounts/verify-username', request)
+      .then((response) => response.data)
+  }
+
+  async createVerificationSession(request: {
+    type: Stripe.Identity.VerificationSession.Type
+  }) {
+    return await this.http
+      .post<{ clientSecret: string | null }>(
+        'accounts/verification-session',
+        request
+      )
+      .then((response) => response.data)
+  }
+
+  async retrieveVerificationSession(id: string) {
+    return await this.http
+      .get<Stripe.Identity.VerificationSession>(
+        `accounts/verification-session/${id}`
+      )
       .then((response) => response.data)
   }
   //#endregion
