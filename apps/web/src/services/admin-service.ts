@@ -5,10 +5,10 @@ import {
   UpdatePayment,
   WirePayment,
 } from '@algomart/schemas'
-import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
 import { invariant } from '@/utils/invariant'
+import { setBearerToken } from '@/utils/ky-hooks'
 import { urls } from '@/utils/urls'
 
 export interface AdminAPI {
@@ -40,20 +40,7 @@ export class AdminService implements AdminAPI {
       throwHttpErrors: false,
       timeout: 10_000,
       hooks: {
-        beforeRequest: [
-          async (request) => {
-            try {
-              const auth = getAuth()
-              // Force refresh of Firebase token on the first render
-              const token = await auth.currentUser?.getIdToken(true)
-              if (token) {
-                request.headers.set('Authorization', `Bearer ${token}`)
-              }
-            } catch {
-              // ignore, firebase probably not initialized
-            }
-          },
-        ],
+        beforeRequest: [setBearerToken],
       },
     })
   }

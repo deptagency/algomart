@@ -37,15 +37,8 @@ RUN addgroup --system --gid 1001 nodejs && \
   npm config set legacy-peer-deps true
 
 COPY --from=builder /app/node_modules/ ./node_modules/
-COPY --from=builder --chown=algomart:nodejs /app/dist/apps/web/.next/ ./.next/
-COPY --from=builder --chown=algomart:nodejs /app/dist/apps/web/public ./public
-COPY --from=builder --chown=algomart:nodejs /app/dist/apps/web/next.config.js ./
-COPY --from=builder --chown=algomart:nodejs /app/dist/apps/web/package.json ./
+COPY --from=builder --chown=algomart:nodejs /app/dist/apps/web/ ./
 
-# Copy and setup files for next-translate
-COPY --from=builder --chown=algomart:nodejs /app/apps/web/i18n.js .
-COPY --from=builder --chown=algomart:nodejs /app/apps/web/languages ./languages
-RUN mkdir pages && touch pages/_app.js
 RUN npm install --no-package-lock --production && \
   npm cache clear --force && \
   npm install --no-package-lock --verbose --unsafe-perm sharp

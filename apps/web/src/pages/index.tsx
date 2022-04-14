@@ -49,7 +49,8 @@ export async function getStaticProps(
   }
 
   return {
-    revalidate: 300,
+    // revalidate immediately if no page was loaded
+    revalidate: !page ? 1 : 300,
     props: {
       page,
     },

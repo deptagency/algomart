@@ -1,20 +1,21 @@
 import { DEFAULT_LOCALE } from '@algomart/schemas'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export function useLocale() {
-  const [locale, setLocale] = useState<string>()
+  const [locale, setLocale] = useState(DEFAULT_LOCALE)
 
-  if (typeof window === 'undefined') {
-    return DEFAULT_LOCALE
-  } else {
-    window.addEventListener('languagechange', () => {
-      setLocale(navigator?.language)
-    })
-
-    if (locale !== navigator.language) {
-      setLocale(navigator?.language)
+  useEffect(() => {
+    const callback = () => {
+      setLocale(navigator.language)
     }
-  }
 
-  return locale || DEFAULT_LOCALE
+    setLocale(navigator.language)
+    window.addEventListener('languagechange', callback)
+
+    return () => {
+      window.removeEventListener('languagechange', callback)
+    }
+  }, [])
+
+  return locale
 }
