@@ -1,10 +1,15 @@
 import {
+  AccountInfo,
+  accountInformation,
+  createClawbackNFTTransactions,
   createConfigureCustodialAccountTransactions,
-  createNFTTransactions,
+  createNewNFTsTransactions,
   decryptAccount,
   encryptAccount,
   generateAccount,
   NewNFT,
+  pendingTransactionInformation,
+  waitForConfirmation,
 } from '@algomart/algorand'
 import { CollectibleBase, TransferCollectibleResult } from '@algomart/schemas'
 import { CollectibleModel } from '@algomart/shared/models'
@@ -28,44 +33,6 @@ export interface AlgorandAdapterOptions {
   algodPort: number
   fundingMnemonic: string
   appSecret: string
-}
-
-export interface AccountInfo {
-  address: string
-  amount: number
-  amountWithoutPendingRewards: number
-  // https://developer.algorand.org/docs/rest-apis/algod/v2/#applicationlocalstate
-  appsLocalState: {
-    id: number
-  }[]
-  appsTotalExtraPages?: number
-  appsTotalSchema: {
-    numByteSlices: number
-    numInts: number
-  }
-  assets: {
-    amount: number
-    assetId: number
-    creator: string
-    isFrozen: boolean
-  }[]
-  authAddr?: string
-  // https://developer.algorand.org/docs/rest-apis/algod/v2/#applicationparams
-  createdApps: {
-    id: number
-  }[]
-  // https://developer.algorand.org/docs/rest-apis/algod/v2/#asset
-  createdAssets: {
-    index: number
-  }[]
-  // https://developer.algorand.org/docs/rest-apis/algod/v2/#accountparticipation
-  participation?: unknown
-  pendingRewards: number
-  rewardBase: number
-  rewards: number
-  round: number
-  sigType: 'sig' | 'msig' | 'lsig'
-  status: string
 }
 
 export class AlgorandAdapter {
@@ -168,40 +135,11 @@ export class AlgorandAdapter {
   }
 
   async getTransactionStatus(transactionId: string) {
-    const info = await this.algod
-      .pendingTransactionInformation(transactionId)
-      .do()
-    const confirmedRound: number = info['confirmed-round'] || 0
-    const poolError: string = info['pool-error'] || ''
-    const assetIndex: number = info['asset-index'] || 0
-    return { confirmedRound, poolError, assetIndex }
+    return pendingTransactionInformation(this.algod, transactionId)
   }
 
   async waitForConfirmation(transactionId: string, maxRounds = 5) {
-    let firstRound: number | null = null
-    let lastRound: number | null = null
-    let elapsed: number | null = null
-
-    while (!elapsed || elapsed <= maxRounds) {
-      const lastRoundAfterCall: Record<string, unknown> = lastRound
-        ? await this.algod.statusAfterBlock(lastRound).do()
-        : await this.algod.status().do()
-
-      lastRound = lastRoundAfterCall['last-round'] as number
-      firstRound = firstRound || lastRound
-
-      const status = await this.getTransactionStatus(transactionId)
-
-      if (status.confirmedRound || status.poolError) {
-        return status
-      }
-
-      elapsed = lastRound - firstRound + 1
-    }
-
-    throw new Error(
-      `Too many rounds elapsed when waiting for confirmation: ${transactionId}`
-    )
+    return waitForConfirmation(this.algod, transactionId, maxRounds)
   }
 
   async isValidPassphrase(
@@ -223,53 +161,7 @@ export class AlgorandAdapter {
   }
 
   async getAccountInfo(account: string): Promise<AccountInfo> {
-    const info = await this.algod.accountInformation(account).do()
-    return {
-      address: info['address'],
-      amount: info['amount'],
-      amountWithoutPendingRewards: info['amount-without-pending-rewards'],
-      appsLocalState: info['apps-local-state'] || [],
-      appsTotalExtraPages: info['apps-total-extra-pages'] || 0,
-      appsTotalSchema: {
-        numByteSlices: info['apps-total-schema']?.['num-byte-slice'] || 0,
-        numInts: info['apps-total-schema']?.['num-uint'] || 0,
-      },
-      assets: (info['assets'] || []).map((asset) => ({
-        assetId: asset['asset-id'],
-        amount: asset['amount'],
-        creator: asset['creator'],
-        isFrozen: asset['is-frozen'],
-      })),
-      authAddr: info['auth-addr'],
-      createdApps: info['created-apps'] || [],
-      createdAssets: info['created-assets'] || [],
-      participation: info['participation'],
-      pendingRewards: info['pending-rewards'],
-      rewardBase: info['reward-base'],
-      rewards: info['rewards'],
-      round: info['round'],
-      sigType: info['sig-type'],
-      status: info['status'],
-    }
-  }
-
-  getAccountMinBalance(info: AccountInfo): number {
-    const minBalance = 100_000
-    const assetsOptIn = info.assets.length * 100_000
-    const assetsCreated = info.createdAssets.length * 100_000
-    const appsBytes = info.appsTotalSchema.numByteSlices * 50_000
-    const appsInts = info.appsTotalSchema.numInts * 28_500
-    const appsOptIn = info.appsLocalState.length * 100_000
-    const appsCreated = info.createdApps.length * 100_000
-    const total =
-      minBalance +
-      assetsOptIn +
-      assetsCreated +
-      appsBytes +
-      appsInts +
-      appsOptIn +
-      appsCreated
-    return total
+    return accountInformation(this.algod, account)
   }
 
   async generateCreateAssetTransactions(
@@ -295,7 +187,7 @@ export class AlgorandAdapter {
       }
     })
 
-    const result = await createNFTTransactions({
+    const result = await createNewNFTsTransactions({
       algod: this.algod,
       creatorAccount: this.fundingAccount,
       nfts,
@@ -321,50 +213,20 @@ export class AlgorandAdapter {
       )
     )
 
-    const suggestedParams = await this.algod.getTransactionParams().do()
-
-    // Send enough money to buyer to cover the "opt-in" transaction and the minimum balance increase
-    const fundsTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-      suggestedParams,
-      amount:
-        100_000 /* minimum balance increase */ + 1000 /* opt-in txn fee */,
-      from: this.fundingAccount.addr, // System account acting as the global "funding account"
-      to: toAccount.addr,
-    })
-
-    // Buyer needs to "opt-in" to the asset by using a "zero-balance" transaction
-    const optInTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      suggestedParams,
-      amount: 0,
+    const result = await createClawbackNFTTransactions({
+      algod: this.algod,
       assetIndex: options.assetIndex,
-      from: toAccount.addr,
-      to: toAccount.addr,
+      clawbackAccount: this.fundingAccount,
+      currentOwnerAddress:
+        options.fromAccountAddress || this.fundingAccount.addr,
+      recipientAddress: toAccount.addr,
+      fundingAccount: this.fundingAccount,
+      recipientAccount: toAccount,
     })
-
-    // Use a clawback to "revoke" ownership from current owner to the buyer.
-    const clawbackTxn =
-      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-        suggestedParams,
-        amount: 1,
-        assetIndex: options.assetIndex,
-        from: this.fundingAccount.addr, // Who is issuing the transaction
-        to: toAccount.addr,
-        revocationTarget:
-          options.fromAccountAddress || this.fundingAccount.addr, // Who the asset is being revoked from
-      })
-
-    // Adds a group id to each transaction object
-    algosdk.assignGroupID([fundsTxn, optInTxn, clawbackTxn])
-
-    const signedTransactions = [
-      fundsTxn.signTxn(this.fundingAccount.sk),
-      optInTxn.signTxn(toAccount.sk),
-      clawbackTxn.signTxn(this.fundingAccount.sk),
-    ]
 
     return {
-      transactionIds: [fundsTxn.txID(), optInTxn.txID(), clawbackTxn.txID()],
-      signedTransactions,
+      transactionIds: result.txIDs,
+      signedTransactions: result.signedTxns,
     }
   }
 
@@ -373,27 +235,18 @@ export class AlgorandAdapter {
     fromAccountAddress: string
     toAccountAddress: string
   }) {
-    const suggestedParams = await this.algod.getTransactionParams().do()
-
-    // Use a clawback to "revoke" ownership from current owner to the creator,
-    const clawbackTxn =
-      algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-        suggestedParams,
-        amount: 1,
-        assetIndex: options.assetIndex,
-        from: this.fundingAccount.addr, // Who is issuing the transaction
-        to: options.toAccountAddress,
-        revocationTarget: options.fromAccountAddress, // Who the asset is being revoked from
-      })
-
-    // Adds a group id to each transaction object
-    algosdk.assignGroupID([clawbackTxn])
-
-    const signedTransactions = [clawbackTxn.signTxn(this.fundingAccount.sk)]
+    const result = await createClawbackNFTTransactions({
+      algod: this.algod,
+      assetIndex: options.assetIndex,
+      clawbackAccount: this.fundingAccount,
+      currentOwnerAddress: options.fromAccountAddress,
+      recipientAddress: options.toAccountAddress,
+      skipOptIn: true,
+    })
 
     return {
-      transactionIds: [clawbackTxn.txID()],
-      signedTransactions,
+      transactionIds: result.txIDs,
+      signedTransactions: result.signedTxns,
     }
   }
 
@@ -595,7 +448,9 @@ export class AlgorandAdapter {
     const signers: string[] = []
 
     if (
-      !accountInfo.assets.some((asset) => asset.assetId === options.assetIndex)
+      !accountInfo.assets.some(
+        (asset) => asset.assetIndex === options.assetIndex
+      )
     ) {
       // This account has not opted in to this asset
       // 0.1 Algo for opt-in, 1000 microAlgos for txn fee

@@ -1,4 +1,3 @@
-import pino from 'pino'
 import {
   AlgorandTransactionStatus,
   CollectibleBase,
@@ -19,31 +18,31 @@ import {
   TransferCollectible,
   TransferCollectibleResult,
 } from '@algomart/schemas'
-
 import {
-  CMSCacheAdapter,
-  AlgorandAdapter,
-  NFTStorageAdapter,
   AlgoExplorerAdapter,
+  AlgorandAdapter,
+  CMSCacheAdapter,
   ItemFilters,
+  NFTStorageAdapter,
 } from '@algomart/shared/adapters'
 import {
-  CollectibleModel,
-  EventModel,
-  UserAccountModel,
+  AlgorandTransactionGroupModel,
   AlgorandTransactionModel,
+  CollectibleModel,
   CollectibleOwnershipModel,
   CollectibleShowcaseModel,
-  AlgorandTransactionGroupModel,
+  EventModel,
+  UserAccountModel,
 } from '@algomart/shared/models'
 import {
-  invariant,
   addDays,
-  userInvariant,
-  isDefinedArray,
+  invariant,
   isBeforeNow,
+  isDefinedArray,
+  userInvariant,
 } from '@algomart/shared/utils'
 import { Transaction } from 'objection'
+import pino from 'pino'
 
 const MAX_SHOWCASES = 8
 
@@ -1047,7 +1046,7 @@ export class CollectiblesService {
     const accountInfo = await this.algorand.getAccountInfo(request.address)
     userInvariant(
       accountInfo.assets.some(
-        (asset) => asset.assetId === request.assetIndex && asset.amount === 1
+        (asset) => asset.assetIndex === request.assetIndex && asset.amount === 1
       ),
       'must own the asset to import',
       400
@@ -1099,7 +1098,7 @@ export class CollectiblesService {
     const accountInfo = await this.algorand.getAccountInfo(request.address)
     userInvariant(
       accountInfo.assets.some(
-        (asset) => asset.assetId === request.assetIndex && asset.amount === 1
+        (asset) => asset.assetIndex === request.assetIndex && asset.amount === 1
       ),
       'must own the asset to import',
       400

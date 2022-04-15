@@ -72,7 +72,7 @@ export class AuctionsService {
     )
     const minBalance =
       txnFee +
-      this.algorand.getAccountMinBalance(accountInfo) +
+      accountInfo.minBalance +
       this.algorand.appMinBalance({
         numGlobalByteSlices: numberGlobalByteSlices,
         numGlobalInts: numberGlobalInts,
