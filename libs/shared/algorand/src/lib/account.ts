@@ -118,7 +118,7 @@ export async function encryptAccount(
   appSecret: string
 ): Promise<string> {
   const { secretKeyToMnemonic } = await loadSDK()
-  const { encrypt } = await import('./encryption-utils')
+  const { encrypt } = await import('@algomart/shared/utils')
   const mnemonic = secretKeyToMnemonic(account.sk)
   const encrypted = encrypt(mnemonic, passphrase, appSecret)
   return encrypted
@@ -136,7 +136,7 @@ export async function decryptAccount(
   passphrase: string,
   appSecret: string
 ): Promise<Account> {
-  const { decrypt } = await import('./encryption-utils')
+  const { decrypt } = await import('@algomart/shared/utils')
   const { mnemonicToSecretKey } = await loadSDK()
   const decrypted = decrypt(encrypted, passphrase, appSecret)
   return mnemonicToSecretKey(decrypted)

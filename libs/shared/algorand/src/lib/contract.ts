@@ -1,7 +1,7 @@
 import type { Account, Algodv2, OnApplicationComplete } from 'algosdk'
 import { DEFAULT_ADDITIONAL_ROUNDS, DEFAULT_DAPP_NAME } from './constants'
 import { encodeNote, NoteTypes } from './note'
-import { loadSDK } from './utils'
+import { loadSDK, TransactionList } from './utils'
 
 export type StateConfig = {
   numByteSlices: number
@@ -115,7 +115,7 @@ export async function createDeployContractTransactions({
   localState,
   onComplete,
   reference,
-}: DeployContractOptions) {
+}: DeployContractOptions): Promise<TransactionList> {
   const {
     AtomicTransactionComposer,
     makeBasicAccountTransactionSigner,

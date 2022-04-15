@@ -163,7 +163,7 @@ export async function createClawbackNFTTransactions({
   recipientAddress,
   reference,
   skipOptIn,
-}: ClawbackNFTOptions) {
+}: ClawbackNFTOptions): Promise<TransactionList> {
   const {
     makeBasicAccountTransactionSigner,
     makePaymentTxnWithSuggestedParamsFromObject,
