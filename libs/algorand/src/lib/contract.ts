@@ -8,10 +8,38 @@ export type StateConfig = {
   numInts: number
 }
 
-export const makeStateConfig = (
-  numInts = 0,
-  numByteSlices = 0
-): StateConfig => ({ numInts, numByteSlices })
+/**
+ * Helper to create a state config object.
+ * @param numInts Number of unsigned integers
+ * @param numByteSlices Number of byte slices
+ * @returns State config object
+ */
+export function makeStateConfig(numInts = 0, numByteSlices = 0): StateConfig {
+  return { numInts, numByteSlices }
+}
+
+/**
+ * Calculates how many microAlgos are needed to create or opt-in to an app (smart contract).
+ * @see https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#minimum-balance-requirement-for-a-smart-contract
+ * @param globalState Global state config for ints and byte slices
+ * @param localState Local state config for ints and byte slices
+ * @param extraPages Optional additional pages used
+ * @returns Number of microAlgos required to create or opt-in to an app
+ */
+export function calculateAppMinBalance(
+  globalState: StateConfig,
+  localState: StateConfig,
+  extraPages = 0
+) {
+  return {
+    create:
+      100_000 * (1 + extraPages) +
+      28_500 * globalState.numInts +
+      50_000 * globalState.numByteSlices,
+    optIn:
+      100_000 + 28_500 * localState.numInts + 50_000 * localState.numByteSlices,
+  }
+}
 
 /**
  * Options for deploying contracts

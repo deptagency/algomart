@@ -1,6 +1,7 @@
 import {
   AccountInfo,
   accountInformation,
+  calculateAppMinBalance,
   createClawbackNFTTransactions,
   createConfigureCustodialAccountTransactions,
   createDeployContractTransactions,
@@ -15,7 +16,7 @@ import {
 } from '@algomart/algorand'
 import { CollectibleBase, TransferCollectibleResult } from '@algomart/schemas'
 import { CollectibleModel } from '@algomart/shared/models'
-import { decrypt, invariant } from '@algomart/shared/utils'
+import { invariant } from '@algomart/shared/utils'
 import algosdk from 'algosdk'
 import pino from 'pino'
 
@@ -207,12 +208,10 @@ export class AlgorandAdapter {
     passphrase: string
     fromAccountAddress?: string
   }) {
-    const toAccount = algosdk.mnemonicToSecretKey(
-      decrypt(
-        options.encryptedMnemonic,
-        options.passphrase,
-        this.options.appSecret
-      )
+    const toAccount = await decryptAccount(
+      options.encryptedMnemonic,
+      options.passphrase,
+      this.options.appSecret
     )
 
     const result = await createClawbackNFTTransactions({
@@ -250,11 +249,6 @@ export class AlgorandAdapter {
       transactionIds: result.txIDs,
       signedTransactions: result.signedTxns,
     }
-  }
-
-  async compileContract(source: string): Promise<Uint8Array> {
-    const compiled = await this.algod.compile(source).do()
-    return new Uint8Array(Buffer.from(compiled.result, 'base64'))
   }
 
   async createApplicationTransaction(options: {
@@ -306,24 +300,11 @@ export class AlgorandAdapter {
     numLocalByteSlices?: number
     numLocalInts?: number
   }): { create: number; optIn: number } {
-    const {
-      extraPages = 0,
-      numGlobalByteSlices: numberGlobalByteSlices = 0,
-      numGlobalInts: numberGlobalInts = 0,
-      numLocalByteSlices: numberLocalByteSlices = 0,
-      numLocalInts: numberLocalInts = 0,
-    } = options
-
-    // https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#minimum-balance-requirement-for-a-smart-contract
-
-    return {
-      create:
-        100_000 * (1 + extraPages) +
-        28_500 * numberGlobalInts +
-        50_000 * numberGlobalByteSlices,
-      optIn:
-        100_000 + 28_500 * numberLocalInts + 50_000 * numberLocalByteSlices,
-    }
+    return calculateAppMinBalance(
+      makeStateConfig(options.numGlobalInts, options.numGlobalByteSlices),
+      makeStateConfig(options.numLocalInts, options.numLocalByteSlices),
+      options.extraPages
+    )
   }
 
   /**
@@ -403,12 +384,10 @@ export class AlgorandAdapter {
     encryptedMnemonic: string
     transactions: TransferCollectibleResult
   }) {
-    const fromAccount = algosdk.mnemonicToSecretKey(
-      decrypt(
-        options.encryptedMnemonic,
-        options.passphrase,
-        this.options.appSecret
-      )
+    const fromAccount = await decryptAccount(
+      options.encryptedMnemonic,
+      options.passphrase,
+      this.options.appSecret
     )
 
     const signedTransactions = options.transactions.map((transaction) => {
