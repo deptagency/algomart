@@ -7,11 +7,11 @@ import {
   TransferCollectibleResult,
   TransferPackStatusList,
 } from '@algomart/schemas'
-import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
 import { UploadedFileProps } from '@/types/file'
 import { invariant } from '@/utils/invariant'
+import { setBearerToken } from '@/utils/ky-hooks'
 import { urls } from '@/utils/urls'
 
 export interface CreateAssetRequest {
@@ -58,19 +58,7 @@ export class CollectibleService implements CollectibleAPI {
       timeout: 10_000,
       throwHttpErrors: false,
       hooks: {
-        beforeRequest: [
-          async (request) => {
-            try {
-              const auth = getAuth()
-              const token = await auth.currentUser?.getIdToken()
-              if (token) {
-                request.headers.set('Authorization', `Bearer ${token}`)
-              }
-            } catch {
-              // ignore, firebase probably not initialized
-            }
-          },
-        ],
+        beforeRequest: [setBearerToken],
       },
     })
   }

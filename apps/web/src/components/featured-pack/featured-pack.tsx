@@ -79,6 +79,7 @@ export default function HomeTemplate({
             layout="responsive"
             objectFit="cover"
             alt={featuredPack.title}
+            priority
           />
         </div>
 

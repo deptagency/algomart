@@ -27,6 +27,12 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
   const { setRedeemable } = useRedemption()
   const { t } = useTranslation()
 
+  const signOut = useCallback(async () => {
+    await auth.signOut()
+    setRedeemable(null)
+    push(urls.home)
+  }, [auth, push, setRedeemable])
+
   const handleChange = useCallback(
     (value) => {
       if (value === LOG_OUT) {
@@ -35,14 +41,8 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
         push(value)
       }
     },
-    [push]
+    [push, signOut]
   )
-
-  const signOut = useCallback(async () => {
-    await auth.signOut()
-    setRedeemable(null)
-    push(urls.home)
-  }, [auth, push, setRedeemable])
 
   const navItems = [
     { value: urls.myProfile, label: t('common:pageTitles.My Profile') },

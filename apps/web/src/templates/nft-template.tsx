@@ -18,7 +18,7 @@ import LinkButton from '@/components/link-button'
 import MediaGallery from '@/components/media-gallery/media-gallery'
 import ReleaseDescription from '@/components/release-details/sections/release-description'
 import Tabs from '@/components/tabs/tabs'
-import { Environment } from '@/environment'
+import { useConfig } from '@/hooks/use-config'
 import { useLocale } from '@/hooks/use-locale'
 import { isAfterNow } from '@/utils/date-time'
 import { formatCurrency } from '@/utils/format-currency'
@@ -44,6 +44,7 @@ export default function NFTTemplate({
   userAddress,
   collectible,
 }: NFTTemplateProps) {
+  const config = useConfig()
   const { t } = useTranslation()
   const router = useRouter()
   const transferrableStatus = getTransferrableStatus(collectible, userAddress)
@@ -194,7 +195,7 @@ export default function NFTTemplate({
                   />
                   <CollectibleMetaListItem label={t('nft:labels.Address')}>
                     <ExternalLink
-                      href={`${Environment.algoExplorerBaseUrl}/asset/${collectible.address}`}
+                      href={`${config.algoExplorerBaseUrl}/asset/${collectible.address}`}
                     >
                       {collectible.address}
                     </ExternalLink>

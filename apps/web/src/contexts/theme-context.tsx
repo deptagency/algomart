@@ -7,8 +7,6 @@ import {
   useState,
 } from 'react'
 
-import { Environment } from '@/environment'
-
 export const themeOptions = ['light', 'dark', null]
 
 /** Returns the theme set in localStorage, else the OS preferred theme */
@@ -72,11 +70,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   )
 
   useEffect(() => {
-    if (!Environment.isProduction) {
-      document.addEventListener('keypress', handleThemeChangeShortcut)
-      return () => {
-        document.removeEventListener('keypress', handleThemeChangeShortcut)
-      }
+    document.addEventListener('keypress', handleThemeChangeShortcut)
+    return () => {
+      document.removeEventListener('keypress', handleThemeChangeShortcut)
     }
   }, [handleThemeChangeShortcut])
 

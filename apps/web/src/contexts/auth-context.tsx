@@ -1,19 +1,5 @@
-import {
-  Auth,
-  createUserWithEmailAndPassword,
-  EmailAuthProvider,
-  getAuth,
-  getRedirectResult,
-  GoogleAuthProvider,
-  reauthenticateWithCredential,
-  sendEmailVerification,
-  sendPasswordResetEmail,
-  signInWithEmailAndPassword,
-  signInWithRedirect,
-  updateEmail,
-  updateProfile,
-} from 'firebase/auth'
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage'
+import { CURRENCY_COOKIE, LANG_COOKIE } from '@algomart/schemas'
+import type { Auth, Unsubscribe } from 'firebase/auth'
 import {
   createContext,
   ReactNode,
@@ -34,7 +20,7 @@ import {
   SignUpPayload,
 } from '@/types/auth'
 import { FileWithPreview } from '@/types/file'
-import { removeCookie, setCookie } from '@/utils/cookies-web'
+import { getCookie, removeCookie, setCookie } from '@/utils/cookies-web'
 import {
   ActionsUnion,
   createAction,
@@ -110,6 +96,14 @@ async function mapUserToProfile(
 
 export const AuthContext = createContext<AuthUtils | null>(null)
 
+async function getFirebaseAuthAsync() {
+  return import('firebase/auth')
+}
+
+async function getFirebaseStorageAsync() {
+  return import('firebase/storage')
+}
+
 export function useAuth(throwError = true) {
   const auth = useContext(AuthContext)
   if (!auth && throwError) {
@@ -123,6 +117,7 @@ export function useAuthProvider() {
   const analytics = useAnalytics()
 
   const reloadProfile = useCallback(async () => {
+    const { getAuth } = await getFirebaseAuthAsync()
     const auth = getAuth(firebaseApp)
     const token = await auth.currentUser?.getIdToken(true)
     if (auth.currentUser && token) {
@@ -154,12 +149,56 @@ export function useAuthProvider() {
         })
       }
 
+      /**
+       * If an anonymous user changes their preferred language, then logs in,
+       * we need to update the db to reflect this preference
+       */
+      const languageCookie = getCookie(LANG_COOKIE)
+      const parsedLanguageCookie =
+        languageCookie && languageCookie !== 'null' ? languageCookie : null
+      if (
+        parsedLanguageCookie &&
+        profileResponse.language !== parsedLanguageCookie
+      ) {
+        await fetch(urls.api.v1.updateLanguage, {
+          body: JSON.stringify({ parsedLanguageCookie }),
+          headers: {
+            authorization: `bearer ${token}`,
+            'content-type': 'application/json',
+          },
+          method: 'PUT',
+        })
+      }
+
+      /**
+       * If an anonymous user changes their preferred currency, then logs in,
+       * we need to update the db to reflect this preference
+       */
+      const currencyCookie = getCookie(CURRENCY_COOKIE)
+      const parsedCurrencyCookie =
+        currencyCookie && currencyCookie !== 'null' ? currencyCookie : null
+      if (
+        parsedCurrencyCookie &&
+        profileResponse.currency !== parsedCurrencyCookie
+      ) {
+        await fetch(urls.api.v1.updateCurrency, {
+          body: JSON.stringify({ parsedCurrencyCookie }),
+          headers: {
+            authorization: `bearer ${token}`,
+            'content-type': 'application/json',
+          },
+          method: 'PUT',
+        })
+      }
+
       // Set user
       dispatch(
         authActions.setUser({
           ...profile,
           username: profileResponse?.username || null,
           address: profileResponse?.address || null,
+          currency: profileResponse?.currency || null,
+          language: profileResponse?.language || null,
         })
       )
     }
@@ -174,6 +213,7 @@ export function useAuthProvider() {
   }, [])
 
   const sendNewEmailVerification = useCallback(async () => {
+    const { getAuth, sendEmailVerification } = await getFirebaseAuthAsync()
     const auth = getAuth(firebaseApp)
     if (auth.currentUser) {
       await sendEmailVerification(auth.currentUser)
@@ -182,6 +222,7 @@ export function useAuthProvider() {
 
   const sendPasswordReset = useCallback(
     async (email: string) => {
+      const { getAuth, sendPasswordResetEmail } = await getFirebaseAuthAsync()
       const auth = getAuth(firebaseApp)
       try {
         await sendPasswordResetEmail(auth, email)
@@ -196,6 +237,8 @@ export function useAuthProvider() {
 
   const updateAuthSession = useCallback(
     async (password: string) => {
+      const { getAuth, EmailAuthProvider, reauthenticateWithCredential } =
+        await getFirebaseAuthAsync()
       const auth = getAuth(firebaseApp)
       if (auth?.currentUser?.email) {
         try {
@@ -217,6 +260,8 @@ export function useAuthProvider() {
 
   const updateEmailAddress = useCallback(
     async (newEmail: string) => {
+      const { getAuth, updateEmail, sendEmailVerification } =
+        await getFirebaseAuthAsync()
       const auth = getAuth(firebaseApp)
       if (auth?.currentUser?.email) {
         try {
@@ -248,6 +293,9 @@ export function useAuthProvider() {
 
   const updateProfilePic = useCallback(
     async (profilePic: FileWithPreview | null) => {
+      const { getAuth, updateProfile } = await getFirebaseAuthAsync()
+      const { ref, getStorage, uploadBytes, getDownloadURL } =
+        await getFirebaseStorageAsync()
       const auth = getAuth(firebaseApp)
       if (auth.currentUser) {
         let photoURL = ''
@@ -279,6 +327,11 @@ export function useAuthProvider() {
     }: SignUpPayload) => {
       dispatch(authActions.setLoading())
       try {
+        const {
+          getAuth,
+          createUserWithEmailAndPassword,
+          sendEmailVerification,
+        } = await getFirebaseAuthAsync()
         const auth = getAuth(firebaseApp)
         const { user } = await createUserWithEmailAndPassword(
           auth,
@@ -328,6 +381,8 @@ export function useAuthProvider() {
     async ({ email, password }: SignInPayload) => {
       dispatch(authActions.setLoading())
       try {
+        const { getAuth, signInWithEmailAndPassword } =
+          await getFirebaseAuthAsync()
         const auth = getAuth(firebaseApp)
         await signInWithEmailAndPassword(auth, email, password)
         dispatch(authActions.setMethod('email'))
@@ -344,6 +399,8 @@ export function useAuthProvider() {
 
   const authenticateWithGoogle = useCallback(async () => {
     dispatch(authActions.setLoading())
+    const { getAuth, signInWithRedirect, GoogleAuthProvider } =
+      await getFirebaseAuthAsync()
     const auth = getAuth(firebaseApp)
     await signInWithRedirect(auth, new GoogleAuthProvider())
   }, [firebaseApp])
@@ -351,6 +408,7 @@ export function useAuthProvider() {
   const signOut = useCallback(async () => {
     dispatch(authActions.setLoading())
     removeCookie(TOKEN_COOKIE_NAME)
+    const { getAuth } = await getFirebaseAuthAsync()
     await getAuth(firebaseApp).signOut()
     dispatch(authActions.signOut())
   }, [firebaseApp])
@@ -360,26 +418,34 @@ export function useAuthProvider() {
       return
     }
 
-    const auth = getAuth(firebaseApp)
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      dispatch(authActions.setLoading())
-      if (user) {
-        await reloadProfile()
-      } else {
-        dispatch(authActions.setAnonymous())
-      }
-    })
+    let unsubscribe: Unsubscribe | null = null
 
-    getRedirectResult(auth).then(() => {
-      const method =
-        auth.currentUser?.providerData[0].providerId === 'password'
-          ? 'email'
-          : 'google'
-      dispatch(authActions.setMethod(method))
-      analytics.login(method)
-    })
+    ;(async () => {
+      const { getAuth, getRedirectResult } = await getFirebaseAuthAsync()
+      const auth = getAuth(firebaseApp)
+      unsubscribe = auth.onAuthStateChanged(async (user) => {
+        dispatch(authActions.setLoading())
+        if (user) {
+          await reloadProfile()
+        } else {
+          dispatch(authActions.setAnonymous())
+        }
+      })
+
+      getRedirectResult(auth).then(() => {
+        const method =
+          auth.currentUser?.providerData[0].providerId === 'password'
+            ? 'email'
+            : 'google'
+        dispatch(authActions.setMethod(method))
+        analytics.login(method)
+      })
+    })()
+
     return () => {
-      unsubscribe()
+      if (unsubscribe) {
+        unsubscribe()
+      }
     }
   }, [analytics, firebaseApp, reloadProfile])
 

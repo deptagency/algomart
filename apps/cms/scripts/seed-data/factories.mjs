@@ -57,7 +57,7 @@ Factory.define('pack')
   .attr('nft_distribution', 'one-of-each')
   .attr('nfts_per_pack', null)
   .attr('price', 1000)
-  .sequence('released_at', (seq) => 
+  .sequence('released_at', (seq) =>
     // stagger release times by 1 minute for sortability
     new Date(Date.now() + 1000 * 60 * seq).toISOString()
   )

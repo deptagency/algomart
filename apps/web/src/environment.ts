@@ -1,8 +1,8 @@
 import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import * as Currencies from '@dinero.js/currencies'
 import { Currency } from 'dinero.js'
-import { FirebaseOptions } from 'firebase/app'
-import { ServiceAccount } from 'firebase-admin'
+import type { FirebaseOptions } from 'firebase/app'
+import type { ServiceAccount } from 'firebase-admin'
 import getConfig from 'next/config'
 import { Level } from 'pino'
 
