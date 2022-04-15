@@ -107,7 +107,7 @@ export const VerificationSessionCreateSchema = Type.Intersect([
     expand: Type.Optional(Type.Array(Type.String())),
     metadata: Type.Optional(
       Type.Object({
-        applicationId: Type.String(),
+        applicationId: Type.Optional(Type.String()),
       })
     ),
     options: Type.Optional(

@@ -44,7 +44,9 @@ export class AccountsService implements AccountsAPI {
 
   async createVerificationSession(): Promise<{ clientSecret: string }> {
     const response = await this.http
-      .post(urls.api.v1.kycVerification)
+      .post(urls.api.v1.kycVerification, {
+        json: { type: 'document' },
+      })
       .json<{ clientSecret: string }>()
 
     return response
