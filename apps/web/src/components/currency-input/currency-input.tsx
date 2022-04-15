@@ -6,7 +6,8 @@ import CurrencyInputField, {
 // Styles are 1:1 with text input
 import css from '../text-input/text-input.module.css'
 
-export interface CurrencyInputProps extends CurrencyInputFieldProps {
+export interface CurrencyInputProps
+  extends Omit<CurrencyInputFieldProps, 'onChange'> {
   error?: string
   onChange?: (value: string) => void
   helpText?: string
