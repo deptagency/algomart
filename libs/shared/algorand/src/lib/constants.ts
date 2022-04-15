@@ -7,7 +7,7 @@ export const ARC2_DAPP_NAME_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9_/@.-]{4,31}$/
 /**
  * Default dApp name to use for notes etc
  */
-export const DEFAULT_DAPP_NAME = 'AlgoMart'
+export const DEFAULT_DAPP_NAME = 'AlgoMart/v1'
 
 /**
  * Default number of additional rounds transactions are valid for
