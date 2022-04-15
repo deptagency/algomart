@@ -174,14 +174,12 @@ export class ApiClient {
   }
 
   async createVerificationSession(request: VerificationSessionCreate) {
-    console.log('createVerificationSession request', request)
     return await this.http
       .post<VerificationSessions>('accounts/verification-session', request)
       .then((response) => response.data)
   }
 
   async retrieveVerificationSession(externalId: string) {
-    console.log('retrieveVerificationSession externalId', externalId)
     return await this.http
       .get<VerificationSessions>('accounts/verification-session', {
         params: { externalId },

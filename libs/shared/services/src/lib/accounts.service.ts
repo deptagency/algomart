@@ -270,9 +270,8 @@ export class AccountsService {
 
   async createVerificationSession(request: VerificationSessionCreate) {
     const { externalId, ...rest } = request
-    console.log('verification session request', request)
+    // Create a new verification session
     const session = await this.stripe.identity.verificationSessions.create(rest)
-    console.log('created verification session', session)
     userInvariant(session?.id, 'verification session could not be created', 400)
     // Update the user with the active session
     await UserAccountModel.query()
@@ -283,13 +282,14 @@ export class AccountsService {
   }
 
   async retrieveVerificationSession(request: ExternalId) {
+    // Find user to get the verification session
     const user = await UserAccountModel.query()
       .findOne({
         externalId: request.externalId,
       })
       .select('verificationId')
     userInvariant(user?.verificationId, 'verification not found for user', 404)
-    // Find active Stripe session
+    // Find active Stripe session by verification ID
     const session = await this.stripe.identity.verificationSessions.retrieve(
       user.verificationId
     )

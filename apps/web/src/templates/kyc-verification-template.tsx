@@ -28,14 +28,11 @@ export default function VerificationTemplate() {
 
   const handleVerification = async (event: FormEvent<HTMLElement>) => {
     event.preventDefault()
-    console.log('stripe', stripe)
 
-    // @TODO: Setup API endpoint
     const session = await AccountsService.instance.createVerificationSession()
-    console.log('session', session)
 
     if (!session?.clientSecret) {
-      console.log('Verification session could not be created')
+      console.error('Verification session could not be created')
       return
     }
 
@@ -43,7 +40,7 @@ export default function VerificationTemplate() {
     const { error } = await stripe.verifyIdentity(session.clientSecret)
 
     if (error) {
-      console.log('[error]', error)
+      console.error('Error creating verification session', error)
     } else {
       console.log('Verification submitted!')
       setIsSubmitted(true)
