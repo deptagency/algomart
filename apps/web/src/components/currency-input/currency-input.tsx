@@ -8,7 +8,7 @@ import css from '../text-input/text-input.module.css'
 
 export interface CurrencyInputProps extends CurrencyInputFieldProps {
   error?: string
-  handleChange?: (value: string) => void
+  onChange?: (value: string) => void
   helpText?: string
   label?: string
   variant?: 'small' | 'medium'
@@ -18,7 +18,7 @@ export default function CurrencyInput({
   className,
   disabled,
   error,
-  handleChange,
+  onChange,
   helpText,
   id,
   label,
@@ -40,11 +40,11 @@ export default function CurrencyInput({
         className
       )}
       onValueChange={(value) => {
-        if (handleChange) {
+        if (onChange) {
           if (value === undefined || Number.isNaN(Number(value))) {
-            return handleChange('0')
+            return onChange('0')
           }
-          return handleChange(value)
+          return onChange(value)
         }
       }}
       disabled={disabled}

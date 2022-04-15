@@ -23,7 +23,7 @@ export default function Bid({ className }: BidProps) {
       <CurrencyInput
         className={className}
         decimalsLimit={2}
-        handleChange={(value) => setBid(value)}
+        onChange={(value) => setBid(value)}
         helpText={
           highestBid
             ? t('forms:fields.bid.helpTextCurrentBid', {

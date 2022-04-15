@@ -46,7 +46,7 @@ export default function ReleaseFilterPrice() {
         <div className={css.filterItem}>
           <CurrencyInput
             {...baseCurrencyInputProps}
-            handleChange={(value) => setPriceLow(value)}
+            onChange={(value) => setPriceLow(value)}
             id="low"
             min={0}
             label={t('release:filters.Low')}
@@ -57,7 +57,7 @@ export default function ReleaseFilterPrice() {
         <div className={css.filterItem}>
           <CurrencyInput
             {...baseCurrencyInputProps}
-            handleChange={(value) => setPriceHigh(value)}
+            onChange={(value) => setPriceHigh(value)}
             id="high"
             label={t('release:filters.High')}
             min={1}
