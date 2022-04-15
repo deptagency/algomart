@@ -13,7 +13,7 @@ import {
   NewNFT,
   pendingTransactionInformation,
   waitForConfirmation,
-} from '@algomart/algorand'
+} from '@algomart/shared/algorand'
 import { CollectibleBase, TransferCollectibleResult } from '@algomart/schemas'
 import { CollectibleModel } from '@algomart/shared/models'
 import { invariant } from '@algomart/shared/utils'

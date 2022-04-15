@@ -6,6 +6,7 @@ import {
 } from './constants'
 import { encodeNote, NoteTypes } from './note'
 import { TransactionList, loadSDK } from './utils'
+import { invariant } from '@algomart/shared/utils'
 
 /**
  * Configuration for a single NFT
@@ -176,11 +177,10 @@ export async function createClawbackNFTTransactions({
   const atc = new AtomicTransactionComposer()
 
   if (!skipOptIn) {
-    if (!fundingAccount || !recipientAccount) {
-      throw new Error(
-        'fundingAccount and recipientAccount must be provided if skipOptIn is true'
-      )
-    }
+    invariant(
+      fundingAccount && recipientAccount,
+      'Must provide funding and recipient accounts while opting in to NFT'
+    )
 
     // Send enough money to recipient to cover the "opt-in" transaction and the minimum balance increase
     const fundingSigner = makeBasicAccountTransactionSigner(fundingAccount)

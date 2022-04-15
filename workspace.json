@@ -1,13 +1,13 @@
 {
   "version": 2,
   "projects": {
-    "algorand": "libs/algorand",
     "api": "apps/api",
     "cms": "apps/cms",
     "schemas": "libs/schemas",
     "scribe": "apps/scribe",
     "scribe-tasks": "libs/scribe/tasks",
     "shared-adapters": "libs/shared/adapters",
+    "shared-algorand": "libs/shared/algorand",
     "shared-models": "libs/shared/models",
     "shared-modules": "libs/shared/modules",
     "shared-plugins": "libs/shared/plugins",
