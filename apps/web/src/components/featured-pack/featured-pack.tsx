@@ -76,9 +76,10 @@ export default function HomeTemplate({
             src={featuredPack.image}
             width={512}
             height={512}
+            sizes="(max-width: 639px) 100vw, (max-width: 767px) calc(100vw * 1/2), (min-width: 768px) calc(100vw * 3/5)"
             layout="responsive"
             objectFit="cover"
-            alt={featuredPack.title}
+            alt={t('common:statuses.Cover Image')}
             priority
           />
         </div>
