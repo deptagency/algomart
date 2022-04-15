@@ -1,7 +1,6 @@
 {
   "version": 2,
   "projects": {
-    "algorand": "libs/algorand",
     "api": "apps/api",
     "cms": "apps/cms",
     "schemas": "libs/schemas",

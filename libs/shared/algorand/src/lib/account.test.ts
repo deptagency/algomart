@@ -7,10 +7,10 @@ import {
   generateAccount,
 } from './account'
 import {
+  configureAlgod,
   createAccountInformationMock,
   createGetTransactionParamsMock,
 } from './test-utils'
-import { configureAlgod } from './test-utils'
 
 let algod: algosdk.Algodv2
 jest.fn
