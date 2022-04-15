@@ -1,4 +1,3 @@
-import pino from 'pino'
 import { CreateAuctionBody } from '@algomart/schemas'
 import { AlgorandAdapter } from '@algomart/shared/adapters'
 import { CollectibleModel, UserAccountModel } from '@algomart/shared/models'
@@ -7,6 +6,7 @@ import algosdk from 'algosdk'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { Transaction } from 'objection'
+import pino from 'pino'
 
 export class AuctionsService {
   logger: pino.Logger<unknown>
@@ -50,18 +50,14 @@ export class AuctionsService {
       user,
     })
 
-    const approvalProgramBytes = await this.algorand.compileContract(
-      await fs.readFile(
-        path.join(__dirname, 'contracts', 'auction_approval.teal'),
-        'utf8'
-      )
+    const approvalProgram = await fs.readFile(
+      path.join(__dirname, 'contracts', 'auction_approval.teal'),
+      'utf8'
     )
 
-    const clearStateProgramBytes = await this.algorand.compileContract(
-      await fs.readFile(
-        path.join(__dirname, 'contracts', 'auction_clear_state.teal'),
-        'utf8'
-      )
+    const clearStateProgram = await fs.readFile(
+      path.join(__dirname, 'contracts', 'auction_clear_state.teal'),
+      'utf8'
     )
 
     const txnFee = 1000
@@ -96,8 +92,8 @@ export class AuctionsService {
         ),
         algosdk.encodeUint64(request.reservePrice),
       ],
-      approvalProgram: approvalProgramBytes,
-      clearProgram: clearStateProgramBytes,
+      approvalProgram: approvalProgram,
+      clearProgram: clearStateProgram,
       numGlobalByteSlices: numberGlobalByteSlices,
       numGlobalInts: numberGlobalInts,
     })

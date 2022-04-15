@@ -117,6 +117,9 @@ export async function createNewNFTsTransactions({
   }
 }
 
+/**
+ * Options for clawback transaction
+ */
 export type ClawbackNFTOptions = {
   algod: Algodv2
   additionalRounds?: number
@@ -193,6 +196,7 @@ export async function createClawbackNFTTransactions({
           t: NoteTypes.ClawbackTransferPayFunds,
           r: reference,
           a: assetIndex,
+          s: ['arc2'],
         }),
       }),
     })
@@ -210,6 +214,7 @@ export async function createClawbackNFTTransactions({
         note: encodeNote(dappName, {
           t: NoteTypes.ClawbackTransferOptIn,
           r: reference,
+          s: ['arc2'],
         }),
       }),
     })
@@ -230,6 +235,7 @@ export async function createClawbackNFTTransactions({
       note: encodeNote(dappName, {
         t: NoteTypes.ClawbackTransferTxn,
         r: reference,
+        s: ['arc2'],
       }),
     }),
   })

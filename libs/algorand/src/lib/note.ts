@@ -10,6 +10,7 @@ export enum NoteTypes {
   ClawbackTransferPayFunds = 'ctpf',
   ClawbackTransferOptIn = 'ctoi',
   ClawbackTransferTxn = 'cttx',
+  ContractDeploy = 'codp',
 }
 
 /**

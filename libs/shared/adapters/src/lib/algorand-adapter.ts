@@ -3,10 +3,12 @@ import {
   accountInformation,
   createClawbackNFTTransactions,
   createConfigureCustodialAccountTransactions,
+  createDeployContractTransactions,
   createNewNFTsTransactions,
   decryptAccount,
   encryptAccount,
   generateAccount,
+  makeStateConfig,
   NewNFT,
   pendingTransactionInformation,
   waitForConfirmation,
@@ -256,8 +258,8 @@ export class AlgorandAdapter {
   }
 
   async createApplicationTransaction(options: {
-    approvalProgram: Uint8Array
-    clearProgram: Uint8Array
+    approvalProgram: string
+    clearProgram: string
     appArgs: Uint8Array[]
     extraPages?: number
     numGlobalByteSlices?: number
@@ -268,33 +270,33 @@ export class AlgorandAdapter {
     foreignApps?: number[]
     foreignAssets?: number[]
     lease?: Uint8Array
-    note?: Uint8Array
-    rekeyTo?: string
-    from?: string
   }) {
-    const suggestedParams = await this.algod.getTransactionParams().do()
-
-    const txn = algosdk.makeApplicationCreateTxnFromObject({
-      suggestedParams,
-      approvalProgram: options.approvalProgram,
-      clearProgram: options.clearProgram,
-      from: options.from || this.fundingAccount.addr,
-      numGlobalByteSlices: options.numGlobalByteSlices || 0,
-      numGlobalInts: options.numGlobalInts || 0,
-      numLocalByteSlices: options.numLocalByteSlices || 0,
-      numLocalInts: options.numLocalInts || 0,
-      extraPages: options.extraPages || 0,
-      onComplete: algosdk.OnApplicationComplete.NoOpOC,
-      appArgs: options.appArgs,
-      accounts: options.accounts || [],
+    const result = await createDeployContractTransactions({
+      algod: this.algod,
+      approvalSource: options.approvalProgram,
+      clearSource: options.clearProgram,
+      contractName: 'unknown',
+      creatorAccount: this.fundingAccount,
+      globalState: makeStateConfig(
+        options.numGlobalInts,
+        options.numGlobalByteSlices
+      ),
+      localState: makeStateConfig(
+        options.numLocalInts,
+        options.numLocalByteSlices
+      ),
+      accounts: options.accounts,
       foreignApps: options.foreignApps,
+      appArgs: options.appArgs,
+      extraPages: options.extraPages,
       foreignAssets: options.foreignAssets,
       lease: options.lease,
-      note: options.note,
-      rekeyTo: options.rekeyTo,
     })
 
-    return txn
+    return {
+      transactionIds: result.txIDs,
+      signedTransactions: result.signedTxns,
+    }
   }
 
   appMinBalance(options: {

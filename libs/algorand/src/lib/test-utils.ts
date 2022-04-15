@@ -1,5 +1,6 @@
 import algosdk, { SuggestedParams } from 'algosdk'
 import HTTPClient from 'algosdk/dist/types/src/client/client'
+import Compile from 'algosdk/dist/types/src/client/v2/algod/compile'
 import SuggestedParamsRequest from 'algosdk/dist/types/src/client/v2/algod/suggestedParams'
 import { fn } from 'jest-mock'
 
@@ -26,6 +27,23 @@ export function createGetTransactionParamsMock(
       query: {},
     })
   )
+}
+
+export function createCompileMock(compiled: Record<string, unknown>) {
+  return fn((source) => {
+    const obj = {
+      source,
+      c: {} as unknown as HTTPClient,
+      intDecoding: algosdk.IntDecoding.DEFAULT,
+      query: {},
+      path: fn(),
+      prepare: fn(),
+      setIntDecoding: fn(),
+      do: fn(() => Promise.resolve(compiled)),
+    }
+
+    return obj as unknown as Compile
+  })
 }
 
 export function configureAlgod() {
