@@ -1,5 +1,6 @@
 import algosdk, { SuggestedParams } from 'algosdk'
 import HTTPClient from 'algosdk/dist/types/src/client/client'
+import AccountInformation from 'algosdk/dist/types/src/client/v2/algod/accountInformation'
 import Compile from 'algosdk/dist/types/src/client/v2/algod/compile'
 import SuggestedParamsRequest from 'algosdk/dist/types/src/client/v2/algod/suggestedParams'
 import { fn } from 'jest-mock'
@@ -30,7 +31,7 @@ export function createGetTransactionParamsMock(
 }
 
 export function createCompileMock(compiled: Record<string, unknown>) {
-  return fn((source) => {
+  return fn((source: string): Compile => {
     const obj = {
       source,
       c: {} as unknown as HTTPClient,
@@ -43,6 +44,22 @@ export function createCompileMock(compiled: Record<string, unknown>) {
     }
 
     return obj as unknown as Compile
+  })
+}
+
+export function createAccountInformationMock(data: Record<string, unknown>) {
+  return fn((account: string): AccountInformation => {
+    return {
+      account,
+      intDecoding: algosdk.IntDecoding.DEFAULT,
+      query: {},
+      exclude: fn(),
+      path: fn(),
+      prepare: fn(),
+      setIntDecoding: fn(),
+      c: {} as unknown as HTTPClient,
+      do: fn(() => Promise.resolve(data)),
+    } as unknown as AccountInformation
   })
 }
 

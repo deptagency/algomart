@@ -1,3 +1,4 @@
+import { invariant } from '@algomart/shared/utils'
 import { ARC2_DAPP_NAME_PATTERN } from './constants'
 
 /**
@@ -24,10 +25,10 @@ export function encodeNote(
   dappName: string,
   noteData: Record<string, unknown>
 ): Uint8Array {
-  if (!dappName.match(ARC2_DAPP_NAME_PATTERN)) {
-    throw new Error(`Invalid dapp name: ${dappName}`)
-  }
-
+  invariant(
+    dappName.match(ARC2_DAPP_NAME_PATTERN),
+    `Invalid dapp name: ${dappName}`
+  )
   const note = `${dappName}:j${JSON.stringify(noteData)}`
   return new Uint8Array(Buffer.from(note, 'utf8'))
 }

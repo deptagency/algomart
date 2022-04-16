@@ -1,5 +1,9 @@
 import algosdk from 'algosdk'
-import { createDeployContractTransactions, makeStateConfig } from './contract'
+import {
+  calculateAppMinBalance,
+  createDeployContractTransactions,
+  makeStateConfig,
+} from './contract'
 import {
   configureAlgod,
   createCompileMock,
@@ -42,5 +46,20 @@ describe('createDeployContractTransactions', () => {
     expect(result.signedTxns).toHaveLength(1)
     expect(result.txns).toHaveLength(1)
     expect(result.txns[0].type).toBe(algosdk.TransactionType.appl)
+  })
+})
+
+describe('calculateAppMinBalance', () => {
+  it('should work', () => {
+    // Arrange
+    const expectedMinBalance = { create: 178500, optIn: 100000 }
+    const globalState = makeStateConfig(1, 1)
+    const localState = makeStateConfig()
+
+    // Act
+    const actualMinBalance = calculateAppMinBalance(globalState, localState)
+
+    // Assert
+    expect(actualMinBalance).toEqual(expectedMinBalance)
   })
 })

@@ -69,10 +69,11 @@ export async function createNewNFTsTransactions({
     ? getApplicationAddress(enforcerAppID)
     : creatorAccount.addr
 
-  if (nfts.length > MAX_NFT_COUNT)
-    throw new Error(`Cannot create more than ${MAX_NFT_COUNT} NFTs at once`)
-
-  if (nfts.length === 0) throw new Error('No NFTs provided')
+  invariant(nfts.length > 0, 'No NFTs provided')
+  invariant(
+    nfts.length <= MAX_NFT_COUNT,
+    `Cannot create more than ${MAX_NFT_COUNT} NFTs at once`
+  )
 
   const atc = new AtomicTransactionComposer()
 

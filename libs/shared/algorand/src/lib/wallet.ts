@@ -60,7 +60,7 @@ export async function encodeTransactions(
   messages?: string[]
 ): Promise<WalletTransaction[]> {
   const { assignGroupID } = await loadSDK()
-  assignGroupID(txns)
+  if (txns.length > 1) assignGroupID(txns)
   return Promise.all(
     txns.map((txn, i) => encodeTransaction(txn, undefined, messages?.[i]))
   )
@@ -111,7 +111,7 @@ export async function encodeSignedTransactions(
   messages?: string[]
 ): Promise<WalletTransaction[]> {
   const { assignGroupID } = await loadSDK()
-  assignGroupID(txns)
+  if (txns.length > 1) assignGroupID(txns)
   invariant(
     txns.length === signers.length,
     'txns and signers must be the same length'
@@ -184,14 +184,38 @@ export async function configureSignTxns(accounts: Account[]) {
     accounts.map((account) => [account.addr, account])
   )
 
-  async function signTxn({
-    txn,
-    stxn,
-    signers,
-    msig,
-    authAddr,
-  }: WalletTransaction): Promise<string | null> {
+  function signTxnUsingAddress(txn: Transaction, addr: string) {
+    const account = accountLookup.get(addr)
+    walletInvariant(
+      account,
+      `signer ${addr} not found`,
+      WalletErrorCode.Unauthorized
+    )
+
+    const signedTxn = txn.signTxn(account.sk)
+    return Buffer.from(signedTxn).toString('base64')
+  }
+
+  async function signTxn(
+    { txn, stxn, signers, msig, authAddr }: WalletTransaction,
+    groupID?: Buffer
+  ): Promise<string | null> {
     const decodedTransaction = await decodeTransaction(txn)
+
+    walletInvariant(
+      !groupID ||
+        (decodedTransaction.group && decodedTransaction.group.equals(groupID)),
+      'group mismatch',
+      WalletErrorCode.InvalidInput
+    )
+
+    if (authAddr) {
+      walletInvariant(
+        isValidAddress(authAddr),
+        'authAddr must be a valid address',
+        WalletErrorCode.InvalidInput
+      )
+    }
 
     if (signers) {
       walletInvariant(
@@ -205,7 +229,7 @@ export async function configureSignTxns(accounts: Account[]) {
         if (stxn) {
           // Validate inner txn
           const signedTxn = decodeSignedTransaction(
-            new Uint8Array(Buffer.from(txn, 'base64'))
+            new Uint8Array(Buffer.from(stxn, 'base64'))
           )
           walletInvariant(
             signedTxn.txn.txID() === decodedTransaction.txID(),
@@ -220,62 +244,61 @@ export async function configureSignTxns(accounts: Account[]) {
       } else if (signers.length === 1) {
         // TODO: Support multisig
         walletInvariant(
-          msig,
+          !msig,
           'multisig is not supported',
           WalletErrorCode.UnsupportedOperation
         )
 
+        const signer = authAddr || signers[0]
+
         if (authAddr) {
-          // Use authAddr when specified
           walletInvariant(
             authAddr === signers[0],
             'authAddr must match the signer',
             WalletErrorCode.InvalidInput
           )
-          const account = accountLookup.get(authAddr)
-          walletInvariant(
-            account,
-            `signer ${signers[0]} not found`,
-            WalletErrorCode.Unauthorized
-          )
-          const signedTxn = decodedTransaction.signTxn(account.sk)
-          return Buffer.from(signedTxn).toString('base64')
-        } else {
-          // Use the provided signer
-          const account = accountLookup.get(signers[0])
-          walletInvariant(
-            account,
-            `signer ${signers[0]} not found`,
-            WalletErrorCode.Unauthorized
-          )
-          const signedTxn = decodedTransaction.signTxn(account.sk)
-          return Buffer.from(signedTxn).toString('base64')
         }
+
+        return signTxnUsingAddress(decodedTransaction, signer)
       }
 
-      // Should not end up here
+      // Should not end up here, because multiple signers implies msig must have been set
       walletInvariant(
         false,
-        'badly formatted transactions',
+        `badly formatted transaction ${decodedTransaction.txID()}`,
         WalletErrorCode.InvalidInput
       )
     } else {
       // No signers provided, lookup the signer specified in the transaction's `from` field
-      const signerAddr = encodeAddress(decodedTransaction.from.publicKey)
-      const signerAccount = accountLookup.get(signerAddr)
-      walletInvariant(
-        signerAccount,
-        `signer ${signerAddr} not found`,
-        WalletErrorCode.Unauthorized
-      )
-      const signedTxn = decodedTransaction.signTxn(signerAccount.sk)
-      return Buffer.from(signedTxn).toString('base64')
+      const signer =
+        authAddr || encodeAddress(decodedTransaction.from.publicKey)
+      return signTxnUsingAddress(decodedTransaction, signer)
     }
   }
 
   return async function signTxns(
     txns: WalletTransaction[]
   ): Promise<(string | null)[]> {
-    return Promise.all(txns.map(signTxn))
+    walletInvariant(
+      txns.length > 0,
+      'no transactions provided',
+      WalletErrorCode.InvalidInput
+    )
+    walletInvariant(
+      txns.length <= 16,
+      'too many transactions',
+      WalletErrorCode.TooManyTransactions
+    )
+
+    // Require that multiple transactions belong to the same group. Does not support the optional
+    // specified here: https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md#group-validation
+    const groupID = (await decodeTransaction(txns[0].txn)).group
+    walletInvariant(
+      txns.length === 1 || !!groupID,
+      'group must be set for multiple transactions',
+      WalletErrorCode.InvalidInput
+    )
+
+    return Promise.all(txns.map((txn) => signTxn(txn, groupID)))
   }
 }
