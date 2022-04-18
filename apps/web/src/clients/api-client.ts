@@ -20,7 +20,7 @@ import {
   CreateTransferPayment,
   CreateUserAccountRequest,
   CurrencyConversionDict,
-  CurrencyConversioResult,
+  CurrencyConversionResult,
   DEFAULT_LANG,
   DropdownLanguageList,
   ExternalId,
@@ -550,7 +550,7 @@ export class ApiClient {
   async getCurrencyConversion(params: GetCurrencyConversion) {
     const queryParams = getCurrencyConversionQuery(params)
     return await this.http
-      .get<CurrencyConversioResult>(`i18n/currencyConversion?${queryParams}`)
+      .get<CurrencyConversionResult>(`i18n/currencyConversion?${queryParams}`)
       .then((response) => response.data)
   }
 
