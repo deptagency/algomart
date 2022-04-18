@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import { useState } from 'react'
 import CurrencyInputField, {
   CurrencyInputProps as CurrencyInputFieldProps,
 } from 'react-currency-input-field'
@@ -6,10 +7,16 @@ import CurrencyInputField, {
 // Styles are 1:1 with text input
 import css from '../text-input/text-input.module.css'
 
+import { useI18n } from '@/contexts/i18n-context'
+import { useCurrency } from '@/hooks/use-currency'
+import { useLocale } from '@/hooks/use-locale'
+import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
+
 export interface CurrencyInputProps
-  extends Omit<CurrencyInputFieldProps, 'onChange'> {
+  extends Omit<CurrencyInputFieldProps, 'value' | 'onChange'> {
   error?: string
-  onChange?: (value: string) => void
+  value: number
+  onChange: (value: number) => void
   helpText?: string
   label?: string
   variant?: 'small' | 'medium'
@@ -20,13 +27,43 @@ export default function CurrencyInput({
   disabled,
   error,
   onChange,
+  onBlur,
   helpText,
   id,
   label,
   readOnly,
   variant = 'medium',
+  value,
   ...props
 }: CurrencyInputProps) {
+  const { conversionRate } = useI18n()
+  const currency = useCurrency()
+  const locale = useLocale()
+  const [stringValue, setStringValue] = useState(String(value / 100))
+
+  const handleChange = (value: string) => {
+    if (value === undefined || Number.isNaN(Number(value))) {
+      setStringValue('0')
+      onChange(0)
+    } else {
+      setStringValue(value)
+      onChange(Math.round(Number(value) * 100))
+    }
+  }
+
+  const handleBlur = (event_) => {
+    setStringValue(formatIntToFloat(value))
+    if (onBlur) onBlur(event_)
+  }
+
+  const localizedValue = formatCurrency(
+    value * conversionRate,
+    locale,
+    currency
+  )
+
+  // console.log({value, stringValue}, String(value / 100) !== stringValue ? 'ERROR' : 'OK')
+
   const inputField = (
     <CurrencyInputField
       className={clsx(
@@ -40,18 +77,16 @@ export default function CurrencyInput({
         },
         className
       )}
-      onValueChange={(value) => {
-        if (onChange) {
-          if (value === undefined || Number.isNaN(Number(value))) {
-            return onChange('0')
-          }
-          return onChange(value)
-        }
-      }}
+      onValueChange={handleChange}
       disabled={disabled}
       id={id}
+      min={0}
       max={100_000_000_000}
       readOnly={readOnly}
+      value={stringValue}
+      step={1}
+      intlConfig={{ locale: 'en-US', currency: 'USD' }}
+      onBlur={handleBlur}
       {...props}
     />
   )
@@ -62,9 +97,13 @@ export default function CurrencyInput({
         [css.small]: variant === 'small',
       })}
     >
-      <span className={css.label}>{label}</span>
-      {error && <span className={css.errorText}>{error}</span>}
-      {!error && helpText && <span className={css.helpText}>{helpText}</span>}
+      <div className={css.contentTop}>
+        <span className={css.label}>{label}</span>
+        {error && <span className={css.errorText}>{error}</span>}
+        {!error && (helpText || localizedValue) && (
+          <span className={css.helpText}>{helpText || localizedValue}</span>
+        )}
+      </div>
       {inputField}
     </label>
   ) : (
