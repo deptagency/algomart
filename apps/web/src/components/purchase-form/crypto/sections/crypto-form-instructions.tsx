@@ -12,7 +12,7 @@ import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/format-currency'
 
 export interface CryptoFormInstructionsProps {
-  price: string | null
+  price: number
 }
 
 export default function CryptoFormInstructions({
