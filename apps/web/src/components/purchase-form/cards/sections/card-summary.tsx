@@ -1,4 +1,3 @@
-import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 
 import css from './card-summary.module.css'
@@ -21,14 +20,10 @@ export default function CardSummary() {
     price,
     locale,
     currency,
-    isAuctionActive() ? 1 : conversionRate // Why?
+    conversionRate
   )
-  const settlementCurrencyAmount = formatCurrency(
-    price,
-    locale,
-    DEFAULT_CURRENCY,
-    1 / conversionRate // TODO: This is approximate. We generally shouldn't back-convert like this.
-  )
+  const settlementCurrencyAmount = formatCurrency(price)
+
   return (
     <div className={css.root}>
       <Heading level={1}>{t('forms:sections.Summary')}</Heading>
