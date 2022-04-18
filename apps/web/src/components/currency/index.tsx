@@ -10,6 +10,11 @@ interface ICurrency {
   noSymbol?: boolean
 }
 
+/**
+ * Given a value in application currency (usually USD cents), renders it
+ * in the provided currency/locale.
+ * Defaults to user's currency and locale.
+ */
 export default function Currency({
   value,
   noSymbol,
