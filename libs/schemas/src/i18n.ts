@@ -28,6 +28,14 @@ export const CurrencyConversionDictSchema = Type.Record(
   Type.String(),
   Type.Number()
 )
+export const CurrencyConversionResultSchema = Type.Object({
+  createdAt: Type.String(),
+  exchangeRate: Type.Number(),
+  id: Type.String(),
+  sourceCurrency: Type.String(),
+  targetCurrency: Type.String(),
+  updatedAt: Type.String(),
+})
 
 export const GetCurrencyConversionSchema = Type.Object({
   sourceCurrency: Type.String(),
@@ -54,6 +62,9 @@ export type CurrencyConversion = Simplify<
 >
 export type CurrencyConversionDict = Simplify<
   Static<typeof CurrencyConversionDictSchema>
+>
+export type CurrencyConversionResult = Simplify<
+  Static<typeof CurrencyConversionResultSchema>
 >
 export type GetCurrencyConversion = Simplify<
   Static<typeof GetCurrencyConversionSchema>
