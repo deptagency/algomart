@@ -25,7 +25,6 @@ import { ExtractError } from 'validator-fns'
 
 import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
-import { useI18n } from '@/contexts/i18n-context'
 import { useAnalytics } from '@/hooks/use-analytics'
 import { useCurrency } from '@/hooks/use-currency'
 import { BidService } from '@/services/bid-service'
@@ -37,7 +36,6 @@ import {
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { encryptCardDetails } from '@/utils/encryption'
 import { toJSON } from '@/utils/form-to-json'
-import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 import { poll } from '@/utils/poll'
 import {
   validateBankAccount,
@@ -68,7 +66,7 @@ export type FormValidation = ExtractError<
 export interface PaymentContextProps {
   address: string | null
   auctionPackId?: string | null
-  bid: string | null
+  bid: number
   countries: SelectOption[]
   currentBid: number | null
   formErrors?: FormValidation
@@ -84,11 +82,11 @@ export interface PaymentContextProps {
   loadingText: string
   method?: string | string[]
   packId: string | null
-  price: string | null
+  price: number
   promptLeaving: boolean
   release?: PublishedPack
   setAddress(address: string | null): void
-  setBid: (bid: string | null) => void
+  setBid: (bid: number) => void
   setLoadingText: (loadingText: string) => void
   setPackId: (packId: string | null) => void
   setPromptLeaving: (promptLeaving: boolean) => void
@@ -112,7 +110,6 @@ export function usePaymentProvider({
   const analytics = useAnalytics()
   const { t } = useTranslation()
   const currency = useCurrency()
-  const { conversionRate } = useI18n()
   const { asPath, query, push, route } = useRouter()
   const { method } = query
   const auth = useAuth()
@@ -121,12 +118,8 @@ export function usePaymentProvider({
   const [status, setStatus] = useState<CheckoutStatus>(CheckoutStatus.form)
   const [loadingText, setLoadingText] = useState<string>('')
   const highestBid = currentBid || 0
-  const highestBidLocalized = formatIntToFloat(
-    highestBid,
-    currency,
-    conversionRate
-  )
-  const [bid, setBid] = useState<string | null>(highestBidLocalized)
+
+  const [bid, setBid] = useState<number>(highestBid)
   const [address, setAddress] = useState<string | null>(null)
   const [promptLeaving, setPromptLeaving] = useState(false)
   const [countries, setCountries] = useState<SelectOption[]>([])
@@ -137,15 +130,15 @@ export function usePaymentProvider({
     [t]
   )
   const validateFormForBids = useMemo(
-    () => validateBidsForm(t, highestBid * conversionRate),
+    () => validateBidsForm(t, highestBid),
     [t, highestBid]
   )
   const validateFormForBidsWithoutCard = useMemo(
-    () => validateBidsFormWithoutCard(t, highestBid * conversionRate),
+    () => validateBidsFormWithoutCard(t, highestBid),
     [t, highestBid]
   )
   const validateFormForBidsWithSavedCard = useMemo(
-    () => validateBidsFormWithSavedCard(t, highestBid * conversionRate),
+    () => validateBidsFormWithSavedCard(t, highestBid),
     [t, highestBid]
   )
   const validateFormExpirationDate = useMemo(
@@ -153,7 +146,7 @@ export function usePaymentProvider({
     [t]
   )
   const [formErrors, setFormErrors] = useState<FormValidation>()
-  const [price, setPrice] = useState<string | null>()
+  const [price, setPrice] = useState<number>(0)
 
   const getError = useCallback(
     (field: string) =>
@@ -555,14 +548,7 @@ export function usePaymentProvider({
             confirmBid: boolean
           }
         >(data)
-        const {
-          cardId: submittedCardId,
-          bid: floatBid,
-          saveCard,
-          confirmBid,
-        } = body
-
-        const bid = formatFloatToInt(floatBid, currency)
+        const { cardId: submittedCardId, bid, saveCard, confirmBid } = body
 
         // If the bid is within the maximum bid range, submit card details
         if (method === CheckoutMethod.card) {
@@ -609,9 +595,10 @@ export function usePaymentProvider({
 
         // Create bid
         const isBidValid = await BidService.instance.addToPack(
-          Math.round(bid * (1 / conversionRate)),
+          bid,
           auctionPackId
         )
+
         if (isBidValid) {
           setStatus(CheckoutStatus.success)
         } else {
@@ -730,15 +717,7 @@ export function usePaymentProvider({
   )
 
   useEffect(() => {
-    setBid(highestBidLocalized)
-  }, [highestBidLocalized])
-
-  useEffect(() => {
-    setPrice(
-      release?.type === PackType.Auction
-        ? bid
-        : formatIntToFloat(release?.price || 0, currency, conversionRate)
-    )
+    setPrice(release?.type === PackType.Auction ? bid : release?.price || 0)
   }, [currency, bid]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const value = useMemo(
