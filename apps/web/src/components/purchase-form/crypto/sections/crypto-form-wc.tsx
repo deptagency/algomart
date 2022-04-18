@@ -28,7 +28,7 @@ const formatAccount = (account: string) =>
 export interface CryptoFormWalletConnectProps {
   address: string | null
   handlePurchase: (transfer: ToPaymentBase) => Promise<void>
-  price: string | null
+  price: number | null
   release?: PublishedPack
   setError: (error: string) => void
   setLoadingText: (loadingText: string) => void
