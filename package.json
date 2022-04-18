@@ -43,7 +43,7 @@
     "axios": "0.26.1",
     "clsx": "1.1.1",
     "cookies": "0.8.0",
-    "core-js": "3.21.1",
+    "core-js": "3.22.0",
     "cors": "2.8.5",
     "crypto-js": "4.1.1",
     "dinero.js": "2.0.0-alpha.8",
