@@ -56,13 +56,7 @@ export default function CurrencyInput({
     if (onBlur) onBlur(event_)
   }
 
-  const localizedValue = formatCurrency(
-    value * conversionRate,
-    locale,
-    currency
-  )
-
-  // console.log({value, stringValue}, String(value / 100) !== stringValue ? 'ERROR' : 'OK')
+  const localizedValue = formatCurrency(value, locale, currency, conversionRate)
 
   const inputField = (
     <CurrencyInputField
