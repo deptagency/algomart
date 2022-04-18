@@ -57,9 +57,11 @@ export default function TextInput({
         [css.small]: variant === 'small',
       })}
     >
-      <span className={css.label}>{label}</span>
-      {error && <span className={css.errorText}>{error}</span>}
-      {!error && helpText && <span className={css.helpText}>{helpText}</span>}
+      <div className={css.contentTop}>
+        <span className={css.label}>{label}</span>
+        {error && <span className={css.errorText}>{error}</span>}
+        {!error && helpText && <span className={css.helpText}>{helpText}</span>}
+      </div>
       {inputField}
     </label>
   ) : (
