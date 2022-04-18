@@ -1,5 +1,4 @@
 import pino from 'pino'
-import * as Currencies from '@dinero.js/currencies'
 import {
   CreateBidRequest,
   EventAction,
@@ -12,18 +11,16 @@ import {
   PackModel,
   UserAccountModel,
 } from '@algomart/shared/models'
-import { isGreaterThan, userInvariant } from '@algomart/shared/utils'
-import { NotificationsService, PacksService, I18nService } from './'
+import { userInvariant } from '@algomart/shared/utils'
+import { NotificationsService, PacksService } from './'
 import { Transaction } from 'objection'
 
 export class BidsService {
   logger: pino.Logger<unknown>
 
   constructor(
-    private readonly i18nService: I18nService,
     private readonly notifications: NotificationsService,
     private readonly packService: PacksService,
-    private currency: Currencies.Currency<number>,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
@@ -37,22 +34,13 @@ export class BidsService {
       .first()
     userInvariant(pack, 'pack not found', 404)
 
-    // Check if the active bid amount is lower than the new bid
+    // Check if the bid is greater than the active bid
     if (pack.activeBid) {
       userInvariant(
-        isGreaterThan(bid.amount, pack.activeBid.amount, this.currency),
+        bid.amount > pack.activeBid.amount,
         'bid is not higher than the previous bid'
       )
     }
-
-    // Bids are stored in currency of environment variable
-    const { exchangeRate } = await this.i18nService.getCurrencyConversion(
-      {
-        sourceCurrency: bid.currency,
-        targetCurrency: this.currency.code,
-      },
-      trx
-    )
 
     // Get user by externalId
     const newHighBidder = await UserAccountModel.query(trx).findOne({
@@ -67,7 +55,7 @@ export class BidsService {
 
     // Create new bid
     const { id: bidId } = await BidModel.query(trx).insert({
-      amount: bid.amount * exchangeRate,
+      amount: bid.amount,
       packId: bid.packId,
       userAccountId: newHighBidder.id,
     })
