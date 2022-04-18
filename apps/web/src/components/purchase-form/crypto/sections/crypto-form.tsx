@@ -13,13 +13,10 @@ import css from './crypto-form.module.css'
 import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
 import Checkbox from '@/components/checkbox'
+import Currency from '@/components/currency'
 import Heading from '@/components/heading'
 import Bid from '@/components/purchase-form/shared/bid'
-import { useI18n } from '@/contexts/i18n-context'
 import { usePaymentContext } from '@/contexts/payment-context'
-import { useCurrency } from '@/hooks/use-currency'
-import { useLocale } from '@/hooks/use-locale'
-import { formatCurrency } from '@/utils/format-currency'
 import { urlFor, urls } from '@/utils/urls'
 
 export interface CryptoFormProps {
@@ -39,7 +36,6 @@ export default function CryptoForm({
   isLoading,
   setError,
 }: CryptoFormProps) {
-  const locale = useLocale()
   const { t } = useTranslation()
   const {
     address,
@@ -50,8 +46,6 @@ export default function CryptoForm({
     setLoadingText,
     setStatus,
   } = usePaymentContext()
-  const currency = useCurrency()
-  const { conversionRate } = useI18n()
   const { push } = useRouter()
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
 
@@ -114,12 +108,7 @@ export default function CryptoForm({
       <div className={css.priceContainer}>
         <p className={css.priceLabel}>{t('release:Total')}</p>
         <p className={css.priceValue}>
-          {formatCurrency(
-            price,
-            locale,
-            currency,
-            isAuctionActive() ? 1 : conversionRate
-          )}
+          <Currency value={price} />
         </p>
       </div>
 

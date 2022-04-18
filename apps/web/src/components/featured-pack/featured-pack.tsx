@@ -11,8 +11,6 @@ import Button from '@/components/button'
 import Counter from '@/components/counter/counter'
 import Currency from '@/components/currency'
 import Heading from '@/components/heading'
-import { useLocale } from '@/hooks/use-locale'
-import { formatCurrency } from '@/utils/format-currency'
 
 export interface FeaturedPackProps {
   featuredPack: PublishedPack
@@ -23,7 +21,6 @@ export default function HomeTemplate({
   featuredPack,
   onClickFeatured,
 }: FeaturedPackProps) {
-  const locale = useLocale()
   const { t } = useTranslation()
 
   const highestBid = featuredPack?.activeBid || 0
@@ -201,11 +198,11 @@ export default function HomeTemplate({
                 </Button>
                 <p className={css.featuredPrice}>
                   {(featuredPack.type === PackType.Auction ||
-                    featuredPack.type === PackType.Purchase) &&
-                    formatCurrency(
-                      featuredPack.activeBid ?? featuredPack.price,
-                      locale
-                    )}
+                    featuredPack.type === PackType.Purchase) && (
+                    <Currency
+                      value={featuredPack.activeBid ?? featuredPack.price}
+                    />
+                  )}
                 </p>
               </>
             )}
