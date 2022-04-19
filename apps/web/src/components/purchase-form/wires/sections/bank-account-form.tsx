@@ -16,7 +16,7 @@ import { useI18n } from '@/contexts/i18n-context'
 import { usePaymentContext } from '@/contexts/payment-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
-import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
+import { formatCurrency, formatIntToFixed } from '@/utils/format-currency'
 
 export interface BankAccountFormProps {
   className?: string
@@ -36,7 +36,7 @@ export default function BankAccountForm({
   const price =
     release?.type === PackType.Auction
       ? bid
-      : formatIntToFloat(release?.price || 0, currency)
+      : formatIntToFixed(release?.price || 0, currency)
 
   return (
     <div className={className}>

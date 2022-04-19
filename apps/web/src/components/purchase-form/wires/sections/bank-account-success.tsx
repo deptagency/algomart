@@ -16,7 +16,7 @@ import { useI18n } from '@/contexts/i18n-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { isAfterNow } from '@/utils/date-time'
-import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
+import { formatCurrency, formatIntToFixed } from '@/utils/format-currency'
 import { urls } from '@/utils/urls'
 
 interface BankAccountSuccessProps {
@@ -34,7 +34,7 @@ export default function BankAccountSuccess({
   const { conversionRate } = useI18n()
   const router = useRouter()
   const price = bankAccountInstructions?.amount
-    ? formatIntToFloat(bankAccountInstructions.amount, currency)
+    ? formatIntToFixed(bankAccountInstructions.amount, currency)
     : '0'
   const isActiveAuction =
     release?.type === PackType.Auction &&

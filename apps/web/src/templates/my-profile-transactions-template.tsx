@@ -9,7 +9,7 @@ import Pagination from '@/components/pagination/pagination'
 import { useI18n } from '@/contexts/i18n-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
-import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
+import { formatCurrency, formatIntToFixed } from '@/utils/format-currency'
 
 export interface MyProfileTransactionsTemplateProps {
   currentPage: number
@@ -57,7 +57,7 @@ export default function MyProfileTransactionsTemplate({
               ? releasePrice
               : 0
           const price = priceInt
-            ? formatIntToFloat(priceInt, currency, conversionRate)
+            ? formatIntToFixed(priceInt, currency, conversionRate)
             : 0
 
           // Handle pack type

@@ -44,7 +44,7 @@ import {
 } from '@algomart/shared/models'
 
 import {
-  formatIntToFloat,
+  formatIntToFixed,
   invariant,
   userInvariant,
   randomInteger,
@@ -1156,7 +1156,7 @@ export class PacksService {
             type: NotificationType.AuctionComplete,
             userAccountId: pack.activeBid.userAccount.id,
             variables: {
-              amount: `${formatIntToFloat(
+              amount: `${formatIntToFixed(
                 pack.activeBid.amount,
                 this.currency
               )}`,
@@ -1298,7 +1298,7 @@ export class PacksService {
               type: NotificationType.AuctionComplete,
               userAccountId: selectedBid.userAccount.id,
               variables: {
-                amount: `${formatIntToFloat(
+                amount: `${formatIntToFixed(
                   selectedBid.amount,
                   this.currency
                 )}`,

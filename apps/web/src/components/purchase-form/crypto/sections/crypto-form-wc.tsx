@@ -12,7 +12,7 @@ import { useCurrency } from '@/hooks/use-currency'
 import { AlgorandAdapter, ChainType, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
 import { CheckoutService } from '@/services/checkout-service'
-import { formatIntToFloat } from '@/utils/format-currency'
+import { formatIntToFixed } from '@/utils/format-currency'
 import { poll } from '@/utils/poll'
 
 const algorand = new AlgorandAdapter(ChainType.TestNet)
@@ -87,9 +87,9 @@ export default function CryptoFormWalletConnect({
       // Not enough USDC balance to cover payment
       setError(
         t('forms:errors.minUSDC', {
-          balance: formatIntToFloat(usdcBalanceInCents, 'USD'),
+          balance: formatIntToFixed(usdcBalanceInCents, 'USD'),
           currency: 'USDC',
-          min: formatIntToFloat(price, 'USD'),
+          min: formatIntToFixed(price, 'USD'),
         })
       )
       setStatus(CheckoutStatus.error)

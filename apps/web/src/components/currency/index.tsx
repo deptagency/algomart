@@ -1,7 +1,7 @@
 import { useI18n } from '@/contexts/i18n-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
-import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
+import { formatCurrency, formatIntToFixed } from '@/utils/format-currency'
 
 interface ICurrency {
   value: number
@@ -30,7 +30,7 @@ export default function Currency({
   return (
     <>
       {noSymbol
-        ? formatIntToFloat(value, currencyCode, conversionRate)
+        ? formatIntToFixed(value, currencyCode, conversionRate)
         : formatCurrency(value, localeCode, currencyCode, conversionRate)}
     </>
   )

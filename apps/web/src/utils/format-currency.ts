@@ -77,7 +77,7 @@ export function formatFloatToInt(
   return price.toJSON().amount
 }
 
-export function formatIntToFloat(
+export function formatIntToFixed(
   amount: number,
   code = DEFAULT_CURRENCY,
   conversionRate = 1
