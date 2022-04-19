@@ -9,7 +9,6 @@ import userMiddleware from '@/middleware/user-middleware'
 import validateBodyMiddleware, {
   ExtractBodyType,
 } from '@/middleware/validate-body-middleware'
-import { isGreaterThanOrEqual } from '@/utils/format-currency'
 import { validateBidForPack } from '@/utils/marketplace-validation'
 
 const handler = createHandler()
@@ -35,9 +34,9 @@ handler.post(
     )
 
     // Validate the bid is higher than a previous active bid
-    if (activeBid && isGreaterThanOrEqual(activeBid.amount, amount)) {
-        throw new BadRequest('Bid is not higher than the previous bid')
-      }
+    if (activeBid && activeBid.amount >= amount) {
+      throw new BadRequest('Bid is not higher than the previous bid')
+    }
 
     // Create the bid
     const result = await ApiClient.instance.createPackBid({
