@@ -101,7 +101,7 @@ export default function CryptoFormWalletConnect({
     if (connector) {
       setLoadingText(t('common:statuses.Connected to Wallet'))
       const assetTx = await algorand.makeAssetTransferTransaction({
-        amount: price,
+        amount: price * 10_000, // convert to microUSDCa $(priceInCents / 100) * 1,000,000)
         from: account,
         to: address,
         assetIndex: usdcAsset.id,
