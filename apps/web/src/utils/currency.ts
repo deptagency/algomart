@@ -46,6 +46,21 @@ export function formatCurrency(
   return toFormat(dinero({ amount, currency }), transformer)
 }
 
+export function formatToDecimal(
+  amount: number,
+  decimalPlaces: number,
+  code = DEFAULT_CURRENCY,
+  conversionRate = 1
+) {
+  const currency = dineroCurrency(code)
+  const price = dinero({
+    amount: amount * conversionRate,
+    currency,
+    scale: decimalPlaces,
+  })
+  return toUnit(price)
+}
+
 export function formatFloatToInt(
   float: number | string,
   code = DEFAULT_CURRENCY,

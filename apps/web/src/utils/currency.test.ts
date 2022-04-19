@@ -1,4 +1,4 @@
-import { formatCurrency, formatIntToFixed } from './currency'
+import { formatCurrency, formatIntToFixed, formatToDecimal } from './currency'
 
 describe('Currency formatting utils', () => {
   // formatCurrency
@@ -31,5 +31,11 @@ describe('Currency formatting utils', () => {
   test('formatIntToFixed for GBP with conversionRate', () => {
     const value = formatIntToFixed(1234, 'GBP', 0.75)
     expect(value).toBe('9.26')
+  })
+
+  // formatToDecimal
+  test('formatToDecimal', () => {
+    expect(formatToDecimal(1_000_000, 6)).toBe(1)
+    expect(formatToDecimal(1234, 2)).toBe(12.34)
   })
 })

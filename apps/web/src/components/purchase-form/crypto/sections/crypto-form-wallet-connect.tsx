@@ -12,7 +12,7 @@ import { useCurrency } from '@/hooks/use-currency'
 import { AlgorandAdapter, ChainType, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
 import { CheckoutService } from '@/services/checkout-service'
-import { formatIntToFixed } from '@/utils/currency'
+import { formatIntToFixed, formatToDecimal } from '@/utils/currency'
 import { poll } from '@/utils/poll'
 
 const algorand = new AlgorandAdapter(ChainType.TestNet)
@@ -81,7 +81,8 @@ export default function CryptoFormWalletConnect({
       return
     }
 
-    const usdcBalanceInCents = usdcAsset.amount
+    const usdcBalance = formatToDecimal(usdcAsset.amount, usdcAsset.decimals)
+    const usdcBalanceInCents = usdcBalance * 100
 
     if (usdcBalanceInCents < price) {
       // Not enough USDC balance to cover payment
