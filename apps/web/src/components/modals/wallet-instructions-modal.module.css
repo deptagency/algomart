@@ -3,7 +3,7 @@
 }
 
 .dialog {
-  @apply bg-white relative w-full max-w-lg my-8 overflow-visible sm:w-full;
+  @apply relative w-full max-w-lg my-8 overflow-visible text-black bg-white sm:w-full;
 }
 
 .root {
@@ -11,11 +11,14 @@
 }
 
 .heading {
-  @apply mb-5;
+  @apply mb-5 text-gray-700;
+}
+.title {
+  @apply font-semibold text-gray-800;
 }
 
 .notice {
-  @apply italic mt-1;
+  @apply mt-1 italic;
 }
 
 .closeButton {
@@ -23,11 +26,14 @@
 }
 
 .list {
-  @apply list-decimal mt-2 text-left;
+  @apply mt-2 text-left list-decimal;
+}
+.list li {
+  @apply mb-1 ml-5;
 }
 
 .section {
-  @apply py-5;
+  @apply py-6;
 }
 
 .link {
