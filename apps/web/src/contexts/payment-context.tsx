@@ -146,7 +146,7 @@ export function usePaymentProvider({
     [t]
   )
   const [formErrors, setFormErrors] = useState<FormValidation>()
-  const [price, setPrice] = useState<number>(0)
+  const [price, setPrice] = useState(0)
 
   const getError = useCallback(
     (field: string) =>
