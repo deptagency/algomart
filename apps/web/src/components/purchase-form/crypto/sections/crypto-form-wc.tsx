@@ -87,9 +87,9 @@ export default function CryptoFormWalletConnect({
       // Not enough USDC balance to cover payment
       setError(
         t('forms:errors.minUSDC', {
-          balance: formatIntToFloat(usdcBalanceInCents),
+          balance: formatIntToFloat(usdcBalanceInCents, 'USD'),
           currency: 'USDC',
-          min: formatIntToFloat(price),
+          min: formatIntToFloat(price, 'USD'),
         })
       )
       setStatus(CheckoutStatus.error)
