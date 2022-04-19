@@ -24,7 +24,7 @@ export default function BidActivityDetails({
         <h2 className={css.heading}>{content}</h2>
         <p className={css.date}>{date}</p>
       </div>
-      {amount && (
+      {typeof amount === 'number' && (
         <p className={css.amount}>
           <Currency value={amount} />
         </p>
