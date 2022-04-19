@@ -47,7 +47,7 @@ export default function CryptoForm({
     setStatus,
   } = usePaymentContext()
   const { push } = useRouter()
-  const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
+  const [isConfirmed, setIsConfirmed] = useState(false)
 
   if (!address) {
     return (
@@ -65,7 +65,7 @@ export default function CryptoForm({
   }
 
   return (
-    <form className={className} onSubmit={handleSubmitBid}>
+    <form className={clsx(css.form, className)} onSubmit={handleSubmitBid}>
       {getError('bid') ? (
         <AlertMessage
           className={css.notification}
@@ -131,6 +131,7 @@ export default function CryptoForm({
         <Button
           className={css.submit}
           fullWidth
+          disabled={!isConfirmed}
           type="submit"
           variant="primary"
         >

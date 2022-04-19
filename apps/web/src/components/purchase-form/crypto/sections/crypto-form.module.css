@@ -7,6 +7,10 @@
   }
 }
 
+.form h2 {
+  @apply pb-4 mt-5 mb-8 font-bold border-b border-base-border;
+}
+
 .heading {
   @apply mb-10;
 }
