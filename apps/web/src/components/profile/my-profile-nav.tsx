@@ -3,11 +3,10 @@ import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback } from 'react'
 
-import Button from '../button'
-
 import css from './my-profile-nav.module.css'
 
 import AppLink from '@/components/app-link/app-link'
+import Button from '@/components/button'
 import Select, { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useRedemption } from '@/contexts/redemption-context'

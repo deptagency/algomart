@@ -5,7 +5,7 @@ import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useState } from 'react'
 
 import CryptoFormInstructions from './crypto-form-instructions'
-import CryptoFormWalletConnect from './crypto-form-wc'
+import CryptoFormWalletConnect from './crypto-form-wallet-connect'
 
 import css from './crypto-form.module.css'
 

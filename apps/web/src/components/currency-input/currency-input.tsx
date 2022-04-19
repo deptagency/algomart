@@ -5,7 +5,7 @@ import CurrencyInputField, {
 } from 'react-currency-input-field'
 
 // Styles are 1:1 with text input
-import css from '../text-input/text-input.module.css'
+import css from '@/components/text-input/text-input.module.css'
 
 import { useI18n } from '@/contexts/i18n-context'
 import { useCurrency } from '@/hooks/use-currency'
