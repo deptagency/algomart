@@ -63,6 +63,7 @@ export default function CryptoFormInstructions({
           <li>
             {t('forms:fields.payWithCrypto.instructions.3', {
               price: formatCurrency(price, locale, currency, conversionRate),
+              usdcPrice: formatCurrency(price),
               currency,
             })}
           </li>
