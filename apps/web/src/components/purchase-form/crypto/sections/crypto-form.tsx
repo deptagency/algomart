@@ -1,5 +1,4 @@
 import { ToPaymentBase } from '@algomart/schemas'
-import { RefreshIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
@@ -37,15 +36,8 @@ export default function CryptoForm({
   setError,
 }: CryptoFormProps) {
   const { t } = useTranslation()
-  const {
-    address,
-    getError,
-    isAuctionActive,
-    price,
-    release,
-    setLoadingText,
-    setStatus,
-  } = usePaymentContext()
+  const { address, getError, isAuctionActive, price, release } =
+    usePaymentContext()
   const { push } = useRouter()
   const [isConfirmed, setIsConfirmed] = useState(false)
 
@@ -54,6 +46,7 @@ export default function CryptoForm({
       <div className={css.noAddress}>
         <p>{t('forms:errors.addressNotFound')}</p>
         <Button
+          size="small"
           onClick={() =>
             push(urlFor(urls.checkoutPack, { packSlug: release?.slug }))
           }
@@ -92,13 +85,8 @@ export default function CryptoForm({
         <>
           <CryptoFormInstructions price={price} />
           <CryptoFormWalletConnect
-            address={address}
             handlePurchase={handlePurchase}
-            price={price}
-            release={release}
             setError={setError}
-            setLoadingText={setLoadingText}
-            setStatus={setStatus}
           />
           <hr />
         </>
@@ -118,13 +106,8 @@ export default function CryptoForm({
           disabled={isLoading}
           fullWidth
           onClick={handleCheckForPurchase}
-          type="button"
+          busy={isLoading}
         >
-          <RefreshIcon
-            className={clsx(css.icon, {
-              [css.spinningIcon]: isLoading,
-            })}
-          />
           {t('common:actions.Check for Payment')}
         </Button>
       ) : (
@@ -133,7 +116,6 @@ export default function CryptoForm({
           fullWidth
           disabled={!isConfirmed}
           type="submit"
-          variant="primary"
         >
           {t('common:actions.Place Bid')}
         </Button>
