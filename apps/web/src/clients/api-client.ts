@@ -311,8 +311,9 @@ export class ApiClient {
   }
 
   async createWalletAddress() {
+    // NB: Payload must be {} or this is sent with the wrong accept header.
     return await this.http
-      .post<CircleBlockchainAddress>('payments/wallets')
+      .post<CircleBlockchainAddress>('payments/wallets', {})
       .then((response) => response.data)
   }
 
