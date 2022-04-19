@@ -1,8 +1,4 @@
-import {
-  formatCurrency,
-  formatIntToFixed,
-  formatToDecimal,
-} from './format-currency'
+import { formatCurrency, formatIntToFixed } from './currency'
 
 describe('Currency formatting utils', () => {
   // formatCurrency

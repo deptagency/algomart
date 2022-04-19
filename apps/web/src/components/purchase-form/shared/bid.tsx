@@ -6,7 +6,7 @@ import { useI18n } from '@/contexts/i18n-context'
 import { usePaymentContext } from '@/contexts/payment-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
-import { formatCurrency } from '@/utils/format-currency'
+import { formatCurrency } from '@/utils/currency'
 
 export interface BidProps {
   className?: string

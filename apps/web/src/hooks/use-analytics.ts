@@ -7,7 +7,7 @@ import {
 } from './use-firebase-app'
 
 import { AuthState } from '@/types/auth'
-import { formatIntToFixed } from '@/utils/format-currency'
+import { formatIntToFixed } from '@/utils/currency'
 
 export interface AnalyticsPack {
   itemName: string

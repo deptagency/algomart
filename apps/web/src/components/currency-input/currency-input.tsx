@@ -10,7 +10,7 @@ import css from '../text-input/text-input.module.css'
 import { useI18n } from '@/contexts/i18n-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
-import { formatCurrency, formatIntToFixed } from '@/utils/format-currency'
+import { formatCurrency, formatIntToFixed } from '@/utils/currency'
 
 export interface CurrencyInputProps
   extends Omit<CurrencyInputFieldProps, 'value' | 'onChange'> {

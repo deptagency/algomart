@@ -12,7 +12,7 @@ import { useCurrency } from '@/hooks/use-currency'
 import { AlgorandAdapter, ChainType, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
 import { CheckoutService } from '@/services/checkout-service'
-import { formatIntToFixed } from '@/utils/format-currency'
+import { formatIntToFixed } from '@/utils/currency'
 import { poll } from '@/utils/poll'
 
 const algorand = new AlgorandAdapter(ChainType.TestNet)
