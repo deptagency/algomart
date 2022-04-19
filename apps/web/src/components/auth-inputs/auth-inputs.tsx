@@ -12,13 +12,12 @@ import useTranslation from 'next-translate/useTranslation'
 import React, { ReactNode, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 
-import Select, { SelectOption } from '../select/select'
-
 import css from './auth-inputs.module.css'
 
 import Button from '@/components/button'
 import FormField from '@/components/form-field'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
+import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import { useI18n } from '@/contexts/i18n-context'
 import { useCurrency } from '@/hooks/use-currency'

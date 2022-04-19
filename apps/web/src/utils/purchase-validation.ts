@@ -14,7 +14,7 @@ import {
   string,
 } from 'validator-fns'
 
-import { formatCurrency } from '@/utils/format-currency'
+import { formatCurrency } from '@/utils/currency'
 
 // Maximum bid for card payments as integer
 // eslint-disable-next-line unicorn/numeric-separators-style

@@ -9,10 +9,10 @@ import WalletInstructionsModal from '@/components/modals/wallet-instructions'
 import { useI18n } from '@/contexts/i18n-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
-import { formatCurrency } from '@/utils/format-currency'
+import { formatCurrency } from '@/utils/currency'
 
 export interface CryptoFormInstructionsProps {
-  price: string | null
+  price: number
 }
 
 export default function CryptoFormInstructions({
@@ -63,6 +63,7 @@ export default function CryptoFormInstructions({
           <li>
             {t('forms:fields.payWithCrypto.instructions.3', {
               price: formatCurrency(price, locale, currency, conversionRate),
+              usdcPrice: formatCurrency(price),
               currency,
             })}
           </li>

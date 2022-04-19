@@ -2,10 +2,9 @@ import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useState } from 'react'
 
-import Banner from '../banner/banner'
-
 import css from './email-verification.module.css'
 
+import Banner from '@/components/banner/banner'
 import Button from '@/components/button'
 import { useAuth } from '@/contexts/auth-context'
 

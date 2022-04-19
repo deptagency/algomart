@@ -171,7 +171,7 @@
         "label": "If you already have a wallet",
         "1": "Click to connect and scan the QR code using your wallet's mobile app, OR copy the blockchain address to your clipboard.",
         "2": "Initiate the purchase, either by clicking the Purchase button or manually transferring funds to the copied address.",
-        "3": "Submit your payment of {{price}} in USDC.",
+        "3": "Submit your payment of {{price}} in {{usdcPrice}} USDC.",
         "4": "Check for payment. Once we receive your payment, you will be the new owner of the NFT."
       },
       "Connected account": "Connected account",

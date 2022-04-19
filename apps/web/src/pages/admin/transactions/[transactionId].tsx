@@ -12,17 +12,15 @@ import AppLink from '@/components/app-link/app-link'
 import Avatar from '@/components/avatar/avatar'
 import Breadcrumbs from '@/components/breadcrumbs'
 import Button from '@/components/button'
+import Currency from '@/components/currency'
 import { Flex } from '@/components/flex'
 import Heading from '@/components/heading'
 import Panel from '@/components/panel'
 import Table, { ColumnDefinitionType } from '@/components/table'
-import { useI18n } from '@/contexts/i18n-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import AdminLayout from '@/layouts/admin-layout'
 import { AdminService } from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
-import { formatCurrency } from '@/utils/format-currency'
 import { useAuthApi } from '@/utils/swr'
 import { urlFor, urls } from '@/utils/urls'
 
@@ -35,8 +33,6 @@ export default function AdminTransactionPage({
 }: AdminTransactionPageProps) {
   const locale = useLocale()
   const { t } = useTranslation('admin')
-  const currency = useCurrency()
-  const { conversionRate } = useI18n()
   const { query } = useRouter()
   const { transactionId } = query
   const isAuction = !!payment.pack?.template?.auctionUntil
@@ -60,8 +56,7 @@ export default function AdminTransactionPage({
     {
       key: 'amount',
       name: t('transactions.table.Amount'),
-      renderer: ({ value }) =>
-        formatCurrency(value, locale, currency, conversionRate),
+      renderer: ({ value }) => <Currency value={value} />,
     },
     { key: 'status', name: t('transactions.table.Status') },
     { key: 'type', name: t('transactions.table.Type') },
@@ -150,12 +145,7 @@ export default function AdminTransactionPage({
                 </dd>
                 <dt>Price</dt>
                 <dd>
-                  {formatCurrency(
-                    packTemplate?.price,
-                    locale,
-                    currency,
-                    conversionRate
-                  )}
+                  <Currency value={packTemplate?.price} />
                 </dd>
                 <dt>Template ID</dt>
                 <dd>{payment.pack?.templateId}</dd>
@@ -186,11 +176,12 @@ export default function AdminTransactionPage({
         <Flex flex="1" flexDirection="column" gap={6}>
           <Heading className="capitalize">
             {payment.status}{' '}
-            {formatCurrency(
-              payment?.pack?.template.activeBid ??
-                payment?.pack?.template.price,
-              locale
-            )}
+            <Currency
+              value={
+                payment?.pack?.template.activeBid ??
+                payment?.pack?.template.price
+              }
+            />
           </Heading>
           {isAuction && (
             <Panel>
@@ -198,12 +189,7 @@ export default function AdminTransactionPage({
                 <div className={css.packMeta}>
                   <dt>Winning Bid</dt>
                   <dd>
-                    {formatCurrency(
-                      packTemplate?.activeBid,
-                      locale,
-                      currency,
-                      conversionRate
-                    )}
+                    <Currency value={packTemplate?.activeBid} />
                   </dd>
                 </div>
                 <div className={css.packMeta}>

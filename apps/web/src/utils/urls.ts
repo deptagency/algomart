@@ -1,3 +1,5 @@
+import { stringify } from 'query-string'
+
 export const urls = {
   // Main pages
   adminTransactions: '/admin/transactions',
@@ -87,7 +89,8 @@ export const urls = {
       getCardsByOwner: '/api/v1/payments/get-cards-by-owner',
       getCardStatus: '/api/v1/payments/get-card-status',
       getCountries: '/api/v1/payments/get-countries',
-      getCurrencyConversions: '/api/v1/payments/get-currency-conversions',
+      getCurrencyConversion: '/api/v1/i18n/get-currency-conversion',
+      getCurrencyConversions: '/api/v1/i18n/get-currency-conversions',
       getI18nInfo: '/api/v1/i18n/get-i18n-info',
       getLanguages: '/api/v1/i18n/get-languages',
       getPayment: '/api/v1/payments/get-payment',
@@ -116,10 +119,12 @@ export const urls = {
  *   urlFor('/:foo/:bar', { foo: 'foo', bar: 'bar' }) => '/foo/bar'
  *   urlFor(urls.nft, { assetId: 123 }) => '/nft/123'
  */
-export function urlFor(path: string, params?: object) {
-  return Object.keys(params).reduce(
-    (accumulator, key) => accumulator.replace(`:${key}`, String(params[key])),
-    path
+export function urlFor(path: string, params?: object, query?: object) {
+  return (
+    Object.keys(params).reduce(
+      (accumulator, key) => accumulator.replace(`:${key}`, String(params[key])),
+      path
+    ) + (query ? `?${stringify(query)}` : '')
   )
 }
 

@@ -6,6 +6,7 @@ import * as Currencies from '@dinero.js/currencies'
 import { CMSCacheAdapter } from '@algomart/shared/adapters'
 import { Transaction } from 'objection'
 import pino from 'pino'
+import env from 'env-var'
 
 export class I18nService {
   logger: pino.Logger<unknown>
@@ -36,6 +37,8 @@ export class I18nService {
     },
     trx?: Transaction
   ) {
+    targetCurrency =
+      targetCurrency ?? env.get('CURRENCY').default('USD').asString()
     // 1st: grab all conversions for source currency from db
     let conversions = await CurrencyConversionModel.query(trx).where(
       'sourceCurrency',

@@ -1,9 +1,4 @@
-import {
-  CheckoutStatus,
-  PaymentStatus,
-  PublishedPack,
-  ToPaymentBase,
-} from '@algomart/schemas'
+import { CheckoutStatus, PaymentStatus, ToPaymentBase } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useRef, useState } from 'react'
 
@@ -12,12 +7,12 @@ import css from './crypto-form.module.css'
 import Button from '@/components/button'
 import Heading from '@/components/heading'
 import { useI18n } from '@/contexts/i18n-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { AlgorandAdapter, ChainType, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
 import { CheckoutService } from '@/services/checkout-service'
-import { formatToDecimal, isGreaterThanOrEqual } from '@/utils/format-currency'
-import { formatFloatToInt } from '@/utils/format-currency'
+import { formatIntToFixed, formatToDecimal } from '@/utils/currency'
 import { poll } from '@/utils/poll'
 
 const algorand = new AlgorandAdapter(ChainType.TestNet)
@@ -26,24 +21,17 @@ const formatAccount = (account: string) =>
   `${account.slice(0, 6)}...${account.slice(-6)}`
 
 export interface CryptoFormWalletConnectProps {
-  address: string | null
   handlePurchase: (transfer: ToPaymentBase) => Promise<void>
-  price: string | null
-  release?: PublishedPack
   setError: (error: string) => void
-  setLoadingText: (loadingText: string) => void
-  setStatus: (status: CheckoutStatus) => void
 }
 
 export default function CryptoFormWalletConnect({
-  address,
   handlePurchase,
-  price,
-  release,
   setError,
-  setLoadingText,
-  setStatus,
 }: CryptoFormWalletConnectProps) {
+  const { address, price, release, setLoadingText, setStatus } =
+    usePaymentContext()
+
   const { t } = useTranslation()
   const currency = useCurrency()
   const { conversionRate } = useI18n()
@@ -93,27 +81,16 @@ export default function CryptoFormWalletConnect({
       return
     }
 
-    // Check USDC balance
     const usdcBalance = formatToDecimal(usdcAsset.amount, usdcAsset.decimals)
-    const currencyBalance = formatToDecimal(
-      usdcAsset.amount,
-      usdcAsset.decimals,
-      currency,
-      conversionRate
-    )
+    const usdcBalanceInCents = usdcBalance * 100
 
-    const usdcBalanceInt = formatFloatToInt(usdcBalance)
-
-    const usdcPriceInt = formatFloatToInt(price)
-    const currencyPriceInt = formatFloatToInt(price, currency, conversionRate)
-
-    if (!isGreaterThanOrEqual(usdcBalanceInt, usdcPriceInt, currency)) {
-      // Not enough USDC
+    if (usdcBalanceInCents < price) {
+      // Not enough USDC balance to cover payment
       setError(
         t('forms:errors.minUSDC', {
-          balance: currencyBalance,
-          currency,
-          min: currencyPriceInt,
+          balance: formatIntToFixed(usdcBalanceInCents, 'USD'),
+          currency: 'USDC',
+          min: formatIntToFixed(price, 'USD'),
         })
       )
       setStatus(CheckoutStatus.error)
@@ -125,7 +102,7 @@ export default function CryptoFormWalletConnect({
     if (connector) {
       setLoadingText(t('common:statuses.Connected to Wallet'))
       const assetTx = await algorand.makeAssetTransferTransaction({
-        amount: usdcPriceInt * 10_000,
+        amount: price * 10_000, // convert to microUSDCa $(priceInCents / 100) * 1,000,000)
         from: account,
         to: address,
         assetIndex: usdcAsset.id,
@@ -192,7 +169,7 @@ export default function CryptoFormWalletConnect({
     <section className={css.walletConnect}>
       {connected ? (
         <div className={css.connect}>
-          <Button onClick={handleWalletConnectPurchase}>
+          <Button fullWidth onClick={handleWalletConnectPurchase}>
             {t('common:actions.Purchase with Algorand Wallet')}
           </Button>
           <div className={css.connectedAccount}>
@@ -212,7 +189,7 @@ export default function CryptoFormWalletConnect({
         </div>
       ) : (
         <>
-          <Button onClick={connect}>
+          <Button fullWidth onClick={connect}>
             {t('common:actions.Connect to Algorand Wallet')}
           </Button>
           <div className={css.copyWrapper}>

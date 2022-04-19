@@ -24,7 +24,11 @@
 }
 
 .labelContainer {
-  @apply relative flex flex-wrap content-between w-full font-bold text-base-textPrimary;
+  @apply relative font-bold text-base-textPrimary;
+}
+
+.contentTop {
+  @apply flex flex-wrap content-between;
 }
 
 .label {

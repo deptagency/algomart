@@ -1,25 +1,21 @@
 import { ToPaymentBase } from '@algomart/schemas'
-import { RefreshIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent, useState } from 'react'
 
 import CryptoFormInstructions from './crypto-form-instructions'
-import CryptoFormWalletConnect from './crypto-form-wc'
+import CryptoFormWalletConnect from './crypto-form-wallet-connect'
 
 import css from './crypto-form.module.css'
 
 import AlertMessage from '@/components/alert-message/alert-message'
 import Button from '@/components/button'
 import Checkbox from '@/components/checkbox'
+import Currency from '@/components/currency'
 import Heading from '@/components/heading'
 import Bid from '@/components/purchase-form/shared/bid'
-import { useI18n } from '@/contexts/i18n-context'
 import { usePaymentContext } from '@/contexts/payment-context'
-import { useCurrency } from '@/hooks/use-currency'
-import { useLocale } from '@/hooks/use-locale'
-import { formatCurrency } from '@/utils/format-currency'
 import { urlFor, urls } from '@/utils/urls'
 
 export interface CryptoFormProps {
@@ -39,27 +35,18 @@ export default function CryptoForm({
   isLoading,
   setError,
 }: CryptoFormProps) {
-  const locale = useLocale()
   const { t } = useTranslation()
-  const {
-    address,
-    getError,
-    isAuctionActive,
-    price,
-    release,
-    setLoadingText,
-    setStatus,
-  } = usePaymentContext()
-  const currency = useCurrency()
-  const { conversionRate } = useI18n()
+  const { address, getError, isAuctionActive, price, release } =
+    usePaymentContext()
   const { push } = useRouter()
-  const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
+  const [isConfirmed, setIsConfirmed] = useState(false)
 
   if (!address) {
     return (
       <div className={css.noAddress}>
         <p>{t('forms:errors.addressNotFound')}</p>
         <Button
+          size="small"
           onClick={() =>
             push(urlFor(urls.checkoutPack, { packSlug: release?.slug }))
           }
@@ -71,7 +58,7 @@ export default function CryptoForm({
   }
 
   return (
-    <form className={className} onSubmit={handleSubmitBid}>
+    <form className={clsx(css.form, className)} onSubmit={handleSubmitBid}>
       {getError('bid') ? (
         <AlertMessage
           className={css.notification}
@@ -98,13 +85,8 @@ export default function CryptoForm({
         <>
           <CryptoFormInstructions price={price} />
           <CryptoFormWalletConnect
-            address={address}
             handlePurchase={handlePurchase}
-            price={price}
-            release={release}
             setError={setError}
-            setLoadingText={setLoadingText}
-            setStatus={setStatus}
           />
           <hr />
         </>
@@ -114,12 +96,7 @@ export default function CryptoForm({
       <div className={css.priceContainer}>
         <p className={css.priceLabel}>{t('release:Total')}</p>
         <p className={css.priceValue}>
-          {formatCurrency(
-            price,
-            locale,
-            currency,
-            isAuctionActive() ? 1 : conversionRate
-          )}
+          <Currency value={price} />
         </p>
       </div>
 
@@ -129,21 +106,16 @@ export default function CryptoForm({
           disabled={isLoading}
           fullWidth
           onClick={handleCheckForPurchase}
-          type="button"
+          busy={isLoading}
         >
-          <RefreshIcon
-            className={clsx(css.icon, {
-              [css.spinningIcon]: isLoading,
-            })}
-          />
           {t('common:actions.Check for Payment')}
         </Button>
       ) : (
         <Button
           className={css.submit}
           fullWidth
+          disabled={!isConfirmed}
           type="submit"
-          variant="primary"
         >
           {t('common:actions.Place Bid')}
         </Button>

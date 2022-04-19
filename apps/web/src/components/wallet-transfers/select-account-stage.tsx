@@ -2,11 +2,10 @@ import { RadioGroup } from '@headlessui/react'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 
-import Button from '../button'
-import Heading from '../heading'
-
 import css from './wallet-transfers.module.css'
 
+import Button from '@/components/button'
+import Heading from '@/components/heading'
 import { formatAlgoAddress } from '@/utils/format-string'
 
 export interface SelectAccountStageProps {

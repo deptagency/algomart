@@ -5,17 +5,15 @@ import useTranslation from 'next-translate/useTranslation'
 
 import AppLink from '@/components/app-link/app-link'
 import Breadcrumbs from '@/components/breadcrumbs'
+import Currency from '@/components/currency'
 import Pagination from '@/components/pagination/pagination'
 import Panel from '@/components/panel'
 import Table, { ColumnDefinitionType } from '@/components/table'
-import { useI18n } from '@/contexts/i18n-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import usePagination from '@/hooks/use-pagination'
 import AdminLayout from '@/layouts/admin-layout'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { getPaymentsFilterQuery } from '@/utils/filters'
-import { formatCurrency } from '@/utils/format-currency'
 import { useAuthApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
 
@@ -24,8 +22,6 @@ const PAYMENTS_PER_PAGE = 10
 export default function AdminTransactionsPage() {
   const locale = useLocale()
   const { t } = useTranslation('admin')
-  const currency = useCurrency()
-  const { conversionRate } = useI18n()
   const { page, setPage, handleTableHeaderClick, sortBy, sortDirection } =
     usePagination<PaymentSortField>(1, PaymentSortField.CreatedAt)
 
@@ -62,19 +58,11 @@ export default function AdminTransactionsPage() {
       key: 'pack.template.activeBid',
       name: t('transactions.table.Amount'),
       renderer: ({ item }) =>
-        item.pack.template.activeBid
-          ? formatCurrency(
-              item.pack.template.activeBid,
-              locale,
-              currency,
-              conversionRate
-            )
-          : formatCurrency(
-              item.pack.template.price,
-              locale,
-              currency,
-              conversionRate
-            ),
+        item.pack.template.activeBid ? (
+          <Currency value={item.pack.template.activeBid} />
+        ) : (
+          <Currency value={item.pack.template.price} />
+        ),
     },
     {
       key: 'pack.template.type',

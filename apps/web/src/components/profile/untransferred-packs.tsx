@@ -3,12 +3,11 @@ import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { memo, useCallback, useEffect, useState } from 'react'
 
-import Banner from '../banner/banner'
-import Button from '../button'
-import TransferModal from '../modals/transfer-modal'
-
 import css from './email-verification.module.css'
 
+import Banner from '@/components/banner/banner'
+import Button from '@/components/button'
+import TransferModal from '@/components/modals/transfer-modal'
 import { TransferPackStatus, useTransferPack } from '@/hooks/use-transfer-pack'
 import { useUntransferredPacks } from '@/hooks/use-untransferred-packs'
 import { isRootPathMatch, urls } from '@/utils/urls'

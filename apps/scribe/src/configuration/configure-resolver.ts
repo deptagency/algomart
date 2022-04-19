@@ -97,10 +97,8 @@ export function configureResolver() {
     BidsService.name,
     (c) =>
       new BidsService(
-        c.get<I18nService>(I18nService.name),
         c.get<NotificationsService>(NotificationsService.name),
         c.get<PacksService>(PacksService.name),
-        Configuration.currency,
         logger
       )
   )

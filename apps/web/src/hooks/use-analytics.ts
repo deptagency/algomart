@@ -7,7 +7,7 @@ import {
 } from './use-firebase-app'
 
 import { AuthState } from '@/types/auth'
-import { formatIntToFloat } from '@/utils/format-currency'
+import { formatIntToFixed } from '@/utils/currency'
 
 export interface AnalyticsPack {
   itemName: string
@@ -19,7 +19,7 @@ function buildPackPayload({ itemName, paymentId, value }: AnalyticsPack) {
   return {
     currency: DEFAULT_CURRENCY,
     items: [{ item_name: itemName }],
-    value: formatIntToFloat(value),
+    value: formatIntToFixed(value),
     ...(paymentId && { transaction_id: paymentId }),
   }
 }

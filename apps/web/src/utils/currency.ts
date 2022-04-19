@@ -77,7 +77,7 @@ export function formatFloatToInt(
   return price.toJSON().amount
 }
 
-export function formatIntToFloat(
+export function formatIntToFixed(
   amount: number,
   code = DEFAULT_CURRENCY,
   conversionRate = 1
@@ -86,22 +86,10 @@ export function formatIntToFloat(
 
   const currency = dineroCurrency(code)
   const price = dinero({ amount, currency })
-  const float = toFormat(price, ({ amount, currency }) =>
+  const formatted = toFormat(price, ({ amount, currency }) =>
     amount.toFixed(currency.exponent)
   )
-  return float
-}
-
-export function addAmount(
-  originalAmount: number,
-  newAmount: number,
-  code = DEFAULT_CURRENCY,
-  conversionRate = 1
-) {
-  const currency = dineroCurrency(code)
-  const price1 = dinero({ amount: originalAmount * conversionRate, currency })
-  const price2 = dinero({ amount: newAmount * conversionRate, currency })
-  return add(price1, price2)
+  return formatted
 }
 
 export function isGreaterThan(

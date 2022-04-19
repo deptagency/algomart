@@ -20,8 +20,8 @@ import ReleaseDescription from '@/components/release-details/sections/release-de
 import Tabs from '@/components/tabs/tabs'
 import { useConfig } from '@/hooks/use-config'
 import { useLocale } from '@/hooks/use-locale'
+import { formatCurrency } from '@/utils/currency'
 import { isAfterNow } from '@/utils/date-time'
-import { formatCurrency } from '@/utils/format-currency'
 import { urlFor, urls } from '@/utils/urls'
 
 export interface NFTTemplateProps {

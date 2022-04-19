@@ -1,4 +1,3 @@
-import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 
 import css from './card-summary.module.css'
@@ -9,7 +8,7 @@ import { useI18n } from '@/contexts/i18n-context'
 import { usePaymentContext } from '@/contexts/payment-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
-import { formatCurrency } from '@/utils/format-currency'
+import { formatCurrency } from '@/utils/currency'
 
 export default function CardSummary() {
   const { t } = useTranslation()
@@ -21,14 +20,10 @@ export default function CardSummary() {
     price,
     locale,
     currency,
-    isAuctionActive() ? 1 : conversionRate
+    conversionRate
   )
-  const settlementCurrencyAmount = formatCurrency(
-    price,
-    locale,
-    DEFAULT_CURRENCY,
-    1
-  )
+  const settlementCurrencyAmount = formatCurrency(price)
+
   return (
     <div className={css.root}>
       <Heading level={1}>{t('forms:sections.Summary')}</Heading>

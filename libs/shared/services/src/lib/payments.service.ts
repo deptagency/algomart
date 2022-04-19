@@ -46,7 +46,7 @@ import {
   convertFromUSD,
   convertToUSD,
   formatFloatToInt,
-  formatIntToFloat,
+  formatIntToFixed,
   invariant,
   isGreaterThanOrEqual,
   poll,
@@ -1062,7 +1062,7 @@ export class PaymentsService {
         type: NotificationType.WireInstructions,
         userAccountId: user.id,
         variables: {
-          amount: formatIntToFloat(
+          amount: formatIntToFixed(
             foundBankAccount.amount,
             this.options.currency
           ),

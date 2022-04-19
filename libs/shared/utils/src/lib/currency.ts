@@ -20,7 +20,7 @@ export function formatFloatToInt(
   return price.toJSON().amount
 }
 
-export function formatIntToFloat(
+export function formatIntToFixed(
   amount: number,
   currency: Currencies.Currency<number>
 ) {

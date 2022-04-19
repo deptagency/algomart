@@ -8,17 +8,14 @@ import Heading from '@/components/heading'
 import PaymentOptions from '@/components/payment-options'
 import EmailVerification from '@/components/profile/email-verification'
 import { useAuth } from '@/contexts/auth-context'
-import { PaymentProvider, usePaymentContext } from '@/contexts/payment-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 import { useConfig } from '@/hooks/use-config'
-import { useCurrency } from '@/hooks/use-currency'
-import { isGreaterThanOrEqual } from '@/utils/format-currency'
 import { MAX_BID_FOR_CARD_PAYMENT } from '@/utils/purchase-validation'
 
 const mastercardIcon = '/images/logos/mastercard.svg'
 const visaIcon = '/images/logos/visa.svg'
 
 export default function CheckoutTemplate() {
-  const currency = useCurrency()
   const { t } = useTranslation()
   const { user } = useAuth()
   const { pathname, query } = useRouter()
@@ -27,14 +24,8 @@ export default function CheckoutTemplate() {
 
   const doesRequireNonCardPayment =
     (config.isWireEnabled || config.isCryptoEnabled) &&
-    ((currentBid &&
-      isGreaterThanOrEqual(currentBid, MAX_BID_FOR_CARD_PAYMENT, currency)) ||
-      (release?.price &&
-        isGreaterThanOrEqual(
-          release.price,
-          MAX_BID_FOR_CARD_PAYMENT,
-          currency
-        )))
+    ((currentBid && currentBid >= MAX_BID_FOR_CARD_PAYMENT) ||
+      (release?.price && release.price >= MAX_BID_FOR_CARD_PAYMENT))
 
   const getCardList = (t: Translate) => {
     const baseCards = [
@@ -98,11 +89,11 @@ export default function CheckoutTemplate() {
     return <EmailVerification inline />
   }
   return (
-    <PaymentProvider>
+    <>
       <Heading className="mb-10" level={1}>
         {t('forms:fields.paymentMethods.helpText')}
       </Heading>
       <PaymentOptions cards={getCardList(t)} />
-    </PaymentProvider>
+    </>
   )
 }

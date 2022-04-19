@@ -1,9 +1,9 @@
 import useTranslation from 'next-translate/useTranslation'
 
-import Button from '../button'
-import Heading from '../heading'
-
 import css from './wallet-transfers.module.css'
+
+import Button from '@/components/button'
+import Heading from '@/components/heading'
 
 export const ALGORAND_WALLET_LINK = {
   url: 'https://algorandwallet.com',

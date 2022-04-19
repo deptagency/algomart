@@ -61,6 +61,28 @@ src/ # Main source code
 ... # various dot files and configuration for the project
 ```
 
+## Testing
+
+### Unit tests
+
+We use [jest](https://jestjs.io/) with [@testing-library/react](https://testing-library.com/).
+
+Test files should be colocated with the file they test and end in .test.ts
+
+While writing tests you'll want to run in watch mode.
+
+```
+nx test web --watch
+```
+
+### End-to-end (e2e) / integration tests
+
+These live in apps/web-e2e since they test across the stack. We use [Cypress](https://www.cypress.io/.
+
+```
+npm run e2e
+```
+
 ## General workflow
 
 The `web` package relies heavily on the `api` package, which in conjunction with the `cms` package, orchestrates the handling of data and content. For this reason, the `web` package doesn't need its own database, but it does rely on Next.js's internal mechanisms (such as its request/response api handlers (see `./packages/web/src/pages/api/*`) as well as its `getServerSideProps`) to make `GET` and `POST` requests to the `api`.
