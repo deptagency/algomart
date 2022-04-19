@@ -46,21 +46,6 @@ export function formatCurrency(
   return toFormat(dinero({ amount, currency }), transformer)
 }
 
-export function formatToDecimal(
-  amount: number,
-  decimalPlaces: number,
-  code = DEFAULT_CURRENCY,
-  conversionRate = 1
-) {
-  const currency = dineroCurrency(code)
-  const price = dinero({
-    amount: amount * conversionRate,
-    currency,
-    scale: decimalPlaces,
-  })
-  return toUnit(price)
-}
-
 export function formatFloatToInt(
   float: number | string,
   code = DEFAULT_CURRENCY,
@@ -86,22 +71,10 @@ export function formatIntToFixed(
 
   const currency = dineroCurrency(code)
   const price = dinero({ amount, currency })
-  const float = toFormat(price, ({ amount, currency }) =>
+  const formatted = toFormat(price, ({ amount, currency }) =>
     amount.toFixed(currency.exponent)
   )
-  return float
-}
-
-export function addAmount(
-  originalAmount: number,
-  newAmount: number,
-  code = DEFAULT_CURRENCY,
-  conversionRate = 1
-) {
-  const currency = dineroCurrency(code)
-  const price1 = dinero({ amount: originalAmount * conversionRate, currency })
-  const price2 = dinero({ amount: newAmount * conversionRate, currency })
-  return add(price1, price2)
+  return formatted
 }
 
 export function isGreaterThan(
