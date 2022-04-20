@@ -889,7 +889,7 @@ export class CMSCacheAdapter {
 
     return queryBuild.page(
       query.page - 1 || 0,
-      query.limit || Number.MAX_SAFE_INTEGER
+      query.limit != -1 ? query.limit : Number.MAX_SAFE_INTEGER
     )
   }
 
