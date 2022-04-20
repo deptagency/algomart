@@ -24,7 +24,7 @@ export default function TextInput({
   ...props
 }: TextInputProps &
   DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) {
-  const _id = id ?? '_' + Math.random().toString(36).substr(2, 9)
+  const _id = id ?? '_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9)
   const inputField = (
     <input
       className={clsx(
