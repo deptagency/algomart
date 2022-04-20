@@ -88,13 +88,6 @@ resource "google_cloud_run_service" "api" {
           value = var.api_database_schema
         }
 
-        # Set this to false and add a separate Cloud Run service for the
-        # jobs if you need to run multiple API instances.
-        env {
-          name  = "ENABLE_JOBS"
-          value = false
-        }
-
         env {
           name  = "FUNDING_MNEMONIC"
           value = var.api_funding_mnemonic

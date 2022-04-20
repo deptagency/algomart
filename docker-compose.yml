@@ -65,7 +65,6 @@ services:
       DATABASE_URL: postgres://api:api@api-db:5432/api
       HOST: 0.0.0.0
       PORT: 3001
-      ENABLE_JOBS: 'false'
       NODE_ENV: development
     networks:
       - algomart_local

@@ -63,7 +63,6 @@ services:
       # only put values in here that should override the API .env file
       CMS_URL: http://cms-deploy:8055
       DATABASE_URL: postgres://api:api@api-db-deploy:5432/api
-      ENABLE_JOBS: 'false'
       HOST: 0.0.0.0
       PORT: 3001
       NODE_ENV: production
@@ -87,7 +86,6 @@ services:
       # only put values in here that should override the API .env file
       CMS_URL: http://cms-deploy:8055
       DATABASE_URL: postgres://api:api@api-db-deploy:5432/api
-      ENABLE_JOBS: 'true'
       HOST: 0.0.0.0
       PORT: 3002
       NODE_ENV: production

@@ -167,10 +167,6 @@ export const Configuration = {
     return env.get('WEB_FAILURE_PATH').default('/payments/failure').asString()
   },
 
-  get enableJobs(): boolean {
-    return env.get('ENABLE_JOBS').default('false').asBool()
-  },
-
   get enableCluster(): boolean {
     return env.get('ENABLE_CLUSTER').default('false').asBool()
   },
