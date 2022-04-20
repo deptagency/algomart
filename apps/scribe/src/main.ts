@@ -12,12 +12,7 @@ buildApp({
   enableTrap: true,
 })
   .then((app) => {
-    if (Configuration.enableJobs) {
-      configureTasks(app)
-      app.log.info('Tasks enabled')
-    } else {
-      app.log.info('Tasks are disabled')
-    }
+    configureTasks(app)
     return app.listen(Configuration.port, Configuration.host)
   })
   .then(() => {
