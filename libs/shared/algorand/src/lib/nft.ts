@@ -253,3 +253,193 @@ export async function createClawbackNFTTransactions({
     txIDs: group.map((g) => g.txn.txID()),
   }
 }
+
+/**
+ * Metadata structure for ARC3 specification
+ * @see https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md#json-metadata-file-schema
+ */
+export type ARC3Metadata = {
+  animation_url_integrity?: string
+  animation_url_mimetype?: string
+  animation_url?: string
+  background_color?: string
+  decimals?: number
+  description?: string
+  external_url_integrity?: string
+  external_url_mimetype?: string
+  external_url?: string
+  image_integrity?: string
+  image_mimetype?: string
+  image?: string
+  name?: string
+  properties?: Record<string, unknown>
+  extra_metadata?: string
+  localization?: {
+    uri: string
+    default: string
+    locales: string[]
+    integrity?: Record<string, string>
+  }
+}
+
+/**
+ * Helper class to build a metadata structure compliant with ARC3 using a fluent API.
+ * @see https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md#json-metadata-file-schema
+ */
+class MetadataBuilder {
+  private _metadata: ARC3Metadata = {}
+
+  build(): ARC3Metadata {
+    return Object.freeze(Object.assign({}, this._metadata))
+  }
+
+  toJSON(): string {
+    return JSON.stringify(this.build())
+  }
+
+  /**
+   * Set animation URL fields.
+   * @param url URL to the animation
+   * @param mimetype Animation content type
+   * @param integrity Animation integrity hash (SHA256)
+   * @returns The builder
+   */
+  animation(url: string, mimetype?: string, integrity?: string) {
+    this._metadata.animation_url = url
+    this._metadata.animation_url_mimetype = mimetype
+    this._metadata.animation_url_integrity = integrity
+    return this
+  }
+
+  /**
+   * Sets the decimals field.
+   * @param decimals Number of decimals
+   * @returns The builder
+   */
+  decimals(decimals: number) {
+    this._metadata.decimals = decimals
+    return this
+  }
+
+  /**
+   * Sets the name field.
+   * @param name Name of the NFT.
+   * @returns The builder
+   */
+  name(name: string) {
+    this._metadata.name = name
+    return this
+  }
+
+  /**
+   * Sets the description field.
+   * @param description Description of the NFT.
+   * @returns The builder
+   */
+  description(description: string) {
+    this._metadata.description = description
+    return this
+  }
+
+  /**
+   * Sets the image fields.
+   * @param url URL to the image
+   * @param mimetype Image content type
+   * @param integrity Image integrity hash (SHA256)
+   * @returns The builder
+   */
+  image(url: string, mimetype?: string, integrity?: string) {
+    this._metadata.image = url
+    this._metadata.image_mimetype = mimetype
+    this._metadata.image_integrity = integrity
+    return this
+  }
+
+  /**
+   * Sets the background color field.
+   * @param color Hex color code
+   * @returns The builder
+   */
+  backgroundColor(color: string) {
+    this._metadata.background_color = color
+    return this
+  }
+
+  /**
+   * Sets the external URL fields.
+   * @param url URL to the external resource
+   * @param mimetype Content type of the external resource
+   * @param integrity Integrity hash of the external resource (SHA256)
+   * @returns The builder
+   */
+  external(url: string, mimetype?: string, integrity?: string) {
+    this._metadata.external_url = url
+    this._metadata.external_url_mimetype = mimetype
+    this._metadata.external_url_integrity = integrity
+    return this
+  }
+
+  /**
+   * Sets a property on the properties field.
+   * @param key Property key
+   * @param value Property value
+   * @returns The builder
+   */
+  property(key: string, value: unknown) {
+    this._metadata.properties = this._metadata.properties || {}
+    this._metadata.properties[key] = value
+    return this
+  }
+
+  /**
+   * Sets all properties on the properties field. Overrides any existing properties.
+   * @param properties Properties to set
+   * @returns The builder
+   */
+  properties(properties: Record<string, unknown>) {
+    this._metadata.properties = properties
+    return this
+  }
+
+  /**
+   * Sets the extra metadata field.
+   * @param extraMetadata Extra metadata to include, base64 encoded
+   * @returns The builder
+   */
+  extraMetadata(extraMetadata: string) {
+    this._metadata.extra_metadata = extraMetadata
+    return this
+  }
+
+  /**
+   * Sets the localization fields.
+   * @param uri URI to the localization file
+   * @param defaultLocale Default locale used in this metadata JSON file
+   * @param locales All available locales
+   * @param integrity Integrity object with hashes for each localized metadata file
+   * @returns The builder
+   */
+  localization(
+    uri: string,
+    defaultLocale: string,
+    locales: string[],
+    integrity?: Record<string, string>
+  ) {
+    this._metadata.localization = {
+      uri,
+      default: defaultLocale,
+      locales,
+      integrity,
+    }
+    return this
+  }
+}
+
+/**
+ * Create a new MetadataBuilder instance to create ARC3 compliant metadata.
+ * @see https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md#json-metadata-file-schema
+ * @returns A builder to construct ARC3 compliant metadata
+ */
+export function buildMetadata() {
+  return new MetadataBuilder()
+}

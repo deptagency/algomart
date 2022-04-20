@@ -1,6 +1,11 @@
 import algosdk from 'algosdk'
 import { configureAlgod, createGetTransactionParamsMock } from './test-utils'
-import { createClawbackNFTTransactions, createNewNFTsTransactions } from './nft'
+import {
+  ARC3Metadata,
+  buildMetadata,
+  createClawbackNFTTransactions,
+  createNewNFTsTransactions,
+} from './nft'
 
 let algod: algosdk.Algodv2
 jest.fn
@@ -95,5 +100,51 @@ describe('createClawbackNFTTransactions', () => {
     expect(result.signedTxns).toHaveLength(1)
     expect(result.txns).toHaveLength(1)
     expect(result.txns[0].type).toBe(algosdk.TransactionType.axfer)
+  })
+})
+
+describe('buildMetadata', () => {
+  it('should create a metadata object', () => {
+    // Arrange
+    const expected: ARC3Metadata = {
+      name: 'My NFT',
+      description: 'Some description',
+      decimals: 0,
+      image: 'https://example.com/nft',
+      animation_url: 'https://example.com/nft',
+      background_color: '#000000',
+      external_url: 'https://example.com/nft',
+      properties: {
+        key2: 'value2',
+      },
+      extra_metadata: 'ZW5jb2RlZCB0ZXh0',
+      localization: {
+        uri: 'https://example.com/{locale}.json',
+        default: 'en',
+        locales: ['en', 'es', 'fr'],
+      },
+    }
+
+    // Act
+    const actual = buildMetadata()
+      .name('My NFT')
+      .description('Some description')
+      .decimals(0)
+      .image('https://example.com/nft')
+      .animation('https://example.com/nft')
+      .backgroundColor('#000000')
+      .external('https://example.com/nft')
+      .property('key1', 'value1')
+      .properties({ key2: 'value2' })
+      .extraMetadata('ZW5jb2RlZCB0ZXh0')
+      .localization('https://example.com/{locale}.json', 'en', [
+        'en',
+        'es',
+        'fr',
+      ])
+
+    // Assert
+    expect(actual.build()).toEqual(expected)
+    expect(actual.toJSON()).toBe(JSON.stringify(expected))
   })
 })

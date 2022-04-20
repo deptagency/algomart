@@ -9,20 +9,7 @@ import path from 'node:path'
 import stream from 'node:stream'
 import { promisify } from 'node:util'
 import { getMimeType } from 'stream-mime-type'
-
-export interface ARC3Metadata {
-  animation_url_integrity?: string | undefined
-  animation_url_mimetype?: string | undefined
-  animation_url?: string | undefined
-  decimals: number
-  description?: string | undefined
-  external_url_mimetype: string
-  external_url: string
-  image_integrity: string
-  image_mimetype: string | undefined
-  image: string
-  name: string
-}
+import { ARC3Metadata, buildMetadata } from '@algomart/shared/algorand'
 
 export interface StoreMediaInput {
   animationUrl?: string
@@ -81,24 +68,23 @@ export class NFTStorageAdapter {
     return hash.digest('hex')
   }
 
-  mapToMetadata({
-    description,
-    name,
-    totalEditions,
-    ...rest
-  }: StoreMetadataInput): ARC3Metadata {
+  mapToMetadata(input: StoreMetadataInput): ARC3Metadata {
     /**
      * Construct full metadata based on ARC3 Spec
      * https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md#json-metadata-file-schema
      */
-    return {
-      name: `${name} (${totalEditions} editions)`,
-      decimals: 0,
-      external_url: this.options.webUrl,
-      external_url_mimetype: 'text/html',
-      ...(description && { description }),
-      ...rest,
-    }
+    return buildMetadata()
+      .animation(
+        input.animation_url,
+        input.animation_url_mimetype,
+        input.animation_url_integrity
+      )
+      .image(input.image, input.image_mimetype, input.image_integrity)
+      .name(`${input.name} (${input.totalEditions} editions)`)
+      .description(input.description)
+      .decimals(0)
+      .external(this.options.webUrl, 'text/html')
+      .build()
   }
 
   async storeFile(url: string) {
