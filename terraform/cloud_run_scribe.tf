@@ -92,11 +92,6 @@ resource "google_cloud_run_service" "scribe" {
         }
 
         env {
-          name  = "ENABLE_JOBS"
-          value = true
-        }
-
-        env {
           name  = "FUNDING_MNEMONIC"
           value = var.api_funding_mnemonic
         }
