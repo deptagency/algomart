@@ -735,27 +735,17 @@ export class CMSCacheAdapter {
       .orWhere('releasedAt', null)
       .orWhere('releasedAt', '<', new Date())
 
-    const queryResult = await this.cacheQueryBuilder(query, queryBuild)
-    const data = queryResult.map(
+    const { total, results } = await this.cacheQueryBuilder(query, queryBuild)
+    const data = results.map(
       (result: CMSCachePackTemplateModel): DirectusPackTemplate =>
         result.content as unknown as DirectusPackTemplate
     )
     const result: ItemsResponse<DirectusPackTemplate> = {
-      data: data,
+      data,
       meta: {
-        filter_count: queryResult.length,
+        filter_count: data.length,
+        total_count: total,
       },
-    }
-
-    if (query.totalCount) {
-      const total = await CMSCachePackTemplateModel.query(trx)
-        .orWhere('releasedAt', null)
-        .orWhere('releasedAt', '<', new Date())
-        .count('*', { as: 'count' })
-        .first()
-        .castTo<{ count: string }>()
-
-      result.meta.total_count = Number.parseInt(total.count, 10)
     }
 
     return result
@@ -766,28 +756,19 @@ export class CMSCacheAdapter {
     trx?: Transaction
   ) {
     const queryBuild = CMSCacheCollectibleTemplateModel.query(trx)
-    const queryResult = await this.cacheQueryBuilder(query, queryBuild).select(
-      'content'
-    )
+    const { total, results } = await this.cacheQueryBuilder(query, queryBuild)
 
-    const data = queryResult.map(
+    const data = results.map(
       (result: CMSCacheCollectibleTemplateModel): DirectusCollectibleTemplate =>
         result.content as unknown as DirectusCollectibleTemplate
     )
 
     const result: ItemsResponse<DirectusCollectibleTemplate> = {
-      data: data,
+      data,
       meta: {
         filter_count: data.length,
+        total_count: total,
       },
-    }
-
-    if (query.totalCount) {
-      const total = await CMSCacheCollectibleTemplateModel.query()
-        .count('*', { as: 'count' })
-        .first()
-        .castTo<{ count: string }>()
-      result.meta.total_count = Number.parseInt(total.count, 10)
     }
 
     return result
@@ -795,28 +776,19 @@ export class CMSCacheAdapter {
 
   private async findCollections(query: ItemQuery = {}, trx?: Transaction) {
     const queryBuild = CMSCacheCollectionModel.query(trx)
-    const queryResult = await this.cacheQueryBuilder(query, queryBuild).select(
-      'content'
-    )
+    const { total, results } = await this.cacheQueryBuilder(query, queryBuild)
 
-    const data = queryResult.map(
+    const data = results.map(
       (result: CMSCacheCollectionModel): DirectusCollection =>
         result.content as unknown as DirectusCollection
     )
 
     const result: ItemsResponse<DirectusCollection> = {
-      data: data,
+      data,
       meta: {
         filter_count: data.length,
+        total_count: total,
       },
-    }
-
-    if (query.totalCount) {
-      const total = await CMSCacheCollectionModel.query(trx)
-        .count('*', { as: 'count' })
-        .first()
-        .castTo<{ count: string }>()
-      result.meta.total_count = Number.parseInt(total.count, 10)
     }
 
     return result
@@ -824,27 +796,18 @@ export class CMSCacheAdapter {
 
   private async findSets(query: ItemQuery = {}, trx?: Transaction) {
     const queryBuild = CMSCacheSetModel.query(trx)
-    const queryResult = await this.cacheQueryBuilder(query, queryBuild).select(
-      'content'
-    )
+    const { total, results } = await this.cacheQueryBuilder(query, queryBuild)
 
-    const data = queryResult.map(
+    const data = results.map(
       (result: CMSCacheSetModel): DirectusSet =>
         result.content as unknown as DirectusSet
     )
     const result: ItemsResponse<DirectusSet> = {
-      data: data,
+      data,
       meta: {
         filter_count: data.length,
+        total_count: total,
       },
-    }
-
-    if (query.totalCount) {
-      const total = await CMSCacheSetModel.query()
-        .count('*', { as: 'count' })
-        .first()
-        .castTo<{ count: string }>()
-      result.meta.total_count = Number.parseInt(total.count, 10)
     }
 
     return result
@@ -863,6 +826,8 @@ export class CMSCacheAdapter {
       | CMSCacheSetModel[]
     >
   ) {
+    queryBuild = queryBuild.select('content')
+
     // For each column defined in the filter, loop through and convert to query
     if (query.filter) {
       for (const column of Object.keys(query.filter)) {
@@ -922,15 +887,10 @@ export class CMSCacheAdapter {
       queryBuild = queryBuild.orderBy(sort.field, sort.order)
     }
 
-    if (query.page) {
-      queryBuild = queryBuild.offset((query.page - 1) * query.limit)
-    }
-
-    if (query.limit && query.limit !== -1) {
-      queryBuild = queryBuild.limit(query.limit)
-    }
-
-    return queryBuild
+    return queryBuild.page(
+      query.page - 1 || 0,
+      query.limit != -1 ? query.limit : Number.MAX_SAFE_INTEGER
+    )
   }
 
   private inStatusFilter(queryBuild, statuses: PackStatus[]) {
