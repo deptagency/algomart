@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const withNextTranslate = require('next-translate')
+const webpack = require('webpack')
 const withNx = require('@nrwl/next/plugins/with-nx')
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
@@ -21,6 +22,13 @@ module.exports = withNx(
           topLevelAwait: true,
           asyncWebAssembly: true,
         }
+
+        // Handle `node:` schemas by ignoring them ¯\_(ツ)_/¯
+        config.plugins.push(
+          new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
+            resource.request = resource.request.replace(/^node:/, '')
+          })
+        )
 
         return cssLoaderDarkModeShim(config)
       },

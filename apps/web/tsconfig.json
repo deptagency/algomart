@@ -24,6 +24,9 @@
       ],
       "@algomart/shared/algorand": [
         "libs/shared/algorand/src/index.ts"
+      ],
+      "@algomart/shared/utils": [
+        "libs/shared/utils/src/index.ts"
       ]
     }
   },
