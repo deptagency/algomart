@@ -640,7 +640,7 @@ export async function createImportNFTTransactions({
 
   const signers: string[] = []
 
-  if (!accountInfo.assets.some((asset) => asset.assetIndex === assetIndex)) {
+  if (!accountInfo.assets?.some((asset) => asset.assetIndex === assetIndex)) {
     // This account has not opted in to this asset
     // 0.1 Algo for opt-in, 1000 microAlgos for txn fee
     let minBalanceIncrease = 100_000 + 1000

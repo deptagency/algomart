@@ -1,11 +1,17 @@
 import algosdk from 'algosdk'
-import { configureAlgod, createGetTransactionParamsMock } from './test-utils'
 import {
   ARC3Metadata,
   buildMetadata,
   createClawbackNFTTransactions,
+  createExportNFTTransactions,
+  createImportNFTTransactions,
   createNewNFTsTransactions,
 } from './nft'
+import {
+  configureAlgod,
+  createAccountInformationMock,
+  createGetTransactionParamsMock,
+} from './test-utils'
 
 let algod: algosdk.Algodv2
 jest.fn
@@ -146,5 +152,58 @@ describe('buildMetadata', () => {
     // Assert
     expect(actual.build()).toEqual(expected)
     expect(actual.toJSON()).toBe(JSON.stringify(expected))
+  })
+})
+
+describe('createExportNFTTransactions', () => {
+  it('should generate export txns', async () => {
+    // Arrange
+    algod.getTransactionParams = createGetTransactionParamsMock()
+    algod.accountInformation = createAccountInformationMock({})
+    const fundingAccount = algosdk.generateAccount()
+    const currentOwnerAccount = algosdk.generateAccount()
+    const recipientAccount = algosdk.generateAccount()
+
+    // Act
+    const result = await createExportNFTTransactions({
+      algod,
+      assetIndex: 1,
+      clawbackAddress: fundingAccount.addr,
+      fromAddress: currentOwnerAccount.addr,
+      fundingAddress: fundingAccount.addr,
+      toAddress: recipientAccount.addr,
+    })
+
+    // Assert
+    expect(result).toBeDefined()
+    expect(result).toHaveLength(5)
+  })
+})
+
+describe('createImportNFTTransactions', () => {
+  it('should generate import txns', async () => {
+    // Arrange
+    algod.getTransactionParams = createGetTransactionParamsMock()
+    algod.accountInformation = createAccountInformationMock({
+      assets: [{ assetIndex: 2 }],
+      amount: 0,
+    })
+    const fundingAccount = algosdk.generateAccount()
+    const currentOwnerAccount = algosdk.generateAccount()
+    const recipientAccount = algosdk.generateAccount()
+
+    // Act
+    const result = await createImportNFTTransactions({
+      algod,
+      assetIndex: 1,
+      clawbackAddress: fundingAccount.addr,
+      fromAddress: currentOwnerAccount.addr,
+      fundingAddress: fundingAccount.addr,
+      toAddress: recipientAccount.addr,
+    })
+
+    // Assert
+    expect(result).toBeDefined()
+    expect(result).toHaveLength(4)
   })
 })
