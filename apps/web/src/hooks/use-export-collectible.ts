@@ -79,8 +79,6 @@ export function useExportCollectible(passphrase: string) {
           })
         )
 
-        console.log('txns', txID)
-
         setExportStatus('sign-transaction')
         const signedTransactions = await connector.signTransaction(
           unsignedTransactions,
