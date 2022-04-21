@@ -14,6 +14,8 @@ export type MultisigMetadata = {
  */
 export type WalletTransaction = {
   txn: string
+  // Additional field to avoid the need to decode the transaction
+  txID: string
   signers?: string[]
   message?: string
   authAddr?: string
@@ -40,6 +42,7 @@ export async function encodeTransaction(
   const { encodeUnsignedTransaction } = await loadSDK()
   return {
     txn: Buffer.from(encodeUnsignedTransaction(txn)).toString('base64'),
+    txID: txn.txID(),
     signers,
     message,
   }
@@ -88,6 +91,7 @@ export async function encodeSignedTransaction(
 
   return {
     txn: txnBase64,
+    txID: txn.txID(),
     signers: [],
     stxn: Buffer.from(signedTxn).toString('base64'),
     message,

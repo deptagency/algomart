@@ -16,7 +16,6 @@ import {
   SingleCollectibleQuerystring,
   SortDirection,
   TransferCollectible,
-  TransferCollectibleResult,
 } from '@algomart/schemas'
 import {
   AlgoExplorerAdapter,
@@ -25,7 +24,11 @@ import {
   ItemFilters,
   NFTStorageAdapter,
 } from '@algomart/shared/adapters'
-import { encodeRawSignedTransaction } from '@algomart/shared/algorand'
+import {
+  decodeTransaction,
+  encodeRawSignedTransaction,
+  WalletTransaction,
+} from '@algomart/shared/algorand'
 import {
   AlgorandTransactionGroupModel,
   AlgorandTransactionModel,
@@ -908,7 +911,7 @@ export class CollectiblesService {
   async initializeExportCollectible(
     request: InitializeTransferCollectible,
     trx?: Transaction
-  ): Promise<TransferCollectibleResult> {
+  ): Promise<WalletTransaction[]> {
     const user = await UserAccountModel.query(trx)
       .findOne({
         externalId: request.externalId,
@@ -944,8 +947,8 @@ export class CollectiblesService {
       400
     )
 
-    const asset = await this.algorand.getAssetInfo(collectible.address)
-    userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
+    // const asset = await this.algorand.getAssetInfo(collectible.address)
+    // userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
 
     const transactions = await this.algorand.generateExportTransactions({
       assetIndex: request.assetIndex,
@@ -954,13 +957,18 @@ export class CollectiblesService {
     })
 
     await AlgorandTransactionGroupModel.query(trx).insertGraph({
-      transactions: transactions.map((tx) => ({
-        address: tx.txnId,
-        // Note the Unsigned status
-        status: AlgorandTransactionStatus.Unsigned,
-        encodedTransaction: tx.txn,
-        signer: tx.signer,
-      })),
+      transactions: await Promise.all(
+        transactions.map(async (walletTxn) => {
+          const txn = await decodeTransaction(walletTxn.txn)
+          return {
+            address: txn.txID(),
+            // Note the Unsigned status
+            status: AlgorandTransactionStatus.Unsigned,
+            encodedTransaction: walletTxn.txn,
+            signer: walletTxn.signers?.[0],
+          }
+        })
+      ),
     })
 
     return transactions
@@ -1005,8 +1013,8 @@ export class CollectiblesService {
       400
     )
 
-    const asset = await this.algorand.getAssetInfo(collectible.address)
-    userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
+    // const asset = await this.algorand.getAssetInfo(collectible.address)
+    // userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
 
     // Load transaction, the group, and related transactions
     const transaction = await AlgorandTransactionModel.query(trx)
@@ -1026,14 +1034,14 @@ export class CollectiblesService {
       passphrase: request.passphrase,
       encryptedMnemonic: user.algorandAccount.encryptedKey,
       transactions: group.transactions.map(
-        ({ signer, encodedTransaction, address }) => {
+        ({ signer, encodedTransaction, address }): WalletTransaction => {
           const signedTxn =
             address === transaction.address ? request.signedTransaction : null
           return {
-            signer,
+            signers: request.transactionId === address ? [] : [signer],
             txn: encodedTransaction,
-            txnId: address,
-            signedTxn,
+            txID: address,
+            stxn: signedTxn,
           }
         }
       ),
@@ -1073,7 +1081,7 @@ export class CollectiblesService {
   async initializeImportCollectible(
     request: InitializeTransferCollectible,
     trx?: Transaction
-  ): Promise<TransferCollectibleResult> {
+  ): Promise<WalletTransaction[]> {
     // Find the user's custodial wallet
     const user = await UserAccountModel.query(trx)
       .findOne({
@@ -1109,14 +1117,20 @@ export class CollectiblesService {
     })
 
     // Store all of the unsigned transactions for later reference
+
     await AlgorandTransactionGroupModel.query(trx).insertGraph({
-      transactions: transactions.map((tx) => ({
-        address: tx.txnId,
-        // Note the Unsigned status
-        status: AlgorandTransactionStatus.Unsigned,
-        encodedTransaction: tx.txn,
-        signer: tx.signer,
-      })),
+      transactions: await Promise.all(
+        transactions.map(async (walletTxn) => {
+          const txn = await decodeTransaction(walletTxn.txn)
+          return {
+            address: txn.txID(),
+            // Note the Unsigned status
+            status: AlgorandTransactionStatus.Unsigned,
+            encodedTransaction: walletTxn.txn,
+            signer: walletTxn.signers?.[0],
+          }
+        })
+      ),
     })
 
     return transactions
@@ -1170,14 +1184,14 @@ export class CollectiblesService {
       passphrase: request.passphrase,
       encryptedMnemonic: user.algorandAccount.encryptedKey,
       transactions: group.transactions.map(
-        ({ signer, encodedTransaction, address }) => {
+        ({ signer, encodedTransaction, address }): WalletTransaction => {
           const signedTxn =
             address === transaction.address ? request.signedTransaction : null
           return {
-            signer,
+            signers: request.transactionId === address ? [] : [signer],
             txn: encodedTransaction,
-            txnId: address,
-            signedTxn,
+            txID: address,
+            stxn: signedTxn,
           }
         }
       ),

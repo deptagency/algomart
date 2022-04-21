@@ -7,11 +7,25 @@ import { ARC2_DAPP_NAME_PATTERN } from './constants'
 export enum NoteTypes {
   CustodialInitialFundPayment = 'cifp',
   CustodialInitialNonParticipation = 'cinp',
+
   NonFungibleTokenCreate = 'nftc',
+
   ClawbackTransferPayFunds = 'ctpf',
   ClawbackTransferOptIn = 'ctoi',
   ClawbackTransferTxn = 'cttx',
+
   ContractDeploy = 'codp',
+
+  ExportTransferPayFunds = 'etpf',
+  ExportTransferOptIn = 'etoi',
+  ExportTransferAsset = 'etax',
+  ExportTransferOptOut = 'etoo',
+  ExportTransferReturnFunds = 'etrf',
+
+  ImportTransferPayFunds = 'itpf',
+  ImportTransferOptIn = 'itoi',
+  ImportTransferAsset = 'itax',
+  ImportTransferOptOut = 'itoo',
 }
 
 /**

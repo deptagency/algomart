@@ -1,12 +1,9 @@
+import { WalletTransaction } from '@algomart/shared/algorand'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { useConfig } from './use-config'
 
-import {
-  AlgorandAdapter,
-  IConnector,
-  UnsignedTransaction,
-} from '@/libs/algorand-adapter'
+import { AlgorandAdapter, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
 import { CollectibleService } from '@/services/collectible-service'
 
@@ -66,25 +63,27 @@ export function useExportCollectible(passphrase: string) {
             address: selectedAccount,
             assetIndex,
           })
-        let txnId = ''
+        let txID = ''
 
         const unsignedTransactions = await Promise.all(
-          result.map(async (txn): Promise<UnsignedTransaction> => {
-            return txn.signer === selectedAccount
-              ? (txnId = txn.txnId) && {
-                  txn: await algorand.decodeUnsignedTransaction(txn.txn),
-                }
-              : {
-                  txn: await algorand.decodeUnsignedTransaction(txn.txn),
-                  signers: [txn.signer],
-                }
+          result.map(async (txn): Promise<WalletTransaction> => {
+            if (txn.signers?.includes(selectedAccount)) {
+              txID = txn.txID
+              return txn
+            }
+
+            return {
+              ...txn,
+              signers: [],
+            }
           })
         )
+
+        console.log('txns', txID)
 
         setExportStatus('sign-transaction')
         const signedTransactions = await connector.signTransaction(
           unsignedTransactions,
-          undefined,
           true
         )
         const signedTransaction = signedTransactions.find((txn) => !!txn)
@@ -98,25 +97,26 @@ export function useExportCollectible(passphrase: string) {
           assetIndex,
           passphrase,
           signedTransaction: encodedSignedTransaction,
-          transactionId: txnId,
+          transactionId: txID,
         })
 
-        await algorand.waitForConfirmation(txnId)
+        await algorand.waitForConfirmation(txID)
         await disconnect()
         setExportStatus('success')
       } catch (error) {
+        console.error(error)
         setExportStatus('error')
         throw error
       }
     },
-    [disconnect, passphrase, selectedAccount]
+    [algorand, disconnect, passphrase, selectedAccount]
   )
 
   const hasOptedIn = useCallback(
     async (assetIndex: number) => {
       return await algorand.hasOptedIn(selectedAccount, assetIndex)
     },
-    [selectedAccount]
+    [algorand, selectedAccount]
   )
 
   return useMemo(

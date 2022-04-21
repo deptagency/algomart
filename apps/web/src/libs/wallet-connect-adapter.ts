@@ -1,11 +1,8 @@
+import { WalletTransaction } from '@algomart/shared/algorand'
 import type WalletConnect from '@walletconnect/client'
 import { IInternalEvent } from '@walletconnect/types'
 
-import {
-  AlgorandAdapter,
-  IConnector,
-  UnsignedTransaction,
-} from './algorand-adapter'
+import { AlgorandAdapter, IConnector } from './algorand-adapter'
 import { EventEmitter } from './event-emitter'
 
 const BRIDGE_URL = 'https://bridge.walletconnect.org'
@@ -89,8 +86,7 @@ export class WalletConnectAdapter extends EventEmitter implements IConnector {
   }
 
   public async signTransaction(
-    unsignedTransactions: UnsignedTransaction[],
-    message?: string,
+    unsignedTransactions: WalletTransaction[],
     skipSubmit?: boolean
   ): Promise<(Uint8Array | null)[]> {
     try {
@@ -99,15 +95,7 @@ export class WalletConnectAdapter extends EventEmitter implements IConnector {
       const { formatJsonRpcRequest } = await import('@json-rpc-tools/utils')
 
       const request = formatJsonRpcRequest(SIGNING_METHOD, [
-        await Promise.all(
-          unsignedTransactions.map(async (transaction) => ({
-            txn: Buffer.from(
-              await this.algorand.encodeUnsignedTransaction(transaction.txn)
-            ).toString('base64'),
-            message,
-            signers: transaction.signers,
-          }))
-        ),
+        unsignedTransactions,
       ])
 
       const encodedSignedTxns: string[] =

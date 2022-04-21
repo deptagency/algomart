@@ -1,12 +1,14 @@
-import type { Account, Algodv2 } from 'algosdk'
+import { invariant } from '@algomart/shared/utils'
+import type { Account, Algodv2, Transaction } from 'algosdk'
+import { accountInformation } from './account'
 import {
   DEFAULT_ADDITIONAL_ROUNDS,
   DEFAULT_DAPP_NAME,
   MAX_NFT_COUNT,
 } from './constants'
 import { encodeNote, NoteTypes } from './note'
-import { TransactionList, loadSDK } from './utils'
-import { invariant } from '@algomart/shared/utils'
+import { loadSDK, TransactionList } from './utils'
+import { encodeTransaction, WalletTransaction } from './wallet'
 
 /**
  * Configuration for a single NFT
@@ -442,4 +444,284 @@ class MetadataBuilder {
  */
 export function buildMetadata() {
   return new MetadataBuilder()
+}
+
+export type ExportNFTOptions = {
+  additionalRounds?: number
+  algod: Algodv2
+  assetIndex: number
+  clawbackAddress: string
+  dappName?: string
+  fromAddress: string
+  fundingAddress: string
+  reference?: string
+  toAddress: string
+}
+
+/**
+ * Creates NFT export transactions for the given asset index.
+ * @note This should not be used once the Enforcer contract is implemented.
+ * @param options Options for the export
+ * @param options.additionalRounds Optional additional rounds these transactions are valid for
+ * @param options.algod Initialized Algodv2 client
+ * @param options.assetIndex Index of the asset to export
+ * @param options.clawbackAddress Address that can perform clawback on the NFT
+ * @param options.dappName Optional name of the dapp
+ * @param options.fromAddress Address of the current NFT holder
+ * @param options.fundingAddress Address to fund the transactions
+ * @param options.reference Optional reference for the transaction
+ * @param options.toAddress Address to transfer the NFT to
+ * @returns Encoded unsigned transactions
+ */
+export async function createExportNFTTransactions({
+  additionalRounds = DEFAULT_ADDITIONAL_ROUNDS,
+  algod,
+  assetIndex,
+  clawbackAddress,
+  dappName = DEFAULT_DAPP_NAME,
+  fromAddress,
+  fundingAddress,
+  reference,
+  toAddress,
+}: ExportNFTOptions): Promise<WalletTransaction[]> {
+  const {
+    makePaymentTxnWithSuggestedParamsFromObject,
+    makeAssetTransferTxnWithSuggestedParamsFromObject,
+    assignGroupID,
+  } = await loadSDK()
+  const suggestedParams = await algod.getTransactionParams().do()
+  suggestedParams.lastRound += additionalRounds
+
+  // Send funds to cover asset transfer transaction
+  // Signed by funding account
+  const fundsTxn = makePaymentTxnWithSuggestedParamsFromObject({
+    suggestedParams,
+    amount: 2000,
+    from: fundingAddress,
+    to: fromAddress,
+    note: encodeNote(dappName, {
+      t: NoteTypes.ExportTransferPayFunds,
+      r: reference,
+      s: ['arc2'],
+    }),
+  })
+
+  // Opt-in to asset in recipient's non-custodial wallet
+  // Signed by non-custodial wallet recipient
+  const optInTxn = makeAssetTransferTxnWithSuggestedParamsFromObject({
+    suggestedParams,
+    amount: 0,
+    assetIndex,
+    from: toAddress,
+    to: toAddress,
+    note: encodeNote(dappName, {
+      t: NoteTypes.ExportTransferOptIn,
+      r: reference,
+      s: ['arc2'],
+    }),
+  })
+
+  // Transfer asset to recipient and remove opt-in from sender
+  // Signed by the user's custodial wallet
+  const transferAssetTxn = makeAssetTransferTxnWithSuggestedParamsFromObject({
+    suggestedParams,
+    assetIndex,
+    from: clawbackAddress,
+    to: toAddress,
+    amount: 1,
+    revocationTarget: fromAddress,
+    note: encodeNote(dappName, {
+      t: NoteTypes.ExportTransferAsset,
+      r: reference,
+      s: ['arc2'],
+    }),
+  })
+
+  const optOutAssetTxn = makeAssetTransferTxnWithSuggestedParamsFromObject({
+    suggestedParams,
+    assetIndex,
+    from: fromAddress,
+    to: toAddress,
+    amount: 0,
+    closeRemainderTo: toAddress,
+    note: encodeNote(dappName, {
+      t: NoteTypes.ExportTransferAsset,
+      r: reference,
+      s: ['arc2'],
+    }),
+  })
+
+  // Return min balance funds to funding account
+  // Signed by the user's custodial wallet
+  const returnFundsTxn = makePaymentTxnWithSuggestedParamsFromObject({
+    suggestedParams,
+    from: fromAddress,
+    to: fundingAddress,
+    amount: 100_000,
+    note: encodeNote(dappName, {
+      t: NoteTypes.ExportTransferReturnFunds,
+      r: reference,
+      s: ['arc2'],
+    }),
+  })
+
+  const transactions = [
+    fundsTxn,
+    optInTxn,
+    transferAssetTxn,
+    optOutAssetTxn,
+    returnFundsTxn,
+  ]
+
+  const signers = [
+    fundingAddress,
+    toAddress,
+    clawbackAddress,
+    fromAddress,
+    fromAddress,
+  ]
+
+  assignGroupID(transactions)
+
+  return Promise.all(
+    transactions.map((txn, index) => {
+      return encodeTransaction(txn, [signers[index]])
+    })
+  )
+}
+
+export type ImportNFTOptions = {
+  additionalRounds?: number
+  algod: Algodv2
+  assetIndex: number
+  clawbackAddress: string
+  dappName?: string
+  fromAddress: string
+  fundingAddress: string
+  reference?: string
+  toAddress: string
+}
+
+/**
+ * Create NFT import transactions for the given asset index.
+ * @param options Options for the import
+ * @param options.additionalRounds Optional additional rounds these transactions are valid for
+ * @param options.algod Initialized Algodv2 client
+ * @param options.assetIndex Index of the asset to import
+ * @param options.clawbackAddress Address that can perform clawback on the NFT
+ * @param options.dappName Optional name of the dapp
+ * @param options.fromAddress Address of the current NFT holder
+ * @param options.fundingAddress Address to fund the transactions
+ * @param options.reference Optional reference for the transaction
+ * @param options.toAddress Address to transfer the NFT to
+ * @returns Encoded unsigned transactions
+ */
+export async function createImportNFTTransactions({
+  algod,
+  assetIndex,
+  clawbackAddress,
+  fromAddress,
+  fundingAddress,
+  toAddress,
+  additionalRounds = DEFAULT_ADDITIONAL_ROUNDS,
+  dappName = DEFAULT_DAPP_NAME,
+  reference,
+}: ImportNFTOptions) {
+  const accountInfo = await accountInformation(algod, toAddress)
+  const transactions: Transaction[] = []
+
+  const {
+    makePaymentTxnWithSuggestedParamsFromObject,
+    makeAssetTransferTxnWithSuggestedParamsFromObject,
+    assignGroupID,
+  } = await loadSDK()
+  const suggestedParams = await algod.getTransactionParams().do()
+  suggestedParams.lastRound += additionalRounds
+
+  const signers: string[] = []
+
+  if (!accountInfo.assets.some((asset) => asset.assetIndex === assetIndex)) {
+    // This account has not opted in to this asset
+    // 0.1 Algo for opt-in, 1000 microAlgos for txn fee
+    let minBalanceIncrease = 100_000 + 1000
+
+    if (accountInfo.amount === 0) {
+      // this is a brand new account, need to send additional funds
+      minBalanceIncrease += 100_000
+    }
+
+    // Send funds to cover asset min balance increase
+    // Signed by the funding account
+    const fundsTxn = makePaymentTxnWithSuggestedParamsFromObject({
+      suggestedParams,
+      amount: minBalanceIncrease,
+      from: fundingAddress,
+      to: toAddress,
+      note: encodeNote(dappName, {
+        t: NoteTypes.ImportTransferPayFunds,
+        r: reference,
+        s: ['arc2'],
+      }),
+    })
+
+    // Opt-in to asset
+    // Signed by the user's custodial account
+    const optInAssetTxn = makeAssetTransferTxnWithSuggestedParamsFromObject({
+      suggestedParams,
+      assetIndex,
+      from: toAddress,
+      to: toAddress,
+      amount: 0,
+      note: encodeNote(dappName, {
+        t: NoteTypes.ImportTransferOptIn,
+        r: reference,
+        s: ['arc2'],
+      }),
+    })
+
+    signers.push(fundingAddress, toAddress)
+    transactions.push(fundsTxn, optInAssetTxn)
+  }
+
+  // Transfer asset to recipient and remove opt-in from sender
+  const transferAssetTxn = makeAssetTransferTxnWithSuggestedParamsFromObject({
+    suggestedParams,
+    assetIndex,
+    from: clawbackAddress,
+    to: toAddress,
+    amount: 1,
+    revocationTarget: fromAddress,
+    note: encodeNote(dappName, {
+      t: NoteTypes.ImportTransferAsset,
+      r: reference,
+      s: ['arc2'],
+    }),
+  })
+
+  // Opt out of the asset
+  // This transaction will be signed by the non-custodial account
+  const optOutAssetTxn = makeAssetTransferTxnWithSuggestedParamsFromObject({
+    suggestedParams,
+    assetIndex,
+    from: fromAddress,
+    to: toAddress,
+    amount: 0,
+    closeRemainderTo: toAddress,
+    note: encodeNote(dappName, {
+      t: NoteTypes.ImportTransferOptOut,
+      r: reference,
+      s: ['arc2'],
+    }),
+  })
+
+  signers.push(clawbackAddress, fromAddress)
+  transactions.push(transferAssetTxn, optOutAssetTxn)
+
+  assignGroupID(transactions)
+
+  return Promise.all(
+    transactions.map((txn, index) => {
+      return encodeTransaction(txn, [signers[index]])
+    })
+  )
 }

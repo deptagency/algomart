@@ -5,7 +5,10 @@
     "allowJs": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "types": ["node", "jest"],
+    "types": [
+      "node",
+      "jest"
+    ],
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
@@ -13,10 +16,25 @@
     "isolatedModules": true,
     "incremental": true,
     "paths": {
-      "@/*": ["apps/web/src/*"],
-      "@algomart/schemas": ["libs/schemas/src/index.ts"]
+      "@/*": [
+        "apps/web/src/*"
+      ],
+      "@algomart/schemas": [
+        "libs/schemas/src/index.ts"
+      ],
+      "@algomart/shared/algorand": [
+        "libs/shared/algorand/src/index.ts"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "next-env.d.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "next-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
