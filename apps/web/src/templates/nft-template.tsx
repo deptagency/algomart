@@ -35,7 +35,6 @@ function getTransferrableStatus(
 ) {
   if (!currentUserAddress) return 'noUser'
   if (collectible.currentOwnerAddress !== currentUserAddress) return 'notOwner'
-  // if (collectible.isFrozen) return 'frozen'
   if (isAfterNow(new Date(collectible.transferrableAt))) return 'mintedRecently'
   return 'canTransfer'
 }
