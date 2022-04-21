@@ -95,6 +95,24 @@ export async function encodeSignedTransaction(
 }
 
 /**
+ * Encodes a signed transaction as a base64 string.
+ * @param stxn The signed transaction to encode
+ * @returns Base64 encoded signed transaction
+ */
+export function encodeRawSignedTransaction(stxn: Uint8Array): string {
+  return Buffer.from(stxn).toString('base64')
+}
+
+/**
+ * Decodes a base64 encoded signed transaction.
+ * @param stxn The signed transaction to decode
+ * @returns Raw signed transaction
+ */
+export function decodeSignedTransaction(stxn: string): Uint8Array {
+  return new Uint8Array(Buffer.from(stxn, 'base64'))
+}
+
+/**
  * Encodes a list of transactions to base64 for storage/asynchronous processing based on ARC-1.
  * Also assigns group ID and signs the transactions.
  *
@@ -171,7 +189,7 @@ export function walletInvariant(
 /**
  * Create a function to sign encoded transactions based on ARC-1.
  *
- * @note This does not support `msig` at this time.
+ * @note This does not yet support `msig`.
  * @see https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md
  * @param accounts List of accounts that are available for this session
  * @returns A function that can sign encoded transactions

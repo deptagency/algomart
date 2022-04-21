@@ -2,6 +2,8 @@ import pino from 'pino'
 import {
   AlgorandTransactionStatus,
   CreateUserAccountRequest,
+  EventAction,
+  EventEntityType,
   ExternalId,
   PublicAccount,
   SortDirection,
@@ -14,11 +16,14 @@ import { Username } from '@algomart/schemas'
 import { AlgorandAdapter } from '@algomart/shared/adapters'
 import {
   AlgorandAccountModel,
+  AlgorandTransactionGroupModel,
   AlgorandTransactionModel,
+  EventModel,
   UserAccountModel,
 } from '@algomart/shared/models'
 import { invariant, userInvariant } from '@algomart/shared/utils'
 import { Transaction } from 'objection'
+import { encodeRawSignedTransaction } from '@algomart/shared/algorand'
 
 export class AccountsService {
   logger: pino.Logger<unknown>
@@ -92,29 +97,50 @@ export class AccountsService {
         passphrase
       )
 
-    // send and wait for transaction to be confirmed
-    await this.algorand.submitTransaction(signedTransactions)
-    await this.algorand.waitForConfirmation(transactionIds[0])
+    // store signed transactions for later sending
+    const group = await AlgorandTransactionGroupModel.query(trx).insert({})
+    const transactions = await AlgorandTransactionModel.query(trx).insert(
+      transactionIds.map((id, index) => ({
+        address: id,
+        status: AlgorandTransactionStatus.Signed,
+        groupId: group.id,
+        encodedSignedTransaction: encodeRawSignedTransaction(
+          signedTransactions[index]
+        ),
+        order: index,
+      }))
+    )
 
-    const transactions = [
-      // funding transaction
-      await AlgorandTransactionModel.query(trx).insert({
-        address: transactionIds[0],
-        status: AlgorandTransactionStatus.Confirmed,
-      }),
-      // non-participation transaction
-      await AlgorandTransactionModel.query(trx).insert({
-        address: transactionIds[1],
-        status: AlgorandTransactionStatus.Pending,
-      }),
-    ]
-
-    // update algorand account, its now funded
+    // update algorand account
     await AlgorandAccountModel.query(trx)
       .patch({
         creationTransactionId: transactions[0].id,
       })
       .where({ id: userAccount.algorandAccountId })
+
+    // add events
+    await EventModel.query(trx).insert([
+      {
+        action: EventAction.Create,
+        entityType: EventEntityType.AlgorandTransactionGroup,
+        entityId: group.id,
+      },
+      {
+        action: EventAction.Create,
+        entityType: EventEntityType.AlgorandTransaction,
+        entityId: transactions[0].id,
+      },
+      {
+        action: EventAction.Create,
+        entityType: EventEntityType.AlgorandTransaction,
+        entityId: transactions[1].id,
+      },
+      {
+        action: EventAction.Update,
+        entityType: EventEntityType.AlgorandAccount,
+        entityId: userAccount.algorandAccountId,
+      },
+    ])
   }
 
   async updateAccount(

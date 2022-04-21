@@ -4,6 +4,7 @@ import { BaseSchema, Nullable, Simplify } from './shared'
 
 export enum AlgorandTransactionStatus {
   Unsigned = 'unsigned',
+  Signed = 'signed',
   Pending = 'pending',
   Failed = 'failed',
   Confirmed = 'confirmed',

@@ -1,7 +1,9 @@
+import { CollectibleBase, TransferCollectibleResult } from '@algomart/schemas'
 import {
   AccountInfo,
   accountInformation,
   calculateAppMinBalance,
+  configureSignTxns,
   createClawbackNFTTransactions,
   createConfigureCustodialAccountTransactions,
   createDeployContractTransactions,
@@ -14,9 +16,7 @@ import {
   pendingTransactionInformation,
   waitForConfirmation,
 } from '@algomart/shared/algorand'
-import { CollectibleBase, TransferCollectibleResult } from '@algomart/schemas'
 import { CollectibleModel } from '@algomart/shared/models'
-import { invariant } from '@algomart/shared/utils'
 import algosdk from 'algosdk'
 import pino from 'pino'
 
@@ -108,6 +108,11 @@ export class AlgorandAdapter {
     }
   }
 
+  /**
+   * Submits one or more transactions to the network. Should only be used in a background task.
+   * @param transaction The transaction(s) to be submitted
+   * @returns The submitted transaction ID
+   */
   async submitTransaction(transaction: Uint8Array | Uint8Array[]) {
     try {
       return await this.algod.sendRawTransaction(transaction).do()
@@ -390,25 +395,35 @@ export class AlgorandAdapter {
       this.options.appSecret
     )
 
-    const signedTransactions = options.transactions.map((transaction) => {
-      if (transaction.signedTxn)
-        return new Uint8Array(Buffer.from(transaction.signedTxn, 'base64'))
+    const signTxns = await configureSignTxns([fromAccount, this.fundingAccount])
 
-      const txn = algosdk.decodeUnsignedTransaction(
-        Buffer.from(transaction.txn, 'base64')
-      )
+    const signedTransactions = await signTxns(
+      options.transactions.map((txn) => ({
+        txn: txn.txn,
+        signers: txn.signedTxn ? [] : [txn.signer],
+        stxn: txn.signedTxn,
+      }))
+    )
 
-      const signer =
-        transaction.signer === fromAccount.addr
-          ? fromAccount
-          : transaction.signer === this.fundingAccount.addr
-          ? this.fundingAccount
-          : null
+    // const signedTransactions = options.transactions.map((transaction) => {
+    //   if (transaction.signedTxn)
+    //     return new Uint8Array(Buffer.from(transaction.signedTxn, 'base64'))
 
-      invariant(signer, 'unknown signer')
+    //   const txn = algosdk.decodeUnsignedTransaction(
+    //     Buffer.from(transaction.txn, 'base64')
+    //   )
 
-      return txn.signTxn(signer.sk)
-    })
+    //   const signer =
+    //     transaction.signer === fromAccount.addr
+    //       ? fromAccount
+    //       : transaction.signer === this.fundingAccount.addr
+    //       ? this.fundingAccount
+    //       : null
+
+    //   invariant(signer, 'unknown signer')
+
+    //   return txn.signTxn(signer.sk)
+    // })
 
     return {
       transactionIds: options.transactions.map(
