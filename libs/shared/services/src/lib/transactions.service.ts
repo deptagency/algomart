@@ -4,7 +4,7 @@ import {
   EventEntityType,
 } from '@algomart/schemas'
 import { AlgorandAdapter } from '@algomart/shared/adapters'
-import { decodeSignedTransaction } from '@algomart/shared/algorand'
+import { decodeRawSignedTransaction } from '@algomart/shared/algorand'
 import {
   AlgorandTransactionModel,
   CollectibleModel,
@@ -57,7 +57,7 @@ export class TransactionsService {
     }
 
     const signedTransactions = transactions.map((t) =>
-      decodeSignedTransaction(t.encodedSignedTransaction)
+      decodeRawSignedTransaction(t.encodedSignedTransaction)
     )
 
     const baseQuery = isGroup

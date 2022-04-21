@@ -2,6 +2,8 @@ import algosdk from 'algosdk'
 import { configureAlgod, createGetTransactionParamsMock } from './test-utils'
 import {
   configureSignTxns,
+  decodeRawSignedTransaction,
+  encodeRawSignedTransaction,
   encodeSignedTransactions,
   encodeTransaction,
   encodeTransactions,
@@ -259,5 +261,31 @@ describe('configureSignTxns', () => {
 
     // Assert
     expect(() => signTxns(txns)).rejects.toBeInstanceOf(WalletError)
+  })
+})
+
+describe('encode+decode raw signed transaction', () => {
+  it('should work', async () => {
+    // Arrange
+    algod.getTransactionParams = createGetTransactionParamsMock()
+    const account = algosdk.generateAccount()
+    const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      amount: 0,
+      from: account.addr,
+      suggestedParams: await algod.getTransactionParams().do(),
+      to: account.addr,
+    })
+    const signedTxn = txn.signTxn(account.sk)
+
+    // Act
+    const encoded = encodeRawSignedTransaction(signedTxn)
+    const decoded = decodeRawSignedTransaction(encoded)
+
+    // Assert
+    expect(encoded).toBeDefined()
+    expect(decoded).toBeDefined()
+    expect(typeof encoded).toBe('string')
+    expect(decoded).toBeInstanceOf(Uint8Array)
+    expect(signedTxn).toEqual(decoded)
   })
 })

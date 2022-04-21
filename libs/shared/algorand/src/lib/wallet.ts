@@ -108,7 +108,7 @@ export function encodeRawSignedTransaction(stxn: Uint8Array): string {
  * @param stxn The signed transaction to decode
  * @returns Raw signed transaction
  */
-export function decodeSignedTransaction(stxn: string): Uint8Array {
+export function decodeRawSignedTransaction(stxn: string): Uint8Array {
   return new Uint8Array(Buffer.from(stxn, 'base64'))
 }
 
