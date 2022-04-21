@@ -947,9 +947,6 @@ export class CollectiblesService {
       400
     )
 
-    // const asset = await this.algorand.getAssetInfo(collectible.address)
-    // userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
-
     const transactions = await this.algorand.generateExportTransactions({
       assetIndex: request.assetIndex,
       fromAccountAddress: user.algorandAccount.address,
@@ -1012,9 +1009,6 @@ export class CollectiblesService {
       'collectible cannot yet be transferred',
       400
     )
-
-    // const asset = await this.algorand.getAssetInfo(collectible.address)
-    // userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
 
     // Load transaction, the group, and related transactions
     const transaction = await AlgorandTransactionModel.query(trx)
