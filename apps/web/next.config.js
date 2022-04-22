@@ -12,7 +12,8 @@ module.exports = withNx(
   withNextTranslate(
     withBundleAnalyzer({
       poweredByHeader: false,
-      reactStrictMode: true,
+      // Hold off strict mode until @headlessui/react is upgraded
+      reactStrictMode: false,
       images: {
         domains: process.env.IMAGE_DOMAINS?.split(',') || [],
       },
