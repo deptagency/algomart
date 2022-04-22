@@ -1,4 +1,5 @@
 import { Listbox } from '@headlessui/react'
+import { v4 as uuid } from 'uuid'
 import { SelectorIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
 import {
@@ -44,7 +45,7 @@ export default function Select({
   value,
   Icon,
 }: SelectProps) {
-  const _id = id ?? crypto.randomUUID()
+  const _id = id ?? uuid()
   const [internalValue, setInternalValue] = useState(
     defaultValue || (options?.length ? options[0].value : '')
   )
