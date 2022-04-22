@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import { v4 as uuid } from 'uuid'
 import { ChangeEvent, DetailedHTMLProps, InputHTMLAttributes } from 'react'
 
 import css from './text-input.module.css'
@@ -24,7 +25,7 @@ export default function TextInput({
   ...props
 }: TextInputProps &
   DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) {
-  const _id = id ?? '_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9)
+  const _id = id ?? uuid()
   const inputField = (
     <input
       className={clsx(
