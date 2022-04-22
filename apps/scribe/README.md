@@ -39,6 +39,19 @@ nx drop scribe
 nx run scribe:migrate:latest
 ```
 
+## Folder structure
+
+```bash
+scripts/ # Utility scripts
+src/ # Main source code
+  configuration/ # Environment configurations
+  languages/ # Translations
+  migrations/ # Database migrations
+  modules/ # API service layer (routes, handlers, db interactions)
+  tasks/ # Various background task runners
+... # various dot files and configuration for the project
+```
+
 ### Tasks
 
 [Toad Scheduler](https://github.com/kibertoad/toad-scheduler) is used to run routine in-memory tasks at set intervals. A list of scheduled tasks can be found in `./packages/api/src/tasks/index.ts`.

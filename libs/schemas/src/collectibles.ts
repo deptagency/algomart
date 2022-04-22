@@ -200,6 +200,23 @@ export const InitializeTransferCollectibleSchema = Type.Object({
   externalId: Type.String(),
 })
 
+export const WalletTransactionMultisigMetadataSchema = Type.Object({
+  version: Type.Integer(),
+  threshold: Type.Integer(),
+  addrs: Type.Array(Type.String()),
+})
+
+export const WalletTransactionSchema = Type.Object({
+  authAddr: Type.Optional(Type.String()),
+  groupMessage: Type.Optional(Type.String()),
+  message: Type.Optional(Type.String()),
+  signers: Type.Optional(Type.Array(Type.String())),
+  stxn: Type.Optional(Type.String()),
+  txn: Type.String(),
+  txID: Type.String(),
+  msig: Type.Optional(WalletTransactionMultisigMetadataSchema),
+})
+
 export const TransferCollectibleSchema = Type.Intersect([
   InitializeTransferCollectibleSchema,
   Type.Object({

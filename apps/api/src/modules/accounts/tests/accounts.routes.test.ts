@@ -36,7 +36,7 @@ test('POST /accounts OK', async () => {
     username,
   })
 
-  jest.spyOn(AlgorandAdapter.prototype, 'generateAccount').mockReturnValue({
+  jest.spyOn(AlgorandAdapter.prototype, 'generateAccount').mockResolvedValue({
     address,
     encryptedMnemonic,
     signedTransactions: [],
@@ -147,7 +147,7 @@ test('POST /accounts/:externalId/verify-passphrase (Valid passphrase)', async ()
 
   jest
     .spyOn(AlgorandAdapter.prototype, 'isValidPassphrase')
-    .mockReturnValue(true)
+    .mockResolvedValue(true)
 
   // Act
   const { body, statusCode } = await app.inject({
@@ -184,7 +184,7 @@ test('POST /accounts/:externalId/verify-passphrase (Invalid passphrase)', async 
 
   jest
     .spyOn(AlgorandAdapter.prototype, 'isValidPassphrase')
-    .mockReturnValue(false)
+    .mockResolvedValue(false)
 
   // Act
   const { body, statusCode } = await app.inject({

@@ -1,4 +1,3 @@
-import pino from 'pino'
 import {
   AlgorandTransactionStatus,
   CollectibleBase,
@@ -17,33 +16,37 @@ import {
   SingleCollectibleQuerystring,
   SortDirection,
   TransferCollectible,
-  TransferCollectibleResult,
 } from '@algomart/schemas'
-
 import {
-  CMSCacheAdapter,
-  AlgorandAdapter,
-  NFTStorageAdapter,
   AlgoExplorerAdapter,
+  AlgorandAdapter,
+  CMSCacheAdapter,
   ItemFilters,
+  NFTStorageAdapter,
 } from '@algomart/shared/adapters'
 import {
-  CollectibleModel,
-  EventModel,
-  UserAccountModel,
+  decodeTransaction,
+  encodeRawSignedTransaction,
+  WalletTransaction,
+} from '@algomart/shared/algorand'
+import {
+  AlgorandTransactionGroupModel,
   AlgorandTransactionModel,
+  CollectibleModel,
   CollectibleOwnershipModel,
   CollectibleShowcaseModel,
-  AlgorandTransactionGroupModel,
+  EventModel,
+  UserAccountModel,
 } from '@algomart/shared/models'
 import {
-  invariant,
   addDays,
-  userInvariant,
-  isDefinedArray,
+  invariant,
   isBeforeNow,
+  isDefinedArray,
+  userInvariant,
 } from '@algomart/shared/utils'
 import { Transaction } from 'objection'
+import pino from 'pino'
 
 const MAX_SHOWCASES = 8
 
@@ -394,21 +397,26 @@ export class CollectiblesService {
         templates
       )
 
-    await this.algorand.submitTransaction(signedTransactions)
+    const group = await AlgorandTransactionGroupModel.query(trx).insert({})
 
     await Promise.all(
-      collectibles.map(async (collectible, index) => {
-        return await CollectibleModel.query(trx).upsertGraph(
+      collectibles.map((collectible, index) =>
+        CollectibleModel.query(trx).upsertGraph(
           {
             id: collectible.id,
             creationTransaction: {
               address: transactionIds[index],
-              status: AlgorandTransactionStatus.Pending,
+              status: AlgorandTransactionStatus.Signed,
+              groupId: group.id,
+              order: index,
+              encodedSignedTransaction: encodeRawSignedTransaction(
+                signedTransactions[index]
+              ),
             },
           },
           { relate: true }
         )
-      })
+      )
     )
 
     const createdTransactions = await AlgorandTransactionModel.query(trx)
@@ -426,6 +434,11 @@ export class CollectiblesService {
         entityType: EventEntityType.AlgorandTransaction,
         entityId: t.id,
       })),
+      {
+        action: EventAction.Create,
+        entityType: EventEntityType.AlgorandTransactionGroup,
+        entityId: group.id,
+      },
     ])
 
     return collectibles.length
@@ -476,13 +489,18 @@ export class CollectiblesService {
         fromAccountAddress: info.creator,
       })
 
-    await this.algorand.submitTransaction(signedTransactions)
+    const group = await AlgorandTransactionGroupModel.query(trx).insert({})
 
     // TODO: Why is this coming back singular instead of as an array?
     const transactions = await AlgorandTransactionModel.query(trx).insert(
-      transactionIds.map((id) => ({
+      transactionIds.map((id, index) => ({
         address: id,
-        status: AlgorandTransactionStatus.Pending,
+        status: AlgorandTransactionStatus.Signed,
+        encodedSignedTransaction: encodeRawSignedTransaction(
+          signedTransactions[index]
+        ),
+        order: index,
+        groupId: group.id,
       }))
     )
 
@@ -504,6 +522,12 @@ export class CollectiblesService {
         entityId: t.id,
         userAccountId: userId,
       })),
+      {
+        action: EventAction.Create,
+        entityType: EventEntityType.AlgorandTransactionGroup,
+        entityId: group.id,
+        userAccountId: userId,
+      },
       {
         action: EventAction.Update,
         entityId: collectible.id,
@@ -561,12 +585,17 @@ export class CollectiblesService {
         toAccountAddress: info.creator,
       })
 
-    await this.algorand.submitTransaction(signedTransactions)
+    const group = await AlgorandTransactionGroupModel.query(trx).insert({})
 
     const transactions = await AlgorandTransactionModel.query(trx).insert(
-      transactionIds.map((id) => ({
+      transactionIds.map((id, index) => ({
         address: id,
-        status: AlgorandTransactionStatus.Pending,
+        status: AlgorandTransactionStatus.Signed,
+        encodedSignedTransaction: encodeRawSignedTransaction(
+          signedTransactions[index]
+        ),
+        groupId: group.id,
+        order: index,
       }))
     )
 
@@ -588,6 +617,12 @@ export class CollectiblesService {
         action: EventAction.Update,
         entityId: collectible.id,
         entityType: EventEntityType.Collectible,
+        userAccountId: userId,
+      },
+      {
+        action: EventAction.Create,
+        entityId: group.id,
+        entityType: EventEntityType.AlgorandTransactionGroup,
         userAccountId: userId,
       },
     ])
@@ -876,7 +911,7 @@ export class CollectiblesService {
   async initializeExportCollectible(
     request: InitializeTransferCollectible,
     trx?: Transaction
-  ): Promise<TransferCollectibleResult> {
+  ): Promise<WalletTransaction[]> {
     const user = await UserAccountModel.query(trx)
       .findOne({
         externalId: request.externalId,
@@ -912,9 +947,6 @@ export class CollectiblesService {
       400
     )
 
-    const asset = await this.algorand.getAssetInfo(collectible.address)
-    userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
-
     const transactions = await this.algorand.generateExportTransactions({
       assetIndex: request.assetIndex,
       fromAccountAddress: user.algorandAccount.address,
@@ -922,13 +954,18 @@ export class CollectiblesService {
     })
 
     await AlgorandTransactionGroupModel.query(trx).insertGraph({
-      transactions: transactions.map((tx) => ({
-        address: tx.txnId,
-        // Note the Unsigned status
-        status: AlgorandTransactionStatus.Unsigned,
-        encodedTransaction: tx.txn,
-        signer: tx.signer,
-      })),
+      transactions: await Promise.all(
+        transactions.map(async (walletTxn) => {
+          const txn = await decodeTransaction(walletTxn.txn)
+          return {
+            address: txn.txID(),
+            // Note the Unsigned status
+            status: AlgorandTransactionStatus.Unsigned,
+            encodedTransaction: walletTxn.txn,
+            signer: walletTxn.signers?.[0],
+          }
+        })
+      ),
     })
 
     return transactions
@@ -973,9 +1010,6 @@ export class CollectiblesService {
       400
     )
 
-    const asset = await this.algorand.getAssetInfo(collectible.address)
-    userInvariant(!asset.defaultFrozen, 'Frozen assets cannot be exported', 400)
-
     // Load transaction, the group, and related transactions
     const transaction = await AlgorandTransactionModel.query(trx)
       .findOne({
@@ -994,39 +1028,54 @@ export class CollectiblesService {
       passphrase: request.passphrase,
       encryptedMnemonic: user.algorandAccount.encryptedKey,
       transactions: group.transactions.map(
-        ({ signer, encodedTransaction, address }) => {
+        ({ signer, encodedTransaction, address }): WalletTransaction => {
           const signedTxn =
             address === transaction.address ? request.signedTransaction : null
           return {
-            signer,
+            signers: request.transactionId === address ? [] : [signer],
             txn: encodedTransaction,
-            txnId: address,
-            signedTxn,
+            txID: address,
+            stxn: signedTxn,
           }
         }
       ),
     })
 
-    const txResult = await this.algorand.submitTransaction(
-      result.signedTransactions
+    await Promise.all(
+      result.transactionIds.map((txID, index) => {
+        return AlgorandTransactionModel.query(trx)
+          .where('address', txID)
+          .patch({
+            status: AlgorandTransactionStatus.Signed,
+            encodedSignedTransaction: result.signedTransactions[index],
+          })
+      })
     )
-    const txId = txResult.txId
-
-    await AlgorandTransactionModel.query(trx)
-      .where({ groupId: group.id })
-      .patch({ status: AlgorandTransactionStatus.Pending })
 
     await CollectibleModel.query(trx)
       .findOne({ id: collectible.id })
       .patch({ ownerId: null })
 
-    return txId
+    await EventModel.query(trx).insert([
+      ...group.transactions.map((txn) => ({
+        action: EventAction.Update,
+        entityId: txn.id,
+        entityType: EventEntityType.AlgorandTransaction,
+      })),
+      {
+        action: EventAction.Update,
+        entityId: collectible.id,
+        entityType: EventEntityType.Collectible,
+      },
+    ])
+
+    return result.transactionIds[0]
   }
 
   async initializeImportCollectible(
     request: InitializeTransferCollectible,
     trx?: Transaction
-  ): Promise<TransferCollectibleResult> {
+  ): Promise<WalletTransaction[]> {
     // Find the user's custodial wallet
     const user = await UserAccountModel.query(trx)
       .findOne({
@@ -1047,7 +1096,7 @@ export class CollectiblesService {
     const accountInfo = await this.algorand.getAccountInfo(request.address)
     userInvariant(
       accountInfo.assets.some(
-        (asset) => asset.assetId === request.assetIndex && asset.amount === 1
+        (asset) => asset.assetIndex === request.assetIndex && asset.amount === 1
       ),
       'must own the asset to import',
       400
@@ -1062,14 +1111,20 @@ export class CollectiblesService {
     })
 
     // Store all of the unsigned transactions for later reference
+
     await AlgorandTransactionGroupModel.query(trx).insertGraph({
-      transactions: transactions.map((tx) => ({
-        address: tx.txnId,
-        // Note the Unsigned status
-        status: AlgorandTransactionStatus.Unsigned,
-        encodedTransaction: tx.txn,
-        signer: tx.signer,
-      })),
+      transactions: await Promise.all(
+        transactions.map(async (walletTxn) => {
+          const txn = await decodeTransaction(walletTxn.txn)
+          return {
+            address: txn.txID(),
+            // Note the Unsigned status
+            status: AlgorandTransactionStatus.Unsigned,
+            encodedTransaction: walletTxn.txn,
+            signer: walletTxn.signers?.[0],
+          }
+        })
+      ),
     })
 
     return transactions
@@ -1099,7 +1154,7 @@ export class CollectiblesService {
     const accountInfo = await this.algorand.getAccountInfo(request.address)
     userInvariant(
       accountInfo.assets.some(
-        (asset) => asset.assetId === request.assetIndex && asset.amount === 1
+        (asset) => asset.assetIndex === request.assetIndex && asset.amount === 1
       ),
       'must own the asset to import',
       400
@@ -1123,32 +1178,47 @@ export class CollectiblesService {
       passphrase: request.passphrase,
       encryptedMnemonic: user.algorandAccount.encryptedKey,
       transactions: group.transactions.map(
-        ({ signer, encodedTransaction, address }) => {
+        ({ signer, encodedTransaction, address }): WalletTransaction => {
           const signedTxn =
             address === transaction.address ? request.signedTransaction : null
           return {
-            signer,
+            signers: request.transactionId === address ? [] : [signer],
             txn: encodedTransaction,
-            txnId: address,
-            signedTxn,
+            txID: address,
+            stxn: signedTxn,
           }
         }
       ),
     })
 
-    const txResult = await this.algorand.submitTransaction(
-      result.signedTransactions
+    await Promise.all(
+      result.transactionIds.map((txID, index) => {
+        return AlgorandTransactionModel.query(trx)
+          .where('address', txID)
+          .patch({
+            status: AlgorandTransactionStatus.Signed,
+            encodedSignedTransaction: result.signedTransactions[index],
+          })
+      })
     )
-    const txId = txResult.txId
-
-    await AlgorandTransactionModel.query(trx)
-      .where({ groupId: group.id })
-      .patch({ status: AlgorandTransactionStatus.Pending })
 
     await CollectibleModel.query(trx)
       .findOne({ id: collectible.id })
       .patch({ ownerId: user.id })
 
-    return txId
+    await EventModel.query(trx).insert([
+      ...group.transactions.map((txn) => ({
+        action: EventAction.Update,
+        entityId: txn.id,
+        entityType: EventEntityType.AlgorandTransaction,
+      })),
+      {
+        action: EventAction.Update,
+        entityId: collectible.id,
+        entityType: EventEntityType.Collectible,
+      },
+    ])
+
+    return result.transactionIds[0]
   }
 }

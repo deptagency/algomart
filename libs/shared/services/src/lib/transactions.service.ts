@@ -1,16 +1,17 @@
-import pino from 'pino'
 import {
   AlgorandTransactionStatus,
   EventAction,
   EventEntityType,
 } from '@algomart/schemas'
 import { AlgorandAdapter } from '@algomart/shared/adapters'
+import { decodeRawSignedTransaction } from '@algomart/shared/algorand'
 import {
   AlgorandTransactionModel,
   CollectibleModel,
   EventModel,
 } from '@algomart/shared/models'
 import { Transaction } from 'objection'
+import pino from 'pino'
 
 export class TransactionsService {
   logger: pino.Logger<unknown>
@@ -19,6 +20,77 @@ export class TransactionsService {
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
+  }
+
+  async submitSignedTransactions(trx?: Transaction): Promise<number> {
+    let isGroup = false
+    // Grab a single transaction (the oldest one)
+    let transactions = await AlgorandTransactionModel.query(trx)
+      .where('status', AlgorandTransactionStatus.Signed)
+      .select('id', 'address', 'groupId', 'encodedSignedTransaction')
+      .orderBy('createdAt', 'ASC')
+      .limit(1)
+
+    if (transactions.length === 0) {
+      return 0
+    }
+
+    if (transactions[0].groupId) {
+      // This transaction is part of a group, must submit them all together
+      // Since it's a group, use the `order` column to sort them
+      isGroup = true
+      transactions = await AlgorandTransactionModel.query(trx)
+        .where('groupId', transactions[0].groupId)
+        .orderBy('order', 'ASC')
+        .select('id', 'address', 'groupId', 'encodedSignedTransaction')
+    }
+
+    if (!transactions.every((t) => !!t.encodedSignedTransaction)) {
+      // Missing one or more encoded signed transactions, can't submit
+      await AlgorandTransactionModel.query(trx)
+        .where('groupId', transactions[0].groupId)
+        .patch({
+          error: 'Missing signed transaction',
+          status: AlgorandTransactionStatus.Failed,
+        })
+      return 0
+    }
+
+    const signedTransactions = transactions.map((t) =>
+      decodeRawSignedTransaction(t.encodedSignedTransaction)
+    )
+
+    const baseQuery = isGroup
+      ? AlgorandTransactionModel.query(trx).where(
+          'groupId',
+          transactions[0].groupId
+        )
+      : AlgorandTransactionModel.query(trx).where('id', transactions[0].id)
+
+    try {
+      await this.algorand.submitTransaction(signedTransactions)
+    } catch (error) {
+      this.logger.error(error)
+      await baseQuery.patch({
+        error: error.message,
+        status: AlgorandTransactionStatus.Failed,
+      })
+      return 0
+    }
+
+    await baseQuery.patch({
+      status: AlgorandTransactionStatus.Pending,
+    })
+
+    await EventModel.query(trx).insert(
+      transactions.map((t) => ({
+        action: EventAction.Update,
+        entityId: t.id,
+        entityType: EventEntityType.AlgorandTransaction,
+      }))
+    )
+
+    return transactions.length
   }
 
   async confirmPendingTransactions(limit = 16, trx?: Transaction) {

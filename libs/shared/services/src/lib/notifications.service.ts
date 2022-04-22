@@ -30,7 +30,7 @@ const isResponseError = (error: unknown): error is ResponseError => {
  *   to not sending one at all.
  */
 const expectVariables = (
-  variables,
+  variables: Record<string, unknown>,
   variableNames: string[],
   logger: pino.Logger<unknown>
 ) => {

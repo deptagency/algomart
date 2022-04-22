@@ -134,7 +134,7 @@ export class ApiClient {
       .get<PublicAccount>(`accounts/${externalId}`)
       .then((response) => response.data)
       .catch((error) => {
-        if (axios.isAxiosError(error) && error.response.status === 404) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
           return null
         }
         throw error
@@ -148,7 +148,7 @@ export class ApiClient {
       })
       .then((response) => response.data)
       .catch((error) => {
-        if (axios.isAxiosError(error) && error.response.status === 404) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
           return null
         }
         throw error
@@ -205,7 +205,7 @@ export class ApiClient {
       .get<CollectibleListShowcase>('collectibles/showcase', { params })
       .then((response) => response.data)
       .catch((error) => {
-        if (axios.isAxiosError(error) && error.response.status === 404) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
           return null
         }
         throw error

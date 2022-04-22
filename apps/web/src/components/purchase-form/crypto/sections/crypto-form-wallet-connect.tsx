@@ -1,4 +1,5 @@
 import { CheckoutStatus, PaymentStatus, ToPaymentBase } from '@algomart/schemas'
+import { encodeTransaction } from '@algomart/shared/algorand'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useRef, useState } from 'react'
 
@@ -6,9 +7,7 @@ import css from './crypto-form.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
-import { useI18n } from '@/contexts/i18n-context'
 import { usePaymentContext } from '@/contexts/payment-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { AlgorandAdapter, ChainType, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
 import { CheckoutService } from '@/services/checkout-service'
@@ -33,8 +32,6 @@ export default function CryptoFormWalletConnect({
     usePaymentContext()
 
   const { t } = useTranslation()
-  const currency = useCurrency()
-  const { conversionRate } = useI18n()
   const [connected, setConnected] = useState(false)
   const [account, setAccount] = useState<string>('')
   const connectorReference = useRef<IConnector>()
@@ -111,11 +108,7 @@ export default function CryptoFormWalletConnect({
       })
       // User signs transaction and we submit to Algorand network
       const txn = await connector
-        .signTransaction([
-          {
-            txn: assetTx,
-          },
-        ])
+        .signTransaction([await encodeTransaction(assetTx)])
         .catch(() => null)
       setLoadingText(t('common:statuses.Sent Transaction'))
       if (txn) {
@@ -148,8 +141,6 @@ export default function CryptoFormWalletConnect({
     account,
     address,
     connected,
-    conversionRate,
-    currency,
     handlePurchase,
     price,
     release?.templateId,

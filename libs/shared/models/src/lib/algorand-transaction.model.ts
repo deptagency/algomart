@@ -16,6 +16,8 @@ export class AlgorandTransactionModel extends BaseModel {
   groupId!: string | null
   error!: string | null
   encodedTransaction!: string | null
+  encodedSignedTransaction!: string | null
+  order!: number | null
   signer!: string | null
 
   group?: AlgorandTransactionGroupModel

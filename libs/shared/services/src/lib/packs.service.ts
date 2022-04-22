@@ -155,7 +155,10 @@ export class PacksService {
 
   // #endregion
 
-  async getPublishedPacksByTemplateIds(templateIds, language = DEFAULT_LANG) {
+  async getPublishedPacksByTemplateIds(
+    templateIds: string[],
+    language = DEFAULT_LANG
+  ) {
     const templates = await this.cms.findPacksByTemplateIds(
       templateIds,
       language

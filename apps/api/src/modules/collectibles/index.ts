@@ -9,6 +9,7 @@ import {
   InitializeTransferCollectibleSchema,
   SingleCollectibleQuerystringSchema,
   TransferCollectibleSchema,
+  WalletTransactionSchema,
 } from '@algomart/schemas'
 import { appErrorHandler } from '@algomart/shared/utils'
 import bearerAuthOptions from '@api/configuration/bearer-auth'
@@ -143,13 +144,7 @@ export async function collectiblesRoutes(app: FastifyInstance) {
           security,
           body: InitializeTransferCollectibleSchema,
           response: {
-            200: Type.Array(
-              Type.Object({
-                txnId: Type.String(),
-                txn: Type.String(),
-                signer: Type.String(),
-              })
-            ),
+            200: Type.Array(WalletTransactionSchema),
           },
         },
       },
@@ -181,13 +176,7 @@ export async function collectiblesRoutes(app: FastifyInstance) {
           security,
           body: InitializeTransferCollectibleSchema,
           response: {
-            200: Type.Array(
-              Type.Object({
-                txnId: Type.String(),
-                txn: Type.String(),
-                signer: Type.String(),
-              })
-            ),
+            200: Type.Array(WalletTransactionSchema),
           },
         },
       },

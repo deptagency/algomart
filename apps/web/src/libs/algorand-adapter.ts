@@ -1,3 +1,4 @@
+import { WalletTransaction } from '@algomart/shared/algorand'
 import type {
   Algodv2,
   Indexer,
@@ -28,15 +29,9 @@ export interface IAssetData {
   url?: string
 }
 
-export interface UnsignedTransaction {
-  txn: Transaction
-  signers?: string[]
-}
-
 export interface IConnector extends EventEmitter {
   signTransaction(
-    unsignedTransactions: UnsignedTransaction[],
-    message?: string,
+    unsignedTransactions: WalletTransaction[],
     skipSubmit?: boolean
   ): Promise<(Uint8Array | null)[]>
   connect(): Promise<void>
