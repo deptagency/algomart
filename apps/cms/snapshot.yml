@@ -1,5 +1,5 @@
 version: 1
-directus: 9.8.0
+directus: 9.9.1
 collections:
   - collection: application
     meta:

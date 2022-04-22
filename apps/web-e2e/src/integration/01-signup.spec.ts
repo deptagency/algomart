@@ -1,9 +1,8 @@
-import { getGreeting } from '../support/app.po'
-
 describe('signup', () => {
   let email: string, passphrase: string, password: string, username: string
   beforeEach(() => {
     cy.configureCypressTestingLibrary({})
+    cy.setCookie('cookie-consent', '1')
     cy.fixture('firebase')
       .as('credentials')
       .then((c) => {
@@ -19,15 +18,15 @@ describe('signup', () => {
     // Navigate to the signup page from the login page, as a user would
     cy.visit('/login')
     cy.url().should('include', '/login')
-    getGreeting().contains('Welcome')
+    cy.contains('Welcome')
     // Click to sign in with email
     cy.get('button[type=button]').findByText('Sign in with Email').click()
     cy.location('pathname').should('include', '/login-email')
-    getGreeting().contains('Sign into your account')
+    cy.contains('Sign into your account')
     // Click to create a new account
     cy.get('a[href="/signup"]').click()
     cy.location('pathname').should('include', '/signup')
-    getGreeting().contains('Setup your account')
+    cy.contains('Setup your account')
     // Fill in and submit the login form
     cy.get('input[name=email]').type(email)
     cy.get('input[name=username]').type(username)

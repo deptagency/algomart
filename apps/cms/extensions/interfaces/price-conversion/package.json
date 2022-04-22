@@ -6,7 +6,7 @@
     "type": "interface",
     "path": "index.js",
     "source": "src/index.ts",
-    "host": "9.8.0",
+    "host": "9.9.1",
     "hidden": false
   }
 }

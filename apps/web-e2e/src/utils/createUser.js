@@ -22,7 +22,8 @@ const createUserInApi = (uid) => {
       {
         externalId: uid,
         email: process.env.email,
-        locale: 'en-US',
+        language: 'en-US',
+        currency: 'USD',
         passphrase: process.env.passphrase,
         username: process.env.username,
       },
@@ -35,7 +36,10 @@ const createUserInApi = (uid) => {
       process.exitCode = 0
     })
     .catch((error) => {
-      console.log('Unable to create Firebase user in database', error)
+      console.log('Unable to create Firebase user in database', {
+        error: error.message,
+        response: error.response?.data?.message,
+      })
       process.exitCode = 1
     })
 }
