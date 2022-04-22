@@ -66,9 +66,6 @@ src/ # Main source code
   api/ # Root setup for the api server
   configuration/ # Environment configurations
   contracts/ # Compiled TEAL contracts
-  languages/ # Interpolated i18n translation files used for email notifications
-    [language]/ # e.g. en-US
-      emails.json # Grouping of translatable JSON
   modules/ # API service layer (routes, handlers, db interactions)
   seeds/ # Database seeding scripts
 test/ # Test environment configurations

@@ -14,8 +14,7 @@
         "main": "apps/scribe/src/main.ts",
         "tsConfig": "apps/scribe/tsconfig.app.json",
         "assets": [
-          "apps/scribe/src/languages",
-          "apps/scribe/src/assets"
+          "apps/scribe/src/languages"
         ]
       },
       "configurations": {
