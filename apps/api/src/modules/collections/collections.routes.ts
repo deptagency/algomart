@@ -23,7 +23,6 @@ export async function getCollection(
   const collectionsService = request
     .getContainer()
     .get<CollectionsService>(CollectionsService.name)
-  // TODO: get language from request
   const collection = await collectionsService.getCollectionBySlug(
     request.params.slug
   )

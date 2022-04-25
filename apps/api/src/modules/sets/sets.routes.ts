@@ -7,7 +7,6 @@ export async function getSet(
   reply: FastifyReply
 ) {
   const setsService = request.getContainer().get<SetsService>(SetsService.name)
-  // TODO: get language from request
   const set = await setsService.getBySlug(
     request.params.slug,
     request.query.language
