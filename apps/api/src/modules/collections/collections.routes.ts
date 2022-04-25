@@ -9,7 +9,6 @@ export async function getAllCollections(
   const collectionsService = request
     .getContainer()
     .get<CollectionsService>(CollectionsService.name)
-  // TODO: get language from request
   const collections = await collectionsService.getAllCollections(
     request.query.language
   )
