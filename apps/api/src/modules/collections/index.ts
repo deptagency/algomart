@@ -1,8 +1,4 @@
-import {
-  CollectionWithSetsSchema,
-  DropdownLanguageSchema,
-  SlugSchema,
-} from '@algomart/schemas'
+import { CollectionWithSetsSchema, SlugSchema } from '@algomart/schemas'
 import { appErrorHandler } from '@algomart/shared/utils'
 import bearerAuthOptions from '@api/configuration/bearer-auth'
 import { Type } from '@sinclair/typebox'
@@ -33,7 +29,6 @@ export async function collectionsRoutes(app: FastifyInstance) {
         schema: {
           tags,
           security,
-          querystring: DropdownLanguageSchema,
           response: {
             200: Type.Object({
               total: Type.Integer(),
@@ -50,7 +45,6 @@ export async function collectionsRoutes(app: FastifyInstance) {
         schema: {
           tags,
           security,
-          querystring: DropdownLanguageSchema,
           params: SlugSchema,
           response: {
             200: CollectionWithSetsSchema,
