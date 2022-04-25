@@ -8,7 +8,7 @@ import NotableCollectible from '@/components/collectibles/collectible-notable'
 import FeaturedPack from '@/components/featured-pack/featured-pack'
 import Grid from '@/components/grid/grid'
 import Heading from '@/components/heading'
-import ReleaseItem from '@/components/releases/release-item'
+import ProductItem from '@/components/releases/release-item'
 import { urls } from '@/utils/urls'
 
 export interface HomeTemplateProps {
@@ -46,9 +46,9 @@ export default function HomeTemplate({
               {upcomingPacks.map((pack) => (
                 <AppLink
                   key={pack.templateId}
-                  href={urls.release.replace(':packSlug', pack.slug)}
+                  href={urls.products.replace(':packSlug', pack.slug)}
                 >
-                  <ReleaseItem pack={pack} />
+                  <ProductItem pack={pack} />
                 </AppLink>
               ))}
             </Grid>

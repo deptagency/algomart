@@ -46,7 +46,7 @@ export default function MyCollectionsPage() {
             collectibles,
             allCollections
           )}
-          onRedirectBrands={() => router.push(urls.releases)}
+          onRedirectBrands={() => router.push(urls.browse)}
         />
       )}
     </DefaultLayout>

@@ -18,7 +18,7 @@ export default function PaymentStatusTemplate({
   const { push } = useRouter()
 
   const handleRetry = useCallback(() => {
-    push(urls.releases)
+    push(urls.browse)
   }, [push])
 
   const handlePackOpening = useCallback((packId: string) => {

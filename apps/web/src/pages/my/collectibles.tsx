@@ -79,7 +79,7 @@ export default function MyCollectiblesPage() {
           assets={collectibles}
           currentPage={currentPage}
           onPageChange={handlePageChange}
-          onRedirectBrands={() => router.push(urls.releases)}
+          onRedirectBrands={() => router.push(urls.browse)}
           onSortChange={handleSortChange}
           sortMode={sortMode}
           sortOptions={sortOptions}

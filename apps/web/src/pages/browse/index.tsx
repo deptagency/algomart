@@ -1,4 +1,9 @@
-import { DEFAULT_LANG, PackType, PublishedPacks } from '@algomart/schemas'
+import {
+  DEFAULT_LANG,
+  PackType,
+  Products,
+  ProductType,
+} from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
@@ -6,22 +11,22 @@ import { parse, stringify } from 'query-string'
 import { useEffect, useMemo } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
-import { PackFilterProvider } from '@/contexts/pack-filter-context'
+import { ProductFilterProvider } from '@/contexts/product-filter-context'
 import { useCurrency } from '@/hooks/use-currency'
 import { useLanguage } from '@/hooks/use-language'
-import { usePackFilter } from '@/hooks/use-pack-filter'
+import { useProductFilter } from '@/hooks/use-product-filter'
 import DefaultLayout from '@/layouts/default-layout'
-import ReleasesTemplate from '@/templates/releases-template'
+import ProductsTemplate from '@/templates/releases-template'
 import {
-  getPublishedPacksFilterQueryFromState,
-  searchPublishedPacksFilterQuery,
+  getProductFilterQueryFromState,
+  searchProductsFilterQuery,
 } from '@/utils/filters'
 import { useApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
 
-export const RELEASES_PER_PAGE = 9
+export const PRODUCTS_PER_PAGE = 9
 
-export default function Releases({ packs }: PublishedPacks) {
+export default function Browse({ products }: Products) {
   const { t } = useTranslation()
   const language = useLanguage()
   const currency = useCurrency()
@@ -40,20 +45,16 @@ export default function Releases({ packs }: PublishedPacks) {
   )
 
   // Set initial filter state based off of URL parsing
-  const { dispatch, state } = usePackFilter(initialState)
+  const { dispatch, state } = useProductFilter(initialState)
 
   const queryString = useMemo(() => {
-    const query = getPublishedPacksFilterQueryFromState(
-      language,
-      state,
-      currency
-    )
-    query.pageSize = RELEASES_PER_PAGE
-    return searchPublishedPacksFilterQuery(query)
+    const query = getProductFilterQueryFromState(language, state, currency)
+    query.pageSize = PRODUCTS_PER_PAGE
+    return searchProductsFilterQuery(query)
   }, [language, state, currency])
 
-  const { data, isValidating } = useApi<PublishedPacks>(
-    `${urls.api.v1.getPublishedPacks}?${queryString}`
+  const { data, isValidating } = useApi<Products>(
+    `${urls.api.v1.searchProducts}?${queryString}`
   )
 
   // If state changes, update the URL
@@ -75,25 +76,25 @@ export default function Releases({ packs }: PublishedPacks) {
 
   return (
     <DefaultLayout pageTitle={t('common:pageTitles.Releases')} width="full">
-      <PackFilterProvider value={{ dispatch, state }}>
-        <ReleasesTemplate
+      <ProductFilterProvider value={{ dispatch, state }}>
+        <ProductsTemplate
           isLoading={isValidating}
-          packs={data?.packs || packs}
+          products={data?.products || products}
           total={data?.total || 0}
         />
-      </PackFilterProvider>
+      </ProductFilterProvider>
     </DefaultLayout>
   )
 }
 
-export const getServerSideProps: GetServerSideProps<PublishedPacks> = async ({
+export const getServerSideProps: GetServerSideProps<Products> = async ({
   locale,
 }) => {
-  const { packs, total } = await ApiClient.instance.searchPublishedPacks({
+  const { products, total } = await ApiClient.instance.searchProducts({
     language: locale || DEFAULT_LANG,
     page: 1,
-    pageSize: RELEASES_PER_PAGE,
-    type: [PackType.Auction, PackType.Purchase],
+    pageSize: PRODUCTS_PER_PAGE,
+    type: [ProductType.Auction, ProductType.Purchase],
   })
-  return { props: { packs, total } }
+  return { props: { products, total } }
 }

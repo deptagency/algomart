@@ -43,7 +43,7 @@ export default function MySetPage({ set, collection }: MySetPageProps) {
       ) : (
         <MySetTemplate
           assets={collectibles}
-          handleRedirectBrand={() => router.push(urls.releases)}
+          handleRedirectBrand={() => router.push(urls.browse)}
           set={set}
           collection={collection}
         />

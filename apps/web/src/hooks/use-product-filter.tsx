@@ -1,4 +1,4 @@
-import { PackSortField, SortDirection, SortOptions } from '@algomart/schemas'
+import { ProductSortField, SortDirection, SortOptions } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 import { Dispatch, useMemo, useReducer } from 'react'
 
@@ -13,7 +13,7 @@ import {
 /**
  * Pack filter reducer
  */
-export interface PackFilterState {
+export interface ProductFilterState {
   currentPage: number
   priceHigh: number
   priceLow: number
@@ -21,11 +21,12 @@ export interface PackFilterState {
   selectOptions: SelectOption[]
   showAuction: boolean
   showPurchase: boolean
+  showSecondaryMarket: boolean
   showAuctionUpcoming: boolean
   showAuctionActive: boolean
   showAuctionExpired: boolean
   showAuctionReserveMet: boolean
-  sortBy: PackSortField
+  sortBy: ProductSortField
   sortDirection: SortDirection
 }
 
@@ -33,13 +34,14 @@ const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE'
 const SET_PRICE = 'SET_PRICE'
 const SET_SHOW_AUCTION = 'SET_SHOW_AUCTION'
 const SET_SHOW_PURCHASE = 'SET_SHOW_PURCHASE'
+const SET_SHOW_SECONDARY_MARKET = 'SET_SHOW_SECONDART_MARKET'
 const SET_SHOW_AUCTION_UPCOMING = 'SET_SHOW_AUCTION_UPCOMING'
 const SET_SHOW_AUCTION_ACTIVE = 'SET_SHOW_AUCTION_ACTIVE'
 const SET_SHOW_AUCTION_EXPIRED = 'SET_SHOW_AUCTION_EXPIRED'
 const SET_SHOW_AUCTION_RESERVE_MET = 'SET_SHOW_AUCTION_RESERVE_MET'
 const SET_SORT = 'SET_SORT'
 
-export const packFilterActions = {
+export const productFilterActions = {
   setCurrentPage: createActionPayload<typeof SET_CURRENT_PAGE, number>(
     SET_CURRENT_PAGE
   ),
@@ -53,6 +55,10 @@ export const packFilterActions = {
   setShowPurchase: createActionPayload<typeof SET_SHOW_PURCHASE, boolean>(
     SET_SHOW_PURCHASE
   ),
+  setShowSecondaryMarket: createActionPayload<
+    typeof SET_SHOW_SECONDARY_MARKET,
+    boolean
+  >(SET_SHOW_SECONDARY_MARKET),
   setShowAuctionUpcoming: createActionPayload<
     typeof SET_SHOW_AUCTION_UPCOMING,
     boolean
@@ -72,7 +78,7 @@ export const packFilterActions = {
   setSort: createActionPayload<typeof SET_SORT, string>(SET_SORT),
 }
 
-export type PackFilterActions = Dispatch<
+export type ProductFilterActions = Dispatch<
   | ActionsWithPayload<typeof SET_CURRENT_PAGE, number>
   | ActionsWithPayload<
       typeof SET_PRICE,
@@ -80,6 +86,7 @@ export type PackFilterActions = Dispatch<
     >
   | ActionsWithPayload<typeof SET_SHOW_AUCTION, boolean>
   | ActionsWithPayload<typeof SET_SHOW_PURCHASE, boolean>
+  | ActionsWithPayload<typeof SET_SHOW_SECONDARY_MARKET, boolean>
   | ActionsWithPayload<typeof SET_SHOW_AUCTION_UPCOMING, boolean>
   | ActionsWithPayload<typeof SET_SHOW_AUCTION_ACTIVE, boolean>
   | ActionsWithPayload<typeof SET_SHOW_AUCTION_EXPIRED, boolean>
@@ -87,15 +94,15 @@ export type PackFilterActions = Dispatch<
   | ActionsWithPayload<typeof SET_SORT, string>
 >
 
-export interface PackFilter {
-  dispatch: PackFilterActions
-  state: PackFilterState
+export interface ProductFilter {
+  dispatch: ProductFilterActions
+  state: ProductFilterState
 }
 
-export function packFilterReducer(
-  state: PackFilterState,
-  action: ActionsUnion<typeof packFilterActions>
-): PackFilterState {
+export function productFilterReducer(
+  state: ProductFilterState,
+  action: ActionsUnion<typeof productFilterActions>
+): ProductFilterState {
   switch (action.type) {
     case SET_CURRENT_PAGE:
       return { ...state, currentPage: action.payload }
@@ -110,6 +117,8 @@ export function packFilterReducer(
       return { ...state, currentPage: 1, showAuction: action.payload }
     case SET_SHOW_PURCHASE:
       return { ...state, currentPage: 1, showPurchase: action.payload }
+    case SET_SHOW_SECONDARY_MARKET:
+      return { ...state, currentPage: 1, showSecondaryMarket: action.payload }
     case SET_SHOW_AUCTION_UPCOMING:
       return { ...state, currentPage: 1, showAuctionUpcoming: action.payload }
     case SET_SHOW_AUCTION_ACTIVE:
@@ -121,15 +130,15 @@ export function packFilterReducer(
     case SET_SORT: {
       const [sortBy, sortDirection] = {
         [SortOptions.Newest]: [
-          PackSortField.ReleasedAt,
+          ProductSortField.ReleasedAt,
           SortDirection.Descending,
         ],
         [SortOptions.Oldest]: [
-          PackSortField.ReleasedAt,
+          ProductSortField.ReleasedAt,
           SortDirection.Ascending,
         ],
-        [SortOptions.Name]: [PackSortField.Title, SortDirection.Ascending],
-      }[action.payload] as [PackSortField, SortDirection]
+        [SortOptions.Name]: [ProductSortField.Title, SortDirection.Ascending],
+      }[action.payload] as [ProductSortField, SortDirection]
       return {
         ...state,
         currentPage: 1,
@@ -143,11 +152,11 @@ export function packFilterReducer(
   }
 }
 
-// usePackFilter hook
-export function usePackFilter(initialState?: Partial<PackFilterState>) {
+// useProductFilter hook
+export function useProductFilter(initialState?: Partial<ProductFilterState>) {
   const { t } = useTranslation()
   const selectOptions = getSelectSortingOptions(t)
-  const [state, dispatch] = useReducer(packFilterReducer, {
+  const [state, dispatch] = useReducer(productFilterReducer, {
     currentPage: 1,
     priceHigh: 50_000,
     priceLow: 0,
@@ -155,11 +164,12 @@ export function usePackFilter(initialState?: Partial<PackFilterState>) {
     selectOptions,
     showAuction: true,
     showPurchase: true,
+    showSecondaryMarket: false,
     showAuctionUpcoming: true,
     showAuctionActive: true,
     showAuctionExpired: true,
     showAuctionReserveMet: false,
-    sortBy: PackSortField.ReleasedAt,
+    sortBy: ProductSortField.ReleasedAt,
     sortDirection: SortDirection.Descending,
     ...initialState,
   })

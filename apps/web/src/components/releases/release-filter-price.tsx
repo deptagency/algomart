@@ -8,8 +8,8 @@ import css from './release-filter.module.css'
 import Button from '@/components/button'
 import CurrencyInput from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
-import { usePackFilterContext } from '@/contexts/pack-filter-context'
-import { packFilterActions } from '@/hooks/use-pack-filter'
+import { usePackFilterContext } from '@/contexts/product-filter-context'
+import { productFilterActions } from '@/hooks/use-product-filter'
 
 export default function ReleaseFilterPrice() {
   const { t } = useTranslation()
@@ -18,7 +18,7 @@ export default function ReleaseFilterPrice() {
   const [priceHigh, setPriceHigh] = useState(state.priceHigh)
 
   const handleApplyPriceRange = () => {
-    dispatch(packFilterActions.setPrice({ priceLow, priceHigh }))
+    dispatch(productFilterActions.setPrice({ priceLow, priceHigh }))
   }
 
   const isRangeApplied =

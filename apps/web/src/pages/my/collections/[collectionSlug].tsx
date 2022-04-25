@@ -41,7 +41,7 @@ export default function MyCollectionPage({
         <MyCollectionTemplate
           assets={collectibles}
           collection={collection}
-          handleRedirectBrand={() => router.push(urls.releases)}
+          handleRedirectBrand={() => router.push(urls.browse)}
         />
       )}
     </DefaultLayout>

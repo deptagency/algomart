@@ -17,7 +17,7 @@ export default function Custom404Template() {
         components={[
           <p className="px-4 mb-12 text-center" key={0} />,
           <AppLink key={1} href={urls.home} />,
-          <AppLink key={2} href={urls.releases} />,
+          <AppLink key={2} href={urls.browse} />,
         ]}
         i18nKey="common:global.404.body"
       />

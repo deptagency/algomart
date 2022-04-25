@@ -17,7 +17,7 @@ export default function Home({ page }: HomeProps) {
 
   const onClickFeatured = useCallback(() => {
     if (page?.featuredPack) {
-      push(urls.release.replace(':packSlug', page.featuredPack.slug))
+      push(urls.products.replace(':packSlug', page.featuredPack.slug))
     }
   }, [page?.featuredPack, push])
 

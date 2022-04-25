@@ -2,10 +2,14 @@ import {
   CollectibleListQuerystring,
   GetCurrencyConversion,
   GetCurrencyConversions,
+  PackBySlugQuery,
   PacksByOwnerQuery,
   PackStatus,
   PackType,
   PaymentsQuerystring,
+  ProductQuery,
+  ProductStatus,
+  ProductType,
   PublishedPacksQuery,
   SortOptions,
   UsersQuerystring,
@@ -15,12 +19,33 @@ import { stringify } from 'query-string'
 
 import { PAGE_SIZE } from '@/components/pagination/pagination'
 import { SelectOption } from '@/components/select/select'
-import { PackFilterState } from '@/hooks/use-pack-filter'
+import { ProductFilterState } from '@/hooks/use-product-filter'
+
+/**
+ * Build a search parameter string to filter products
+ */
+export const searchProductsFilterQuery = (query: ProductQuery) => {
+  return stringify({
+    currency: query.currency,
+    language: query.language,
+    page: query.page,
+    pageSize: query.pageSize || PAGE_SIZE,
+    priceHigh: query.priceHigh,
+    priceLow: query.priceLow,
+    reserveMet: query.reserveMet,
+    secondaryMarket: query.secondaryMarket,
+    slug: query.slug,
+    sortBy: query.sortBy,
+    sortDirection: query.sortDirection,
+    templateIds: query.templateIds,
+    status: query.status,
+    type: query.type,
+  })
+}
 
 /**
  * Build a search parameter string to filter published packs
  */
-
 export const searchPublishedPacksFilterQuery = (query: PublishedPacksQuery) => {
   return stringify({
     currency: query.currency,
@@ -39,6 +64,13 @@ export const searchPublishedPacksFilterQuery = (query: PublishedPacksQuery) => {
   })
 }
 
+export const getPackBySlugFilterQuery = (query: PackBySlugQuery) => {
+  return stringify({
+    language: query.language,
+    slug: query.slug,
+  })
+}
+
 export const getPacksByOwnerFilterQuery = (query: PacksByOwnerQuery) => {
   return stringify({
     language: query.language,
@@ -53,21 +85,21 @@ export const getPacksByOwnerFilterQuery = (query: PacksByOwnerQuery) => {
 }
 
 /**
- * Formats a PublishedPacksQuery object from state of useFilterReducer
+ * Formats a ProductQuery object from state of useFilterReducer
  */
-export const getPublishedPacksFilterQueryFromState = (
+export const getProductFilterQueryFromState = (
   language: string,
-  state: PackFilterState,
+  state: ProductFilterState,
   currency: string
-): PublishedPacksQuery => {
-  const status: PackStatus[] = []
-  if (state.showAuctionExpired) status.push(PackStatus.Expired)
-  if (state.showAuctionActive) status.push(PackStatus.Active)
-  if (state.showAuctionUpcoming) status.push(PackStatus.Upcoming)
+): ProductQuery => {
+  const status: ProductStatus[] = []
+  if (state.showAuctionExpired) status.push(ProductStatus.Expired)
+  if (state.showAuctionActive) status.push(ProductStatus.Active)
+  if (state.showAuctionUpcoming) status.push(ProductStatus.Upcoming)
 
-  const type: PackType[] = []
-  if (state.showAuction) type.push(PackType.Auction)
-  if (state.showPurchase) type.push(PackType.Purchase)
+  const type: ProductType[] = []
+  if (state.showAuction) type.push(ProductType.Auction)
+  if (state.showPurchase) type.push(ProductType.Purchase)
 
   return {
     language,
@@ -76,6 +108,7 @@ export const getPublishedPacksFilterQueryFromState = (
     priceHigh: state.priceHigh,
     priceLow: state.priceLow,
     reserveMet: state.showAuctionReserveMet,
+    secondaryMarket: state.showSecondaryMarket,
     sortBy: state.sortBy,
     sortDirection: state.sortDirection,
     status,
@@ -86,7 +119,6 @@ export const getPublishedPacksFilterQueryFromState = (
 /**
  * Build a search parameter string to filter collectibles
  */
-
 export const getCollectiblesFilterQuery = (
   query: CollectibleListQuerystring
 ) => {

@@ -49,6 +49,8 @@ import {
   PaymentCards,
   Payments,
   PaymentsQuerystring,
+  ProductQuery,
+  Products,
   PublicAccount,
   PublicKey,
   PublishedPack,
@@ -80,9 +82,11 @@ import {
   getCollectiblesFilterQuery,
   getCurrencyConversionQuery,
   getCurrencyConversionsQuery,
+  getPackBySlugFilterQuery,
   getPacksByOwnerFilterQuery,
   getPaymentsFilterQuery,
   getUsersFilterQuery,
+  searchProductsFilterQuery,
   searchPublishedPacksFilterQuery,
 } from '@/utils/filters'
 import { HttpTransport, validateStatus } from '@/utils/http-transport'
@@ -405,7 +409,7 @@ export class ApiClient {
   }
 
   async getPublishedPackBySlug(slug: string, language: string) {
-    const searchQuery = searchPublishedPacksFilterQuery({ language })
+    const searchQuery = getPackBySlugFilterQuery({ language, slug })
     return await this.http
       .get<PublishedPack>(`packs/by-slug/${slug}?${searchQuery}`)
       .then((response) => response.data)
@@ -579,5 +583,15 @@ export class ApiClient {
       .get<Countries>('application/countries')
       .then((response) => response.data)
   }
+  //#endregion
+
+  //#region Search
+  async searchProducts(query: ProductQuery) {
+    const searchQuery = searchProductsFilterQuery(query)
+    return await this.http
+      .get<Products>(`products?${searchQuery}`)
+      .then((response) => response.data)
+  }
+
   //#endregion
 }

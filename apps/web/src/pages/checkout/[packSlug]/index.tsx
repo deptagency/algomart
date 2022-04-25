@@ -97,7 +97,7 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
   if (!packTemplate.available) {
     return {
       redirect: {
-        destination: urlFor(urls.release, { packSlug }),
+        destination: urlFor(urls.products, { packSlug }),
         permanent: false,
       },
     }
@@ -115,7 +115,7 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
     ) {
       return {
         redirect: {
-          destination: urlFor(urls.release, { packSlug }),
+          destination: urlFor(urls.products, { packSlug }),
           permanent: false,
         },
       }
@@ -130,7 +130,7 @@ export const getServerSideProps: GetServerSideProps<CheckoutPageProps> = async (
     if (total > 0) {
       return {
         redirect: {
-          destination: urlFor(urls.release, { packSlug }),
+          destination: urlFor(urls.products, { packSlug }),
           permanent: false,
         },
       }

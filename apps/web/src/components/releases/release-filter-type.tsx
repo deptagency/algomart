@@ -5,12 +5,12 @@ import css from './release-filter.module.css'
 
 import Heading from '@/components/heading'
 import Toggle from '@/components/toggle/toggle'
-import { usePackFilterContext } from '@/contexts/pack-filter-context'
-import { packFilterActions } from '@/hooks/use-pack-filter'
+import { useProductFilterContext } from '@/contexts/product-filter-context'
+import { productFilterActions } from '@/hooks/use-product-filter'
 
 export default function ReleaseFilterType() {
   const { t } = useTranslation()
-  const { dispatch, state } = usePackFilterContext()
+  const { dispatch, state } = useProductFilterContext()
 
   return (
     <div className={css.root}>
@@ -23,7 +23,7 @@ export default function ReleaseFilterType() {
             checked={state.showPurchase}
             label={t('release:filters.Purchase')}
             onChange={(checked) => {
-              dispatch(packFilterActions.setShowPurchase(checked))
+              dispatch(productFilterActions.setShowPurchase(checked))
             }}
           />
         </div>
@@ -32,7 +32,18 @@ export default function ReleaseFilterType() {
             checked={state.showAuction}
             label={t('release:filters.Auction')}
             onChange={(checked) => {
-              dispatch(packFilterActions.setShowAuction(checked))
+              dispatch(productFilterActions.setShowAuction(checked))
+            }}
+          />
+        </div>
+      </div>
+      <div className={css.filterRow}>
+        <div className={css.filterItem}>
+          <Toggle
+            checked={state.showSecondaryMarket}
+            label={t('releases:filters.Secondary Market')}
+            onChange={(checked) => {
+              dispatch(productFilterActions.setShowSecondaryMarket(checked))
             }}
           />
         </div>
@@ -49,7 +60,7 @@ export default function ReleaseFilterType() {
                 checked={state.showAuctionUpcoming}
                 label={t('release:filters.Starting soon')}
                 onChange={(checked) => {
-                  dispatch(packFilterActions.setShowAuctionUpcoming(checked))
+                  dispatch(productFilterActions.setShowAuctionUpcoming(checked))
                 }}
               />
             </div>
@@ -58,7 +69,7 @@ export default function ReleaseFilterType() {
                 checked={state.showAuctionActive}
                 label={t('release:filters.Auction is live')}
                 onChange={(checked) => {
-                  dispatch(packFilterActions.setShowAuctionActive(checked))
+                  dispatch(productFilterActions.setShowAuctionActive(checked))
                 }}
               />
             </div>
@@ -67,7 +78,7 @@ export default function ReleaseFilterType() {
                 checked={state.showAuctionExpired}
                 label={t('release:filters.Has ended')}
                 onChange={(checked) => {
-                  dispatch(packFilterActions.setShowAuctionExpired(checked))
+                  dispatch(productFilterActions.setShowAuctionExpired(checked))
                 }}
               />
             </div>
@@ -78,7 +89,9 @@ export default function ReleaseFilterType() {
                 checked={state.showAuctionReserveMet}
                 label={t('release:filters.Reserve met')}
                 onChange={(checked) => {
-                  dispatch(packFilterActions.setShowAuctionReserveMet(checked))
+                  dispatch(
+                    productFilterActions.setShowAuctionReserveMet(checked)
+                  )
                 }}
               />
             </div>
