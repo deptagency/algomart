@@ -1,3 +1,4 @@
+import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import clsx from 'clsx'
 import { useState } from 'react'
 import CurrencyInputField, {
@@ -56,7 +57,10 @@ export default function CurrencyInput({
     if (onBlur) onBlur(event_)
   }
 
-  const localizedValue = formatCurrency(value, locale, currency, conversionRate)
+  const localizedValue =
+    currency !== DEFAULT_CURRENCY
+      ? formatCurrency(value, locale, currency, conversionRate)
+      : undefined
 
   const inputField = (
     <CurrencyInputField
@@ -79,7 +83,7 @@ export default function CurrencyInput({
       readOnly={readOnly}
       value={stringValue}
       step={1}
-      intlConfig={{ locale: 'en-US', currency: 'USD' }}
+      intlConfig={{ locale: locale, currency: DEFAULT_CURRENCY }}
       onBlur={handleBlur}
       {...props}
     />
