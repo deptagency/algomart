@@ -66,6 +66,8 @@ Then go back and refresh, and you should see images!
 
 ## Configure Webhook for Scribe
 
+Running the seed should do this for you, but otherwise the steps are:
+
 1. Navigate to the CMS and login
 1. Go to Settings > Webhooks
 1. Click on Create Webhook (the round plus button)

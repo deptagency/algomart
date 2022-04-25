@@ -1,4 +1,8 @@
-import { SetWithCollectionSchema, SlugSchema } from '@algomart/schemas'
+import {
+  LanguageSchema,
+  SetWithCollectionSchema,
+  SlugSchema,
+} from '@algomart/schemas'
 import { appErrorHandler } from '@algomart/shared/utils'
 import bearerAuthOptions from '@api/configuration/bearer-auth'
 import { FastifyInstance } from 'fastify'
@@ -28,6 +32,7 @@ export async function setsRoutes(app: FastifyInstance) {
         tags,
         security,
         params: SlugSchema,
+        querystring: LanguageSchema,
         response: {
           200: SetWithCollectionSchema,
         },

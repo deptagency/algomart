@@ -1,16 +1,17 @@
-import { Slug } from '@algomart/schemas'
+import { Language, Slug } from '@algomart/schemas'
 import { CollectionsService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function getAllCollections(
-  request: FastifyRequest,
+  request: FastifyRequest<{ Querystring: Language }>,
   reply: FastifyReply
 ) {
   const collectionsService = request
     .getContainer()
     .get<CollectionsService>(CollectionsService.name)
-  // TODO: get language from request
-  const collections = await collectionsService.getAllCollections()
+  const collections = await collectionsService.getAllCollections(
+    request.query.language
+  )
   reply.send(collections)
 }
 
@@ -21,7 +22,6 @@ export async function getCollection(
   const collectionsService = request
     .getContainer()
     .get<CollectionsService>(CollectionsService.name)
-  // TODO: get language from request
   const collection = await collectionsService.getCollectionBySlug(
     request.params.slug
   )
