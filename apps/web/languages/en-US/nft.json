@@ -72,5 +72,14 @@
     "error": "Error transferring NFT.",
     "generatingTransactions": "Generating transactions for import...",
     "signTransaction": "Please confirm the transactions in your wallet to transfer the NFT."
+  },
+  "checkoutStatus": {
+    "idle": "Loading...",
+    "optingIn": "Please confirm the transaction in your wallet to send funds to the seller.",
+    "optIn": "Verifying opt-in transaction...",
+    "pending": "Sending ALGOs...",
+    "success": "ALGOs sent!",
+    "error": "Error sending ALGOs.",
+    "validation": "Checking funds in your wallet..."
   }
 }

@@ -112,7 +112,9 @@ export function usePurchaseCollectible(passphrase: string) {
         if (!signedTransaction) throw new Error('Not connected')
 
         setPurchaseStatus('pending')
-        return await algorand.waitForConfirmation(signedTransaction)
+        await algorand.waitForConfirmation(assetTx.txID())
+        setPurchaseStatus('success')
+        return
       } catch (error) {
         console.error(error)
         setPurchaseStatus('error')

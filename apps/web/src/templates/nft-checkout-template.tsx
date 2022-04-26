@@ -51,13 +51,13 @@ export default function NFTCheckoutTemplate({
   stage,
 }: NFTCheckoutTemplateProps) {
   const { t } = useTranslation()
-  const exportStatusMessage = {
-    idle: t('nft:exportStatus.idle'),
-    'generating-transactions': t('nft:exportStatus.generatingTransactions'),
-    'sign-transaction': t('nft:exportStatus.optingIn'),
-    pending: t('nft:exportStatus.pending'),
-    success: t('nft:exportStatus.success'),
-    error: t('nft:exportStatus.error'),
+  const checkoutStatus = {
+    idle: t('nft:checkoutStatus.idle'),
+    validation: t('nft:checkoutStatus.validation'),
+    'sign-transaction': t('nft:checkoutStatus.optingIn'),
+    pending: t('nft:checkoutStatus.pending'),
+    success: t('nft:checkoutStatus.success'),
+    error: t('nft:checkoutStatus.error'),
   }[purchaseStatus]
 
   return (
@@ -95,7 +95,7 @@ export default function NFTCheckoutTemplate({
       ) : null}
 
       {stage === 'purchase' ? (
-        <LoadingStage key={stage} message={exportStatusMessage} />
+        <LoadingStage key={stage} message={checkoutStatus} />
       ) : null}
 
       {stage === 'success' ? (
