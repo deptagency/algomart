@@ -1,4 +1,3 @@
-import { PaymentStatus, ToPaymentBase } from '@algomart/schemas'
 import { encodeTransaction } from '@algomart/shared/algorand'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -6,9 +5,7 @@ import { useConfig } from './use-config'
 
 import { AlgorandAdapter, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
-import { CheckoutService } from '@/services/checkout-service'
 import { formatToDecimal } from '@/utils/currency'
-import { poll } from '@/utils/poll'
 
 export type PurchaseStatus =
   | 'idle'
@@ -112,19 +109,17 @@ export function usePurchaseCollectible(passphrase: string) {
           .signTransaction([await encodeTransaction(assetTx)])
           .catch(() => null)
 
-        if (!signedTransaction) return
+        if (!signedTransaction) throw new Error('Not connected')
 
         setPurchaseStatus('pending')
-        await algorand.waitForConfirmation(signedTransaction)
-        await disconnect()
-        setPurchaseStatus('success')
+        return await algorand.waitForConfirmation(signedTransaction)
       } catch (error) {
         console.error(error)
         setPurchaseStatus('error')
-        throw error
+        throw new Error(error)
       }
     },
-    [algorand, disconnect, passphrase, retrieveAccountData, selectedAccount]
+    [algorand, passphrase, retrieveAccountData, selectedAccount]
   )
 
   const hasOptedIn = useCallback(

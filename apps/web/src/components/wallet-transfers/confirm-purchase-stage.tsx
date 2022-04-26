@@ -62,11 +62,11 @@ export default function ConfirmPurchaseStage({
           )}
         </div>
         <div>
-          <Heading level={2} className={css.title}>
+          <Heading level={2} size={3} className={css.title}>
             {title}
           </Heading>
           {subtitle ? (
-            <Heading level={4} className={css.subtitle}>
+            <Heading level={4} size={4} className={css.subtitle}>
               {subtitle}
             </Heading>
           ) : null}
@@ -78,8 +78,7 @@ export default function ConfirmPurchaseStage({
           <p className={css.price}>{'0'}</p>
         </div>
       </div>
-      <div>
-        <hr className={css.separator} />
+      <div className={css.walletSection}>
         <Heading level={3} bold className={clsx(css.stageTitle, css.alignLeft)}>
           {t('forms:sections.Wallet Balance')}
         </Heading>
@@ -118,12 +117,9 @@ export default function ConfirmPurchaseStage({
           </div>
         )}
       </div>
-      <div>
-        <Heading level={3} bold className={clsx(css.stageTitle, css.alignLeft)}>
-          {t('forms:sections.Summary')}
-        </Heading>
-        <hr className={css.separator} />
-      </div>
+      <Heading level={3} bold className={clsx(css.stageTitle, css.alignLeft)}>
+        {t('forms:sections.Summary')}
+      </Heading>
       <div className={css.summaryWrapper}>
         <table className={css.paymentGrid}>
           <tbody>
@@ -162,7 +158,6 @@ export default function ConfirmPurchaseStage({
           {t('nft:walletConnect.fineprint.linkText')}
         </LinkButton>
       </div>
-      <hr className={css.separator} />
       <div className={css.spacing}>
         <Button fullWidth onClick={onConfirm} disabled={!selectedAccount}>
           {confirmLabel}
