@@ -56,7 +56,7 @@ export default function CheckoutPage({
     router.push(urls.nft.replace(':assetId', String(collectible.address)))
   }, [collectible.address, disconnect, router])
 
-  const transfer = useCallback(async () => {
+  const purchase = useCallback(async () => {
     try {
       setStage('purchase')
       // @TODO: Pass in the seller's address instead
@@ -87,7 +87,7 @@ export default function CheckoutPage({
         onConnectWallet={connect}
         onPassphraseChange={handlePassphraseChange}
         onSelectAccount={selectAccount}
-        onTransfer={transfer}
+        onPurchase={purchase}
         stage={stage}
         purchaseStatus={purchaseStatus}
       />

@@ -1,3 +1,4 @@
+import { PaymentStatus, ToPaymentBase } from '@algomart/schemas'
 import { encodeTransaction } from '@algomart/shared/algorand'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -5,7 +6,9 @@ import { useConfig } from './use-config'
 
 import { AlgorandAdapter, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
+import { CheckoutService } from '@/services/checkout-service'
 import { formatToDecimal } from '@/utils/currency'
+import { poll } from '@/utils/poll'
 
 export type PurchaseStatus =
   | 'idle'
@@ -50,55 +53,55 @@ export function usePurchaseCollectible(passphrase: string) {
   const disconnect = useCallback(async () => {
     if (connectorReference.current) {
       await connectorReference.current.disconnect()
-      setConnected(false)
-      selectAccount('')
     }
+    setConnected(false)
+    selectAccount('')
   }, [])
 
-  const retrieveAssetData = useCallback(async () => {
-    try {
-      if (connectorReference.current && selectedAccount) {
-        const assetData = await algorand.getAssetData(selectedAccount)
-        const algoAsset = assetData.find((asset) => asset.unitName === 'ALGO')
-        console.log('algoAsset', algoAsset)
-        if (!algoAsset?.amount) return
-        const balance = formatToDecimal(algoAsset.amount, algoAsset.decimals)
-        selectAccountBalance(balance || null)
-        return algoAsset
+  const retrieveAccountData = useCallback(
+    async (address: string) => {
+      try {
+        if (connectorReference.current && address) {
+          const assetData = await algorand.getAssetData(address)
+          const algoAsset = assetData.find((asset) => asset.unitName === 'ALGO')
+          if (!algoAsset?.amount) return
+          const balance = formatToDecimal(algoAsset.amount, algoAsset.decimals)
+          selectAccountBalance(balance || null)
+          return algoAsset
+        }
+        throw new Error('No account connected')
+      } catch (error) {
+        console.error(error)
+        selectAccountBalance(null)
+        return false
       }
-      throw new Error('No account connected')
-    } catch (error) {
-      console.error(error)
-      selectAccountBalance(null)
-      return false
-    }
-  }, [algorand, selectedAccount])
+    },
+    [algorand]
+  )
 
   const purchaseCollectible = useCallback(
     async (address: string | null) => {
       try {
-        if (!address) return
+        // @TODO: Update price
+        const price = 10
 
-        const price = 0
         setPurchaseStatus('idle')
         const connector = connectorReference.current
-        if (!connector || !passphrase) return
+        if (!connector || !passphrase || !selectedAccount || !address) return
 
         setPurchaseStatus('validation')
-        const algoAsset = await retrieveAssetData()
-        console.log('algoAsset:', algoAsset)
+        const purchaserAccount = await retrieveAccountData(selectedAccount)
 
         // Check that the balance is higher than the price
-        if (!algoAsset || algoAsset.amount < price) {
+        if (!purchaserAccount || purchaserAccount.amount < price) {
           setPurchaseStatus('error')
           return
         }
 
-        const assetTx = await algorand.makeAssetTransferTransaction({
+        const assetTx = await algorand.makePaymentTransaction({
           amount: price * 10_000, // convert to microALGOs
           from: selectedAccount,
           to: address,
-          assetIndex: algoAsset.id,
           note: undefined,
           rekeyTo: undefined,
         })
@@ -108,6 +111,8 @@ export function usePurchaseCollectible(passphrase: string) {
         const signedTransaction = await connector
           .signTransaction([await encodeTransaction(assetTx)])
           .catch(() => null)
+
+        if (!signedTransaction) return
 
         setPurchaseStatus('pending')
         await algorand.waitForConfirmation(signedTransaction)
@@ -119,7 +124,7 @@ export function usePurchaseCollectible(passphrase: string) {
         throw error
       }
     },
-    [algorand, disconnect, passphrase, retrieveAssetData, selectedAccount]
+    [algorand, disconnect, passphrase, retrieveAccountData, selectedAccount]
   )
 
   const hasOptedIn = useCallback(
@@ -132,9 +137,9 @@ export function usePurchaseCollectible(passphrase: string) {
   useEffect(() => {
     // Retrieve the wallet balance when an account is selected
     if (selectedAccount) {
-      retrieveAssetData()
+      retrieveAccountData(selectedAccount)
     }
-  }, [retrieveAssetData, selectedAccount])
+  }, [retrieveAccountData, selectedAccount])
 
   return useMemo(
     () => ({

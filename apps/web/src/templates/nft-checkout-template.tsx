@@ -28,8 +28,8 @@ export interface NFTCheckoutTemplateProps {
   onCancel: () => void
   onConnectWallet: () => void
   onPassphraseChange: (passphrase: string) => void
+  onPurchase: () => void
   onSelectAccount: (account: string) => void
-  onTransfer: () => void
   purchaseStatus: PurchaseStatus
   selectedAccount: string
   selectedAccountBalance: number | null
@@ -44,8 +44,8 @@ export default function NFTCheckoutTemplate({
   onCancel,
   onConnectWallet,
   onPassphraseChange,
+  onPurchase,
   onSelectAccount,
-  onTransfer,
   selectedAccount,
   selectedAccountBalance,
   stage,
@@ -85,7 +85,7 @@ export default function NFTCheckoutTemplate({
             accounts={accounts}
             onCancel={onCancel}
             onSelectAccount={onSelectAccount}
-            onConfirm={onTransfer}
+            onConfirm={onPurchase}
             selectedAccount={selectedAccount}
             selectedAccountBalance={selectedAccountBalance}
             subtitle={collectible.collection?.name}
@@ -110,8 +110,8 @@ export default function NFTCheckoutTemplate({
         <ErrorStage
           key={stage}
           error={error}
-          linkText={t('nft:walletConnect.backToMyCollection')}
-          linkUrl={urls.myCollectibles}
+          linkText={t('common:actions.Try Again')}
+          linkUrl={urls.nft.replace(':assetId', String(collectible.address))}
         />
       ) : null}
     </div>
