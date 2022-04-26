@@ -242,7 +242,9 @@
     "Bank Address": "FR Bank Address",
     "Billing Address": "FR Billing Address",
     "Credit Card": "FR Credit Card",
+    "Purchase": "FR Purchase",
     "Summary": "FR Summary",
+    "Wallet Balance": "FR Wallet Balance",
     "Wire Transfer": "FR Wire Transfer"
   }
 }

@@ -12,12 +12,14 @@ import css from './nft-template.module.css'
 
 import Alert from '@/components/alert/alert'
 import AppLink from '@/components/app-link/app-link'
+import Button from '@/components/button'
 import ExternalLink from '@/components/external-link'
 import Heading from '@/components/heading'
 import LinkButton from '@/components/link-button'
 import MediaGallery from '@/components/media-gallery/media-gallery'
 import ReleaseDescription from '@/components/release-details/sections/release-description'
 import Tabs from '@/components/tabs/tabs'
+import { useAuth } from '@/contexts/auth-context'
 import { useConfig } from '@/hooks/use-config'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/currency'
@@ -27,6 +29,7 @@ import { urlFor, urls } from '@/utils/urls'
 export interface NFTTemplateProps {
   collectible: CollectibleWithDetails
   userAddress?: string
+  userExternalId?: string
 }
 
 function getTransferrableStatus(
@@ -41,11 +44,15 @@ function getTransferrableStatus(
 
 export default function NFTTemplate({
   userAddress,
+  userExternalId,
   collectible,
 }: NFTTemplateProps) {
   const config = useConfig()
   const { t } = useTranslation()
   const router = useRouter()
+  const { user } = useAuth()
+  const isForSale = false
+  const isCurrentOwner = collectible.currentOwner === userExternalId
   const transferrableStatus = getTransferrableStatus(collectible, userAddress)
   const isTransferrable = transferrableStatus === 'canTransfer'
   const transferMessage = {
@@ -80,6 +87,12 @@ export default function NFTTemplate({
           <Heading>{collectible.title}</Heading>
           {collectible.subtitle ? (
             <p className={css.subtitle}>{collectible.subtitle}</p>
+          ) : null}
+          {/** TODO: Purchase button */}
+          {isForSale ? (
+            <Button disabled={isCurrentOwner}>
+              {t('common:actions.Purchase')}
+            </Button>
           ) : null}
         </div>
 

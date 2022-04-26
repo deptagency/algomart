@@ -60,7 +60,8 @@
     "View My Collection": "FR View My Collection",
     "View On AlgoExplorer": "FR View on AlgoExplorer",
     "View Release": "FR View Release",
-    "View Set": "FR View Set"
+    "View Set": "FR View Set",
+    "View image X of Y":"FR View image {{x}} of {{y}}"
   },
   "dateTime": {
     "Days_one": "FR Day",
@@ -87,6 +88,8 @@
     "pageTitle": "FR AlgoMart",
     "pageDescription": "FR The best storefront for all your NFT assets",
     "rarityDefault": "FR Common",
+    "Theme": "FR Theme",
+    "Total": "FR Total",
     "404": {
       "title": "FR Uh oh! There's nothing to see here.",
       "body": "<0>FR Unfortunately this page doesn't exist. Sorry about that! <1>Click here</1> to go home, or browse some of our <2>latest releases</2>.</0>"
@@ -121,12 +124,14 @@
     "Sign Up": "FR Sign Up",
     "Transaction": "FR Transaction",
     "Transactions": "FR Transactions",
+    "Users": "FR Users",
     "User Profile": "FR @{{name}} Profile"
   },
   "nav": {
     "aria": {
       "Main Navigation": "FR Main Navigation",
       "Social Media": "FR Social Media",
+      "Toggle Menu": "FR Toggle Menu",
       "Legal": "FR Legal"
     },
     "main": {
@@ -166,6 +171,7 @@
     "Collected": "FR Collected",
     "Checking for Payment": "FR Checking for Payment",
     "Connected to Wallet": "FR Connected to Wallet",
+    "Cover Image": "FR Cover Image",
     "Creating Payment": "FR Creating Payment",
     "Free": "FR Free",
     "I don’t have a code": "FR I don’t have a code",

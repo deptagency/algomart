@@ -242,7 +242,9 @@
     "Bank Address": "Bank Address",
     "Billing Address": "Billing Address",
     "Credit Card": "Credit Card",
+    "Purchase": "Purchase",
     "Summary": "Summary",
+    "Wallet Balance": "Wallet Balance",
     "Wire Transfer": "Wire Transfer"
   }
 }

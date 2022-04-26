@@ -12,7 +12,15 @@
     "orCancel": "or cancel and disconnect from wallet",
     "transferring": "Transferring NFT...",
     "sent": "Sent!",
-    "backToMyCollection": "Back to My Collection"
+    "backToMyCollection": "Back to My Collection",
+    "creatorFee": "{{percentage}} Creator Fee",
+    "Item Price": "Item Price",
+    "algoPrice": "{{price}} ALGO",
+    "fineprint": {
+      "label": "Secondary Marketplace fineprint",
+      "helpText": "Secondary market transaction fineprint. Hell of velit tempor ipsum knausgaard, craft beer cliche activated charcoal gentrify anim adaptogen incididunt vice kitsch heirloom. Cloud bread intelligentsia ugh etsy irony, normcore nostrud quinoa skateboard jianbing bushwick air plant live-edge hashtag.",
+      "linkText": "Read more about secondary market purchase policies here."
+    }
   },
   "tabs": {
     "details": "Details",

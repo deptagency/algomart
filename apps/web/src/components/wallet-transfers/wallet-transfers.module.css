@@ -6,8 +6,16 @@
   @apply w-full max-w-xs mx-auto text-center;
 }
 
+.stageFull {
+  @apply w-full mx-auto text-center;
+}
+
 .stageTitle {
   @apply pb-3;
+}
+
+.alignLeft {
+  @apply text-left;
 }
 
 .separator {
@@ -64,4 +72,65 @@
 
 .spacing {
   @apply pt-5;
+}
+
+.imageWrapper {
+  @apply flex self-center col-auto p-2 rounded-md justify-self-start bg-action-secondary;
+}
+
+.purchaseDetails {
+  @apply grid items-center gap-3 mb-5;
+  grid-template-columns: 75px auto auto;
+}
+
+.algos {
+  @apply font-bold text-right;
+}
+
+.price {
+  @apply text-right text-base-textTertiary;
+}
+
+.summaryWrapper {
+  @apply p-5 bg-base-bgNotice;
+}
+
+.paymentGrid {
+  @apply w-full mb-10;
+}
+
+.paymentGrid tr {
+  @apply grid grid-cols-2 py-5 border-b border-gray-200;
+}
+
+.paymentGrid tr th {
+  @apply font-normal text-left;
+}
+
+.paymentGrid tr td {
+  @apply text-right;
+}
+
+.helpText {
+  @apply px-2 mb-5 text-sm text-base-textTertiary;
+}
+
+.title {
+  @apply text-left;
+}
+
+.subtitle {
+  @apply text-left text-base-textTertiary;
+}
+
+.total {
+  @apply font-bold;
+}
+
+.link {
+  @apply text-sm underline;
+}
+
+.balance {
+  @apply p-5 mb-5 text-left bg-base-bgNotice;
 }
