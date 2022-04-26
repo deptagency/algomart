@@ -4,7 +4,6 @@ from algosdk import encoding
 from algosdk.kmd import KMDClient
 from algosdk.v2client.algod import AlgodClient
 
-from contracts.auction import approval_program, clear_state_program
 from contracts.utils import getAlgodClient, getGenesisAccounts, getKmdClient
 
 

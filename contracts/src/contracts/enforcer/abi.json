@@ -1,0 +1,187 @@
+{
+  "name": "Enforcer ABI (ARC-18)",
+  "methods": [
+    {
+      "name": "set_administrator",
+      "desc": "Sets the administrator for this royalty enforcer",
+      "args": [
+        {
+          "name": "administrator",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "set_policy",
+      "desc": "Sets the royalty basis for this royalty enforcer",
+      "args": [
+        {
+          "name": "royalty_basis",
+          "type": "uint64"
+        },
+        {
+          "name": "royalty_receiver",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "set_payment_asset",
+      "desc": "Triggers the contract account to opt in or out of an asset that should be used for payment of royalties",
+      "args": [
+        {
+          "name": "payment_asset",
+          "type": "asset"
+        },
+        {
+          "name": "allowed",
+          "type": "bool"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "offer",
+      "desc": "Flags that an asset is offered for sale and sets address authorized to submit the transfer",
+      "args": [
+        {
+          "name": "royalty_asset",
+          "type": "asset"
+        },
+        {
+          "name": "royalty_asset_amount",
+          "type": "uint64"
+        },
+        {
+          "name": "auth_address",
+          "type": "address"
+        },
+        {
+          "name": "offered_amount",
+          "type": "uint64"
+        },
+        {
+          "name": "offered_auth_addr",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "transfer",
+      "desc": "Transfers an Asset from one account to another and enforces royalty payments",
+      "args": [
+        {
+          "name": "royalty_asset",
+          "type": "asset"
+        },
+        {
+          "name": "royalty_asset_amount",
+          "type": "uint64"
+        },
+        {
+          "name": "from",
+          "type": "account"
+        },
+        {
+          "name": "to",
+          "type": "account"
+        },
+        {
+          "name": "royalty_receiver",
+          "type": "account"
+        },
+        {
+          "name": "payment",
+          "type": "txn"
+        },
+        {
+          "name": "payment_asset",
+          "type": "asset"
+        },
+        {
+          "name": "offered_amount",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "royalty_free_move",
+      "desc": "Moves the asset passed from one account to another",
+      "args": [
+        {
+          "name": "royalty_asset",
+          "type": "asset"
+        },
+        {
+          "name": "royalty_asset_amount",
+          "type": "uint64"
+        },
+        {
+          "name": "from",
+          "type": "account"
+        },
+        {
+          "name": "to",
+          "type": "account"
+        },
+        {
+          "name": "offered_amount",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "get_offer",
+      "desc": "Gets the details offered asset",
+      "readonly": true,
+      "args": [
+        {
+          "name": "royalty_asset",
+          "type": "uint64"
+        },
+        {
+          "name": "from",
+          "type": "account"
+        }
+      ],
+      "returns": {
+        "type": "(address,uint64)"
+      }
+    },
+    {
+      "name": "get_policy",
+      "desc": "Gets the royalty policy specified by the contract",
+      "readonly": true,
+      "args": [],
+      "returns": {
+        "type": "(address,uint64)"
+      }
+    },
+    {
+      "name": "get_administrator",
+      "desc": "Gets the administrator for this royalty enforcer application",
+      "readonly": true,
+      "args": [],
+      "returns": {
+        "type": "address"
+      }
+    }
+  ]
+}

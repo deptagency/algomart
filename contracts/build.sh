@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-poetry run python src/contracts/auction.py
+poetry run python src/contracts/enforcer.py
