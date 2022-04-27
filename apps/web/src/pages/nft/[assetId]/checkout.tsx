@@ -2,7 +2,7 @@ import { CollectibleWithDetails } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import { usePurchaseCollectible } from '@/hooks/use-purchase-collectible'
@@ -69,12 +69,6 @@ export default function CheckoutPage({
     }
   }, [address, purchaseCollectible])
 
-  useEffect(() => {
-    if (stage === 'connect' && connected) {
-      setStage('confirm-purchase')
-    }
-  }, [stage, connected])
-
   return (
     <DefaultLayout panelPadding pageTitle={collectible.title}>
       <NFTCheckoutTemplate
@@ -82,6 +76,7 @@ export default function CheckoutPage({
         selectedAccount={selectedAccount}
         selectedAccountBalance={selectedAccountBalance}
         collectible={collectible}
+        connected={connected}
         error={error}
         onCancel={cancel}
         onConnectWallet={connect}

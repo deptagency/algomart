@@ -19,7 +19,6 @@ import LinkButton from '@/components/link-button'
 import MediaGallery from '@/components/media-gallery/media-gallery'
 import ReleaseDescription from '@/components/release-details/sections/release-description'
 import Tabs from '@/components/tabs/tabs'
-import { useAuth } from '@/contexts/auth-context'
 import { useConfig } from '@/hooks/use-config'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/currency'
@@ -50,8 +49,8 @@ export default function NFTTemplate({
   const config = useConfig()
   const { t } = useTranslation()
   const router = useRouter()
-  const { user } = useAuth()
-  const isForSale = false
+  // @TODO: Determine if the NFT is for sale programmatically
+  const isForSale = true
   const isCurrentOwner = collectible.currentOwner === userExternalId
   const transferrableStatus = getTransferrableStatus(collectible, userAddress)
   const isTransferrable = transferrableStatus === 'canTransfer'
@@ -88,9 +87,14 @@ export default function NFTTemplate({
           {collectible.subtitle ? (
             <p className={css.subtitle}>{collectible.subtitle}</p>
           ) : null}
-          {/** TODO: Purchase button */}
           {isForSale ? (
-            <Button disabled={isCurrentOwner}>
+            <Button
+              className={css.purchaseButton}
+              disabled={isCurrentOwner}
+              onClick={() =>
+                router.push(urls.nftCheckout.replace(':assetId', assetId))
+              }
+            >
               {t('common:actions.Purchase')}
             </Button>
           ) : null}

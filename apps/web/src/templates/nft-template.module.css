@@ -79,3 +79,7 @@
 .activityItem .contentRight {
   @apply font-bold;
 }
+
+.purchaseButton {
+  @apply w-1/2 mt-5;
+}

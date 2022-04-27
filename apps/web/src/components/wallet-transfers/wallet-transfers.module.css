@@ -7,7 +7,7 @@
 }
 
 .stageFull {
-  @apply w-full mx-auto text-center;
+  @apply w-full mx-auto mt-10 text-center;
 }
 
 .stageTitle {

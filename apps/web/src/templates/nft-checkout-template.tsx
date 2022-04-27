@@ -16,7 +16,6 @@ import { urls } from '@/utils/urls'
 export type CheckoutStage =
   | 'passphrase'
   | 'connect'
-  | 'confirm-purchase'
   | 'purchase'
   | 'success'
   | 'error'
@@ -24,6 +23,7 @@ export type CheckoutStage =
 export interface NFTCheckoutTemplateProps {
   accounts: string[]
   collectible: CollectibleWithDetails
+  connected: boolean
   error: string
   onCancel: () => void
   onConnectWallet: () => void
@@ -39,6 +39,7 @@ export interface NFTCheckoutTemplateProps {
 export default function NFTCheckoutTemplate({
   accounts,
   collectible,
+  connected,
   error,
   purchaseStatus,
   onCancel,
@@ -73,24 +74,24 @@ export default function NFTCheckoutTemplate({
       ) : null}
 
       {stage === 'connect' ? (
-        <ConnectWalletStage key={stage} onConnectWallet={onConnectWallet} />
-      ) : null}
-
-      {stage === 'confirm-purchase' ? (
         <>
-          <ConfirmPurchaseStage
-            confirmLabel={t('common:actions.Confirm Purchase')}
-            image={collectible.image}
-            key={stage}
-            accounts={accounts}
-            onCancel={onCancel}
-            onSelectAccount={onSelectAccount}
-            onConfirm={onPurchase}
-            selectedAccount={selectedAccount}
-            selectedAccountBalance={selectedAccountBalance}
-            subtitle={collectible.collection?.name}
-            title={collectible.title}
-          />
+          {connected ? (
+            <ConfirmPurchaseStage
+              confirmLabel={t('common:actions.Confirm Purchase')}
+              image={collectible.image}
+              key={stage}
+              accounts={accounts}
+              onCancel={onCancel}
+              onSelectAccount={onSelectAccount}
+              onConfirm={onPurchase}
+              selectedAccount={selectedAccount}
+              selectedAccountBalance={selectedAccountBalance}
+              subtitle={collectible.collection?.name}
+              title={collectible.title}
+            />
+          ) : (
+            <ConnectWalletStage key={stage} onConnectWallet={onConnectWallet} />
+          )}
         </>
       ) : null}
 

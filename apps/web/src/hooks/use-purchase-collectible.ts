@@ -79,7 +79,7 @@ export function usePurchaseCollectible(passphrase: string) {
   const purchaseCollectible = useCallback(
     async (address: string | null) => {
       try {
-        // @TODO: Update price
+        // @TODO: Update price to the amount decided by the seller
         const price = 10
 
         setPurchaseStatus('idle')
