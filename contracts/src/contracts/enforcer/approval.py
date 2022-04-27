@@ -199,9 +199,12 @@ def set_payment_asset():
     asset_id = Txn.assets[Btoi(Txn.application_args[1])]
     is_allowed = Btoi(Txn.application_args[2])
 
+    # TODO: how should this handle the min balance increase/decrease?
+
     return Seq(
         bal := AssetHolding.balance(Global.current_application_address(), asset_id),
         creator := AssetParam.creator(asset_id),
+        Assert(Txn.fee() >= Int(2000)),
         If(And(is_allowed, Not(bal.hasValue())))
         .Then(
             # Opt in to asset
@@ -213,6 +216,7 @@ def set_payment_asset():
                         TxnField.xfer_asset: asset_id,
                         TxnField.asset_amount: Int(0),
                         TxnField.asset_receiver: Global.current_application_address(),
+                        TxnField.fee: Int(0),
                     }
                 ),
                 InnerTxnBuilder.Submit(),
@@ -230,6 +234,7 @@ def set_payment_asset():
                         TxnField.asset_amount: Int(0),
                         TxnField.asset_close_to: creator.value(),
                         TxnField.asset_receiver: creator.value(),
+                        TxnField.fee: Int(0),
                     }
                 ),
                 InnerTxnBuilder.Submit(),
@@ -259,6 +264,7 @@ def pay_assets(purchase_asset_id, purchase_amt, owner, royalty_receiver, royalty
                 TxnField.xfer_asset: purchase_asset_id,
                 TxnField.asset_amount: purchase_amt - royalty_amt.load(),
                 TxnField.asset_receiver: owner,
+                TxnField.fee: Int(0),
             }
         ),
         If(
@@ -271,6 +277,7 @@ def pay_assets(purchase_asset_id, purchase_amt, owner, royalty_receiver, royalty
                         TxnField.xfer_asset: purchase_asset_id,
                         TxnField.asset_amount: royalty_amt.load(),
                         TxnField.asset_receiver: royalty_receiver,
+                        TxnField.fee: Int(0),
                     }
                 ),
             ),
@@ -290,6 +297,7 @@ def pay_algos(purchase_amt, owner, royalty_receiver, royalty_basis):
                 TxnField.type_enum: TxnType.Payment,
                 TxnField.amount: purchase_amt - royalty_amt.load(),
                 TxnField.receiver: owner,
+                TxnField.fee: Int(0),
             }
         ),
         If(
@@ -301,6 +309,7 @@ def pay_algos(purchase_amt, owner, royalty_receiver, royalty_basis):
                         TxnField.type_enum: TxnType.Payment,
                         TxnField.amount: royalty_amt.load(),
                         TxnField.receiver: royalty_receiver,
+                        TxnField.fee: Int(0),
                     }
                 ),
             ),
@@ -321,6 +330,7 @@ def move_asset(asset_id, from_addr, to_addr, asset_amt):
                 TxnField.asset_amount: asset_amt,
                 TxnField.asset_sender: from_addr,
                 TxnField.asset_receiver: to_addr,
+                TxnField.fee: Int(0),
             }
         ),
         InnerTxnBuilder.Submit(),
@@ -380,17 +390,19 @@ def transfer():
     )
 
     return Seq(
-        ## initialize values to check rekey
-        #(owner_auth := AccountParam.authAddr(owner_acct)),
-        #(buyer_auth := AccountParam.authAddr(buyer_acct)),
-        ## Make sure neither owner/buyer have been rekeyed (OPTIONAL)
-        #Assert(owner_auth.value() == Global.zero_address()),
-        #Assert(buyer_auth.value() == Global.zero_address()),
+        # initialize values to check rekey
+        (owner_auth := AccountParam.authAddr(owner_acct)),
+        (buyer_auth := AccountParam.authAddr(buyer_acct)),
+        # Make sure neither owner/buyer have been rekeyed (OPTIONAL)
+        Assert(owner_auth.value() == Global.zero_address()),
+        Assert(buyer_auth.value() == Global.zero_address()),
         # Grab the royalty policy settings
         stored_royalty_recv.store(royalty_receiver()),
         stored_royalty_basis.store(royalty_basis()),
         # Make sure transactions look right
         Assert(valid_transfer_group),
+        # Make sure all txn fees are covered (move asset + two payment txns)
+        Assert(Txn.fee() >= Int(4000)),
         # Make royalty payment
         If(
             purchase_txn.type_enum() == TxnType.AssetTransfer,
@@ -447,6 +459,8 @@ def royalty_free_move():
         # Must be set to app creator and less than the amount to move
         Assert(curr_offer_auth.load() == administrator()),
         Assert(curr_offer_amt.load() <= asset_amt),
+        # Txn fee must cover the cost of the move
+        Assert(Txn.fee() >= Int(2000)),
         # Delete the offer
         update_offered(
             from_acct,

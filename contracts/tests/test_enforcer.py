@@ -5,7 +5,7 @@ from algosdk.future.transaction import *
 from algosdk.atomic_transaction_composer import *
 from contracts.enforcer.approval import compile_enforcer_approval
 from contracts.enforcer.clear import compile_enforcer_clear
-from contracts.utils import Account, getAlgodClient, getAppGlobalState, getGenesisAccounts, getTemporaryAccount, waitForTransaction
+from contracts.utils import Account, getAlgodClient, getAppGlobalState, getBalances, getGenesisAccounts, getTemporaryAccount, payAccount, waitForTransaction
 
 from algosdk.future import transaction
 from algosdk.v2client.algod import AlgodClient
@@ -49,9 +49,11 @@ def deploy_nft(client: AlgodClient, creator: Account, enforcer_address: str) -> 
     )
     result = atc.execute(client, 2)
 
-    info = client.pending_transaction_info(result.tx_ids[0])
-    assert info['asset-index'] is not None and info['asset-index'] > 0
-    return info['asset-index']
+    response = waitForTransaction(client, result.tx_ids[0])
+
+    assert response.assetIndex is not None and response.assetIndex > 0
+
+    return response.assetIndex
 
 
 def deploy_enforcer(client: AlgodClient, sender: Account):
@@ -73,7 +75,11 @@ def deploy_enforcer(client: AlgodClient, sender: Account):
     client.send_transaction(signedTxn)
 
     response = waitForTransaction(client, signedTxn.get_txid())
+
     assert response.applicationIndex is not None and response.applicationIndex > 0
+
+    payAccount(client, sender, logic.get_application_address(response.applicationIndex), int(1e6))
+
     return response.applicationIndex
 
 
@@ -122,6 +128,19 @@ def test_set_policy():
     )
     atc.execute(client, 2)
 
+    sp = client.suggested_params()
+    atc = AtomicTransactionComposer()
+    atc.add_method_call(
+        enforcerID,
+        get_method(enforcer_iface, "get_policy"),
+        creator.getAddress(),
+        sp,
+        creator_signer,
+    )
+    result = atc.execute(client, 2)
+
+    assert result.abi_results[0].return_value == [royalty.getAddress(), 1000]
+
     actual = getAppGlobalState(client, enforcerID)
     expected = {
         b"administrator": encoding.decode_address(creator.getAddress()),
@@ -153,6 +172,19 @@ def test_set_administrator():
         method_args=[admin.getAddress()],
     )
     atc.execute(client, 2)
+
+    sp = client.suggested_params()
+    atc = AtomicTransactionComposer()
+    atc.add_method_call(
+        enforcerID,
+        get_method(enforcer_iface, "get_administrator"),
+        creator.getAddress(),
+        sp,
+        creator_signer,
+    )
+    result = atc.execute(client, 2)
+
+    assert result.abi_results[0].return_value == admin.getAddress()
 
     actual = getAppGlobalState(client, enforcerID)
     expected = {
@@ -228,3 +260,193 @@ def test_create_offer():
 
     assert result.abi_results[0].return_value == [auth_seller.getAddress(), 1]
 
+def test_royalty_free_move():
+    client = getAlgodClient()
+    creator = getTemporaryAccount(client)
+    royalty = getTemporaryAccount(client)
+    auth_seller = getTemporaryAccount(client)
+    creator_signer = AccountTransactionSigner(creator.getPrivateKey())
+    auth_seller_signer = AccountTransactionSigner(auth_seller.getPrivateKey())
+    buyer = getTemporaryAccount(client)
+    buyer_signer = AccountTransactionSigner(buyer.getPrivateKey())
+
+    enforcer_id = deploy_enforcer(client, creator)
+    nft_id = deploy_nft(client, creator, logic.get_application_address(enforcer_id))
+
+    sp = client.suggested_params()
+    atc = AtomicTransactionComposer()
+    atc.add_method_call(
+        enforcer_id,
+        get_method(enforcer_iface, "set_policy"),
+        creator.getAddress(),
+        sp,
+        creator_signer,
+        method_args=[1000, royalty.getAddress()],
+    )
+    atc.execute(client, 2)
+
+    # Opt-in to app so we can make an offer
+    sp = client.suggested_params()
+    atc = AtomicTransactionComposer()
+    atc.add_transaction(
+        TransactionWithSigner(
+            signer=creator_signer,
+            txn=transaction.ApplicationCallTxn(
+                sender=creator.getAddress(),
+                sp=sp,
+                index=enforcer_id,
+                on_complete=transaction.OnComplete.OptInOC,
+            )
+        )
+    )
+    atc.execute(client, 2)
+
+    # Make an offer
+    sp = client.suggested_params()
+    atc = AtomicTransactionComposer()
+    atc.add_method_call(
+        enforcer_id,
+        get_method(enforcer_iface, "offer"),
+        creator.getAddress(),
+        sp,
+        creator_signer,
+        [nft_id, 1, creator.getAddress(), 0, ZERO_ADDR]
+    )
+    atc.execute(client, 2)
+
+    # Buyer opt-in to NFT
+    sp = client.suggested_params()
+    atc = AtomicTransactionComposer()
+    atc.add_transaction(
+        TransactionWithSigner(
+            signer=buyer_signer,
+            txn=transaction.AssetTransferTxn(
+                sender=buyer.getAddress(),
+                sp=sp,
+                index=nft_id,
+                receiver=buyer.getAddress(),
+                amt=0,
+            )
+        )
+    )
+    atc.execute(client, 2)
+
+    # Royalty free move
+    sp = client.suggested_params()
+    sp.fee = 2000 # need to pay for inner txn fee (for asset transfer)
+    atc = AtomicTransactionComposer()
+    atc.add_method_call(
+        enforcer_id,
+        get_method(enforcer_iface, "royalty_free_move"),
+        creator.getAddress(),
+        sp,
+        creator_signer,
+        [nft_id, 1, creator.getAddress(), buyer.getAddress(), 1]
+    )
+    atc.execute(client, 2)
+
+    seller_balances = getBalances(client, creator.getAddress())
+    buyer_balances = getBalances(client, buyer.getAddress())
+
+    assert seller_balances[nft_id] == 0
+    assert buyer_balances[nft_id] == 1
+
+def test_transfer():
+    client = getAlgodClient()
+    creator = getTemporaryAccount(client)
+    royalty = getTemporaryAccount(client)
+    auth_seller = getTemporaryAccount(client)
+    creator_signer = AccountTransactionSigner(creator.getPrivateKey())
+    auth_seller_signer = AccountTransactionSigner(auth_seller.getPrivateKey())
+    buyer = getTemporaryAccount(client)
+    buyer_signer = AccountTransactionSigner(buyer.getPrivateKey())
+
+    enforcer_id = deploy_enforcer(client, creator)
+    nft_id = deploy_nft(client, creator, logic.get_application_address(enforcer_id))
+
+    sp = client.suggested_params()
+    atc = AtomicTransactionComposer()
+    atc.add_method_call(
+        enforcer_id,
+        get_method(enforcer_iface, "set_policy"),
+        creator.getAddress(),
+        sp,
+        creator_signer,
+        method_args=[1000, royalty.getAddress()],
+    )
+    atc.execute(client, 2)
+
+    # Opt-in to app so we can make an offer
+    sp = client.suggested_params()
+    atc = AtomicTransactionComposer()
+    atc.add_transaction(
+        TransactionWithSigner(
+            signer=creator_signer,
+            txn=transaction.ApplicationCallTxn(
+                sender=creator.getAddress(),
+                sp=sp,
+                index=enforcer_id,
+                on_complete=transaction.OnComplete.OptInOC,
+            )
+        )
+    )
+    atc.execute(client, 2)
+
+    # Make an offer
+    sp = client.suggested_params()
+    atc = AtomicTransactionComposer()
+    atc.add_method_call(
+        enforcer_id,
+        get_method(enforcer_iface, "offer"),
+        creator.getAddress(),
+        sp,
+        creator_signer,
+        [nft_id, 1, buyer.getAddress(), 0, ZERO_ADDR]
+    )
+    atc.execute(client, 2)
+
+    # Buyer opt-in to NFT
+    sp = client.suggested_params()
+    atc = AtomicTransactionComposer()
+    atc.add_transaction(
+        TransactionWithSigner(
+            signer=buyer_signer,
+            txn=transaction.AssetTransferTxn(
+                sender=buyer.getAddress(),
+                sp=sp,
+                index=nft_id,
+                receiver=buyer.getAddress(),
+                amt=0,
+            )
+        )
+    )
+    atc.execute(client, 2)
+
+    # Transfer
+    sp = client.suggested_params()
+    payTxn = TransactionWithSigner(
+        signer=buyer_signer,
+        txn=transaction.PaymentTxn(
+            sender=buyer.getAddress(),
+            sp=sp,
+            amt=int(1e7),
+            receiver=logic.get_application_address(enforcer_id),
+        )
+    )
+    sp.fee = 4000 # need to pay for inner txn fee (for asset transfer + payments)
+    atc = AtomicTransactionComposer()
+    atc.add_method_call(
+        enforcer_id,
+        get_method(enforcer_iface, "transfer"),
+        buyer.getAddress(),
+        sp,
+        buyer_signer,
+        [nft_id, 1, creator.getAddress(), buyer.getAddress(), royalty.getAddress(), payTxn, 0, 1]
+    )
+    atc.execute(client, 2)
+
+    seller_balances = getBalances(client, creator.getAddress())
+    buyer_balances = getBalances(client, buyer.getAddress())
+
+    assert seller_balances[nft_id] == 0
+    assert buyer_balances[nft_id] == 1
