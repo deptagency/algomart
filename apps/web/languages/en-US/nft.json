@@ -12,7 +12,8 @@
     "orCancel": "or cancel and disconnect from wallet",
     "transferring": "Transferring NFT...",
     "sent": "Sent!",
-    "backToMyCollection": "Back to My Collection"
+    "backToMyCollection": "Back to My Collection",
+    "list": "List for Sale"
   },
   "tabs": {
     "details": "Details",

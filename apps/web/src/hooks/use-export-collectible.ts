@@ -99,7 +99,6 @@ export function useExportCollectible(passphrase: string) {
         })
 
         await algorand.waitForConfirmation(txID)
-        await disconnect()
         setExportStatus('success')
       } catch (error) {
         console.error(error)
@@ -107,7 +106,7 @@ export function useExportCollectible(passphrase: string) {
         throw error
       }
     },
-    [algorand, disconnect, passphrase, selectedAccount]
+    [algorand, passphrase, selectedAccount]
   )
 
   const hasOptedIn = useCallback(

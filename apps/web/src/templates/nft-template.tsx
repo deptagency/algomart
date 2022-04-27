@@ -20,23 +20,16 @@ import ReleaseDescription from '@/components/release-details/sections/release-de
 import Tabs from '@/components/tabs/tabs'
 import { useConfig } from '@/hooks/use-config'
 import { useLocale } from '@/hooks/use-locale'
+import {
+  getTransferrableStatus,
+  TransferrableStatus,
+} from '@/utils/asset-owner'
 import { formatCurrency } from '@/utils/currency'
-import { isAfterNow } from '@/utils/date-time'
 import { urlFor, urls } from '@/utils/urls'
 
 export interface NFTTemplateProps {
   collectible: CollectibleWithDetails
   userAddress?: string
-}
-
-function getTransferrableStatus(
-  collectible: CollectibleWithDetails,
-  currentUserAddress?: string
-) {
-  if (!currentUserAddress) return 'noUser'
-  if (collectible.currentOwnerAddress !== currentUserAddress) return 'notOwner'
-  if (isAfterNow(new Date(collectible.transferrableAt))) return 'mintedRecently'
-  return 'canTransfer'
 }
 
 export default function NFTTemplate({
@@ -47,7 +40,8 @@ export default function NFTTemplate({
   const { t } = useTranslation()
   const router = useRouter()
   const transferrableStatus = getTransferrableStatus(collectible, userAddress)
-  const isTransferrable = transferrableStatus === 'canTransfer'
+  const isTransferrable =
+    transferrableStatus === TransferrableStatus.CanTransfer
   const transferMessage = {
     frozen: t('nft:labels.cannotTransfer.frozen'),
     mintedRecently: t('nft:labels.cannotTransfer.mintedRecently', {
@@ -120,7 +114,7 @@ export default function NFTTemplate({
                 <a href="#">{t('nft:sell.learnMore')}</a>
               </p>
               <LinkButton
-                href={urlFor(urls.nftInitiateTransfer, { assetId })}
+                href={urlFor(urls.nftInitiateSale, { assetId })}
                 fullWidth
               >
                 {t(`nft:sell.sellMyNFT`)}
