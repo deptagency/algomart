@@ -1,27 +1,27 @@
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 
-import css from './release-filter.module.css'
+import css from './product-filter.module.css'
 
 import Heading from '@/components/heading'
 import Toggle from '@/components/toggle/toggle'
 import { useProductFilterContext } from '@/contexts/product-filter-context'
 import { productFilterActions } from '@/hooks/use-product-filter'
 
-export default function ReleaseFilterType() {
+export default function ProductFilterType() {
   const { t } = useTranslation()
   const { dispatch, state } = useProductFilterContext()
 
   return (
     <div className={css.root}>
       <div className={clsx(css.filterRow, css.filterHeader)}>
-        <Heading level={2}>{t('release:filters.Type of Sale')}</Heading>
+        <Heading level={2}>{t('product:filters.Type of Sale')}</Heading>
       </div>
       <div className={css.filterRow}>
         <div className={css.filterItem}>
           <Toggle
             checked={state.showPurchase}
-            label={t('release:filters.Purchase')}
+            label={t('product:filters.Purchase')}
             onChange={(checked) => {
               dispatch(productFilterActions.setShowPurchase(checked))
             }}
@@ -30,7 +30,7 @@ export default function ReleaseFilterType() {
         <div className={css.filterItem}>
           <Toggle
             checked={state.showAuction}
-            label={t('release:filters.Auction')}
+            label={t('product:filters.Auction')}
             onChange={(checked) => {
               dispatch(productFilterActions.setShowAuction(checked))
             }}
@@ -41,7 +41,7 @@ export default function ReleaseFilterType() {
         <div className={css.filterItem}>
           <Toggle
             checked={state.showSecondaryMarket}
-            label={t('releases:filters.Secondary Market')}
+            label={t('products:filters.Secondary Market')}
             onChange={(checked) => {
               dispatch(productFilterActions.setShowSecondaryMarket(checked))
             }}
@@ -52,13 +52,13 @@ export default function ReleaseFilterType() {
       {state.showAuction && (
         <>
           <div className={clsx(css.filterRow, css.filterHeader)}>
-            <Heading level={2}>{t('release:filters.Auction Status')}</Heading>
+            <Heading level={2}>{t('product:filters.Auction Status')}</Heading>
           </div>
           <div className={css.filterRow}>
             <div className={css.filterItem}>
               <Toggle
                 checked={state.showAuctionUpcoming}
-                label={t('release:filters.Starting soon')}
+                label={t('product:filters.Starting soon')}
                 onChange={(checked) => {
                   dispatch(productFilterActions.setShowAuctionUpcoming(checked))
                 }}
@@ -67,7 +67,7 @@ export default function ReleaseFilterType() {
             <div className={css.filterItem}>
               <Toggle
                 checked={state.showAuctionActive}
-                label={t('release:filters.Auction is live')}
+                label={t('product:filters.Auction is live')}
                 onChange={(checked) => {
                   dispatch(productFilterActions.setShowAuctionActive(checked))
                 }}
@@ -76,7 +76,7 @@ export default function ReleaseFilterType() {
             <div className={css.filterItem}>
               <Toggle
                 checked={state.showAuctionExpired}
-                label={t('release:filters.Has ended')}
+                label={t('product:filters.Has ended')}
                 onChange={(checked) => {
                   dispatch(productFilterActions.setShowAuctionExpired(checked))
                 }}
@@ -87,7 +87,7 @@ export default function ReleaseFilterType() {
             <div className={css.filterItem}>
               <Toggle
                 checked={state.showAuctionReserveMet}
-                label={t('release:filters.Reserve met')}
+                label={t('product:filters.Reserve met')}
                 onChange={(checked) => {
                   dispatch(
                     productFilterActions.setShowAuctionReserveMet(checked)

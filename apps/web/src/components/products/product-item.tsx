@@ -3,7 +3,7 @@ import clsx from 'clsx'
 import Image from 'next/image'
 import useTranslation from 'next-translate/useTranslation'
 
-import css from './release-item.module.css'
+import css from './product-item.module.css'
 
 import Counter from '@/components/counter/counter'
 import Currency from '@/components/currency'

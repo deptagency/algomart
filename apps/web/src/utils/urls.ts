@@ -30,6 +30,7 @@ export const urls = {
   packOpening: '/pack-opening/:packId',
   paymentFailure: '/payments/failure',
   paymentSuccess: '/payments/success',
+  products: '/products',
   redeem: '/redeem',
   browse: '/browse',
 

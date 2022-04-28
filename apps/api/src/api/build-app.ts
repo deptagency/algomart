@@ -15,6 +15,7 @@ import { homepageRoutes } from '@api/modules/homepage'
 import { i18nRoutes } from '@api/modules/i18n'
 import { packsRoutes } from '@api/modules/packs'
 import { paymentRoutes } from '@api/modules/payments'
+import { productsRoutes } from '@api/modules/products'
 import { setsRoutes } from '@api/modules/sets'
 import fastifyTraps from '@dnlup/fastify-traps'
 import ajvCompiler from '@fastify/ajv-compiler'
@@ -96,6 +97,7 @@ export default async function buildApp(config: AppConfig) {
   await app.register(i18nRoutes, { prefix: '/i18n' })
   await app.register(packsRoutes, { prefix: '/packs' })
   await app.register(paymentRoutes, { prefix: '/payments' })
+  await app.register(productsRoutes, { prefix: '/products' })
   await app.register(setsRoutes, { prefix: '/sets' })
 
   app.all('/', (_, reply) => {

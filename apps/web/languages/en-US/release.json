@@ -61,20 +61,5 @@
   "You have N unclaimed packs_0": "You have zero unclaimed packs.",
   "You have N unclaimed packs_other": "You have {{count}} unclaimed packs.",
   "You were outbid": "You were outbid.",
-  "You won the auction": "You won the auction",
-  "filters": {
-    "Auction is live": "Auction is live",
-    "Auction Status": "Auction Status",
-    "Auction": "Auction",
-    "Has ended": "Has ended",
-    "High": "High",
-    "Low": "Low",
-    "noReleases": "There are no releases that match this filter criteria.",
-    "Price Range": "Price Range",
-    "Purchase": "Purchase",
-    "Reserve met": "Reserve met",
-    "Starting soon": "Starting soon",
-    "Secondary Market": "Secondary Market",
-    "Type of Sale": "Type of Sale"
-  }
+  "You won the auction": "You won the auction"
 }

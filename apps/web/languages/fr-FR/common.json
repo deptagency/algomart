@@ -100,6 +100,7 @@
     "Admin": "FR Admin",
     "Add Payment Method": "FR Add Payment Method",
     "Algorand Address": "FR Algorand Address: {{algoAddress}}",
+    "Browse": "FR Browse",
     "Checking Out": "FR Checkout for {{name}}",
     "Login": "FR Login",
     "My Collectibles": "FR My Collectibles",
@@ -114,7 +115,6 @@
     "Profile Setup": "FR Profile Setup",
     "Redeem": "FR Redeem",
     "Release": "FR {{name}}",
-    "Releases": "FR Releases",
     "Reset Password": "FR Reset Password",
     "Security": "FR Security",
     "Setup Profile": "FR Setup Profile",
@@ -130,8 +130,8 @@
       "Legal": "FR Legal"
     },
     "main": {
-      "Releases": "FR Releases",
       "Brands": "FR Brands",
+      "Browse": "FR Browse",
       "My Collection": "FR My Collection"
     },
     "utility": {

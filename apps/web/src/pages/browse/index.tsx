@@ -16,7 +16,7 @@ import { useCurrency } from '@/hooks/use-currency'
 import { useLanguage } from '@/hooks/use-language'
 import { useProductFilter } from '@/hooks/use-product-filter'
 import DefaultLayout from '@/layouts/default-layout'
-import ProductsTemplate from '@/templates/releases-template'
+import ProductsTemplate from '@/templates/products-template'
 import {
   getProductFilterQueryFromState,
   searchProductsFilterQuery,

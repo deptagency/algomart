@@ -1,6 +1,7 @@
 import { Product } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
+import React from 'react'
 
 import css from './releases-template.module.css'
 
@@ -9,10 +10,11 @@ import AppLink from '@/components/app-link/app-link'
 import Grid from '@/components/grid/grid'
 import Loading from '@/components/loading/loading'
 import Pagination from '@/components/pagination/pagination'
-import ReleaseFilterPrice from '@/components/releases/release-filter-price'
-import ReleaseFilterType from '@/components/releases/release-filter-type'
-import ReleaseFiltersMobile from '@/components/releases/release-filters-mobile'
-import ProductItem from '@/components/releases/release-item'
+import ProductFilterPrice from '@/components/products/product-filter-price'
+import ProductFilterType from '@/components/products/product-filter-type'
+import ProductFiltersMobile from '@/components/products/product-filters-mobile'
+import ReleaseItem from '@/components/products/product-item'
+import ProductItem from '@/components/products/product-item'
 import Select from '@/components/select/select'
 import { useProductFilterContext } from '@/contexts/product-filter-context'
 import { productFilterActions } from '@/hooks/use-product-filter'
@@ -47,13 +49,13 @@ export default function ProductsTemplate({
       </div>
       <div className={clsx(css.columns)}>
         {/* Filters */}
-        <ReleaseFiltersMobile />
+        <ProductFiltersMobile />
         <section className={css.filterColumn}>
-          <ReleaseFilterPrice />
-          <ReleaseFilterType />
+          <ProductFilterPrice />
+          <ProductFilterType />
         </section>
 
-        {/* Release Packs */}
+        {/* Products Grid */}
         {isLoading ? (
           <div className={css.loadingWrapper}>
             <Loading />
@@ -73,7 +75,7 @@ export default function ProductsTemplate({
                 {products.map((product) => (
                   <AppLink
                     className={css.gridItem}
-                    key={product.packSlug || product.collectibleTemplateId}
+                    key={product.packSlug || product.collectibleId}
                     href={
                       product.packSlug
                         ? urls.pack.replace(':packSlug', product.packSlug)
