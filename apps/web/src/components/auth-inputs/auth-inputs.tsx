@@ -19,8 +19,8 @@ import FormField from '@/components/form-field'
 import PassphraseInput from '@/components/passphrase-input/passphrase-input'
 import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
+import { useCurrency } from '@/contexts/currency-context'
 import { useI18n } from '@/contexts/i18n-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { useLanguage } from '@/hooks/use-language'
 import { FileWithPreview } from '@/types/file'
 
@@ -49,7 +49,7 @@ export function Currency({
   const [options, setOptions] = useState<SelectOption[]>([])
   const { currencyConversions } = useI18n()
   const { t } = useTranslation()
-  const currency = useCurrency()
+  const { currency } = useCurrency()
 
   useEffect(() => {
     if (currencyConversions) {

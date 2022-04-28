@@ -6,8 +6,8 @@ import { parse, stringify } from 'query-string'
 import { useEffect, useMemo } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
+import { useCurrency } from '@/contexts/currency-context'
 import { PackFilterProvider } from '@/contexts/pack-filter-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { useLanguage } from '@/hooks/use-language'
 import { usePackFilter } from '@/hooks/use-pack-filter'
 import DefaultLayout from '@/layouts/default-layout'
@@ -24,7 +24,7 @@ export const RELEASES_PER_PAGE = 9
 export default function Releases({ packs }: PublishedPacks) {
   const { t } = useTranslation()
   const language = useLanguage()
-  const currency = useCurrency()
+  const { currency } = useCurrency()
   const { pathname, push, query } = useRouter()
 
   // Get URL search params from router, stringify them...

@@ -12,8 +12,8 @@ import css from './bank-account-success.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
+import { useCurrency } from '@/contexts/currency-context'
 import { useI18n } from '@/contexts/i18n-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency, formatIntToFixed } from '@/utils/currency'
 import { isAfterNow } from '@/utils/date-time'
@@ -30,7 +30,7 @@ export default function BankAccountSuccess({
 }: BankAccountSuccessProps) {
   const locale = useLocale()
   const { t } = useTranslation()
-  const currency = useCurrency()
+  const { currency } = useCurrency()
   const { conversionRate } = useI18n()
   const router = useRouter()
   const price = bankAccountInstructions?.amount

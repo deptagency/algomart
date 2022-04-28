@@ -2,9 +2,9 @@ import useTranslation from 'next-translate/useTranslation'
 
 import CurrencyInput from '@/components/currency-input/currency-input'
 import Heading from '@/components/heading'
+import { useCurrency } from '@/contexts/currency-context'
 import { useI18n } from '@/contexts/i18n-context'
 import { usePaymentContext } from '@/contexts/payment-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/currency'
 
@@ -14,7 +14,7 @@ export interface BidProps {
 
 export default function Bid({ className }: BidProps) {
   const locale = useLocale()
-  const currency = useCurrency()
+  const { currency } = useCurrency()
   const { conversionRate } = useI18n()
   const { t } = useTranslation()
   const { bid, highestBid, setBid } = usePaymentContext()

@@ -25,8 +25,8 @@ import { ExtractError } from 'validator-fns'
 
 import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
+import { useCurrency } from '@/contexts/currency-context'
 import { useAnalytics } from '@/hooks/use-analytics'
-import { useCurrency } from '@/hooks/use-currency'
 import { BidService } from '@/services/bid-service'
 import {
   CheckoutService,
@@ -109,7 +109,7 @@ export function usePaymentProvider({
 }: PaymentProviderProps) {
   const analytics = useAnalytics()
   const { t } = useTranslation()
-  const currency = useCurrency()
+  const { currency } = useCurrency()
   const { asPath, query, push, route } = useRouter()
   const { method } = query
   const auth = useAuth()
@@ -718,7 +718,7 @@ export function usePaymentProvider({
 
   useEffect(() => {
     setPrice(release?.type === PackType.Auction ? bid : release?.price || 0)
-  }, [currency, bid]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [bid]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const value = useMemo(
     () => ({

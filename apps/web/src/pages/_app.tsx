@@ -8,6 +8,7 @@ import '../styles/globals.css'
 
 import CookieConsent from '@/components/cookie-consent/cookie-consent'
 import { AuthProvider } from '@/contexts/auth-context'
+import { CurrencyProvider } from '@/contexts/currency-context'
 import { I18nProvider } from '@/contexts/i18n-context'
 import { RedemptionProvider } from '@/contexts/redemption-context'
 import { ThemeProvider } from '@/contexts/theme-context'
@@ -56,10 +57,12 @@ function MyApp({ Component, pageProps }: AppProps) {
       <RedemptionProvider>
         <AuthProvider>
           <I18nProvider>
-            <ThemeProvider>
-              <Component {...pageProps} />
-              <CookieConsent />
-            </ThemeProvider>
+            <CurrencyProvider>
+              <ThemeProvider>
+                <Component {...pageProps} />
+                <CookieConsent />
+              </ThemeProvider>
+            </CurrencyProvider>
           </I18nProvider>
         </AuthProvider>
       </RedemptionProvider>

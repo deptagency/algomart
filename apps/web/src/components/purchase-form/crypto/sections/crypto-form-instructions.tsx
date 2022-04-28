@@ -6,8 +6,8 @@ import css from './crypto-form.module.css'
 import Button from '@/components/button'
 import Heading from '@/components/heading'
 import WalletInstructionsModal from '@/components/modals/wallet-instructions'
+import { useCurrency } from '@/contexts/currency-context'
 import { useI18n } from '@/contexts/i18n-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/currency'
 
@@ -20,7 +20,7 @@ export default function CryptoFormInstructions({
 }: CryptoFormInstructionsProps) {
   const locale = useLocale()
   const { t } = useTranslation()
-  const currency = useCurrency()
+  const { currency } = useCurrency()
   const { conversionRate } = useI18n()
   const [open, setOpen] = useState(false)
 
