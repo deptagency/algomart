@@ -182,7 +182,7 @@ export function useAuthProvider() {
         profileResponse.currency !== parsedCurrencyCookie
       ) {
         await fetch(urls.api.v1.updateCurrency, {
-          body: JSON.stringify({ parsedCurrencyCookie }),
+          body: JSON.stringify({ currency: parsedCurrencyCookie }),
           headers: {
             authorization: `bearer ${token}`,
             'content-type': 'application/json',
