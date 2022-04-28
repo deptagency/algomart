@@ -57,6 +57,7 @@ export default function NFTCheckoutTemplate({
     validation: t('nft:checkoutStatus.validation'),
     'sign-transaction': t('nft:checkoutStatus.optingIn'),
     pending: t('nft:checkoutStatus.pending'),
+    purchased: t('nft:checkoutStatus.purchased'),
     success: t('nft:checkoutStatus.success'),
     error: t('nft:checkoutStatus.error'),
   }[purchaseStatus]

@@ -55,8 +55,9 @@
     "optingIn": "FR Please confirm the transaction in your wallet to send funds to the seller.",
     "optIn": "FR Verifying opt-in transaction...",
     "pending": "FR Sending ALGOs...",
-    "success": "FR ALGOs sent!",
-    "error": "FR Error sending ALGOs.",
+    "purchased": "FR Transaction successful! Transferring NFT to your wallet...",
+    "success": "FR Success! The transaction is complete and the NFT has been transferred.",
+    "error": "FR Error with transaction. Please try again.",
     "validation": "FR Checking funds in your wallet..."
   }
 }

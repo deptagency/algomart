@@ -5,6 +5,7 @@ import { useConfig } from './use-config'
 
 import { AlgorandAdapter, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
+import { CollectibleService } from '@/services/collectible-service'
 import { formatToDecimal } from '@/utils/currency'
 
 export type PurchaseStatus =
@@ -12,6 +13,7 @@ export type PurchaseStatus =
   | 'validation'
   | 'sign-transaction'
   | 'pending'
+  | 'purchased'
   | 'success'
   | 'error'
 
@@ -77,14 +79,20 @@ export function usePurchaseCollectible(passphrase: string) {
   )
 
   const purchaseCollectible = useCallback(
-    async (address: string | null) => {
+    async (sellerAccountAddress: string | null) => {
       try {
         // @TODO: Update price to the amount decided by the seller
         const price = 10
 
         setPurchaseStatus('idle')
         const connector = connectorReference.current
-        if (!connector || !passphrase || !selectedAccount || !address) return
+        if (
+          !connector ||
+          !passphrase ||
+          !selectedAccount ||
+          !sellerAccountAddress
+        )
+          return
 
         setPurchaseStatus('validation')
         const purchaserAccount = await retrieveAccountData(selectedAccount)
@@ -98,7 +106,7 @@ export function usePurchaseCollectible(passphrase: string) {
         const assetTx = await algorand.makePaymentTransaction({
           amount: price * 10_000, // convert to microALGOs
           from: selectedAccount,
-          to: address,
+          to: sellerAccountAddress,
           note: undefined,
           rekeyTo: undefined,
         })
@@ -113,6 +121,9 @@ export function usePurchaseCollectible(passphrase: string) {
 
         setPurchaseStatus('pending')
         await algorand.waitForConfirmation(assetTx.txID())
+        setPurchaseStatus('purchased')
+
+        // @TODO: Transfer collectible
         setPurchaseStatus('success')
         return
       } catch (error) {
