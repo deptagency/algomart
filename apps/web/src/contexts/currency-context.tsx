@@ -8,12 +8,12 @@ import { setCurrencyCookie } from '@/utils/cookies-web'
 
 interface ICurrencyContext {
   currency: string
-  setCurrency: (currency: string) => void
+  setCurrency: (currency: string) => Promise<boolean>
 }
 
 const CurrencyContext = createContext<ICurrencyContext>({
   currency: DEFAULT_CURRENCY,
-  setCurrency: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
+  setCurrency: () => Promise.resolve(true),
 })
 
 export const useCurrency = () => useContext(CurrencyContext)
@@ -24,6 +24,7 @@ export const CurrencyProvider = ({
   children: React.ReactNode
 }) => {
   const auth = useAuth(false)
+
   // We need to store the cookie value in state in order to force re-render on change.
   const [cookie, setCookie] = useState(getCookie(CURRENCY_COOKIE))
   const parsedCookie = cookie && cookie !== 'null' ? cookie : null
