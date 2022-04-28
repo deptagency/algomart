@@ -3,14 +3,11 @@ import clsx from 'clsx'
 import Image from 'next/image'
 import useTranslation from 'next-translate/useTranslation'
 
-import LinkButton from '../link-button'
-
 import css from './wallet-transfers.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
 import { formatAlgoAddress } from '@/utils/format-string'
-import { urls } from '@/utils/urls'
 
 export interface ConfirmPurchaseStageProps {
   accounts: string[]
@@ -144,19 +141,6 @@ export default function ConfirmPurchaseStage({
             </tr>
           </tbody>
         </table>
-        <p className={css.helpText}>
-          {t('nft:walletConnect.fineprint.helpText')}
-        </p>
-        {/* @TODO: Update link when we have an informational page */}
-        <LinkButton
-          href={urls.home}
-          variant="tertiary"
-          size="small"
-          className={css.link}
-          fullWidth
-        >
-          {t('nft:walletConnect.fineprint.linkText')}
-        </LinkButton>
       </div>
       <div className={css.spacing}>
         <Button fullWidth onClick={onConfirm} disabled={!selectedAccount}>

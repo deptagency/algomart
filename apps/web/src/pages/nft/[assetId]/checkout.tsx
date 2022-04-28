@@ -60,14 +60,14 @@ export default function CheckoutPage({
     try {
       setStage('purchase')
       // @TODO: Pass in the seller's address instead
-      await purchaseCollectible(address, collectible.collectionId)
+      await purchaseCollectible(address, t('nft:walletConnect.txnMessage'))
       setStage('success')
     } catch (error) {
       // @TODO: improve error message
       setError(error instanceof Error ? error.message : String(error))
       setStage('error')
     }
-  }, [address, collectible?.collectionId, purchaseCollectible])
+  }, [address, purchaseCollectible, t])
 
   return (
     <DefaultLayout panelPadding pageTitle={collectible.title}>

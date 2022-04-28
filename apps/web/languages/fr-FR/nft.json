@@ -15,12 +15,8 @@
     "backToMyCollection": "FR Back to My Collection",
     "creatorFee": "FR {{percentage}} Creator Fee",
     "Item Price": "FR Item Price",
-    "algoPrice": "{{price}} ALGO",
-    "fineprint": {
-      "label": "FR Secondary Marketplace fineprint",
-      "helpText": "FR Secondary market transaction fineprint. Hell of velit tempor ipsum knausgaard, craft beer cliche activated charcoal gentrify anim adaptogen incididunt vice kitsch heirloom. Cloud bread intelligentsia ugh etsy irony, normcore nostrud quinoa skateboard jianbing bushwick air plant live-edge hashtag.",
-      "linkText": "FR Read more about secondary market purchase policies here."
-    }
+    "algoPrice": "FR {{price}} ALGO",
+    "txnMessage": "FR Secondary market transaction fineprint. Hell of velit tempor ipsum knausgaard, craft beer cliche activated charcoal gentrify anim adaptogen incididunt vice kitsch heirloom. Cloud bread intelligentsia ugh etsy irony, normcore nostrud quinoa skateboard jianbing bushwick air plant live-edge hashtag."
   },
   "actions": {
     "sellNFT": "FR Sell NFT",

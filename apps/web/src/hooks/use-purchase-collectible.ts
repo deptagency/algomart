@@ -78,10 +78,7 @@ export function usePurchaseCollectible(passphrase: string) {
   )
 
   const purchaseCollectible = useCallback(
-    async (
-      sellerAccountAddress: string | null,
-      collectionExternalId: string
-    ) => {
+    async (sellerAccountAddress: string | null, txnMessage: string) => {
       try {
         // @TODO: Update price to the amount decided by the seller
         const price = 10
@@ -92,8 +89,7 @@ export function usePurchaseCollectible(passphrase: string) {
           !connector ||
           !passphrase ||
           !selectedAccount ||
-          !sellerAccountAddress ||
-          !collectionExternalId
+          !sellerAccountAddress
         )
           return
 
@@ -117,10 +113,12 @@ export function usePurchaseCollectible(passphrase: string) {
         // User signs transaction and we submit to Algorand network
         setPurchaseStatus('sign-transaction')
         const signedTransaction = await connector
-          .signTransaction([await encodeTransaction(assetTx)])
+          .signTransaction([
+            await encodeTransaction(assetTx, undefined, txnMessage),
+          ])
           .catch(() => null)
 
-        if (!signedTransaction) throw new Error('Not connected')
+        if (!signedTransaction) throw new Error('Transaction not signed')
 
         setPurchaseStatus('pending')
         const txID = assetTx.txID()

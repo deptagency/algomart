@@ -26,10 +26,6 @@
   @apply px-6 pt-5 text-base-textTertiary;
 }
 
-.link {
-  @apply underline;
-}
-
 .accountItem {
   @apply flex flex-row items-center p-5 mb-5 border rounded shadow-md cursor-pointer bg-base-bgCard border-base-border hover:border-base-textPrimary;
 }
@@ -113,10 +109,6 @@
 
 .paymentGrid tr td {
   @apply text-right;
-}
-
-.helpText {
-  @apply px-2 mb-5 text-sm text-base-textTertiary;
 }
 
 .title {
