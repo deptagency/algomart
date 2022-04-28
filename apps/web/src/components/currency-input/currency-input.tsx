@@ -1,6 +1,6 @@
 import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import clsx from 'clsx'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import CurrencyInputField, {
   CurrencyInputProps as CurrencyInputFieldProps,
 } from 'react-currency-input-field'
@@ -41,6 +41,15 @@ export default function CurrencyInput({
   const { currency } = useCurrency()
   const locale = useLocale()
   const [stringValue, setStringValue] = useState(String(value / 100))
+  const [hydrated, setHydrated] = useState(false)
+
+  useEffect(() => {
+    /*
+     * This addresses an issue where the user's selected currency is not
+     * available at hydration time, causing a discrepancy between server and client
+     */
+    setHydrated(true)
+  }, [])
 
   const handleChange = (value: string) => {
     if (value === undefined || Number.isNaN(Number(value))) {
@@ -88,7 +97,7 @@ export default function CurrencyInput({
       {...props}
     />
   )
-  return label ? (
+  return label && hydrated ? (
     <label
       htmlFor={id}
       className={clsx(css.labelContainer, {
