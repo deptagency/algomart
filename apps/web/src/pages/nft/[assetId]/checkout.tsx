@@ -60,14 +60,14 @@ export default function CheckoutPage({
     try {
       setStage('purchase')
       // @TODO: Pass in the seller's address instead
-      await purchaseCollectible(address)
+      await purchaseCollectible(address, collectible.collectionId)
       setStage('success')
     } catch (error) {
       // @TODO: improve error message
       setError(error instanceof Error ? error.message : String(error))
       setStage('error')
     }
-  }, [address, purchaseCollectible])
+  }, [address, collectible?.collectionId, purchaseCollectible])
 
   return (
     <DefaultLayout panelPadding pageTitle={collectible.title}>

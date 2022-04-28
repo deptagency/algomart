@@ -5,7 +5,6 @@ import { useConfig } from './use-config'
 
 import { AlgorandAdapter, IConnector } from '@/libs/algorand-adapter'
 import { WalletConnectAdapter } from '@/libs/wallet-connect-adapter'
-import { CollectibleService } from '@/services/collectible-service'
 import { formatToDecimal } from '@/utils/currency'
 
 export type PurchaseStatus =
@@ -79,7 +78,10 @@ export function usePurchaseCollectible(passphrase: string) {
   )
 
   const purchaseCollectible = useCallback(
-    async (sellerAccountAddress: string | null) => {
+    async (
+      sellerAccountAddress: string | null,
+      collectionExternalId: string
+    ) => {
       try {
         // @TODO: Update price to the amount decided by the seller
         const price = 10
@@ -90,7 +92,8 @@ export function usePurchaseCollectible(passphrase: string) {
           !connector ||
           !passphrase ||
           !selectedAccount ||
-          !sellerAccountAddress
+          !sellerAccountAddress ||
+          !collectionExternalId
         )
           return
 
@@ -120,7 +123,8 @@ export function usePurchaseCollectible(passphrase: string) {
         if (!signedTransaction) throw new Error('Not connected')
 
         setPurchaseStatus('pending')
-        await algorand.waitForConfirmation(assetTx.txID())
+        const txID = assetTx.txID()
+        await algorand.waitForConfirmation(txID)
         setPurchaseStatus('purchased')
 
         // @TODO: Transfer collectible
@@ -133,13 +137,6 @@ export function usePurchaseCollectible(passphrase: string) {
       }
     },
     [algorand, passphrase, retrieveAccountData, selectedAccount]
-  )
-
-  const hasOptedIn = useCallback(
-    async (assetIndex: number) => {
-      return await algorand.hasOptedIn(selectedAccount, assetIndex)
-    },
-    [algorand, selectedAccount]
   )
 
   useEffect(() => {
@@ -157,7 +154,6 @@ export function usePurchaseCollectible(passphrase: string) {
       disconnect,
       purchaseCollectible,
       purchaseStatus,
-      hasOptedIn,
       selectAccount,
       selectedAccount,
       setAccounts,
@@ -170,7 +166,6 @@ export function usePurchaseCollectible(passphrase: string) {
       disconnect,
       purchaseCollectible,
       purchaseStatus,
-      hasOptedIn,
       selectedAccount,
       selectedAccountBalance,
     ]
