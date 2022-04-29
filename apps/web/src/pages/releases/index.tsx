@@ -24,7 +24,6 @@ export const RELEASES_PER_PAGE = 9
 export default function Releases({ packs }: PublishedPacks) {
   const { t } = useTranslation()
   const { language } = useLanguage()
-  const { currency } = useCurrency()
   const { pathname, push, query } = useRouter()
 
   // Get URL search params from router, stringify them...
@@ -46,7 +45,7 @@ export default function Releases({ packs }: PublishedPacks) {
     const query = getPublishedPacksFilterQueryFromState(language, state)
     query.pageSize = RELEASES_PER_PAGE
     return searchPublishedPacksFilterQuery(query)
-  }, [language, state, currency])
+  }, [language, state])
 
   const { data, isValidating } = useApi<PublishedPacks>(
     `${urls.api.v1.getPublishedPacks}?${queryString}`
