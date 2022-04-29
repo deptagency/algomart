@@ -6,7 +6,6 @@ import { parse, stringify } from 'query-string'
 import { useEffect, useMemo } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
-import { useCurrency } from '@/contexts/currency-context'
 import { useLanguage } from '@/contexts/language-context'
 import { PackFilterProvider } from '@/contexts/pack-filter-context'
 import { usePackFilter } from '@/hooks/use-pack-filter'
