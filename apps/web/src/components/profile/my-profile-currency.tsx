@@ -9,7 +9,7 @@ import Heading from '@/components/heading'
 import { useCurrency } from '@/contexts/currency-context'
 
 export default function MyProfileCurrency() {
-  const { currency, setCurrency } = useCurrency()
+  const { currency, updateCurrency } = useCurrency()
   const [error, setError] = useState('')
   const [updateSuccess, setUpdateSuccess] = useState(false)
   const { t } = useTranslation()
@@ -18,7 +18,7 @@ export default function MyProfileCurrency() {
     (currency) => {
       setError('')
       setUpdateSuccess(false)
-      setCurrency(currency).then((success) => {
+      updateCurrency(currency).then((success) => {
         if (success) {
           setError('')
           setUpdateSuccess(true)

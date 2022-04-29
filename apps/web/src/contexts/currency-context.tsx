@@ -8,12 +8,12 @@ import { setCurrencyCookie } from '@/utils/cookies-web'
 
 interface ICurrencyContext {
   currency: string
-  setCurrency: (currency: string) => Promise<boolean>
+  updateCurrency: (currency: string) => Promise<boolean>
 }
 
 const CurrencyContext = createContext<ICurrencyContext>({
   currency: DEFAULT_CURRENCY,
-  setCurrency: () => Promise.resolve(true),
+  updateCurrency: () => Promise.resolve(true),
 })
 
 export const useCurrency = () => useContext(CurrencyContext)
@@ -29,7 +29,7 @@ export const CurrencyProvider = ({
   const [cookie, setCookie] = useState(getCookie(CURRENCY_COOKIE))
   const parsedCookie = cookie && cookie !== 'null' ? cookie : null
 
-  const setCurrency = async (currency: string) => {
+  const updateCurrency = async (currency: string) => {
     // always update cookie even though it's only used when not logged in
     setCookie(currency)
     setCurrencyCookie(currency)
@@ -42,7 +42,7 @@ export const CurrencyProvider = ({
   }
   const value = {
     currency: auth?.user?.currency || parsedCookie || DEFAULT_CURRENCY,
-    setCurrency,
+    updateCurrency,
   }
 
   return (
