@@ -21,7 +21,7 @@ import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import { useCurrency } from '@/contexts/currency-context'
 import { useI18n } from '@/contexts/i18n-context'
-import { useLanguage } from '@/hooks/use-language'
+import { useLanguage } from '@/contexts/language-context'
 import { FileWithPreview } from '@/types/file'
 
 /**
@@ -111,7 +111,7 @@ export function Language({
   const [options, setOptions] = useState<SelectOption[]>([])
   const { languages, getI18nInfo } = useI18n()
   const { t } = useTranslation()
-  const language = useLanguage()
+  const { language } = useLanguage()
 
   useEffect(() => {
     const run = async () => {

@@ -1,5 +1,5 @@
 import useTranslation from 'next-translate/useTranslation'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import common from './my-profile-common.module.css'
 import css from './my-profile-language.module.css'
@@ -14,17 +14,22 @@ export default function MyProfileCurrency() {
   const [updateSuccess, setUpdateSuccess] = useState(false)
   const { t } = useTranslation()
 
-  const handleCurrencyChange = (currency) => {
-    setCurrency(currency).then((success) => {
-      if (success) {
-        setError('')
-        setUpdateSuccess(true)
-        setTimeout(() => setUpdateSuccess(false), 3000)
-      } else {
-        setError(t('common:statuses.An Error has Occurred'))
-      }
-    })
-  }
+  const handleCurrencyChange = useCallback(
+    (currency) => {
+      setError('')
+      setUpdateSuccess(false)
+      setCurrency(currency).then((success) => {
+        if (success) {
+          setError('')
+          setUpdateSuccess(true)
+          setTimeout(() => setUpdateSuccess(false), 3000)
+        } else {
+          setError(t('common:statuses.An Error has Occurred'))
+        }
+      })
+    },
+    [t]
+  )
 
   return (
     <section className={common.section}>

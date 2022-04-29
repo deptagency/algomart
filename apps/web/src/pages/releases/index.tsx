@@ -7,8 +7,8 @@ import { useEffect, useMemo } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import { useCurrency } from '@/contexts/currency-context'
+import { useLanguage } from '@/contexts/language-context'
 import { PackFilterProvider } from '@/contexts/pack-filter-context'
-import { useLanguage } from '@/hooks/use-language'
 import { usePackFilter } from '@/hooks/use-pack-filter'
 import DefaultLayout from '@/layouts/default-layout'
 import ReleasesTemplate from '@/templates/releases-template'
@@ -23,7 +23,7 @@ export const RELEASES_PER_PAGE = 9
 
 export default function Releases({ packs }: PublishedPacks) {
   const { t } = useTranslation()
-  const language = useLanguage()
+  const { language } = useLanguage()
   const { currency } = useCurrency()
   const { pathname, push, query } = useRouter()
 

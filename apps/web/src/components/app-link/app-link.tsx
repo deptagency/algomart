@@ -4,7 +4,7 @@ import { AnchorHTMLAttributes, DetailedHTMLProps } from 'react'
 
 import css from './app-link.module.css'
 
-import { useLanguage } from '@/hooks/use-language'
+import { useLanguage } from '@/contexts/language-context'
 
 export type AppLinkProps = NextLinkProps &
   Omit<
@@ -27,7 +27,7 @@ export default function AppLink({
   className,
   ...rest
 }: AppLinkProps) {
-  const language = useLanguage()
+  const { language } = useLanguage()
   return (
     <Link
       href={href}

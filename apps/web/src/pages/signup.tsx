@@ -5,8 +5,8 @@ import { ExtractError } from 'validator-fns'
 
 import { useAuth } from '@/contexts/auth-context'
 import { useCurrency } from '@/contexts/currency-context'
+import { useLanguage } from '@/contexts/language-context'
 import { useRedemption } from '@/contexts/redemption-context'
-import { useLanguage } from '@/hooks/use-language'
 import DefaultLayout from '@/layouts/default-layout'
 import { AuthService } from '@/services/auth-service'
 import SignupTemplate from '@/templates/signup-template'
@@ -18,7 +18,7 @@ import { urls } from '@/utils/urls'
 export default function SignUpPage() {
   const auth = useAuth()
   const router = useRouter()
-  const language = useLanguage()
+  const { language } = useLanguage()
   const { currency } = useCurrency()
   const { redeemable } = useRedemption()
   const { t } = useTranslation()

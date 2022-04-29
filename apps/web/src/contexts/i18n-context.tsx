@@ -16,7 +16,7 @@ import {
 } from 'react'
 
 import { useCurrency } from '@/contexts/currency-context'
-import { useLanguage } from '@/hooks/use-language'
+import { useLanguage } from '@/contexts/language-context'
 import { I18nService } from '@/services/i18n-service'
 import { I18nState, I18nUtils } from '@/types/i18n'
 import {
@@ -93,7 +93,7 @@ export function useI18n() {
 }
 
 export function useI18nProvider() {
-  const language = useLanguage()
+  const { language } = useLanguage()
   const { currency } = useCurrency()
 
   const getCurrencyConversions =
