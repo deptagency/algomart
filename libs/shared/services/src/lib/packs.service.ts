@@ -195,13 +195,12 @@ export class PacksService {
 
   async searchPublishedPacks(
     {
-      currency = this.currency.code,
       language = DEFAULT_LANG,
       page = 1,
       pageSize = 10,
       type = [],
-      priceHigh,
-      priceLow,
+      priceHigh, // in USD cents
+      priceLow, // in USD cents
       status,
       reserveMet,
       sortBy = PackSortField.ReleasedAt,
@@ -224,30 +223,9 @@ export class PacksService {
       },
     }
 
-    if (priceHigh || priceLow) {
-      if (currency !== this.currency.code) {
-        const { exchangeRate } = await this.i18nService.getCurrencyConversion(
-          {
-            sourceCurrency: currency,
-            targetCurrency: this.currency.code,
-          },
-          trx
-        )
-
-        if (priceHigh) priceHigh *= exchangeRate
-        if (priceLow) priceLow *= exchangeRate
-      }
-
-      filter.price = {}
-      if (priceHigh) filter.price._lte = Math.round(priceHigh)
-      if (priceLow) filter.price._gte = Math.round(priceLow)
-    }
-
-    if (priceHigh || priceLow) {
-      filter.price = {}
-      if (priceHigh) filter.price._lte = Math.round(priceHigh)
-      if (priceLow) filter.price._gte = Math.round(priceLow)
-    }
+    filter.price = {}
+    if (priceHigh) filter.price._lte = Math.round(priceHigh)
+    if (priceLow) filter.price._gte = Math.round(priceLow)
 
     if (status) {
       filter.status = {

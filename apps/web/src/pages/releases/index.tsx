@@ -43,11 +43,7 @@ export default function Releases({ packs }: PublishedPacks) {
   const { dispatch, state } = usePackFilter(initialState)
 
   const queryString = useMemo(() => {
-    const query = getPublishedPacksFilterQueryFromState(
-      language,
-      state,
-      currency
-    )
+    const query = getPublishedPacksFilterQueryFromState(language, state)
     query.pageSize = RELEASES_PER_PAGE
     return searchPublishedPacksFilterQuery(query)
   }, [language, state, currency])
