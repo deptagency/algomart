@@ -2,11 +2,11 @@ import * as Currencies from '@dinero.js/currencies'
 
 import {
   DEFAULT_LANG,
+  ListType,
   SortDirection,
-  PublishedPack,
-  PackType,
   ProductQuery,
   ProductSortField,
+  Product,
   ProductType,
 } from '@algomart/schemas'
 import {
@@ -14,11 +14,11 @@ import {
   ItemSort,
   ItemFilters,
 } from '@algomart/shared/adapters'
-import { PackModel } from '@algomart/shared/models'
 import { invariant } from '@algomart/shared/utils'
 import { Transaction } from 'objection'
 import pino from 'pino'
-import { I18nService } from '.'
+import { I18nService, PacksService } from '.'
+import { PackModel } from '@algomart/shared/models'
 
 export class ProductsService {
   logger: pino.Logger<unknown>
@@ -26,6 +26,7 @@ export class ProductsService {
   constructor(
     private readonly cms: CMSCacheAdapter,
     private readonly i18nService: I18nService,
+    private readonly packsService: PacksService,
     private currency: Currencies.Currency<number>,
     logger: pino.Logger<unknown>
   ) {
@@ -38,7 +39,8 @@ export class ProductsService {
       language = DEFAULT_LANG,
       page = 1,
       pageSize = 10,
-      type = [],
+      listTypes = [],
+      productTypes = [],
       priceHigh,
       priceLow,
       status,
@@ -47,7 +49,7 @@ export class ProductsService {
       sortDirection = SortDirection.Descending,
     }: ProductQuery,
     trx?: Transaction
-  ): Promise<{ packs: PublishedPack[]; total: number }> {
+  ): Promise<{ products: Product[]; total: number }> {
     invariant(page > 0, 'page must be greater than 0')
 
     const sort: ItemSort[] = [
@@ -58,9 +60,12 @@ export class ProductsService {
     ]
 
     const filter: ItemFilters = {
-      type: {
-        _in: type,
+      productType: {
+        _in: productTypes,
       },
+      listType: {
+        _in: listTypes
+      }
     }
 
     if (priceHigh || priceLow) {
@@ -100,25 +105,43 @@ export class ProductsService {
       }
     }
 
-    const { packs: templates, total } = await this.cms.findAllPacks({
+    const { data: templates, meta: { filter_count: total } } = await this.cms.findAllProducts({
       filter,
       sort,
-      language,
+      // language,
       page,
-      pageSize,
+      limit: pageSize,
     })
 
-    const packCounts = await this.getPackCounts(
-      templates.map((t) => t.templateId)
+    console.log('products:')
+    console.log(templates)
+
+    // Extra pack logic
+    this.compilePackData(templates, listTypes)
+
+    // Extra collectible logic
+    this.compileCollectibleData(templates)
+
+    return {
+      products: templates,
+      total,
+    }
+  }
+
+  private async compilePackData(templates: Product[], listTypes: ListType[]) {
+    // Extra pack logic
+    const packTemplates = templates.filter((t) => t.productType === ProductType.Pack)
+    const packCounts = await this.packsService.getPackCounts(
+      packTemplates.map((t) => t.templateId)
     )
 
     let packsWithActiveBids: PackModel[] = []
 
-    if (type.length === 0 || type.includes(ProductType.Auction)) {
+    if (listTypes.length === 0 || listTypes.includes(ListType.Auction)) {
       // only load bids when searching for auction packs
-      packsWithActiveBids = await this.getPacksWithActiveBids(
-        templates
-          .filter((t) => t.type === PackType.Auction)
+      packsWithActiveBids = await this.packsService.getPacksWithActiveBids(
+        packTemplates
+          .filter((t) => t.listType === ListType.Auction)
           .map((t) => t.templateId)
       )
     }
@@ -128,16 +151,15 @@ export class ProductsService {
       packsWithActiveBids.map((p) => [p.templateId, p])
     )
 
-    const assemblePack = this.createPublishedPackFn(
+    const assemblePack = this.packsService.createPublishedPackFn(
       packLookup,
       packWithActiveBidsLookup
     )
 
-    const allPublicPacks = templates.map((pack) => assemblePack(pack))
+    // const allPublicPacks = packTemplates.map((pack) => assemblePack(pack))
+  }
 
-    return {
-      packs: allPublicPacks,
-      total,
-    }
+  private async compileCollectibleData(templates: Product[]) {
+
   }
 }

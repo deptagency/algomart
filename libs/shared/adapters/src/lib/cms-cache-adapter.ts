@@ -25,6 +25,7 @@ import {
   PackBase,
   PackStatus,
   PackType,
+  Product,
   SetBase,
   SetWithCollection,
   SortDirection,
@@ -45,7 +46,7 @@ import {
   isStringArray,
 } from '@algomart/shared/utils'
 import { URL } from 'node:url'
-import Objection, { QueryBuilder, Transaction } from 'objection'
+import Objection, { QueryBuilder, Transaction, ref } from 'objection'
 import pino from 'pino'
 
 export interface ItemsResponse<T> {
@@ -731,6 +732,52 @@ export class CMSCacheAdapter {
     }
 
     return result
+  }
+
+  async findAllProducts(query: ItemQuery = {}, trx?: Transaction) {
+    const queryBuild =
+      CMSCachePackTemplateModel.query(trx)
+        .select(
+          'id as templateId',
+          'slug as url',
+          'type as listType',
+          'price',
+          'content',
+          CMSCachePackTemplateModel.raw(`'pack' as productType`)
+        )
+        .unionAll((queryBuild) => {
+          queryBuild
+            .select('*')
+            .from((subQueryBuild) => {
+              subQueryBuild
+                .distinctOn('templateId')
+                .select(
+                  'Collectible.templateId as templateId',
+                  ref('CollectibleListings.collectibleId').castText(),
+                  'type as listType',
+                  'price',
+                  'CmsCacheCollectibleTemplates.content as content',
+                  CMSCachePackTemplateModel.raw(`'collectible' as productType`)
+                )
+                .from('CollectibleListings')
+                .innerJoin('Collectible', 'collectibleId', '=', 'Collectible.id')
+                .innerJoin('CmsCacheCollectibleTemplates', 'Collectible.templateId', '=', 'CmsCacheCollectibleTemplates.id')
+                .orderBy(['templateId', { column: 'price', order: 'asc'}])
+                .as('t')
+            })
+        })
+
+    const data = await queryBuild
+    const result: ItemsResponse<Product> = {
+      data: data as unknown as Product[],
+      meta: {
+        filter_count: data.length,
+        total_count: 0,
+      },
+    }
+
+    return result
+
   }
 
   private async findCollectibleTemplates(

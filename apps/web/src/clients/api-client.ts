@@ -589,7 +589,7 @@ export class ApiClient {
   async searchProducts(query: ProductQuery) {
     const searchQuery = searchProductsFilterQuery(query)
     return await this.http
-      .get<Products>(`products?${searchQuery}`)
+      .get<Products>(`products/search?${searchQuery}`)
       .then((response) => response.data)
   }
 

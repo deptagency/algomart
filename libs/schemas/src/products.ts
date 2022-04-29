@@ -1,6 +1,7 @@
 import { Static, Type } from '@sinclair/typebox'
 
 import { IdSchema, PaginationSchema, Simplify, SortDirection } from './shared'
+import { PackType } from '.'
 
 export enum ProductStatus {
   Upcoming = 'Upcoming',
@@ -8,11 +9,16 @@ export enum ProductStatus {
   Expired = 'Expired',
 }
 
-export enum ProductType {
+export enum ListType {
   Auction = 'auction',
   Free = 'free',
   Purchase = 'purchase',
   Redeem = 'redeem',
+}
+
+export enum ProductType {
+  Pack = 'pack',
+  Collectible = 'collectible'
 }
 
 export enum ProductSortField {
@@ -25,16 +31,17 @@ export const ProductSchema = Type.Object({
   auctionUntil: Type.Optional(Type.String({ format: 'date-time' })),
   available: Type.Number(),
   body: Type.Optional(Type.String()),
-  collectibleId: Type.Optional(IdSchema),
   image: Type.String({ format: 'uri' }),
-  packSlug: Type.String(),
+  listType: Type.Enum(ListType),
   price: Type.Number(),
+  productType: Type.Enum(ProductType),
   releasedAt: Type.Optional(Type.String({ format: 'date-time' })),
   status: Type.Enum(ProductStatus),
   subtitle: Type.Optional(Type.String()),
+  templateId: Type.String(),
   title: Type.String(),
   total: Type.Number(),
-  type: Type.Enum(ProductType),
+  url: Type.String(),
 })
 
 export const ProductsSchema = Type.Object({
@@ -51,8 +58,8 @@ export const ProductQuerySchema = Type.Intersect([
     templateIds: Type.Optional(Type.Array(IdSchema)),
     priceLow: Type.Optional(Type.Number()),
     priceHigh: Type.Optional(Type.Number()),
-    type: Type.Optional(Type.Array(Type.Enum(ProductType))),
-    secondaryMarket: Type.Optional(Type.Boolean()),
+    listTypes: Type.Optional(Type.Array(Type.Enum(ListType))),
+    productTypes: Type.Optional(Type.Array(Type.Enum(ProductType))),
     status: Type.Optional(Type.Array(Type.Enum(ProductStatus))),
     reserveMet: Type.Optional(Type.Boolean()),
     sortBy: Type.Optional(

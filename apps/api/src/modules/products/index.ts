@@ -1,6 +1,6 @@
 import {
-  PublishedPacksQuerySchema,
-  PublishedPacksSchema,
+  ProductQuerySchema,
+  ProductsSchema,
 } from '@algomart/schemas'
 import { appErrorHandler } from '@algomart/shared/utils'
 import bearerAuthOptions from '@api/configuration/bearer-auth'
@@ -30,10 +30,10 @@ export async function productsRoutes(app: FastifyInstance) {
       schema: {
         tags,
         security,
-        description: 'Search all published packs with pagination.',
-        querystring: PublishedPacksQuerySchema,
+        description: 'Search all products with pagination.',
+        querystring: ProductQuerySchema,
         response: {
-          200: PublishedPacksSchema,
+          200: ProductsSchema,
         },
       },
     },
