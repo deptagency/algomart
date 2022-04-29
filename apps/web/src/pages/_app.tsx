@@ -56,14 +56,14 @@ function MyApp({ Component, pageProps }: AppProps) {
     <SWRConfig value={{ fetcher }}>
       <RedemptionProvider>
         <AuthProvider>
-          <I18nProvider>
-            <CurrencyProvider>
+          <CurrencyProvider>
+            <I18nProvider>
               <ThemeProvider>
                 <Component {...pageProps} />
                 <CookieConsent />
               </ThemeProvider>
-            </CurrencyProvider>
-          </I18nProvider>
+            </I18nProvider>
+          </CurrencyProvider>
         </AuthProvider>
       </RedemptionProvider>
     </SWRConfig>
