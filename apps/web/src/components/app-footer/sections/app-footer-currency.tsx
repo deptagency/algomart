@@ -1,4 +1,3 @@
-import React from 'react'
 
 import { Currency } from '@/components/auth-inputs/auth-inputs'
 import { useCurrency } from '@/contexts/currency-context'
