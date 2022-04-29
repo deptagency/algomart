@@ -67,7 +67,7 @@ export default function CurrencyInput({
   }
 
   const localizedValue =
-    currency !== DEFAULT_CURRENCY
+    hydrated && currency !== DEFAULT_CURRENCY
       ? formatCurrency(value, locale, currency, conversionRate)
       : undefined
 
@@ -97,7 +97,7 @@ export default function CurrencyInput({
       {...props}
     />
   )
-  return label && hydrated ? (
+  return label ? (
     <label
       htmlFor={id}
       className={clsx(css.labelContainer, {
