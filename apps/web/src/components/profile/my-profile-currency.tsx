@@ -11,18 +11,18 @@ import { useCurrency } from '@/contexts/currency-context'
 export default function MyProfileCurrency() {
   const { currency, updateCurrency } = useCurrency()
   const [error, setError] = useState('')
-  const [updateSuccess, setUpdateSuccess] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
   const { t } = useTranslation()
 
   const handleCurrencyChange = useCallback(
     (currency) => {
       setError('')
-      setUpdateSuccess(false)
+      setSuccessMessage('')
       updateCurrency(currency).then((success) => {
         if (success) {
           setError('')
-          setUpdateSuccess(true)
-          setTimeout(() => setUpdateSuccess(false), 3000)
+          setSuccessMessage(t('profile:resetCurrencyConfirmation'))
+          setTimeout(() => setSuccessMessage(''), 3000)
         } else {
           setError(t('common:statuses.An Error has Occurred'))
         }
@@ -37,10 +37,8 @@ export default function MyProfileCurrency() {
         <Heading className={common.sectionHeading} level={2}>
           {t('forms:fields.currencies.label')}
         </Heading>
-        {updateSuccess && (
-          <div className={common.confirmation}>
-            {t('profile:resetCurrencyConfirmation')}
-          </div>
+        {successMessage && (
+          <div className={common.confirmation}>{successMessage}</div>
         )}
         {error && <div className={common.error}>{error}</div>}
       </div>
