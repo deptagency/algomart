@@ -34,17 +34,20 @@ export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
   const [cookieCopy, setCookieCopy] = useState<string>()
   const parsedCookie = cookieCopy in Currencies ? cookieCopy : null
 
-  const updateCurrency = useCallback(async (currency: string) => {
-    // always update cookie even though it's only used when not logged in
-    setCookieCopy(currency)
-    setCurrencyCookie(currency)
-    if (auth.user) {
-      const success = await AuthService.instance.updateCurrency(currency)
-      await auth.reloadProfile()
-      return success
-    }
-    return true
-  }, [])
+  const updateCurrency = useCallback(
+    async (currency: string) => {
+      // always update cookie even though it's only used when not logged in
+      setCookieCopy(currency)
+      setCurrencyCookie(currency)
+      if (auth.user) {
+        const success = await AuthService.instance.updateCurrency(currency)
+        await auth.reloadProfile()
+        return success
+      }
+      return true
+    },
+    [setCurrencyCookie, setCookieCopy, auth.user]
+  )
 
   useEffect(() => {
     setCookieCopy(getCookie(CURRENCY_COOKIE))
