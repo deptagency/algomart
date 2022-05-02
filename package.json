@@ -97,7 +97,7 @@
     "@babel/plugin-transform-runtime": "7.17.0",
     "@nrwl/cli": "14.0.1",
     "@nrwl/cypress": "14.0.1",
-    "@nrwl/devkit": "14.0.1",
+    "@nrwl/devkit": "14.0.5",
     "@nrwl/eslint-plugin-nx": "14.0.1",
     "@nrwl/jest": "14.0.1",
     "@nrwl/linter": "14.0.1",
