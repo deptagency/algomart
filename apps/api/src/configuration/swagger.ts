@@ -1,4 +1,4 @@
-import { SwaggerOptions } from 'fastify-swagger'
+import { SwaggerOptions } from '@fastify/swagger'
 
 const swaggerOptions: SwaggerOptions = {
   routePrefix: '/docs',

@@ -17,11 +17,11 @@ import { paymentRoutes } from '@api/modules/payments'
 import { setsRoutes } from '@api/modules/sets'
 import fastifyTraps from '@dnlup/fastify-traps'
 import ajvCompiler from '@fastify/ajv-compiler'
+import fastifySensible from '@fastify/sensible'
+import fastifySwagger from '@fastify/swagger'
 import ajvFormats from 'ajv-formats'
 import fastify, { FastifyServerOptions } from 'fastify'
 import { fastifySchedule } from 'fastify-schedule'
-import fastifySensible from 'fastify-sensible'
-import fastifySwagger from 'fastify-swagger'
 import { Knex } from 'knex'
 
 export interface AppConfig {

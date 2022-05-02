@@ -214,7 +214,11 @@ export function ProfileImage({
   const { t } = useTranslation()
   const [dropError, setDropError] = useState<boolean>(false)
   const { getRootProps, getInputProps } = useDropzone({
-    accept: 'image/*',
+    accept: {
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/png': ['.png'],
+      'image/gif': ['.gif'],
+    },
     maxFiles: 1,
     maxSize: 1024 * 1024 * 2, // 2MB
     noDrag: true,
