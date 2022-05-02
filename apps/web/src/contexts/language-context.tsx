@@ -67,7 +67,7 @@ export const LanguageProvider = ({
       }
       return true
     },
-    [auth.user]
+    [setLanguage, setLanguageCookie, auth.user]
   )
 
   useEffect(() => {
