@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import { FastifyError } from 'fastify-error'
+import { FastifyError } from '@fastify/error'
 import { HttpError } from 'http-errors'
 
 export class UserError extends Error {

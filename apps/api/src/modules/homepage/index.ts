@@ -1,8 +1,8 @@
 import { HomepageSchema, LanguageSchema } from '@algomart/schemas'
 import { appErrorHandler } from '@algomart/shared/utils'
 import bearerAuthOptions from '@api/configuration/bearer-auth'
+import fastifyBearerAuth from '@fastify/bearer-auth'
 import { FastifyInstance } from 'fastify'
-import fastifyBearerAuth from 'fastify-bearer-auth'
 
 import { getHomepage } from './homepage.routes'
 

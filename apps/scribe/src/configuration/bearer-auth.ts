@@ -1,4 +1,4 @@
-import { FastifyBearerAuthOptions } from 'fastify-bearer-auth'
+import { FastifyBearerAuthOptions } from '@fastify/bearer-auth'
 
 import { Configuration } from './app-config'
 
