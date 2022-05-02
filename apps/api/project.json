@@ -13,9 +13,7 @@
         "outputPath": "dist/apps/api",
         "main": "apps/api/src/index.ts",
         "tsConfig": "apps/api/tsconfig.app.json",
-        "assets": [
-          "apps/api/src/contracts"
-        ]
+        "assets": []
       },
       "configurations": {
         "production": {
