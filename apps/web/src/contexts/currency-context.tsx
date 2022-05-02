@@ -1,5 +1,14 @@
 import { CURRENCY_COOKIE, DEFAULT_CURRENCY } from '@algomart/schemas'
-import { createContext, useContext, useState } from 'react'
+import * as Currencies from '@dinero.js/currencies'
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 
 import { useAuth } from '@/contexts/auth-context'
 import { AuthService } from '@/services/auth-service'
@@ -18,20 +27,16 @@ const CurrencyContext = createContext<ICurrencyContext>({
 
 export const useCurrency = () => useContext(CurrencyContext)
 
-export const CurrencyProvider = ({
-  children,
-}: {
-  children: React.ReactNode
-}) => {
+export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
   const auth = useAuth(false)
 
   // We need to store the cookie value in state in order to force re-render on change.
-  const [cookie, setCookie] = useState(getCookie(CURRENCY_COOKIE))
-  const parsedCookie = cookie && cookie !== 'null' ? cookie : null
+  const [cookieCopy, setCookieCopy] = useState<string>()
+  const parsedCookie = cookieCopy in Currencies ? cookieCopy : null
 
-  const updateCurrency = async (currency: string) => {
+  const updateCurrency = useCallback(async (currency: string) => {
     // always update cookie even though it's only used when not logged in
-    setCookie(currency)
+    setCookieCopy(currency)
     setCurrencyCookie(currency)
     if (auth.user) {
       const success = await AuthService.instance.updateCurrency(currency)
@@ -39,11 +44,19 @@ export const CurrencyProvider = ({
       return success
     }
     return true
-  }
-  const value = {
-    currency: auth?.user?.currency || parsedCookie || DEFAULT_CURRENCY,
-    updateCurrency,
-  }
+  }, [])
+
+  useEffect(() => {
+    setCookieCopy(getCookie(CURRENCY_COOKIE))
+  }, [])
+
+  const value = useMemo(
+    () => ({
+      currency: auth.user?.currency || parsedCookie || DEFAULT_CURRENCY,
+      updateCurrency,
+    }),
+    [auth.user?.currency, parsedCookie, DEFAULT_CURRENCY, updateCurrency]
+  )
 
   return (
     <CurrencyContext.Provider value={value}>
