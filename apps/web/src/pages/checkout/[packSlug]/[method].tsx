@@ -119,7 +119,7 @@ export const getServerSideProps: GetServerSideProps<
   if (!packTemplate.available) {
     return {
       redirect: {
-        destination: urlFor(urls.release, { packSlug }),
+        destination: urlFor(urls.products, { packSlug }),
         permanent: false,
       },
     }
@@ -137,7 +137,7 @@ export const getServerSideProps: GetServerSideProps<
     ) {
       return {
         redirect: {
-          destination: urlFor(urls.release, { packSlug }),
+          destination: urlFor(urls.products, { packSlug }),
           permanent: false,
         },
       }
@@ -152,7 +152,7 @@ export const getServerSideProps: GetServerSideProps<
     if (total > 0) {
       return {
         redirect: {
-          destination: urlFor(urls.release, { packSlug }),
+          destination: urlFor(urls.products, { packSlug }),
           permanent: false,
         },
       }

@@ -20,6 +20,7 @@ import {
   NotificationsService,
   PacksService,
   PaymentsService,
+  ProductsService,
   SetsService,
   TransactionsService,
 } from '@algomart/shared/services'
@@ -219,6 +220,16 @@ export function configureResolver() {
       new I18nService(
         c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
         c.get<CoinbaseAdapter>(CoinbaseAdapter.name),
+        Configuration.currency,
+        logger
+      )
+  )
+  resolver.set(
+    ProductsService.name,
+    (c) =>
+      new ProductsService(
+        c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
+        c.get<I18nService>(I18nService.name),
         Configuration.currency,
         logger
       )

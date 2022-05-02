@@ -90,7 +90,7 @@ export class PacksService {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  private createPublishedPackFn(
+  createPublishedPackFn(
     packLookup: Map<
       string,
       { templateId: string; available: string; total: string }
@@ -127,13 +127,13 @@ export class PacksService {
     }
   }
 
-  private async getPacksWithActiveBids(templateIds: string[]) {
+  async getPacksWithActiveBids(templateIds: string[]) {
     return await PackModel.query()
       .whereIn('templateId', templateIds)
       .withGraphFetched('activeBid')
   }
 
-  private async getPackCounts(
+  async getPackCounts(
     templateIds: string[]
   ): Promise<Array<{ templateId: string; available: string; total: string }>> {
     return await PackModel.query()

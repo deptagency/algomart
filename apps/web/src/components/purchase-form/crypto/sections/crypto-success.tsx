@@ -25,7 +25,7 @@ export default function CryptoSuccess() {
     if (!isAuctionActive()) {
       handlePackOpening()
     } else {
-      push(packSlug ? urlFor(urls.release, { packSlug }) : urls.myCollectibles)
+      push(packSlug ? urlFor(urls.products, { packSlug }) : urls.myCollectibles)
     }
   }
 

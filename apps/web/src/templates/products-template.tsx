@@ -1,6 +1,7 @@
-import { PublishedPack } from '@algomart/schemas'
+import { Product } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
+import React from 'react'
 
 import css from './releases-template.module.css'
 
@@ -9,28 +10,29 @@ import AppLink from '@/components/app-link/app-link'
 import Grid from '@/components/grid/grid'
 import Loading from '@/components/loading/loading'
 import Pagination from '@/components/pagination/pagination'
-import ReleaseFilterPrice from '@/components/releases/release-filter-price'
-import ReleaseFilterType from '@/components/releases/release-filter-type'
-import ReleaseFiltersMobile from '@/components/releases/release-filters-mobile'
-import ReleaseItem from '@/components/releases/release-item'
+import ProductFilterPrice from '@/components/products/product-filter-price'
+import ProductFilterType from '@/components/products/product-filter-type'
+import ProductFiltersMobile from '@/components/products/product-filters-mobile'
+import ReleaseItem from '@/components/products/product-item'
+import ProductItem from '@/components/products/product-item'
 import Select from '@/components/select/select'
-import { usePackFilterContext } from '@/contexts/pack-filter-context'
-import { packFilterActions } from '@/hooks/use-pack-filter'
-import { RELEASES_PER_PAGE } from '@/pages/releases'
+import { useProductFilterContext } from '@/contexts/product-filter-context'
+import { productFilterActions } from '@/hooks/use-product-filter'
+import { PRODUCTS_PER_PAGE } from '@/pages/browse'
 import { urls } from '@/utils/urls'
 
-export interface ReleasesTemplateProps {
+export interface ProductsTemplateProps {
   isLoading: boolean
-  packs: PublishedPack[]
+  products: Product[]
   total: number
 }
 
-export default function ReleasesTemplate({
+export default function ProductsTemplate({
   isLoading,
-  packs,
+  products,
   total,
-}: ReleasesTemplateProps) {
-  const { dispatch, state } = usePackFilterContext()
+}: ProductsTemplateProps) {
+  const { dispatch, state } = useProductFilterContext()
   const { t } = useTranslation()
 
   return (
@@ -39,7 +41,7 @@ export default function ReleasesTemplate({
       <div className={css.selectWrapper}>
         <Select
           className={css.select}
-          onChange={(value) => dispatch(packFilterActions.setSort(value))}
+          onChange={(value) => dispatch(productFilterActions.setSort(value))}
           id="sortOption"
           options={state.selectOptions}
           value={state.sortMode}
@@ -47,18 +49,18 @@ export default function ReleasesTemplate({
       </div>
       <div className={clsx(css.columns)}>
         {/* Filters */}
-        <ReleaseFiltersMobile />
+        <ProductFiltersMobile />
         <section className={css.filterColumn}>
-          <ReleaseFilterPrice />
-          <ReleaseFilterType />
+          <ProductFilterPrice />
+          <ProductFilterType />
         </section>
 
-        {/* Release Packs */}
+        {/* Products Grid */}
         {isLoading ? (
           <div className={css.loadingWrapper}>
             <Loading />
           </div>
-        ) : packs.length === 0 ? (
+        ) : products.length === 0 ? (
           <div className={css.notificationWrapper}>
             <AlertMessage
               className={css.notification}
@@ -70,22 +72,26 @@ export default function ReleasesTemplate({
           <section className={css.gridColumn}>
             <>
               <Grid columns={3}>
-                {packs.map((pack) => (
+                {products.map((product) => (
                   <AppLink
                     className={css.gridItem}
-                    key={pack.templateId}
-                    href={urls.release.replace(':packSlug', pack.slug)}
+                    key={product.packSlug || product.collectibleId}
+                    href={
+                      product.packSlug
+                        ? urls.pack.replace(':packSlug', product.packSlug)
+                        : urls.nft.replace(':assetId', product.collectibleId)
+                    }
                   >
-                    <ReleaseItem pack={pack} />
+                    <ProductItem product={product} />
                   </AppLink>
                 ))}
               </Grid>
               <div className={css.paginationWrapper}>
                 <Pagination
                   currentPage={state.currentPage}
-                  pageSize={RELEASES_PER_PAGE}
+                  pageSize={PRODUCTS_PER_PAGE}
                   setPage={(page) =>
-                    dispatch(packFilterActions.setCurrentPage(page))
+                    dispatch(productFilterActions.setCurrentPage(page))
                   }
                   total={total}
                 />

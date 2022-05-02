@@ -19,7 +19,7 @@ export default function LoginPage() {
 
   const handleRedeemEdition = useCallback(() => {
     if (redeemable) {
-      router.push(urls.release.replace(':packSlug', redeemable.pack.slug))
+      router.push(urls.products.replace(':packSlug', redeemable.pack.slug))
     }
   }, [redeemable, router])
 

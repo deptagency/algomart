@@ -42,8 +42,8 @@ export default function BankAccountSuccess({
 
   const handleReturnToListing = useCallback(() => {
     if (release?.slug) {
-      router.push(urls.release.replace(':packSlug', release.slug))
-    } else router.push(urls.releases)
+      router.push(urls.products.replace(':packSlug', release.slug))
+    } else router.push(urls.browse)
   }, [release?.slug, router])
 
   return (

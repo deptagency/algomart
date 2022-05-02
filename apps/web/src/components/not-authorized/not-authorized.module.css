@@ -1,0 +1,7 @@
+.heading {
+  @apply mb-6 text-center;
+}
+
+.body {
+  @apply text-center;
+}

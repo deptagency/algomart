@@ -1,0 +1,17 @@
+{
+  "filters": {
+    "Auction is live": "FR Auction is live",
+    "Auction Status": "FR Auction Status",
+    "Auction": "FR Auction",
+    "Has ended": "FR Has ended",
+    "High": "FR High",
+    "Low": "FR Low",
+    "noReleases": "FR There are no releases that match this filter criteria.",
+    "Price Range": "FR Price Range",
+    "Purchase": "FR Purchase",
+    "Reserve met": "FR Reserve met",
+    "Starting soon": "FR Starting soon",
+    "Secondary Market": "FR Secondary Market",
+    "Type of Sale": "FR Type of Sale"
+  }
+}

@@ -98,7 +98,7 @@ export const getServerSideProps: GetServerSideProps<StatusPageProps> = async (
   ) {
     return {
       redirect: {
-        destination: urls.releases,
+        destination: urls.browse,
         permanent: false,
       },
     }
@@ -108,7 +108,7 @@ export const getServerSideProps: GetServerSideProps<StatusPageProps> = async (
   if (payment?.payer?.externalId !== user.externalId) {
     return {
       redirect: {
-        destination: urls.releases,
+        destination: urls.browse,
         permanent: false,
       },
     }

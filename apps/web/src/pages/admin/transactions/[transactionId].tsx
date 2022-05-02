@@ -136,7 +136,7 @@ export default function AdminTransactionPage({
                 <dt>Slug</dt>
                 <dd>
                   <AppLink
-                    href={urlFor(urls.release, {
+                    href={urlFor(urls.products, {
                       packSlug: packTemplate?.slug,
                     })}
                   >

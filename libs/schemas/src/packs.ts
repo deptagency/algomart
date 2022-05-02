@@ -183,6 +183,11 @@ export const PacksByOwnerQuerySchema = Type.Intersect([
   }),
 ])
 
+export const PackBySlugQuerySchema = Type.Object({
+  language: Type.Optional(Type.String()),
+  slug: Type.String(),
+})
+
 export const PackWithIdSchema = Type.Intersect([
   PackBaseSchema,
   Type.Object({
@@ -291,6 +296,7 @@ export type PacksByOwnerQuery = Simplify<Static<typeof PacksByOwnerQuerySchema>>
 export type PublishedPacksQuery = Simplify<
   Static<typeof PublishedPacksQuerySchema>
 >
+export type PackBySlugQuery = Simplify<Static<typeof PackBySlugQuerySchema>>
 export type PublishedPack = Simplify<Static<typeof PublishedPackSchema>>
 export type PublishedPacks = Simplify<Static<typeof PublishedPacksSchema>>
 export type RedeemCode = Simplify<Static<typeof RedeemCodeSchema>>

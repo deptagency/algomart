@@ -2,14 +2,14 @@ import { AdjustmentsIcon, XIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
 import { useState } from 'react'
 
-import css from './release-filters-mobile.module.css'
+import css from './product-filters-mobile.module.css'
 
 import Button from '@/components/button'
 import Dialog from '@/components/dialog/dialog'
-import ReleaseFilterPrice from '@/components/releases/release-filter-price'
-import ReleaseFilterType from '@/components/releases/release-filter-type'
+import ProductFilterPrice from '@/components/products/product-filter-price'
+import ProductFilterType from '@/components/products/product-filter-type'
 
-export default function ReleaseFiltersMobile() {
+export default function ProductFiltersMobile() {
   const [showFilters, setShowFilters] = useState(false)
 
   return (
@@ -32,8 +32,8 @@ export default function ReleaseFiltersMobile() {
               <XIcon width={16} height={16} />
             </Button>
           </div>
-          <ReleaseFilterPrice />
-          <ReleaseFilterType />
+          <ProductFilterPrice />
+          <ProductFilterType />
         </div>
       </Dialog>
 

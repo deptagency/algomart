@@ -26,12 +26,13 @@ export const urls = {
   nftSell: '/nft/:assetId/sell',
   nftTransfer: '/nft/:assetId/transfer',
   nftInitiateTransfer: '/nft/:assetId/initiate-transfer',
+  pack: '/pack/:packSlug',
   packOpening: '/pack-opening/:packId',
   paymentFailure: '/payments/failure',
   paymentSuccess: '/payments/success',
+  products: '/products',
   redeem: '/redeem',
-  release: '/releases/:packSlug',
-  releases: '/releases',
+  browse: '/browse',
 
   // Auth-related
   login: '/login',
@@ -101,6 +102,7 @@ export const urls = {
       profile: '/api/v1/profile',
       publicKey: '/api/v1/payments/public-key',
       removeCard: '/api/v1/payments/remove-card',
+      searchProducts: '/api/v1/products',
       showcaseCollectible: '/api/v1/collection/collectibles-showcase',
       updateCard: '/api/v1/payments/update-card',
       updateCurrency: '/api/v1/profile/update-currency',

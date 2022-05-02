@@ -66,7 +66,7 @@ export default function CardForm() {
     () =>
       push(
         isAuctionActive()
-          ? urlFor(urls.release, { packSlug: release.slug })
+          ? urlFor(urls.products, { packSlug: release.slug })
           : urls.myCollectibles
       ),
     [isAuctionActive, push, release?.slug]

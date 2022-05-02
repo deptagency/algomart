@@ -101,6 +101,7 @@
     "404": "404",
     "Admin": "Admin",
     "Add Payment Method": "Add Payment Method",
+    "Browse": "Browse",
     "Algorand Address": "Algorand Address: {{algoAddress}}",
     "Checking Out": "Checkout for {{name}}",
     "Login": "Login",
@@ -116,7 +117,6 @@
     "Profile Setup": "Profile Setup",
     "Redeem": "Redeem",
     "Release": "{{name}}",
-    "Releases": "Releases",
     "Reset Password": "Reset Password",
     "Security": "Security",
     "Setup Profile": "Setup Profile",
@@ -134,8 +134,8 @@
       "Legal": "Legal"
     },
     "main": {
-      "Releases": "Releases",
       "Brands": "Brands",
+      "Browse": "Browse",
       "My Collection": "My Collection"
     },
     "utility": {
