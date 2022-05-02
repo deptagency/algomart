@@ -6,9 +6,8 @@ import { parse, stringify } from 'query-string'
 import { useEffect, useMemo } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
+import { useLanguage } from '@/contexts/language-context'
 import { PackFilterProvider } from '@/contexts/pack-filter-context'
-import { useCurrency } from '@/hooks/use-currency'
-import { useLanguage } from '@/hooks/use-language'
 import { usePackFilter } from '@/hooks/use-pack-filter'
 import DefaultLayout from '@/layouts/default-layout'
 import ReleasesTemplate from '@/templates/releases-template'
@@ -23,8 +22,7 @@ export const RELEASES_PER_PAGE = 9
 
 export default function Releases({ packs }: PublishedPacks) {
   const { t } = useTranslation()
-  const language = useLanguage()
-  const currency = useCurrency()
+  const { language } = useLanguage()
   const { pathname, push, query } = useRouter()
 
   // Get URL search params from router, stringify them...
@@ -43,14 +41,10 @@ export default function Releases({ packs }: PublishedPacks) {
   const { dispatch, state } = usePackFilter(initialState)
 
   const queryString = useMemo(() => {
-    const query = getPublishedPacksFilterQueryFromState(
-      language,
-      state,
-      currency
-    )
+    const query = getPublishedPacksFilterQueryFromState(language, state)
     query.pageSize = RELEASES_PER_PAGE
     return searchPublishedPacksFilterQuery(query)
-  }, [language, state, currency])
+  }, [language, state])
 
   const { data, isValidating } = useApi<PublishedPacks>(
     `${urls.api.v1.getPublishedPacks}?${queryString}`

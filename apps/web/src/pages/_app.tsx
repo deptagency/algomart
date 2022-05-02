@@ -8,33 +8,17 @@ import '../styles/globals.css'
 
 import CookieConsent from '@/components/cookie-consent/cookie-consent'
 import { AuthProvider } from '@/contexts/auth-context'
+import { CurrencyProvider } from '@/contexts/currency-context'
 import { I18nProvider } from '@/contexts/i18n-context'
+import { LanguageProvider } from '@/contexts/language-context'
 import { RedemptionProvider } from '@/contexts/redemption-context'
 import { ThemeProvider } from '@/contexts/theme-context'
 import { useAnalytics } from '@/hooks/use-analytics'
-import { useLanguage } from '@/hooks/use-language'
 import { fetcher } from '@/utils/swr'
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
-  const language = useLanguage()
   const analytics = useAnalytics()
-
-  useEffect(() => {
-    router.push(
-      { pathname: router.pathname, query: router.query },
-      router.asPath,
-      { locale: language }
-    )
-  }, []) /* eslint-disable-line react-hooks/exhaustive-deps */
-
-  useEffect(() => {
-    document.documentElement.dir = RTL_LANGUAGES.includes(
-      language.split('-')[0]
-    )
-      ? 'rtl'
-      : 'ltr'
-  }, [language])
 
   useEffect(() => {
     // First page load
@@ -55,12 +39,16 @@ function MyApp({ Component, pageProps }: AppProps) {
     <SWRConfig value={{ fetcher }}>
       <RedemptionProvider>
         <AuthProvider>
-          <I18nProvider>
-            <ThemeProvider>
-              <Component {...pageProps} />
-              <CookieConsent />
-            </ThemeProvider>
-          </I18nProvider>
+          <CurrencyProvider>
+            <LanguageProvider>
+              <I18nProvider>
+                <ThemeProvider>
+                  <Component {...pageProps} />
+                  <CookieConsent />
+                </ThemeProvider>
+              </I18nProvider>
+            </LanguageProvider>
+          </CurrencyProvider>
         </AuthProvider>
       </RedemptionProvider>
     </SWRConfig>

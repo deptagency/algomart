@@ -8,8 +8,8 @@ import CurrencyInputField, {
 // Styles are 1:1 with text input
 import css from '@/components/text-input/text-input.module.css'
 
+import { useCurrency } from '@/contexts/currency-context'
 import { useI18n } from '@/contexts/i18n-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency, formatIntToFixed } from '@/utils/currency'
 
@@ -38,7 +38,7 @@ export default function CurrencyInput({
   ...props
 }: CurrencyInputProps) {
   const { conversionRate } = useI18n()
-  const currency = useCurrency()
+  const { currency } = useCurrency()
   const locale = useLocale()
   const [stringValue, setStringValue] = useState(String(value / 100))
 

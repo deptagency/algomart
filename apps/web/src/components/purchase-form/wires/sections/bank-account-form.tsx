@@ -12,9 +12,9 @@ import BillingAddress from '@/components/purchase-form/shared/billing-address'
 import FullName from '@/components/purchase-form/shared/full-name'
 import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
+import { useCurrency } from '@/contexts/currency-context'
 import { useI18n } from '@/contexts/i18n-context'
 import { usePaymentContext } from '@/contexts/payment-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency, formatIntToFixed } from '@/utils/currency'
 
@@ -30,7 +30,7 @@ export default function BankAccountForm({
   const { bid, countries, getError, isAuctionActive, release } =
     usePaymentContext()
   const locale = useLocale()
-  const currency = useCurrency()
+  const { currency } = useCurrency()
   const { conversionRate } = useI18n()
   const { t } = useTranslation()
   const price =

@@ -23,7 +23,6 @@ import { PackFilterState } from '@/hooks/use-pack-filter'
 
 export const searchPublishedPacksFilterQuery = (query: PublishedPacksQuery) => {
   return stringify({
-    currency: query.currency,
     language: query.language,
     page: query.page,
     pageSize: query.pageSize || PAGE_SIZE,
@@ -57,8 +56,7 @@ export const getPacksByOwnerFilterQuery = (query: PacksByOwnerQuery) => {
  */
 export const getPublishedPacksFilterQueryFromState = (
   language: string,
-  state: PackFilterState,
-  currency: string
+  state: PackFilterState
 ): PublishedPacksQuery => {
   const status: PackStatus[] = []
   if (state.showAuctionExpired) status.push(PackStatus.Expired)
@@ -71,7 +69,6 @@ export const getPublishedPacksFilterQueryFromState = (
 
   return {
     language,
-    currency,
     page: state.currentPage,
     priceHigh: state.priceHigh,
     priceLow: state.priceLow,

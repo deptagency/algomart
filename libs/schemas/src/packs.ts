@@ -146,7 +146,6 @@ export const PacksByOwnerSchema = Type.Object({
 export const PublishedPacksQuerySchema = Type.Intersect([
   PaginationSchema,
   Type.Object({
-    currency: Type.Optional(Type.String()),
     language: Type.Optional(Type.String()),
     slug: Type.Optional(Type.String()),
     templates: Type.Optional(Type.Array(PackBaseSchema)),

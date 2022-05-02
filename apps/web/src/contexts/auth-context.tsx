@@ -161,7 +161,7 @@ export function useAuthProvider() {
         profileResponse.language !== parsedLanguageCookie
       ) {
         await fetch(urls.api.v1.updateLanguage, {
-          body: JSON.stringify({ parsedLanguageCookie }),
+          body: JSON.stringify({ language: parsedLanguageCookie }),
           headers: {
             authorization: `bearer ${token}`,
             'content-type': 'application/json',
@@ -182,7 +182,7 @@ export function useAuthProvider() {
         profileResponse.currency !== parsedCurrencyCookie
       ) {
         await fetch(urls.api.v1.updateCurrency, {
-          body: JSON.stringify({ parsedCurrencyCookie }),
+          body: JSON.stringify({ currency: parsedCurrencyCookie }),
           headers: {
             authorization: `bearer ${token}`,
             'content-type': 'application/json',

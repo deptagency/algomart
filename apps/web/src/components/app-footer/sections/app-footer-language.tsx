@@ -1,77 +1,11 @@
-import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React from 'react'
 
 import { Language } from '@/components/auth-inputs/auth-inputs'
-import { useAuth } from '@/contexts/auth-context'
-import { useLanguage } from '@/hooks/use-language'
-import { AuthService } from '@/services/auth-service'
-import { validateLanguage } from '@/utils/auth-validation'
-import { setLanguageCookie } from '@/utils/cookies-web'
+import { useLanguage } from '@/contexts/language-context'
 
 export default function AppFooterLanguage() {
-  const router = useRouter()
-  const language = useLanguage()
-  const { user, reloadProfile } = useAuth()
-  const [dropdownLanguage, setDropdownLanguage] = useState<string>(
-    useLanguage()
-  )
-  const [loading, setLoading] = useState<boolean>(false)
-
-  const validate = useMemo(() => validateLanguage(), [])
-
-  // callback to handle dropdown changes
-  const handleDropdownLanguageChange = useCallback(
-    async (language: string) => {
-      setLoading(true)
-
-      // Validate form body
-      const body = {
-        language: language,
-      }
-      const bodyValidation = await validate(body)
-      if (bodyValidation.state === 'invalid') {
-        setLoading(false)
-        return
-      }
-
-      if (user) {
-        // Update language
-        const updateLanguage = await AuthService.instance.updateLanguage(
-          body.language
-        )
-        if (!updateLanguage) {
-          setLoading(false)
-          return
-        }
-
-        await reloadProfile()
-      } else {
-        setLanguageCookie(body.language)
-      }
-
-      setLoading(false)
-      setDropdownLanguage(language)
-      router.push(
-        { pathname: router.pathname, query: router.query },
-        router.asPath,
-        { locale: language }
-      )
-      return
-    },
-    [validate, user, router, reloadProfile]
-  )
-
-  // useEffect to handle global locale changes
-  useEffect(() => {
-    setDropdownLanguage(language)
-  }, [language])
-
+  const { language, updateLanguage } = useLanguage()
   return (
-    <Language
-      disabled={loading}
-      showLabel={false}
-      value={dropdownLanguage}
-      onChange={handleDropdownLanguageChange}
-    />
+    <Language showLabel={false} value={language} onChange={updateLanguage} />
   )
 }

@@ -6,8 +6,8 @@ import css from './my-profile-transactions-template.module.css'
 
 import Heading from '@/components/heading'
 import Pagination from '@/components/pagination/pagination'
+import { useCurrency } from '@/contexts/currency-context'
 import { useI18n } from '@/contexts/i18n-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency, formatIntToFixed } from '@/utils/currency'
 
@@ -28,7 +28,7 @@ export default function MyProfileTransactionsTemplate({
 }: MyProfileTransactionsTemplateProps) {
   const { t } = useTranslation()
   const locale = useLocale()
-  const currency = useCurrency()
+  const { currency } = useCurrency()
   const { conversionRate } = useI18n()
 
   const groupByPage = (packs: PackByOwner[] = [], page: number) => {

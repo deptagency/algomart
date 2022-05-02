@@ -8,9 +8,9 @@ import css from './bank-account-summary.module.css'
 import Button from '@/components/button'
 import Checkbox from '@/components/checkbox'
 import Heading from '@/components/heading'
+import { useCurrency } from '@/contexts/currency-context'
 import { useI18n } from '@/contexts/i18n-context'
 import { usePaymentContext } from '@/contexts/payment-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/currency'
 
@@ -18,7 +18,7 @@ export default function BankAccountSummary() {
   const { isAuctionActive, price, release } = usePaymentContext()
   const locale = useLocale()
   const { t } = useTranslation()
-  const currency = useCurrency()
+  const { currency } = useCurrency()
   const { conversionRate } = useI18n()
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
   return (

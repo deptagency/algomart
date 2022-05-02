@@ -10,8 +10,8 @@ import useTranslation from 'next-translate/useTranslation'
 import css from './release-metadata.module.css'
 
 import Counter from '@/components/counter/counter'
+import { useCurrency } from '@/contexts/currency-context'
 import { useI18n } from '@/contexts/i18n-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency } from '@/utils/currency'
 
@@ -29,7 +29,7 @@ export default function ReleaseMetadata({
 }: ReleaseMetadataProps) {
   const locale = useLocale()
   const { t } = useTranslation()
-  const currency = useCurrency()
+  const { currency } = useCurrency()
   const { conversionRate } = useI18n()
 
   const highestBid = packAuction?.activeBid?.amount || 0

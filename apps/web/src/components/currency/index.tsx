@@ -1,5 +1,5 @@
+import { useCurrency } from '@/contexts/currency-context'
 import { useI18n } from '@/contexts/i18n-context'
-import { useCurrency } from '@/hooks/use-currency'
 import { useLocale } from '@/hooks/use-locale'
 import { formatCurrency, formatIntToFixed } from '@/utils/currency'
 
@@ -22,7 +22,7 @@ export default function Currency({
   locale,
 }: ICurrency) {
   const globalLocale = useLocale()
-  const globalCurrency = useCurrency()
+  const { currency: globalCurrency } = useCurrency()
   const { conversionRate } = useI18n()
 
   const currencyCode = currency || globalCurrency
