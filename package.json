@@ -102,7 +102,7 @@
     "@nrwl/jest": "14.0.1",
     "@nrwl/linter": "14.0.1",
     "@nrwl/node": "14.0.1",
-    "@nrwl/react": "14.0.1",
+    "@nrwl/react": "14.0.5",
     "@nrwl/tao": "14.0.1",
     "@nrwl/web": "14.0.1",
     "@nrwl/workspace": "14.0.1",
