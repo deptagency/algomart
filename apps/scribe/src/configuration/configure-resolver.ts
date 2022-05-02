@@ -12,7 +12,6 @@ import {
 import {
   AccountsService,
   ApplicationService,
-  AuctionsService,
   BidsService,
   CollectiblesService,
   CollectionsService,
@@ -205,11 +204,6 @@ export function configureResolver() {
         c.get<CMSCacheAdapter>(CMSCacheAdapter.name),
         c.get<PacksService>(PacksService.name)
       )
-  )
-  resolver.set(
-    AuctionsService.name,
-    (c) =>
-      new AuctionsService(c.get<AlgorandAdapter>(AlgorandAdapter.name), logger)
   )
   resolver.set(
     ApplicationService.name,
