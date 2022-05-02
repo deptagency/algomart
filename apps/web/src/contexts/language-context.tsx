@@ -1,7 +1,14 @@
 import { DEFAULT_LANG, LANG_COOKIE, RTL_LANGUAGES } from '@algomart/schemas'
 import { SUPPORTED_LANGUAGES } from '@algomart/schemas'
 import { useRouter } from 'next/router'
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 
 import { useAuth } from '@/contexts/auth-context'
 import { AuthService } from '@/services/auth-service'
@@ -38,27 +45,30 @@ export const LanguageProvider = ({
   const auth = useAuth(false)
   const fallbackLanguage = useMemo(
     () =>
-      auth?.user?.language ||
+      auth.user?.language ||
       router?.locale ||
       (typeof navigator !== 'undefined' && navigator.language) ||
       DEFAULT_LANG,
-    [auth?.user?.language, router?.locale]
+    [auth.user?.language, router?.locale]
   )
 
   const [language, setLanguage] = useState(
     getSupportedLanguage(fallbackLanguage)
   )
 
-  const updateLanguage = async (language: string) => {
-    setLanguage(language)
-    setLanguageCookie(language)
-    if (auth?.user) {
-      const success = await AuthService.instance.updateLanguage(language)
-      await auth.reloadProfile()
-      return success
-    }
-    return true
-  }
+  const updateLanguage = useCallback(
+    async (language: string) => {
+      setLanguage(language)
+      setLanguageCookie(language)
+      if (auth.user) {
+        const success = await AuthService.instance.updateLanguage(language)
+        await auth.reloadProfile()
+        return success
+      }
+      return true
+    },
+    [auth.user]
+  )
 
   useEffect(() => {
     router.push(
@@ -88,10 +98,13 @@ export const LanguageProvider = ({
     setLanguage(getSupportedLanguage(parsedCookie || fallbackLanguage))
   }, [fallbackLanguage])
 
-  const value = {
-    language,
-    updateLanguage,
-  }
+  const value = useMemo(
+    () => ({
+      language,
+      updateLanguage,
+    }),
+    [language, updateLanguage]
+  )
 
   return (
     <LanguageContext.Provider value={value}>

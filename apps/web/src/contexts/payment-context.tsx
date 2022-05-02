@@ -177,7 +177,7 @@ export function usePaymentProvider({
     if (auth.user) {
       findCountries()
     }
-  }, [auth?.user, findCountries])
+  }, [auth.user, findCountries])
 
   const handleSetStatus = useCallback(
     (status: CheckoutStatus.form | CheckoutStatus.summary) => {
@@ -718,7 +718,7 @@ export function usePaymentProvider({
 
   useEffect(() => {
     setPrice(release?.type === PackType.Auction ? bid : release?.price || 0)
-  }, [bid]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [bid, release?.type, release?.price])
 
   const value = useMemo(
     () => ({
