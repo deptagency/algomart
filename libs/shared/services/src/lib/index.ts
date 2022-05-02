@@ -1,6 +1,5 @@
 export * from './application.service'
 export * from './accounts.service'
-export * from './auctions.service'
 export * from './bids.service'
 export * from './collectibles.service'
 export * from './collections.service'
