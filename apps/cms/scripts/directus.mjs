@@ -21,8 +21,8 @@ export async function setupSDK(config) {
       .then(() => {
         authenticated = true;
       })
-      .catch(() => {
-        console.error('Invalid Directus credentials');
+      .catch((error) => {
+        console.error(error.message);
         process.exit(1);
       });
   }
