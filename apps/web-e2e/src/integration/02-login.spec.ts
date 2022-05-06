@@ -1,9 +1,8 @@
-import { getGreeting } from '../support/app.po'
-
 describe('login', () => {
   let email: string, passphrase: string, password: string, username: string
   beforeEach(() => {
     cy.configureCypressTestingLibrary({})
+    cy.setCookie('cookie-consent', '1')
     cy.fixture('firebase')
       .as('credentials')
       .then((c) => {
@@ -18,7 +17,7 @@ describe('login', () => {
     // Confirm its the login page and wait until page is loaded
     cy.visit('/login')
     cy.url().should('include', '/login')
-    getGreeting().contains('Welcome')
+    cy.contains('Welcome')
     // Click to sign in with email
     cy.url().should('include', '/login')
     cy.findByText('Sign in with Email').click()
@@ -38,7 +37,7 @@ describe('login', () => {
     // Navigate to the profile page
     cy.findByLabelText('My Profile').click()
     cy.url().should('include', '/my/profile')
-    getGreeting().contains('My Profile')
+    cy.contains('My Profile')
     // Click to log the user out
     cy.get('button').contains('Sign Out').click({ force: true })
     // Confirm on the home page

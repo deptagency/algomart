@@ -1,25 +1,29 @@
 import {
   CollectibleListQuerystring,
+  GetCurrencyConversion,
+  GetCurrencyConversions,
   PacksByOwnerQuery,
   PackStatus,
   PackType,
   PaymentsQuerystring,
   PublishedPacksQuery,
   SortOptions,
+  UsersQuerystring,
 } from '@algomart/schemas'
 import { Translate } from 'next-translate'
 import { stringify } from 'query-string'
 
 import { PAGE_SIZE } from '@/components/pagination/pagination'
+import { SelectOption } from '@/components/select/select'
 import { PackFilterState } from '@/hooks/use-pack-filter'
 
 /**
  * Build a search parameter string to filter published packs
  */
 
-export const getPublishedPacksFilterQuery = (query: PublishedPacksQuery) => {
+export const searchPublishedPacksFilterQuery = (query: PublishedPacksQuery) => {
   return stringify({
-    locale: query.locale,
+    language: query.language,
     page: query.page,
     pageSize: query.pageSize || PAGE_SIZE,
     priceHigh: query.priceHigh,
@@ -36,7 +40,7 @@ export const getPublishedPacksFilterQuery = (query: PublishedPacksQuery) => {
 
 export const getPacksByOwnerFilterQuery = (query: PacksByOwnerQuery) => {
   return stringify({
-    locale: query.locale,
+    language: query.language,
     page: query.page,
     pageSize: query.pageSize || PAGE_SIZE,
     templateIds: query.templateIds,
@@ -51,7 +55,7 @@ export const getPacksByOwnerFilterQuery = (query: PacksByOwnerQuery) => {
  * Formats a PublishedPacksQuery object from state of useFilterReducer
  */
 export const getPublishedPacksFilterQueryFromState = (
-  locale: string,
+  language: string,
   state: PackFilterState
 ): PublishedPacksQuery => {
   const status: PackStatus[] = []
@@ -62,10 +66,9 @@ export const getPublishedPacksFilterQueryFromState = (
   const type: PackType[] = []
   if (state.showAuction) type.push(PackType.Auction)
   if (state.showPurchase) type.push(PackType.Purchase)
-  if (type.length === 0) type.push(PackType.Auction, PackType.Purchase)
 
   return {
-    locale,
+    language,
     page: state.currentPage,
     priceHigh: state.priceHigh,
     priceLow: state.priceLow,
@@ -85,7 +88,7 @@ export const getCollectiblesFilterQuery = (
   query: CollectibleListQuerystring
 ) => {
   return stringify({
-    locale: query.locale,
+    language: query.language,
     page: query.page,
     pageSize: query.pageSize || PAGE_SIZE,
     sortBy: query.sortBy,
@@ -117,10 +120,36 @@ export const getPaymentsFilterQuery = (query: PaymentsQuerystring) => {
 /**
  * Build selection options for sorting
  */
-export const getSelectSortingOptions = (t: Translate) => {
+export function getSelectSortingOptions(t: Translate): SelectOption[] {
   return [
-    { id: SortOptions.Newest, label: t('collection:sorting.Newest') },
-    { id: SortOptions.Oldest, label: t('collection:sorting.Oldest') },
-    { id: SortOptions.Name, label: t('collection:sorting.Name') },
+    { value: SortOptions.Newest, label: t('collection:sorting.Newest') },
+    { value: SortOptions.Oldest, label: t('collection:sorting.Oldest') },
+    // { value: SortOptions.Name, label: t('collection:sorting.Name') },
   ]
+}
+
+/**
+ * Build a search parameter string to filter payments
+ */
+export const getUsersFilterQuery = (query: UsersQuerystring) => {
+  return stringify({
+    page: query.page,
+    pageSize: query.pageSize || PAGE_SIZE,
+    sortBy: query.sortBy,
+    sortDirection: query.sortDirection,
+    search: query.search,
+  })
+}
+
+export const getCurrencyConversionQuery = (params: GetCurrencyConversion) => {
+  return stringify({
+    sourceCurrency: params.sourceCurrency,
+    targetCurrency: params.targetCurrency,
+  })
+}
+
+export const getCurrencyConversionsQuery = (params: GetCurrencyConversions) => {
+  return stringify({
+    sourceCurrency: params.sourceCurrency,
+  })
 }

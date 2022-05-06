@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import { v4 as uuid } from 'uuid'
 import { ChangeEvent, DetailedHTMLProps, InputHTMLAttributes } from 'react'
 
 import css from './text-input.module.css'
@@ -24,6 +25,7 @@ export default function TextInput({
   ...props
 }: TextInputProps &
   DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) {
+  const _id = id ?? uuid()
   const inputField = (
     <input
       className={clsx(
@@ -38,7 +40,7 @@ export default function TextInput({
         className
       )}
       disabled={disabled}
-      id={id}
+      id={_id}
       onChange={(event: ChangeEvent & { target: { value: string } }) => {
         event.preventDefault()
         if (event && event.target && handleChange) {
@@ -50,32 +52,17 @@ export default function TextInput({
     />
   )
   return label ? (
-    <label htmlFor={id} className={css.labelContainer}>
-      <span
-        className={clsx(css.label, {
-          [css.labelSmall]: variant === 'small',
-        })}
-      >
-        {label}
-      </span>
-      {error && (
-        <span
-          className={clsx(css.errorText, {
-            [css.errorTextSmall]: variant === 'small',
-          })}
-        >
-          {error}
-        </span>
-      )}
-      {!error && helpText && (
-        <span
-          className={clsx(css.helpText, {
-            [css.helpTextSmall]: variant === 'small',
-          })}
-        >
-          {helpText}
-        </span>
-      )}
+    <label
+      htmlFor={_id}
+      className={clsx(css.labelContainer, {
+        [css.small]: variant === 'small',
+      })}
+    >
+      <div className={css.contentTop}>
+        <span className={css.label}>{label}</span>
+        {error && <span className={css.errorText}>{error}</span>}
+        {!error && helpText && <span className={css.helpText}>{helpText}</span>}
+      </div>
       {inputField}
     </label>
   ) : (

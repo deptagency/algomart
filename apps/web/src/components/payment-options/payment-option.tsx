@@ -32,8 +32,10 @@ export default function PaymentOption({
     >
       {icon}
       <div>
-        <Heading level={2}>{title}</Heading>
-        <p>{helpText}</p>
+        <Heading inheritColor level={2}>
+          {title}
+        </Heading>
+        <p className={css.description}>{helpText}</p>
         {body && body}
       </div>
     </AppLink>

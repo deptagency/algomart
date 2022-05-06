@@ -7,11 +7,11 @@ import CollectiblePlaceholder from '@/components/collectibles/collectible-placeh
 import Heading from '@/components/heading'
 
 export interface NoCollectiblesContentProps {
-  handleRedirect(): void
+  onRedirect(): void
 }
 
 export default function NoCollectiblesContent({
-  handleRedirect,
+  onRedirect,
 }: NoCollectiblesContentProps) {
   const { t } = useTranslation()
   return (
@@ -28,7 +28,7 @@ export default function NoCollectiblesContent({
         {t('collection:viewer.startCollection')}
       </Heading>
 
-      <Button onClick={handleRedirect}>
+      <Button onClick={onRedirect}>
         {t('collection:viewer.Find Something Cool')}
       </Button>
     </div>

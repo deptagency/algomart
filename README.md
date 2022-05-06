@@ -115,18 +115,38 @@ nx import cms
 
 ### Running with docker-compose
 
-The `docker-compose` [configuration](./docker-compose.yml) includes service definitions for the API service,
-the CMS & Web applications, and a PostgreSQL 13 database.
+Alternative to running the services manually, they can also be run via Docker. After creating the relevant `.env` files above, add a file called `.babelrc` to the root of the web project (`apps/web/`) and populate it with:
 
-After creating the relevant `.env` files above, simply run all services via:
+```json
+{ "presets": ["next/babel"] }
+```
+
+Then run all services:,
 
 ```bash
 $ docker-compose up
 ```
 
-This will load the various `.env` files for Algorand, Circle, etc. credentials -
-most other environment variables will be overridden in favor of those specified
-in the `docker-compose.yml` file.
+Note that page loads in the web app will be slower and tests will fail while this `.babelrc` is present (it is `.gitignore`'d by default). This known issue is an unfortunate incompatibility between Docker and Next's SWC integration at the time of this writing.
+
+## ⚙️ Project dependencies
+
+When updating dependencies, there are a few things that must be kept in mind.
+
+### Directus
+
+If doing any updates to the Directus version, the version numbers must match across the application and the snapshot.yml file must be created with the updated version
+
+1. Update versions
+   1. Pin `directus` and `@directus/sdk` versions in `package.json`
+   1. Pin `host` version in `/apps/cms/extensions/displays/pack-price/package.json`
+   1. Pin `host` version in `/apps/cms/extensions/interfaces/price-conversion/package.json`
+   1. Set npm install step of `/docker/deploy/cms/Dockerfile` to version
+1. Run `npm install` from root to generate latest `package-lock.json`
+1. Run `nx export cms` to generate latest `snapshot.yml`
+1. Rebuild cms extensions
+   1. Run `nx build-price-display cms` to generate latest js file
+   1. Run `nx build-price-interface cms` to generate latest js file
 
 ## 📦 Project packages
 
@@ -134,7 +154,7 @@ When creating a new package, first determine which kind of package you are creat
 
 ### `apps/*`
 
-Applications with a UI.
+Each app has it's own configuration
 
 - [`cms`][cms] - Self-hosted [Directus][directus] headless CMS
 - [`web`][web] - Next.js customer-facing website
@@ -142,9 +162,20 @@ Applications with a UI.
 
 ### `libs/*`
 
-Shared packages used by this monorepo.
+For performance and code organization reasons, the [https://nx.dev/structure/applications-and-libraries](Nx docs) recommend
+putting as much functionality as possible into libs, even if the code is only used in a single app. In Nx, a lib is more than just a directory under the `libs/` directory. Each lib must have an entry in the workspace.json file for the lib to build and import correctly.
 
-- [`schemas`][schemas] - Shared code and typings
+Linting will fail for any lib code that tries to import code from an app. This means that lib code should never access things like
+global configuration variables or environment variables. (eg. `Configuration`) Rather, lib code should receive any environment configuration via
+arguments that are passed in.
+
+If you wanted to create a new library at the path `libs/shared/utils`, you'd use the nx generator...
+`nx generate @nrwl/node:lib utils --directory shared`
+
+- [`shared`][shared] - code and typings
+- `api` - Shared code and typings
+- `scribe` - Shared code and typings
+- [`schemas`][schemas] - object schemas (todo: should this be moved into `libs/shared`?)
 
 ## 📖 Quick Workspace Guide
 

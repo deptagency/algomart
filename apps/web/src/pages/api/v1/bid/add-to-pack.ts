@@ -1,3 +1,4 @@
+import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import { BadRequest, NotFound } from 'http-errors'
 import { NextApiResponse } from 'next'
 
@@ -8,7 +9,6 @@ import userMiddleware from '@/middleware/user-middleware'
 import validateBodyMiddleware, {
   ExtractBodyType,
 } from '@/middleware/validate-body-middleware'
-import { isGreaterThanOrEqual } from '@/utils/format-currency'
 import { validateBidForPack } from '@/utils/marketplace-validation'
 
 const handler = createHandler()
@@ -34,7 +34,7 @@ handler.post(
     )
 
     // Validate the bid is higher than a previous active bid
-    if (activeBid && isGreaterThanOrEqual(activeBid.amount, amount)) {
+    if (activeBid && activeBid.amount >= amount) {
       throw new BadRequest('Bid is not higher than the previous bid')
     }
 
@@ -43,6 +43,7 @@ handler.post(
       amount,
       externalId: request.user.externalId,
       packId,
+      currency: DEFAULT_CURRENCY,
     })
 
     if (!result) {

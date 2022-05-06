@@ -14,9 +14,8 @@ import {
   UpdatePayment,
   UpdatePaymentCard,
 } from '@algomart/schemas'
+import { PaymentsService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import PaymentsService from './payments.service'
 
 export async function getPublicKey(
   request: FastifyRequest,

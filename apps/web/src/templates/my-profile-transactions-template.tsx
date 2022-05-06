@@ -6,7 +6,10 @@ import css from './my-profile-transactions-template.module.css'
 
 import Heading from '@/components/heading'
 import Pagination from '@/components/pagination/pagination'
-import { formatCurrency, formatIntToFloat } from '@/utils/format-currency'
+import { useCurrency } from '@/contexts/currency-context'
+import { useI18n } from '@/contexts/i18n-context'
+import { useLocale } from '@/hooks/use-locale'
+import { formatCurrency, formatIntToFixed } from '@/utils/currency'
 
 export interface MyProfileTransactionsTemplateProps {
   currentPage: number
@@ -23,7 +26,11 @@ export default function MyProfileTransactionsTemplate({
   releases,
   total,
 }: MyProfileTransactionsTemplateProps) {
-  const { t, lang } = useTranslation()
+  const { t } = useTranslation()
+  const locale = useLocale()
+  const { currency } = useCurrency()
+  const { conversionRate } = useI18n()
+
   const groupByPage = (packs: PackByOwner[] = [], page: number) => {
     const start = (page - 1) * pageSize
     const end = start + pageSize
@@ -49,7 +56,9 @@ export default function MyProfileTransactionsTemplate({
               : type === PackType.Purchase
               ? releasePrice
               : 0
-          const price = priceInt ? formatIntToFloat(priceInt) : 0
+          const price = priceInt
+            ? formatIntToFixed(priceInt, currency, conversionRate)
+            : 0
 
           // Handle pack type
           const wasFree = type === PackType.Free
@@ -75,14 +84,15 @@ export default function MyProfileTransactionsTemplate({
                 <p className={css.itemPrice}>
                   {wasFree && t('common:statuses.Free')}
                   {wasRedeem && t('common:statuses.Redeemable')}
-                  {wasMonetary && formatCurrency(price)}
+                  {wasMonetary &&
+                    formatCurrency(price, locale, currency, conversionRate)}
                 </p>
                 <p>
                   {wasMonetary
                     ? t('common:actions.Purchased on')
                     : t('common:actions.Claimed on')}{' '}
                   {claimedAt &&
-                    new Date(claimedAt).toLocaleString(lang, {
+                    new Date(claimedAt).toLocaleString(locale, {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',

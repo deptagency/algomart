@@ -1,8 +1,9 @@
-FROM node:16-alpine
+FROM node:16-bullseye
 
+RUN apt update && apt install -y python2
+RUN npm config set python python2
 WORKDIR /app
-COPY docker/local/cms/run.sh ./
-COPY apps/cms/ ./
-RUN npm install directus --global
+COPY package.json package-lock.json ./
+RUN npm ci
 
-CMD ["./run.sh"]
+CMD ["./docker/local/cms/run.sh"]

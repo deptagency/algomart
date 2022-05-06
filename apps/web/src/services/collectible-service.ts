@@ -4,15 +4,14 @@ import {
   MintPackStatusResponse,
   PackWithId,
   TransferCollectible,
-  TransferCollectibleResult,
   TransferPackStatusList,
 } from '@algomart/schemas'
-import { getAuth } from 'firebase/auth'
+import { WalletTransaction } from '@algomart/shared/algorand'
 import ky from 'ky'
 
-import loadFirebase from '@/clients/firebase-client'
 import { UploadedFileProps } from '@/types/file'
 import { invariant } from '@/utils/invariant'
+import { setBearerToken } from '@/utils/ky-hooks'
 import { urls } from '@/utils/urls'
 
 export interface CreateAssetRequest {
@@ -30,13 +29,13 @@ export interface CollectibleAPI {
   shareProfile(shareProfile: boolean): Promise<boolean>
   initializeExportCollectible(
     request: Omit<InitializeTransferCollectible, 'externalId'>
-  ): Promise<TransferCollectibleResult>
+  ): Promise<WalletTransaction[]>
   exportCollectible(
     request: Omit<TransferCollectible, 'externalId'>
   ): Promise<{ txId: string }>
   initializeImportCollectible(
     request: Omit<InitializeTransferCollectible, 'externalId'>
-  ): Promise<TransferCollectibleResult>
+  ): Promise<WalletTransaction[]>
   importCollectible(
     request: Omit<TransferCollectible, 'externalId'>
   ): Promise<{ txId: string }>
@@ -59,19 +58,7 @@ export class CollectibleService implements CollectibleAPI {
       timeout: 10_000,
       throwHttpErrors: false,
       hooks: {
-        beforeRequest: [
-          async (request) => {
-            try {
-              const auth = getAuth(loadFirebase())
-              const token = await auth.currentUser?.getIdToken()
-              if (token) {
-                request.headers.set('Authorization', `Bearer ${token}`)
-              }
-            } catch {
-              // ignore, firebase probably not initialized
-            }
-          },
-        ],
+        beforeRequest: [setBearerToken],
       },
     })
   }
@@ -88,7 +75,7 @@ export class CollectibleService implements CollectibleAPI {
 
   async initializeImportCollectible(
     request: Omit<InitializeTransferCollectible, 'externalId'>
-  ): Promise<TransferCollectibleResult> {
+  ): Promise<WalletTransaction[]> {
     return await this.http
       .post(urls.api.v1.initializeImportCollectible, { json: request })
       .json()
@@ -173,7 +160,7 @@ export class CollectibleService implements CollectibleAPI {
   ) {
     return await this.http
       .post(urls.api.v1.initializeExportCollectible, { json: request })
-      .json<TransferCollectibleResult>()
+      .json<WalletTransaction[]>()
   }
 
   async exportCollectible(

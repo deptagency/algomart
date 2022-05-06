@@ -20,6 +20,9 @@ export const BidPublicSchema = Type.Intersect([
 export const CreateBidRequestSchema = Type.Intersect([
   BidBaseSchema,
   ExternalIdSchema,
+  Type.Object({
+    currency: Type.String(),
+  }),
 ])
 
 export const BidSchema = Type.Intersect([

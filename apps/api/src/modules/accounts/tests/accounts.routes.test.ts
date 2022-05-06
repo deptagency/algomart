@@ -1,18 +1,17 @@
 import { AlgorandTransactionStatus } from '@algomart/schemas'
-import { FastifyInstance } from 'fastify'
-import { buildTestApp } from 'test/build-test-app'
-import {
-  fakeAddressFor,
-  setupTestDatabase,
-  teardownTestDatabase,
-} from 'test/setup-tests'
-
-import AlgorandAdapter from '@/lib/algorand-adapter'
+import { AlgorandAdapter } from '@algomart/shared/adapters'
 import {
   algorandAccountFactory,
   algorandTransactionFactory,
   userAccountFactory,
-} from '@/seeds/seed-test-data'
+} from '@api/seeds/seed-test-data'
+import { buildTestApp } from '@api-tests/build-test-app'
+import {
+  fakeAddressFor,
+  setupTestDatabase,
+  teardownTestDatabase,
+} from '@api-tests/setup-tests'
+import { FastifyInstance } from 'fastify'
 
 let app: FastifyInstance
 
@@ -37,7 +36,7 @@ test('POST /accounts OK', async () => {
     username,
   })
 
-  jest.spyOn(AlgorandAdapter.prototype, 'generateAccount').mockReturnValue({
+  jest.spyOn(AlgorandAdapter.prototype, 'generateAccount').mockResolvedValue({
     address,
     encryptedMnemonic,
     signedTransactions: [],
@@ -53,9 +52,10 @@ test('POST /accounts OK', async () => {
     },
     payload: {
       username,
+      currency: userAccount.currency,
       externalId: userAccount.externalId,
       email: userAccount.email,
-      locale: userAccount.locale,
+      language: userAccount.language,
       passphrase,
     },
   })
@@ -66,11 +66,12 @@ test('POST /accounts OK', async () => {
   const json = JSON.parse(body)
   expect(json).toEqual({
     address,
+    currency: userAccount.currency,
     username,
     externalId: userAccount.externalId,
     showProfile: false,
     email: userAccount.email,
-    locale: userAccount.locale,
+    language: userAccount.language,
   })
 })
 
@@ -114,11 +115,12 @@ test('GET /accounts/:externalId OK', async () => {
   const json = JSON.parse(body)
   expect(json).toEqual({
     address: algorandAccount.address,
+    currency: userAccount.currency,
     username,
     externalId: userAccount.externalId,
     showProfile: false,
     email: userAccount.email,
-    locale: userAccount.locale,
+    language: userAccount.language,
     status: AlgorandTransactionStatus.Confirmed,
   })
 })
@@ -145,7 +147,7 @@ test('POST /accounts/:externalId/verify-passphrase (Valid passphrase)', async ()
 
   jest
     .spyOn(AlgorandAdapter.prototype, 'isValidPassphrase')
-    .mockReturnValue(true)
+    .mockResolvedValue(true)
 
   // Act
   const { body, statusCode } = await app.inject({
@@ -182,7 +184,7 @@ test('POST /accounts/:externalId/verify-passphrase (Invalid passphrase)', async 
 
   jest
     .spyOn(AlgorandAdapter.prototype, 'isValidPassphrase')
-    .mockReturnValue(false)
+    .mockResolvedValue(false)
 
   // Act
   const { body, statusCode } = await app.inject({

@@ -47,6 +47,11 @@ variable "cms_service_name" {
   sensitive = true
 }
 
+variable "scribe_service_name" {
+  default   = "algomart-scribe"
+  sensitive = true
+}
+
 variable "database_server_name" {
   default   = "algomart"
   sensitive = true
@@ -176,6 +181,11 @@ variable "customer_service_email" {
   sensitive = true
 }
 
+variable "gcp_cdn_url" {
+  sensitive = true
+  default   = ""
+}
+
 variable "pinata_api_key" {
   sensitive = true
   default   = ""
@@ -221,6 +231,20 @@ variable "smtp_user" {
 variable "smtp_port" {
   sensitive = true
   default   = ""
+}
+
+##
+## Scribe service
+##
+## Scribe uses most of the API variables
+##
+
+variable "scribe_image" {
+  sensitive = true
+}
+
+variable "scribe_revision_name" {
+  sensitive = true
 }
 
 ##
@@ -309,5 +333,24 @@ variable "web_node_env" {
 }
 
 variable "web_revision_name" {
+  sensitive = true
+}
+
+##
+## VPC and networking
+##
+
+variable "public_outbound_ip_name" {
+  default   = "algomart-public-outbound-ip"
+  sensitive = true
+}
+
+variable "vpc_cloud_router_name" {
+  default = "algomart-cloud-router"
+  sensitive = true
+}
+
+variable "vpc_nat_name" {
+  default = "algomart-nat"
   sensitive = true
 }

@@ -26,6 +26,9 @@
 
   --error: 172, 0, 0; /* red */
   --price: 5, 150, 105; /* green-600 */
+
+  --shadowMedium: 0px 1px 10px rgba(0, 0, 0, 0.15);
+  --shadowLarge: 0px 5px 40px rgba(0, 0, 0, 0.15);
 }
 
 /* Dark theme */
@@ -51,6 +54,9 @@
 
   --error: 255, 70, 70; /* red */
   --price: 35, 180, 135;
+
+  --shadowMedium: none;
+  --shadowLarge: none;
 }
 
 html,

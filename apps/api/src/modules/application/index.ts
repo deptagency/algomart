@@ -1,11 +1,10 @@
-import { CountriesSchema, LocaleSchema } from '@algomart/schemas'
+import { CountriesSchema, LanguageSchema } from '@algomart/schemas'
+import { appErrorHandler } from '@algomart/shared/utils'
+import bearerAuthOptions from '@api/configuration/bearer-auth'
+import fastifyBearerAuth from '@fastify/bearer-auth'
 import { FastifyInstance } from 'fastify'
-import fastifyBearerAuth from 'fastify-bearer-auth'
 
 import { getCountries } from './application.routes'
-
-import bearerAuthOptions from '@/configuration/bearer-auth'
-import { appErrorHandler } from '@/utils/errors'
 
 export async function applicationRoutes(app: FastifyInstance) {
   // Helps with organization in the Swagger docs
@@ -29,7 +28,7 @@ export async function applicationRoutes(app: FastifyInstance) {
       schema: {
         tags,
         security,
-        querystring: LocaleSchema,
+        querystring: LanguageSchema,
         response: {
           200: CountriesSchema,
         },

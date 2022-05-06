@@ -1,9 +1,11 @@
 import cors from 'cors'
 import { NextApiRequest } from 'next'
 import nextConnect from 'next-connect'
+import pinoHttp from 'pino-http'
 
 import i18n from '../../i18n'
 
+import { WithAdminPermission } from './admin-middleware'
 import { WithToken } from './auth-middleware'
 import errorHandler from './error-handler'
 import loggingMiddleware from './logging-middleware'
@@ -11,7 +13,8 @@ import notFoundHandler from './not-found-handler'
 import { WithUser } from './user-middleware'
 import { WithValidResult } from './validate-body-middleware'
 
-import { loggerHttp } from '@/utils/logger'
+import { Environment } from '@/environment'
+import { createLogger } from '@/utils/logger'
 
 // @ts-ignore: Translations not loading, setting this manually to avoid throwing errors.
 // Note that t('some-key') will yield 'some-key' and not the translated value.
@@ -23,6 +26,7 @@ global.i18nConfig = i18n
 export type NextApiRequestApp<T = unknown> = NextApiRequest &
   WithToken &
   WithUser &
+  WithAdminPermission &
   WithValidResult<T>
 
 export default function createHandler() {
@@ -31,7 +35,17 @@ export default function createHandler() {
     onNoMatch: notFoundHandler,
   })
 
-  handler.use(loggingMiddleware(loggerHttp))
+  handler.use(
+    loggingMiddleware(
+      pinoHttp({
+        logger: createLogger(Environment.logLevel),
+        redact: {
+          paths: ['req.headers', 'res.headers'],
+          remove: true,
+        },
+      })
+    )
+  )
   handler.use(cors())
 
   return handler

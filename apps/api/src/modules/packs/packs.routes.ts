@@ -2,30 +2,46 @@ import {
   ClaimFreePack,
   ClaimPack,
   ClaimRedeemPack,
-  Locale,
-  LocaleAndExternalId,
+  Language,
+  LanguageAndExternalId,
   MintPack,
   OwnerExternalId,
   PackId,
   PacksByOwnerQuery,
+  PackSlug,
   PackTemplateId,
   PublishedPacksQuery,
   RedeemCode,
   RevokePack,
   TransferPack,
 } from '@algomart/schemas'
+import { PacksService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
-import PacksService from './packs.service'
-
-export async function getPublishedPacks(
+export async function searchPublishedPacks(
   request: FastifyRequest<{
     Querystring: PublishedPacksQuery
   }>,
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
-  const result = await service.getPublishedPacks(request.query)
+  const result = await service.searchPublishedPacks(request.query)
+  reply.send(result)
+}
+
+export async function getPublishedPackBySlug(
+  request: FastifyRequest<{
+    Params: PackSlug
+    Querystring: Language
+  }>,
+  reply: FastifyReply
+) {
+  const service = request.getContainer().get<PacksService>(PacksService.name)
+  const result = await service.getPublishedPackBySlug(
+    request.params.packSlug,
+    request.query.language
+  )
+
   reply.send(result)
 }
 
@@ -47,14 +63,14 @@ export async function getPacksByOwner(
 export async function getPackWithCollectiblesById(
   request: FastifyRequest<{
     Params: PackId
-    Querystring: Locale
+    Querystring: Language
   }>,
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.getPackWithCollectiblesById(
     request.params.packId,
-    request.query.locale
+    request.query.language
   )
   reply.send(result)
 }
@@ -73,19 +89,19 @@ export async function getAuctionPackByTemplateId(
 }
 
 export async function getRedeemablePack(
-  request: FastifyRequest<{ Params: RedeemCode; Querystring: Locale }>,
+  request: FastifyRequest<{ Params: RedeemCode; Querystring: Language }>,
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.getPackByRedeemCode(
     request.params.redeemCode,
-    request.query.locale
+    request.query.language
   )
   reply.send({ pack: result })
 }
 
 export async function untransferredPacks(
-  request: FastifyRequest<{ Querystring: LocaleAndExternalId }>,
+  request: FastifyRequest<{ Querystring: LanguageAndExternalId }>,
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
@@ -106,14 +122,14 @@ export async function claimRandomFreePack(
 }
 
 export async function claimRedeemPack(
-  request: FastifyRequest<{ Body: ClaimRedeemPack; Querystring: Locale }>,
+  request: FastifyRequest<{ Body: ClaimRedeemPack; Querystring: Language }>,
   reply: FastifyReply
 ) {
   const service = request.getContainer().get<PacksService>(PacksService.name)
   const result = await service.claimRedeemPack(
     request.body,
-    request.query.locale,
-    request.transaction
+    request.transaction,
+    request.query.language
   )
   if (!result) {
     reply.notFound()

@@ -1,3 +1,4 @@
+import { WalletTransaction } from '@algomart/shared/algorand'
 import type {
   Algodv2,
   Indexer,
@@ -5,12 +6,11 @@ import type {
   makePaymentTxnWithSuggestedParamsFromObject,
   Transaction,
 } from 'algosdk'
+import type algosdk from 'algosdk'
 
 import { EventEmitter } from './event-emitter'
 
 import { sleep } from '@/utils/sleep'
-
-const algosdkLoader = import('algosdk')
 
 export enum ChainType {
   MainNet = 'mainnet',
@@ -29,15 +29,9 @@ export interface IAssetData {
   url?: string
 }
 
-export interface UnsignedTransaction {
-  txn: Transaction
-  signers?: string[]
-}
-
 export interface IConnector extends EventEmitter {
   signTransaction(
-    unsignedTransactions: UnsignedTransaction[],
-    message?: string,
+    unsignedTransactions: WalletTransaction[],
     skipSubmit?: boolean
   ): Promise<(Uint8Array | null)[]>
   connect(): Promise<void>
@@ -59,12 +53,20 @@ const TIME_BETWEEN_BLOCKS = 4500
 export class AlgorandAdapter {
   private _algod: Algodv2 | null = null
   private _indexer: Indexer | null = null
+  private _algosdk: typeof algosdk
 
   constructor(public readonly chainType: ChainType) {}
 
+  private async algosdk() {
+    if (this._algosdk === undefined) {
+      this._algosdk = await import('algosdk')
+    }
+    return this._algosdk
+  }
+
   private async algod() {
     if (this._algod === null) {
-      const algosdk = await algosdkLoader
+      const algosdk = await this.algosdk()
       this._algod = new algosdk.Algodv2('', ALGOD_URL[this.chainType], '')
     }
     return this._algod
@@ -72,7 +74,7 @@ export class AlgorandAdapter {
 
   private async indexer() {
     if (this._indexer === null) {
-      const algosdk = await algosdkLoader
+      const algosdk = await this.algosdk()
       this._indexer = new algosdk.Indexer('', INDEXER_URL[this.chainType], '')
     }
     return this._indexer
@@ -133,7 +135,7 @@ export class AlgorandAdapter {
     assetIndex: number,
     recipient: string
   ): Promise<Transaction> {
-    const algosdk = await algosdkLoader
+    const algosdk = await this.algosdk()
     const client = await this.algod()
     return algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
       suggestedParams: await client.getTransactionParams().do(),
@@ -151,12 +153,12 @@ export class AlgorandAdapter {
   }
 
   async encodeUnsignedTransaction(txn: Transaction): Promise<Uint8Array> {
-    const algosdk = await algosdkLoader
+    const algosdk = await this.algosdk()
     return algosdk.encodeUnsignedTransaction(txn)
   }
 
   async decodeUnsignedTransaction(txn: string): Promise<Transaction> {
-    const algosdk = await algosdkLoader
+    const algosdk = await this.algosdk()
     return algosdk.decodeUnsignedTransaction(
       new Uint8Array(Buffer.from(txn, 'base64'))
     )
@@ -172,7 +174,7 @@ export class AlgorandAdapter {
       'suggestedParams'
     >
   ): Promise<Transaction> {
-    const algosdk = await algosdkLoader
+    const algosdk = await this.algosdk()
     const client = await this.algod()
     return algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
       suggestedParams: await client.getTransactionParams().do(),
@@ -186,7 +188,7 @@ export class AlgorandAdapter {
       'suggestedParams'
     >
   ): Promise<Transaction> {
-    const algosdk = await algosdkLoader
+    const algosdk = await this.algosdk()
     const client = await this.algod()
     return algosdk.makePaymentTxnWithSuggestedParamsFromObject({
       suggestedParams: await client.getTransactionParams().do(),

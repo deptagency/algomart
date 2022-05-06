@@ -1,19 +1,5 @@
-import {
-  Auth,
-  createUserWithEmailAndPassword,
-  EmailAuthProvider,
-  getAuth,
-  getRedirectResult,
-  GoogleAuthProvider,
-  reauthenticateWithCredential,
-  sendEmailVerification,
-  sendPasswordResetEmail,
-  signInWithEmailAndPassword,
-  signInWithRedirect,
-  updateEmail,
-  updateProfile,
-} from 'firebase/auth'
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage'
+import { CURRENCY_COOKIE, LANG_COOKIE } from '@algomart/schemas'
+import type { Auth, Unsubscribe } from 'firebase/auth'
 import {
   createContext,
   ReactNode,
@@ -24,8 +10,8 @@ import {
   useReducer,
 } from 'react'
 
-import { Analytics } from '@/clients/firebase-analytics'
-import loadFirebase from '@/clients/firebase-client'
+import { useAnalytics } from '@/hooks/use-analytics'
+import { useFirebaseApp } from '@/hooks/use-firebase-app'
 import {
   AuthState,
   AuthUtils,
@@ -34,7 +20,7 @@ import {
   SignUpPayload,
 } from '@/types/auth'
 import { FileWithPreview } from '@/types/file'
-import { removeCookie, setCookie } from '@/utils/cookies-web'
+import { getCookie, removeCookie, setCookie } from '@/utils/cookies-web'
 import {
   ActionsUnion,
   createAction,
@@ -96,8 +82,10 @@ async function mapUserToProfile(
 ): Promise<Profile> {
   return {
     address: null,
+    currency: null,
     email: user.email,
     emailVerified: user.emailVerified,
+    language: null,
     name: user.displayName,
     photo: user.photoURL,
     token: await user.getIdToken(),
@@ -108,17 +96,29 @@ async function mapUserToProfile(
 
 export const AuthContext = createContext<AuthUtils | null>(null)
 
-export function useAuth() {
+async function getFirebaseAuthAsync() {
+  return import('firebase/auth')
+}
+
+async function getFirebaseStorageAsync() {
+  return import('firebase/storage')
+}
+
+export function useAuth(throwError = true) {
   const auth = useContext(AuthContext)
-  if (!auth) {
+  if (!auth && throwError) {
     throw new Error('AuthProvider missing')
   }
   return auth
 }
 
 export function useAuthProvider() {
+  const firebaseApp = useFirebaseApp()
+  const analytics = useAnalytics()
+
   const reloadProfile = useCallback(async () => {
-    const auth = getAuth(loadFirebase())
+    const { getAuth } = await getFirebaseAuthAsync()
+    const auth = getAuth(firebaseApp)
     const token = await auth.currentUser?.getIdToken(true)
     if (auth.currentUser && token) {
       setCookie(TOKEN_COOKIE_NAME, token, TOKEN_COOKIE_EXPIRES_IN_DAYS)
@@ -149,16 +149,60 @@ export function useAuthProvider() {
         })
       }
 
+      /**
+       * If an anonymous user changes their preferred language, then logs in,
+       * we need to update the db to reflect this preference
+       */
+      const languageCookie = getCookie(LANG_COOKIE)
+      const parsedLanguageCookie =
+        languageCookie && languageCookie !== 'null' ? languageCookie : null
+      if (
+        parsedLanguageCookie &&
+        profileResponse.language !== parsedLanguageCookie
+      ) {
+        await fetch(urls.api.v1.updateLanguage, {
+          body: JSON.stringify({ language: parsedLanguageCookie }),
+          headers: {
+            authorization: `bearer ${token}`,
+            'content-type': 'application/json',
+          },
+          method: 'PUT',
+        })
+      }
+
+      /**
+       * If an anonymous user changes their preferred currency, then logs in,
+       * we need to update the db to reflect this preference
+       */
+      const currencyCookie = getCookie(CURRENCY_COOKIE)
+      const parsedCurrencyCookie =
+        currencyCookie && currencyCookie !== 'null' ? currencyCookie : null
+      if (
+        parsedCurrencyCookie &&
+        profileResponse.currency !== parsedCurrencyCookie
+      ) {
+        await fetch(urls.api.v1.updateCurrency, {
+          body: JSON.stringify({ currency: parsedCurrencyCookie }),
+          headers: {
+            authorization: `bearer ${token}`,
+            'content-type': 'application/json',
+          },
+          method: 'PUT',
+        })
+      }
+
       // Set user
       dispatch(
         authActions.setUser({
           ...profile,
           username: profileResponse?.username || null,
           address: profileResponse?.address || null,
+          currency: profileResponse?.currency || null,
+          language: profileResponse?.language || null,
         })
       )
     }
-  }, [])
+  }, [firebaseApp])
 
   const getRedirectPath = useCallback(() => {
     return window.localStorage.getItem('redirect')
@@ -169,44 +213,56 @@ export function useAuthProvider() {
   }, [])
 
   const sendNewEmailVerification = useCallback(async () => {
-    const auth = getAuth(loadFirebase())
+    const { getAuth, sendEmailVerification } = await getFirebaseAuthAsync()
+    const auth = getAuth(firebaseApp)
     if (auth.currentUser) {
       await sendEmailVerification(auth.currentUser)
     }
-  }, [])
+  }, [firebaseApp])
 
-  const sendPasswordReset = useCallback(async (email: string) => {
-    const auth = getAuth(loadFirebase())
-    try {
-      await sendPasswordResetEmail(auth, email)
-      return { isValid: true }
-    } catch {
-      // For security purposes, suppress error even if user doesn't exist
-      return { isValid: true }
-    }
-  }, [])
-
-  const updateAuthSession = useCallback(async (password: string) => {
-    const auth = getAuth(loadFirebase())
-    if (auth?.currentUser?.email) {
+  const sendPasswordReset = useCallback(
+    async (email: string) => {
+      const { getAuth, sendPasswordResetEmail } = await getFirebaseAuthAsync()
+      const auth = getAuth(firebaseApp)
       try {
-        // Reauthenticate user
-        const credential = EmailAuthProvider.credential(
-          auth.currentUser.email,
-          password
-        )
-        await reauthenticateWithCredential(auth.currentUser, credential)
+        await sendPasswordResetEmail(auth, email)
         return { isValid: true }
       } catch {
-        return { isValid: false }
+        // For security purposes, suppress error even if user doesn't exist
+        return { isValid: true }
       }
-    }
-    return { isValid: false }
-  }, [])
+    },
+    [firebaseApp]
+  )
+
+  const updateAuthSession = useCallback(
+    async (password: string) => {
+      const { getAuth, EmailAuthProvider, reauthenticateWithCredential } =
+        await getFirebaseAuthAsync()
+      const auth = getAuth(firebaseApp)
+      if (auth?.currentUser?.email) {
+        try {
+          // Reauthenticate user
+          const credential = EmailAuthProvider.credential(
+            auth.currentUser.email,
+            password
+          )
+          await reauthenticateWithCredential(auth.currentUser, credential)
+          return { isValid: true }
+        } catch {
+          return { isValid: false }
+        }
+      }
+      return { isValid: false }
+    },
+    [firebaseApp]
+  )
 
   const updateEmailAddress = useCallback(
     async (newEmail: string) => {
-      const auth = getAuth(loadFirebase())
+      const { getAuth, updateEmail, sendEmailVerification } =
+        await getFirebaseAuthAsync()
+      const auth = getAuth(firebaseApp)
       if (auth?.currentUser?.email) {
         try {
           // Update user's firbase account and trigger re-verification
@@ -232,17 +288,20 @@ export function useAuthProvider() {
       }
       return { isValid: false }
     },
-    [reloadProfile]
+    [firebaseApp, reloadProfile]
   )
 
   const updateProfilePic = useCallback(
     async (profilePic: FileWithPreview | null) => {
-      const auth = getAuth(loadFirebase())
+      const { getAuth, updateProfile } = await getFirebaseAuthAsync()
+      const { ref, getStorage, uploadBytes, getDownloadURL } =
+        await getFirebaseStorageAsync()
+      const auth = getAuth(firebaseApp)
       if (auth.currentUser) {
         let photoURL = ''
         if (profilePic) {
           const storageReference = ref(
-            getStorage(loadFirebase()),
+            getStorage(firebaseApp),
             `/users/${auth.currentUser.uid}/${profilePic.name}`
           )
           await uploadBytes(storageReference, profilePic)
@@ -253,7 +312,7 @@ export function useAuthProvider() {
       }
       return
     },
-    [reloadProfile]
+    [firebaseApp, reloadProfile]
   )
 
   const registerWithEmailAndPassword = useCallback(
@@ -263,10 +322,17 @@ export function useAuthProvider() {
       passphrase,
       profilePic,
       username,
+      currency,
+      language,
     }: SignUpPayload) => {
       dispatch(authActions.setLoading())
       try {
-        const auth = getAuth(loadFirebase())
+        const {
+          getAuth,
+          createUserWithEmailAndPassword,
+          sendEmailVerification,
+        } = await getFirebaseAuthAsync()
+        const auth = getAuth(firebaseApp)
         const { user } = await createUserWithEmailAndPassword(
           auth,
           email,
@@ -276,7 +342,13 @@ export function useAuthProvider() {
           // Set profile
           const token = await user.getIdToken()
           await fetch(urls.api.v1.profile, {
-            body: JSON.stringify({ email, passphrase, username }),
+            body: JSON.stringify({
+              email,
+              passphrase,
+              username,
+              currency,
+              language,
+            }),
             headers: {
               authorization: `bearer ${token}`,
               'content-type': 'application/json',
@@ -302,14 +374,16 @@ export function useAuthProvider() {
         return { isValid: false }
       }
     },
-    [updateProfilePic]
+    [firebaseApp, updateProfilePic]
   )
 
   const authenticateWithEmailAndPassword = useCallback(
     async ({ email, password }: SignInPayload) => {
       dispatch(authActions.setLoading())
       try {
-        const auth = getAuth(loadFirebase())
+        const { getAuth, signInWithEmailAndPassword } =
+          await getFirebaseAuthAsync()
+        const auth = getAuth(firebaseApp)
         await signInWithEmailAndPassword(auth, email, password)
         dispatch(authActions.setMethod('email'))
         return { isValid: true }
@@ -320,45 +394,60 @@ export function useAuthProvider() {
         return { isValid: false }
       }
     },
-    []
+    [firebaseApp]
   )
 
   const authenticateWithGoogle = useCallback(async () => {
     dispatch(authActions.setLoading())
-    const auth = getAuth(loadFirebase())
+    const { getAuth, signInWithRedirect, GoogleAuthProvider } =
+      await getFirebaseAuthAsync()
+    const auth = getAuth(firebaseApp)
     await signInWithRedirect(auth, new GoogleAuthProvider())
-  }, [])
+  }, [firebaseApp])
 
   const signOut = useCallback(async () => {
     dispatch(authActions.setLoading())
     removeCookie(TOKEN_COOKIE_NAME)
-    await getAuth(loadFirebase()).signOut()
+    const { getAuth } = await getFirebaseAuthAsync()
+    await getAuth(firebaseApp).signOut()
     dispatch(authActions.signOut())
-  }, [])
+  }, [firebaseApp])
 
   useEffect(() => {
-    const auth = getAuth(loadFirebase())
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      dispatch(authActions.setLoading())
-      if (user) {
-        await reloadProfile()
-      } else {
-        dispatch(authActions.setAnonymous())
-      }
-    })
-
-    getRedirectResult(auth).then(() => {
-      const method =
-        auth.currentUser?.providerData[0].providerId === 'password'
-          ? 'email'
-          : 'google'
-      dispatch(authActions.setMethod(method))
-      Analytics.instance.login(method)
-    })
-    return () => {
-      unsubscribe()
+    if (!firebaseApp) {
+      return
     }
-  }, []) /* eslint-disable-line react-hooks/exhaustive-deps */
+
+    let unsubscribe: Unsubscribe | null = null
+
+    ;(async () => {
+      const { getAuth, getRedirectResult } = await getFirebaseAuthAsync()
+      const auth = getAuth(firebaseApp)
+      unsubscribe = auth.onAuthStateChanged(async (user) => {
+        dispatch(authActions.setLoading())
+        if (user) {
+          await reloadProfile()
+        } else {
+          dispatch(authActions.setAnonymous())
+        }
+      })
+
+      getRedirectResult(auth).then(() => {
+        const method =
+          auth.currentUser?.providerData[0].providerId === 'password'
+            ? 'email'
+            : 'google'
+        dispatch(authActions.setMethod(method))
+        analytics.login(method)
+      })
+    })()
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe()
+      }
+    }
+  }, [analytics, firebaseApp, reloadProfile])
 
   const [state, dispatch] = useReducer(authReducer, {
     error: null,

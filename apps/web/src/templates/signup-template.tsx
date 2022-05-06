@@ -1,9 +1,11 @@
 import useTranslation from 'next-translate/useTranslation'
-import { FormEvent } from 'react'
+import React, { FormEvent } from 'react'
 
 import AlertMessage from '@/components/alert-message/alert-message'
 import {
+  Currency,
   Email,
+  Language,
   Passphrase,
   Password,
   ProfileImage,
@@ -15,14 +17,20 @@ import { AuthState } from '@/types/auth'
 import { FileWithPreview } from '@/types/file'
 
 export interface SignupTemplateProps {
+  dropdownCurrency: string
+  dropdownLanguage: string
   error: string | null
   formErrors: Partial<{
+    currency?: unknown
     email?: unknown
+    language?: unknown
     username?: unknown
     password?: unknown
     passphrase?: unknown
   }>
   handleCreateProfile: (event: FormEvent<HTMLFormElement>) => Promise<void>
+  handleCurrencyChange: (value: string) => void
+  handleLanguageChange: (value: string) => void
   handleProfilePicAccept: (files: File[]) => void
   handleProfilePicClear: () => void
   profilePic: FileWithPreview | null
@@ -30,9 +38,13 @@ export interface SignupTemplateProps {
 }
 
 export default function SignupTemplate({
+  dropdownCurrency,
+  dropdownLanguage,
   error,
   formErrors,
   handleCreateProfile,
+  handleCurrencyChange,
+  handleLanguageChange,
   handleProfilePicAccept,
   handleProfilePicClear,
   profilePic,
@@ -55,17 +67,26 @@ export default function SignupTemplate({
             variant="red"
           />
         )}
-        <Email error={formErrors.email} t={t} />
-        <Username error={formErrors.username} t={t} />
-        <Password error={formErrors.password} t={t} />
+        <Email error={formErrors.email} />
+        <Username error={formErrors.username} />
+        <Password error={formErrors.password} />
         <ProfileImage
           handleProfilePicAccept={handleProfilePicAccept}
           handleProfilePicClear={handleProfilePicClear}
-          t={t}
           profilePic={profilePic}
         />
-        <Passphrase error={formErrors.passphrase} t={t} />
-        <Submit disabled={status === 'loading'} t={t} />
+        <Language
+          error={formErrors.language}
+          value={dropdownLanguage}
+          onChange={handleLanguageChange}
+        />
+        <Currency
+          error={formErrors.currency}
+          value={dropdownCurrency}
+          onChange={handleCurrencyChange}
+        />
+        <Passphrase error={formErrors.passphrase} />
+        <Submit disabled={status === 'loading'} />
       </form>
     </>
   )

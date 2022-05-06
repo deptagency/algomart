@@ -5,7 +5,7 @@
 
 .selectWrapper {
   /* Base */
-  @apply relative z-10 mx-auto mb-8 transform -translate-y-1/2 border-b border-base-border max-w-520;
+  @apply relative z-10 mx-auto mb-8 transform -translate-y-1/2 border-b max-w-520;
   /* Tablet + */
   @apply md:mb-12;
 }
@@ -24,7 +24,7 @@
 
 .filterColumn {
   /* Base */
-  @apply w-full mb-5 hidden;
+  @apply hidden w-full mb-5;
   /* Tablet + */
   @apply md:w-250 md:min-w-max md:block;
 }

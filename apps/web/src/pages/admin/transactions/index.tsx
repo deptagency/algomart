@@ -5,21 +5,23 @@ import useTranslation from 'next-translate/useTranslation'
 
 import AppLink from '@/components/app-link/app-link'
 import Breadcrumbs from '@/components/breadcrumbs'
+import Currency from '@/components/currency'
 import Pagination from '@/components/pagination/pagination'
 import Panel from '@/components/panel'
 import Table, { ColumnDefinitionType } from '@/components/table'
+import { useLocale } from '@/hooks/use-locale'
 import usePagination from '@/hooks/use-pagination'
 import AdminLayout from '@/layouts/admin-layout'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
 import { getPaymentsFilterQuery } from '@/utils/filters'
-import { formatCurrency } from '@/utils/format-currency'
 import { useAuthApi } from '@/utils/swr'
 import { urls } from '@/utils/urls'
 
 const PAYMENTS_PER_PAGE = 10
 
 export default function AdminTransactionsPage() {
-  const { t, lang } = useTranslation('admin')
+  const locale = useLocale()
+  const { t } = useTranslation('admin')
   const { page, setPage, handleTableHeaderClick, sortBy, sortDirection } =
     usePagination<PaymentSortField>(1, PaymentSortField.CreatedAt)
 
@@ -49,16 +51,18 @@ export default function AdminTransactionsPage() {
       key: 'createdAt',
       name: t('transactions.table.Date'),
       renderer: ({ value }) =>
-        value ? new Date(value).toLocaleDateString(lang) : null,
+        value ? new Date(value).toLocaleDateString(locale) : null,
       sortable: true,
     },
     {
       key: 'pack.template.activeBid',
       name: t('transactions.table.Amount'),
       renderer: ({ item }) =>
-        item.pack.template.activeBid
-          ? formatCurrency(item.pack.template.activeBid, lang)
-          : formatCurrency(item.pack.template.price, lang),
+        item.pack.template.activeBid ? (
+          <Currency value={item.pack.template.activeBid} />
+        ) : (
+          <Currency value={item.pack.template.price} />
+        ),
     },
     {
       key: 'pack.template.type',

@@ -19,16 +19,16 @@
 }
 
 .selectContainer {
-  @apply relative z-20;
+  @apply relative;
 }
 
 .selectButton {
-  @apply relative w-full text-left bg-white border rounded-sm cursor-default border-base-border;
+  @apply relative w-full text-left bg-white border rounded-sm cursor-default text-base-gray-dark;
   padding: 10px 50px 10px 10px;
 }
 
 .selectButtonDisabled {
-  @apply bg-base-bg border-base-bg;
+  @apply text-opacity-50 bg-base-bg border-base-bg dark:bg-white dark:bg-opacity-80;
 }
 
 .selectButtonError {
@@ -36,7 +36,12 @@
 }
 
 .selectButtonText {
-  @apply block text-sm font-light truncate text-base-gray-dark;
+  @apply grid justify-start grid-flow-col grid-rows-1 gap-4 text-base truncate;
+}
+
+.selectButtonText svg {
+  @apply opacity-75 stroke-current justify-self-end;
+  width: 22px;
 }
 
 .selectButtonIconContainer {
@@ -48,7 +53,7 @@
 }
 
 .selectOptions {
-  @apply absolute w-full py-1 mt-1 overflow-auto text-sm bg-white border rounded-sm shadow-md border-base-border max-h-60;
+  @apply absolute z-10 w-full py-1 mt-1 overflow-auto text-sm bg-white border rounded-sm shadow-md max-h-60;
 }
 
 .selectOption {
@@ -61,4 +66,8 @@
 
 .selectOptionSelected {
   @apply font-semibold bg-gray-200;
+}
+
+.selectOptionDisabled {
+  @apply text-base-textDisabled;
 }

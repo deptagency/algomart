@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, ReactNode } from 'react'
 
 export interface FlexProps {
   /** This aligns a flex container's lines within when there is extra space in the cross-axis, similar to how justify-content aligns individual items within the main-axis. Note: this property has no effect when there is only one line of flex items. */
@@ -70,6 +70,8 @@ export interface FlexProps {
   style?: object
   /** Test id for automation */
   testId?: string
+  /** Children to render */
+  children: ReactNode
 }
 
 /**

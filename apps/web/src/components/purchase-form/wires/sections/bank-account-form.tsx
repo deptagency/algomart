@@ -1,4 +1,4 @@
-import { PackType, PublishedPack } from '@algomart/schemas'
+import { PackType } from '@algomart/schemas'
 import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 
@@ -12,188 +12,108 @@ import BillingAddress from '@/components/purchase-form/shared/billing-address'
 import FullName from '@/components/purchase-form/shared/full-name'
 import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
-import { FormValidation } from '@/contexts/payment-context'
-import { isAfterNow } from '@/utils/date-time'
-import {
-  currency,
-  formatCurrency,
-  formatIntToFloat,
-} from '@/utils/format-currency'
+import { useCurrency } from '@/contexts/currency-context'
+import { useI18n } from '@/contexts/i18n-context'
+import { usePaymentContext } from '@/contexts/payment-context'
+import { useLocale } from '@/hooks/use-locale'
+import { formatCurrency, formatIntToFixed } from '@/utils/currency'
 
 export interface BankAccountFormProps {
-  bid: string | null
   className?: string
-  countries: { label: string | null; id: string }[]
-  formErrors?: FormValidation
   handleContinue: () => void
-  initialBid?: string
-  release?: PublishedPack
-  setBid: (bid: string | null) => void
 }
 
 export default function BankAccountForm({
-  bid,
   className,
-  countries: countryOptions,
-  formErrors,
   handleContinue,
-  initialBid,
-  release,
-  setBid,
 }: BankAccountFormProps) {
-  const { t, lang } = useTranslation()
-  const isAuctionActive =
-    release?.type === PackType.Auction &&
-    isAfterNow(new Date(release.auctionUntil as string))
+  const { bid, countries, getError, isAuctionActive, release } =
+    usePaymentContext()
+  const locale = useLocale()
+  const { currency } = useCurrency()
+  const { conversionRate } = useI18n()
+  const { t } = useTranslation()
   const price =
     release?.type === PackType.Auction
       ? bid
-      : formatIntToFloat(release?.price || 0)
+      : formatIntToFixed(release?.price || 0, currency)
 
   return (
     <div className={className}>
-      {formErrors && 'bid' in formErrors && (
+      {getError('bid') ? (
         <AlertMessage
           className={css.notification}
-          content={formErrors.bid}
+          content={getError('bid')}
           variant="red"
         />
-      )}
+      ) : null}
 
       <div className={clsx(css.formSection)}>
-        {isAuctionActive ? (
-          <Bid
-            bid={bid}
-            className={css.bid}
-            initialBid={initialBid}
-            setBid={setBid}
-          />
+        {isAuctionActive() ? (
+          <Bid className={css.bid} />
         ) : (
           <>
             <Heading level={2}>{t('forms:sections.Bank Account')}</Heading>
 
             <TextInput
-              error={
-                formErrors && 'accountNumber' in formErrors
-                  ? (formErrors.accountNumber as string)
-                  : ''
-              }
+              error={getError('accountNumber')}
               label={t('forms:fields.accountNumber.label')}
               name="accountNumber"
               variant="small"
             />
 
             <TextInput
-              error={
-                formErrors && 'routingNumber' in formErrors
-                  ? (formErrors.routingNumber as string)
-                  : ''
-              }
+              error={getError('routingNumber')}
               label={t('forms:fields.routingNumber.label')}
               name="routingNumber"
               variant="small"
             />
 
-            <FullName
-              formErrors={{
-                fullName:
-                  formErrors && 'fullName' in formErrors
-                    ? (formErrors.fullName as string)
-                    : '',
-              }}
-            />
+            <FullName formErrors={{ fullName: getError('fullName') }} />
 
-            <BillingAddress
-              countries={countryOptions}
-              formErrors={{
-                address1:
-                  formErrors && 'address1' in formErrors
-                    ? (formErrors.address1 as string)
-                    : '',
-                city:
-                  formErrors && 'city' in formErrors
-                    ? (formErrors.city as string)
-                    : '',
-                state:
-                  formErrors && 'state' in formErrors
-                    ? (formErrors.state as string)
-                    : '',
-                country:
-                  formErrors && 'country' in formErrors
-                    ? (formErrors.country as string)
-                    : '',
-                zipCode:
-                  formErrors && 'zipCode' in formErrors
-                    ? (formErrors.zipCode as string)
-                    : '',
-              }}
-            />
+            <BillingAddress />
 
             <Heading level={2}>{t('forms:sections.Bank Address')}</Heading>
 
             <TextInput
-              error={
-                formErrors && 'bankName' in formErrors
-                  ? (formErrors.bankName as string)
-                  : ''
-              }
+              error={getError('bankName')}
               label={t('forms:fields.bankAddress.bankName.label')}
               name="bankName"
               variant="small"
             />
             <TextInput
-              error={
-                formErrors && 'bankAddress1' in formErrors
-                  ? (formErrors.bankAddress1 as string)
-                  : ''
-              }
+              error={getError('bankAddress1')}
               label={t('forms:fields.bankAddress.bankAddress1.label')}
               name="bankAddress1"
               variant="small"
             />
             <TextInput
-              error={
-                formErrors && 'bankAddress2' in formErrors
-                  ? (formErrors.bankAddress2 as string)
-                  : ''
-              }
+              error={getError('bankAddress2')}
               label={t('forms:fields.bankAddress.bankAddress2.label')}
               name="bankAddress2"
               variant="small"
             />
             <div className={css.formMultiRow}>
               <TextInput
-                error={
-                  formErrors && 'bankCity' in formErrors
-                    ? (formErrors.bankCity as string)
-                    : ''
-                }
+                error={getError('bankCity')}
                 label={t('forms:fields.city.label')}
                 name="bankCity"
                 variant="small"
               />
               <TextInput
-                error={
-                  formErrors && 'bankDistrict' in formErrors
-                    ? (formErrors.bankDistrict as string)
-                    : ''
-                }
+                error={getError('bankDistrict')}
                 label={t('forms:fields.state.label')}
                 name="bankDistrict"
                 variant="small"
               />
             </div>
-            {countryOptions.length > 0 && (
+            {countries.length > 0 && (
               <Select
-                error={
-                  formErrors && 'bankCountry' in formErrors
-                    ? (formErrors.bankCountry as string)
-                    : ''
-                }
+                error={getError('bankCountry')}
                 label={t('forms:fields.country.label')}
                 id="bankCountry"
                 name="bankCountry"
-                options={countryOptions}
+                options={countries}
                 placeholder="US"
               />
             )}
@@ -205,17 +125,12 @@ export default function BankAccountForm({
       <div className={css.priceContainer}>
         <p className={css.priceLabel}>{t('release:Total')}</p>
         <p className={css.priceValue}>
-          {formatCurrency(price, lang)} {currency?.code && currency.code}
+          {formatCurrency(price, locale, currency, conversionRate)}
         </p>
       </div>
 
       {/* Submit */}
-      <Button
-        disabled={!release}
-        fullWidth
-        type="button"
-        onClick={handleContinue}
-      >
+      <Button disabled={!release} fullWidth onClick={handleContinue}>
         {t('common:actions.Continue to Summary')}
       </Button>
     </div>

@@ -1,14 +1,23 @@
+import { DEFAULT_CURRENCY } from '@algomart/schemas'
 import clsx from 'clsx'
+import { useState } from 'react'
 import CurrencyInputField, {
   CurrencyInputProps as CurrencyInputFieldProps,
 } from 'react-currency-input-field'
 
 // Styles are 1:1 with text input
-import css from '../text-input/text-input.module.css'
+import css from '@/components/text-input/text-input.module.css'
 
-export interface CurrencyInputProps extends CurrencyInputFieldProps {
+import { useCurrency } from '@/contexts/currency-context'
+import { useI18n } from '@/contexts/i18n-context'
+import { useLocale } from '@/hooks/use-locale'
+import { formatCurrency, formatIntToFixed } from '@/utils/currency'
+
+export interface CurrencyInputProps
+  extends Omit<CurrencyInputFieldProps, 'value' | 'onChange'> {
   error?: string
-  handleChange?: (value: string) => void
+  value: number
+  onChange: (value: number) => void
   helpText?: string
   label?: string
   variant?: 'small' | 'medium'
@@ -18,14 +27,41 @@ export default function CurrencyInput({
   className,
   disabled,
   error,
-  handleChange,
+  onChange,
+  onBlur,
   helpText,
   id,
   label,
   readOnly,
   variant = 'medium',
+  value,
   ...props
 }: CurrencyInputProps) {
+  const { conversionRate } = useI18n()
+  const { currency } = useCurrency()
+  const locale = useLocale()
+  const [stringValue, setStringValue] = useState(String(value / 100))
+
+  const handleChange = (value: string) => {
+    if (value === undefined || Number.isNaN(Number(value))) {
+      setStringValue('0')
+      onChange(0)
+    } else {
+      setStringValue(value)
+      onChange(Math.round(Number(value) * 100))
+    }
+  }
+
+  const handleBlur = (event_) => {
+    setStringValue(formatIntToFixed(value))
+    if (onBlur) onBlur(event_)
+  }
+
+  const localizedValue =
+    currency !== DEFAULT_CURRENCY
+      ? formatCurrency(value, locale, currency, conversionRate)
+      : undefined
+
   const inputField = (
     <CurrencyInputField
       className={clsx(
@@ -39,48 +75,33 @@ export default function CurrencyInput({
         },
         className
       )}
-      onValueChange={(value) => {
-        if (handleChange) {
-          if (value === undefined || Number.isNaN(Number(value))) {
-            return handleChange('0')
-          }
-          return handleChange(value)
-        }
-      }}
+      onValueChange={handleChange}
       disabled={disabled}
       id={id}
+      min={0}
       max={100_000_000_000}
       readOnly={readOnly}
+      value={stringValue}
+      step={1}
+      intlConfig={{ locale: locale, currency: DEFAULT_CURRENCY }}
+      onBlur={handleBlur}
       {...props}
     />
   )
   return label ? (
-    <label htmlFor={id} className={css.labelContainer}>
-      <span
-        className={clsx(css.label, {
-          [css.labelSmall]: variant === 'small',
-        })}
-      >
-        {label}
-      </span>
-      {error && (
-        <span
-          className={clsx(css.errorText, {
-            [css.errorTextSmall]: variant === 'small',
-          })}
-        >
-          {error}
-        </span>
-      )}
-      {!error && helpText && (
-        <span
-          className={clsx(css.helpText, {
-            [css.helpTextSmall]: variant === 'small',
-          })}
-        >
-          {helpText}
-        </span>
-      )}
+    <label
+      htmlFor={id}
+      className={clsx(css.labelContainer, {
+        [css.small]: variant === 'small',
+      })}
+    >
+      <div className={css.contentTop}>
+        <span className={css.label}>{label}</span>
+        {error && <span className={css.errorText}>{error}</span>}
+        {!error && (helpText || localizedValue) && (
+          <span className={css.helpText}>{helpText || localizedValue}</span>
+        )}
+      </div>
       {inputField}
     </label>
   ) : (

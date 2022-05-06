@@ -6,15 +6,13 @@ import useTranslation from 'next-translate/useTranslation'
 import css from './release-item.module.css'
 
 import Counter from '@/components/counter/counter'
-import { useLocale } from '@/hooks/use-locale'
-import { formatCurrency } from '@/utils/format-currency'
+import Currency from '@/components/currency'
 
 export interface ReleaseItemProps {
   pack: PublishedPack
 }
 
 export default function ReleaseItem({ pack }: ReleaseItemProps) {
-  const locale = useLocale()
   const { t } = useTranslation()
 
   const reserveMet =
@@ -48,9 +46,11 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
                 : t('release:Reserve Price')}
             </div>
             <div className={css.metadataValue}>
-              {reserveMet
-                ? formatCurrency(pack.activeBid ?? 0, locale)
-                : t('release:Not Met')}
+              {reserveMet ? (
+                <Currency value={pack.activeBid || 0} />
+              ) : (
+                t('release:Not Met')
+              )}
             </div>
           </div>
           <div>
@@ -75,9 +75,11 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
                 : t('release:Reserve Price')}
             </div>
             <div className={css.metadataValue}>
-              {reserveMet
-                ? formatCurrency(pack.activeBid ?? 0, locale)
-                : t('release:Not Met')}
+              {reserveMet ? (
+                <Currency value={pack.activeBid || 0} />
+              ) : (
+                t('release:Not Met')
+              )}
             </div>
           </div>
           <div>
@@ -109,7 +111,7 @@ export default function ReleaseItem({ pack }: ReleaseItemProps) {
           <div>
             <div className={css.metadataLabel}>{t('release:Mint Cost')}</div>
             <div className={css.metadataValue}>
-              {formatCurrency(pack.price, locale)}
+              <Currency value={pack.price} />
             </div>
           </div>
           <div>

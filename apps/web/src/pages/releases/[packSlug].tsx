@@ -1,16 +1,11 @@
-import {
-  DEFAULT_LOCALE,
-  PackAuction,
-  PackType,
-  PublishedPack,
-} from '@algomart/schemas'
+import { PackAuction, PackType, PublishedPack } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
-import { Analytics } from '@/clients/firebase-analytics'
 import { useRedemption } from '@/contexts/redemption-context'
+import { useAnalytics } from '@/hooks/use-analytics'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
@@ -42,14 +37,15 @@ export default function ReleasePage({
   packTemplate,
 }: ReleasePageProps) {
   const { setRedeemable } = useRedemption()
+  const analytics = useAnalytics()
   const { t } = useTranslation()
 
   useEffect(() => {
-    Analytics.instance.viewItem({
+    analytics.viewItem({
       itemName: packTemplate.title,
       value: packAuction?.activeBid?.amount ?? packTemplate.price,
     })
-  }, [packAuction, packTemplate])
+  }, [analytics, packAuction, packTemplate])
 
   const handleClaimNFT = async (
     redeemCode: string
@@ -96,18 +92,17 @@ export default function ReleasePage({
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const user = await getAuthenticatedUser(context)
 
-  const { packs: packTemplates } = await ApiClient.instance.getPublishedPacks({
-    locale: context.locale || DEFAULT_LOCALE,
-    slug: context?.params?.packSlug as string,
-  })
+  const packTemplate = await ApiClient.instance.getPublishedPackBySlug(
+    context?.params?.packSlug as string,
+    context.locale
+  )
 
-  if (!packTemplates || packTemplates.length === 0) {
+  if (!packTemplate) {
     return {
       notFound: true,
     }
   }
 
-  const packTemplate = packTemplates[0]
   const avatars: { [key: string]: string | null } = {}
   let auction = null,
     isHighestBidder = null,
@@ -139,11 +134,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         !isAfterNow(new Date(packTemplate.auctionUntil))
       )
       const hasBids = bids?.some((b) => b.externalId === user.externalId)
-
+      const isReserveMet = packTemplate.price <= activeBid?.amount
       isHighestBidder = activeBid?.externalId === user.externalId
       isOwner = user && ownerExternalId === user.externalId ? true : false
-      isWinningBidder = isHighestBidder && isClosed
-      isOutbid = !isHighestBidder && hasBids
+      isWinningBidder = isHighestBidder && isClosed && isReserveMet
+      isOutbid = !isHighestBidder && hasBids && !isClosed
     }
   }
 

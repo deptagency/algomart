@@ -9,9 +9,8 @@ import css from './featured-pack.module.css'
 
 import Button from '@/components/button'
 import Counter from '@/components/counter/counter'
+import Currency from '@/components/currency'
 import Heading from '@/components/heading'
-import { useLocale } from '@/hooks/use-locale'
-import { formatCurrency } from '@/utils/format-currency'
 
 export interface FeaturedPackProps {
   featuredPack: PublishedPack
@@ -22,8 +21,7 @@ export default function HomeTemplate({
   featuredPack,
   onClickFeatured,
 }: FeaturedPackProps) {
-  const locale = useLocale()
-  const { t, lang } = useTranslation()
+  const { t } = useTranslation()
 
   const highestBid = featuredPack?.activeBid || 0
   const isReserveMet = highestBid >= featuredPack.price || 0
@@ -76,9 +74,11 @@ export default function HomeTemplate({
             src={featuredPack.image}
             width={512}
             height={512}
+            sizes="(max-width: 639px) 100vw, (max-width: 767px) calc(100vw * 1/2), (min-width: 768px) calc(100vw * 3/5)"
             layout="responsive"
             objectFit="cover"
-            alt={featuredPack.title}
+            alt={t('common:statuses.Cover Image')}
+            priority
           />
         </div>
 
@@ -141,7 +141,7 @@ export default function HomeTemplate({
                         [css.completeSuccess]: isExpired && isReserveMet,
                       })}
                     >
-                      {formatCurrency(highestBid, lang)}
+                      <Currency value={highestBid} />
                     </div>
                   </>
                 </div>
@@ -198,11 +198,11 @@ export default function HomeTemplate({
                 </Button>
                 <p className={css.featuredPrice}>
                   {(featuredPack.type === PackType.Auction ||
-                    featuredPack.type === PackType.Purchase) &&
-                    formatCurrency(
-                      featuredPack.activeBid ?? featuredPack.price,
-                      locale
-                    )}
+                    featuredPack.type === PackType.Purchase) && (
+                    <Currency
+                      value={featuredPack.activeBid ?? featuredPack.price}
+                    />
+                  )}
                 </p>
               </>
             )}

@@ -17,7 +17,7 @@
 }
 
 .mobileWrapper {
-  @apply relative z-10 mx-5 transform -translate-y-1/2 border-b border-base-border;
+  @apply relative z-10 mx-5 transform -translate-y-1/2 border-b;
 }
 
 .mobileWrapper label {
@@ -30,7 +30,7 @@
 }
 
 .listItem + .listItem {
-  @apply border-t border-t-base-border;
+  @apply border-t;
 }
 
 .listItem a {

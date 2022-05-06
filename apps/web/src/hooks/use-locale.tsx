@@ -1,7 +1,21 @@
 import { DEFAULT_LOCALE } from '@algomart/schemas'
-import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
 
 export function useLocale() {
-  const router = useRouter()
-  return router?.locale ?? DEFAULT_LOCALE
+  const [locale, setLocale] = useState(DEFAULT_LOCALE)
+
+  useEffect(() => {
+    const callback = () => {
+      setLocale(navigator.language)
+    }
+
+    setLocale(navigator.language)
+    window.addEventListener('languagechange', callback)
+
+    return () => {
+      window.removeEventListener('languagechange', callback)
+    }
+  }, [])
+
+  return locale
 }

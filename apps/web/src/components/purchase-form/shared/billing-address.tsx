@@ -6,79 +6,55 @@ import css from './card-details.module.css'
 import Heading from '@/components/heading'
 import Select from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
+import { usePaymentContext } from '@/contexts/payment-context'
 
-export interface BillingAddressProps {
-  countries: { label: string | null; id: string }[]
-  formErrors?: {
-    address1?: string
-    city?: string
-    state?: string
-    country?: string
-    zipCode?: string
-  }
-  initialValues?: {
-    address1?: string
-    city?: string
-    state?: string
-    country?: string
-    zipCode?: string
-  }
-}
-
-export default function BillingAddress({
-  countries: countryOptions,
-  formErrors,
-  initialValues,
-}: BillingAddressProps) {
+export default function BillingAddress() {
   const { t } = useTranslation()
+  const { countries, getError } = usePaymentContext()
   return (
     <div className={clsx(css.formSection, css.formSectionNoMargin)}>
       <Heading level={2}>{t('forms:sections.Billing Address')}</Heading>
 
       <TextInput
-        error={formErrors?.address1}
+        error={getError('address1')}
         label={t('forms:fields.address1.label')}
         name="address1"
         placeholder="123 Main Street"
         variant="small"
-        value={initialValues?.address1}
       />
       <div className={css.formMultiRow}>
         <TextInput
-          error={formErrors?.city}
+          error={getError('city')}
           label={t('forms:fields.city.label')}
           name="city"
           placeholder="Boston"
           variant="small"
-          value={initialValues?.city}
         />
         <TextInput
-          error={formErrors?.state}
+          error={getError('state')}
           label={t('forms:fields.state.label')}
           name="state"
           placeholder="MA"
           variant="small"
-          value={initialValues?.state}
         />
       </div>
       <div className={css.formMultiRow}>
-        {countryOptions.length > 0 && (
+        {countries.length > 0 && (
           <Select
-            error={formErrors?.country}
+            error={getError('country')}
             label={t('forms:fields.country.label')}
             id="country"
             name="country"
-            options={countryOptions}
+            options={countries}
             placeholder="US"
           />
         )}
         <TextInput
-          error={formErrors?.zipCode}
+          error={getError('zipCode')}
           label={t('forms:fields.zipCode.label')}
           name="zipCode"
           placeholder="02118"
           variant="small"
-          value={initialValues?.zipCode}
         />
       </div>
     </div>

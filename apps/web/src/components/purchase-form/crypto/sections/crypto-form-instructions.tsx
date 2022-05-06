@@ -6,16 +6,22 @@ import css from './crypto-form.module.css'
 import Button from '@/components/button'
 import Heading from '@/components/heading'
 import WalletInstructionsModal from '@/components/modals/wallet-instructions'
-import { formatCurrency } from '@/utils/format-currency'
+import { useCurrency } from '@/contexts/currency-context'
+import { useI18n } from '@/contexts/i18n-context'
+import { useLocale } from '@/hooks/use-locale'
+import { formatCurrency } from '@/utils/currency'
 
 export interface CryptoFormInstructionsProps {
-  price: string | null
+  price: number
 }
 
 export default function CryptoFormInstructions({
   price,
 }: CryptoFormInstructionsProps) {
-  const { t, lang } = useTranslation()
+  const locale = useLocale()
+  const { t } = useTranslation()
+  const { currency } = useCurrency()
+  const { conversionRate } = useI18n()
   const [open, setOpen] = useState(false)
 
   const onClose = useCallback(() => {
@@ -56,7 +62,9 @@ export default function CryptoFormInstructions({
           <li>{t('forms:fields.payWithCrypto.instructions.2')}</li>
           <li>
             {t('forms:fields.payWithCrypto.instructions.3', {
-              price: formatCurrency(price, lang),
+              price: formatCurrency(price, locale, currency, conversionRate),
+              usdcPrice: formatCurrency(price),
+              currency,
             })}
           </li>
           <li>{t('forms:fields.payWithCrypto.instructions.4')}</li>

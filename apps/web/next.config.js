@@ -1,57 +1,69 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const nextTranslate = require('next-translate')
+const withNextTranslate = require('next-translate')
+const webpack = require('webpack')
 const withNx = require('@nrwl/next/plugins/with-nx')
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+})
 
 process.env.NEXT_TRANSLATE_PATH = __dirname
 
 module.exports = withNx(
-  nextTranslate({
-    poweredByHeader: false,
-    reactStrictMode: true,
-    images: {
-      domains: process.env.IMAGE_DOMAINS?.split(',') || [],
-    },
-    webpack: (config) => {
-      config.experiments = {
-        ...config.experiments,
-        topLevelAwait: true,
-        asyncWebAssembly: true,
-      }
-
-      return cssLoaderDarkModeShim(config)
-    },
-    eslint: {
-      // disable and run eslint manually as needed instead
-      ignoreDuringBuilds: true,
-    },
-    nx: {
-      // Set this to true if you would like to to use SVGR
-      // See: https://github.com/gregberge/svgr
-      svgr: false,
-    },
-    serverRuntimeConfig: {
-      API_KEY: process.env.API_KEY,
-      API_URL: process.env.API_URL,
-      FIREBASE_SERVICE_ACCOUNT: process.env.FIREBASE_SERVICE_ACCOUNT,
-      NODE_ENV: process.env.NODE_ENV,
-      FIREBASE_ADMIN_EMAIL: process.env.FIREBASE_ADMIN_EMAIL,
-    },
-    publicRuntimeConfig: {
-      NEXT_PUBLIC_FIREBASE_CONFIG: process.env.NEXT_PUBLIC_FIREBASE_CONFIG,
-      NEXT_PUBLIC_WIRE_PAYMENT_ENABLED:
-        process.env.NEXT_PUBLIC_WIRE_PAYMENT_ENABLED,
-      NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED:
-        process.env.NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED,
-      NODE_ENV: process.env.NODE_ENV,
-    },
-    redirects: async () => [
-      {
-        source: '/admin',
-        destination: '/admin/transactions',
-        permanent: false,
+  withNextTranslate(
+    withBundleAnalyzer({
+      poweredByHeader: false,
+      // Hold off strict mode until @headlessui/react is upgraded
+      reactStrictMode: false,
+      images: {
+        domains: process.env.IMAGE_DOMAINS?.split(',') || [],
       },
-    ],
-  })
+      webpack: (config) => {
+        config.experiments = {
+          ...config.experiments,
+          topLevelAwait: true,
+          asyncWebAssembly: true,
+        }
+
+        // Handle `node:` schemas by ignoring them ¯\_(ツ)_/¯
+        config.plugins.push(
+          new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
+            resource.request = resource.request.replace(/^node:/, '')
+          })
+        )
+
+        return cssLoaderDarkModeShim(config)
+      },
+      eslint: {
+        // disable and run eslint manually as needed instead
+        ignoreDuringBuilds: true,
+      },
+      nx: {
+        // Set this to true if you would like to to use SVGR
+        // See: https://github.com/gregberge/svgr
+        svgr: false,
+      },
+      serverRuntimeConfig: {
+        API_KEY: process.env.API_KEY,
+        API_URL: process.env.API_URL,
+        LOG_LEVEL: process.env.LOG_LEVEL,
+        FIREBASE_SERVICE_ACCOUNT: process.env.FIREBASE_SERVICE_ACCOUNT,
+        NODE_ENV: process.env.NODE_ENV,
+        FIREBASE_ADMIN_EMAIL: process.env.FIREBASE_ADMIN_EMAIL,
+        NEXT_PUBLIC_FIREBASE_CONFIG: process.env.NEXT_PUBLIC_FIREBASE_CONFIG,
+        NEXT_PUBLIC_WIRE_PAYMENT_ENABLED:
+          process.env.NEXT_PUBLIC_WIRE_PAYMENT_ENABLED,
+        NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED:
+          process.env.NEXT_PUBLIC_CRYPTO_PAYMENT_ENABLED,
+      },
+      redirects: async () => [
+        {
+          source: '/nft/:id',
+          destination: '/nft/:id/details',
+          permanent: false,
+        },
+      ],
+    })
+  )
 )
 
 const cssLoaderDarkModeShim = (config) => {

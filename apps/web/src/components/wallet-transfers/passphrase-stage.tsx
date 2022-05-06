@@ -1,9 +1,9 @@
 import useTranslation from 'next-translate/useTranslation'
 
-import Heading from '../heading'
-import PassphraseInput from '../passphrase-input/passphrase-input'
-
 import css from './wallet-transfers.module.css'
+
+import Heading from '@/components/heading'
+import PassphraseInput from '@/components/passphrase-input/passphrase-input'
 
 export interface PassphraseStageProps {
   onPassphraseChange: (passphrase: string) => void

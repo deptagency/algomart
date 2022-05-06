@@ -8,26 +8,24 @@ import Heading from '@/components/heading'
 import PaymentOptions from '@/components/payment-options'
 import EmailVerification from '@/components/profile/email-verification'
 import { useAuth } from '@/contexts/auth-context'
-import { PaymentContextProps } from '@/contexts/payment-context'
-import { Environment } from '@/environment'
-import { isGreaterThanOrEqual } from '@/utils/format-currency'
+import { usePaymentContext } from '@/contexts/payment-context'
+import { useConfig } from '@/hooks/use-config'
 import { MAX_BID_FOR_CARD_PAYMENT } from '@/utils/purchase-validation'
 
 const mastercardIcon = '/images/logos/mastercard.svg'
 const visaIcon = '/images/logos/visa.svg'
 
-export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
+export default function CheckoutTemplate() {
   const { t } = useTranslation()
   const { user } = useAuth()
   const { pathname, query } = useRouter()
-  const { currentBid, release } = paymentProps
+  const { currentBid, release } = usePaymentContext()
+  const config = useConfig()
 
   const doesRequireNonCardPayment =
-    (Environment.isWireEnabled || Environment.isCryptoEnabled) &&
-    ((currentBid &&
-      isGreaterThanOrEqual(currentBid, MAX_BID_FOR_CARD_PAYMENT)) ||
-      (release?.price &&
-        isGreaterThanOrEqual(release.price, MAX_BID_FOR_CARD_PAYMENT)))
+    (config.isWireEnabled || config.isCryptoEnabled) &&
+    ((currentBid && currentBid >= MAX_BID_FOR_CARD_PAYMENT) ||
+      (release?.price && release.price >= MAX_BID_FOR_CARD_PAYMENT))
 
   const getCardList = (t: Translate) => {
     const baseCards = [
@@ -41,16 +39,16 @@ export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
           query: { ...query, method: 'card', step: 'details' },
         },
         body: (
-          <div>
+          <div className="mt-2 -mb-2">
             <Image
               width={60}
-              height={60}
+              height={40}
               alt={t('forms:fields.ccNumber.logos.visa')}
               src={visaIcon}
             />
             <Image
               width={60}
-              height={60}
+              height={40}
               alt={t('forms:fields.ccNumber.logos.mastercard')}
               src={mastercardIcon}
             />
@@ -58,7 +56,7 @@ export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
         ),
       },
     ]
-    if (Environment.isWireEnabled) {
+    if (config.isWireEnabled) {
       baseCards.push({
         helpText: t('forms:fields.paymentMethods.options.wire.helpText'),
         icon: <LibraryIcon />,
@@ -71,7 +69,7 @@ export default function CheckoutTemplate(paymentProps: PaymentContextProps) {
         body: null,
       })
     }
-    if (Environment.isCryptoEnabled) {
+    if (config.isCryptoEnabled) {
       baseCards.push({
         helpText: t('forms:fields.paymentMethods.options.crypto.helpText'),
         icon: <CashIcon />,

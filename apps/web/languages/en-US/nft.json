@@ -1,0 +1,68 @@
+{
+  "walletConnect": {
+    "title": "Algorand WalletConnect",
+    "connect": "Open WalletConnect",
+    "description": "Use WalletConnect to link your Algorand wallet to AlgoMart.",
+    "helpText": "Need a wallet? Get one here:",
+    "destinationWallet": "Destination wallet:",
+    "selectAccount": "Select Account",
+    "nfts": "NFTs",
+    "selectNFT": "Select NFT",
+    "transfer": "Transfer",
+    "orCancel": "or cancel and disconnect from wallet",
+    "transferring": "Transferring NFT...",
+    "sent": "Sent!",
+    "backToMyCollection": "Back to My Collection"
+  },
+  "tabs": {
+    "details": "Details",
+    "activity": "Activity",
+    "sell": "Sell",
+    "transfer": "Transfer"
+  },
+  "activity": {
+    "title": "NFT Activity"
+  },
+  "activities": {
+    "purchase": "Purchased by @{{username}}",
+    "list": "Listed",
+    "mint": "Minted",
+    "transfer": "Transferred to {{address}}"
+  },
+  "sell": {
+    "title": "List for sale",
+    "body": "List your NFT for sale on our secondary market, get paid in ALGO. Listings can be removed at any time.",
+    "learnMore": "Learn more about selling NFTs on Algomart",
+    "sellMyNFT": "Sell My NFT"
+  },
+  "transfer": {
+    "title": "Transfer to wallet",
+    "body": "Transfer your NFT to an external Algorand wallet. NFTs transferred to an external wallet will no longer appear in your collection.",
+    "learnMore": "Learn more about transferring NFTs",
+    "transferMyNFT": "Transfer My NFT"
+  },
+  "labels": {
+    "Owner": "Owner",
+    "Edition": "Edition",
+    "Rarity": "Rarity",
+    "Collection": "Collection",
+    "Set": "Set",
+    "Address": "Address",
+    "editionX": "#{{edition}} of {{totalEditions}}",
+    "uniqueId": "Unique ID",
+    "cannotTransfer": {
+      "frozen": "This NFT is frozen and cannot be transferred.",
+      "mintedRecently": "Cannot be transferred until {{date}}."
+    }
+  },
+  "exportStatus": {
+    "idle": "Loading...",
+    "optingIn": "Please confirm the transactions in your wallet to opt-in to the NFT.",
+    "optIn": "Verifying opt-in transaction...",
+    "pending": "Transferring NFT...",
+    "success": "NFT transferred!",
+    "error": "Error transferring NFT.",
+    "generatingTransactions": "Generating transactions for import...",
+    "signTransaction": "Please confirm the transactions in your wallet to transfer the NFT."
+  }
+}

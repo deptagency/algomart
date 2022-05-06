@@ -3,7 +3,7 @@ version: '3'
 services:
   api-db-deploy:
     image: postgres:14-alpine
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: api
       POSTGRES_PASSWORD: api
@@ -11,13 +11,13 @@ services:
     networks:
       - algomart_deploy
     ports:
-      - "5432:5432"
+      - "5442:5432"
     volumes:
       - api-db-deploy:/var/lib/postgresql/data
 
   cms-db-deploy:
     image: postgres:14-alpine
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: cms
       POSTGRES_PASSWORD: cms
@@ -25,7 +25,7 @@ services:
     networks:
       - algomart_deploy
     ports:
-      - "5433:5432"
+      - "5443:5432"
     volumes:
       - cms-db-deploy:/var/lib/postgresql/data
 
@@ -33,13 +33,15 @@ services:
     build:
       context: .
       dockerfile: docker/deploy/cms/Dockerfile
-    restart: always
+    restart: unless-stopped
     depends_on:
       - cms-db-deploy
     env_file: apps/cms/.env
     environment:
       # only put values in here that should override the CMS .env file
       DB_CONNECTION_STRING: postgres://cms:cms@cms-db-deploy:5432/cms
+      PORT: 8055
+      NODE_ENV: production
     networks:
       - algomart_deploy
     ports:
@@ -51,54 +53,65 @@ services:
     build:
       context: .
       dockerfile: docker/deploy/api/Dockerfile
-    restart: always
+    restart: unless-stopped
     depends_on:
       - api-db-deploy
       - cms-deploy
+    command: "bash run.sh wait-for-cms"
     env_file: apps/api/.env
     environment:
       # only put values in here that should override the API .env file
       CMS_URL: http://cms-deploy:8055
-      CMS_PUBLIC_URL: http://localhost:8055
       DATABASE_URL: postgres://api:api@api-db-deploy:5432/api
-      ENABLE_JOBS: 'false'
+      HOST: 0.0.0.0
+      PORT: 3001
+      NODE_ENV: production
+      LOG_LEVEL: warn
     networks:
       - algomart_deploy
     ports:
       - "3001:3001"
 
-  api-jobs-deploy:
+  scribe-deploy:
     build:
       context: .
-      dockerfile: docker/deploy/api/Dockerfile
-    restart: always
+      dockerfile: docker/deploy/scribe/Dockerfile
+    restart: unless-stopped
     depends_on:
       - api-db-deploy
       - cms-deploy
-    env_file: apps/api/.env
+    env_file: apps/scribe/.env
+    command: "bash run.sh wait-for-cms"
     environment:
       # only put values in here that should override the API .env file
       CMS_URL: http://cms-deploy:8055
-      CMS_PUBLIC_URL: http://localhost:8055
       DATABASE_URL: postgres://api:api@api-db-deploy:5432/api
-      ENABLE_JOBS: 'true'
+      HOST: 0.0.0.0
+      PORT: 3002
+      NODE_ENV: production
+      LOG_LEVEL: warn
     networks:
       - algomart_deploy
     ports:
-      - "3002:3001"
+      - "3002:3002"
 
   web-deploy:
     build:
       context: .
       dockerfile: docker/deploy/web/Dockerfile
-    restart: always
+    restart: unless-stopped
     depends_on:
       - api-deploy
       - cms-deploy
+    command: "bash run.sh wait-for-api"
     env_file: apps/web/.env
     environment:
       # only put values in here that should override the Web .env file
       API_URL: http://api-deploy:3001
+      IMAGE_DOMAINS: lh3.googleusercontent.com,firebasestorage.googleapis.com,localhost,cms-deploy
+      PORT: 3000
+      NODE_ENV: production
+      LOG_LEVEL: warn
     networks:
       - algomart_deploy
     ports:

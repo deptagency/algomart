@@ -45,7 +45,7 @@ export default function WalletInstructionsModal({
         </Heading>
         <hr />
         <section className={css.section}>
-          <Heading className={css.title}>
+          <Heading level={2} className={css.title}>
             {t(
               'forms:fields.payWithCrypto.walletInstructions.createWallet.label'
             )}
@@ -80,7 +80,7 @@ export default function WalletInstructionsModal({
         </section>
         <hr />
         <section className={css.section}>
-          <Heading className={css.title}>
+          <Heading level={2} className={css.title}>
             {t(
               'forms:fields.payWithCrypto.walletInstructions.purchaseAlgos.label'
             )}
@@ -120,7 +120,7 @@ export default function WalletInstructionsModal({
         </section>
         <hr />
         <section className={css.section}>
-          <Heading className={css.title}>
+          <Heading level={2} className={css.title}>
             {t('forms:fields.payWithCrypto.walletInstructions.swapAlgos.label')}
           </Heading>
           <p className={css.notice}>

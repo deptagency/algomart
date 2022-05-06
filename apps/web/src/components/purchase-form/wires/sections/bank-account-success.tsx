@@ -12,12 +12,11 @@ import css from './bank-account-success.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
+import { useCurrency } from '@/contexts/currency-context'
+import { useI18n } from '@/contexts/i18n-context'
+import { useLocale } from '@/hooks/use-locale'
+import { formatCurrency, formatIntToFixed } from '@/utils/currency'
 import { isAfterNow } from '@/utils/date-time'
-import {
-  currency,
-  formatCurrency,
-  formatIntToFloat,
-} from '@/utils/format-currency'
 import { urls } from '@/utils/urls'
 
 interface BankAccountSuccessProps {
@@ -29,10 +28,13 @@ export default function BankAccountSuccess({
   bankAccountInstructions,
   release,
 }: BankAccountSuccessProps) {
-  const { t, lang } = useTranslation()
+  const locale = useLocale()
+  const { t } = useTranslation()
+  const { currency } = useCurrency()
+  const { conversionRate } = useI18n()
   const router = useRouter()
   const price = bankAccountInstructions?.amount
-    ? formatIntToFloat(bankAccountInstructions.amount)
+    ? formatIntToFixed(bankAccountInstructions.amount, currency)
     : '0'
   const isActiveAuction =
     release?.type === PackType.Auction &&
@@ -77,7 +79,7 @@ export default function BankAccountSuccess({
           </div>
           <div className={css.instructions}>
             <Heading level={4}>Amount</Heading>
-            <p>{bankAccountInstructions.amount.toLocaleString(lang)}</p>
+            <p>{bankAccountInstructions.amount.toLocaleString(locale)}</p>
           </div>
           <Heading className={css.subHeader} level={3}>
             {t('forms:fields.bankInstructions.beneficiary.label')}
@@ -140,7 +142,7 @@ export default function BankAccountSuccess({
           <div className={css.priceContainer}>
             <p className={css.priceLabel}>{t('release:Total')}</p>
             <p className={css.priceValue}>
-              {formatCurrency(price, lang)} {currency?.code && currency.code}
+              {formatCurrency(price, locale, currency, conversionRate)}
             </p>
           </div>
         ))}

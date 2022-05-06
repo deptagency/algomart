@@ -3,12 +3,10 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
-    "types": ["jest", "node"],
-    "paths": {
-      "@/*": ["apps/api/src/*"],
-      "test/*": ["apps/api/test/*"],
-      "@algomart/schemas": ["libs/schemas/src/index.ts"]
-    }
+    "types": [
+      "jest",
+      "node"
+    ],
   },
   "include": [
     "src/**/*.ts",

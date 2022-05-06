@@ -30,35 +30,36 @@ export default function PackOpeningPage({ pack }: PackOpeningPageProps) {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<PackOpeningPageProps> =
-  async (context) => {
-    // Verify authentication
-    const user = await getAuthenticatedUser(context)
-    if (!user) return handleUnauthenticatedRedirect(context.resolvedUrl)
+export const getServerSideProps: GetServerSideProps<
+  PackOpeningPageProps
+> = async (context) => {
+  // Verify authentication
+  const user = await getAuthenticatedUser(context)
+  if (!user) return handleUnauthenticatedRedirect(context.resolvedUrl)
 
-    // Get pack opening data
-    const packId = context?.params?.packId as string
-    if (!packId)
-      return {
-        redirect: {
-          destination: urls.myCollectibles,
-          permanent: false,
-        },
-      }
-
-    const pack = await ApiClient.instance.packWithCollectibles({
-      packId,
-      locale: context?.locale,
-    })
-
-    if (!pack)
-      return {
-        notFound: true,
-      }
-
+  // Get pack opening data
+  const packId = context?.params?.packId as string
+  if (!packId)
     return {
-      props: {
-        pack,
+      redirect: {
+        destination: urls.myCollectibles,
+        permanent: false,
       },
     }
+
+  const pack = await ApiClient.instance.packWithCollectibles({
+    packId,
+    language: context?.locale,
+  })
+
+  if (!pack)
+    return {
+      notFound: true,
+    }
+
+  return {
+    props: {
+      pack,
+    },
   }
+}

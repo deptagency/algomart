@@ -1,5 +1,5 @@
-import { DEFAULT_LOCALE, Homepage } from '@algomart/schemas'
-import { GetServerSidePropsContext } from 'next'
+import { DEFAULT_LANG, Homepage } from '@algomart/schemas'
+import { GetStaticPropsContext, GetStaticPropsResult } from 'next'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
@@ -9,36 +9,48 @@ import HomeTemplate from '@/templates/home-template'
 import { urls } from '@/utils/urls'
 
 interface HomeProps {
-  page: Homepage
+  page: Homepage | null
 }
 
 export default function Home({ page }: HomeProps) {
   const { push } = useRouter()
 
   const onClickFeatured = useCallback(() => {
-    if (page.featuredPack) {
+    if (page?.featuredPack) {
       push(urls.release.replace(':packSlug', page.featuredPack.slug))
     }
-  }, [page.featuredPack, push])
+  }, [page?.featuredPack, push])
 
   return (
     <DefaultLayout noPanel>
-      <HomeTemplate
-        onClickFeatured={onClickFeatured}
-        featuredPack={page.featuredPack}
-        upcomingPacks={page.upcomingPacks}
-        notableCollectibles={page.notableCollectibles}
-      />
+      {page ? (
+        <HomeTemplate
+          onClickFeatured={onClickFeatured}
+          featuredPack={page.featuredPack}
+          upcomingPacks={page.upcomingPacks}
+          notableCollectibles={page.notableCollectibles}
+        />
+      ) : null}
     </DefaultLayout>
   )
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export async function getStaticProps(
+  context: GetStaticPropsContext
+): Promise<GetStaticPropsResult<HomeProps>> {
+  let page: Homepage = null
+
+  try {
+    page = await ApiClient.instance.getHomepage(context.locale || DEFAULT_LANG)
+  } catch {
+    // ignore
+  }
+
   return {
+    // revalidate immediately if no page was loaded
+    revalidate: !page ? 1 : 300,
     props: {
-      page: await ApiClient.instance.getHomepage(
-        context.locale || DEFAULT_LOCALE
-      ),
+      page,
     },
   }
 }

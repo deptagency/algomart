@@ -1,8 +1,7 @@
-import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
-import loadFirebase from '@/clients/firebase-client'
 import { invariant } from '@/utils/invariant'
+import { setBearerToken } from '@/utils/ky-hooks'
 import { urls } from '@/utils/urls'
 
 export interface BidAPI {
@@ -26,19 +25,7 @@ export class BidService implements BidAPI {
       timeout: 10_000,
       throwHttpErrors: false,
       hooks: {
-        beforeRequest: [
-          async (request) => {
-            try {
-              const auth = getAuth(loadFirebase())
-              const token = await auth.currentUser?.getIdToken()
-              if (token) {
-                request.headers.set('Authorization', `Bearer ${token}`)
-              }
-            } catch {
-              // ignore, firebase probably not initialized
-            }
-          },
-        ],
+        beforeRequest: [setBearerToken],
       },
     })
   }

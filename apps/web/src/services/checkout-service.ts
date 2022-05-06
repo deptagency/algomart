@@ -12,13 +12,12 @@ import {
   PublicKey,
   ToPaymentBase,
 } from '@algomart/schemas'
-import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
-import loadFirebase from '@/clients/firebase-client'
 import { ExtractBodyType } from '@/middleware/validate-body-middleware'
 import { getPaymentsFilterQuery } from '@/utils/filters'
 import { invariant } from '@/utils/invariant'
+import { setBearerToken } from '@/utils/ky-hooks'
 import {
   validateBankAccount,
   validateCard,
@@ -77,19 +76,7 @@ export class CheckoutService implements CheckoutAPI {
       throwHttpErrors: true,
       timeout: 10_000,
       hooks: {
-        beforeRequest: [
-          async (request) => {
-            try {
-              const auth = getAuth(loadFirebase())
-              const token = await auth.currentUser?.getIdToken()
-              if (token) {
-                request.headers.set('Authorization', `Bearer ${token}`)
-              }
-            } catch {
-              // ignore, firebase probably not initialized
-            }
-          },
-        ],
+        beforeRequest: [setBearerToken],
       },
     })
   }

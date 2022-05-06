@@ -4,7 +4,7 @@ import { CollectionWithSetsSchema, SetBaseSchema } from './collections'
 import {
   BaseSchema,
   IdSchema,
-  LocaleSchema,
+  LanguageSchema,
   Nullable,
   PaginationSchema,
   Simplify,
@@ -133,7 +133,7 @@ export enum CollectibleSortField {
 }
 
 export const CollectiblesByAlgoAddressQuerystringSchema = Type.Intersect([
-  LocaleSchema,
+  LanguageSchema,
   PaginationSchema,
   Type.Object({
     sortBy: Type.Optional(
@@ -146,7 +146,7 @@ export const CollectiblesByAlgoAddressQuerystringSchema = Type.Intersect([
 ])
 
 export const SingleCollectibleQuerystringSchema = Type.Intersect([
-  LocaleSchema,
+  LanguageSchema,
   Type.Object({
     assetId: Type.Integer({ minimum: 0 }),
     externalId: Type.Optional(Type.String({ format: 'uuid' })),
@@ -155,7 +155,7 @@ export const SingleCollectibleQuerystringSchema = Type.Intersect([
 
 export const CollectibleListQuerystringSchema = Type.Intersect([
   PaginationSchema,
-  LocaleSchema,
+  LanguageSchema,
   Type.Object({
     ownerUsername: Type.Optional(Type.String()),
     ownerExternalId: Type.Optional(Type.String()),
@@ -172,7 +172,7 @@ export const CollectibleListQuerystringSchema = Type.Intersect([
 ])
 
 export const CollectibleShowcaseQuerystringSchema = Type.Intersect([
-  LocaleSchema,
+  LanguageSchema,
   Type.Object({
     ownerUsername: Type.String(),
   }),
@@ -198,6 +198,23 @@ export const InitializeTransferCollectibleSchema = Type.Object({
   assetIndex: Type.Number(),
   address: Type.String(),
   externalId: Type.String(),
+})
+
+export const WalletTransactionMultisigMetadataSchema = Type.Object({
+  version: Type.Integer(),
+  threshold: Type.Integer(),
+  addrs: Type.Array(Type.String()),
+})
+
+export const WalletTransactionSchema = Type.Object({
+  authAddr: Type.Optional(Type.String()),
+  groupMessage: Type.Optional(Type.String()),
+  message: Type.Optional(Type.String()),
+  signers: Type.Optional(Type.Array(Type.String())),
+  stxn: Type.Optional(Type.String()),
+  txn: Type.String(),
+  txID: Type.String(),
+  msig: Type.Optional(WalletTransactionMultisigMetadataSchema),
 })
 
 export const TransferCollectibleSchema = Type.Intersect([

@@ -8,18 +8,18 @@ import NoCollectiblesContent from '@/components/collectibles/no-collectibles-con
 import Grid from '@/components/grid/grid'
 import Tabs from '@/components/tabs/tabs'
 import { getCollectionTabs, groupAssetsByCollection } from '@/utils/collections'
-import { urls } from '@/utils/urls'
+import { urlFor, urls } from '@/utils/urls'
 
 export interface MyCollectionsTemplateProps {
   assets: CollectibleWithDetails[]
   collections: CollectionWithSets[]
-  handleRedirectBrands: () => void
+  onRedirectBrands: () => void
 }
 
 export default function MyCollectionsTemplate({
   assets,
   collections,
-  handleRedirectBrands,
+  onRedirectBrands,
 }: MyCollectionsTemplateProps) {
   const { t } = useTranslation()
 
@@ -31,7 +31,7 @@ export default function MyCollectionsTemplate({
   return (
     <>
       {/* Tabs */}
-      <Tabs activeTab={1} tabs={getCollectionTabs(t)} negativeMargin />
+      <Tabs activeTab={1} tabs={getCollectionTabs(t)} className="-mx-8 -mt-8" />
 
       {/* Collections */}
       <section className="mt-12">
@@ -41,10 +41,9 @@ export default function MyCollectionsTemplate({
               return (
                 <AppLink
                   className="no-underline"
-                  href={urls.myCollection.replace(
-                    ':collectionSlug',
-                    collection.slug
-                  )}
+                  href={urlFor(urls.myCollection, {
+                    collectionSlug: collection.slug,
+                  })}
                   key={collection.id}
                 >
                   <CollectionGroup collection={collection} />
@@ -53,7 +52,7 @@ export default function MyCollectionsTemplate({
             })}
           </Grid>
         ) : (
-          <NoCollectiblesContent handleRedirect={handleRedirectBrands} />
+          <NoCollectiblesContent onRedirect={onRedirectBrands} />
         )}
       </section>
     </>

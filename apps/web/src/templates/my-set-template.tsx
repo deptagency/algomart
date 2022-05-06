@@ -60,7 +60,8 @@ export default function MySetTemplate({
 
   return (
     <>
-      <Tabs activeTab={1} tabs={getCollectionTabs(t)} negativeMargin />
+      {/* Tabs */}
+      <Tabs activeTab={1} tabs={getCollectionTabs(t)} className="-mx-8 -mt-8" />
 
       <SetHeader
         set={set}

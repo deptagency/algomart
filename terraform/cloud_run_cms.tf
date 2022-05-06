@@ -9,6 +9,13 @@ resource "google_storage_bucket" "cms_bucket" {
   force_destroy = false
 }
 
+// Make storage bucket publicly readable
+resource "google_storage_bucket_iam_binding" "cms_bucket_iam_binding" {
+  bucket = google_storage_bucket.cms_bucket.name
+  role = "roles/storage.objectViewer"
+  members = ["allUsers"]
+}
+
 resource "google_cloud_run_service" "cms" {
   name     = var.cms_service_name
   location = var.region
@@ -128,11 +135,6 @@ resource "google_cloud_run_service" "cms" {
         env {
           name  = "STORAGE_GCP_BUCKET"
           value = google_storage_bucket.cms_bucket.name
-        }
-
-        env {
-          name  = "STORAGE_GCP_CREDENTIALS"
-          value = var.credentials
         }
       }
     }

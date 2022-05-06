@@ -92,11 +92,7 @@ export default function ReleaseTemplate({
       } else if (isEnded) {
         return `🎬 ${t('release:This auction has ended')}.`
       }
-      if (
-        packTemplate.status === PackStatus.Active &&
-        isActive &&
-        endDateTime
-      ) {
+      if (isActive && endDateTime) {
         return `🚨 ${t('release:This auction is live')}:`
       }
       if (isInFuture && !isEnded) {
@@ -110,6 +106,7 @@ export default function ReleaseTemplate({
     content: string
     color: 'red' | 'blue' | 'green'
   } | null => {
+    if (isEnded) return null
     if (isWinningBidder) {
       return { content: `${t('release:You won the auction')}!`, color: 'green' }
     } else if (isHighestBidder) {

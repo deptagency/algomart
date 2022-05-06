@@ -5,10 +5,10 @@ import clsx from 'clsx'
 import Image from 'next/image'
 import useTranslation from 'next-translate/useTranslation'
 
-import Button from '../button'
-import Heading from '../heading'
-
 import css from './wallet-transfers.module.css'
+
+import Button from '@/components/button'
+import Heading from '@/components/heading'
 
 export interface SelectAssetStageProps {
   assetId: number

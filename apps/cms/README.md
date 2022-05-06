@@ -64,6 +64,26 @@ When you first spin up the app, you'll see only text rendered in place of images
 
 Then go back and refresh, and you should see images!
 
+## Configure Webhook for Scribe
+
+Running the seed should do this for you, but otherwise the steps are:
+
+1. Navigate to the CMS and login
+1. Go to Settings > Webhooks
+1. Click on Create Webhook (the round plus button)
+1. Enter Scribe Webhook details and click save.
+
+| Field           | Value                                                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Name            | `Scribe` (or any name you prefer)                                                                                               |
+| Method          | `POST`                                                                                                                          |
+| URL             | `SCRIBE_URL` + `/webhooks/directus`                                                                                             |
+| Status          | `Active`                                                                                                                        |
+| Data            | Check `Send Event Data`                                                                                                         |
+| Request Headers | Empty                                                                                                                           |
+| Triggers        | Check `Create`, `Update`, `Delete`                                                                                              |
+| Collections     | Check `Application`, `Collections`, `Countries`, `Homepage`, `Languages`, `NFT Templates`, `Pack Templates`, `Rarities`, `Sets` |
+
 ## Data Model Overview
 
 Once bootstrapped, the Directus CMS will be populated with configurable entities (Directus refers to these as "collections"). There are a handful of these collections that can be administered to create and configure NFTs. Here is an explanation of each collection:

@@ -12,18 +12,18 @@ import AppLink from '@/components/app-link/app-link'
 import Avatar from '@/components/avatar/avatar'
 import Breadcrumbs from '@/components/breadcrumbs'
 import Button from '@/components/button'
+import Currency from '@/components/currency'
 import { Flex } from '@/components/flex'
 import Heading from '@/components/heading'
 import Panel from '@/components/panel'
-import Table from '@/components/table'
-import { ColumnDefinitionType } from '@/components/table'
+import Table, { ColumnDefinitionType } from '@/components/table'
+import { useLocale } from '@/hooks/use-locale'
 import AdminLayout from '@/layouts/admin-layout'
 import { AdminService } from '@/services/admin-service'
 import { isAuthenticatedUserAdmin } from '@/services/api/auth-service'
-import { formatCurrency } from '@/utils/format-currency'
-import { logger } from '@/utils/logger'
 import { useAuthApi } from '@/utils/swr'
-import { urls } from '@/utils/urls'
+import { urlFor, urls } from '@/utils/urls'
+
 interface AdminTransactionPageProps {
   payment: Payment
 }
@@ -31,11 +31,13 @@ interface AdminTransactionPageProps {
 export default function AdminTransactionPage({
   payment,
 }: AdminTransactionPageProps) {
-  const { t, lang } = useTranslation('admin')
+  const locale = useLocale()
+  const { t } = useTranslation('admin')
   const { query } = useRouter()
   const { transactionId } = query
   const isAuction = !!payment.pack?.template?.auctionUntil
   const isWire = !!payment.paymentBankId
+  const packTemplate = payment.pack?.template
 
   // WIRE PAYMENTS
   const { data } = useAuthApi<WirePayment[]>(
@@ -49,12 +51,12 @@ export default function AdminTransactionPage({
       key: 'createdAt',
       name: t('transactions.table.Date'),
       renderer: ({ value }) =>
-        value ? new Date(value).toLocaleString(lang) : null,
+        value ? new Date(value).toLocaleString(locale) : null,
     },
     {
       key: 'amount',
       name: t('transactions.table.Amount'),
-      renderer: ({ value }) => formatCurrency(value, lang),
+      renderer: ({ value }) => <Currency value={value} />,
     },
     { key: 'status', name: t('transactions.table.Status') },
     { key: 'type', name: t('transactions.table.Type') },
@@ -65,18 +67,13 @@ export default function AdminTransactionPage({
     if (!confirm('Are you sure you want to reset this transaction?')) return
     const paymentId = typeof transactionId === 'string' ? transactionId : null
     try {
-      const updatedPayment = await AdminService.instance.updatePayment(
-        paymentId,
-        {
-          externalId: '',
-          status: PaymentStatus.Pending,
-        }
-      )
+      await AdminService.instance.updatePayment(paymentId, {
+        externalId: '',
+        status: PaymentStatus.Pending,
+      })
       alert('Payment was reset')
-      logger.info('Payment was reset.', updatedPayment)
-    } catch (error) {
+    } catch {
       alert('Unable to reset pack.')
-      logger.error('Unable to reset pack', error)
     }
   }, [transactionId])
 
@@ -85,17 +82,12 @@ export default function AdminTransactionPage({
       return
     const paymentId = typeof transactionId === 'string' ? transactionId : null
     try {
-      const updatedPayment = await AdminService.instance.updatePayment(
-        paymentId,
-        {
-          status: PaymentStatus.Paid,
-        }
-      )
+      await AdminService.instance.updatePayment(paymentId, {
+        status: PaymentStatus.Paid,
+      })
       alert('Payment was marked as paid')
-      logger.info('Payment marked as paid.', updatedPayment)
-    } catch (error) {
+    } catch {
       alert('Unable to update pack as paid.')
-      logger.error('Unable to update pack as paid', error)
     }
   }, [transactionId])
 
@@ -112,11 +104,9 @@ export default function AdminTransactionPage({
         payment.pack?.ownerId
       )
       alert('Pack successfully revoked.')
-      logger.info('Pack was revoked')
       setIsRevoking(false)
-    } catch (error) {
+    } catch {
       alert('Unable to revoke pack.')
-      logger.error('Unable to revoke pack', error)
       setIsRevoking(false)
     }
   }, [payment.pack?.id, payment.pack?.ownerId])
@@ -133,29 +123,30 @@ export default function AdminTransactionPage({
       <Flex gap={12}>
         <Flex item flex="0 0 auto" className={css.leftSide} gap={2}>
           <Panel fullWidth>
-            <Image src={payment.pack?.template?.image} alt="Pack image" />
+            <Image src={packTemplate?.image} alt="Pack image" />
           </Panel>
 
           <Flex flex="1" flexDirection="column" gap={6}>
             <Panel className={css.userInfoPanel}>
               <dl>
                 <dt>Type</dt>
-                <dd>{payment.pack?.template?.type}</dd>
+                <dd>{packTemplate?.type}</dd>
                 <dt>Title</dt>
-                <dd>{payment.pack?.template?.title}</dd>
+                <dd>{packTemplate?.title}</dd>
                 <dt>Slug</dt>
                 <dd>
                   <AppLink
-                    href={urls.release.replace(
-                      ':packSlug',
-                      payment.pack?.template?.slug
-                    )}
+                    href={urlFor(urls.release, {
+                      packSlug: packTemplate?.slug,
+                    })}
                   >
-                    {payment.pack?.template?.slug}
+                    {packTemplate?.slug}
                   </AppLink>
                 </dd>
                 <dt>Price</dt>
-                <dd>{formatCurrency(payment.pack?.template?.price, lang)}</dd>
+                <dd>
+                  <Currency value={packTemplate?.price} />
+                </dd>
                 <dt>Template ID</dt>
                 <dd>{payment.pack?.templateId}</dd>
               </dl>
@@ -185,11 +176,12 @@ export default function AdminTransactionPage({
         <Flex flex="1" flexDirection="column" gap={6}>
           <Heading className="capitalize">
             {payment.status}{' '}
-            {formatCurrency(
-              payment?.pack?.template.activeBid ??
-                payment?.pack?.template.price,
-              lang
-            )}
+            <Currency
+              value={
+                payment?.pack?.template.activeBid ??
+                payment?.pack?.template.price
+              }
+            />
           </Heading>
           {isAuction && (
             <Panel>
@@ -197,7 +189,7 @@ export default function AdminTransactionPage({
                 <div className={css.packMeta}>
                   <dt>Winning Bid</dt>
                   <dd>
-                    {formatCurrency(payment.pack?.template?.activeBid, lang)}
+                    <Currency value={packTemplate?.activeBid} />
                   </dd>
                 </div>
                 <div className={css.packMeta}>
@@ -207,9 +199,9 @@ export default function AdminTransactionPage({
                 <div className={css.packMeta}>
                   <dt>Ended At</dt>
                   <dd>
-                    {new Date(
-                      payment.pack?.template?.auctionUntil
-                    ).toLocaleString(lang)}
+                    {new Date(packTemplate?.auctionUntil).toLocaleString(
+                      locale
+                    )}
                   </dd>
                 </div>
               </Flex>

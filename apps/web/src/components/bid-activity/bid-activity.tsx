@@ -9,8 +9,8 @@ import BidActivityEmoji from './sections/bid-activity-emoji'
 
 import css from './bid-activity.module.css'
 
+import { useLocale } from '@/hooks/use-locale'
 import { isAfterNow, isNowBetweenDates } from '@/utils/date-time'
-import { formatCurrency, isGreaterThanOrEqual } from '@/utils/format-currency'
 
 export interface BidActivityProps {
   avatars: { [key: string]: string | null }
@@ -29,19 +29,20 @@ export default function BidActivity({
   reservePrice,
   winningBidUserName,
 }: BidActivityProps) {
-  const { t, lang } = useTranslation()
+  const locale = useLocale()
+  const { t } = useTranslation()
   const startDateTime = new Date(releasedAt)
   const endDateTime = new Date(auctionUntil)
 
   const isActive = isNowBetweenDates(startDateTime, endDateTime)
   const isClosed = !isAfterNow(endDateTime)
   const winningUser = isClosed && winningBidUserName ? winningBidUserName : null
-  const dateFormat = new Intl.DateTimeFormat([], {
+  const dateFormat = new Intl.DateTimeFormat([locale], {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   })
-  const timeFormat = new Intl.DateTimeFormat([], { timeStyle: 'short' })
+  const timeFormat = new Intl.DateTimeFormat([locale], { timeStyle: 'short' })
   const startAtReadable = t('release:packActivityDate', {
     date: dateFormat.format(startDateTime),
     time: timeFormat.format(startDateTime),
@@ -58,7 +59,6 @@ export default function BidActivity({
           <BidActivityDetails
             content={t('release:Auction is now closed')}
             date={endAtReadable}
-            amount={null}
           >
             <BidActivityEmoji label={t('release:emojiFlag')} symbol="🏁" />
           </BidActivityDetails>
@@ -67,7 +67,6 @@ export default function BidActivity({
           <BidActivityDetails
             content={t('release:Auction won by', { username: winningUser })}
             date={endAtReadable}
-            amount={null}
           >
             <BidActivityEmoji label={t('release:emojiTrophy')} symbol="🏆" />
           </BidActivityDetails>
@@ -75,17 +74,14 @@ export default function BidActivity({
         {bids.map((bid, index) => {
           const avatar = avatars[bid.externalId]
           const createdAtDateTime = new Date(bid.createdAt)
-          const meetsReservePrice =
-            !!reservePrice && isGreaterThanOrEqual(bid.amount, reservePrice)
+          const meetsReservePrice = !!reservePrice && bid.amount >= reservePrice
           const followingBid = bids[index + 1]
           const followingBidDoesNotMeetReservePrice =
-            reservePrice &&
-            !!followingBid &&
-            !isGreaterThanOrEqual(followingBid.amount, reservePrice)
+            reservePrice && !!followingBid && followingBid.amount < reservePrice
           return (
             <React.Fragment key={bid.id}>
               <BidActivityDetails
-                amount={formatCurrency(bid.amount, lang)}
+                amount={bid.amount}
                 content={t('release:Bid placed by', { username: bid.username })}
                 date={t('release:packActivityDate', {
                   date: dateFormat.format(createdAtDateTime),
@@ -108,7 +104,6 @@ export default function BidActivity({
               {meetsReservePrice &&
                 (!followingBid || followingBidDoesNotMeetReservePrice) && (
                   <BidActivityDetails
-                    amount={null}
                     content={t('release:Reserve price met')}
                     date={t('release:packActivityDate', {
                       date: dateFormat.format(createdAtDateTime),
@@ -126,7 +121,6 @@ export default function BidActivity({
         })}
         {isActive && releasedAt && (
           <BidActivityDetails
-            amount={null}
             content={t('release:Auction is now live')}
             date={startAtReadable}
           >

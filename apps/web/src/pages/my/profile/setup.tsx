@@ -29,6 +29,7 @@ export default function MyProfileSetupPage() {
       const body = {
         passphrase: formData.get('passphrase') as string,
         username: formData.get('username') as string,
+        currency: formData.get('currency') as string,
         email: auth.user?.email,
       }
 

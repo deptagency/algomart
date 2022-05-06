@@ -11,37 +11,11 @@ resource "google_cloud_run_service" "api" {
       annotations = {
         "run.googleapis.com/vpc-access-connector" = var.vpc_access_connector_name
 
-        # BETA FEATURE
-        #
-        # Cloud Run by default will throttle CPU resources to near zero while a
-        # container is not actively responding to requests, meaning any background
-        # work will be suspended.
-        #
-        # This allows active containers to receive CPU time even when not responding
-        # to requests, allowing for background task execution. This WILL NOT keep
-        # containers around indefinitely; it only sets them to receive CPU time
-        # until Cloud Run shuts them down some time after not receiving requests.
-        #
-        # See: https://cloud.google.com/run/docs/configuring/cpu-allocation
-        "run.googleapis.com/cpu-throttling" = "false"
+        "run.googleapis.com/vpc-access-egress" = "all"
 
-        # By default, Cloud Run will shut down containers after some amount of
-        # time not receiving requests (maximum of 15 minutes). A new container
-        # will immediately be started when a new request is received, but the
-        # resulting cold start time can be unreasonable and lead to time outs,
-        # primarily because of knex checking for migrations to run.
-        #
-        # Setting "minimum_instances" to 1 (or more) will force Cloud Run
-        # to always keep that number of containers on-hand to avoid the
-        # cold starts. Those containers will not receive CPU time when idle,
-        # however; for that, see "always-on CPU allocation".
+        # Limit the Web to run a single instance at all times
+        # This may need to be tweaked to improve performance on a per-project basis
         "autoscaling.knative.dev/minScale" = 1
-
-        # TODO
-        #
-        # maxScale is very conservative due to background tasks not needing
-        # to scale up (and opening up unnecessary connection pools) and
-        # fastify being highly capable of handling a decent amount of traffic.
         "autoscaling.knative.dev/maxScale" = 1
       }
     }
@@ -112,13 +86,6 @@ resource "google_cloud_run_service" "api" {
         env {
           name  = "DATABASE_SCHEMA"
           value = var.api_database_schema
-        }
-
-        # Set this to false and add a separate Cloud Run service for the
-        # jobs if you need to run multiple API instances.
-        env {
-          name  = "ENABLE_JOBS"
-          value = true
         }
 
         env {
@@ -198,7 +165,12 @@ resource "google_cloud_run_service" "api" {
 
         env {
           name  = "LOG_LEVEL"
-          value = "debug"
+          value = "info"
+        }
+
+        env {
+          name  = "GCP_CDN_URL"
+          value = var.gcp_cdn_url
         }
       }
     }

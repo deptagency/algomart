@@ -9,10 +9,13 @@ import {
   InitializeTransferCollectibleSchema,
   SingleCollectibleQuerystringSchema,
   TransferCollectibleSchema,
+  WalletTransactionSchema,
 } from '@algomart/schemas'
+import { appErrorHandler } from '@algomart/shared/utils'
+import bearerAuthOptions from '@api/configuration/bearer-auth'
+import fastifyBearerAuth from '@fastify/bearer-auth'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
-import fastifyBearerAuth from 'fastify-bearer-auth'
 
 import {
   addCollectibleShowcase,
@@ -26,9 +29,6 @@ import {
   initializeImportCollectible,
   removeCollectibleShowcase,
 } from './collectibles.routes'
-
-import bearerAuthOptions from '@/configuration/bearer-auth'
-import { appErrorHandler } from '@/utils/errors'
 
 export async function collectiblesRoutes(app: FastifyInstance) {
   const tags = ['collectibles']
@@ -144,13 +144,7 @@ export async function collectiblesRoutes(app: FastifyInstance) {
           security,
           body: InitializeTransferCollectibleSchema,
           response: {
-            200: Type.Array(
-              Type.Object({
-                txnId: Type.String(),
-                txn: Type.String(),
-                signer: Type.String(),
-              })
-            ),
+            200: Type.Array(WalletTransactionSchema),
           },
         },
       },
@@ -182,13 +176,7 @@ export async function collectiblesRoutes(app: FastifyInstance) {
           security,
           body: InitializeTransferCollectibleSchema,
           response: {
-            200: Type.Array(
-              Type.Object({
-                txnId: Type.String(),
-                txn: Type.String(),
-                signer: Type.String(),
-              })
-            ),
+            200: Type.Array(WalletTransactionSchema),
           },
         },
       },

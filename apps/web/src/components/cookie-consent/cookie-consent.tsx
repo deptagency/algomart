@@ -1,6 +1,6 @@
 import Trans from 'next-translate/Trans'
 import useTranslation from 'next-translate/useTranslation'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import css from './cookie-consent.module.css'
 
@@ -12,13 +12,19 @@ import { urls } from '@/utils/urls'
 const CONSENT_COOKIE = 'cookie-consent'
 
 export default function CookieConsent() {
-  const cookie = getCookie(CONSENT_COOKIE)
-  const [hasAccepted, setHasAccepted] = useState<boolean>(!!cookie)
+  const [cookieValue, setCookieValue] = useState('')
+  const [hasAccepted, setHasAccepted] = useState(!cookieValue)
   const { t } = useTranslation()
 
   const handleAccept = useCallback(() => {
     setCookie(CONSENT_COOKIE, '1', 365)
     setHasAccepted(true)
+  }, [])
+
+  useEffect(() => {
+    const newValue = getCookie(CONSENT_COOKIE)
+    setCookieValue(newValue)
+    setHasAccepted(!!newValue)
   }, [])
 
   if (hasAccepted) return null

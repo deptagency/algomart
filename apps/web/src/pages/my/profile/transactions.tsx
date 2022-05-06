@@ -5,7 +5,7 @@ import {
 } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 
 import { ApiClient } from '@/clients/api-client'
 import MyProfileLayout from '@/layouts/my-profile-layout'
@@ -23,18 +23,14 @@ export default function MyProfileTransactionsPage({
   releaseDetails,
 }: MyProfileTransactionsPageProps) {
   const { t } = useTranslation()
-  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 6
-
-  const handlePageChange = useCallback((pageNumber: number) => {
-    setCurrentPage(pageNumber)
-  }, [])
 
   return (
     <MyProfileLayout pageTitle={t('common:pageTitles.Transactions')}>
       <MyProfileTransactionsTemplate
         currentPage={currentPage}
-        handlePageChange={handlePageChange}
+        handlePageChange={setCurrentPage}
         pageSize={pageSize}
         releases={releaseDetails?.packs}
         total={releaseDetails?.total}
@@ -43,29 +39,30 @@ export default function MyProfileTransactionsPage({
   )
 }
 
-export const getServerSideProps: GetServerSideProps<MyProfileTransactionsPageProps> =
-  async (context) => {
-    // Verify authentication
-    const user = await getAuthenticatedUser(context)
-    if (!user) {
-      return handleUnauthenticatedRedirect(context.resolvedUrl)
-    }
-
-    const { packs, total } = await ApiClient.instance.getPacksByOwnerId(
-      user.externalId,
-      {
-        locale: context.locale,
-        sortBy: PackSortByOwnerField.ClaimedAt,
-        sortDirection: SortDirection.Descending,
-      }
-    )
-
-    return {
-      props: {
-        releaseDetails: {
-          packs: packs ?? [],
-          total: total ?? 0,
-        },
-      },
-    }
+export const getServerSideProps: GetServerSideProps<
+  MyProfileTransactionsPageProps
+> = async (context) => {
+  // Verify authentication
+  const user = await getAuthenticatedUser(context)
+  if (!user) {
+    return handleUnauthenticatedRedirect(context.resolvedUrl)
   }
+
+  const { packs, total } = await ApiClient.instance.getPacksByOwnerId(
+    user.externalId,
+    {
+      language: context.locale,
+      sortBy: PackSortByOwnerField.ClaimedAt,
+      sortDirection: SortDirection.Descending,
+    }
+  )
+
+  return {
+    props: {
+      releaseDetails: {
+        packs: packs ?? [],
+        total: total ?? 0,
+      },
+    },
+  }
+}

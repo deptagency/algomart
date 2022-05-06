@@ -3,7 +3,7 @@
 }
 
 .rootCard {
-  @apply bg-white h-full overflow-hidden pb-4 rounded-md shadow-lg;
+  @apply h-full pb-4 overflow-hidden rounded-md shadow-lg bg-base-bgCard;
 }
 
 .rootCard > div {
@@ -16,13 +16,13 @@
 }
 
 .questionMarkWrapper {
-  @apply flex relative w-full;
+  @apply relative flex w-full;
   background: linear-gradient(135deg, #6ba2ce 0%, #3f80b5 100%);
   padding-bottom: 100%;
 }
 
 .questionMark {
-  @apply absolute font-medium left-1/2 top-1/2 text-center text-white;
+  @apply absolute font-medium text-center text-white left-1/2 top-1/2;
   transform: translate(-50%, -50%);
 }
 
@@ -39,12 +39,12 @@
 }
 
 .badge {
-  @apply absolute bg-action-accent bottom-2 font-bold left-2 px-2 py-1 rounded-full text-center text-sm text-white;
+  @apply absolute px-2 py-1 text-xs font-bold text-center text-black rounded-full text-opacity-70 bg-action-accent bottom-2 left-2;
 }
 
 /* Item content */
 .title {
-  @apply mt-2 px-4 text-sm text-center text-base-textPrimary;
+  @apply px-4 mt-2 text-sm text-center text-base-textPrimary;
 }
 
 .title.titleFaded {
@@ -56,7 +56,7 @@
 }
 
 .metaWrapper {
-  @apply flex items-center justify-between pt-2 px-4;
+  @apply flex items-center justify-between px-4 pt-2;
 }
 
 .metaWrapper.metaCenter {
@@ -64,11 +64,11 @@
 }
 
 .setNumber {
-  @apply font-black text-2xl text-base-border;
+  @apply text-2xl font-black text-opacity-20 text-base-textPrimary;
 }
 
 .rarity {
-  @apply bg-base-gray-medium font-bold px-4 py-1 rounded-full text-xs text-center text-white uppercase;
+  @apply px-4 py-1 text-xs font-bold text-center text-white uppercase rounded-full bg-base-gray-medium;
 }
 
 /* Showcase actions */

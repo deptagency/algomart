@@ -8,9 +8,8 @@ import {
   SingleCollectibleQuerystring,
   TransferCollectible,
 } from '@algomart/schemas'
+import { CollectiblesService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import CollectiblesService from './collectibles.service'
 
 export async function getCollectibles(
   request: FastifyRequest<{

@@ -48,6 +48,7 @@ export default function TransferModal({
 
   const viewCollection = useCallback(() => {
     router.push(urls.myCollectibles)
+    onClose(false) // necessary if already on my collectibles page
   }, [router])
 
   return (

@@ -4,7 +4,7 @@ import { AnchorHTMLAttributes, DetailedHTMLProps } from 'react'
 
 import css from './app-link.module.css'
 
-import { useLocale } from '@/hooks/use-locale'
+import { useLanguage } from '@/contexts/language-context'
 
 export type AppLinkProps = NextLinkProps &
   Omit<
@@ -27,12 +27,12 @@ export default function AppLink({
   className,
   ...rest
 }: AppLinkProps) {
-  const locale = useLocale()
+  const { language } = useLanguage()
   return (
     <Link
       href={href}
       as={as}
-      locale={locale}
+      locale={language}
       passHref={passHref}
       prefetch={prefetch}
       replace={replace}

@@ -20,3 +20,7 @@
 .paymentGrid tr td {
   @apply font-bold text-right;
 }
+
+.disclaimer {
+  @apply mb-10 italic;
+}

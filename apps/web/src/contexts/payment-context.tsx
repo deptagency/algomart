@@ -23,18 +23,19 @@ import {
 } from 'react'
 import { ExtractError } from 'validator-fns'
 
-import { Analytics } from '@/clients/firebase-analytics'
+import { SelectOption } from '@/components/select/select'
 import { useAuth } from '@/contexts/auth-context'
+import { useCurrency } from '@/contexts/currency-context'
+import { useAnalytics } from '@/hooks/use-analytics'
 import { BidService } from '@/services/bid-service'
 import {
   CheckoutService,
   CreateBankAccountRequest,
   CreateCardRequest,
 } from '@/services/checkout-service'
-import { getExpirationDate } from '@/utils/date-time'
+import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { encryptCardDetails } from '@/utils/encryption'
 import { toJSON } from '@/utils/form-to-json'
-import { formatFloatToInt, formatIntToFloat } from '@/utils/format-currency'
 import { poll } from '@/utils/poll'
 import {
   validateBankAccount,
@@ -65,25 +66,27 @@ export type FormValidation = ExtractError<
 export interface PaymentContextProps {
   address: string | null
   auctionPackId?: string | null
-  bid: string | null
-  countries: { label: string | null; id: string }[]
+  bid: number
+  countries: SelectOption[]
   currentBid: number | null
   formErrors?: FormValidation
+  getError: (field: string) => string
   handleAddBankAccount(
     data: FormData
   ): Promise<PaymentBankAccountInstructions | undefined>
   handleRetry: () => void
   handleSubmitBid(data: FormData, method: CheckoutMethod): void
   handleSubmitPurchase(data: FormData, isPurchase: boolean): void
-  initialBid?: string
+  highestBid?: number
+  isAuctionActive?: () => boolean
   loadingText: string
   method?: string | string[]
   packId: string | null
-  price: string | null
+  price: number
   promptLeaving: boolean
   release?: PublishedPack
   setAddress(address: string | null): void
-  setBid: (bid: string | null) => void
+  setBid: (bid: number) => void
   setLoadingText: (loadingText: string) => void
   setPackId: (packId: string | null) => void
   setPromptLeaving: (promptLeaving: boolean) => void
@@ -93,7 +96,7 @@ export interface PaymentContextProps {
 
 export const PaymentContext = createContext<PaymentContextProps | null>(null)
 
-export function usePayment() {
+export function usePaymentContext() {
   const payment = useContext(PaymentContext)
   if (!payment) throw new Error('PaymentProvider missing')
   return payment
@@ -104,7 +107,9 @@ export function usePaymentProvider({
   currentBid,
   release,
 }: PaymentProviderProps) {
+  const analytics = useAnalytics()
   const { t } = useTranslation()
+  const { currency } = useCurrency()
   const { asPath, query, push, route } = useRouter()
   const { method } = query
   const auth = useAuth()
@@ -113,13 +118,11 @@ export function usePaymentProvider({
   const [status, setStatus] = useState<CheckoutStatus>(CheckoutStatus.form)
   const [loadingText, setLoadingText] = useState<string>('')
   const highestBid = currentBid || 0
-  const initialBid = currentBid ? formatIntToFloat(currentBid) : '0'
-  const [bid, setBid] = useState<string | null>(initialBid)
+
+  const [bid, setBid] = useState<number>(highestBid)
   const [address, setAddress] = useState<string | null>(null)
   const [promptLeaving, setPromptLeaving] = useState(false)
-  const [countries, setCountries] = useState<
-    { label: string | null; id: string }[]
-  >([])
+  const [countries, setCountries] = useState<SelectOption[]>([])
   const validateFormForBankAccount = useMemo(() => validateBankAccount(t), [t])
   const validateFormForPurchase = useMemo(() => validatePurchaseForm(t), [t])
   const validateFormForPurchaseWithSavedCard = useMemo(
@@ -143,22 +146,27 @@ export function usePaymentProvider({
     [t]
   )
   const [formErrors, setFormErrors] = useState<FormValidation>()
-  const price =
-    release?.type === PackType.Auction
-      ? bid
-      : formatIntToFloat(release?.price || 0)
+  const [price, setPrice] = useState(0)
+
+  const getError = useCallback(
+    (field: string) =>
+      formErrors && field in formErrors ? (formErrors[field] as string) : '',
+    [formErrors]
+  )
 
   const findCountries = useCallback(async () => {
     try {
       const countries = await CheckoutService.instance.getCountries()
       if (countries) {
-        const list = countries.map(({ code, name }) => ({
-          label: name,
-          id: code,
-        }))
-        return setCountries(list)
+        setCountries(
+          countries.map(({ code, name }) => ({
+            label: name,
+            value: code,
+          }))
+        )
+      } else {
+        setCountries([])
       }
-      return setCountries([])
     } catch {
       setCountries([])
       setStatus(CheckoutStatus.error)
@@ -169,7 +177,7 @@ export function usePaymentProvider({
     if (auth.user) {
       findCountries()
     }
-  }, [auth?.user, findCountries])
+  }, [auth.user, findCountries])
 
   const handleSetStatus = useCallback(
     (status: CheckoutStatus.form | CheckoutStatus.summary) => {
@@ -177,9 +185,8 @@ export function usePaymentProvider({
       const step = status === CheckoutStatus.form ? 'details' : 'summary'
       const path = `${asPath.split('?')[0]}?step=${step}`
       if (path !== asPath) {
-        return push(`${asPath.split('?')[0]}?step=${step}`)
+        push(path)
       }
-      return
     },
     [asPath, push]
   )
@@ -206,7 +213,7 @@ export function usePaymentProvider({
       }[code]
 
       if (errors) {
-        return setFormErrors(errors)
+        setFormErrors(errors)
       }
     },
     [t]
@@ -228,7 +235,7 @@ export function usePaymentProvider({
         throw new Error('No card selected')
       }
 
-      Analytics.instance.addPaymentInfo({
+      analytics.addPaymentInfo({
         itemName: release.title,
         value: release.price,
       })
@@ -273,7 +280,7 @@ export function usePaymentProvider({
 
       return paymentResponse
     },
-    [release, t]
+    [analytics, release, t]
   )
 
   const handleAddCard = useCallback(
@@ -541,14 +548,7 @@ export function usePaymentProvider({
             confirmBid: boolean
           }
         >(data)
-        const {
-          cardId: submittedCardId,
-          bid: floatBid,
-          saveCard,
-          confirmBid,
-        } = body
-
-        const bid = formatFloatToInt(floatBid)
+        const { cardId: submittedCardId, bid, saveCard, confirmBid } = body
 
         // If the bid is within the maximum bid range, submit card details
         if (method === CheckoutMethod.card) {
@@ -598,6 +598,7 @@ export function usePaymentProvider({
           bid,
           auctionPackId
         )
+
         if (isBidValid) {
           setStatus(CheckoutStatus.success)
         } else {
@@ -612,6 +613,7 @@ export function usePaymentProvider({
     },
     [
       auctionPackId,
+      currency,
       t,
       validateFormForBidsWithSavedCard,
       validateFormForBids,
@@ -707,6 +709,17 @@ export function usePaymentProvider({
     ]
   )
 
+  const isAuctionActive = useCallback(
+    () =>
+      release?.type === PackType.Auction &&
+      isAfterNow(new Date(release.auctionUntil as string)),
+    [release?.auctionUntil, release?.type]
+  )
+
+  useEffect(() => {
+    setPrice(release?.type === PackType.Auction ? bid : release?.price || 0)
+  }, [bid, release?.type, release?.price])
+
   const value = useMemo(
     () => ({
       address,
@@ -715,11 +728,13 @@ export function usePaymentProvider({
       countries,
       currentBid: currentBid || null,
       formErrors,
+      getError,
       handleAddBankAccount,
       handleRetry,
       handleSubmitBid,
       handleSubmitPurchase,
-      initialBid,
+      highestBid,
+      isAuctionActive,
       loadingText,
       method,
       packId,
@@ -741,23 +756,19 @@ export function usePaymentProvider({
       countries,
       currentBid,
       formErrors,
+      getError,
       handleAddBankAccount,
       handleRetry,
       handleSubmitBid,
       handleSubmitPurchase,
-      initialBid,
+      highestBid,
+      isAuctionActive,
       loadingText,
       method,
       packId,
       price,
       promptLeaving,
       release,
-      setAddress,
-      setBid,
-      setLoadingText,
-      setPackId,
-      setPromptLeaving,
-      setStatus,
       status,
     ]
   )

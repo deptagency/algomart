@@ -1,3 +1,5 @@
+import { stringify } from 'query-string'
+
 export const urls = {
   // Main pages
   adminTransactions: '/admin/transactions',
@@ -19,7 +21,11 @@ export const urls = {
   mySet: '/my/sets/:setSlug',
   myShowcase: '/my/showcase',
   nft: '/nft/:assetId',
+  nftDetails: '/nft/:assetId/details',
+  nftActivity: '/nft/:assetId/activity',
+  nftSell: '/nft/:assetId/sell',
   nftTransfer: '/nft/:assetId/transfer',
+  nftInitiateTransfer: '/nft/:assetId/initiate-transfer',
   packOpening: '/pack-opening/:packId',
   paymentFailure: '/payments/failure',
   paymentSuccess: '/payments/success',
@@ -44,6 +50,7 @@ export const urls = {
     index: '/admin',
     transactions: '/admin/transactions',
     transaction: '/admin/transactions/:transactionId',
+    users: '/admin/users',
   },
 
   api: {
@@ -52,6 +59,7 @@ export const urls = {
         getPaymentsForBankAccount:
           '/api/v1/payments/get-payments-by-bank-account',
         getPayments: '/api/v1/payments/list-payments',
+        getUsers: '/api/v1/admin/list-users',
         revokePack: '/api/v1/asset/revoke',
         updatePayment: '/api/v1/payments/update-payment',
       },
@@ -81,6 +89,10 @@ export const urls = {
       getCardsByOwner: '/api/v1/payments/get-cards-by-owner',
       getCardStatus: '/api/v1/payments/get-card-status',
       getCountries: '/api/v1/payments/get-countries',
+      getCurrencyConversion: '/api/v1/i18n/get-currency-conversion',
+      getCurrencyConversions: '/api/v1/i18n/get-currency-conversions',
+      getI18nInfo: '/api/v1/i18n/get-i18n-info',
+      getLanguages: '/api/v1/i18n/get-languages',
       getPayment: '/api/v1/payments/get-payment',
       getPublishedPacks: '/api/v1/pack/get-published-packs',
       getRedeemable: '/api/v1/asset/get-redeemable',
@@ -91,13 +103,30 @@ export const urls = {
       removeCard: '/api/v1/payments/remove-card',
       showcaseCollectible: '/api/v1/collection/collectibles-showcase',
       updateCard: '/api/v1/payments/update-card',
+      updateCurrency: '/api/v1/profile/update-currency',
       updateEmail: '/api/v1/profile/update-email',
+      updateLanguage: '/api/v1/profile/update-language',
       updateUsername: '/api/v1/profile/update-username',
       verifyPassphrase: '/api/v1/profile/verify-passphrase',
       verifyUsername: '/api/v1/profile/verify-username',
     },
   } as const,
 } as const
+
+/**
+ * Interpolates params into the given path.
+ * eg:
+ *   urlFor('/:foo/:bar', { foo: 'foo', bar: 'bar' }) => '/foo/bar'
+ *   urlFor(urls.nft, { assetId: 123 }) => '/nft/123'
+ */
+export function urlFor(path: string, params?: object, query?: object) {
+  return (
+    Object.keys(params).reduce(
+      (accumulator, key) => accumulator.replace(`:${key}`, String(params[key])),
+      path
+    ) + (query ? `?${stringify(query)}` : '')
+  )
+}
 
 /**
  * Verifies if path1 and path2 are matching the first "directory". For example,

@@ -1,15 +1,14 @@
 .root {
-  /* Base */
   @apply relative mx-auto;
   /* Tablet + */
-  @apply md:max-w-520 md:overflow-hidden md:rounded-xl;
+  @apply md:overflow-hidden;
 }
 
 .buttonContainer {
-  /* Base */
-  @apply flex flex-col px-8 py-12 space-y-8;
+  @apply flex flex-col px-8 py-12 mx-auto space-y-8;
   /* Mobile + */
   @apply sm:p-16;
+  @apply md:max-w-520;
 }
 
 .button img {
@@ -25,10 +24,7 @@
 }
 
 .featuredBottom {
-  /* Base */
-  @apply relative px-8 py-12 mx-auto;
-  /* Mobile + */
-  @apply sm:px-24;
+  @apply relative py-12 mx-auto;
 }
 
 .featuredBottomText {

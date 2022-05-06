@@ -19,15 +19,21 @@ import {
   CreatePayment,
   CreateTransferPayment,
   CreateUserAccountRequest,
-  DEFAULT_LOCALE,
+  CurrencyConversionDict,
+  CurrencyConversionResult,
+  DEFAULT_LANG,
+  DropdownLanguageList,
   ExternalId,
   FindTransferByAddress,
+  GetCurrencyConversion,
+  GetCurrencyConversions,
   GetPaymentBankAccountStatus,
   GetPaymentCardStatus,
   Homepage,
+  I18nInfo,
   InitializeTransferCollectible,
-  Locale,
-  LocaleAndExternalId,
+  Language,
+  LanguageAndExternalId,
   MintPack,
   MintPackStatusResponse,
   OwnerExternalId,
@@ -45,6 +51,7 @@ import {
   PaymentsQuerystring,
   PublicAccount,
   PublicKey,
+  PublishedPack,
   PublishedPacks,
   PublishedPacksQuery,
   RedeemCode,
@@ -60,7 +67,9 @@ import {
   UpdatePayment,
   UpdatePaymentCard,
   UpdateUserAccount,
+  UserAccounts,
   Username,
+  UsersQuerystring,
   WirePayment,
 } from '@algomart/schemas'
 import axios from 'axios'
@@ -69,13 +78,16 @@ import pino from 'pino'
 import { Environment } from '@/environment'
 import {
   getCollectiblesFilterQuery,
+  getCurrencyConversionQuery,
+  getCurrencyConversionsQuery,
   getPacksByOwnerFilterQuery,
   getPaymentsFilterQuery,
-  getPublishedPacksFilterQuery,
+  getUsersFilterQuery,
+  searchPublishedPacksFilterQuery,
 } from '@/utils/filters'
 import { HttpTransport, validateStatus } from '@/utils/http-transport'
 import { invariant } from '@/utils/invariant'
-import { logger } from '@/utils/logger'
+import { createLogger } from '@/utils/logger'
 
 export class ApiClient {
   http: HttpTransport
@@ -97,7 +109,7 @@ export class ApiClient {
       typeof window === 'undefined',
       'ApiClient must not be used in browser'
     )
-    this.logger = logger.child({ context: 'ApiClient' })
+    this.logger = createLogger(Environment.logLevel, { context: 'ApiClient' })
     this.http = new HttpTransport(prefixUrl, defaultTimeout, {
       Authorization: `Bearer ${apiKey}`,
     })
@@ -122,7 +134,7 @@ export class ApiClient {
       .get<PublicAccount>(`accounts/${externalId}`)
       .then((response) => response.data)
       .catch((error) => {
-        if (axios.isAxiosError(error) && error.response.status === 404) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
           return null
         }
         throw error
@@ -136,11 +148,18 @@ export class ApiClient {
       })
       .then((response) => response.data)
       .catch((error) => {
-        if (axios.isAxiosError(error) && error.response.status === 404) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
           return null
         }
         throw error
       })
+  }
+
+  async getUsers(query: UsersQuerystring): Promise<UserAccounts> {
+    const searchQuery = getUsersFilterQuery(query)
+    return await this.http
+      .get<UserAccounts>(`accounts/all?${searchQuery}`)
+      .then((response) => response.data)
   }
 
   async verifyPassphrase(externalId: string, passphrase: string) {
@@ -186,7 +205,7 @@ export class ApiClient {
       .get<CollectibleListShowcase>('collectibles/showcase', { params })
       .then((response) => response.data)
       .catch((error) => {
-        if (axios.isAxiosError(error) && error.response.status === 404) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
           return null
         }
         throw error
@@ -292,8 +311,9 @@ export class ApiClient {
   }
 
   async createWalletAddress() {
+    // NB: Payload must be {} or this is sent with the wrong accept header.
     return await this.http
-      .post<CircleBlockchainAddress>('payments/wallets')
+      .post<CircleBlockchainAddress>('payments/wallets', {})
       .then((response) => response.data)
   }
 
@@ -377,10 +397,17 @@ export class ApiClient {
   //#endregion
 
   //#region Packs
-  async getPublishedPacks(query: PublishedPacksQuery) {
-    const searchQuery = getPublishedPacksFilterQuery(query)
+  async searchPublishedPacks(query: PublishedPacksQuery) {
+    const searchQuery = searchPublishedPacksFilterQuery(query)
     return await this.http
-      .get<PublishedPacks>(`packs?${searchQuery}`)
+      .get<PublishedPacks>(`packs/search?${searchQuery}`)
+      .then((response) => response.data)
+  }
+
+  async getPublishedPackBySlug(slug: string, language: string) {
+    const searchQuery = searchPublishedPacksFilterQuery({ language })
+    return await this.http
+      .get<PublishedPack>(`packs/by-slug/${slug}?${searchQuery}`)
       .then((response) => response.data)
   }
 
@@ -391,21 +418,21 @@ export class ApiClient {
       .then((response) => response.data)
   }
 
-  async packWithCollectibles(request: Locale & PackId) {
+  async packWithCollectibles(request: Language & PackId) {
     return await this.http
       .get<PackWithCollectibles>(`packs/${request.packId}`, {
         params: {
-          locale: request.locale || DEFAULT_LOCALE,
+          language: request.language || DEFAULT_LANG,
         },
       })
       .then((response) => response.data)
   }
 
-  async redeemablePack(request: RedeemCode & Locale) {
+  async redeemablePack(request: RedeemCode & Language) {
     return await this.http
       .get<{ pack: PackWithId }>(`packs/redeemable/${request.redeemCode}`, {
         params: {
-          locale: request.locale || DEFAULT_LOCALE,
+          language: request.language || DEFAULT_LANG,
         },
       })
       .then((response) => response.data)
@@ -451,7 +478,9 @@ export class ApiClient {
       .then((response) => response.data)
   }
 
-  async untransferredPacks(params: LocaleAndExternalId): Promise<PacksByOwner> {
+  async untransferredPacks(
+    params: LanguageAndExternalId
+  ): Promise<PacksByOwner> {
     return await this.http
       .get<PacksByOwner>('packs/untransferred', { params: params })
       .then((response) => response.data)
@@ -497,11 +526,47 @@ export class ApiClient {
   //#endregion
 
   //#region Homepage
-  async getHomepage(locale: string) {
+  async getHomepage(language: string) {
     return await this.http
       .get<Homepage>('homepage', {
         params: {
-          locale,
+          language,
+        },
+      })
+      .then((response) => response.data)
+  }
+  //#endregion
+
+  //#region i18n
+  async getLanguages(language: string) {
+    return await this.http
+      .get<DropdownLanguageList>('i18n/languages', {
+        params: {
+          language: language || DEFAULT_LANG,
+        },
+      })
+      .then((response) => response.data)
+  }
+
+  async getCurrencyConversion(params: GetCurrencyConversion) {
+    const queryParams = getCurrencyConversionQuery(params)
+    return await this.http
+      .get<CurrencyConversionResult>(`i18n/currencyConversion?${queryParams}`)
+      .then((response) => response.data)
+  }
+
+  async getCurrencyConversions(params: GetCurrencyConversions) {
+    const queryParams = getCurrencyConversionsQuery(params)
+    return await this.http
+      .get<CurrencyConversionDict>(`i18n/currencyConversions?${queryParams}`)
+      .then((response) => response.data)
+  }
+
+  async getI18n(language: string) {
+    return await this.http
+      .get<I18nInfo>('i18n/i18n-info', {
+        params: {
+          language: language || DEFAULT_LANG,
         },
       })
       .then((response) => response.data)

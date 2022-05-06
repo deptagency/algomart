@@ -1,14 +1,14 @@
 import {
   AdminPermissions,
+  FirebaseClaim,
   Payment,
   UpdatePayment,
   WirePayment,
 } from '@algomart/schemas'
-import { getAuth } from 'firebase/auth'
 import ky from 'ky'
 
-import loadFirebase from '@/clients/firebase-client'
 import { invariant } from '@/utils/invariant'
+import { setBearerToken } from '@/utils/ky-hooks'
 import { urls } from '@/utils/urls'
 
 export interface AdminAPI {
@@ -16,6 +16,11 @@ export interface AdminAPI {
   getPaymentsByBankAccountId(bankAccountId: string): Promise<WirePayment[]>
   revokePack: (packId: string, ownerId: string) => Promise<boolean>
   updatePayment(paymentId: string, json: UpdatePayment): Promise<Payment | null>
+  updateClaims(
+    userExternalId: string,
+    key: FirebaseClaim,
+    value: boolean
+  ): Promise<AdminPermissions>
 }
 
 export class AdminService implements AdminAPI {
@@ -35,20 +40,7 @@ export class AdminService implements AdminAPI {
       throwHttpErrors: false,
       timeout: 10_000,
       hooks: {
-        beforeRequest: [
-          async (request) => {
-            try {
-              const auth = getAuth(loadFirebase())
-              // Force refresh of Firebase token on the first render
-              const token = await auth.currentUser?.getIdToken(true)
-              if (token) {
-                request.headers.set('Authorization', `Bearer ${token}`)
-              }
-            } catch {
-              // ignore, firebase probably not initialized
-            }
-          },
-        ],
+        beforeRequest: [setBearerToken],
       },
     })
   }
@@ -88,5 +80,17 @@ export class AdminService implements AdminAPI {
       })
       .json<Payment | null>()
     return payment
+  }
+
+  async updateClaims(
+    userExternalId: string,
+    key: FirebaseClaim,
+    value: boolean
+  ): Promise<AdminPermissions> {
+    return await this.http
+      .patch(urls.api.v1.adminUpdateClaims, {
+        json: { userExternalId, key, value },
+      })
+      .json<AdminPermissions>()
   }
 }

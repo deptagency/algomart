@@ -1,24 +1,29 @@
-import { PublishedPack } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 
 import css from './card-summary.module.css'
 
 import Button from '@/components/button'
 import Heading from '@/components/heading'
-import { currency, formatCurrency } from '@/utils/format-currency'
+import { useCurrency } from '@/contexts/currency-context'
+import { useI18n } from '@/contexts/i18n-context'
+import { usePaymentContext } from '@/contexts/payment-context'
+import { useLocale } from '@/hooks/use-locale'
+import { formatCurrency } from '@/utils/currency'
 
-interface CardSummaryProps {
-  isAuctionActive: boolean
-  price: string | null
-  release?: PublishedPack
-}
+export default function CardSummary() {
+  const { t } = useTranslation()
+  const locale = useLocale()
+  const { isAuctionActive, price, release } = usePaymentContext()
+  const { currency } = useCurrency()
+  const { conversionRate } = useI18n()
+  const userCurrencyAmount = formatCurrency(
+    price,
+    locale,
+    currency,
+    conversionRate
+  )
+  const settlementCurrencyAmount = formatCurrency(price)
 
-export default function CardSummary({
-  isAuctionActive,
-  price,
-  release,
-}: CardSummaryProps) {
-  const { t, lang } = useTranslation()
   return (
     <div className={css.root}>
       <Heading level={1}>{t('forms:sections.Summary')}</Heading>
@@ -30,17 +35,19 @@ export default function CardSummary({
           </tr>
           <tr>
             <th scope="row">{release?.title}</th>
-            <td>
-              <span>
-                {formatCurrency(price, lang)} {currency?.code && (currency.code)}
-              </span>
-            </td>
+            <td>{userCurrencyAmount}</td>
           </tr>
         </tbody>
       </table>
+      <p className={css.disclaimer}>
+        {t('forms:fields.price.disclaimer', {
+          currency,
+          amount: settlementCurrencyAmount,
+        })}
+      </p>
       {/* Submit */}
       <Button disabled={!release} fullWidth type="submit" variant="primary">
-        {isAuctionActive
+        {isAuctionActive()
           ? t('common:actions.Place Bid')
           : t('common:actions.Purchase')}
       </Button>

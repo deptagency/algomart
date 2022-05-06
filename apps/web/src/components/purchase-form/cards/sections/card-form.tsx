@@ -14,59 +14,46 @@ import FullName from '@/components/purchase-form/shared/full-name'
 import Select, { SelectOption } from '@/components/select/select'
 import TextInput from '@/components/text-input/text-input'
 import Toggle from '@/components/toggle/toggle'
-import { FormValidation } from '@/contexts/payment-context'
+import { usePaymentContext } from '@/contexts/payment-context'
 import { CheckoutService } from '@/services/checkout-service'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
 import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
 
 export interface CardPurchaseFormProps {
-  bid: string | null
   className?: string
-  countries: { label: string | null; id: string }[]
-  formErrors?: FormValidation
   handleContinue: () => void
-  initialBid?: string
-  isAuctionActive: boolean
-  setBid: (bid: string | null) => void
 }
 
 export default function CardPurchaseForm({
-  bid,
   className,
-  countries,
-  formErrors,
   handleContinue,
-  initialBid,
-  isAuctionActive,
-  setBid,
 }: CardPurchaseFormProps) {
   const { t } = useTranslation()
+  const { formErrors, getError, isAuctionActive } = usePaymentContext()
 
-  const [savedCard, setSavedCard] = useState<SelectOption | null>(null)
+  const [savedCard, setSavedCard] = useState<string | null>(null)
   const [saveCard, setSaveCard] = useState<boolean>(false)
   const [defaultCard, setDefaultCard] = useState<boolean>(false)
-  const [options, setOptions] = useState<Record<'id' | 'label', string>[]>([])
+  const [options, setOptions] = useState<SelectOption[]>([])
 
   useEffect(() => {
     const run = async () => {
       const cards = await CheckoutService.instance.getCards()
       const sortedCardsByExpDate = sortByExpirationDate(cards)
       const sortedCards = sortByDefault(sortedCardsByExpDate)
-      const cardsList = sortedCards
-        .filter((card) => {
-          const expDate = getExpirationDate(
-            card.expirationMonth as string,
-            card.expirationYear as string
+      const cardsList: SelectOption[] = sortedCards
+        .filter((card) =>
+          isAfterNow(
+            getExpirationDate(card.expirationMonth, card.expirationYear)
           )
-          return isAfterNow(expDate)
-        })
+        )
         .map((card) => ({
-          id: card.id as string,
+          value: card.id,
           label: `${card.network} *${card.lastFour}, ${card.expirationMonth}/${card.expirationYear}`,
         }))
 
       setOptions([
-        { id: '', label: t('forms:fields.savedCard.placeholder') },
+        { value: '', label: t('forms:fields.savedCard.placeholder') },
         ...cardsList,
       ])
 
@@ -75,9 +62,7 @@ export default function CardPurchaseForm({
       const noFormErrors =
         !formErrors || (formErrors && Object.keys(formErrors).length === 0)
       if (isDefault && noFormErrors) {
-        const defaultCard = cardsList.find(
-          (card) => card.id === sortedCards[0].id
-        )
+        const defaultCard = sortedCards[0].id
         if (defaultCard) setSavedCard(defaultCard)
       }
     }
@@ -85,47 +70,37 @@ export default function CardPurchaseForm({
     run()
   }, [t]) /* eslint-disable-line react-hooks/exhaustive-deps */
 
-  // Handle selection/deselection of saved cards
-  const handleSavedCardChoice = (option: SelectOption) => {
-    setSavedCard(option?.id ? option : null)
-  }
-
   // Handle clearing the card on
-  const handleClearCard = async () => {
+  const handleClearCard = () => {
     setSavedCard(null)
   }
 
   return (
     <div className={className}>
-      {formErrors && 'bid' in formErrors && (
+      {getError('bid') ? (
         <AlertMessage
           className={css.notification}
-          content={formErrors.bid}
+          content={getError('bid')}
           variant="red"
         />
-      )}
+      ) : null}
 
-      {formErrors && 'expirationDate' in formErrors && (
+      {getError('expirationDate') ? (
         <AlertMessage
           className={css.notification}
-          content={formErrors.expirationDate}
+          content={getError('expirationDate')}
           variant="red"
         />
-      )}
+      ) : null}
 
       <div
         className={clsx(css.formSection, {
           [css.formSectionNoMargin]: savedCard,
         })}
       >
-        {isAuctionActive && (
+        {isAuctionActive() && (
           <>
-            <Bid
-              bid={bid}
-              className={css.bid}
-              initialBid={initialBid}
-              setBid={setBid}
-            />
+            <Bid className={css.bid} />
             <p className={css.notice}>{t('forms:fields.bid.description')}</p>
           </>
         )}
@@ -134,44 +109,18 @@ export default function CardPurchaseForm({
 
         {options.length > 1 && (
           <Select
-            handleChange={handleSavedCardChoice}
-            id="savedCard"
+            name="savedCard"
+            onChange={setSavedCard}
             label={t('forms:fields.savedCard.label')}
             options={options}
-            selectedValue={savedCard}
+            value={savedCard}
           />
         )}
 
         {!savedCard ? (
           <>
-            <FullName
-              formErrors={{
-                fullName:
-                  formErrors && 'fullName' in formErrors
-                    ? (formErrors.fullName as string)
-                    : '',
-              }}
-            />
-            <CardDetails
-              formErrors={{
-                ccNumber:
-                  formErrors && 'ccNumber' in formErrors
-                    ? (formErrors.ccNumber as string)
-                    : '',
-                expMonth:
-                  formErrors && 'expMonth' in formErrors
-                    ? (formErrors.expMonth as string)
-                    : '',
-                expYear:
-                  formErrors && 'expYear' in formErrors
-                    ? (formErrors.expYear as string)
-                    : '',
-                securityCode:
-                  formErrors && 'securityCode' in formErrors
-                    ? (formErrors.securityCode as string)
-                    : '',
-              }}
-            />
+            <FullName formErrors={{ fullName: getError('fullName') }} />
+            <CardDetails />
           </>
         ) : (
           <div>
@@ -179,14 +128,10 @@ export default function CardPurchaseForm({
               <TextInput
                 className={css.hiddenField}
                 name="cardId"
-                value={savedCard.id}
+                value={savedCard}
               />
               <TextInput
-                error={
-                  formErrors && 'securityCode' in formErrors
-                    ? (formErrors.securityCode as string)
-                    : ''
-                }
+                error={getError('securityCode')}
                 label={t('forms:fields.securityCode.label')}
                 maxLength={3}
                 name="securityCode"
@@ -233,41 +178,10 @@ export default function CardPurchaseForm({
         )}
       </div>
 
-      {!savedCard && (
-        <BillingAddress
-          countries={countries}
-          formErrors={{
-            address1:
-              formErrors && 'address1' in formErrors
-                ? (formErrors.address1 as string)
-                : '',
-            city:
-              formErrors && 'city' in formErrors
-                ? (formErrors.city as string)
-                : '',
-            state:
-              formErrors && 'state' in formErrors
-                ? (formErrors.state as string)
-                : '',
-            country:
-              formErrors && 'country' in formErrors
-                ? (formErrors.country as string)
-                : '',
-            zipCode:
-              formErrors && 'zipCode' in formErrors
-                ? (formErrors.zipCode as string)
-                : '',
-          }}
-        />
-      )}
+      {!savedCard && <BillingAddress />}
 
       {/* Submit */}
-      <Button
-        fullWidth
-        type="button"
-        variant="primary"
-        onClick={handleContinue}
-      >
+      <Button fullWidth variant="primary" onClick={handleContinue}>
         {t('common:actions.Continue to Summary')}
       </Button>
     </div>

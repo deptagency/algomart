@@ -1,11 +1,13 @@
-import { getTestDatabaseConfig } from './setup-tests'
+import {
+  AlgorandAdapter,
+  CircleAdapter,
+  DirectusAdapter,
+  NFTStorageAdapter,
+} from '@algomart/shared/adapters'
+import buildApp from '@api/api/build-app'
+import { configureResolver } from '@api/configuration/configure-resolver'
 
-import buildApp from '@/api/build-app'
-import AlgorandAdapter from '@/lib/algorand-adapter'
-import CircleAdapter from '@/lib/circle-adapter'
-import DirectusAdapter from '@/lib/directus-adapter'
-import NFTStorageAdapter from '@/lib/nft-storage-adapter'
-import { configureResolver } from '@/shared/dependency-resolver'
+import { getTestDatabaseConfig } from './setup-tests'
 
 export async function buildTestApp(database: string) {
   jest
@@ -29,7 +31,7 @@ export async function buildTestApp(database: string) {
     knex: getTestDatabaseConfig(database),
     fastify: {
       // uncomment to enable fastify logger
-      // logger: { prettyPrint: true },
+      // logger: true,
     },
   })
 }

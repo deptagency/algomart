@@ -3,11 +3,11 @@ import {
   ExternalId,
   Passphrase,
   Username,
+  UsersQuerystring,
 } from '@algomart/schemas'
 import { UpdateUserAccount } from '@algomart/schemas'
+import { AccountsService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
-
-import AccountsService from '@/modules/accounts/accounts.service'
 
 export async function createAccount(
   request: FastifyRequest<{ Body: CreateUserAccountRequest }>,
@@ -61,6 +61,17 @@ export async function getByUsername(
     .get<AccountsService>(AccountsService.name)
   const account = await accounts.getByUsername(request.query)
   reply.send(account)
+}
+
+export async function getUsers(
+  request: FastifyRequest<{ Querystring: UsersQuerystring }>,
+  reply: FastifyReply
+) {
+  const accountService = request
+    .getContainer()
+    .get<AccountsService>(AccountsService.name)
+  const users = await accountService.getUsers(request.query)
+  reply.send(users)
 }
 
 export async function verifyPassphrase(

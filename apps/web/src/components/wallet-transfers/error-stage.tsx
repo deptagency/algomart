@@ -1,9 +1,9 @@
 import { ExclamationCircleIcon } from '@heroicons/react/outline'
 
-import Heading from '../heading'
-import LinkButton from '../link-button'
-
 import css from './wallet-transfers.module.css'
+
+import Heading from '@/components/heading'
+import LinkButton from '@/components/link-button'
 
 export interface ErrorStageProps {
   linkText: string
