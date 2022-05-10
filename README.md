@@ -77,7 +77,9 @@ You can either build and run each application manually or you can use `docker-co
 
 3. [Set up the API](apps/api/README.md#Get-started)
 
-4. [Set up the web app](apps/web/README.md#Get-started)
+4. [Set up Scribe](apps/scribe/README.md#Get-started)
+
+5. [Set up the web app](apps/web/README.md#Get-started)
 
 ### Running
 
