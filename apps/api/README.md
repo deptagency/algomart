@@ -4,7 +4,9 @@ The API provides REST endpoints for the Web frontend. These endpoints include: u
 
 ## Get started
 
-In the `api` service, you'll want to ensure that you've configured your `.env` file and set up a database. Make sure you've created a Postgres databases that matches what's set in the `DATABASE_URL` key in your `.env` file.
+Duplicate `.env.sample` > `.env` in the `api` folder and enter the required environment variables. Make sure you've created a Postgres databases that matches what's set in the `DATABASE_URL` key in your `api/.env` file.
+
+_NOTE_: The `api/.env` and the `scribe/.env` are almost identical, and will share most values.
 
 Per the `.env`, you'll also need to be connected to an Algorand node, whether in development or production.
 
@@ -35,7 +37,23 @@ To create an account:
 ./sandbox goal account export -a <ADDRESS>
 ```
 
-- Use the outputted mnemonic within the `.env` file within this project.
+- Use the outputted mnemonic as the value for the `FUNDING_MNEMONIC` variable in the `api/.env` and `scribe/.env` files in this project.
+
+Optionally, you can also fund your wallet from here to be able to perform transactions in the app:
+
+- List the accounts that currently exist in your sandbox
+
+```bash
+./sandbox goal account list
+```
+
+- You should see several accounts, some with _microAlgos_, and the account with the address you created above likely having 0. You can run the following command to fund the account you just created with microAlgos
+
+```bash
+./sandbox goal clerk send -a <AMOUNT> -f <FROM_ADDRESS> -t <TO_ADDRESS>
+
+# Note: Something like 1000000 microAlgos as the amount should be more than plenty to cover transactions
+```
 
 ### Connect to the CMS
 

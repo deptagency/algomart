@@ -6,7 +6,7 @@ The purpose of the CMS is to provide content authors the ability to create and m
 
 ## Get started
 
-Once the environment variables have been added to the `.env` file, you'll want to create a new Postgres database with the name specified in the `DB_CONNECTION_STRING` in the `.env` file and create an appropriate schema for `DB_SEARCH_PATH`. You'll also want to set the `ADMIN_EMAIL` and `ADMIN_PASSWORD` values for the initial CMS admin user.
+Duplicate `.env.sample` > `.env` in the `cms` folder and enter the required environment variables. Next, you'll want to create a new Postgres database with the name specified in the `DB_CONNECTION_STRING` in the `.env` file and create an appropriate schema for `DB_SEARCH_PATH`. You'll also want to set the `ADMIN_EMAIL` and `ADMIN_PASSWORD` values for the initial CMS admin user.
 
 If using a single database, create the `cms` schema in your database before running the bootstrap scripts below.
 
@@ -27,9 +27,11 @@ Start the server locally:
 nx serve cms
 ```
 
-Optionally, you can seed the database (while the server is running) to generate dummy content:
+Optionally, you can seed the database to generate dummy content.
 
 ```bash
+# While the server is runnning:
+
 cd apps/cms
 npm run seed
 ```
@@ -73,16 +75,16 @@ Running the seed should do this for you, but otherwise the steps are:
 1. Click on Create Webhook (the round plus button)
 1. Enter Scribe Webhook details and click save.
 
-| Field           | Value                                                                                                                           |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Name            | `Scribe` (or any name you prefer)                                                                                               |
-| Method          | `POST`                                                                                                                          |
-| URL             | `SCRIBE_URL` + `/webhooks/directus`                                                                                             |
-| Status          | `Active`                                                                                                                        |
-| Data            | Check `Send Event Data`                                                                                                         |
-| Request Headers | Empty                                                                                                                           |
-| Triggers        | Check `Create`, `Update`, `Delete`                                                                                              |
-| Collections     | Check `Application`, `Collections`, `Countries`, `Homepage`, `Languages`, `NFT Templates`, `Pack Templates`, `Rarities`, `Sets` |
+| Field           | Value                                                                                                                              |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Name            | `Scribe` (or any name you prefer)                                                                                                  |
+| Method          | `POST`                                                                                                                             |
+| URL             | `http://localhost:3002/webhooks/directus` (by default, this is based on the `HOST` and `PORT` variables in the scribe `.env` file) |
+| Status          | `Active`                                                                                                                           |
+| Data            | Check `Send Event Data`                                                                                                            |
+| Request Headers | Empty                                                                                                                              |
+| Triggers        | Check `Create`, `Update`, `Delete`                                                                                                 |
+| Collections     | Check `Application`, `Collections`, `Countries`, `Homepage`, `Languages`, `NFT Templates`, `Pack Templates`, `Rarities`, `Sets`    |
 
 ## Data Model Overview
 
