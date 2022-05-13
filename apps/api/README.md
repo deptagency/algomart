@@ -6,7 +6,7 @@ The API provides REST endpoints for the Web frontend. These endpoints include: u
 
 Duplicate `.env.sample` > `.env` in the `api` folder and enter the required environment variables. Make sure you've created a Postgres databases that matches what's set in the `DATABASE_URL` key in your `api/.env` file.
 
-_NOTE_: The `api/.env` and the `scribe/.env` are almost identical, and will share most values.
+_NOTE_: The `api/.env` and the `scribe/.env` are almost identical and will share most values, the notable exception being the `PORT` value in the # API Configuration. These must run on separate ports.
 
 Per the `.env`, you'll also need to be connected to an Algorand node, whether in development or production.
 
