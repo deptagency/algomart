@@ -7,6 +7,10 @@
     "node": ">=16",
     "npm": ">=7"
   },
+  "browser": {
+    "child_process": false,
+    "fs": "level-fs-browser"
+  },
   "scripts": {
     "prepare": "husky install",
     "start": "nx run-many --target=serve --projects=api,cms,web --parallel",
@@ -41,7 +45,7 @@
     "cors": "2.8.5",
     "crypto-js": "4.1.1",
     "dinero.js": "2.0.0-alpha.8",
-    "directus": "9.6.0",
+    "directus": "^9.6.0",
     "env-var": "7.1.1",
     "fastify": "3.27.4",
     "fastify-bearer-auth": "6.2.0",
@@ -51,6 +55,7 @@
     "fastify-swagger": "5.0.0",
     "firebase": "9.6.8",
     "firebase-admin": "10.0.2",
+    "fs": "^0.0.1-security",
     "got": "11.8.3",
     "i18next": "21.6.14",
     "i18next-fs-backend": "1.1.4",
@@ -84,7 +89,8 @@
     "toad-scheduler": "1.6.0",
     "tslib": "2.3.1",
     "uuid": "8.3.2",
-    "validator-fns": "1.7.11"
+    "validator-fns": "1.7.11",
+    "wait-on": "^6.0.1"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "7.17.0",

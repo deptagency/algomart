@@ -23,7 +23,7 @@ services:
     container_name: algomart-api
     build:
       context: .
-      dockerfile: ./docker/local/api/Dockerfile
+      dockerfile: ./docker/deploy/api/Dockerfile
     depends_on:
       db:
         condition: service_healthy
@@ -77,8 +77,8 @@ services:
       - PUBLIC_URL=http://localhost:8055
 
       # Directus uses these to automatically create the first admin user
-      - ADMIN_EMAIL=admin@example.com
-      - ADMIN_PASSWORD=password
+      - ADMIN_EMAIL=otu@agon.global
+      - ADMIN_PASSWORD=Agon1234!!!
 
       # These are necessary *even if* `DB_CONNECTION_STRING` is supplied, so just use them instead
       - DB_CLIENT=postgres
@@ -95,7 +95,7 @@ services:
     container_name: algomart-web
     build:
       context: .
-      dockerfile: ./docker/local/web/Dockerfile
+      dockerfile: ./docker/deploy/web/Dockerfile
     ports:
       - 3000:3000
     environment:

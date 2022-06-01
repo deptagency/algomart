@@ -10,8 +10,8 @@ const swaggerOptions: SwaggerOptions = {
   exposeRoute: true,
   openapi: {
     info: {
-      title: 'AlgoMart API',
-      description: 'AlgoMart API endpoints',
+      title: 'Agon Global API',
+      description: 'Agon Global API endpoints',
       version: '1.0.0-alpha.0',
     },
     tags: [
