@@ -14,6 +14,6 @@ request this way before starting to code.
 If you have a general question about AlgoMart, you can create a [new question][new question],
 the issue tracker is only for bugs and feature requests.
 
-[code of conduct]: [CODE_OF_CONDUCT.md]
+[code of conduct]: CODE_OF_CONDUCT.md
 [new issue]: https://github.com/deptagency/algomart/issues/new/choose
 [new question]: https://github.com/deptagency/algomart/discussions/new
