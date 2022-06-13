@@ -1,4 +1,4 @@
-import { Directus, PermissionItem } from '@directus/sdk'
+import { Directus, ManyItems, PermissionItem, QueryMany } from '@directus/sdk'
 import pino from 'pino'
 import {
   DirectusApplication,
@@ -23,14 +23,6 @@ import {
 
 // #region Directus Helpers
 
-interface ItemsResponse<T> {
-  data: T[]
-  meta?: {
-    filter_count?: number
-    total_count?: number
-  }
-}
-
 interface ItemFilter {
   [key: string]:
     | string
@@ -45,19 +37,6 @@ interface ItemFilter {
     | ItemFilter[]
 }
 
-interface ItemQuery<TItem> {
-  fields?: (keyof TItem | string)[]
-  search?: string
-  sort?: string[]
-  filter?: ItemFilter
-  limit?: number
-  offset?: number
-  page?: number
-  deep?: ItemFilter
-  totalCount?: boolean
-  filterCount?: boolean
-}
-
 // #endregion
 
 export interface DirectusAdapterOptions {
@@ -66,16 +45,26 @@ export interface DirectusAdapterOptions {
   accessToken: string
 }
 
+type AllCollections = {
+  application: DirectusApplication
+  nft_templates: DirectusCollectibleTemplate
+  collections: DirectusCollection
+  homepage: DirectusHomepage
+  languages: DirectusLanguageTemplate
+  pack_templates: DirectusPackTemplate
+  sets: DirectusSet
+}
+
 export class DirectusAdapter {
   logger: pino.Logger<unknown>
-  directus: any
+  directus: Directus<AllCollections>
 
   constructor(
     private readonly options: DirectusAdapterOptions,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
-    this.directus = new Directus(this.options.cmsUrl, {
+    this.directus = new Directus<AllCollections>(this.options.cmsUrl, {
       auth: { staticToken: this.options.accessToken },
     })
     this.testConnection()
@@ -106,8 +95,6 @@ export class DirectusAdapter {
         role: null,
         collection: 'directus_files',
         action: 'read',
-        permissions: {},
-        validation: {},
         presets: null,
         fields: ['*'],
       })
@@ -118,8 +105,6 @@ export class DirectusAdapter {
           role: null,
           collection: 'directus_files',
           action: 'read',
-          permissions: {},
-          validation: {},
           presets: null,
           fields: ['*'],
         })
@@ -128,13 +113,13 @@ export class DirectusAdapter {
 
   private async findMany<TItem>(
     collection: string,
-    query: ItemQuery<TItem> = {}
-  ): Promise<ItemsResponse<TItem>> {
-    return await this.directus.items(collection).readByQuery(query)
+    query: QueryMany<TItem> = {}
+  ): Promise<ManyItems<TItem>> {
+    return await this.directus.items(collection).readByQuery(<TItem>query)
   }
 
-  private async findPackTemplates(query: ItemQuery<DirectusPackTemplate> = {}) {
-    const defaultQuery: ItemQuery<DirectusPackTemplate> = {
+  private async findPackTemplates(query: QueryMany<DirectusPackTemplate> = {}) {
+    const defaultQuery: QueryMany<DirectusPackTemplate> = {
       filter: {
         status: {
           _eq: DirectusStatus.Published,
@@ -164,9 +149,9 @@ export class DirectusAdapter {
   }
 
   private async findCollectibleTemplates(
-    query: ItemQuery<DirectusCollectibleTemplate> = {}
+    query: QueryMany<DirectusCollectibleTemplate> = {}
   ) {
-    const defaultQuery: ItemQuery<DirectusCollectibleTemplate> = {
+    const defaultQuery: QueryMany<DirectusCollectibleTemplate> = {
       filter: {
         status: {
           _eq: DirectusStatus.Published,
@@ -197,8 +182,8 @@ export class DirectusAdapter {
     })
   }
 
-  private async findCollections(query: ItemQuery<DirectusCollection> = {}) {
-    const defaultQuery: ItemQuery<DirectusCollection> = {
+  private async findCollections(query: QueryMany<DirectusCollection> = {}) {
+    const defaultQuery: QueryMany<DirectusCollection> = {
       filter: {
         status: {
           _eq: DirectusStatus.Published,
@@ -225,8 +210,8 @@ export class DirectusAdapter {
     })
   }
 
-  private async findLanguages(query: ItemQuery<DirectusLanguageTemplate> = {}) {
-    const defaultQuery: ItemQuery<DirectusLanguageTemplate> = {
+  private async findLanguages(query: QueryMany<DirectusLanguageTemplate> = {}) {
+    const defaultQuery: QueryMany<DirectusLanguageTemplate> = {
       limit: -1,
       fields: ['code', 'name', 'sort'],
     }
@@ -237,8 +222,8 @@ export class DirectusAdapter {
     })
   }
 
-  private async findSets(query: ItemQuery<DirectusSet> = {}) {
-    const defaultQuery: ItemQuery<DirectusSet> = {
+  private async findSets(query: QueryMany<DirectusSet> = {}) {
+    const defaultQuery: QueryMany<DirectusSet> = {
       filter: {
         status: {
           _eq: DirectusStatus.Published,
@@ -278,7 +263,7 @@ export class DirectusAdapter {
 
     if (response.data.length > 0) {
       await CMSCacheCollectionModel.upsert(
-        response.data[0] as unknown as DirectusCollection
+        response.data[0] as DirectusCollection
       )
     }
   }
@@ -297,7 +282,7 @@ export class DirectusAdapter {
 
     if (response.data.length > 0) {
       await CMSCacheCollectibleTemplateModel.upsert(
-        response.data[0] as unknown as DirectusCollectibleTemplate
+        response.data[0] as DirectusCollectibleTemplate
       )
     }
   }
@@ -313,7 +298,7 @@ export class DirectusAdapter {
 
     if (response.data.length > 0) {
       await CMSCacheLanguageModel.upsert(
-        response.data[0] as unknown as DirectusLanguageTemplate
+        response.data[0] as DirectusLanguageTemplate
       )
     }
   }
@@ -332,7 +317,7 @@ export class DirectusAdapter {
 
     if (response.data.length > 0) {
       await CMSCachePackTemplateModel.upsert(
-        response.data[0] as unknown as DirectusPackTemplate
+        response.data[0] as DirectusPackTemplate
       )
     }
   }
@@ -363,9 +348,8 @@ export class DirectusAdapter {
         },
       },
     })
-
     if (response.data.length > 0) {
-      await CMSCacheSetModel.upsert(response.data[0] as unknown as DirectusSet)
+      await CMSCacheSetModel.upsert(response.data[0] as DirectusSet)
     }
   }
 
@@ -373,9 +357,8 @@ export class DirectusAdapter {
 
   async syncAllLanguages() {
     const response = await this.findLanguages()
-
     for (const language of response.data) {
-      await CMSCacheLanguageModel.upsert(language)
+      await CMSCacheLanguageModel.upsert(language as DirectusLanguageTemplate)
     }
   }
 
@@ -387,9 +370,10 @@ export class DirectusAdapter {
         },
       },
     })
-
     for (const packTemplate of response.data) {
-      await CMSCachePackTemplateModel.upsert(packTemplate)
+      await CMSCachePackTemplateModel.upsert(
+        packTemplate as DirectusPackTemplate
+      )
     }
   }
 
@@ -401,9 +385,10 @@ export class DirectusAdapter {
         },
       },
     })
-
     for (const collectibleTemplate of response.data) {
-      await CMSCacheCollectibleTemplateModel.upsert(collectibleTemplate)
+      await CMSCacheCollectibleTemplateModel.upsert(
+        collectibleTemplate as DirectusCollectibleTemplate
+      )
     }
   }
 
@@ -415,9 +400,8 @@ export class DirectusAdapter {
         },
       },
     })
-
     for (const collection of response.data) {
-      await CMSCacheCollectionModel.upsert(collection)
+      await CMSCacheCollectionModel.upsert(collection as DirectusCollection)
     }
   }
 
@@ -429,9 +413,8 @@ export class DirectusAdapter {
         },
       },
     })
-
     for (const set of response.data) {
-      await CMSCacheSetModel.upsert(set)
+      await CMSCacheSetModel.upsert(set as DirectusSet)
     }
   }
 
@@ -464,21 +447,21 @@ export class DirectusAdapter {
         'featured_pack.nft_templates.rarity.translations.*',
       ],
       deep: {
-        hero_pack: {
+        featured_pack: {
           _filter: {
             status: {
               _eq: DirectusStatus.Published,
             },
           },
         },
-        featured_packs: {
+        upcoming_packs: {
           _filter: {
             status: {
               _eq: DirectusStatus.Published,
             },
           },
         },
-        featured_nfts: {
+        notable_collectibles: {
           _filter: {
             status: {
               _eq: DirectusStatus.Published,
@@ -487,13 +470,10 @@ export class DirectusAdapter {
         },
       },
     })
-    const homepage = response.data
-
+    const homepage = response.data as unknown as DirectusHomepage
     // If the homepage has not yet been saved, it won't have an id set.
     if (homepage.id) {
-      await CMSCacheHomepageModel.upsert(
-        homepage as unknown as DirectusHomepage
-      )
+      await CMSCacheHomepageModel.upsert(homepage)
     }
     return null
   }
@@ -508,8 +488,8 @@ export class DirectusAdapter {
         'countries.countries_code.translations.*',
       ],
     })
-    const application = response.data
-    await CMSCacheApplicationModel.upsert(application as DirectusApplication)
+    const application = response.data as unknown as DirectusApplication
+    await CMSCacheApplicationModel.upsert(application)
     return null
   }
 

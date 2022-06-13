@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@dinero.js/currencies": "2.0.0-alpha.8",
-    "@directus/sdk": "9.9.1",
+    "@directus/sdk": "9.12.1",
     "@dnlup/fastify-traps": "1.2.0",
     "@fastify/ajv-compiler": "3.1.0",
     "@fastify/bearer-auth": "7.0.1",
@@ -51,7 +51,7 @@
     "cors": "2.8.5",
     "crypto-js": "4.1.1",
     "dinero.js": "2.0.0-alpha.8",
-    "directus": "9.9.1",
+    "directus": "9.12.1",
     "env-var": "7.1.1",
     "fastify": "3.29.0",
     "fastify-plugin": "3.0.1",
