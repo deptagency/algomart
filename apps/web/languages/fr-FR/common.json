@@ -149,7 +149,7 @@
       "Community Guidelines": "FR Community Guidelines",
       "Privacy Policy": "FR Privacy Policy",
       "Terms & Conditions": "FR Terms & Conditions",
-      "copyright": "FR ©2021 Algorand"
+      "copyright": "FR © {{year}} Algorand"
     },
     "payment": {
       "Payment Methods": "FR Payment Methods",

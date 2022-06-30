@@ -23,5 +23,8 @@ export const getLegalNavItems = (t: Translate) => [
     href: urls.termsAndConditions,
     label: t('common:nav.legal.Terms & Conditions'),
   },
-  { href: '', label: t('common:nav.legal.copyright') },
+  {
+    href: '',
+    label: t('common:nav.legal.copyright', { year: new Date().getFullYear() }),
+  },
 ]
