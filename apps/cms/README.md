@@ -41,7 +41,14 @@ npm run seed
 To initialize the CMS database:
 
 ```bash
-nx drop cms &&\
+nx drop cms
+```
+
+```sql
+CREATE SCHEMA "cms"
+```
+
+```bash
 nx bootstrap cms &&\
 nx import cms
 ```
