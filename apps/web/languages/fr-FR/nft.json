@@ -12,7 +12,8 @@
     "orCancel": "FR or cancel and disconnect from wallet",
     "transferring": "FR Transferring NFT...",
     "sent": "FR Sent!",
-    "backToMyCollection": "FR Back to My Collection"
+    "backToMyCollection": "FR Back to My Collection",
+    "list": "FR List for Sale"
   },
   "actions": {
     "sellNFT": "FR Sell NFT",

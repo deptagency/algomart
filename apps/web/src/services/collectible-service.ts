@@ -1,5 +1,7 @@
 import {
+  InitializeListCollectible,
   InitializeTransferCollectible,
+  ListCollectible,
   MintPackStatus,
   MintPackStatusResponse,
   PackWithId,
@@ -38,6 +40,9 @@ export interface CollectibleAPI {
   ): Promise<WalletTransaction[]>
   importCollectible(
     request: Omit<TransferCollectible, 'externalId'>
+  ): Promise<{ txId: string }>
+  initializeListCollectible(
+    request: Omit<InitializeListCollectible, 'externalId'>
   ): Promise<{ txId: string }>
 }
 
@@ -168,6 +173,28 @@ export class CollectibleService implements CollectibleAPI {
   ): Promise<{ txId: string }> {
     return await this.http
       .post(urls.api.v1.exportCollectible, {
+        json: request,
+        throwHttpErrors: true,
+      })
+      .json()
+  }
+
+  async initializeListCollectible(
+    request: Omit<InitializeListCollectible, 'externalId'>
+  ): Promise<{ txId: string }> {
+    return await this.http
+      .post(urls.api.v1.initializeListCollectible, {
+        json: request,
+        throwHttpErrors: true,
+      })
+      .json()
+  }
+
+  async listCollectible(
+    request: Omit<ListCollectible, 'externalId'>
+  ): Promise<{ txId: string }> {
+    return await this.http
+      .post(urls.api.v1.listCollectible, {
         json: request,
         throwHttpErrors: true,
       })

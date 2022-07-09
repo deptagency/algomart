@@ -237,6 +237,20 @@ export const TransferCollectibleResultSchema = Type.Array(
   EncodedTransactionSchema
 )
 
+export const InitializeListCollectibleSchema = Type.Object({
+  assetIndex: Type.Number(),
+  externalId: Type.String(),
+})
+
+export const ListCollectibleSchema = Type.Intersect([
+  InitializeListCollectibleSchema,
+  Type.Object({
+    transactionId: Type.String(),
+    signedTransaction: Type.String(),
+    passphrase: Type.String(),
+  }),
+])
+
 export type Collectible = Simplify<Static<typeof CollectibleSchema>>
 export type CollectibleAuction = Simplify<
   Static<typeof CollectibleAuctionSchema>
@@ -287,3 +301,9 @@ export type TransferCollectibleResult = Simplify<
 export type EncodedTransaction = Simplify<
   Static<typeof EncodedTransactionSchema>
 >
+
+export type InitializeListCollectible = Simplify<
+  Static<typeof InitializeListCollectibleSchema>
+>
+
+export type ListCollectible = Simplify<Static<typeof ListCollectibleSchema>>
