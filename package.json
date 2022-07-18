@@ -22,7 +22,7 @@
     "@directus/sdk": "9.9.1",
     "@dnlup/fastify-traps": "1.2.0",
     "@fastify/ajv-compiler": "3.1.0",
-    "@fastify/bearer-auth": "7.0.1",
+    "@fastify/bearer-auth": "8.0.1",
     "@fastify/error": "2.0.0",
     "@fastify/sensible": "4.0.0",
     "@fastify/swagger": "6.0.1",
