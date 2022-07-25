@@ -66,7 +66,7 @@
     "leva": "0.9.23",
     "lodash": "^4.17.21",
     "markdown-to-jsx": "7.1.7",
-    "next": "12.1.5",
+    "next": "12.2.3",
     "next-connect": "0.12.2",
     "next-translate": "1.4.0",
     "nodemailer": "6.7.4",
