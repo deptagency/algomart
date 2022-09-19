@@ -51,7 +51,7 @@
     "cors": "2.8.5",
     "crypto-js": "4.1.1",
     "dinero.js": "2.0.0-alpha.8",
-    "directus": "9.9.1",
+    "directus": "9.18.0",
     "env-var": "7.1.1",
     "fastify": "3.29.0",
     "fastify-plugin": "3.0.1",
