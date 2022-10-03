@@ -1,16 +1,19 @@
 .table {
-  @apply w-full;
+  @apply w-full border-1 border-base-borderPrimary bg-base-bg;
 }
-.table.fixedLayout {
+.noOuterBorder {
+  @apply border-0;
+}
+.fixedLayout {
   @apply table-fixed;
 }
 
 .thead {
-  @apply bg-gray-100 dark:bg-gray-800;
+  @apply bg-base-bgCard;
 }
 
 .th {
-  @apply px-6 py-4 overflow-x-hidden text-xs font-medium tracking-wider text-left uppercase text-base-textTertiary;
+  @apply px-6 py-2 overflow-x-hidden text-xs font-semibold tracking-wider text-left uppercase border-base-borderPrimary border-b-1;
 }
 .th.sortable {
   @apply cursor-pointer hover:underline;
@@ -23,7 +26,7 @@
 }
 
 .tr {
-  @apply border-b border-base-border;
+  @apply border-b border-base-borderPrimary;
 }
 
 .tr:last-of-type {
@@ -35,9 +38,13 @@
 }
 
 .tbody {
-  @apply overflow-auto;
+  @apply overflow-auto bg-base-bgCard;
 }
 
 .nullish {
-  @apply text-base-textTertiary;
+  @apply text-base-textDisabled;
+}
+
+.noResults {
+  @apply py-10 text-center;
 }

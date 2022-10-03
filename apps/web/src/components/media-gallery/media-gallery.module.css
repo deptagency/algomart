@@ -11,7 +11,7 @@
 }
 
 .iconStyle {
-  @apply absolute inset-y-0 z-10 block w-16 transition duration-300 transform outline-none cursor-pointer text-base-gray-medium;
+  @apply absolute inset-y-0 z-10 block w-16 transition duration-300 transform outline-none cursor-pointer;
 }
 
 .leftIcon {
@@ -27,7 +27,7 @@
 }
 
 .selectedMediaWrapper {
-  @apply relative bg-base-border;
+  @apply relative bg-base-bgCard;
 }
 
 .aspect {

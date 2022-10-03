@@ -1,0 +1,11 @@
+.container {
+  @apply relative z-50 overflow-visible;
+}
+
+.popoverInner {
+  @apply max-w-xs p-4 overflow-hidden rounded-md border-1 bg-base-bgCard;
+}
+
+.popoverInner.noPad {
+  @apply p-0;
+}

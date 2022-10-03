@@ -4,6 +4,8 @@ import { AnchorHTMLAttributes, DetailedHTMLProps } from 'react'
 
 import { ButtonBaseProps, buttonClasses } from './button'
 
+import css from '@/components/button/button.module.css'
+
 export type LinkButtonProps = LinkProps & {
   disabled?: boolean
 } & ButtonBaseProps &
@@ -28,7 +30,7 @@ export default function LinkButton({
   prefetch,
   locale,
   disablePadding,
-  size = 'medium',
+  size = 'small',
   variant = 'primary',
   fullWidth,
   group,
@@ -60,7 +62,7 @@ export default function LinkButton({
         )}
         {...rest}
       >
-        {children}
+        <span className={css.textWrapper}>{children}</span>
       </a>
     </Link>
   )

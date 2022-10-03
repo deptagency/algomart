@@ -1,74 +1,32 @@
 import { FirebaseClaim } from '@algomart/schemas'
 import Cookies from 'cookies'
 import { GetServerSidePropsContext } from 'next'
+import { IncomingMessage, ServerResponse } from 'node:http'
 
 import { ApiClient } from '@/clients/api-client'
 import configureAdmin from '@/clients/firebase-admin-client'
+import { AppConfig } from '@/config'
 import { TOKEN_COOKIE_NAME } from '@/contexts/auth-context'
-import { urls } from '@/utils/urls'
+import { urlFor, urls } from '@/utils/urls'
 
-export async function getAuthenticatedUser({
-  req,
-  res,
-}: GetServerSidePropsContext) {
-  const cookies = new Cookies(req, res)
+export function getTokenFromCookie(
+  request: IncomingMessage,
+  response: ServerResponse
+) {
+  const cookies = new Cookies(request, response)
   const token = cookies.get(TOKEN_COOKIE_NAME)
-
-  if (!token) {
-    return false
-  }
-
-  const decoded = await configureAdmin()
-    .auth()
-    .verifyIdToken(token)
-    .catch(() => null)
-
-  if (!decoded) {
-    return false
-  }
-
-  const user = await ApiClient.instance.getAccountByExternalId(decoded.uid)
-
-  return user
+  return token
 }
 
-export async function getProfileImageForUser(
-  firebaseUserId: string
-): Promise<string | null> {
-  const user = await configureAdmin()
-    .auth()
-    .getUser(firebaseUserId)
-    .catch(() => null)
-
-  if (!user || !user.photoURL) {
-    return null
-  }
-
-  return user.photoURL
-}
-
-export async function handleUnauthenticatedRedirect(urlPath: string) {
-  return {
-    redirect: {
-      destination: `${urls.login}?redirect=${urlPath}`,
-      permanent: false,
-    },
-  }
-}
-
-export async function isAuthenticatedUserAdmin({
-  req,
-  res,
-}: GetServerSidePropsContext) {
-  const cookies = new Cookies(req, res)
-  const token = cookies.get(TOKEN_COOKIE_NAME)
-  const admin = configureAdmin()
+export async function getAuthenticatedUser(context: GetServerSidePropsContext) {
+  const token = getTokenFromCookie(context.req, context.res)
 
   if (!token) {
     return false
   }
 
   // Verify token
+  const admin = configureAdmin()
   const decoded = await admin
     .auth()
     .verifyIdToken(token)
@@ -78,7 +36,43 @@ export async function isAuthenticatedUserAdmin({
     return false
   }
 
-  const user = await ApiClient.instance.getAccountByExternalId(decoded.uid)
+  const client = new ApiClient(AppConfig.apiURL, token)
+  const user = await client.getAccountProfile()
+
+  return user
+}
+
+export async function handleUnauthenticatedRedirect(urlPath: string) {
+  return {
+    redirect: {
+      destination: urlFor(urls.login, null, { redirect: urlPath }),
+      permanent: false,
+    },
+  }
+}
+
+export async function isAuthenticatedUserAdmin(
+  context: GetServerSidePropsContext
+) {
+  const token = getTokenFromCookie(context.req, context.res)
+
+  if (!token) {
+    return false
+  }
+
+  // Verify token
+  const admin = configureAdmin()
+  const decoded = await admin
+    .auth()
+    .verifyIdToken(token)
+    .catch(() => null)
+
+  if (!decoded) {
+    return false
+  }
+
+  const client = new ApiClient(AppConfig.apiURL, token)
+  const user = await client.getAccountProfile()
 
   if (!user) {
     return false

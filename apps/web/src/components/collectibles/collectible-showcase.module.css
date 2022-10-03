@@ -1,64 +1,86 @@
 .root {
   @apply p-5 text-sm;
 }
-
-.rootTransparent {
-  @apply bg-transparent;
-}
-
-.rootFilled {
-  @apply text-white bg-base-gray-dark;
-}
-
 .container {
-  @apply grid w-full grid-cols-2 gap-6 mx-auto;
-  max-width: 200px;
+  @apply relative grid w-full grid-cols-2 mx-auto border-gray-200 border-1;
+  background: linear-gradient(180deg, #1e2535 0%, #373f53 100%);
+}
+.container.isViewing {
+  @apply border-none;
+}
+.container.isEmpty.isViewing {
+  @apply block border-none max-w-wrapper;
 }
 
+/* Grid settings for public display */
 .maxWidth1 {
-  @apply sm:grid-cols-1;
-  max-width: 200px;
-}
-
-.maxWidth2 {
-  @apply sm:grid-cols-2;
+  @apply grid-cols-1;
   max-width: 400px;
 }
-
-.maxWidth3 {
-  @apply sm:grid-cols-3;
-  max-width: 600px;
-}
-
-.maxWidth4 {
-  @apply sm:grid-cols-4;
+.maxWidth2 {
+  @apply grid-cols-1;
+  @apply sm:grid-cols-2;
   max-width: 800px;
 }
+.maxWidth3 {
+  @apply grid-cols-1;
+  @apply sm:grid-cols-2;
+  @apply md:grid-cols-3;
+  max-width: 1000px;
+}
+.maxWidth4 {
+  @apply grid-cols-1 max-w-wrapper;
+  @apply sm:grid-cols-2;
+  @apply lg:grid-cols-4;
+}
 
+/* Grid cells and borders for editing */
+.gridCell {
+  @apply p-5 border-gray-200 border-b-1 last:border-b-0;
+  @apply sm:border-b-1;
+  @apply sm:even:border-l-1;
+}
+.gridCell:nth-child(3),
+.gridCell:nth-child(7) {
+  @apply sm:odd:border-l-1;
+}
+.gridCell:nth-child(n + 5) {
+  @apply lg:border-b-0;
+}
+.gridCell:nth-child(n + 7) {
+  @apply sm:border-b-0;
+}
+.isViewing .gridCell {
+  @apply border-none;
+}
+
+/* Below editing grid */
 .toolbar {
   /* Base */
-  @apply flex items-center justify-between gap-2 border-t border-gray-800;
+  @apply flex flex-wrap text-white items-center justify-center p-5 border-t-0 border-1 bg-[#373f53];
   /* Tablet + */
-  @apply md:pt-5 md:mt-5;
+  @apply flex-row md:p-4 md:gap-2 md:justify-between;
 }
-
-.emptyState {
-  /* Base */
-  @apply px-5 py-10 m-5 text-center border border-gray-800 rounded-lg;
-  /* Tablet + */
-  @apply md:px-14 md:py-16 md:m-24;
-}
-
 .linkWrapper {
   /* Base */
-  @apply border-b border-gray-800 py-5 text-center;
+  @apply mb-4 text-base text-center;
   /* Tablet + */
-  @apply md:text-left md:py-0 md:border-none;
+  @apply md:text-left md:mb-0 md:border-none;
+}
+.link {
+  @apply underline text-white;
 }
 
-.toggleWrapper {
+/* If no showcased collectibles */
+.emptyState {
   /* Base */
-  @apply pt-2;
+  @apply absolute px-5 py-10 m-5 text-base text-center text-white -translate-x-1/2 -translate-y-1/2 border rounded-lg border-gray-200 bg-midnight max-w-520 top-1/2 left-1/2 min-w-[320px];
   /* Tablet + */
-  @apply md:pt-0;
+  @apply mx-auto md:px-14 md:py-16;
+}
+.isViewing .emptyState {
+  @apply relative mx-auto;
+  left: unset;
+  top: unset;
+  transform: unset;
 }

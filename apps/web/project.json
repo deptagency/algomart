@@ -37,6 +37,7 @@
       "executor": "@nrwl/next:server",
       "options": {
         "buildTarget": "web:build-next",
+        "hostname": "localhost",
         "dev": true,
         "port": 3000
       },

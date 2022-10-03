@@ -3,6 +3,10 @@ import Image from 'next/image'
 
 import css from './collectible-notable.module.css'
 
+import AppLink from '@/components/app-link/app-link'
+import { ReactComponent as Play } from '@/svgs/play.svg'
+import { urlFor, urls } from '@/utils/urls'
+
 export interface NotableCollectibleProps {
   collectible: CollectibleBase
 }
@@ -11,8 +15,18 @@ export default function NotableCollectible({
   collectible,
 }: NotableCollectibleProps) {
   return (
-    <div className={css.root}>
+    <AppLink
+      href={urlFor(urls.marketplaceListing, {
+        uniqueCode: collectible.uniqueCode,
+      })}
+      className={css.root}
+    >
       <div className={css.imageWrapper}>
+        {collectible.previewVideo ? (
+          <div className={css.playIconWrapper}>
+            <Play className={css.playIcon} />
+          </div>
+        ) : null}
         <Image
           alt={collectible.title}
           height={250}
@@ -26,6 +40,6 @@ export default function NotableCollectible({
       <div className={css.content}>
         <div className={css.title}>{collectible.title}</div>
       </div>
-    </div>
+    </AppLink>
   )
 }

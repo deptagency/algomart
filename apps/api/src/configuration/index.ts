@@ -1,7 +1,11 @@
 import { DEFAULT_CURRENCY } from '@algomart/schemas'
-import { MailerAdapterOptions } from '@algomart/shared/adapters'
+import {
+  MailerAdapterOptions,
+  OnfidoAdapterOptions,
+} from '@algomart/shared/adapters'
 import * as Currencies from '@dinero.js/currencies'
 import env from 'env-var'
+import { ServiceAccount } from 'firebase-admin/app'
 import { Level, levels } from 'pino'
 
 export const Configuration = {
@@ -28,12 +32,36 @@ export const Configuration = {
     return env.get('API_KEY').required().asArray()
   },
 
+  get firebaseServiceAccount() {
+    return env
+      .get('FIREBASE_SERVICE_ACCOUNT')
+      .required()
+      .asJsonObject() as ServiceAccount
+  },
+
+  get vault() {
+    return {
+      enabled: env.get('VAULT_ENABLED').asBool(),
+      address: env.get('VAULT_ADDRESS').asString(),
+      token: env.get('VAULT_TOKEN').asString(),
+      gcpServiceAccountEmail: env.get('GCP_SERVICE_ACCOUNT_EMAIL').asString(),
+      gcpAuthRoleName: env.get('VAULT_GCP_AUTH_ROLE_NAME').asString(),
+      encryption: {
+        enabled: env.get('VAULT_ENCRYPTION_ENABLED').asBool(),
+        transitPath: env.get('VAULT_TRANSIT_PATH').asString(),
+        keyName: env
+          .get('VAULT_CUSTODIAL_ACCOUNT_ENCRYPTION_KEY_NAME')
+          .asString(),
+      },
+    }
+  },
+
   get fundingMnemonic() {
     return env.get('FUNDING_MNEMONIC').required().asString()
   },
 
   get algodToken() {
-    return env.get('ALGOD_TOKEN').required().asString()
+    return env.get('ALGOD_TOKEN').default('').asString()
   },
 
   get algodServer() {
@@ -41,18 +69,62 @@ export const Configuration = {
   },
 
   get algodPort() {
-    return env.get('ALGOD_PORT').default('').asPortNumber()
+    return env.get('ALGOD_PORT').default(443).asPortNumber()
   },
 
-  get algodEnv() {
+  get algorandEnvironment() {
     return env
       .get('ALGOD_ENV')
       .default('testnet')
       .asEnum(['betanet', 'testnet', 'mainnet'])
   },
 
+  get indexerPort() {
+    return env.get('INDEXER_PORT').default(443).asPortNumber()
+  },
+
+  get indexerServer() {
+    return env.get('INDEXER_SERVER').required().asUrlString()
+  },
+
+  get indexerToken() {
+    return env.get('INDEXER_TOKEN').default('').asString()
+  },
+
+  get databaseConnection() {
+    const useSSL = env.get('DB_USE_SSL').default('false').asBool()
+    return useSSL
+      ? {
+          host: env.get('DB_HOST').required().asString(),
+          port: env.get('DB_PORT').default(5432).asPortNumber(),
+          database: env.get('DATABASE').required().asString(),
+          user: env.get('DB_USER').required().asString(),
+          password: env.get('DB_PASSWORD').required().default('').asString(),
+          ssl: {
+            ca: env.get('DB_ROOT_CERT').required().asString(),
+          },
+        }
+      : env.get('DATABASE_URL').required().asUrlString()
+  },
+
   get databaseUrl() {
     return env.get('DATABASE_URL').required().asUrlString()
+  },
+
+  get databaseMainMinPool() {
+    return env.get('DATABASE_WRITE_MIN_POOL').default(2).asInt()
+  },
+
+  get databaseMainMaxPool() {
+    return env.get('DATABASE_WRITE_MAX_POOL').default(2).asInt()
+  },
+
+  get databaseReadMinPool() {
+    return env.get('DATABASE_READ_MIN_POOL').default(2).asInt()
+  },
+
+  get databaseReadMaxPool() {
+    return env.get('DATABASE_READ_MAX_POOL').default(2).asInt()
   },
 
   get databaseSchema() {
@@ -60,7 +132,10 @@ export const Configuration = {
   },
 
   get secret() {
-    return env.get('SECRET').required().asString()
+    return env
+      .get('SECRET')
+      .default('fCtUCXv6ATjqbxayeAEPs5Du47hH0OcB')
+      .asString()
   },
 
   get cmsUrl() {
@@ -71,12 +146,60 @@ export const Configuration = {
     return env.get('GCP_CDN_URL').asUrlString()
   },
 
-  get cmsAccessToken() {
-    return env.get('CMS_ACCESS_TOKEN').required().asString()
-  },
-
   get webUrl() {
     return env.get('WEB_URL').default('http://localhost:3000').asUrlString()
+  },
+
+  get enforcerAppID() {
+    return env.get('ENFORCER_APP_ID').default(0).asIntPositive()
+  },
+
+  get coldKeyAddress() {
+    return env.get('COLD_KEY_ADDRESS').default('').asString()
+  },
+
+  get cacheRedis() {
+    return {
+      url: env
+        .get('CACHE_REDIS_URL')
+        .default('redis://localhost:6379')
+        .asUrlString(),
+      ttlInSeconds: env
+        .get('CACHE_REDIS_TTL_IN_SECONDS')
+        .default(60)
+        .asIntPositive(),
+      enabled:
+        Configuration.env !== 'test' &&
+        env.get('CACHE_REDIS_ENABLED').default('false').asBool(),
+    }
+  },
+
+  get rateLimitRedis() {
+    const fallback = Configuration.cacheRedis
+    return {
+      url: env.get('RATE_LIMIT_REDIS_URL').default(fallback.url).asUrlString(),
+      ttlInSeconds: env
+        .get('RATE_LIMIT_REDIS_TTL_IN_SECONDS')
+        .default(fallback.ttlInSeconds)
+        .asIntPositive(),
+      enabled: env
+        .get('RATE_LIMIT_REDIS_ENABLED')
+        .default(String(fallback.enabled))
+        .asBool(),
+    }
+  },
+
+  get jobsRedis() {
+    return {
+      url: env
+        .get('JOBS_REDIS_URL')
+        .default('redis://localhost:6379')
+        .asUrlString(),
+      maxListeners: env
+        .get('JOBS_REDIS_MAX_LISTENERS')
+        .default(100)
+        .asIntPositive(),
+    }
   },
 
   get pinataApiKey() {
@@ -85,10 +208,6 @@ export const Configuration = {
 
   get pinataApiSecret() {
     return env.get('PINATA_API_SECRET').required().asString()
-  },
-
-  get creatorPassphrase() {
-    return env.get('CREATOR_PASSPHRASE').required().asString()
   },
 
   get circleUrl() {
@@ -155,19 +274,56 @@ export const Configuration = {
     return env.get('ENABLE_MARKETPLACE').default('false').asBool()
   },
 
-  get minimumDaysBeforeTransfer(): number {
-    return env.get('MINIMUM_DAYS_BEFORE_TRANSFER').default(7).asInt()
+  get minimumDaysBeforeCashout(): number {
+    return env.get('MINIMUM_DAYS_BEFORE_CASHOUT').default(7).asInt()
   },
 
-  get successPath(): string {
-    return env.get('WEB_SUCCESS_PATH').default('/payments/success').asString()
+  get minimumDaysBetweenTransfers(): number {
+    return env.get('MINIMUM_DAYS_BETWEEN_TRANSFERS').default(7).asInt()
   },
 
-  get failurePath(): string {
-    return env.get('WEB_FAILURE_PATH').default('/payments/failure').asString()
+  get royaltyBasisPoints(): number {
+    return env.get('ROYALTY_BASIS_POINTS').default(500).asInt()
   },
 
-  get enableCluster(): boolean {
-    return env.get('ENABLE_CLUSTER').default('false').asBool()
+  get isKYCEnabled(): boolean {
+    return env.get('IS_KYC_ENABLED').default('false').asBool()
+  },
+
+  get onfidoOptions(): OnfidoAdapterOptions {
+    return {
+      isEnabled: this.isKYCEnabled,
+      onboardingWorkflowId: env
+        .get('ONFIDO_ONBOARDING_WORKFLOW_ID')
+        .default('')
+        .asString(),
+      token: env.get('ONFIDO_TOKEN').default('').asString(),
+      url: env
+        .get('ONFIDO_URL')
+        .default('https://api.us.onfido.com')
+        .asUrlString(),
+      webhookToken: env.get('ONFIDO_WEBHOOK_TOKEN').default('').asString(),
+      webUrl: this.webUrl,
+      cmsUrl: `${this.cmsUrl}admin/content/kyc_management`,
+    }
+  },
+
+  get chainalysisUrl() {
+    return env
+      .get('CHAINALYSIS_URL')
+      .default('https://public.chainalysis.com')
+      .asUrlString()
+  },
+
+  get chainalysisApiKey() {
+    return env.get('CHAINALYSIS_API_KEY').required().asString()
+  },
+
+  get ipGeolocationUrl() {
+    return env.get('IPGEOLOCATION_URL').required().asString()
+  },
+
+  get ipGeolocationApiKey() {
+    return env.get('IPGEOLOCATION_API_KEY').required().asString()
   },
 }

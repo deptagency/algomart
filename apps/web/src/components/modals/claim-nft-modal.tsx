@@ -5,17 +5,21 @@ import {
 } from '@heroicons/react/outline'
 import Image from 'next/image'
 import useTranslation from 'next-translate/useTranslation'
-import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 
 import css from './claim-nft-modal.module.css'
 
 import Button from '@/components/button'
 import Dialog, { DialogProps } from '@/components/dialog/dialog'
-import Heading from '@/components/heading'
+import { H2 } from '@/components/heading'
+import InputField from '@/components/input-field'
 import Loading from '@/components/loading/loading'
-import TextInput from '@/components/text-input/text-input'
 import { useRedemption } from '@/contexts/redemption-context'
-import { urls } from '@/utils/urls'
+import {
+  TransferPackStatus,
+  useTransferPackStatus,
+} from '@/hooks/use-transfer-pack'
+import { urlFor, urls } from '@/utils/urls'
 
 export interface ClaimNFTModalProps {
   onSubmit: (redeemCode: string) => Promise<{ packId: string } | string>
@@ -31,13 +35,10 @@ export default function ClaimNFTModal({
 }: ClaimNFTModalProps & DialogProps) {
   const { redeemable } = useRedemption()
   const [error, setError] = useState('')
-  const [loadingText, setLoadingText] = useState<string>('')
   const [packId, setPackId] = useState('')
   const [redeemCode, setRedeemCode] = useState('')
-  const [status, setStatus] = useState<
-    'idle' | 'loading' | 'success' | 'error'
-  >('idle')
   const { t } = useTranslation()
+  const [status, count] = useTransferPackStatus(packId)
 
   useEffect(() => {
     if (redeemable?.pack.templateId === packTemplate.templateId) {
@@ -48,31 +49,23 @@ export default function ClaimNFTModal({
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
-      setLoadingText(t('common:statuses.Minting Asset'))
-      setStatus('loading')
       try {
         const result = await onSubmit(redeemCode)
-        if (typeof result === 'object' && result.packId) {
-          setPackId(result.packId)
-          setStatus('success')
+        if (typeof result === 'string') {
+          setError(result)
         } else {
-          setStatus('error')
-          setError((result as string) || t('release:failedToClaim'))
+          setPackId(result.packId)
         }
       } catch {
-        setStatus('error')
+        setError(t('release:failedToClaim'))
       }
     },
     [onSubmit, redeemCode, t]
   )
 
-  const handleChangeRedeemCode = (event: ChangeEvent<HTMLInputElement>) => {
-    setRedeemCode(event.target.value)
-  }
-
   const handleClose = useCallback(
     (open: boolean) => {
-      setStatus('idle')
+      setPackId('')
       setError('')
       onClose(open)
     },
@@ -80,11 +73,22 @@ export default function ClaimNFTModal({
   )
 
   const handlePackOpening = useCallback(() => {
-    const path = urls.packOpening.replace(':packId', packId)
+    const path = urlFor(urls.packOpening, { packId })
     if (typeof window !== 'undefined') {
       window.location.assign(new URL(path, window.location.origin).href)
     }
   }, [packId])
+
+  const loadingText = useMemo(() => {
+    return {
+      [TransferPackStatus.Minting]: t('common:statuses.Minting NFT', {
+        count,
+      }),
+      [TransferPackStatus.Transferring]: t('common:statuses.Transferring NFT', {
+        count,
+      }),
+    }[status]
+  }, [t, count, status])
 
   return (
     <Dialog
@@ -100,8 +104,8 @@ export default function ClaimNFTModal({
             <Image
               alt={packTemplate.title}
               className={css.image}
-              height={140}
-              width={140}
+              height={180}
+              width={180}
               objectFit="cover"
               src={`${packTemplate.image}?fit=contain&width=240&quality=75`}
             />
@@ -110,24 +114,24 @@ export default function ClaimNFTModal({
             aria-label={t('common:actions.Close')}
             className={css.closeButton}
             onClick={() => handleClose(!open)}
-            variant="tertiary"
+            variant="ghost"
           >
             {'\u2717'}
           </Button>
         </header>
-        <Heading level={2}>{packTemplate.title}</Heading>
+        <H2>{packTemplate.title}</H2>
 
-        {status === 'idle' && (
+        {!error && status === 'idle' && (
           <form className={css.form} onSubmit={handleSubmit}>
             {/* Redemption Code */}
             {packTemplate.type === PackType.Redeem &&
               redeemable?.pack.templateId !== packTemplate.templateId && (
                 <>
-                  <TextInput
+                  <InputField
                     label={t('forms:fields.redemptionCode.label')}
-                    onChange={handleChangeRedeemCode}
+                    onChange={setRedeemCode}
                     value={redeemCode}
-                    variant="small"
+                    density="compact"
                   />
                   <p className={css.instructionText}>
                     {t('release:redemptionCode')}
@@ -136,19 +140,19 @@ export default function ClaimNFTModal({
               )}
 
             {/* Submit */}
-            <Button fullWidth variant="primary" type="submit">
+            <Button fullWidth type="submit">
               {t('common:actions.Claim My Edition')}
             </Button>
           </form>
         )}
 
-        {status === 'loading' && (
+        {loadingText && (
           <div className={css.loadingWrapper}>
-            <Loading loadingText={loadingText} variant="secondary" />
+            <Loading loadingText={loadingText} bold />
           </div>
         )}
 
-        {status === 'error' && (
+        {(error || status === 'error') && (
           <div className={css.statusWrapper}>
             <ExclamationCircleIcon className={css.errorIcon} />
             <h3 className={css.statusHeading}>
@@ -162,7 +166,6 @@ export default function ClaimNFTModal({
               onClick={() => {
                 handleClose(true)
               }}
-              size="small"
             >
               {t('common:actions.Try Again')}
             </Button>
@@ -180,11 +183,7 @@ export default function ClaimNFTModal({
                 name: packTemplate.title,
               })}
             </p>
-            <Button
-              className={css.button}
-              onClick={handlePackOpening}
-              size="small"
-            >
+            <Button className={css.button} onClick={handlePackOpening}>
               {t('common:actions.Open Pack')}
             </Button>
           </div>

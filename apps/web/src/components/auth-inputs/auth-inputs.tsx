@@ -1,24 +1,25 @@
 import { DEFAULT_LANG } from '@algomart/schemas'
 import * as DineroCurrencies from '@dinero.js/currencies'
-import {
-  CurrencyDollarIcon,
-  GlobeAltIcon,
-  ShieldExclamationIcon,
-  UserCircleIcon,
-} from '@heroicons/react/outline'
+import { UserCircleIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
 import Image from 'next/image'
 import useTranslation from 'next-translate/useTranslation'
-import React, { ReactNode, useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 
 import css from './auth-inputs.module.css'
 
-import Button from '@/components/button'
-import FormField from '@/components/form-field'
-import PassphraseInput from '@/components/passphrase-input/passphrase-input'
-import Select, { SelectOption } from '@/components/select/select'
-import TextInput from '@/components/text-input/text-input'
+import Button, { ButtonProps } from '@/components/button'
+import FilterableSelect, {
+  FilterableSelectOption,
+  FilterableSelectProps,
+} from '@/components/filterable-select'
+import FormField, { FormFieldProps } from '@/components/form-field'
+import InputField, { InputFieldProps } from '@/components/input-field'
+import SelectField, {
+  SelectFieldProps,
+  SelectOption,
+} from '@/components/select-field'
 import { useCurrency } from '@/contexts/currency-context'
 import { useI18n } from '@/contexts/i18n-context'
 import { useLanguage } from '@/contexts/language-context'
@@ -26,27 +27,21 @@ import { FileWithPreview } from '@/types/file'
 
 /**
  * Reused components found throughout sign-in, sign-up, and profile create/update flows
- * */
+ */
 
-export interface AuthInputProps {
-  disabled?: boolean
+type AuthSelectProps = Omit<SelectFieldProps, 'options' | 'error'> & {
   error?: string | unknown
-  helpLink?: ReactNode
-  className?: string
-  onChange?(value: string): void
-  showLabel?: boolean
-  value?: string
+}
+type AuthFilterableSelectProps = Omit<
+  FilterableSelectProps,
+  'options' | 'error'
+> & { error?: string | unknown }
+type AuthInputProps = Omit<InputFieldProps, 'error'> & {
+  error?: string | unknown
 }
 
-export function Currency({
-  error,
-  disabled,
-  onChange,
-  showLabel = true,
-  value,
-  className = '',
-}: AuthInputProps) {
-  const [options, setOptions] = useState<SelectOption[]>([])
+export function Currency({ error, ...props }: AuthFilterableSelectProps) {
+  const [options, setOptions] = useState<FilterableSelectOption[]>([])
   const { currencyConversions } = useI18n()
   const { t } = useTranslation()
   const { currency } = useCurrency()
@@ -65,154 +60,156 @@ export function Currency({
     }
   }, [currencyConversions]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  if (options.length === 0) return null
+
   return (
-    <FormField className={clsx({ [css.formField]: !className }, className)}>
-      {options.length > 0 && (
-        <Select
-          name="currency"
-          defaultValue={currency}
-          error={error as string}
-          disabled={disabled}
-          label={showLabel ? t('forms:fields.currencies.label') : undefined}
-          options={options}
-          value={value}
-          onChange={onChange}
-          Icon={<CurrencyDollarIcon />}
-        />
-      )}
-    </FormField>
+    <FilterableSelect
+      defaultValue={currency}
+      error={error as string}
+      label={t('forms:fields.currencies.label')}
+      name="currency"
+      options={options}
+      variant="light"
+      {...props}
+    />
   )
 }
 
-export function Email({ error }: AuthInputProps) {
+export function Age({ error, ...props }: AuthFilterableSelectProps) {
+  const { t } = useTranslation()
+  const naOption = {
+    label: t('forms:fields.age.options.N/A'),
+    value: '',
+  }
+  const options: FilterableSelectOption[] = [
+    ...(!props.value ? [naOption] : []),
+    ...Array.from({ length: 100 })
+      .map((_, index) => ({
+        label: index + 1 + '',
+        value: index + 1 + '',
+      }))
+      .slice(13),
+  ]
+
+  if (options.length === 0) return null
+
+  return (
+    <FilterableSelect
+      defaultValue={options[0].value}
+      error={error as string}
+      label={t('forms:fields.age.label')}
+      name="age"
+      options={options}
+      variant="light"
+      {...props}
+    />
+  )
+}
+
+export function Email({ error, ...props }: AuthInputProps) {
   const { t } = useTranslation()
   return (
-    <FormField className={css.formField}>
-      <TextInput
-        error={error as string}
-        id="email"
-        label={t('forms:fields.email.label')}
-        minLength={8}
-        name="email"
-        type="email"
-      />
-    </FormField>
+    <InputField
+      error={error as string}
+      id="email"
+      label={t('forms:fields.email.label')}
+      name="email"
+      variant="light"
+      {...props}
+    />
   )
 }
 
-export function Language({
-  error,
-  disabled,
-  onChange,
-  showLabel = true,
-  value,
-  className = '',
-}: AuthInputProps) {
-  const [options, setOptions] = useState<SelectOption[]>([])
-  const { languages, getI18nInfo } = useI18n()
+export function Language({ error, ...props }: AuthSelectProps) {
+  const { languages } = useI18n()
   const { t } = useTranslation()
   const { language } = useLanguage()
-
-  useEffect(() => {
-    const run = async () => {
-      try {
-        let i18nStateLanguages = languages
-        if (!i18nStateLanguages) {
-          const i18nInfo = await getI18nInfo()
-          i18nStateLanguages = i18nInfo.languages
-        }
-
-        setOptions(
-          i18nStateLanguages.map((language) => ({
-            value: language.languages_code,
-            label: language.label,
-          }))
-        )
-      } catch {
-        // if service fails, at least let them set English
-        setOptions([
-          {
-            value: DEFAULT_LANG,
-            label: t('common:global.language'),
-          },
-        ])
-      }
+  const options = useMemo<SelectOption[]>(() => {
+    if (languages.length === 0) {
+      return [
+        {
+          value: DEFAULT_LANG,
+          label: t('common:global.language'),
+        },
+      ]
     }
-    run()
-  }, [t, languages]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    return languages.map((language) => ({
+      value: language.languages_code,
+      label: language.label,
+    }))
+  }, [languages, t])
 
   return (
-    <FormField className={clsx({ [css.formField]: !className }, className)}>
-      {options.length > 0 && (
-        <Select
-          name="language"
-          defaultValue={language}
-          error={error as string}
-          disabled={disabled}
-          label={showLabel ? t('forms:fields.languages.label') : undefined}
-          options={options}
-          value={value}
-          onChange={onChange}
-          Icon={<GlobeAltIcon />}
-        />
-      )}
-    </FormField>
+    <SelectField
+      error={error as string}
+      defaultValue={language}
+      label={t('forms:fields.languages.label')}
+      name="language"
+      options={options}
+      variant="light"
+      {...props}
+    />
   )
 }
-export function Username({ error }: AuthInputProps) {
+
+export function Username({ error, ...props }: AuthInputProps) {
   const { t } = useTranslation()
   return (
-    <FormField className={css.formField}>
-      <TextInput
-        error={error as string}
-        helpText={t('forms:fields.username.helpText')}
-        id="username"
-        label={t('forms:fields.username.label')}
-        maxLength={20}
-        minLength={4}
-        name="username"
-        type="text"
-      />
-    </FormField>
+    <InputField
+      error={error as string}
+      helpText={
+        props.label !== '' ? t('forms:fields.username.helpText') : undefined
+      }
+      // Poppins "@" sits low on baseline and needs a little help
+      startAdornment={<div className="-mt-px">@</div>}
+      id="username"
+      label={t('forms:fields.username.label')}
+      maxLength={20}
+      name="username"
+      type="text"
+      {...props}
+    />
   )
 }
 
-export function Password({ error, helpLink }: AuthInputProps) {
+export function Password({ error, ...props }: AuthInputProps) {
   const { t } = useTranslation()
   return (
-    <FormField className={css.formField}>
-      <TextInput
-        error={error as string}
-        id="password"
-        label={t('forms:fields.password.label')}
-        minLength={8}
-        name="password"
-        type="password"
-      />
-      <div className={css.helpLink}>{helpLink ?? null}</div>
-    </FormField>
+    <InputField
+      id="password"
+      label={t('forms:fields.password.label')}
+      helpText={t('forms:fields.password.helpText')}
+      name="password"
+      type="password"
+      error={error as string}
+      {...props}
+    />
   )
 }
 
-export interface ProfileImageProps extends AuthInputProps {
+export interface ProfileImageProps {
   handleProfilePicAccept(files: File[]): void
   handleProfilePicClear(): void
   handleProfilePicReject?(): void
+  noPad?: boolean
   profilePic: FileWithPreview | null
   showHelpText?: boolean
-  showLabel?: boolean
+  variant?: 'light' | 'dark'
 }
 
 export function ProfileImage({
   handleProfilePicAccept,
   handleProfilePicClear,
   handleProfilePicReject,
+  noPad,
   profilePic,
   showHelpText = true,
-  showLabel = true,
-}: ProfileImageProps) {
+  variant = 'dark',
+  ...rest
+}: FormFieldProps & ProfileImageProps) {
   const { t } = useTranslation()
-  const [dropError, setDropError] = useState<boolean>(false)
+  const [dropError, setDropError] = useState(false)
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       'image/jpeg': ['.jpg', '.jpeg'],
@@ -240,23 +237,21 @@ export function ProfileImage({
   )
 
   return (
-    <FormField className={css.formField}>
-      <label htmlFor="profileImage" className={css.labelContainer}>
-        {showLabel && (
-          <span className={css.label}>
-            {t('forms:fields.profileImage.label')}
-          </span>
-        )}
-        {dropError && (
-          <span className={css.errorText}>
-            {t('forms:errors.minImageFileSize', { fileSize: '2MB' })}
-          </span>
-        )}
-        {!dropError && showHelpText && (
-          <span className={css.helpText}>{t('common:statuses.Optional')}</span>
-        )}
-      </label>
-      <div className={css.profileImageContainer}>
+    <FormField
+      htmlFor="profileImage"
+      label={t('forms:fields.profileImage.label')}
+      error={
+        dropError && t('forms:errors.minImageFileSize', { fileSize: '2MB' })
+      }
+      helpText={showHelpText ? t('common:statuses.Optional') : null}
+      {...rest}
+    >
+      <div
+        className={clsx(css.profileImageContainer, {
+          [css.light]: variant === 'light',
+          [css.noPad]: noPad,
+        })}
+      >
         <div className={css.avatarContainer}>
           {profilePic ? (
             <Image
@@ -276,15 +271,13 @@ export function ProfileImage({
             <div className={css.profileImageChange}>
               <div {...getRootProps()}>
                 <input {...getInputProps()} />
-                <Button size="small">{t('common:actions.Change')}</Button>
+                <Button>{t('common:actions.Change')}</Button>
               </div>
               <Button
-                className={css.profileImageRemove}
                 onClick={() => {
                   setDropError(false)
                   handleProfilePicClear()
                 }}
-                size="small"
                 variant="link"
               >
                 {t('common:actions.Remove')}
@@ -293,7 +286,7 @@ export function ProfileImage({
           ) : (
             <div {...getRootProps()}>
               <input {...getInputProps()} />
-              <Button size="small">{t('common:actions.Select Image')}</Button>
+              <Button>{t('common:actions.Select Image')}</Button>
             </div>
           )}
         </div>
@@ -302,45 +295,15 @@ export function ProfileImage({
   )
 }
 
-export function Passphrase({ error }: AuthInputProps) {
+export function Submit({
+  translationKey = 'forms:Submit',
+  ...rest
+}: ButtonProps & { translationKey?: string }) {
   const { t } = useTranslation()
-  return (
-    <FormField className={css.formField}>
-      <label htmlFor="passphrase" className={css.labelContainer}>
-        <span className={css.label}>{t('forms:fields.passphrase.label')}</span>
-        {!error && (
-          <span className={css.helpText}>
-            {t('forms:fields.passphrase.helpText')}
-          </span>
-        )}
-        {error && <span className={css.errorText}>{error as string}</span>}
-        <div className={css.passphraseInputWrapper}>
-          <div className={css.passphraseInputFields}>
-            <PassphraseInput error={error as string} id="passphrase" />
-          </div>
-          <div className={css.passphraseInputWarning}>
-            <ShieldExclamationIcon className={css.passphraseInputShield} />
-            {t('forms:fields.passphrase.warning')}
-          </div>
-        </div>
-        <div className={css.passphraseInputDescription}>
-          <p>{t('forms:fields.passphrase.description.1')}</p>
-          <p>
-            <u>{t('forms:fields.passphrase.description.2')}</u>
-          </p>
-        </div>
-      </label>
-    </FormField>
-  )
-}
 
-export function Submit({ disabled }: AuthInputProps) {
-  const { t } = useTranslation()
   return (
-    <FormField>
-      <Button disabled={disabled} fullWidth type="submit">
-        {t('common:actions.Done')}
-      </Button>
-    </FormField>
+    <Button fullWidth type="submit" {...rest}>
+      {t(translationKey)}
+    </Button>
   )
 }

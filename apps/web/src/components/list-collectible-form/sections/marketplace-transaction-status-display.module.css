@@ -1,0 +1,17 @@
+.marketplaceTransactionStatusDisplay {
+  @apply flex flex-col items-center justify-center grow text-center px-8 py-16;
+  /* Tablet + */
+  @apply md:px-20;
+}
+
+.success {
+  @apply text-base-price mb-4 w-24 h-24;
+}
+
+.error {
+  @apply text-base-error mb-4 w-24 h-24;
+}
+
+.marketplaceTransactionStatusDisplay button {
+  @apply mt-11;
+}

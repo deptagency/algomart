@@ -1,16 +1,9 @@
 .root {
-  @apply relative bg-base-bgCard shadow-large;
-  margin-top: 72px;
+  @apply relative bg-base-bg border-b-1 border-action-primary;
 }
 
 .root.isInline {
-  @apply shadow-none border-1 border-base-border;
-}
-
-@screen md {
-  .root {
-    margin-top: 0px;
-  }
+  @apply border-1 border-base-border;
 }
 
 .wrapper {

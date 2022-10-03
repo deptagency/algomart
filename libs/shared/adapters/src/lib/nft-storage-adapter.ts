@@ -1,4 +1,4 @@
-import pino from 'pino'
+import { ARC3Metadata, buildMetadata } from '@algomart/shared/algorand'
 import { HttpTransport } from '@algomart/shared/utils'
 import { invariant } from '@algomart/shared/utils'
 import pinataSDK, { PinataClient } from '@pinata/sdk'
@@ -8,8 +8,8 @@ import os from 'node:os'
 import path from 'node:path'
 import stream from 'node:stream'
 import { promisify } from 'node:util'
+import pino from 'pino'
 import { getMimeType } from 'stream-mime-type'
-import { ARC3Metadata, buildMetadata } from '@algomart/shared/algorand'
 
 export interface StoreMediaInput {
   animationUrl?: string
@@ -36,7 +36,9 @@ export interface NFTStorageAdapterOptions {
   pinataApiSecret: string
   webUrl: string
   cmsUrl: string
+  enforcerAppID: number
 }
+
 export class NFTStorageAdapter {
   client: PinataClient
   logger: pino.Logger<unknown>
@@ -47,7 +49,6 @@ export class NFTStorageAdapter {
   ) {
     this.logger = logger.child({ context: this.constructor.name })
     this.client = pinataSDK(options.pinataApiKey, options.pinataApiSecret)
-
     this.testConnection()
   }
 
@@ -84,6 +85,14 @@ export class NFTStorageAdapter {
       .description(input.description)
       .decimals(0)
       .external(this.options.webUrl, 'text/html')
+      .properties(
+        this.options.enforcerAppID
+          ? {
+              'arc-20': { 'application-id': this.options.enforcerAppID },
+              'arc-18': { 'rekey-checked': true },
+            }
+          : {}
+      )
       .build()
   }
 

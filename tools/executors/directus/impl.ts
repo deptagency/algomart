@@ -1,4 +1,4 @@
-import { ExecutorContext } from '@nrwl/devkit'
+import { ExecutorContext, runExecutor } from '@nrwl/devkit'
 import { spawn } from 'node:child_process'
 import { join } from 'node:path'
 
@@ -20,15 +20,18 @@ async function runAction(
   context: ExecutorContext
 ) {
   return new Promise((resolve, reject) => {
+    const projectConfig = context.workspace.projects[context.projectName!]
+
     const directus = spawn(
       'npx',
       ['directus', options.action, ...options.args],
       {
-        cwd: join(
-          context.cwd,
-          context.workspace.projects[context.projectName].root
-        ),
+        cwd: join(context.cwd, projectConfig.root),
         stdio: 'inherit',
+        env: {
+          ...process.env,
+          LOG_LEVEL: 'warn',
+        },
       }
     )
 

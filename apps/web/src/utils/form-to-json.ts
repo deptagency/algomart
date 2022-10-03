@@ -1,4 +1,4 @@
-export function toJSON<T = unknown>(formData: FormData) {
+export function toJSON<T = Record<string, unknown>>(formData: FormData) {
   const out: Record<string, unknown> = {}
   const keys = [...formData.keys()]
   for (const key of keys) {

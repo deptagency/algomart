@@ -2,25 +2,26 @@ import { CollectibleWithDetails } from '@algomart/schemas'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useState } from 'react'
 
+import common from './common-template-styles.module.css'
 import css from './my-showcase-template.module.css'
 
 import AlertMessage from '@/components/alert-message/alert-message'
-import Button from '@/components/button'
 import CollectibleItem from '@/components/collectibles/collectible-item'
 import CollectiblePlaceholder from '@/components/collectibles/collectible-placeholder'
 import CollectibleShowcase from '@/components/collectibles/collectible-showcase'
 import Grid from '@/components/grid/grid'
-import Heading from '@/components/heading'
+import { H1, H2 } from '@/components/heading'
+import LinkButton from '@/components/link-button'
 import Pagination from '@/components/pagination/pagination'
 import Tabs from '@/components/tabs/tabs'
 import { useAuth } from '@/contexts/auth-context'
 import { getCollectionTabs } from '@/utils/collections'
+import { urls } from '@/utils/urls'
 
 export interface MyShowcaseTemplateProps {
   addCollectible: (collectibleId: string) => void
   collectibles: CollectibleWithDetails[]
   collectiblesTotal: number
-  handleRedirectBrands: () => void
   page: number
   pageSize: number
   showcaseCollectibles: CollectibleWithDetails[]
@@ -34,7 +35,6 @@ export default function MyShowcaseTemplate({
   addCollectible,
   collectibles,
   collectiblesTotal,
-  handleRedirectBrands,
   page,
   pageSize,
   showcaseCollectibles,
@@ -47,18 +47,6 @@ export default function MyShowcaseTemplate({
   const auth = useAuth()
   const [showNotification, setShowNotification] = useState<boolean>(false)
   const slotsAreFull = showcaseCollectibles.length === 8
-
-  const getMode = useCallback(
-    (collectibleId: string) => {
-      const matching = showcaseCollectibles.find(
-        ({ id }) => id === collectibleId
-      )
-      if (matching) return 'selected'
-      if (!slotsAreFull) return 'add'
-      return
-    },
-    [showcaseCollectibles, slotsAreFull]
-  )
 
   const handleClick = useCallback(
     (collectibleId: string) => {
@@ -74,27 +62,41 @@ export default function MyShowcaseTemplate({
     [addCollectible, removeCollectible, showcaseCollectibles, slotsAreFull]
   )
 
+  const getMode = useCallback(
+    (collectibleId: string) => {
+      const matching = showcaseCollectibles.find(
+        ({ id }) => id === collectibleId
+      )
+      if (matching) return 'selected'
+      if (!slotsAreFull) return 'add'
+      return
+    },
+    [showcaseCollectibles, slotsAreFull]
+  )
+
   return (
     <>
-      {/* Tabs */}
-      <Tabs activeTab={2} tabs={getCollectionTabs(t)} className="-mt-8" />
+      <H1 className={common.pageHeading}>
+        {t('common:pageTitles.My Showcase')}
+      </H1>
 
-      {/* Showcase Grid */}
+      <Tabs activeTab={2} tabs={getCollectionTabs(t)} />
+
       <section>
         <CollectibleShowcase
-          onClickCollectible={removeCollectible}
           collectibles={showcaseCollectibles}
-          mode="editing"
-          username={auth.user?.username}
           initialPublish={shareProfile}
+          mode="editing"
+          onClickCollectible={removeCollectible}
           onTogglePublish={setShareProfile}
+          username={auth.user?.username}
         />
 
         {/* Showcase-able collecibles */}
         <div className={css.ownedCollectiblesWrapper}>
-          <Heading className={css.ownedCollectiblesHeading} level={3}>
+          <H2 className={css.ownedCollectiblesHeading} uppercase>
             {t('collection:viewer.selectCollectibles')}:
-          </Heading>
+          </H2>
 
           {showNotification && (
             <AlertMessage
@@ -105,15 +107,13 @@ export default function MyShowcaseTemplate({
           )}
 
           {collectibles && collectibles.length > 0 ? (
-            <Grid>
+            <Grid base={2} md={3} lg={4}>
               {collectibles.map((collectible) => (
                 <CollectibleItem
+                  collectible={collectible}
                   key={collectible.id}
-                  alt={collectible.title}
-                  title={collectible.title}
-                  imageUrl={collectible.image}
-                  mode={getMode(collectible.id)}
                   onClick={() => handleClick(collectible.id)}
+                  mode={getMode(collectible.id)}
                 />
               ))}
             </Grid>
@@ -122,9 +122,9 @@ export default function MyShowcaseTemplate({
               <CollectiblePlaceholder
                 className={css.noCollectiblesPlaceholder}
               />
-              <Heading className={css.noCollectiblesHeading} level={3}>
+              <H2 className={css.noCollectiblesHeading}>
                 {t('collection:viewer.noCollectibles')}
-              </Heading>
+              </H2>
             </div>
           )}
         </div>
@@ -140,9 +140,9 @@ export default function MyShowcaseTemplate({
       {/* Bottom CTA */}
       {collectiblesTotal === 0 && (
         <div className={css.bottomCtaWrapper}>
-          <Button onClick={handleRedirectBrands}>
+          <LinkButton href={urls.drops}>
             {t('collection:viewer.Find Something Cool')}
-          </Button>
+          </LinkButton>
         </div>
       )}
     </>

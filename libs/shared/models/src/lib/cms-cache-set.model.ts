@@ -1,12 +1,12 @@
+import { DirectusSet, EntityType } from '@algomart/schemas'
 import { Model } from 'objection'
-import { DirectusSet } from '@algomart/schemas'
 
 export class CMSCacheSetModel extends Model {
-  static tableName = 'CmsCacheSets'
+  static tableName = EntityType.CmsCacheSets
 
   id!: string
   slug!: string
-  content!: string
+  content!: DirectusSet
   createdAt!: string
   updatedAt!: string
 
@@ -18,7 +18,7 @@ export class CMSCacheSetModel extends Model {
     await CMSCacheSetModel.query().insert({
       id: set.id,
       slug: set.slug,
-      content: JSON.stringify(set),
+      content: set,
     })
 
     return set
@@ -27,18 +27,14 @@ export class CMSCacheSetModel extends Model {
   static async update(set: DirectusSet) {
     await CMSCacheSetModel.query()
       .where({ id: set.id })
-      .update({ content: JSON.stringify(set) })
+      .update({ content: set })
 
     return set
   }
 
   static async upsert(set: DirectusSet) {
     const record = await this.getById(set.id)
-    if (record) {
-      this.update(set)
-    } else {
-      this.insert(set)
-    }
+    await (record ? this.update(set) : this.insert(set))
 
     return set
   }

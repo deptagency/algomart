@@ -16,9 +16,7 @@ export default function InterstitialLayout({
   return (
     <>
       <HeadTag pageDescription={pageDescription} pageTitle={pageTitle} />
-      <div className="bg-base-gray-dark flex flex-col flex-grow">
-        {children}
-      </div>
+      <div className="flex flex-col flex-grow">{children}</div>
     </>
   )
 }

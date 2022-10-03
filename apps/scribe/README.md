@@ -1,19 +1,17 @@
 # Scribe
 
-Scribe runs various background tasks and syncs data from the CMS into read-only tables in the API database.
+Scribe runs various background jobs and syncs data from the CMS into read-only tables in the API database.
 
 ## Get started
 
 Make sure you configure the webhook according to the steps in the [CMS readme](../cms/README.md).
 
-Duplicate `.env.sample` > `.env` in the `scribe` folder and enter the required environment variables. Make sure you've created a Postgres databases that matches what's set in the `DATABASE_URL` key in your `api/.env` file.
+Ensure the `.env` file is configured. Use the `.env.example` as a base.
 
-_NOTE_: The `scribe/.env` and the `api/.env` are almost identical and will share most values, the notable exception being the `PORT` value in the Scribe Configuration section. These must run on separate ports.
-
-If you're not using the default `DATABASE_SCHEMA=public` in your `.env` file, then you'll need to make sure to create the schema you choose:
+To (drop and re-)create the database, run:
 
 ```bash
-CREATE SCHEMA <name>
+nx drop scribe
 ```
 
 Apply all DB migrations:
@@ -34,13 +32,6 @@ Build via:
 nx build scribe
 ```
 
-To reset the database, run:
-
-```bash
-nx drop scribe
-nx run scribe:migrate:latest
-```
-
 ## Folder structure
 
 ```bash
@@ -50,13 +41,9 @@ src/ # Main source code
   languages/ # Translations
   migrations/ # Database migrations
   modules/ # API service layer (routes, handlers, db interactions)
-  tasks/ # Various background task runners
+  # tasks/ has been moved to `libs/shared/queues`
 ... # various dot files and configuration for the project
 ```
-
-### Tasks
-
-[Toad Scheduler](https://github.com/kibertoad/toad-scheduler) is used to run routine in-memory tasks at set intervals. A list of scheduled tasks can be found in `./packages/api/src/tasks/index.ts`.
 
 ## Migrations
 

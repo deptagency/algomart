@@ -5,7 +5,7 @@ import useTranslation from 'next-translate/useTranslation'
 import css from './wallet-transfers.module.css'
 
 import Button from '@/components/button'
-import Heading from '@/components/heading'
+import { H3 } from '@/components/heading'
 import { formatAlgoAddress } from '@/utils/format-string'
 
 export interface SelectAccountStageProps {
@@ -21,9 +21,7 @@ export default function SelectAccountStage(props: SelectAccountStageProps) {
   const { t } = useTranslation()
   return (
     <div key="select-account" className={css.stage}>
-      <Heading level={3} bold className={css.stageTitle}>
-        {t('nft:walletConnect.destinationWallet')}
-      </Heading>
+      <H3>{t('nft:walletConnect.destinationWallet')}</H3>
       <hr className={css.separator} />
       <RadioGroup
         value={props.selectedAccount}
@@ -65,7 +63,6 @@ export default function SelectAccountStage(props: SelectAccountStageProps) {
       <div className={css.spacing}>
         <Button
           onClick={props.onCancel}
-          size="small"
           variant="link"
           fullWidth
           className={css.buttonLink}

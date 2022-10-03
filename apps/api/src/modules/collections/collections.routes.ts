@@ -9,23 +9,26 @@ export async function getAllCollections(
   const collectionsService = request
     .getContainer()
     .get<CollectionsService>(CollectionsService.name)
+
   const collections = await collectionsService.getAllCollections(
     request.query.language
   )
-  reply.send(collections)
+
+  return reply.send(collections)
 }
 
 export async function getCollection(
-  request: FastifyRequest<{ Params: Slug }>,
+  request: FastifyRequest<{ Params: Slug; Querystring: Language }>,
   reply: FastifyReply
 ) {
   const collectionsService = request
     .getContainer()
     .get<CollectionsService>(CollectionsService.name)
+
   const collection = await collectionsService.getCollectionBySlug(
-    request.params.slug
+    request.params.slug,
+    request.query.language
   )
 
-  if (collection) reply.send(collection)
-  else reply.notFound()
+  return collection ? reply.send(collection) : reply.notFound()
 }

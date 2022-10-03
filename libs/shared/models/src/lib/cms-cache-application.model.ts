@@ -1,11 +1,11 @@
+import { DirectusApplication, EntityType } from '@algomart/schemas'
 import { Model } from 'objection'
-import { DirectusApplication } from '@algomart/schemas'
 
 export class CMSCacheApplicationModel extends Model {
-  static tableName = 'CmsCacheApplication'
+  static tableName = EntityType.CmsCacheApplication
 
   id!: string
-  content!: string
+  content!: DirectusApplication
   createdAt!: string
   updatedAt!: string
 
@@ -16,7 +16,7 @@ export class CMSCacheApplicationModel extends Model {
   static async insert(application: DirectusApplication) {
     await CMSCacheApplicationModel.query().insert({
       id: application.id,
-      content: JSON.stringify(application),
+      content: application,
     })
 
     return application
@@ -25,7 +25,7 @@ export class CMSCacheApplicationModel extends Model {
   static async update(application: DirectusApplication) {
     await CMSCacheApplicationModel.query()
       .where({ id: application.id })
-      .update({ content: JSON.stringify(application) })
+      .update({ content: application })
 
     return application
   }
@@ -34,11 +34,7 @@ export class CMSCacheApplicationModel extends Model {
     const record = application.id
       ? await this.getById(application.id)
       : undefined
-    if (record) {
-      this.update(application)
-    } else {
-      this.insert(application)
-    }
+    await (record ? this.update(application) : this.insert(application))
 
     return application
   }

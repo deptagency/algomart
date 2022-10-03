@@ -1,10 +1,11 @@
-import { CollectibleWithDetails } from '@algomart/schemas'
-import { GetServerSideProps } from 'next'
+import { CollectiblesShowcase, CollectibleWithDetails } from '@algomart/schemas'
+import { GetServerSidePropsContext } from 'next'
 import useTranslation from 'next-translate/useTranslation'
 
-import { ApiClient } from '@/clients/api-client'
-import ProfileUsernameLayout from '@/layouts/profile-username-layout'
+import DefaultLayout from '@/layouts/default-layout'
 import ProfileUsernameTemplate from '@/templates/profile-username-template'
+import { apiFetcher } from '@/utils/react-query'
+import { urlFor, urls } from '@/utils/urls'
 
 export interface PublicProfilePageProps {
   collectibles: CollectibleWithDetails[]
@@ -17,33 +18,40 @@ export default function PublicProfilePage({
 }: PublicProfilePageProps) {
   const { t } = useTranslation()
   return (
-    <ProfileUsernameLayout
+    <DefaultLayout
+      fullBleed
       pageTitle={t('common:pageTitles.User Profile', { name: username })}
+      variant="colorful"
     >
-      <ProfileUsernameTemplate
-        username={username}
-        collectibles={collectibles}
-      />
-    </ProfileUsernameLayout>
+      {username ? (
+        <ProfileUsernameTemplate
+          username={username}
+          collectibles={collectibles}
+        />
+      ) : null}
+    </DefaultLayout>
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const username = context.params?.username as string
-  const result = await ApiClient.instance.getShowcaseByUser({
-    ownerUsername: username,
-  })
-
-  if (!result || !result.showProfile || result.collectibles.length === 0) {
-    return {
-      notFound: true,
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  let username = ''
+  let collectibles = []
+  try {
+    username = context.params?.username as string
+    const result = await apiFetcher().get<CollectiblesShowcase | null>(
+      urlFor(urls.api.collectibles.fetchShowcase, null, {
+        ownerUsername: username,
+      }),
+      {
+        bearerToken: null,
+      }
+    )
+    if (result?.showProfile) {
+      collectibles = result?.collectibles || []
     }
+  } catch {
+    // ignore
   }
 
-  return {
-    props: {
-      username,
-      collectibles: result.collectibles,
-    },
-  }
+  return { props: { username, collectibles } }
 }

@@ -1,49 +1,40 @@
 import { Static, Type } from '@sinclair/typebox'
 
-import { BaseSchema, Simplify } from './shared'
+import { CurrencyCodeSchema, LanguageSchema, Simplify } from './shared'
 
 export const DropdownLanguageSchema = Type.Object({
-  languages_code: Type.String(),
+  languages_code: LanguageSchema,
   label: Type.String(),
 })
 
 export const DropdownLanguageListSchema = Type.Array(DropdownLanguageSchema)
 
-export const CurrencySchema = Type.Object({
-  base: Type.Number(),
-  code: Type.String(),
-  exponent: Type.Number(),
+export const CurrencyConversionSchema = Type.Object({
+  sourceCurrency: CurrencyCodeSchema,
+  targetCurrency: CurrencyCodeSchema,
+  exchangeRate: Type.Number(),
 })
 
-export const CurrencyConversionSchema = Type.Intersect([
-  BaseSchema,
-  Type.Object({
-    sourceCurrency: Type.String(),
-    targetCurrency: Type.String(),
-    exchangeRate: Type.Number(),
-  }),
-])
-
 export const CurrencyConversionDictSchema = Type.Record(
-  Type.String(),
+  CurrencyCodeSchema,
   Type.Number()
 )
+
 export const CurrencyConversionResultSchema = Type.Object({
-  createdAt: Type.String(),
+  createdAt: Type.String({ format: 'date-time' }),
   exchangeRate: Type.Number(),
   id: Type.String(),
-  sourceCurrency: Type.String(),
-  targetCurrency: Type.String(),
-  updatedAt: Type.String(),
+  sourceCurrency: CurrencyCodeSchema,
+  targetCurrency: CurrencyCodeSchema,
+  updatedAt: Type.String({ format: 'date-time' }),
 })
 
 export const GetCurrencyConversionSchema = Type.Object({
-  sourceCurrency: Type.String(),
-  targetCurrency: Type.Optional(Type.String()),
+  sourceCurrency: CurrencyCodeSchema,
 })
 
 export const GetCurrencyConversionsSchema = Type.Object({
-  sourceCurrency: Type.Optional(Type.String()),
+  sourceCurrency: Type.Optional(CurrencyCodeSchema),
 })
 
 export const I18nInfoSchema = Type.Object({
@@ -55,8 +46,6 @@ export type DropdownLanguage = Simplify<Static<typeof DropdownLanguageSchema>>
 export type DropdownLanguageList = Simplify<
   Static<typeof DropdownLanguageListSchema>
 >
-
-export type Currency = Simplify<Static<typeof CurrencySchema>>
 export type CurrencyConversion = Simplify<
   Static<typeof CurrencyConversionSchema>
 >

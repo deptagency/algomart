@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 
 import css from './bid-activity-details.module.css'
 
-import Currency from '@/components/currency'
+import Currency from '@/components/currency/currency'
 
 export interface BidActivityProps {
   amount?: number

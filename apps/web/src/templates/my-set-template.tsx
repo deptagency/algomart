@@ -3,14 +3,17 @@ import {
   CollectionWithSets,
   SetWithCollection,
 } from '@algomart/schemas'
-import clsx from 'clsx'
 import useTranslation from 'next-translate/useTranslation'
 import { useMemo } from 'react'
 
-import CollectibleItem from '@/components/collectibles/collectible-item'
-import CollectionReward from '@/components/collectibles/collection-reward'
-import SetHeader from '@/components/collectibles/set-header'
+import common from './common-template-styles.module.css'
+import css from './my-set-template.module.css'
+
+import CollectionHeader from '@/components/collectibles/collection-header'
+import CollectionItem from '@/components/collectibles/collection-item'
+import { CollectionSetHeader } from '@/components/collectibles/collection-set'
 import Grid from '@/components/grid/grid'
+import { H1 } from '@/components/heading'
 import Tabs from '@/components/tabs/tabs'
 import {
   getCollectionTabs,
@@ -21,25 +24,23 @@ import {
 
 export interface MySetTemplateProps {
   assets: CollectibleWithDetails[]
-  handleRedirectBrand: () => void
   collection: CollectionWithSets
   set: SetWithCollection
 }
 
 export default function MySetTemplate({
   assets,
-  handleRedirectBrand,
   set,
   collection,
 }: MySetTemplateProps) {
   const { t } = useTranslation()
 
   // Collection collectibles
-  const totalCollectionAssetsCollected = useMemo(
+  const totalCollected = useMemo(
     () => groupAssetsByCollection(assets, [collection])[0].assets.length,
     [assets, collection]
   )
-  const totalCollectiblesInCollection = useMemo(
+  const totalCollectibles = useMemo(
     () => getTotalCollectiblesInCollection(collection),
     [collection]
   )
@@ -60,62 +61,30 @@ export default function MySetTemplate({
 
   return (
     <>
-      {/* Tabs */}
-      <Tabs activeTab={1} tabs={getCollectionTabs(t)} className="-mx-8 -mt-8" />
+      <H1 className={common.pageHeading}>{set.name}</H1>
+      <Tabs activeTab={1} tabs={getCollectionTabs(t)} />
 
-      <SetHeader
-        set={set}
-        collectionSlug={collection.slug}
-        collectionName={collection.name}
+      <CollectionHeader
+        collection={collection}
+        totalCollected={totalCollected}
+        totalCollectibles={totalCollectibles}
       />
-
       {set.collectibleTemplateIds && (
-        <div
-          // Apply extra wide grid per design when an entire row is full (>= 4)
-          className={clsx({
-            'sm:left-2/4 sm:max-w-wrapper sm:px-4 sm:relative sm:transform sm:w-screen sm:-translate-x-2/4':
-              totalSetCollectibles > 3,
-          })}
-        >
-          <Grid columns={totalSetCollectibles > 3 ? 4 : 3}>
-            {collectedSetAssets.map((asset, index) => (
-              <CollectibleItem
-                alt={asset.title}
-                cardView
-                imageUrl={asset.image}
-                key={asset.id}
-                rarity={
-                  asset.rarity || {
-                    name: t('common:global.rarityDefault'),
-                  }
-                }
-                setNumber={index + 1}
-                title={asset.title}
-              />
+        <section className={css.setWrapper}>
+          <CollectionSetHeader
+            setName={set.name}
+            collectedCount={assets.length}
+            totalCount={set.collectibleTemplateIds.length}
+          />
+          <Grid base={2} sm={3} md={4} lg={5} gapBase={7}>
+            {collectedSetAssets.map((asset) => (
+              <CollectionItem collectible={asset} key={asset.id} />
             ))}
             {uncollectedSetAssets.map((_, index) => (
-              <CollectibleItem
-                cardView
-                key={index}
-                questionMarkSize="large"
-                setNumber={collectedSetAssets.length + index + 1}
-                title={t('common:statuses.Uncollected')}
-                uncollected
-              />
+              <CollectionItem key={index} />
             ))}
           </Grid>
-        </div>
-      )}
-
-      {/* Collection Reward */}
-      {collection.reward && (
-        <CollectionReward
-          collectionName={collection.name}
-          handleRedirectBrand={handleRedirectBrand}
-          reward={collection.reward}
-          totalCollected={totalCollectionAssetsCollected}
-          totalCollectibles={totalCollectiblesInCollection}
-        />
+        </section>
       )}
     </>
   )

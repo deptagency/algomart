@@ -1,8 +1,7 @@
 import type { FirebaseApp } from 'firebase/app'
 import { useEffect, useState } from 'react'
 
-import { useConfig } from './use-config'
-
+import { AppConfig } from '@/config'
 import { sleep } from '@/utils/sleep'
 
 export async function getFirebaseAppAsync() {
@@ -19,7 +18,6 @@ export async function waitForFirebaseAppToBeConfigured() {
 }
 
 export function useFirebaseApp(): FirebaseApp | null {
-  const config = useConfig()
   const [app, setApp] = useState<FirebaseApp | null>(null)
 
   useEffect(() => {
@@ -27,15 +25,13 @@ export function useFirebaseApp(): FirebaseApp | null {
       ;(async () => {
         const { getApps, initializeApp, getApp } = await getFirebaseAppAsync()
         if (getApps().length === 0) {
-          if (config.firebaseConfig) {
-            setApp(initializeApp(config.firebaseConfig))
-          }
+          setApp(initializeApp(AppConfig.firebaseConfig))
         } else {
           setApp(getApp())
         }
       })()
     }
-  }, [config, app])
+  }, [app])
 
   return app
 }

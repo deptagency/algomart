@@ -1,29 +1,25 @@
 import {
-  CollectibleListWithTotal,
   CollectibleSortField,
   SortDirection,
   SortOptions,
 } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useState } from 'react'
 
 import Loading from '@/components/loading/loading'
 import { useAuth } from '@/contexts/auth-context'
+import { useLanguage } from '@/contexts/language-context'
+import { useNFTs } from '@/hooks/api/use-nfts'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
 import MyCollectiblesTemplate from '@/templates/my-collectibles-template'
-import { getSelectSortingOptions } from '@/utils/filters'
-import { useApi } from '@/utils/swr'
-import { urls } from '@/utils/urls'
+import { getSortOptions } from '@/utils/filters'
 
 export default function MyCollectiblesPage() {
-  const { user } = useAuth()
-  const router = useRouter()
   const { t } = useTranslation()
   const [sortBy, setSortBy] = useState<CollectibleSortField>(
     CollectibleSortField.ClaimedAt
@@ -32,15 +28,19 @@ export default function MyCollectiblesPage() {
     SortDirection.Descending
   )
 
+  const { language } = useLanguage()
+  const { user } = useAuth()
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const sortOptions = getSelectSortingOptions(t)
+  const sortOptions = getSortOptions(t)
   const [sortMode, setSortMode] = useState<string>(sortOptions[0].value)
 
-  const { data } = useApi<CollectibleListWithTotal>(
-    user?.username
-      ? `${urls.api.v1.getAssetsByOwner}?ownerUsername=${user.username}&sortBy=${sortBy}&sortDirection=${sortDirection}&page=${currentPage}`
-      : null
-  )
+  const { data } = useNFTs({
+    sortBy,
+    sortDirection,
+    language,
+    page: currentPage,
+    username: user?.username,
+  })
 
   const { collectibles, total } = data || {}
 
@@ -60,18 +60,21 @@ export default function MyCollectiblesPage() {
         CollectibleSortField.ClaimedAt,
         SortDirection.Ascending,
       ],
-      [SortOptions.Name]: [CollectibleSortField.Title, SortDirection.Ascending],
+      [SortOptions.RarityAscending]: [
+        CollectibleSortField.Rarity,
+        SortDirection.Ascending,
+      ],
+      [SortOptions.RarityDescending]: [
+        CollectibleSortField.Rarity,
+        SortDirection.Descending,
+      ],
     }[value] as [CollectibleSortField, SortDirection]
     setSortBy(newSortBy)
     setSortDirection(newSortDirection)
   }, [])
 
   return (
-    <DefaultLayout
-      pageTitle={t('common:pageTitles.My Collectibles')}
-      panelPadding
-      width="large"
-    >
+    <DefaultLayout pageTitle={t('common:pageTitles.My Collectibles')} noPanel>
       {!collectibles || total === undefined ? (
         <Loading />
       ) : (
@@ -79,7 +82,6 @@ export default function MyCollectiblesPage() {
           assets={collectibles}
           currentPage={currentPage}
           onPageChange={handlePageChange}
-          onRedirectBrands={() => router.push(urls.releases)}
           onSortChange={handleSortChange}
           sortMode={sortMode}
           sortOptions={sortOptions}

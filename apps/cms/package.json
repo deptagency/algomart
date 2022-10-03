@@ -1,8 +1,15 @@
 {
   "scripts": {
+    "import": "./scripts/import-csv.mjs",
     "seed": "./scripts/seed-dev.mjs",
+    "seed-prod": "./scripts/seed-prod.mjs",
     "drop": "./scripts/drop.mjs",
+    "build": "run-p build-*",
     "build-price-display": "cd extensions/displays/pack-price && npx directus-extension build",
-    "build-price-interface": "cd extensions/interfaces/price-conversion && npx directus-extension build"
+    "build-price-interface": "cd extensions/interfaces/price-conversion && npx directus-extension build",
+    "build-import-data": "cd extensions/hooks/import-data && npx directus-extension build",
+    "build-kyc-management": "cd extensions/hooks/kyc-management && npx directus-extension build",
+    "build-set-verification-status": "cd extensions/hooks/set-verification-status && npx directus-extension build",
+    "build-start-up-hook": "cd extensions/hooks/start-up-hook && npx directus-extension build"
   }
 }

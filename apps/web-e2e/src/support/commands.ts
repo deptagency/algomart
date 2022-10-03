@@ -12,26 +12,44 @@ import { configure } from '@testing-library/cypress'
 // Configuration for React Testing Library
 configure({})
 
+// Set up the base environment variables that should be used in non-cypress util functions
+const base_env = {
+  firebaseServiceAccount: JSON.stringify(
+    Cypress.env('FIREBASE_SERVICE_ACCOUNT')
+  ),
+  firebaseOptions: JSON.stringify(Cypress.env('FIREBASE_OPTIONS')),
+  apiURL: Cypress.env('API_URL'),
+}
+
 /*
  * Custom command for initiating the creation of a user
- * @example cy.createUser({ ... })
+ * @example cy.createUsers('user@email.com', 'password', 'username)
  */
 Cypress.Commands.add(
-  'createUser',
-  (email: string, passphrase: string, password: string, username: string) => {
-    return cy.exec('node ./src/utils/createUser.js', {
-      env: { email, passphrase, password, username },
+  'createUsers',
+  (email: string, password: string, username: string) => {
+    return cy.exec('node ./src/chainable-functions/createUsers.mjs', {
+      env: {
+        ...base_env,
+        email,
+        password,
+        username,
+      },
     })
   }
 )
 
 /*
  * Custom command for cleaning up test users
- * @example cy.cleanupUser('user@email.com')
+ * @example cy.cleanupUsers('user@email.com', 'username')
  */
-Cypress.Commands.add('cleanupUser', (email: string) => {
-  return cy.exec('node ./src/utils/cleanupUser.js', {
-    env: { email },
+Cypress.Commands.add('cleanupUsers', (email: string, username: string) => {
+  return cy.exec('node ./src/chainable-functions/cleanupUsers.js', {
+    env: {
+      ...base_env,
+      email,
+      username,
+    },
   })
 })
 
@@ -40,7 +58,10 @@ Cypress.Commands.add('cleanupUser', (email: string) => {
  * @example cy.verifyEmail('user@email.com')
  */
 Cypress.Commands.add('verifyEmail', (email: string) => {
-  return cy.exec('node ./src/utils/cleanupUser.js', {
-    env: { email },
+  return cy.exec('node ./src/chainable-functions/verifyEmail.js', {
+    env: {
+      ...base_env,
+      email,
+    },
   })
 })

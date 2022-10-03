@@ -1,8 +1,9 @@
 import clsx from 'clsx'
+import { useState } from 'react'
 
 import css from './panel.module.css'
 
-import Heading from '@/components/heading'
+import { H2 } from '@/components/heading'
 
 export interface PanelProps {
   className?: string
@@ -10,6 +11,8 @@ export interface PanelProps {
   description?: React.ReactNode
   footer?: React.ReactNode
   fullWidth?: boolean
+  hScrollContent?: boolean
+  openByDefault?: boolean
   title?: React.ReactNode
 }
 
@@ -19,25 +22,49 @@ export default function Panel({
   description,
   footer,
   fullWidth,
+  hScrollContent,
+  openByDefault = true,
   title,
   children,
 }: React.PropsWithChildren<PanelProps>) {
+  const [collapsed, setCollapsed] = useState(!openByDefault)
+  const handleToggleCollapse = () => {
+    setCollapsed(!collapsed)
+  }
+
   return (
     <section className={clsx(className, css.root)}>
       {title && (
         <header className={css.header}>
           <div className={css.contentLeft}>
-            <Heading level={2} inheritColor>
+            <H2 uppercase inheritColor>
               {title}
-            </Heading>
+            </H2>
             {description && (
               <div className={css.description}>{description}</div>
             )}
           </div>
-          <div className={css.contentRight}>{contentRight}</div>
+          <div className={css.contentRight}>
+            {contentRight}
+            <button
+              className={css.collapseButton}
+              onClick={handleToggleCollapse}
+            >
+              {collapsed ? '+' : <>&ndash;</>}
+            </button>
+          </div>
         </header>
       )}
-      <div className={clsx({ [css.padContent]: !fullWidth })}>{children}</div>
+      {!collapsed && (
+        <div
+          className={clsx({
+            [css.padContent]: !fullWidth,
+            [css.hScrollContent]: hScrollContent,
+          })}
+        >
+          {children}
+        </div>
+      )}
       {footer && <div className={css.footer}>{footer}</div>}
     </section>
   )

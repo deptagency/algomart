@@ -1,5 +1,6 @@
 import { invariant } from '@algomart/shared/utils'
-import type { Account, Transaction, TransactionSigner } from 'algosdk'
+import type { Account, Address, Transaction, TransactionSigner } from 'algosdk'
+
 import { loadSDK } from './utils'
 
 export type MultisigMetadata = {
@@ -65,7 +66,9 @@ export async function encodeTransactions(
   const { assignGroupID } = await loadSDK()
   if (txns.length > 1) assignGroupID(txns)
   return Promise.all(
-    txns.map((txn, i) => encodeTransaction(txn, undefined, messages?.[i]))
+    txns.map((txn, index) =>
+      encodeTransaction(txn, undefined, messages?.[index])
+    )
   )
 }
 
@@ -140,8 +143,8 @@ export async function encodeSignedTransactions(
   )
 
   return Promise.all(
-    txns.map((txn, i) =>
-      encodeSignedTransaction(txn, signers[i], messages?.[i])
+    txns.map((txn, index) =>
+      encodeSignedTransaction(txn, signers[index], messages?.[index])
     )
   )
 }
@@ -154,6 +157,23 @@ export async function encodeSignedTransactions(
 export async function decodeTransaction(txn: string): Promise<Transaction> {
   const { decodeUnsignedTransaction } = await loadSDK()
   return decodeUnsignedTransaction(new Uint8Array(Buffer.from(txn, 'base64')))
+}
+
+/**
+ * Decodes an signed transaction from base64.
+ * @param txn Encoded/ signed transaction to decode
+ * @returns Decoded transaction
+ */
+export async function decodeSignedTransaction(
+  txn: string
+): Promise<Transaction> {
+  const { decodeSignedTransaction } = await loadSDK()
+  return decodeSignedTransaction(new Uint8Array(Buffer.from(txn, 'base64'))).txn
+}
+
+export async function encodeAddress(address: Address) {
+  const { encodeAddress } = await loadSDK()
+  return encodeAddress(address.publicKey)
 }
 
 enum WalletErrorCode {
@@ -314,13 +334,13 @@ export async function configureSignTxns(accounts: Account[]) {
 
     // Require that multiple transactions belong to the same group. Does not support the optional
     // specified here: https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md#group-validation
-    const groupID = (await decodeTransaction(txns[0].txn)).group
+    const decodedTxn = await decodeTransaction(txns[0].txn)
     walletInvariant(
-      txns.length === 1 || !!groupID,
+      txns.length === 1 || !!decodedTxn.group,
       'group must be set for multiple transactions',
       WalletErrorCode.InvalidInput
     )
 
-    return Promise.all(txns.map((txn) => signTxn(txn, groupID)))
+    return Promise.all(txns.map((txn) => signTxn(txn, decodedTxn.group)))
   }
 }

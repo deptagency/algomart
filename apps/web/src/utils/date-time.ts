@@ -32,3 +32,12 @@ export function getExpirationDate(expMonth: string, expYear: string) {
 export function addDays(date: Date, days: number) {
   return new Date(date.getTime() + days * 24 * 60 * 60 * 1000)
 }
+
+export function getTimeDiff(date: Date, now = new Date()) {
+  const diffInMilliseconds = Math.max(date.getTime() - now.getTime(), 0)
+  const days = Math.floor(diffInMilliseconds / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((diffInMilliseconds / (1000 * 60 * 60)) % 24)
+  const minutes = Math.floor((diffInMilliseconds / 1000 / 60) % 60)
+  const seconds = Math.floor((diffInMilliseconds / 1000) % 60)
+  return { days, hours, minutes, seconds, diffInMilliseconds }
+}

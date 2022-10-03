@@ -1,51 +1,51 @@
 import { Directus } from '@directus/sdk'
 
-export async function setupSDK(config) {
-  const directus = new Directus(process.env.PUBLIC_URL);
+export async function setupSDK(config, publicUrl) {
+  const directus = new Directus(publicUrl)
 
   // But, we need to authenticate if data is private
-  let authenticated = false;
+  let authenticated = false
 
   // Try to authenticate with token if exists
   await directus.auth
     .refresh()
     .then(() => {
-      authenticated = true;
+      authenticated = true
     })
-    .catch(() => { });
+    .catch(() => {})
 
   // Let's login in case we don't have token or it is invalid / expired
   while (!authenticated) {
     await directus.auth
       .login(config)
       .then(() => {
-        authenticated = true;
+        authenticated = true
       })
-      .catch(() => {
-        console.error('Invalid Directus credentials');
-        process.exit(1);
-      });
+      .catch((error) => {
+        console.error(error.message)
+        process.exit(1)
+      })
   }
 
   return directus
 }
 
-export async function setAccessToken(directus) {
-  const me = await directus.users.me.read();
+export async function setAccessToken(directus, token) {
+  const me = await directus.users.me.read()
 
-  await directus.users.updateOne(me.id, {
-    token: process.env.ADMIN_ACCESS_TOKEN,
-  });
+  await directus.users.updateOne(me.id, { token })
 }
 
 export async function setFilePermission(directus) {
-  const permissions = (await directus.items('directus_permissions').readByQuery({
-    filter: {
-      collection: {
-        _eq: 'directus_files'
-      }
-    }
-  })).data[0];
+  const permissions = (
+    await directus.items('directus_permissions').readByQuery({
+      filter: {
+        collection: {
+          _eq: 'directus_files',
+        },
+      },
+    })
+  ).data[0]
 
   if (permissions === undefined) {
     await directus.items('directus_permissions').createOne({
@@ -55,7 +55,7 @@ export async function setFilePermission(directus) {
       permissions: {},
       validation: {},
       presets: null,
-      fields: ['*']
+      fields: ['*'],
     })
   } else {
     await directus.items('directus_permissions').updateOne(permissions.id, {
@@ -65,7 +65,7 @@ export async function setFilePermission(directus) {
       permissions: {},
       validation: {},
       presets: null,
-      fields: ['*']
+      fields: ['*'],
     })
   }
 }

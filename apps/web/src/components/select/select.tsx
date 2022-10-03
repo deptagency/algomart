@@ -1,8 +1,7 @@
 import { Listbox } from '@headlessui/react'
-import { v4 as uuid } from 'uuid'
 import { SelectorIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
-import {
+import React, {
   DetailedHTMLProps,
   InputHTMLAttributes,
   ReactNode,
@@ -20,34 +19,34 @@ export interface SelectOption {
 
 export interface SelectProps
   extends DetailedHTMLProps<
-    Omit<InputHTMLAttributes<HTMLSelectElement>, 'onChange'>,
+    Omit<InputHTMLAttributes<HTMLSelectElement>, 'onChange' | 'size'>,
     HTMLSelectElement
   > {
-  error?: string
-  onChange?(value: string): void
-  helpText?: string
-  label?: string
-  options: SelectOption[]
-  value?: string
+  hasError?: boolean
   Icon?: ReactNode
+  onChange?(value: string): void
+  options: SelectOption[]
+  density?: 'compact' | 'normal'
+  value?: string
+  variant?: 'solid' | 'outline' | 'light'
 }
 
 export default function Select({
+  className,
   defaultValue,
   disabled,
-  error,
-  onChange,
-  helpText,
+  hasError,
+  Icon,
   id,
   name,
-  label,
+  onChange,
   options,
+  density = 'normal',
   value,
-  Icon,
+  variant = 'outline',
 }: SelectProps) {
-  const _id = id ?? uuid()
   const [internalValue, setInternalValue] = useState(
-    defaultValue || (options?.length ? options[0].value : '')
+    defaultValue ?? (options?.length ? options[0].value : '')
   )
 
   const actualValue = value ?? internalValue
@@ -66,30 +65,29 @@ export default function Select({
   }
 
   return (
-    <label className={css.root} data-input="select" htmlFor={_id}>
-      <div className={css.labelContainer}>
-        {label && <div className={css.label}>{label}</div>}
-        {error && <div className={css.errorText}>{error}</div>}
-        {!error && helpText && <div className={css.helpText}>{helpText}</div>}
-      </div>
+    <div
+      className={clsx(css.root, className, {
+        [css.compact]: density === 'compact',
+        [css.solid]: variant === 'solid',
+        [css.outline]: variant === 'outline',
+        [css.light]: variant === 'light',
+        [css.error]: hasError,
+      })}
+    >
       <Listbox disabled={disabled} onChange={handleChange} value={actualValue}>
-        <div className={css.selectContainer}>
+        <span className={css.selectContainer}>
           <Listbox.Button
             className={clsx(css.selectButton, {
-              [css.selectButtonDisabled]: disabled,
-              [css.selectButtonError]: error,
+              [css.disabled]: disabled,
             })}
           >
-            <div className={css.selectButtonText}>
+            <span className={css.selectButtonText}>
               {Icon}
-              {selectedOption.label}
-            </div>
-            <div className={css.selectButtonIconContainer}>
-              <SelectorIcon
-                className={css.selectButtonIcon}
-                aria-hidden="true"
-              />
-            </div>
+              {selectedOption?.label ?? '—'}
+            </span>
+            <span className={css.iconContainer}>
+              <SelectorIcon className={css.icon} aria-hidden="true" />
+            </span>
           </Listbox.Button>
 
           <Listbox.Options className={css.selectOptions}>
@@ -110,17 +108,17 @@ export default function Select({
               </Listbox.Option>
             ))}
           </Listbox.Options>
-        </div>
+        </span>
       </Listbox>
       {/* Used to capture value of select */}
       <input
         tabIndex={-1}
         className="sr-only"
         readOnly
-        value={selectedOption.value}
+        value={actualValue}
         name={name}
         id={id}
       />
-    </label>
+    </div>
   )
 }

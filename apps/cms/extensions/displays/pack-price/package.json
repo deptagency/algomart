@@ -6,7 +6,10 @@
     "type": "display",
     "path": "index.js",
     "source": "src/index.ts",
-    "host": "9.9.1",
+    "host": "9.16.1",
     "hidden": false
+  },
+  "scripts": {
+    "build": "directus-extension build"
   }
 }

@@ -1,0 +1,42 @@
+.labelContainer {
+  @apply relative flex flex-wrap content-between w-full font-bold text-base-textPrimary;
+}
+
+.label {
+  @apply block w-1/2 mb-2;
+}
+
+.helpText {
+  @apply w-1/2 mt-1 text-sm font-normal text-right;
+}
+
+.errorText {
+  @apply w-1/2 mt-1 text-sm font-normal text-right text-base-error;
+}
+
+/* These styles override the plugin classes... */
+.redeemCodeInput {
+  width: 100% !important;
+}
+
+.redeemCodeInput > div {
+  @apply flex justify-between;
+}
+
+.redeemCodeInput input {
+  border-right: unset;
+  border-left: unset;
+  border: 1px solid #dadcdf !important;
+  border-radius: 4px !important;
+  font-family: 'Poppins', ui-sans-serif, system-ui, -apple-system !important;
+  height: 50px !important;
+  width: 40px !important;
+}
+
+.redeemCodeInput input:focus {
+  caret-color: unset !important;
+}
+
+.redeemCodeInputError input {
+  border: 1px solid rgba(185, 28, 28, 1) !important;
+}

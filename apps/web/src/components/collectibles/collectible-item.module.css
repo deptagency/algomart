@@ -1,93 +1,94 @@
 .root {
-  @apply relative flex flex-col col-span-1;
-}
-
-.rootCard {
-  @apply h-full pb-4 overflow-hidden rounded-md shadow-lg bg-base-bgCard;
-}
-
-.rootCard > div {
-  @apply rounded-none shadow-none;
+  @apply relative flex flex-col h-full col-span-1 p-3 transition duration-300 bg-white rounded-md shadow-lg;
+  @apply hover:scale-105;
 }
 
 /* Item image */
 .imageWrapper {
-  @apply relative overflow-hidden bg-black rounded-md shadow-lg hover:border-action-accent focus:border-action-accent;
+  @apply relative overflow-hidden bg-black shadow-lg hover:border-action-accent focus:border-action-accent;
+}
+.unrevealed {
+  @apply overflow-hidden rounded-lg border-action-primary border-1;
 }
 
-.questionMarkWrapper {
-  @apply relative flex w-full;
-  background: linear-gradient(135deg, #6ba2ce 0%, #3f80b5 100%);
-  padding-bottom: 100%;
-}
-
-.questionMark {
-  @apply absolute font-medium text-center text-white left-1/2 top-1/2;
-  transform: translate(-50%, -50%);
-}
-
-.questionMarkSmall {
-  @apply text-2xl;
-}
-
-.questionMarkMedium {
-  @apply text-4xl;
-}
-
-.questionMarkLarge {
-  @apply text-7xl;
-}
-
+/* Image overlays */
 .badge {
-  @apply absolute px-2 py-1 text-xs font-bold text-center text-black rounded-full text-opacity-70 bg-action-accent bottom-2 left-2;
+  @apply absolute px-3 py-1 text-xs font-semibold text-center text-white uppercase rounded-full left-2;
 }
-
-/* Item content */
-.title {
-  @apply px-4 mt-2 text-sm text-center text-base-textPrimary;
+.badgeNew {
+  @apply badge bg-teal top-2;
 }
-
-.title.titleFaded {
-  @apply text-base-gray-light;
+.badgePrice {
+  @apply self-center badge bg-action-primary bottom-2;
 }
-
-.rootCard .title {
-  @apply mt-4;
+.badgePrice span {
+  @apply font-normal;
 }
-
-.metaWrapper {
-  @apply flex items-center justify-between px-4 pt-2;
-}
-
-.metaWrapper.metaCenter {
-  @apply justify-center;
-}
-
-.setNumber {
-  @apply text-2xl font-black text-opacity-20 text-base-textPrimary;
-}
-
-.rarity {
-  @apply px-4 py-1 text-xs font-bold text-center text-white uppercase rounded-full bg-base-gray-medium;
+.ribbon {
+  @apply absolute font-bold leading-10 tracking-wider text-center text-white uppercase rotate-45 bg-teal w-52 -right-16 top-5;
 }
 
 /* Showcase actions */
 .removeButton {
-  @apply absolute -top-2 -right-2;
+  @apply absolute z-10 -top-2 -right-2;
 }
-
 .removeIcon {
-  @apply w-6 h-6 text-black bg-white rounded-full;
+  @apply w-8 h-8 text-white bg-black rounded-full;
 }
-
 .overlay {
   @apply absolute inset-0 flex items-center justify-center text-white bg-black bg-opacity-50;
 }
-
+.addIcon,
+.checkIcon {
+  @apply w-10 h-10 p-2 text-white rounded-full;
+}
 .addIcon {
-  @apply w-6 h-6 text-black bg-white rounded-full;
+  @apply bg-blue-gradient-vert;
+}
+.checkIcon {
+  @apply bg-action-secondary;
 }
 
-.checkIcon {
-  @apply w-6 h-6 text-black rounded-full bg-action-accent;
+/* Item content */
+.pills {
+  @apply flex flex-wrap justify-center gap-2 mt-4;
+}
+.title {
+  @apply px-2 mt-4 overflow-hidden text-sm font-bold leading-snug text-center uppercase text-base-textPrimary;
+  @apply sm:text-base;
+}
+.title > div {
+  @apply line-clamp-2;
+}
+
+/* Bottom row  */
+.metaBoxBottom {
+  @apply relative flex items-end justify-between flex-grow w-full h-8 mt-2;
+}
+.metaBoxBottomContent {
+  @apply flex items-end justify-between w-full;
+}
+.collectionImage {
+  @apply w-8 h-8 overflow-hidden border-white rounded-full;
+}
+
+/* Marketplace actions */
+.collectibleMenu {
+  @apply text-black bg-white;
+}
+.collectibleMenuItem,
+.collectibleMenuItem:hover {
+  @apply border-b-1 border-[#E0E0E0] cursor-pointer flex last:border-b-0 p-3 text-action-primary;
+}
+.collectibleMenuItemIcon {
+  @apply text-action-primary;
+}
+.collectibleMenuItemText {
+  @apply ml-2;
+}
+
+.actionsButton {
+  @apply p-2 text-base transition bg-white rounded-full bg-opacity-10;
+  @apply hover:bg-opacity-20 focus:bg-opacity-20;
+  @apply md:text-lg;
 }

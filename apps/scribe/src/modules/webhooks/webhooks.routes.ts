@@ -1,16 +1,16 @@
 import { DirectusWebhook } from '@algomart/schemas'
-import { DirectusAdapter } from '@algomart/shared/adapters'
+import { CMSCacheService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
-export async function processRequest(
+export async function processRequestDirectus(
   request: FastifyRequest<{ Body: DirectusWebhook }>,
   reply: FastifyReply
 ) {
-  const directus = request
+  const cmsCache = request
     .getContainer()
-    .get<DirectusAdapter>(DirectusAdapter.name)
+    .get<CMSCacheService>(CMSCacheService.name)
 
-  directus.processWebhook(request.body)
+  cmsCache.processWebhook(request.body)
 
-  reply.send(200)
+  return reply.send(200)
 }

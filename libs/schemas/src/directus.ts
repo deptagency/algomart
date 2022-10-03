@@ -9,15 +9,16 @@ export interface DirectusHomepageTranslation extends DirectusTranslation {
   featured_packs_title?: string
   featured_nfts_title?: string
   featured_nfts_subtitle?: string
-  hero_banner_title?: string
-  hero_banner_subtitle?: string
 }
 
 export interface DirectusHomepage {
   id: string
-  featured_pack: DirectusPackTemplate | null
-  upcoming_packs: DirectusPackTemplate[] | null
-  notable_collectibles: DirectusCollectibleTemplate[] | null
+  hero_banner: DirectusFile | null
+  hero_pack: DirectusPackTemplate | null
+  featured_faqs: DirectusFaqTemplate[] | null
+  featured_packs: DirectusPackTemplate[] | null
+  featured_nfts: DirectusCollectibleTemplate[] | null
+  featured_rarities: DirectusRarity[] | null
   translations: DirectusHomepageTranslation[]
 }
 
@@ -54,17 +55,23 @@ export interface DirectusPackFile {
 
 export interface DirectusRarityTranslation extends DirectusTranslation {
   name: string
+  description: string
 }
 
 export interface DirectusRarity {
   code: string
   color: string
   id: string
+  image: DirectusFile
   translations: DirectusRarityTranslation[]
 }
 
 export interface DirectusSetTranslation extends DirectusTranslation {
   name: string
+}
+
+export interface DirectusTagTranslation extends DirectusTranslation {
+  title: string
 }
 
 export interface DirectusSet {
@@ -83,6 +90,20 @@ export interface DirectusCollectionTranslation extends DirectusTranslation {
   metadata: Record<string, string | number | boolean> | null
   reward_prompt: string | null
   reward_complete: string | null
+}
+
+export interface DirectusPageTranslation extends DirectusTranslation {
+  body: string
+  title: string
+  hero_banner_title?: string
+  hero_banner_subtitle?: string
+}
+
+export interface DirectusPage {
+  id: string
+  slug: string
+  hero_banner?: DirectusFile
+  translations: DirectusPageTranslation[]
 }
 
 export interface DirectusCollection {
@@ -118,6 +139,21 @@ export interface DirectusCollectibleTemplate {
   translations: DirectusCollectibleTemplateTranslation[]
   collection: DirectusCollection | null
   set: DirectusSet | null
+  tags: DirectusTemplateTag[]
+}
+
+export interface DirectusTag {
+  id: string
+  slug: string
+  translations: DirectusTagTranslation[]
+}
+
+export interface DirectusTemplateTag {
+  tags_id: DirectusTag
+}
+
+export interface DirectusTagTranslation extends DirectusTranslation {
+  title: string
 }
 
 export interface DirectusPackTemplate {
@@ -130,11 +166,13 @@ export interface DirectusPackTemplate {
   nft_order: PackCollectibleOrder
   nft_templates: DirectusCollectibleTemplate[]
   nfts_per_pack: number
+  pack_banner: DirectusFile | null
   pack_image: DirectusFile
   price: number | null
   released_at: string | null
   show_nfts: boolean
   slug: string
+  tags: DirectusTemplateTag[]
   status: DirectusStatus
   translations: DirectusPackTemplateTranslation[]
   type: PackType
@@ -142,14 +180,28 @@ export interface DirectusPackTemplate {
 
 export interface DirectusLanguageTemplate {
   code: string
-  name: string
+  label: string
   sort: number
+}
+
+export interface DirectusFaqTemplateTranslation extends DirectusTranslation {
+  question: string | null
+  answer: string | null
+}
+
+export interface DirectusFaqTemplate {
+  id: string
+  status: DirectusStatus
+  sort: number
+  key: string
+  translations: DirectusFaqTemplateTranslation[]
 }
 
 export interface DirectusCountry {
   id: string
-  countries_code: {
+  countries_id: {
     code: string
+    flag_emoji: string
     translations?: DirectusCountryTranslation[]
   }
 }
@@ -162,7 +214,7 @@ export interface DirectusApplication {
 
 export interface DirectusCountryTranslation extends DirectusTranslation {
   id: number
-  countries_code: string
+  countries_id: string
   languages_code: string
   title: string | null
 }

@@ -1,8 +1,8 @@
 import { BidPublic } from '@algomart/schemas'
-import { UserCircleIcon } from '@heroicons/react/outline'
-import Image from 'next/image'
 import useTranslation from 'next-translate/useTranslation'
 import React from 'react'
+
+import Avatar from '../avatar/avatar'
 
 import BidActivityDetails from './sections/bid-activity-details'
 import BidActivityEmoji from './sections/bid-activity-emoji'
@@ -13,7 +13,6 @@ import { useLocale } from '@/hooks/use-locale'
 import { isAfterNow, isNowBetweenDates } from '@/utils/date-time'
 
 export interface BidActivityProps {
-  avatars: { [key: string]: string | null }
   auctionUntil: string
   bids: BidPublic[]
   releasedAt: string
@@ -22,7 +21,6 @@ export interface BidActivityProps {
 }
 
 export default function BidActivity({
-  avatars,
   auctionUntil,
   bids,
   releasedAt,
@@ -72,7 +70,6 @@ export default function BidActivity({
           </BidActivityDetails>
         )}
         {bids.map((bid, index) => {
-          const avatar = avatars[bid.externalId]
           const createdAtDateTime = new Date(bid.createdAt)
           const meetsReservePrice = !!reservePrice && bid.amount >= reservePrice
           const followingBid = bids[index + 1]
@@ -88,18 +85,7 @@ export default function BidActivity({
                   time: timeFormat.format(createdAtDateTime),
                 })}
               >
-                {/* TODO */}
-                {avatar ? (
-                  <Image
-                    alt={t('release:bidderProfile')}
-                    src={avatar}
-                    layout="responsive"
-                    height="100%"
-                    width="100%"
-                  />
-                ) : (
-                  <UserCircleIcon className={css.avatarGeneric} />
-                )}
+                <Avatar username={bid.username} />
               </BidActivityDetails>
               {meetsReservePrice &&
                 (!followingBid || followingBidDoesNotMeetReservePrice) && (

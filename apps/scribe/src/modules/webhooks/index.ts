@@ -1,8 +1,7 @@
-import { Type } from '@sinclair/typebox'
 import { DirectusWebhookSchema } from '@algomart/schemas'
-import { appErrorHandler } from '@algomart/shared/utils'
+import { processRequestDirectus } from '@scribe/modules/webhooks/webhooks.routes'
+import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
-import { processRequest } from './webhooks.routes'
 
 export async function webhookRoutes(app: FastifyInstance) {
   const tags = ['webhook']
@@ -11,9 +10,6 @@ export async function webhookRoutes(app: FastifyInstance) {
       'API Key': [],
     },
   ]
-
-  // Errors
-  app.setErrorHandler(appErrorHandler(app))
 
   // Plugins
 
@@ -31,6 +27,6 @@ export async function webhookRoutes(app: FastifyInstance) {
         },
       },
     },
-    processRequest
+    processRequestDirectus
   )
 }

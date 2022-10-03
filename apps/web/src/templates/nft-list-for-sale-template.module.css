@@ -1,0 +1,7 @@
+.contentPadding {
+  @apply flex flex-col justify-center w-full max-w-lg px-8 py-12 mx-auto text-center grow;
+}
+
+.contentPadding a {
+  @apply mt-12;
+}

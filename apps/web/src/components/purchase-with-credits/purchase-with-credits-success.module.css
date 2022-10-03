@@ -1,0 +1,11 @@
+.successRoot {
+  @apply w-full max-w-xs text-center;
+}
+
+.icon {
+  @apply w-24 h-24 mx-auto mt-8 mb-28 text-base-price;
+}
+
+.button {
+  @apply mt-24 mb-12;
+}

@@ -1,20 +1,20 @@
-import { CollectibleListWithTotal, CollectionWithSets } from '@algomart/schemas'
+import { CollectionWithSets } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
 
 import { ApiClient } from '@/clients/api-client'
 import Loading from '@/components/loading/loading'
+import { AppConfig } from '@/config'
 import { useAuth } from '@/contexts/auth-context'
-import { Environment } from '@/environment'
+import { useLanguage } from '@/contexts/language-context'
+import { useNFTs } from '@/hooks/api/use-nfts'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
+  getTokenFromCookie,
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
 import MyCollectionTemplate from '@/templates/my-collection-template'
 import { createLogger } from '@/utils/logger'
-import { useApi } from '@/utils/swr'
-import { urls } from '@/utils/urls'
 
 interface MyCollectionPageProps {
   collection: CollectionWithSets
@@ -23,26 +23,23 @@ interface MyCollectionPageProps {
 export default function MyCollectionPage({
   collection,
 }: MyCollectionPageProps) {
+  const { language } = useLanguage()
   const { user } = useAuth()
-  const router = useRouter()
 
   // Fetch asset data
-  const { data: { collectibles } = {} } = useApi<CollectibleListWithTotal>(
-    user?.username
-      ? `${urls.api.v1.getAssetsByOwner}?ownerUsername=${user.username}&pageSize=-1&collectionId=${collection.id}`
-      : null
-  )
+  const { data: { collectibles } = {} } = useNFTs({
+    pageSize: -1,
+    collectionIds: [collection.id],
+    username: user?.username,
+    language,
+  })
 
   return (
-    <DefaultLayout pageTitle={collection.name} panelPadding width="large">
+    <DefaultLayout pageTitle={collection.name} noPanel>
       {!collectibles ? (
         <Loading />
       ) : (
-        <MyCollectionTemplate
-          assets={collectibles}
-          collection={collection}
-          handleRedirectBrand={() => router.push(urls.releases)}
-        />
+        <MyCollectionTemplate assets={collectibles} collection={collection} />
       )}
     </DefaultLayout>
   )
@@ -50,15 +47,19 @@ export default function MyCollectionPage({
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const user = await getAuthenticatedUser(context)
-  const logger = createLogger(Environment.logLevel)
+  const logger = createLogger(AppConfig.logLevel)
 
   if (!user) {
     return handleUnauthenticatedRedirect(context.resolvedUrl)
   }
 
   const slug = context.params?.collectionSlug as string
-  const collection = await ApiClient.instance
-    .getCollectionBySlug(slug)
+  const client = new ApiClient(
+    AppConfig.apiURL,
+    getTokenFromCookie(context.req, context.res)
+  )
+  const collection = await client
+    .getCollectionBySlug(slug, context.locale)
     .catch((error) => {
       logger.error(error)
       return null

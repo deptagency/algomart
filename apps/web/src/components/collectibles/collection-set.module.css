@@ -1,46 +1,13 @@
 .root {
-  @apply mb-12;
+  @apply px-5 py-10 border-x-1 border-b-1 border-gray-400 bg-white;
 }
 
 .setInfo {
-  @apply flex items-center justify-between pb-1 mb-3 border-b border-base-border;
-}
-
-.setName {
-  @apply text-lg;
+  @apply flex items-start justify-between pb-1 mb-5;
 }
 
 .setText {
-  @apply text-sm text-base-gray-medium;
-}
-
-.setNumberCollected {
-  /* Base */
-  @apply hidden;
-  /* Mobile + */
-  @apply sm:block;
-}
-
-.setGrid {
-  /* Base */
-  @apply grid grid-cols-5 gap-4;
-  /* Mobile + */
-  @apply sm:grid-cols-8;
-}
-
-/* Show only first eight children by default */
-.setGrid > div:nth-of-type(1n + 9) {
-  @apply hidden;
-}
-/* Show only first five children in mobile */
-@media only screen and (max-width: 600px) {
-  .setGrid > div:nth-of-type(1n + 6) {
-    @apply hidden;
-  }
-}
-
-.setGrid div {
-  @apply rounded-sm;
+  @apply text-sm uppercase text-action-primary;
 }
 
 .setGridEmpty {
@@ -48,4 +15,21 @@
   @apply border bg-base-bg border-base-border;
   /* Mobile + */
   @apply sm:block;
+}
+
+.sideScrollArea {
+  @apply flex gap-4 overflow-x-scroll;
+  @apply px-5 pt-2 pb-10 -mx-5 -mt-2 -mb-9;
+  @apply sm:gap-6;
+  @apply md:gap-10;
+}
+.sideScrollArea::-webkit-scrollbar {
+  @apply h-1 bg-transparent;
+}
+.sideScrollArea::-webkit-scrollbar-thumb {
+  @apply bg-action-accent;
+}
+
+.sideScrollArea > * {
+  @apply flex-grow-0 flex-shrink-0 w-40;
 }

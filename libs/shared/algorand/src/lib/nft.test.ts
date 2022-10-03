@@ -1,4 +1,5 @@
 import algosdk from 'algosdk'
+
 import {
   ARC3Metadata,
   buildMetadata,
@@ -6,21 +7,25 @@ import {
   createExportNFTTransactions,
   createImportNFTTransactions,
   createNewNFTsTransactions,
+  createTradeTransactions,
 } from './nft'
 import {
   configureAlgod,
-  createAccountInformationMock,
+  configureIndexer,
   createGetTransactionParamsMock,
+  createLookupAccountByIDMock,
 } from './test-utils'
 
 let algod: algosdk.Algodv2
+let indexer: algosdk.Indexer
 jest.fn
 beforeEach(() => {
   algod = configureAlgod()
+  indexer = configureIndexer()
 })
 
 describe('createNewNFTsTransactions', () => {
-  it('should generate asset create transactions', async () => {
+  test('should generate asset create transactions', async () => {
     // Arrange
     algod.getTransactionParams = createGetTransactionParamsMock()
     const creatorAccount = algosdk.generateAccount()
@@ -53,7 +58,7 @@ describe('createNewNFTsTransactions', () => {
 })
 
 describe('createClawbackNFTTransactions', () => {
-  it('should clawback with opt-in', async () => {
+  test('should clawback with opt-in', async () => {
     // Arrange
     algod.getTransactionParams = createGetTransactionParamsMock()
     const fundingAccount = algosdk.generateAccount()
@@ -82,7 +87,7 @@ describe('createClawbackNFTTransactions', () => {
     expect(result.txns[2].type).toBe(algosdk.TransactionType.axfer)
   })
 
-  it('should clawback without opt-in', async () => {
+  test('should clawback without opt-in', async () => {
     // Arrange
     algod.getTransactionParams = createGetTransactionParamsMock()
     const fundingAccount = algosdk.generateAccount()
@@ -110,7 +115,7 @@ describe('createClawbackNFTTransactions', () => {
 })
 
 describe('buildMetadata', () => {
-  it('should create a metadata object', () => {
+  test('should create a metadata object', () => {
     // Arrange
     const expected: ARC3Metadata = {
       name: 'My NFT',
@@ -126,8 +131,8 @@ describe('buildMetadata', () => {
       extra_metadata: 'ZW5jb2RlZCB0ZXh0',
       localization: {
         uri: 'https://example.com/{locale}.json',
-        default: 'en',
-        locales: ['en', 'es', 'fr'],
+        default: 'en-UK',
+        locales: ['en-UK', 'es-ES', 'fr-FR'],
       },
     }
 
@@ -143,10 +148,10 @@ describe('buildMetadata', () => {
       .property('key1', 'value1')
       .properties({ key2: 'value2' })
       .extraMetadata('ZW5jb2RlZCB0ZXh0')
-      .localization('https://example.com/{locale}.json', 'en', [
-        'en',
-        'es',
-        'fr',
+      .localization('https://example.com/{locale}.json', 'en-UK', [
+        'en-UK',
+        'es-ES',
+        'fr-FR',
       ])
 
     // Assert
@@ -156,10 +161,10 @@ describe('buildMetadata', () => {
 })
 
 describe('createExportNFTTransactions', () => {
-  it('should generate export txns', async () => {
+  test('should generate export txns', async () => {
     // Arrange
     algod.getTransactionParams = createGetTransactionParamsMock()
-    algod.accountInformation = createAccountInformationMock({})
+    indexer.lookupAccountByID = createLookupAccountByIDMock({})
     const fundingAccount = algosdk.generateAccount()
     const currentOwnerAccount = algosdk.generateAccount()
     const recipientAccount = algosdk.generateAccount()
@@ -181,10 +186,10 @@ describe('createExportNFTTransactions', () => {
 })
 
 describe('createImportNFTTransactions', () => {
-  it('should generate import txns', async () => {
+  test('should generate import txns', async () => {
     // Arrange
     algod.getTransactionParams = createGetTransactionParamsMock()
-    algod.accountInformation = createAccountInformationMock({
+    indexer.lookupAccountByID = createLookupAccountByIDMock({
       assets: [{ assetIndex: 2 }],
       amount: 0,
     })
@@ -197,6 +202,7 @@ describe('createImportNFTTransactions', () => {
       algod,
       assetIndex: 1,
       clawbackAddress: fundingAccount.addr,
+      indexer,
       fromAddress: currentOwnerAccount.addr,
       fundingAddress: fundingAccount.addr,
       toAddress: recipientAccount.addr,
@@ -205,5 +211,38 @@ describe('createImportNFTTransactions', () => {
     // Assert
     expect(result).toBeDefined()
     expect(result).toHaveLength(4)
+  })
+})
+
+describe('generateTradeTransactions', () => {
+  test('should generate trade txns', async () => {
+    // Arrange
+    algod.getTransactionParams = createGetTransactionParamsMock()
+    const fundingAccount = algosdk.generateAccount()
+    const sellerAccount = algosdk.generateAccount()
+    const buyerAccount = algosdk.generateAccount()
+    const clawbackAccount = algosdk.generateAccount()
+
+    // Act
+    const result = await createTradeTransactions({
+      algod,
+      assetIndex: 1,
+      buyerAccount,
+      clawbackAccount,
+      fundingAccount,
+      sellerAccount,
+    })
+
+    // Assert
+    expect(result).toBeDefined()
+    expect(result.groupID).toBeDefined()
+    expect(result.txIDs).toHaveLength(5)
+    expect(result.signedTxns).toHaveLength(5)
+    expect(result.txns).toHaveLength(5)
+    expect(result.txns[0].type).toBe(algosdk.TransactionType.pay)
+    expect(result.txns[1].type).toBe(algosdk.TransactionType.axfer)
+    expect(result.txns[2].type).toBe(algosdk.TransactionType.axfer)
+    expect(result.txns[3].type).toBe(algosdk.TransactionType.axfer)
+    expect(result.txns[4].type).toBe(algosdk.TransactionType.pay)
   })
 })

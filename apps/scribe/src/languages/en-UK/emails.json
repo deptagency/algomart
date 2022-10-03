@@ -1,0 +1,144 @@
+{
+  "auctionComplete": {
+    "subject": "You're the winning bidder!",
+    "body": {
+      "0": "<strong>You are currently the highest bidder for “{{packTitle}}”!</strong>",
+      "1": "You had the winning bid of ${{amount}}! Sign in now to complete your purchase and claim your winnings!",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>Complete your purchase</strong></a>"
+    },
+    "expirationWarning": "<em>Note: You have 72 hours before your winning bid expires and goes to the next highest bidder.</em>"
+  },
+  "bidExpired": {
+    "subject": "Your bid for \"{{packTitle}}\" has expired.",
+    "body": {
+      "0": "We're writing to let you know that your bid for “{{packTitle}}” has expired since no payment has been received."
+    }
+  },
+  "emailPasswordReset": {
+    "subject": "Reset your password",
+    "body": {
+      "0": "We received a password reset request from you. Follow this link to reset your account password. ",
+      "1": "If you didn’t ask to reset your password, you can ignore this email. Otherwise please contact customer support if you believe this to be in error.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>Reset Password</strong></a>"
+    }
+  },
+  "newEmailVerification": {
+    "subject": "Verify your email for your account",
+    "body": {
+      "0": "Please follow this link to verify your account email. ",
+      "1": "<a href=\"{{ctaUrl}}\"><strong>Verify Email</strong></a>"
+    }
+  },
+  "reportComplete": {
+    "subject": "A report was returned with a suspicious status",
+    "body": {
+      "0": "<strong>An account was flagged and put into a status of {{verificationStatus}}.</strong>",
+      "1": "The account is associated with the email {{userEmail}} and has the applicant ID {{applicantId}}",
+      "2": "<a href=\"{{url}}\"><strong>Sign in to the Onfido dashboard to view the original workflow</strong></a>"
+    }
+  },
+  "workflowCompleteManualReview": {
+    "subject": "Completed Workflow Requires Manual Review",
+    "body": {
+      "0": "<strong>A customer workflow has completed that requires manual review.</strong>",
+      "1": "Sign in to the CMS for more details about the verification check.",
+      "2": "<a href=\"{{url}}\"><strong>KYC Management in the CMS</strong></a>"
+    }
+  },
+  "workflowCompleteRejected": {
+    "subject": "Completed Workflow Was Rejected",
+    "body": {
+      "0": "<strong>A customer workflow has completed that was rejected.</strong>",
+      "1": "The account is associated with the email {{userEmail}} and has the applicant ID {{applicantId}}",
+      "2": "<a href=\"{{url}}\"><strong>Sign in to the Onfido dashboard to view the workflow</strong></a>"
+    }
+  },
+  "workflowComplete": {
+    "subject": "Your verification check is complete!",
+    "body": {
+      "0": "<strong>The verification you initiated now has a status of {{status}}.</strong>",
+      "1": "Sign in now to check the results of the verification check.",
+      "2": "<a href=\"{{url}}\"><strong>Check verification status</strong></a>"
+    }
+  },
+  "packRevoked": {
+    "subject": "Pack revoked",
+    "body": "Your pack “{{packTitle}}” has been revoked. Please contact customer support if you believe this to be in error."
+  },
+  "paymentFailed": {
+    "subject": "Payment failed",
+    "body": "Your payment for “{{packTitle}}” failed. Please contact customer support."
+  },
+  "paymentSuccess": {
+    "subject": "Your collectibles are ready!",
+    "body": {
+      "0": "<strong>Congratulations!</strong>",
+      "1": "Your new pack {{packTitle}} is ready for transfer. Sign in now to enter your passcode and transfer the assets to your Algorand wallet. If you've already done so, you can ignore this message.",
+      "2": "<a href=\"{{transferUrl}}\"><strong>Transfer your asset</strong></a>"
+    }
+  },
+  "transferSuccess": {
+    "subject": "You have new collectibles!",
+    "body": {
+      "0": "<strong>Congratulations!</strong>",
+      "1": "You are the proud new owner of “{{packTitle}}”. The assets are being transferred to your Algorand wallet and are now available for viewing in your collection.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>View your collection</strong></a>"
+    }
+  },
+  "secondaryPurchaseSuccess": {
+    "subject": "You have a new collectible!",
+    "body": {
+      "0": "<strong>Congratulations!</strong>",
+      "1": "You are the proud new owner of “{{collectibleTitle}}”. The asset is being transferred to your Algorand wallet and is now available for viewing in your collection.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>View your collection</strong></a>"
+    }
+  },
+  "secondarySaleSuccess": {
+    "subject": "Your NFT was sold!",
+    "body": {
+      "0": "<strong>Congratulations!</strong>",
+      "1": "Your NFT “{{collectibleTitle}}” was sold for {{amount}}.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>View your wallet</strong></a>"
+    }
+  },
+  "userHighBid": {
+    "subject": "You're the highest bidder!",
+    "body": {
+      "0": "<strong>Congratulations!</strong>",
+      "1": "You are currently the highest bidder for “{{packTitle}}”. Keep an eye on the listing using the link below.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>View listing</strong></a>"
+    }
+  },
+  "userOutbid": {
+    "subject": "You've been outbid!",
+    "body": {
+      "0": "You are no longer the highest bidder for “{{packTitle}}”",
+      "1": "Don't worry, there's still time! If you'd like to submit a new highest bid, please do so using the link below.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>View listing</strong></a>"
+    }
+  },
+  "wirePayoutSubmitted": {
+    "subject": "Your wire payout has been submitted",
+    "body": {
+      "0": "<strong>Your wire payout for “{{amount}}” has been successfully submitted to your bank.</strong>",
+      "1": "Please allow 1-3 business days for the funds to be received in your account. If for any reason the wire is returned, you will receive another notification. If you have any questions you can provide this IMAD number: {{externalRef}} to your bank to follow up.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>View my wallet</strong></a>"
+    }
+  },
+  "wirePayoutFailed": {
+    "subject": "Your wire payout failed to be submitted",
+    "body": {
+      "0": "<strong>Your wire payout for “{{amount}}” failed to be submitted to your bank.</strong>",
+      "1": "For more details please view your wallet page on AlgoMart.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>View my wallet</strong></a>"
+    }
+  },
+  "wirePayoutReturned": {
+    "subject": "Your wire payout was returned by your bank",
+    "body": {
+      "0": "<strong>Your wire payout for “{{amount}}” was returned by your bank.</strong>",
+      "1": "{{returnedAmount}} was returned to your account. For more informations you can provide this IMAD number: {{externalRef}} to your bank to follow up.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>View my wallet</strong></a>"
+    }
+  }
+}

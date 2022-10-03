@@ -3,7 +3,7 @@ import useTranslation from 'next-translate/useTranslation'
 import css from './wallet-transfers.module.css'
 
 import Button from '@/components/button'
-import Heading from '@/components/heading'
+import { H3 } from '@/components/heading'
 
 export const ALGORAND_WALLET_LINK = {
   url: 'https://algorandwallet.com',
@@ -18,9 +18,7 @@ export default function ConnectWalletStage(props: ConnectWalletStageProps) {
   const { t } = useTranslation()
   return (
     <div key="connect" className={css.stage}>
-      <Heading level={3} bold className={css.stageTitle}>
-        {t('nft:walletConnect.title')}
-      </Heading>
+      <H3>{t('nft:walletConnect.title')}</H3>
       <hr className={css.separator} />
       <Button fullWidth onClick={props.onConnectWallet}>
         {t('nft:walletConnect.connect')}

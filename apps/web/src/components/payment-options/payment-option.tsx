@@ -4,14 +4,14 @@ import { ReactNode } from 'react'
 import css from './payment-option.module.css'
 
 import AppLink from '@/components/app-link/app-link'
-import Heading from '@/components/heading'
+import { H2 } from '@/components/heading'
 
 export interface PaymentOptionProps {
   body?: ReactNode | null
   helpText: string
   href: string | { pathname: string; query?: { [key: string]: string } }
   icon: ReactNode
-  isDisabled: boolean
+  isDisabled?: boolean
   title: string
 }
 
@@ -20,7 +20,7 @@ export default function PaymentOption({
   helpText,
   href,
   icon,
-  isDisabled,
+  isDisabled = false,
   title,
 }: PaymentOptionProps) {
   return (
@@ -32,9 +32,7 @@ export default function PaymentOption({
     >
       {icon}
       <div>
-        <Heading inheritColor level={2}>
-          {title}
-        </Heading>
+        <H2 inheritColor>{title}</H2>
         <p className={css.description}>{helpText}</p>
         {body && body}
       </div>

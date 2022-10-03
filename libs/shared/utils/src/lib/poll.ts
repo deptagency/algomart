@@ -1,10 +1,17 @@
+/**
+ * Polls a function repeatedly until the predicate returns false or until the function throws an error.
+ * @param func Function to be called repeatedly.
+ * @param predicate As long as this returns true, the function will be called again.
+ * @param ms How often to repeat the function in milliseconds.
+ * @returns Returns a promise that eventually resolves to the last value returned by the function.
+ */
 export const poll = async function <T>(
   func: () => Promise<T>,
-  funcCondition: (result: T) => boolean,
+  predicate: (result: T) => boolean,
   ms: number
 ) {
   let result = await func()
-  while (funcCondition(result)) {
+  while (predicate(result)) {
     await wait(ms)
     result = await func()
   }

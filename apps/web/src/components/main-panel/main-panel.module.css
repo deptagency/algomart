@@ -1,28 +1,23 @@
-.rootPanel {
-  /* Base */
-  @apply py-8 mx-auto mb-8 bg-base-bgPanel max-w-700;
-  /* Tablet + */
-  @apply md:mt-6 md:py-16 md:rounded-lg;
+.viewportPadding {
+  @apply p-5;
+  /* 768+ */
+  @apply md:py-0;
 }
 
-.rootNoPanel {
-  /* Base */
-  @apply mx-auto mb-16 max-w-wrapper;
-  /* Tablet + */
-  @apply md:mt-16;
+.panelContainer {
+  @apply mx-auto max-w-700;
+  /* 768+ */
+  @apply md:my-12;
+}
+.panelContainer.largeWidth {
+  @apply max-w-960;
 }
 
-.withPadding {
-  /* Base */
-  @apply px-8;
-  /* Tablet + */
+.panel {
+  @apply flex flex-col bg-base-bgCard rounded-lg shadow-xl;
+}
+.withPadding .panel {
+  @apply px-8 py-16;
+  /* 768+ */
   @apply md:px-20;
-}
-
-.largeWidth {
-  @apply max-w-880;
-}
-
-.fullWidth {
-  @apply max-w-wrapper;
 }

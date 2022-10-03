@@ -1,0 +1,31 @@
+.root {
+  @apply flex flex-col items-center justify-start h-full bg-base-bgCard px-8;
+}
+
+.form {
+  @apply w-full;
+}
+
+.form h2 {
+  @apply pb-4 mb-8 font-bold border-b border-base-border;
+}
+
+.formSection {
+  @apply mt-8 mb-16;
+}
+
+.balance {
+  @apply text-base-price;
+}
+
+.needsCredits {
+  @apply text-base-error;
+}
+
+.information {
+  @apply bg-base-bg mb-10 p-5 text-center rounded-md text-sm;
+}
+
+.pending {
+  @apply px-4 py-3 text-left rounded-md;
+}

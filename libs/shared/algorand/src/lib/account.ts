@@ -1,4 +1,11 @@
-import type { Account, Algodv2 } from 'algosdk'
+import {
+  AlgorandAccountSig,
+  AlgorandAccountStatus,
+  AlgorandAssetHolding,
+  AlgorandTransformedAccountInfo,
+} from '@algomart/schemas'
+import type { Account, Algodv2, Indexer } from 'algosdk'
+
 import {
   DEFAULT_ADDITIONAL_ROUNDS,
   DEFAULT_DAPP_NAME,
@@ -108,78 +115,64 @@ export async function createConfigureCustodialAccountTransactions({
 /**
  * Encrypts an account's mnemonic
  * @param account Account to encrypt
- * @param passphrase Passphrase used to encrypt the account
- * @param appSecret Global app secret
+ * @param secretOrCallback Either a secret for encryption to use built in encryption, or a
+ * function which returns a promise that resolves to the encrypted mnemonic to use custom encryption
  * @returns Encrypted mnemonic as a string
  */
 export async function encryptAccount(
   account: Account,
-  passphrase: string,
-  appSecret: string
+  secretOrCallback?: ((mnemonic) => Promise<string>) | string
 ): Promise<string> {
   const { secretKeyToMnemonic } = await loadSDK()
-  const { encrypt } = await import('@algomart/shared/utils')
   const mnemonic = secretKeyToMnemonic(account.sk)
-  const encrypted = encrypt(mnemonic, passphrase, appSecret)
+  let encrypted
+  if (typeof secretOrCallback === 'string') {
+    const secret: string = secretOrCallback
+    const { encrypt } = await import('@algomart/shared/utils')
+    encrypted = encrypt(mnemonic, secret)
+  } else {
+    const callback: (mnemonic) => Promise<string> = secretOrCallback as (
+      mnemonic
+    ) => Promise<string>
+    encrypted = await callback(mnemonic)
+  }
+
   return encrypted
 }
 
 /**
  * Decrypts an account from an encrypted mnemonic
  * @param encrypted Encrypted mnemonic
- * @param passphrase Passphrase to decrypt the mnemonic
- * @param appSecret Global app secret
+ * @param callback Optional function which returns a promise that resolves
+ * to the encrypted mnemonic to use custom encryption
+ * @param secret Optional app secret to use the default encryption. If both secret
+ * and callback are provided, default decryption will run first and custom decryption
+ * will run after that if default decryption fails
  * @returns The decrypted account
  */
 export async function decryptAccount(
   encrypted: string,
-  passphrase: string,
-  appSecret: string
+  secret?: string,
+  callback?: (encrypted) => Promise<string>
 ): Promise<Account> {
-  const { decrypt } = await import('@algomart/shared/utils')
   const { mnemonicToSecretKey } = await loadSDK()
-  const decrypted = decrypt(encrypted, passphrase, appSecret)
+  let decrypted
+  if (secret) {
+    const { decrypt } = await import('@algomart/shared/utils')
+    // returns zero length string if decryption fails
+    decrypted = decrypt(encrypted, secret)
+  }
+  if (!decrypted && callback) {
+    decrypted = await callback(encrypted)
+  }
+  if (!decrypted) {
+    const errorMessage = `Unable to decrypt account. Tried default decryption${
+      callback ? ' and custom decryption' : ''
+    }.`
+    throw new Error(errorMessage)
+  }
   return mnemonicToSecretKey(decrypted)
 }
-
-/**
- * Helper for asset holding array.
- */
-export type AssetHolding = {
-  amount: number
-  assetIndex: number
-  isFrozen: boolean
-}
-
-/**
- * Typed version of an account response.
- * @see https://developer.algorand.org/docs/rest-apis/algod/v2/#account
- */
-export type AccountInfo = {
-  address: string
-  amount: number
-  amountWithoutPendingRewards: number
-  appsLocalState?: Record<string, unknown>[]
-  appsTotalExtraPages?: number
-  appsTotalSchema?: Record<string, unknown>
-  assets?: AssetHolding[]
-  authAddr?: string
-  createdApps?: Record<string, unknown>[]
-  createdAssets?: Record<string, unknown>[]
-  minBalance: number
-  participation?: Record<string, unknown>
-  pendingRewards: number
-  rewardBase?: number
-  rewards: number
-  round: number
-  sigType: 'sig' | 'msig' | 'lsig'
-  status: 'online' | 'offline' | 'not-participating'
-  totalAppsOptedIn: number
-  totalAssetsOptedIn: number
-  totalCreatedApps: number
-  totalCreatedAssets: number
-}
-
 /**
  * Transforms account info from algod.accountInformation into a better typed object.
  * @param info The account info to transform
@@ -187,7 +180,7 @@ export type AccountInfo = {
  */
 export function transformAccountInfo(
   info: Record<string, unknown>
-): AccountInfo {
+): AlgorandTransformedAccountInfo {
   return {
     address: info['address'] as string,
     amount: info['amount'] as number,
@@ -198,7 +191,7 @@ export function transformAccountInfo(
     appsTotalExtraPages: info['apps-total-extra-pages'] as number,
     appsTotalSchema: info['apps-total-schema'] as Record<string, unknown>,
     assets: (info['assets'] as Record<string, unknown>[])?.map(
-      (asset): AssetHolding => ({
+      (asset): AlgorandAssetHolding => ({
         assetIndex: asset['asset-id'] as number,
         amount: asset['amount'] as number,
         isFrozen: asset['is-frozen'] as boolean,
@@ -207,14 +200,13 @@ export function transformAccountInfo(
     authAddr: info['auth-addr'] as string,
     createdApps: info['created-apps'] as Record<string, unknown>[],
     createdAssets: info['created-assets'] as Record<string, unknown>[],
-    minBalance: info['min-balance'] as number,
     participation: info['participation'] as Record<string, unknown>,
     pendingRewards: info['pending-rewards'] as number,
     rewardBase: info['reward-base'] as number,
     rewards: info['rewards'] as number,
     round: info['round'] as number,
-    sigType: info['sig-type'] as 'sig' | 'msig' | 'lsig',
-    status: info['status'] as 'online' | 'offline' | 'not-participating',
+    sigType: info['sig-type'] as AlgorandAccountSig,
+    status: info['status'] as AlgorandAccountStatus,
     totalAppsOptedIn: info['total-apps-opted-in'] as number,
     totalAssetsOptedIn: info['total-assets-opted-in'] as number,
     totalCreatedApps: info['total-created-apps'] as number,
@@ -223,12 +215,19 @@ export function transformAccountInfo(
 }
 
 /**
- * Get transformed account info by address.
- * @param algod Initialized Algodv2 client
+ * Get transformed account info by address via Indexer.
+ * @param indexer Initialized Indexer client
  * @param address Account address
  * @returns Transformed account info
  */
-export async function accountInformation(algod: Algodv2, address: string) {
-  const info = await algod.accountInformation(address).do()
-  return transformAccountInfo(info)
+export async function lookupAccount(
+  indexer: Indexer,
+  address: string
+): Promise<AlgorandTransformedAccountInfo | null> {
+  try {
+    const info = await indexer.lookupAccountByID(address).do()
+    return transformAccountInfo(info['account'])
+  } catch {
+    return null
+  }
 }

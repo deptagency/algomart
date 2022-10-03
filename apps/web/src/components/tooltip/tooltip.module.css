@@ -1,0 +1,11 @@
+.containerClassName {
+  @apply z-50;
+}
+
+.popoverInner {
+  @apply max-w-[16rem] px-2 py-2 text-sm leading-tight text-black bg-white rounded-lg shadow-sm font-base text-center;
+}
+
+.popoverInner * {
+  @apply text-black;
+}

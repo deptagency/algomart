@@ -5,16 +5,21 @@ import 'dotenv/config'
 import { setupSDK, setAccessToken, setFilePermission } from './directus.mjs'
 import { configureKnex } from './knex.mjs'
 import { randColor } from './seed-data/color.mjs'
-import { Factory } from './seed-data/factories.mjs'
+import { Factory, raritiesMeta } from './seed-data/factories.mjs'
 import { setupWebhooks } from './webhooks.mjs'
 import {
   chunkArray,
   makeImage,
   readlineAsync,
-  registerFonts
+  registerFonts,
 } from './utils.mjs'
+import { seedApplication } from './seed-application.mjs'
+import { seedCountries } from './seed-countries.mjs'
+import { seedFAQs } from './seed-faqs.mjs'
 import { seedLanguages } from './seed-languages.mjs'
-import { seedCountries } from "./seed-countries.mjs"
+import { seedStaticPages } from './seed-static-pages.mjs'
+import { seedTags } from './seed-tags.mjs'
+import { makeVideo } from './utils.mjs'
 
 const knex = configureKnex()
 
@@ -22,23 +27,26 @@ async function main() {
   registerFonts()
 
   console.log('Configure Directus SDK...')
-  const directus = await setupSDK({
-    email: process.env.ADMIN_EMAIL,
-    password: process.env.ADMIN_PASSWORD,
-  })
+  const directus = await setupSDK(
+    {
+      email: process.env.ADMIN_EMAIL,
+      password: process.env.ADMIN_PASSWORD,
+    },
+    process.env.PUBLIC_URL
+  )
 
   // Set the Access Token for the Admin user
-  await setAccessToken(directus)
+  await setAccessToken(directus, process.env.ADMIN_ACCESS_TOKEN)
 
-  // set file access permisiosns
+  // set file access permissions
   await setFilePermission(directus)
 
   /**
    * To prevent errors when seeding, it's best to start from a fresh DB.
-   * Ask user to confirm the destructive operation, and if so, truncate the tables before seeding.                                                                                          [return description]
+   * Ask user to confirm the destructive operation, and if so, truncate the tables before seeding.
    */
   console.log(
-    'This operation will overwrite any records in your database. Are you sure you want to proceed?'
+    'Directus seeder running. This operation will overwrite any records in your database, are you sure you want to proceed?'
   )
   if ((await readlineAsync('> y/N: ')) !== 'y') {
     console.log('Operation canceled.')
@@ -53,10 +61,16 @@ async function main() {
     countries_translations,
     countries,
     directus_files,
+    frequently_asked_questions,
+    frequently_asked_questions_translations,
     homepage,
     languages,
     nft_templates_translations,
     nft_templates,
+    tags,
+    tags_translations,
+    nft_templates_tags,
+    pack_templates_tags,
     pack_templates_directus_files,
     pack_templates_translations,
     pack_templates,
@@ -73,17 +87,28 @@ async function main() {
 
   await seedLanguages(directus)
   await seedCountries(directus)
-  await setupWebhooks(directus, 'CMS Cache Content', process.env.SCRIBE_WEBHOOK_URL, [
-    'application',
-    'collections',
-    'countries',
-    'homepage',
-    'languages',
-    'nft_templates',
-    'pack_templates',
-    'rarities',
-    'sets',
-  ])
+  await seedStaticPages(directus)
+  await seedTags(directus)
+
+  await setupWebhooks(
+    directus,
+    'CMS Cache Content',
+    process.env.SCRIBE_WEBHOOK_URL,
+    [
+      'application',
+      'collections',
+      'countries',
+      'frequently_asked_questions',
+      'homepage',
+      'languages',
+      'nft_templates',
+      'pack_templates',
+      'rarities',
+      'sets',
+      'static_page',
+      'tags',
+    ]
+  )
 
   /**
    * These numbers can be adjusted, just be mindful of the implications.
@@ -93,12 +118,13 @@ async function main() {
    */
   const multiplier = 1 // Crank this up to create more of everything
 
-  const numRarities = 3
   const numCollectibles = 48 * multiplier
   const numCollectiblesPerPack = 6
   const numCollections = 3
   const numCollectiblesPerSet = 4
-  const rarityLikelihood = 10 // The bigger this number, the less chance of non-common items.
+  const numRarities = raritiesMeta.length
+  const e2eCollectibleCount = 100
+  const e2eRarity = 1 // E2E tests will use this rarity. 0 = Bronze, 1 = Silver, 2 = Gold
 
   /**
    * Create CMS collections records.
@@ -115,47 +141,86 @@ async function main() {
   /**
    * Create application and application countries
    */
-  console.log('- Application')
-  const application = await directus.singleton('application').update({
-    currency: 'USD'
-  })
-  await directus.items('application_countries').createOne({
-    application_id: application.id,
-    countries_code: 'US'
-  })
+  await seedApplication(directus)
 
   /**
    * Create homepage
    */
   console.log('- Homepage')
+
+  const heroBannerColor = randColor()
+  const heroBanner = await makeImage({
+    directus,
+    text: '',
+    height: 512,
+    width: 1024,
+    backgroundColor: heroBannerColor,
+  })
   const homepageFactory = Factory.build('homepage')
-  const homepage = (await directus.singleton('homepage').update(homepageFactory))
+  homepageFactory.hero_banner = heroBanner
+  const homepage = await directus.singleton('homepage').update(homepageFactory)
+
+  /**
+   * Create faqs
+   */
+  await seedFAQs(directus, homepage)
+
   /**
    * Create rarities.
    */
+  console.log('- Rarities Files')
+  const rarityFactories = await Promise.all(
+    Factory.buildList('rarity', numRarities).map(async (rarity) => {
+      const previewImage = await makeImage({
+        directus,
+        text: rarity.translations[0].name,
+        color: '#000000',
+        backgroundColor: rarity.color,
+      })
+
+      rarity.image = previewImage
+      rarity.homepage = homepage.id
+
+      return rarity
+    })
+  )
+
   console.log('- Rarities')
-  const rarityFactories = Factory.buildList('rarity', numRarities)
-  const rarities = (await directus.items('rarities').createMany(rarityFactories)).data
+  const rarities = (
+    await directus.items('rarities').createMany(rarityFactories)
+  ).data
+
+  let tagList = (await directus.items('tags').readByQuery({})).data
 
   /**
    * Creates N collectibles with mixed rarities.
    */
   console.log('- NFT Files')
+  const previewVideo = await makeVideo({ directus })
+
   let notableCount = 0
   const buildList = Factory.buildList('collectible', numCollectibles)
   const collectibleFactories = []
   let i = 0
   console.group()
   for (let item of buildList) {
-    console.log(`- NFT File image ${i + 1} of ${numCollectibles}`)
-
     const isNotable = notableCount < 8
     if (isNotable) {
       notableCount++
     }
-    // Using rarityLikelihood will apply rarities to some of the items.
-    const rarity = rarities[i % rarityLikelihood]
-    item.rarity = rarity?.id || null // no rarity if null
+    const randomNumber = Math.random()
+    // 1/10 chance of Gold
+    // 3/10 chance of Silver
+    // 6/10 chance of Bronze
+    const rarityIndex = randomNumber < 0.1 ? 0 : randomNumber < 0.4 ? 1 : 2
+    const rarity = rarities[rarityIndex]
+    item.rarity = rarity.id
+
+    console.log(
+      `- Collectible ${i + 1} of ${numCollectibles}. ${
+        raritiesMeta[rarityIndex].name
+      }`
+    )
 
     const previewImage = await makeImage({
       directus,
@@ -166,6 +231,7 @@ async function main() {
     })
 
     item.preview_image = previewImage.id
+    item.preview_video = rarityIndex < 2 ? previewVideo : null // put preview videos on Gold and Silver (this is arbitrary)
     item.homepage = isNotable ? homepage.id : null
 
     collectibleFactories.push(item)
@@ -179,9 +245,36 @@ async function main() {
   const collectibleChunks = chunkArray(collectibleFactories, 100)
   await Promise.all(
     collectibleChunks.map(async (group) => {
-      const collectibleGroup = (await directus.items('nft_templates').createMany(group)).data
+      const collectibleGroup = (
+        await directus.items('nft_templates').createMany(group)
+      ).data
       collectibles.push(...collectibleGroup)
     })
+  )
+
+  // Tag the Collectibles
+  const collectibleTags = []
+
+  collectibles.map((collectible) => {
+    tagList = tagList.sort(() => 0.5 - Math.random())
+    const tagCount = Math.floor(Math.random() * 5) + 1
+    const tags = tagList.slice(0, tagCount)
+
+    tags.map((tag) =>
+      collectibleTags.push({
+        nft_templates_id: collectible.id,
+        tags_id: tag.id,
+      })
+    )
+  })
+
+  const collectibleTagsChunks = chunkArray(collectibleTags, 100)
+
+  await Promise.all(
+    collectibleTagsChunks.map(
+      async (group) =>
+        await directus.items('nft_templates_tags').createMany(group)
+    )
   )
 
   /**
@@ -190,19 +283,19 @@ async function main() {
    * Example: if we have 48 collectibles and we want 6 collectibles per pack, we'll have 8 packs.
    */
   console.log('- Pack Files')
-  const chunkedPacks = chunkArray(collectibles, numCollectiblesPerPack)
+  const chunkedCollectibles = chunkArray(collectibles, numCollectiblesPerPack)
   let upcomingCount = 0
   const packFactories = await Promise.all(
-    chunkedPacks.map(async (chunk) => {
+    chunkedCollectibles.map(async (chunk) => {
       const color = randColor()
-      const isUpcoming = upcomingCount < 6
+      const isUpcoming = upcomingCount < 5
       if (isUpcoming) {
         upcomingCount++
       }
 
       const pack = Factory.build('pack', {
         nfts_per_pack: numCollectiblesPerPack,
-        nft_templates: chunk.map((item) => item.id),
+        nft_templates: chunk.map((collectible) => collectible.id),
         homepage: isUpcoming ? homepage.id : null,
       })
 
@@ -218,10 +311,36 @@ async function main() {
       return pack
     })
   )
+
   console.log('- Pack Templates')
-  const packTemplates = (await directus.items('pack_templates').createMany(packFactories)).data
+  const packTemplates = (
+    await directus.items('pack_templates').createMany(packFactories)
+  ).data
+
+  // Tag the Collectibles
+  const packTags = []
+
+  packTemplates.map((packTemplate) => {
+    tagList = tagList.sort(() => 0.5 - Math.random())
+    const tagCount = Math.floor(Math.random() * 5) + 1
+    const tags = tagList.slice(0, tagCount)
+
+    tags.map((tag) =>
+      packTags.push({ pack_templates_id: packTemplate.id, tags_id: tag.id })
+    )
+  })
+
+  const packTagsChunks = chunkArray(packTags, 100)
+
+  await Promise.all(
+    packTagsChunks.map(
+      async (group) =>
+        await directus.items('pack_templates_tags').createMany(group)
+    )
+  )
+
   await directus.singleton('homepage').update({
-    featured_pack: packTemplates[packTemplates.length - 1].id,
+    hero_pack: packTemplates[packTemplates.length - 1].id,
   })
 
   /**
@@ -229,14 +348,15 @@ async function main() {
    */
   console.log('- Collections Files')
   const collectionFactories = await Promise.all(
-    Factory.buildList('collection', numCollections).map(async (item) => {
+    Factory.buildList('collection', numCollections).map(async (item, index) => {
       const color = randColor()
 
       const collectionImage = await makeImage({
         directus,
-        text: item.translations[0].name,
-        color: '#000000',
+        text: (index + 1).toString(),
+        color: '#ffffff',
         backgroundColor: color,
+        font: '600px Inter',
       })
 
       const rewardImage = await makeImage({
@@ -258,7 +378,9 @@ async function main() {
   )
 
   console.log('- Collections')
-  const collections = (await directus.items('collections').createMany(collectionFactories)).data
+  const collections = (
+    await directus.items('collections').createMany(collectionFactories)
+  ).data
 
   /**
    * Create sets.
@@ -289,6 +411,56 @@ async function main() {
       return (await directus.items('sets').createMany(setFactories)).data
     })
   )
+
+  // Create NFT for use in e2e tests
+  console.log('- E2E Collectible')
+  const e2eCollectibleData = Factory.build('collectible')
+  e2eCollectibleData.total_editions = e2eCollectibleCount
+  e2eCollectibleData.unique_code = 'e2easset'
+  e2eCollectibleData.rarity = rarities[e2eRarity].id
+  e2eCollectibleData.translations[0].title = 'E2E NFT Title'
+  e2eCollectibleData.translations[0].subtitle = 'E2E NFT Subtitle'
+  e2eCollectibleData.translations[0].body = 'E2E NFT Description'
+
+  const e2ePreviewVideo = await makeVideo({ directus })
+  const e2ePreviewImage = await makeImage({
+    directus,
+    text: e2eCollectibleData.translations[0].title,
+    color: '#000000',
+    borderColor: rarities[e2eRarity].color,
+    backgroundColor: '#ff0000',
+  })
+
+  e2eCollectibleData.preview_image = e2ePreviewImage.id
+  e2eCollectibleData.preview_video = e2ePreviewVideo
+  e2eCollectibleData.homepage = homepage.id
+  const e2eCollectible = await directus
+    .items('nft_templates')
+    .createOne(e2eCollectibleData)
+
+  // Create Pack for use in e2e tests
+  console.log('- E2E Pack')
+  const e2ePackData = Factory.build('pack', {
+    nfts_per_pack: 1,
+    nft_templates: [e2eCollectible.id],
+    homepage: homepage.id,
+  })
+  e2ePackData.slug = 'e2e-pack'
+  e2ePackData.price = 10000
+  e2ePackData.translations[0].title = 'E2E Pack Title'
+  e2ePackData.translations[0].subtitle = 'E2E Pack Subtitle'
+  e2ePackData.translations[0].body = 'E2E Pack Description'
+
+  const e2ePackDataImage = await makeImage({
+    directus,
+    text: e2ePackData.translations[0].title,
+    color: '#000000',
+    backgroundColor: '#0000ff',
+  })
+
+  e2ePackData.pack_image = e2ePackDataImage.id
+
+  await directus.items('pack_templates').createOne(e2ePackData)
 
   console.log('Done!')
 }

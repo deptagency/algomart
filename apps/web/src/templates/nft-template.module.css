@@ -1,41 +1,62 @@
 .root {
-  @apply ml-auto mr-auto max-w-700;
+  @apply max-w-[64rem] my-0 mx-auto py-10;
 }
 
-.panel {
-  @apply overflow-auto shadow-large bg-base-bgCard;
+.nftCard {
+  @apply bg-white rounded-lg shadow-lg p-5;
+}
+
+.topSection {
+  @apply pb-6;
+}
+.bottomSection {
+  @apply pb-10 mx-4;
+}
+
+.container {
+  @apply max-w-5xl mx-auto;
+}
+
+.ownership {
+  @apply flex flex-col items-center mb-10;
+}
+.ownedByLabel {
+  @apply text-[#3E5396] uppercase;
+}
+.currentOwner {
+  @apply mb-4;
+}
+.sellButton,
+.purchaseButton {
+  @apply w-60;
 }
 
 .panelHeader {
   @apply p-6 text-center;
 }
 
-.subtitle {
-  @apply text-base-textTertiary;
+.backToCollectionLink {
+  @apply flex items-center gap-2 mb-6 transition hover:text-base-textSecondary;
 }
 
-.nftMeta {
-  @apply px-6 pb-6;
-}
-
-.nftMetaContent {
-  @apply overflow-hidden text-sm border rounded-md;
+.underlineLink {
+  @apply underline;
 }
 
 .nftMetaList {
-  @apply divide-y divide-base-border;
+  @apply divide-y divide-base-border mt-8;
 }
 
 .nftMetaListItem {
-  @apply flex justify-between px-5 py-5;
+  @apply flex flex-row py-4 basis-full;
+}
+
+.nftMetaListCol {
+  @apply flex flex-col flex-1;
 }
 
 .nftMetaLabel {
   @apply font-bold;
-}
-
-.root .alert {
-  @apply bg-action-primary text-action-primaryContrastText;
 }
 
 .releaseDesc {
@@ -43,39 +64,27 @@
   @apply md:mb-6;
 }
 
-.tabContentNarrow {
-  @apply max-w-sm mx-auto;
-}
-.tabContent {
-  @apply max-w-lg p-6 mx-auto mb-6 text-center;
-}
-.tabContent hr {
-  @apply my-6;
-}
-.tabContent p {
-  @apply mb-8;
+.icon {
+  @apply inline-block w-5 h-5 mr-4 text-action-accent;
 }
 
-/* Activity list */
-.activityList {
-  @apply mb-6 -mt-6;
+.mediaWrapper {
+  @apply relative overflow-hidden;
 }
-.activityItem {
-  @apply flex items-center gap-5 py-5 text-left border-b-1;
+.ribbon {
+  @apply absolute font-bold leading-10 tracking-wider text-center text-white uppercase rotate-45 bg-action-accent w-52 -right-16 top-5;
 }
-.activityItem .icon {
-  @apply w-10 h-10 p-2 rounded-full shadow-medium text-base-textSecondary;
-  @apply dark:text-action-secondary;
+
+.majorDetailsWrapper {
+  @apply flex justify-between mt-3 mb-5;
 }
-.activityItem .body {
-  @apply flex-1;
+
+.nftSection {
+  @apply rounded-lg p-5 mb-10;
 }
-.activityItem .activity {
-  @apply font-semibold;
-}
-.activityItem .date {
-  @apply text-sm text-base-textTertiary;
-}
-.activityItem .contentRight {
-  @apply font-bold;
+
+.nftActivityList,
+.nftActivityList td,
+.nftActivityList thead {
+  background: none !important;
 }

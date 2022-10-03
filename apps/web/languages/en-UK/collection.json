@@ -1,0 +1,49 @@
+{
+  "sorting": {
+    "Brand": "Brand",
+    "Name": "Name",
+    "Newest": "Newest",
+    "Oldest": "Oldest",
+    "RarityAscending": "Rarity Ascending",
+    "RarityDescending": "Rarity Descending"
+  },
+  "tabs": {
+    "NFTs": "NFTs",
+    "Collections": "Collections",
+    "Showcase": "Showcase"
+  },
+  "algoAddressPage": {
+    "Algorand Account": "Algorand Account",
+    "invalidAlgoAccount": "This address does not exist.",
+    "noCollectiblesInAccount": "This Algorand account does not have any collectibles."
+  },
+  "collectionPage": {
+    "A collection by": "<0>A collection by <1>{{brand}}</1></0>",
+    "Number of Total": "{{number}} of {{total}}",
+    "Other Collectibles": "Other Collectibles",
+    "Part of Collection": "<0>Part of <1>{{name}}</1></0>"
+  },
+  "viewer": {
+    "exclusiveText": "{{name}} Employee Exclusive",
+    "of": "of",
+    "ownedByText": "Owned by @{{name}} (that's you!)",
+    "ownedBy": "Owned by",
+    "thatsYou": "(that's you!)",
+    "Collectible_one": "Collectible",
+    "Collectible_0": "Collectibles",
+    "Collectible_other": "Collectibles",
+    "collected": "Collected",
+    "selectCollectibles": "Select the collectibles to include in your showcase",
+    "maxCollectibles": "You can only showcase up to 8 collectibles.",
+    "noCollectibles": "You haven't collected anything yet.",
+    "Your collection": "Your collection",
+    "Publish Showcase": "Publish Showcase",
+    "Find Something Cool": "Find Something Cool",
+    "startCollection": "Start your collection today.",
+    "emptyState": "This user hasn't publicly shared any collectibles yet.",
+    "emptyStateCurrentUser": "Showcase is a publicly available gallery of your best collectibles. Add your favourites to share them with the world!",
+    "showcaseTitle": "@{{username}}'s showcase",
+    "show video": "show video",
+    "show cover": "show cover"
+  }
+}

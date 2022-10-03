@@ -1,27 +1,35 @@
 import { Static, Type } from '@sinclair/typebox'
 
-import { BaseSchema, ExternalIdSchema, IdSchema, Simplify } from './shared'
+import { UsernameSchema } from './accounts'
+import {
+  BaseSchema,
+  CurrencyAmountSchema,
+  CurrencyCodeSchema,
+  IdSchema,
+  Simplify,
+  UserExternalIdObjectSchema,
+} from './shared'
 
 export const BidBaseSchema = Type.Object({
-  amount: Type.Integer({ minimum: 0 }),
+  amount: CurrencyAmountSchema,
   packId: IdSchema,
 })
 
 export const BidPublicSchema = Type.Intersect([
   BidBaseSchema,
-  ExternalIdSchema,
+  UserExternalIdObjectSchema,
   Type.Object({
     id: IdSchema,
-    createdAt: Type.String(),
-    username: Type.String(),
+    createdAt: Type.String({ format: 'date-time' }),
+    username: UsernameSchema,
   }),
 ])
 
 export const CreateBidRequestSchema = Type.Intersect([
   BidBaseSchema,
-  ExternalIdSchema,
+  UserExternalIdObjectSchema,
   Type.Object({
-    currency: Type.String(),
+    currency: CurrencyCodeSchema,
   }),
 ])
 

@@ -2,115 +2,167 @@ import { stringify } from 'query-string'
 
 export const urls = {
   // Main pages
-  adminTransactions: '/admin/transactions',
-  adminTransaction: '/admin/transactions/:transactionId',
   checkout: '/checkout',
-  checkoutPack: '/checkout/:packSlug',
-  checkoutPackWithMethod: '/checkout/:packSlug/:method',
+  checkoutCollectible: '/checkout/collectible/:assetId',
+  checkoutPack: '/checkout/pack/:packSlug',
+  checkoutPackWithMethod: '/checkout/pack/:packSlug/:method',
   home: '/',
+  betaAccess: '/beta-access',
+  faqs: '/faqs',
   myCollectibles: '/my/collectibles',
   myCollection: '/my/collections/:collectionSlug',
   myCollections: '/my/collections',
+  myWallet: '/my/wallet',
   myProfile: '/my/profile',
   myProfilePaymentMethods: '/my/profile/payment-methods',
   myProfilePaymentMethodsAdd: '/my/profile/payment-methods/add',
   myProfileSecurity: '/my/profile/security',
   myProfileSetup: '/my/profile/setup',
-  myProfileTransactions: '/my/profile/transactions',
   myProfileImportNFT: '/my/profile/import-nft',
   mySet: '/my/sets/:setSlug',
   myShowcase: '/my/showcase',
+  myVerification: '/my/verification',
   nft: '/nft/:assetId',
-  nftDetails: '/nft/:assetId/details',
-  nftActivity: '/nft/:assetId/activity',
-  nftSell: '/nft/:assetId/sell',
-  nftTransfer: '/nft/:assetId/transfer',
+  nftDetails: '/nft/:assetId#details',
+  nftActivity: '/nft/:assetId#activity',
+  nftSell: '/nft/:assetId/list-for-sale',
+  nftTransfer: '/nft/:assetId#transfer',
   nftInitiateTransfer: '/nft/:assetId/initiate-transfer',
   packOpening: '/pack-opening/:packId',
   paymentFailure: '/payments/failure',
   paymentSuccess: '/payments/success',
+  paymentTransferPending: '/payments/pending_transfer',
+  cashout: '/cashout',
+  purchaseCredits: '/add-money',
   redeem: '/redeem',
-  release: '/releases/:packSlug',
-  releases: '/releases',
+  releasePack: '/drops/:packSlug',
+  drops: '/drops',
+  marketplace: '/marketplace',
+  marketplaceListing: '/marketplace/:uniqueCode',
+  settings: '/my/profile',
+  about: '/about',
+  support: '/support',
 
   // Auth-related
   login: '/login',
   loginEmail: '/login-email',
   profileShowcase: '/profile/:username',
+  sendResetPassword: '/send-reset-password',
   resetPassword: '/reset-password',
   signUp: '/signup',
+  signUpEmail: '/signup-email',
 
   // Legal
-  communityGuidelines: '#',
-  privacyPolicy: '#',
-  termsAndConditions: '#',
-
-  // Admin
-  admin: {
-    index: '/admin',
-    transactions: '/admin/transactions',
-    transaction: '/admin/transactions/:transactionId',
-    users: '/admin/users',
-  },
+  communityGuidelines: '/community-guidelines',
+  privacyPolicy: '/privacy-policy',
+  termsAndConditions: '/terms-of-service',
+  amlPolicy: '/aml-policy',
 
   api: {
+    // Non-local API endpoints
+    packs: {
+      auctionByTemplateId: '/packs/auction/:templateId',
+      byOwner: '/packs/by-owner',
+      bySlug: '/packs/by-slug/:slug',
+      claimFree: '/packs/claim/free',
+      claimRedeem: '/packs/claim/redeem',
+      redeemable: '/packs/redeemable/:redeemCode',
+      search: '/packs/search',
+      transferById: '/packs/transfer/:packId',
+    },
+    accounts: {
+      base: '/accounts',
+      applicant: '/accounts/applicant',
+      applicantToken: '/accounts/applicant/token',
+      applicantWorkflow: '/accounts/applicant/workflow',
+      applicantManualReview: '/accounts/applicant/manual-review',
+      avatarByUsername: '/accounts/avatar/:username',
+      status: '/accounts/status',
+      sendNewEmailVerification: '/accounts/send-new-email-verification',
+      sendPasswordReset: '/accounts/send-password-reset',
+    },
+    application: {
+      countries: '/application/countries',
+    },
+    collections: {
+      base: '/collections',
+    },
+    collectibles: {
+      activities: '/collectibles/activities',
+      fetchShowcase: '/collectibles/showcase',
+      search: '/collectibles/search',
+      showcase: '/collectibles/showcase',
+    },
+    faqs: '/faqs',
+    homepage: '/homepage',
+    marketplace: {
+      listingById: '/marketplace/listings/:listingId',
+      listings: '/marketplace/listings',
+      listingsDelist: '/marketplace/listings/:listingId/delist',
+      listingsSearch: '/marketplace/listings/search',
+      purchaseListingWithCredits: '/marketplace/listings/:listingId/purchase',
+    },
+    algorand: {
+      getTransactionParams: '/algorand/get-transaction-params',
+      lookupAccount: '/algorand/lookup-account',
+      lookupAsset: '/algorand/lookup-asset',
+      lookupTransaction: '/algorand/lookup-transaction',
+      sendRawTransaction: '/algorand/send-raw-transaction',
+    },
+    payments: {
+      card: '/payments/cards/:cardId',
+      cardStatus: '/payments/cards/:cardId/status',
+      cards: '/payments/cards',
+      ccPayment: '/payments/cc-payment',
+      usdcPayment: '/payments/usdc-payment',
+      purchasePackWithCredits: '/payments/purchase-pack-with-credits',
+      missingTransfers: '/payments/missing-transfers',
+      payment: '/payments/:paymentId',
+      paymentTransfer: '/payments/:paymentId/transfer',
+      publicKey: '/payments/encryption-public-key',
+      wallets: '/payments/wallets',
+    },
+    payouts: {
+      usdcPayout: '/payouts/usdc',
+      wirePayout: '/payouts/wire',
+    },
+    i18n: {
+      base: '/i18n',
+    },
+    tags: {
+      search: '/tags/search/:query',
+      list: '/tags/list',
+    },
+    transfers: {
+      byEntityId: '/user-transfers/search/entity-id/:entityId',
+      getById: '/user-transfers/:id',
+      search: '/user-transfers/search',
+    },
+    // Next.js endpoints
+    // NOTE: REVISIT IF ANY OF THESE ARE ACTUALLY USED
     v1: {
       admin: {
-        getPaymentsForBankAccount:
-          '/api/v1/payments/get-payments-by-bank-account',
-        getPayments: '/api/v1/payments/list-payments',
-        getUsers: '/api/v1/admin/list-users',
-        revokePack: '/api/v1/asset/revoke',
-        updatePayment: '/api/v1/payments/update-payment',
+        getProfileImageForUser: '/api/v1/admin/get-profile-image',
       },
-      addToShowcase: '/api/v1/collection/add-showcase',
       adminGetClaims: '/api/v1/admin/get-claims',
       adminUpdateClaims: '/api/v1/admin/update-claims',
-      asset: '/api/v1/asset',
-      assetClaim: '/api/v1/asset/claim',
-      assetMint: '/api/v1/asset/mint',
-      assetRedeem: '/api/v1/asset/redeem',
-      assetTransfer: '/api/v1/asset/transfer',
-      createBankAccount: '/api/v1/payments/create-bank-account',
-      createBidForPack: '/api/v1/bid/add-to-pack',
-      createCard: '/api/v1/payments/create-card',
-      createPayment: '/api/v1/payments/create-payment',
-      createTransfer: '/api/v1/payments/create-transfer-payment',
+      createPaymentWithCard: '/api/v1/payments/create-payment-with-card',
+      createUsdcPayment: '/api/v1/payments/create-usdc-payment',
       initializeExportCollectible: '/api/v1/asset/export',
       exportCollectible: '/api/v1/asset/export/sign',
       initializeImportCollectible: '/api/v1/asset/import',
       importCollectible: '/api/v1/asset/import/sign',
-      getAllCollections: '/api/v1/collection/get-all-collections',
-      getAssetsByAlgoAddress: '/api/v1/asset/get-by-algo-address',
-      getAssetsByOwner: '/api/v1/asset/get-by-owner',
-      getBankAccountInstructions:
-        '/api/v1/payments/get-bank-account-instructions',
-      getBankAccountStatus: '/api/v1/payments/get-bank-account-status',
-      getCardsByOwner: '/api/v1/payments/get-cards-by-owner',
-      getCardStatus: '/api/v1/payments/get-card-status',
-      getCountries: '/api/v1/payments/get-countries',
-      getCurrencyConversion: '/api/v1/i18n/get-currency-conversion',
-      getCurrencyConversions: '/api/v1/i18n/get-currency-conversions',
-      getI18nInfo: '/api/v1/i18n/get-i18n-info',
-      getLanguages: '/api/v1/i18n/get-languages',
-      getPayment: '/api/v1/payments/get-payment',
-      getPublishedPacks: '/api/v1/pack/get-published-packs',
-      getRedeemable: '/api/v1/asset/get-redeemable',
-      getTransfer: '/api/v1/payments/get-transfer-payment',
-      getUntransferredPacks: '/api/v1/pack/untransferred',
-      profile: '/api/v1/profile',
-      publicKey: '/api/v1/payments/public-key',
-      removeCard: '/api/v1/payments/remove-card',
-      showcaseCollectible: '/api/v1/collection/collectibles-showcase',
-      updateCard: '/api/v1/payments/update-card',
-      updateCurrency: '/api/v1/profile/update-currency',
-      updateEmail: '/api/v1/profile/update-email',
-      updateLanguage: '/api/v1/profile/update-language',
-      updateUsername: '/api/v1/profile/update-username',
-      verifyPassphrase: '/api/v1/profile/verify-passphrase',
-      verifyUsername: '/api/v1/profile/verify-username',
+      purchasePackWithCredits: '/api/v1/payments/purchase-pack',
+      adminCreateCustomToken: '/api/v1/admin/create-custom-token',
     },
   } as const,
+} as const
+
+export const hashEvents = {
+  listingAdded: '#listing-added',
+  listingRemoved: '#listing-removed',
+  unifiedPaymentSuccess: '#unified-payment-success',
+  creditsPaymentSuccess: '#credits-payment-success',
 } as const
 
 /**
@@ -119,30 +171,66 @@ export const urls = {
  *   urlFor('/:foo/:bar', { foo: 'foo', bar: 'bar' }) => '/foo/bar'
  *   urlFor(urls.nft, { assetId: 123 }) => '/nft/123'
  */
-export function urlFor(path: string, params?: object, query?: object) {
-  return (
-    Object.keys(params).reduce(
-      (accumulator, key) => accumulator.replace(`:${key}`, String(params[key])),
-      path
-    ) + (query ? `?${stringify(query)}` : '')
-  )
+export function urlFor(
+  path: string,
+  params?: Record<string, unknown>,
+  query?: Record<string, unknown>
+) {
+  const formattedPath = params
+    ? Object.keys(params).reduce(
+        (accumulator, key) =>
+          accumulator.replace(
+            `:${key}`,
+            encodeURIComponent(String(params[key]))
+          ),
+        path
+      )
+    : path
+
+  return formattedPath + (query ? `?${stringify(query)}` : '')
 }
 
 /**
- * Verifies if path1 and path2 are matching the first "directory". For example,
- * `/collections/some-collection` and `/collections` will match while `/set` and
- * `/collections/collection` will not match.
- * @param path1 A path to check
- * @param path2 Another path to check
+ * Returns whether `fullPath` is a subpath of `prefixPath`
+ * EXCEPTION: if prefixPath is '/' then it must match exactly
+ * eg:
+ *   isSubPath('/foo/bar', '/foo') => true
+ *   isSubPath('/foo/bar', '/foo', ['bar']) => false
+ *   isSubPath('/foo/bar', '/') => false
+ *   isSubPath('/', '/') => true
+ * @param fullPath The path to check.
+ * @param prefixPath The root path to check against.
+ * @param ignorePaths Prevent true if prefix path contains a string
  */
-export function isRootPathMatch(path1: string, path2: string) {
-  // Note: no path-matching needed for profile-related items
-  if (path1.includes(urls.myProfile)) return false
+export function isSubPath(
+  fullPath: string,
+  prefixPath: string,
+  ignorePaths = []
+) {
+  // Strip out ignored paths
+  const containsIgnored = ignorePaths.some((path) => {
+    return fullPath.includes(path)
+  })
+  if (containsIgnored) return false
 
-  return path1
-    .split('/')[1]
-    .toLowerCase()
-    .includes(path2.split('/')[1].toLowerCase())
+  // Strip query params and trailing slash
+  // Add a trailing slash to both so /some is not considered a subpath of /something
+  const root = prefixPath.split('?')[0].toLowerCase().replace(/\/$/, '') + '/'
+  const subpath = fullPath.split('?')[0].toLowerCase().replace(/\/$/, '') + '/'
+  if (root === '/') return subpath === '/'
+  return subpath.startsWith(root)
+}
+
+/**
+ * Given a path like `/my/collectibles` this returns `/my`. Used to ensure the
+ * main nav highlights the correct link.
+ * @param path Path to extract prefix from
+ * @returns The prefix if it exists or just the root path
+ */
+export function getPrefixPath(path?: string) {
+  if (!path) return '/'
+  const [prefix] = path.slice(1).split('/')
+  return '/' + prefix ?? ''
 }
 
 /**

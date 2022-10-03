@@ -3,73 +3,126 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Default light theme */
-:root {
-  --textPrimary: 10, 17, 29;
-  --textSecondary: 44, 51, 63;
-  --textTertiary: 78, 85, 97;
-  --textDisabled: 102, 102, 102;
-
-  --bg: 236, 236, 236;
-  --bgCard: 255, 255, 255;
-  --bgPanel: 255, 255, 255;
-  --bgNotice: 249, 249, 249;
-
-  --actionPrimary: 10, 17, 29; /* very dark gray-blue */
-  --actionPrimaryContrastText: 255, 255, 255;
-  --actionSecondary: 18, 220, 197; /* teal */
-  --actionSecondaryContrastText: 0, 0, 0;
-  --actionAccent: 2, 251, 194; /* light green */
-
-  --grayDark: 10, 17, 29; /* DEPRECATED */
-  --border: 218, 220, 223;
-
-  --error: 172, 0, 0; /* red */
-  --price: 5, 150, 105; /* green-600 */
-
-  --shadowMedium: 0px 1px 10px rgba(0, 0, 0, 0.15);
-  --shadowLarge: 0px 5px 40px rgba(0, 0, 0, 0.15);
-}
-
-/* Dark theme */
-.dark {
-  --textPrimary: 250, 250, 250;
-  --textSecondary: 216, 216, 216;
-  --textTertiary: 182, 182, 182;
-  --textDisabled: 128, 128, 128;
-
-  --bg: 34, 35, 39;
-  --bgCard: 9, 12, 13;
-  --bgPanel: 28, 29, 33;
-  --bgNotice: 28, 29, 33;
-
-  --actionPrimary: 253, 89, 132; /* hot pink */
-  --actionPrimaryContrastText: 255, 255, 255;
-  --actionSecondary: 18, 220, 197; /* teal */
-  --actionSecondaryContrastText: 0, 0, 0;
-  --actionAccent: 2, 251, 194; /* light green */
-
-  --grayDark: 10, 17, 29; /* DEPRECATED */
-  --border: 62, 64, 67;
-
-  --error: 255, 70, 70; /* red */
-  --price: 35, 180, 135;
-
-  --shadowMedium: none;
-  --shadowLarge: none;
-}
-
+/* Base styles */
 html,
 body {
-  @apply h-full text-base-textPrimary bg-base-bg;
-  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system !important;
+  @apply relative text-base-textPrimary bg-base-bg font-base;
+}
+
+a {
+  @apply text-action-link hover:text-action-linkHover focus-visible:text-action-linkHover;
+}
+
+h1,
+h2,
+h3,
+.h1,
+.h2,
+.h3 {
+  @apply font-bold;
+}
+
+h1,
+.h1 {
+  @apply text-3xl;
+}
+
+h2,
+.h2 {
+  @apply text-2xl;
+}
+
+h3,
+.h3 {
+  @apply text-lg;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgb(var(--inputPlaceholder));
+}
+
+/* Default light theme */
+:root {
+  --scrollPosition: 0;
+  --scrollLimit: 0;
+  --footerHeight: 0;
+
+  --midnight: 3, 19, 44;
+
+  --blue200: 5, 14, 42; /* bg */
+  --blue300: 26, 45, 104; /* inactive tab, progress bg, subheader bg */
+  --blue500: 10, 132, 255; /* primary action */
+
+  --pink: 233, 60, 172; /* rgb(233, 60, 172) */
+  --pinkDark: 157, 19, 109; /* rgb(157, 19, 109) */
+  --teal: 18, 220, 197;
+  --yellow: 254, 243, 227; /* rgb(233, 180, 60) */
+  --green: 0, 213, 143; /* rgb(0, 213, 143) */
+  --purple: 93, 16, 242; /* rgb(93, 16, 242) */
+  --skyBlue: 108, 167, 243; /* rgb(108, 167, 243) */
+
+  --bg: 229, 229, 229;
+  --bgCard: 255, 255, 255;
+  --bgNotice: 249, 249, 249;
+
+  --darkText: 3, 16, 42;
+  --text: 40, 51, 74;
+  --lightText: 82, 91, 113;
+  --logoBlue: 39, 86, 143;
+  --shadeBlue: 45, 99, 182;
+  --blue: 58, 119, 210;
+  --textPrimary: var(--text);
+  --textSecondary: var(--lightText);
+  --textTertiary: var(--darkText);
+  --textDisabled: 191, 194, 201;
+  --textWarn: 197, 118, 0;
+  --borderInput: 26, 45, 104; /* rgb(26, 45, 104) */
+  --grayLight: 166, 172, 186;
+  --grayDark: 10, 17, 29;
+  --borderPrimary: 229, 232, 239;
+  --error: 172, 0, 0; /* red */
+  --warn: 254, 243, 227; /* rgb(233, 180, 60) */
+  --price: 5, 150, 105; /* green-600 */
+  --shadowMedium: 0px 1px 10px rgba(0, 0, 0, 0.15);
+  --shadowLarge: 0px 5px 40px rgba(0, 0, 0, 0.15);
+  --inputPlaceholder: 191, 194, 201;
+
+  --actionPrimary: var(--teal);
+  --actionPrimaryContrastText: 255, 255, 255;
+  --actionSecondary: var(--blue);
+  --actionSecondaryContrastText: 255, 255, 255;
+  --actionAccent: var(--blue);
+  --actionTertiary: 255, 255, 255;
+  --actionTertiaryHover: 240, 240, 240;
+  --actionTertiaryContrastText: var(--blue);
+  --actionLink: var(--darkText);
+  --actionLinkHover: var(--teal); /* #00b8ff */
 }
 
 /* Custom globals  */
-#__next {
-  @apply flex flex-col h-full;
+
+/* Walletconnect / Pera-Wallet overrides */
+.walletconnect-modal__base {
+  @apply text-base-bg;
 }
 
-.walletconnect-modal__base {
-  @apply font-sans text-gray-700;
+.pera-wallet-connect-modal__logo {
+  @apply opacity-0;
+}
+
+.pera-wallet-connect-modal__launch-pera-wallet-button {
+  font: bold !important;
+  font-size: 1rem !important;
+  color: white !important;
+  background: rgba(var(--actionPrimary)) !important;
+  border-radius: 9999px !important;
+}
+.pera-wallet-connect-modal__qr-code {
+  @apply text-black;
+}
+
+/* Onfido overrides */
+.onfido-sdk-ui-Theme-portal {
+  @apply relative z-20;
 }

@@ -1,25 +1,27 @@
 import Image from 'next/image'
 import useTranslation from 'next-translate/useTranslation'
 
+import LinkButton from '../link-button'
+
 import css from './login-panel.module.css'
 
+import AppLink from '@/components/app-link/app-link'
 import Button from '@/components/button'
 import { PackAndRedeemCode } from '@/contexts/redemption-context'
+import { urls } from '@/utils/urls'
 
 const googleIcon = '/images/logos/google.svg'
 
 interface LoginPanelProps {
-  handleLoginEmail(): void
-  handleLoginGoogle(): Promise<void>
   handleRedeemEdition(): void
+  handleLoginGoogle(): void
   isAuthenticated: boolean
   redemptionData: PackAndRedeemCode | null
 }
 
 export default function LoginPanel({
-  handleLoginEmail,
-  handleLoginGoogle,
   handleRedeemEdition,
+  handleLoginGoogle,
   isAuthenticated,
   redemptionData,
 }: LoginPanelProps) {
@@ -29,7 +31,11 @@ export default function LoginPanel({
       <div className={css.buttonContainer}>
         {/* Claim button, present when redeeming */}
         {isAuthenticated && redemptionData && (
-          <Button className={css.button} onClick={handleRedeemEdition}>
+          <Button
+            className={css.button}
+            size="large"
+            onClick={handleRedeemEdition}
+          >
             {t('common:actions.Claim My Edition')}
           </Button>
         )}
@@ -37,13 +43,20 @@ export default function LoginPanel({
         {/* Login buttons */}
         {!isAuthenticated && (
           <>
-            <Button className={css.button} onClick={handleLoginEmail}>
-              {t('auth:Sign in with Email')}
-            </Button>
-            <Button
+            <LinkButton
               className={css.button}
+              data-e2e="sign-in-with-email"
+              href={urls.loginEmail}
+              size="large"
+              variant="secondary"
+            >
+              {t('auth:Sign In with Email')}
+            </LinkButton>
+            <Button
+              className={css.buttonGoogle}
               onClick={handleLoginGoogle}
               variant="secondary"
+              size="large"
             >
               <Image
                 width={36}
@@ -51,10 +64,19 @@ export default function LoginPanel({
                 alt={t('auth:Google logo')}
                 src={googleIcon}
               />
-              <span className={css.buttonImageText}>
-                {t('auth:Sign in with Google')}
-              </span>
+              <p className={css.buttonImageText}>
+                {t('auth:Sign In with Google')}
+              </p>
             </Button>
+            <div className={css.signupPrompt}>
+              <AppLink
+                data-e2e="create-account-prompt"
+                href={urls.signUp}
+                underline
+              >
+                {t('auth:Need an account? Create one now')}
+              </AppLink>
+            </div>
           </>
         )}
       </div>

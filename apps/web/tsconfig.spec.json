@@ -8,7 +8,9 @@
     "paths": {
       "@/*": ["apps/web/src/*"],
       "test/*": ["apps/web/test/*"],
-      "@algomart/schemas": ["libs/schemas/src/index.ts"]
+      "@algomart/schemas": ["libs/schemas/src/index.ts"],
+      "@algomart/shared/algorand": ["libs/shared/algorand/src/index.ts"],
+      "@algomart/shared/utils": ["libs/shared/utils/src/index.ts"]
     }
   },
   "include": [

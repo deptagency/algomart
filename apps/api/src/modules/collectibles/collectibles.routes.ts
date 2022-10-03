@@ -1,59 +1,21 @@
 import {
-  AlgoAddress,
+  AssetIdObject,
   CollectibleId,
-  CollectibleListQuerystring,
-  CollectiblesByAlgoAddressQuerystring,
-  CollectibleShowcaseQuerystring,
+  CollectibleQuery,
+  CollectibleShowcaseQuery,
+  CollectiblesQuery,
+  CollectibleUniqueCode,
   InitializeTransferCollectible,
-  SingleCollectibleQuerystring,
+  Language,
   TransferCollectible,
 } from '@algomart/schemas'
+import { generateCacheKey } from '@algomart/shared/plugins'
 import { CollectiblesService } from '@algomart/shared/services'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
-export async function getCollectibles(
+export async function searchCollectibles(
   request: FastifyRequest<{
-    Querystring: CollectibleListQuerystring
-  }>,
-  reply: FastifyReply
-) {
-  const collectibles = request
-    .getContainer()
-    .get<CollectiblesService>(CollectiblesService.name)
-
-  if (!(request.query.ownerExternalId || request.query.ownerUsername)) {
-    reply.badRequest('ownerUsername or ownerExternalId must be set')
-    return
-  }
-
-  const collectiblesForAccount = await collectibles.getCollectibles(
-    request.query
-  )
-
-  if (!collectiblesForAccount) {
-    reply.notFound()
-  } else {
-    reply.send(collectiblesForAccount)
-  }
-}
-
-export async function getCollectible(
-  request: FastifyRequest<{ Querystring: SingleCollectibleQuerystring }>,
-  reply: FastifyReply
-) {
-  const collectibles = request
-    .getContainer()
-    .get<CollectiblesService>(CollectiblesService.name)
-
-  const collectible = await collectibles.getCollectible(request.query)
-
-  reply.send(collectible)
-}
-
-export async function getCollectiblesByAlgoAddress(
-  request: FastifyRequest<{
-    Params: AlgoAddress
-    Querystring: CollectiblesByAlgoAddressQuerystring
+    Querystring: CollectiblesQuery
   }>,
   reply: FastifyReply
 ) {
@@ -61,16 +23,72 @@ export async function getCollectiblesByAlgoAddress(
     .getContainer()
     .get<CollectiblesService>(CollectiblesService.name)
 
-  const result = await collectiblesService.getCollectiblesByAlgoAddress(
-    request.params.algoAddress,
+  const collectibles = await collectiblesService.searchCollectibles(
     request.query
   )
 
-  reply.send(result)
+  const cacheKey = generateCacheKey(
+    'collectible-search',
+    Object.keys(request.query)
+      .sort()
+      .map((key) => {
+        return `${key.toLowerCase()}-${request.query[key]}`
+      })
+  )
+
+  return reply.cache(cacheKey).send(collectibles)
+}
+
+export async function getCollectible(
+  request: FastifyRequest<{ Querystring: CollectibleQuery }>,
+  reply: FastifyReply
+) {
+  const collectiblesService = request
+    .getContainer()
+    .get<CollectiblesService>(CollectiblesService.name)
+
+  const collectible = await collectiblesService.getCollectible(request.query)
+
+  return reply.send(collectible)
+}
+
+export async function getCollectibleTemplateByUniqueCode(
+  request: FastifyRequest<{
+    Params: CollectibleUniqueCode
+    Querystring: Language
+  }>,
+  reply: FastifyReply
+) {
+  const collectiblesService = request
+    .getContainer()
+    .get<CollectiblesService>(CollectiblesService.name)
+
+  const collectibleTemplate =
+    await collectiblesService.getCollectibleTemplateByUniqueCode({
+      ...request.query,
+      ...request.params,
+    })
+
+  return reply.send(collectibleTemplate)
+}
+
+export async function getCollectibleActivities(
+  request: FastifyRequest<{ Querystring: AssetIdObject }>,
+  reply: FastifyReply
+) {
+  const collectiblesService = request
+    .getContainer()
+    .get<CollectiblesService>(CollectiblesService.name)
+
+  const activities = await collectiblesService.getActivities(
+    request.query.assetId
+  )
+
+  return reply.send(activities)
 }
 
 export async function getShowcaseCollectibles(
-  request: FastifyRequest<{ Querystring: CollectibleShowcaseQuerystring }>,
+  request: FastifyRequest<{ Querystring: CollectibleShowcaseQuery }>,
   reply: FastifyReply
 ) {
   const collectiblesService = request
@@ -81,12 +99,11 @@ export async function getShowcaseCollectibles(
     request.query
   )
 
-  reply.send(result)
+  return reply.send(result)
 }
 
 export async function addCollectibleShowcase(
   request: FastifyRequest<{
-    Querystring: CollectibleShowcaseQuerystring
     Body: CollectibleId
   }>,
   reply: FastifyReply
@@ -95,20 +112,17 @@ export async function addCollectibleShowcase(
     .getContainer()
     .get<CollectiblesService>(CollectiblesService.name)
 
-  await collectiblesService.addShowcaseCollectible(
-    {
-      ...request.body,
-      ...request.query,
-    },
-    request.transaction
-  )
+  const { collectibleId } = request.body
 
-  reply.status(204).send()
+  await collectiblesService.addShowcaseCollectible(request.user, {
+    collectibleId,
+  })
+
+  return reply.status(204).send()
 }
 
 export async function removeCollectibleShowcase(
   request: FastifyRequest<{
-    Querystring: CollectibleShowcaseQuerystring
     Body: CollectibleId
   }>,
   reply: FastifyReply
@@ -117,15 +131,13 @@ export async function removeCollectibleShowcase(
     .getContainer()
     .get<CollectiblesService>(CollectiblesService.name)
 
-  await collectiblesService.removeShowcaseCollectible(
-    {
-      ...request.body,
-      ...request.query,
-    },
-    request.transaction
-  )
+  const { collectibleId } = request.body
 
-  reply.status(204).send()
+  await collectiblesService.removeShowcaseCollectible(request.user, {
+    collectibleId,
+  })
+
+  return reply.status(204).send()
 }
 
 export async function initializeExportCollectible(
@@ -140,7 +152,7 @@ export async function initializeExportCollectible(
     request.body
   )
 
-  reply.send(result)
+  return reply.send(result)
 }
 
 export async function exportCollectible(
@@ -151,12 +163,9 @@ export async function exportCollectible(
     .getContainer()
     .get<CollectiblesService>(CollectiblesService.name)
 
-  const txId = await collectiblesService.exportCollectible(
-    request.body,
-    request.transaction
-  )
+  const txId = await collectiblesService.exportCollectible(request.body)
 
-  reply.send({
+  return reply.send({
     txId,
   })
 }
@@ -170,11 +179,10 @@ export async function initializeImportCollectible(
     .get<CollectiblesService>(CollectiblesService.name)
 
   const transaction = await collectiblesService.initializeImportCollectible(
-    request.body,
-    request.transaction
+    request.body
   )
 
-  reply.send(transaction)
+  return reply.send(transaction)
 }
 
 export async function importCollectible(
@@ -185,12 +193,9 @@ export async function importCollectible(
     .getContainer()
     .get<CollectiblesService>(CollectiblesService.name)
 
-  const txId = await collectiblesService.importCollectible(
-    request.body,
-    request.transaction
-  )
+  const txId = await collectiblesService.importCollectible(request.body)
 
-  reply.send({
+  return reply.send({
     txId,
   })
 }

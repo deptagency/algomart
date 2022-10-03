@@ -1,15 +1,13 @@
 import { WalletTransaction } from '@algomart/shared/algorand'
-import type WalletConnect from '@walletconnect/client'
-import { IInternalEvent } from '@walletconnect/types'
+import type { PeraWalletConnect } from '@perawallet/connect'
 
 import { AlgorandAdapter, IConnector } from './algorand-adapter'
-import { EventEmitter } from './event-emitter'
 
-const BRIDGE_URL = 'https://bridge.walletconnect.org'
+const BRIDGE_URL = 'https://wallet-connect-a.perawallet.app'
 const SIGNING_METHOD = 'algo_signTxn'
 
-export class WalletConnectAdapter extends EventEmitter implements IConnector {
-  private _connector: WalletConnect | null = null
+export class WalletConnectAdapter extends EventTarget implements IConnector {
+  private _peraWallet: PeraWalletConnect | null = null
   public connected = false
 
   constructor(public readonly algorand: AlgorandAdapter) {
@@ -17,72 +15,67 @@ export class WalletConnectAdapter extends EventEmitter implements IConnector {
   }
 
   private async initialize() {
-    const { default: WalletConnect } = await import('@walletconnect/client')
-    const { default: QRCodeModal } = await import(
-      'algorand-walletconnect-qrcode-modal'
-    )
+    const { PeraWalletConnect } = await import('@perawallet/connect')
 
-    this._connector = new WalletConnect({
+    this._peraWallet = new PeraWalletConnect({
       bridge: BRIDGE_URL,
-      qrcodeModal: QRCodeModal,
-      signingMethods: [SIGNING_METHOD],
     })
-
+    await this._peraWallet.reconnectSession()
     this.subscribeToEvents()
   }
 
   private subscribeToEvents() {
-    if (!this._connector) throw new Error('WalletConnect not initialized')
-
-    this._connector.on('session_update', (error, payload) => {
+    if (!this._peraWallet.connector)
+      throw new Error('WalletConnect not initialized')
+    this._peraWallet.connector.on('session_update', (error, payload) => {
       if (error) throw error
       const { accounts } = payload.params[0]
       this.onSessionUpdate(accounts)
     })
 
-    this._connector.on('connect', (error, payload) => {
+    this._peraWallet.connector.on('connect', (error, payload) => {
       if (error) throw error
       this.onConnect(payload)
     })
 
-    this._connector.on('disconnect', (error) => {
+    this._peraWallet.connector.on('disconnect', (error) => {
       if (error) throw error
       this.onDisconnect()
     })
 
-    if (this._connector.connected) {
-      const { accounts } = this._connector
+    if (this._peraWallet.connector.connected) {
+      const { accounts } = this._peraWallet.connector
       this.connected = true
       this.onSessionUpdate(accounts)
     }
   }
 
   private onSessionUpdate(accounts: string[]) {
-    this.emit('update_accounts', accounts)
+    this.dispatchEvent(new CustomEvent('update_accounts', { detail: accounts }))
   }
 
-  private onConnect(event: IInternalEvent) {
+  private onConnect(event: { params: { accounts: string[] }[] }) {
     this.connected = true
     const { accounts } = event.params[0]
     this.onSessionUpdate(accounts)
-    this.emit('connect')
+    this.dispatchEvent(new CustomEvent('connect'))
   }
 
   private onDisconnect() {
     this.connected = false
-    this.emit('disconnect')
+    this.dispatchEvent(new CustomEvent('disconnect'))
   }
 
   public async connect() {
-    if (!this._connector) await this.initialize()
-    if (!this._connector) throw new Error('WalletConnect failed to initialize')
-    if (this._connector.connected) return
-    await this._connector.createSession()
+    if (!this._peraWallet) await this.initialize()
+    if (!this._peraWallet) throw new Error('WalletConnect failed to initialize')
+    if (this._peraWallet.connector.connected) return
+    await this._peraWallet.connector.createSession()
   }
 
   public async disconnect() {
-    if (!this._connector) throw new Error('WalletConnect not initialized')
-    await this._connector.killSession()
+    if (!this._peraWallet) throw new Error('WalletConnect not initialized')
+    await this._peraWallet.connector.killSession()
   }
 
   public async signTransaction(
@@ -90,7 +83,7 @@ export class WalletConnectAdapter extends EventEmitter implements IConnector {
     skipSubmit?: boolean
   ): Promise<(Uint8Array | null)[]> {
     try {
-      if (!this._connector) throw new Error('WalletConnect not initialized')
+      if (!this._peraWallet) throw new Error('WalletConnect not initialized')
 
       const { formatJsonRpcRequest } = await import('@json-rpc-tools/utils')
 
@@ -99,7 +92,7 @@ export class WalletConnectAdapter extends EventEmitter implements IConnector {
       ])
 
       const encodedSignedTxns: string[] =
-        await this._connector.sendCustomRequest(request)
+        await this._peraWallet.connector.sendCustomRequest(request)
 
       const txns = encodedSignedTxns.map((txn) => {
         if (!txn) return null

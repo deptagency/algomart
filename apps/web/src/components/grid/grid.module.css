@@ -1,20 +1,33 @@
 .root {
-  /* Base */
-  @apply grid items-start flex-1 grid-cols-1 gap-8 auto-rows-max;
-  /* Tablet */
-  @apply sm:grid-cols-2 sm:gap-5;
-  /* Desktop */
-  @apply md:grid-cols-4;
+  @apply grid items-start flex-1 w-full auto-rows-max;
+  gap: var(--gapBase);
+  grid-template-columns: repeat(var(--colsBase), minmax(0, 1fr));
 }
 
-.columns2 {
-  @apply md:grid-cols-2 md:gap-10;
+@media (min-width: 640px) {
+  .root {
+    gap: var(--gapSm);
+    grid-template-columns: repeat(var(--colsSm), minmax(0, 1fr));
+  }
 }
 
-.columns3 {
-  @apply md:grid-cols-3 md:gap-5;
+@media (min-width: 768px) {
+  .root {
+    gap: var(--gapMd);
+    grid-template-columns: repeat(var(--colsMd), minmax(0, 1fr));
+  }
 }
 
-.columns4 {
-  @apply md:grid-cols-4 md:gap-5;
+@media (min-width: 1024px) {
+  .root {
+    gap: var(--gapLg);
+    grid-template-columns: repeat(var(--colsLg), minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .root {
+    gap: var(--gapXl);
+    grid-template-columns: repeat(var(--colsXl), minmax(0, 1fr));
+  }
 }

@@ -1,6 +1,6 @@
 import admin from 'firebase-admin'
 
-import { Environment } from '@/environment'
+import { AppConfig } from '@/config'
 import { invariant } from '@/utils/invariant'
 
 export default function configureAdmin() {
@@ -11,7 +11,7 @@ export default function configureAdmin() {
 
   if (admin.apps.length === 0) {
     admin.initializeApp({
-      credential: admin.credential.cert(Environment.firebaseServiceAccount),
+      credential: admin.credential.cert(AppConfig.firebaseServiceAccount),
     })
   }
 

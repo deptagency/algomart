@@ -1,0 +1,82 @@
+.pageHero {
+  @apply flex items-center justify-center px-5 py-10 mb-10 bg-center bg-cover border-rainbow border-b-1;
+}
+
+.hasBanner {
+  @apply h-80;
+}
+
+.heroBannerContent {
+  @apply text-center max-w-wrapper;
+}
+
+.heroBannerContent h1 {
+  @apply mb-2 text-2xl font-semibold;
+}
+
+.heroBannerContent h2 {
+  @apply text-xl font-semibold;
+}
+
+.pageContent {
+  @apply relative px-5 pb-5 mx-auto max-w-700;
+}
+
+.pageContent h1,
+.pageContent h2,
+.pageContent h3,
+.pageContent h4 {
+  @apply mb-2 font-semibold leading-tight;
+}
+
+.pageContent h1,
+.pageContent h2 {
+  @apply mt-12 text-xl;
+}
+
+.pageContent h3 {
+  @apply mt-6 text-lg;
+}
+
+.pageContent h4 {
+  @apply text-base;
+}
+
+.pageContent p {
+  @apply mb-6 leading-relaxed;
+}
+
+.pageContent > ol,
+.pageContent > ul {
+  @apply mb-6;
+}
+
+.pageContent ol,
+.pageContent ul {
+  @apply ml-12;
+}
+
+.pageContent ol {
+  @apply list-decimal;
+}
+
+.pageContent ul {
+  @apply list-disc;
+}
+
+.pageContent li {
+  @apply mt-2;
+}
+
+.pageContent a {
+  @apply underline transition duration-300 text-action-link hover:text-action-linkHover;
+}
+
+.pageContent blockquote {
+  @apply pl-5 mx-5 border-l-1 text-base-textSecondary;
+}
+
+.pageContent img,
+.pageContent video {
+  @apply block w-full mb-6;
+}

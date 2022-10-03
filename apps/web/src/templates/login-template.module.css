@@ -1,0 +1,15 @@
+.dialog {
+  @apply relative w-full max-w-lg my-8 overflow-visible bg-base-bg text-base-textPrimary;
+  @apply sm:w-full;
+}
+
+.button div {
+  @apply relative flex items-center w-16 h-5;
+}
+
+.overlay {
+  @apply bg-opacity-80 !important;
+}
+.root {
+  @apply p-16 text-center;
+}

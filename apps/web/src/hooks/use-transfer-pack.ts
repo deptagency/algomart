@@ -2,18 +2,24 @@ import {
   AlgorandTransactionStatus,
   TransferPackStatusList,
 } from '@algomart/schemas'
-import { useCallback, useEffect, useState } from 'react'
-
-import { useInterval } from './use-interval'
+import { useMemo } from 'react'
 
 import { useAuth } from '@/contexts/auth-context'
-import { CollectibleService } from '@/services/collectible-service'
+import { useAPI } from '@/utils/react-query'
+import { urlFor, urls } from '@/utils/urls'
 
 export enum TransferPackStatus {
   Idle = 'idle',
+  Minting = 'minting',
   Transferring = 'transferring',
   Success = 'success',
   Error = 'error',
+}
+
+function isPending({ status }: TransferPackStatusList): boolean {
+  return status.some(
+    ({ status }) => status === AlgorandTransactionStatus.Pending
+  )
 }
 
 function hasError({ status }: TransferPackStatusList): boolean {
@@ -28,63 +34,49 @@ function isConfirmed({ status }: TransferPackStatusList): boolean {
   )
 }
 
-export function useTransferPack(
+function hasNoStatus({ status }: TransferPackStatusList): boolean {
+  return status.some(({ status }) => !status)
+}
+
+export function useTransferPackStatus(
   packId: string | null | false
-): [(passphrase: string) => Promise<void>, TransferPackStatus, () => void] {
-  const [status, setStatus] = useState(TransferPackStatus.Idle)
+): [TransferPackStatus, number] {
   const auth = useAuth()
 
-  const transfer = useCallback(
-    async (passphrase: string) => {
-      if (!packId) return
+  const { data } = useAPI<TransferPackStatusList>(
+    ['pack_transfer_status', packId],
+    urlFor(urls.api.packs.transferById, { packId }),
+    {
+      enabled: !!(auth.user && packId),
+      refetchInterval: (data) => {
+        if (!data || isPending(data) || hasNoStatus(data)) {
+          return 1000
+        }
 
-      if (status !== TransferPackStatus.Idle) {
-        return
-      }
-
-      setStatus(TransferPackStatus.Transferring)
-
-      const result = await CollectibleService.instance.transfer(
-        packId,
-        passphrase
-      )
-
-      if (!result) {
-        setStatus(TransferPackStatus.Error)
-        return
-      }
-    },
-    [packId, status]
+        return false
+      },
+    }
   )
 
-  const reset = useCallback(() => {
-    setStatus(TransferPackStatus.Idle)
-  }, [])
+  const status = useMemo(() => {
+    if (!data) return TransferPackStatus.Idle
 
-  const checkStatus = useCallback(async () => {
-    if (!packId) return
+    // One or more NFTs are not yet minted
+    if (hasNoStatus(data)) return TransferPackStatus.Minting
 
-    const result = await CollectibleService.instance.transferStatus(packId)
-    if (hasError(result)) {
-      // One or more failed
-      setStatus(TransferPackStatus.Error)
-    }
+    // One ore more NFTs are still being transferred
+    if (isPending(data)) return TransferPackStatus.Transferring
 
-    if (isConfirmed(result)) {
-      // All succeeded
-      setStatus(TransferPackStatus.Success)
-    }
-  }, [packId])
+    // One or more failed
+    if (hasError(data)) return TransferPackStatus.Error
 
-  useInterval(
-    checkStatus,
-    status === TransferPackStatus.Transferring ? 1000 : null
-  )
+    // All succeeded
+    if (isConfirmed(data)) return TransferPackStatus.Success
 
-  useEffect(() => {
-    if (!auth.user) return
-    checkStatus()
-  }, [auth.user, checkStatus])
+    return TransferPackStatus.Idle
+  }, [data])
 
-  return [transfer, status, reset]
+  const count = data?.status.length ?? 0
+
+  return [status, count]
 }

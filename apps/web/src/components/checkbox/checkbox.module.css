@@ -1,0 +1,25 @@
+.root {
+  @apply flex align-top;
+}
+
+.input {
+  @apply relative w-5 h-5 bg-transparent rounded-sm appearance-none cursor-pointer border-1 border-base-textPrimary min-w-[20px];
+  margin-top: 2px;
+}
+
+.input:checked {
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M5.707 7.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L7 8.586 5.707 7.293z'/%3e%3c/svg%3e");
+  @apply bg-action-accent border-action-accent;
+}
+
+.input:disabled {
+  @apply disabled:cursor-not-allowed disabled:bg-base-textDisabled disabled:border-base-textDisabled;
+}
+
+.label {
+  @apply pl-2 cursor-pointer;
+}
+
+.labelDisabled {
+  @apply cursor-not-allowed text-base-textDisabled;
+}

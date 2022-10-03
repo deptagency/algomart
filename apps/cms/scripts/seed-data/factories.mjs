@@ -1,7 +1,5 @@
 import { Factory } from 'rosie'
 
-import { randColor } from './color.mjs'
-
 /**
  * Notes:
  * 1. `idx` values don't appear in the DB, they're just iterators for nested properties.
@@ -11,23 +9,66 @@ import { randColor } from './color.mjs'
 
 Factory.define('homepage')
   .sequence('idx')
-  .attr('featured_pack', null)
+  .attr('hero_pack', null)
   .attr('upcoming_packs', [])
   .attr('notable_collectibles', [])
-
-Factory.define('rarity')
-  .sequence('idx')
-  .sequence('code', (seq) => seq)
-  .attr('color', ['idx'], () => randColor())
-  .attr('translations', ['idx'], (idx) => {
-    const rarities = ['Rare', 'Epic', 'Legendary']
+  .attr('translations', ['idx'], () => {
     return [
       {
-        languages_code: 'en-US',
-        name: rarities[idx % rarities.length],
+        languages_code: 'en-UK',
+        hero_banner_title: 'Start collecting now',
+        featured_packs_title: 'Featured Packs',
+        featured_packs_subtitle: 'Latest Drops',
+        featured_nfts_title: 'Featured NFTs',
+        featured_nfts_subtitle: 'Recently Collected NFTs',
       },
     ]
   })
+
+Factory.define('page')
+  .attr('status', 'published')
+  .attr('slug', null)
+  .attr('hero_banner', null)
+  .attr('translations', ['slug'], (slug) => {
+    return [{ languages_code: 'en-UK' }]
+  })
+
+// NOTE: Rarest first so we can simulate actual rarity in seed script.
+export const raritiesMeta = [
+  {
+    name: 'Gold',
+    description: 'Gold Description',
+    code: '1',
+    languages_code: 'en-UK',
+    color: '#d1bc00',
+  },
+  {
+    name: 'Silver',
+    description: 'Silver Description',
+    code: '2',
+    languages_code: 'en-UK',
+    color: '#9e9e9e',
+  },
+  {
+    name: 'Bronze',
+    description: 'Bronze Description',
+    code: '3',
+    languages_code: 'en-UK',
+    color: '#d98200',
+  },
+]
+
+Factory.define('rarity')
+  .sequence('idx')
+  .sequence('code', ['idx'], (seq) => raritiesMeta[seq - 1].code)
+  .attr('color', ['idx'], (seq) => raritiesMeta[seq - 1].color)
+  .attr('translations', ['idx'], (idx) => [
+    {
+      languages_code: 'en-UK',
+      name: raritiesMeta[idx - 1].name,
+      description: raritiesMeta[idx - 1].description,
+    },
+  ])
 
 Factory.define('collectible')
   .sequence('idx')
@@ -38,7 +79,7 @@ Factory.define('collectible')
   .attr('translations', ['idx'], (idx) => {
     return [
       {
-        languages_code: 'en-US',
+        languages_code: 'en-UK',
         title: `Collectible ${idx} Title`,
         subtitle: `Awesome Subtitle for Collectible ${idx}`,
         body: `A more *in-depth* description about Collectible ${idx}`,
@@ -65,7 +106,9 @@ Factory.define('pack')
     return types[idx % types.length]
   })
   .attr('price', ['type'], (type) =>
-    type === 'free' || type === 'redeem' ? null : Math.ceil(Math.random() * 250) * 100
+    type === 'free' || type === 'redeem'
+      ? 0
+      : Math.ceil(Math.random() * 15) * 100
   )
   .attr('auction_until', ['type'], (type) => {
     if (type === 'auction') {
@@ -80,7 +123,7 @@ Factory.define('pack')
   .attr('translations', ['idx'], (idx) => {
     return [
       {
-        languages_code: 'en-US',
+        languages_code: 'en-UK',
         title: `Pack ${idx} Title`,
         subtitle: `Awesome Subtitle for Pack ${idx}`,
         body: `A more *in-depth* description about Pack ${idx}`,
@@ -99,7 +142,7 @@ Factory.define('collection')
   .attr('translations', ['idx'], (idx) => {
     return [
       {
-        languages_code: 'en-US',
+        languages_code: 'en-UK',
         name: `Collection ${idx} Name`,
         description: `A more *in-depth* description about Collection ${idx}`,
         reward_prompt:
@@ -119,7 +162,7 @@ Factory.define('set')
   .attr('translations', ['idx'], (idx) => {
     return [
       {
-        languages_code: 'en-US',
+        languages_code: 'en-UK',
         name: `Set ${idx} Name`,
       },
     ]

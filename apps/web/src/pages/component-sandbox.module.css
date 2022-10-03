@@ -1,0 +1,7 @@
+.sandbox {
+  @apply flex flex-col gap-8 p-4 md:mx-auto md:p-16 max-w-wrapper;
+}
+
+.colorSwatch {
+  @apply flex justify-between w-full gap-4 px-2 py-1;
+}

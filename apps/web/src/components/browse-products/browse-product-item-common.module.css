@@ -1,0 +1,78 @@
+.root {
+  @apply relative flex flex-col h-full overflow-hidden transition duration-300 shadow-md rounded-xl bg-white;
+  @apply hover:scale-105 hover:bg-opacity-90;
+}
+
+.imageWrapper {
+  @apply relative mt-2.5 mx-2.5 overflow-hidden mb-3;
+  @apply sm:mt-[15px] sm:mx-[15px];
+}
+.pricePill {
+  @apply absolute inline-block min-w-0 px-2 py-1 text-xs font-bold border-0 right-3 top-3 bg-action-primary !important;
+}
+
+.pills {
+  @apply flex flex-wrap justify-center gap-2 mb-3;
+}
+.editionPill {
+  @apply hidden !important;
+  @apply sm:inline-block !important;
+}
+
+.rarityPill {
+  @apply font-bold text-white !important;
+}
+
+.title {
+  @apply flex items-center justify-center h-16 text-sm font-bold leading-snug uppercase text-base-textPrimary;
+  @apply sm:text-base;
+}
+/* Vertically centering single-line content with line-clamp requires this nesting  */
+.title > div {
+  @apply line-clamp-3;
+}
+.packTitle {
+  @apply mb-2 text-sm font-bold uppercase text-base-textPrimary;
+  @apply sm:text-base;
+}
+
+/* Metadata structure (allows for flex alignment */
+.metadata {
+  @apply flex flex-col justify-between mx-2.5 pb-3 grow text-base-textPrimary;
+  @apply sm:mx-[15px];
+}
+.metadataFlexTop {
+  @apply text-center;
+}
+.metadataFlexBottom {
+  @apply justify-end mt-1 text-center;
+}
+
+/* Metadata contents */
+.metadataPrice {
+  @apply text-xs font-bold uppercase;
+  @apply sm:text-sm;
+}
+.metadataPrice > span {
+  @apply font-normal opacity-50;
+}
+.metadataAction {
+  @apply my-3 max-w-[16rem] px-6 text-xs py-3;
+}
+.metadataRemaining {
+  @apply mt-3 text-[11px] tracking-wider;
+}
+.metadataCollection {
+  @apply flex items-center justify-center gap-2 mt-3 text-xs;
+}
+.metadataCollectionImageContainer {
+  @apply flex-grow-0 flex-shrink-0 w-8 h-8 overflow-hidden rounded-full basis-8;
+}
+.metadataCollectionName {
+  @apply hidden overflow-hidden text-ellipsis whitespace-nowrap;
+  @apply md:block;
+}
+
+.releaseCounter {
+  @apply p-2 my-2 rounded-full text-action-primary bg-action-primary bg-opacity-10;
+}

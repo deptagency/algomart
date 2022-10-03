@@ -1,0 +1,31 @@
+.successRoot,
+.failureRoot {
+  @apply mx-auto text-center max-w-520;
+}
+
+.successRoot button,
+.failureRoot button {
+  @apply max-w-xs mx-auto mt-28;
+}
+
+.icon {
+  @apply relative mx-auto mt-4;
+}
+.icon path {
+  stroke-width: 1px;
+}
+.successIcon {
+  @apply text-base-price;
+}
+.errorIcon {
+  @apply text-base-error;
+}
+
+.notice,
+.errorMessage {
+  @apply my-4 text-lg text-base-textSecondary;
+}
+
+.errorBody {
+  @apply block p-3 px-4 mt-8 overflow-y-auto text-sm text-left whitespace-pre bg-white max-h-44 bg-opacity-10 text-base-textSecondary;
+}

@@ -1,10 +1,11 @@
-import { CollectibleListWithTotal, CollectionWithSets } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 
 import Loading from '@/components/loading/loading'
 import { useAuth } from '@/contexts/auth-context'
+import { useLanguage } from '@/contexts/language-context'
+import { useAllCollections } from '@/hooks/api/use-all-collections'
+import { useNFTs } from '@/hooks/api/use-nfts'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
@@ -12,31 +13,23 @@ import {
 } from '@/services/api/auth-service'
 import MyCollectionsTemplate from '@/templates/my-collections-template'
 import { getCollectionsFromOwnedAssets } from '@/utils/collections'
-import { useApi } from '@/utils/swr'
-import { urls } from '@/utils/urls'
 
 export default function MyCollectionsPage() {
-  const { user } = useAuth()
-  const router = useRouter()
+  const { language } = useLanguage()
   const { t } = useTranslation()
+  const { user } = useAuth()
 
   // Fetch collections and asset data
-  const { data: { collections: allCollections } = {} } = useApi<{
-    total: number
-    collections: CollectionWithSets[]
-  }>(urls.api.v1.getAllCollections)
-  const { data: { collectibles } = {} } = useApi<CollectibleListWithTotal>(
-    user?.username
-      ? `${urls.api.v1.getAssetsByOwner}?ownerUsername=${user.username}&pageSize=-1`
-      : null
-  )
+  const { data: { collections: allCollections } = {} } = useAllCollections()
+
+  const { data: { collectibles } = {} } = useNFTs({
+    pageSize: -1,
+    username: user?.username,
+    language,
+  })
 
   return (
-    <DefaultLayout
-      pageTitle={t('common:pageTitles.My Collections')}
-      panelPadding
-      width="large"
-    >
+    <DefaultLayout pageTitle={t('common:pageTitles.My Collections')} noPanel>
       {!allCollections || !collectibles ? (
         <Loading />
       ) : (
@@ -46,7 +39,6 @@ export default function MyCollectionsPage() {
             collectibles,
             allCollections
           )}
-          onRedirectBrands={() => router.push(urls.releases)}
         />
       )}
     </DefaultLayout>

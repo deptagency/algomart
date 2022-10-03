@@ -7,7 +7,7 @@
 }
 
 .imageContainer {
-  @apply inline-block overflow-hidden rounded-full h-9 w-9;
+  @apply relative inline-block overflow-hidden rounded-full;
 }
 
 .imageContainer img {
@@ -19,5 +19,5 @@
 }
 
 .username {
-  @apply font-bold;
+  @apply font-semibold;
 }

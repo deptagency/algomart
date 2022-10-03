@@ -20,6 +20,7 @@ export function usePackOpening() {
 
 export function usePackOpeningProvider(pack: PackWithCollectibles) {
   const [packToOpen, setPackToOpen] = useState<PackWithCollectibles>(pack)
+  // Unmounts the experience when animation is complete to prevent memory leaks
   const [sceneMounted, setSceneMounted] = useState<boolean>(true)
   const [sceneComplete, setSceneComplete] = useState<boolean>(false)
 

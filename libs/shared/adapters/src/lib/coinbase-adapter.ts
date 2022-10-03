@@ -1,4 +1,3 @@
-import pino from 'pino'
 import {
   CoinbaseExchangeRates,
   CoinbaseExchangeRatesOptions,
@@ -6,6 +5,7 @@ import {
   isCoinbaseSuccessResponse,
 } from '@algomart/schemas'
 import { HttpTransport } from '@algomart/shared/utils'
+import pino from 'pino'
 
 interface CoinbaseAdapterOptions {
   url: string
@@ -20,7 +20,9 @@ export class CoinbaseAdapter {
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
-    this.http = new HttpTransport(options.url)
+    this.http = new HttpTransport({
+      baseURL: options.url,
+    })
   }
 
   async ping() {

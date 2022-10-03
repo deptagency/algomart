@@ -14,26 +14,24 @@
     "sent": "Sent!",
     "backToMyCollection": "Back to My Collection"
   },
-  "tabs": {
-    "details": "Details",
-    "activity": "Activity",
-    "sell": "Sell",
-    "transfer": "Transfer"
-  },
   "activity": {
-    "title": "NFT Activity"
+    "title": "Activity",
+    "table": {
+      "Event": "Event",
+      "Price": "Price",
+      "From": "From",
+      "To": "To",
+      "Date": "Date"
+    },
+    "events": {
+      "purchase": "Purchased",
+      "list": "Listed",
+      "mint": "Minted",
+      "transfer": "Transferred"
+    }
   },
-  "activities": {
-    "purchase": "Purchased by @{{username}}",
-    "list": "Listed",
-    "mint": "Minted",
-    "transfer": "Transferred to {{address}}"
-  },
-  "sell": {
-    "title": "List for sale",
-    "body": "List your NFT for sale on our secondary market, get paid in ALGO. Listings can be removed at any time.",
-    "learnMore": "Learn more about selling NFTs on Algomart",
-    "sellMyNFT": "Sell My NFT"
+  "details": {
+    "title": "Details"
   },
   "transfer": {
     "title": "Transfer to wallet",
@@ -43,17 +41,52 @@
   },
   "labels": {
     "Owner": "Owner",
+    "ownedBy": "Owned by",
     "Edition": "Edition",
     "Rarity": "Rarity",
     "Collection": "Collection",
     "Set": "Set",
     "Address": "Address",
+    "editionXWrappers": "<0>#{{edition}}</0> of <1>{{totalEditions}}</1>",
     "editionX": "#{{edition}} of {{totalEditions}}",
+    "mintedAt": "Collected <0>{{date}}</0>",
     "uniqueId": "Unique ID",
     "cannotTransfer": {
       "frozen": "This NFT is frozen and cannot be transferred.",
-      "mintedRecently": "Cannot be transferred until {{date}}."
-    }
+      "transactedRecently": "Cannot be transferred until {{date}}."
+    },
+    "Price": "Price",
+    "Starting at": "Starting at"
+  },
+  "sell": {
+    "title": "Sell",
+    "body": "List your NFT for sale on our secondary market. Listings can be removed at any time.",
+    "royaltyFee": "Royalty Fee",
+    "learnMore": "Learn more about selling NFTs",
+    "listed": "<0>This NFT is listed for sale at a price of <1>{{price}}</1>. You can remove the listing to set a new price.</0>",
+    "listedTitle": "Listed for Sale",
+    "listForSale": "List For Sale",
+    "listForSaleComingSoon": "Sell My NFT is coming soon",
+    "removeListing": "Remove Listing",
+    "serviceFee": "Service Fee",
+    "noUser": "The current owner of this NFT is not known, it cannot be purchased",
+    "notOwner": "You are not the owner of this NFT, you cannot list it for sale",
+    "transactedRecently": "This NFT was part of a recent transaction, it cannot be listed until {{date}}",
+    "isListed": "This NFT is already listed, it cannot be listed again"
+  },
+  "purchase": {
+    "title": "Purchase",
+    "body": "Purchase NFT from {{seller}} for {{price}}",
+    "purchaseComingSoon": "Purchasing NFTs is coming soon",
+    "notListed": "NFT isn't listed, cannot purchase",
+    "isOwner": "You are the owner of this NFT, you cannot purchase it from yourself",
+    "noUser": "The current owner of this NFT is not known, it cannot be purchased"
+  },
+  "listForSaleStatus": {
+    "success": "Success! Your NFT is listed for sale."
+  },
+  "delistStatus": {
+    "success": "Success! Your NFT has been delisted."
   },
   "exportStatus": {
     "idle": "Loading...",
@@ -61,7 +94,15 @@
     "optIn": "Verifying opt-in transaction...",
     "pending": "Transferring NFT...",
     "success": "NFT transferred!",
-    "error": "Error transferring NFT.",
+    "error": {
+      "404": {
+        "title": "Error transferring NFT: Account not found",
+        "subtitle": "This could occur if you have yet to use your account to do any transactions"
+      },
+      "generic": {
+        "title": "Error transferring NFT"
+      }
+    },
     "generatingTransactions": "Generating transactions for import...",
     "signTransaction": "Please confirm the transactions in your wallet to transfer the NFT."
   }

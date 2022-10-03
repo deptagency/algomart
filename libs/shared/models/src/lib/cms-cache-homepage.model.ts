@@ -1,11 +1,11 @@
+import { DirectusHomepage, EntityType } from '@algomart/schemas'
 import { Model } from 'objection'
-import { DirectusHomepage } from '@algomart/schemas'
 
 export class CMSCacheHomepageModel extends Model {
-  static tableName = 'CmsCacheHomepage'
+  static tableName = EntityType.CmsCacheHomepage
 
   id!: string
-  content!: string
+  content!: DirectusHomepage
   createdAt!: string
   updatedAt!: string
 
@@ -16,7 +16,7 @@ export class CMSCacheHomepageModel extends Model {
   static async insert(homepage: DirectusHomepage) {
     await CMSCacheHomepageModel.query().insert({
       id: homepage.id,
-      content: JSON.stringify(homepage),
+      content: homepage,
     })
 
     return homepage
@@ -25,19 +25,14 @@ export class CMSCacheHomepageModel extends Model {
   static async update(homepage: DirectusHomepage) {
     await CMSCacheHomepageModel.query()
       .where({ id: homepage.id })
-      .update({ content: JSON.stringify(homepage) })
+      .update({ content: homepage })
 
     return homepage
   }
 
   static async upsert(homepage: DirectusHomepage) {
     const record = await this.getById(homepage.id)
-    if (record) {
-      this.update(homepage)
-    } else {
-      this.insert(homepage)
-    }
-
+    await (record ? this.update(homepage) : this.insert(homepage))
     return homepage
   }
 

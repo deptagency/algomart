@@ -1,0 +1,79 @@
+.initiateButton {
+  @apply my-10;
+}
+
+.report {
+  @apply pb-5;
+}
+
+.separator {
+  @apply my-2;
+}
+
+.key {
+  @apply font-semibold md:text-start;
+}
+
+.value {
+  @apply ml-1 capitalize md:text-end;
+}
+
+.field {
+  @apply mt-2;
+}
+
+.fieldGroup {
+  @apply my-2 md:my-8;
+}
+
+.details {
+  @apply mt-10 md:mb-10;
+}
+
+.verificationStatus {
+  @apply mt-5 mb-10 md:mt-10;
+}
+
+.checks {
+  @apply mt-5;
+}
+
+.message {
+  @apply mt-8 mb-5;
+}
+
+.messageLink {
+  @apply mt-8 mb-5 font-bold;
+}
+
+.sectionContent {
+  @apply p-6 rounded-md border-base-border bg-[#111B3A];
+}
+
+.sectionText {
+  @apply mb-6;
+}
+
+.panel {
+  @apply -mx-5 sm:mx-0;
+}
+
+.list {
+  @apply p-6;
+}
+
+.listItem {
+  @apply mb-4 sm:items-start sm:grid sm:grid-cols-2;
+}
+
+.listLabel {
+  @apply mr-3 font-semibold sm:text-start;
+}
+
+.listValue {
+  @apply capitalize sm:text-end;
+}
+
+.details h2 {
+  @apply justify-center text-lg sm:text-xl;
+}

@@ -1,0 +1,73 @@
+.radioInput {
+  --bulletSize: 1.125rem;
+  @apply relative block p-4 pl-12 leading-5 transition-all cursor-pointer border-1 border-gray-200 bg-base-bgCard;
+}
+
+.inline {
+  @apply inline-block;
+}
+
+.disabled .labelText,
+.disabled .bullet {
+  @apply opacity-50 cursor-default pointer-events-none;
+}
+
+.radioInput:not(.inline):first-of-type {
+  @apply rounded-t-md;
+}
+.radioInput:not(.inline):last-of-type {
+  @apply rounded-b-md;
+}
+
+.radioInput.inline:first-of-type {
+  @apply rounded-l-md;
+}
+.radioInput.inline:last-of-type {
+  @apply rounded-r-md;
+}
+
+/* Adjacent inputs have overlapping border edges so we can highlight it on focus */
+.radioInput.inline + .radioInput.inline {
+  @apply -ml-[1px];
+}
+.radioInput:not(.inline) + .radioInput:not(.inline) {
+  @apply -mt-[1px];
+}
+.radioInput.selected {
+  @apply z-10;
+}
+
+.input {
+  @apply absolute m-0 opacity-0 cursor-pointer left-4;
+  margin-top: 1px;
+  width: var(--bulletSize);
+  height: var(--bulletSize);
+}
+
+.radioInput:focus-within {
+  @apply border-action-primary;
+}
+.radioInput:focus-within .labelText {
+  @apply underline;
+}
+
+.bullet {
+  @apply absolute text-center transition-shadow rounded-full left-4;
+  margin-top: 1px;
+  width: var(--bulletSize);
+  height: var(--bulletSize);
+  box-shadow: inset 0 0 0 2px rgb(var(--textTertiary));
+}
+.bullet > div {
+  @apply w-full h-full transition-transform origin-center scale-0 rounded-full;
+}
+
+.selected .bullet {
+  box-shadow: inset 0 0 0 2px rgb(var(--actionAccent));
+}
+.selected .bullet > div {
+  @apply scale-50 bg-action-accent;
+}
+.radioInput:not(.selected):hover .bullet > div {
+  box-shadow: inset 0 0 0 2px rgb(var(--actionPrimary));
+}

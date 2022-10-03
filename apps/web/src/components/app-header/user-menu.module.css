@@ -1,0 +1,60 @@
+.userMenuButton {
+  @apply flex items-center gap-2.5 mr-2 text-sm transition-all rounded-full cursor-pointer text-base-textPrimary;
+}
+.userAvatar {
+  @apply relative flex overflow-hidden transition-all rounded-full w-7 h-7;
+  box-shadow: 0 0 0 1px #fff;
+}
+.genericAvatar {
+  @apply w-7 h-7;
+}
+.genericAvatar path {
+  stroke-width: 1.5;
+}
+
+.userMenuButtonLabel {
+  @apply hidden transition;
+  @apply lg:block;
+}
+
+.userMenuChevron {
+  @apply hidden transition-all opacity-100;
+  @apply lg:block;
+}
+.userMenuClose {
+  @apply hidden transition-all opacity-0 -ml-7;
+  @apply lg:inline-block;
+}
+
+.userMenu {
+  @apply w-64;
+}
+
+.credits {
+  @apply p-6 text-center bg-action-primary text-action-primaryContrastText;
+}
+.creditsValue {
+  @apply text-xl font-semibold leading-tight;
+}
+.creditsValue > span {
+  @apply block my-2 text-base font-normal;
+}
+
+.menuItemList {
+  @apply px-4 py-1;
+}
+
+.isOpen .userMenuChevron {
+  @apply opacity-0;
+}
+.isOpen .userMenuClose {
+  @apply opacity-100;
+}
+
+.userMenuItem {
+  @apply px-6 py-4 transition text-base-textPrimary hover:text-base-textSecondary;
+}
+
+.userMenuItem + .userMenuItem {
+  @apply border-t-1;
+}

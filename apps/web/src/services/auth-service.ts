@@ -1,21 +1,19 @@
 import { DEFAULT_CURRENCY, DEFAULT_LANG } from '@algomart/schemas'
-import ky from 'ky'
 
 import { setCurrencyCookie, setLanguageCookie } from '@/utils/cookies-web'
 import { invariant } from '@/utils/invariant'
-import { setBearerToken } from '@/utils/ky-hooks'
+import { apiFetcher } from '@/utils/react-query'
 import { urls } from '@/utils/urls'
 
 export interface AuthAPI {
-  isUsernameAvailable(username: string): Promise<boolean>
-  updateUsername(username: string): Promise<boolean>
+  updateUsername(username: string): Promise<unknown>
+  updateEmail(username: string): Promise<unknown>
   updateLanguage(language: string): Promise<boolean>
   updateCurrency(currency: string): Promise<boolean>
-  verifyPassphrase(passphrase: string): Promise<boolean>
+  updateAge(age: number): Promise<boolean>
 }
 
 export class AuthService implements AuthAPI {
-  http: typeof ky
   private static _instance: AuthService
 
   static get instance() {
@@ -27,22 +25,6 @@ export class AuthService implements AuthAPI {
       typeof window !== 'undefined',
       'AuthService must be used in the browser'
     )
-    this.http = ky.create({
-      throwHttpErrors: false,
-      timeout: 10_000,
-      hooks: {
-        beforeRequest: [setBearerToken],
-      },
-    })
-  }
-
-  async isUsernameAvailable(username: string): Promise<boolean> {
-    const { isAvailable } = await this.http
-      .post(urls.api.v1.verifyUsername, {
-        json: { username },
-      })
-      .json<{ isAvailable: boolean }>()
-    return isAvailable
   }
 
   /**
@@ -51,10 +33,7 @@ export class AuthService implements AuthAPI {
    */
   async updateLanguage(language = DEFAULT_LANG): Promise<boolean> {
     try {
-      await this.http
-        .put(urls.api.v1.updateLanguage, { json: { language } })
-        .json()
-
+      await apiFetcher().patch(urls.api.accounts.base, { json: { language } })
       setLanguageCookie(language)
 
       return true
@@ -69,10 +48,7 @@ export class AuthService implements AuthAPI {
    */
   async updateCurrency(currency = DEFAULT_CURRENCY): Promise<boolean> {
     try {
-      await this.http
-        .put(urls.api.v1.updateCurrency, { json: { currency } })
-        .json()
-
+      await apiFetcher().patch(urls.api.accounts.base, { json: { currency } })
       setCurrencyCookie(currency)
 
       return true
@@ -81,24 +57,32 @@ export class AuthService implements AuthAPI {
     }
   }
 
-  async updateUsername(username: string): Promise<boolean> {
+  async updateUsername(username: string): Promise<unknown> {
+    return await apiFetcher().patch(urls.api.accounts.base, {
+      json: { username },
+    })
+  }
+
+  /**
+   *
+   * @param age - age to update user's preference to
+   */
+  async updateAge(age: number): Promise<boolean> {
     try {
-      await this.http
-        .put(urls.api.v1.updateUsername, { json: { username } })
-        .json()
+      await apiFetcher().patch(urls.api.accounts.base, { json: { age } })
       return true
     } catch {
       return false
     }
   }
 
-  async verifyPassphrase(passphrase: string): Promise<boolean> {
-    const { isValid } = await this.http
-      .post(urls.api.v1.verifyPassphrase, {
-        json: { passphrase },
-      })
-      .json<{ isValid: boolean }>()
-
-    return isValid
+  /**
+   *
+   * @param email - email to update user's preference to
+   */
+  async updateEmail(email: string): Promise<unknown> {
+    return await apiFetcher().patch(urls.api.accounts.base, {
+      json: { email },
+    })
   }
 }

@@ -1,0 +1,16 @@
+.root {
+  @apply w-full text-center;
+}
+
+.icon {
+  @apply mx-auto mb-5 text-base-price;
+}
+
+.button {
+  @apply w-full max-w-xs mt-4;
+}
+
+.successButtonWrapper {
+  @apply grid grid-cols-2 gap-5 m-auto;
+  max-width: 90%;
+}

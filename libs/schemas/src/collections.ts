@@ -1,18 +1,23 @@
 import { Static, Type } from '@sinclair/typebox'
 
-import { Simplify } from './shared'
+import { Simplify, SlugSchema } from './shared'
 
 export const SetBaseSchema = Type.Object({
   id: Type.String({ format: 'uuid' }),
   name: Type.String(),
-  slug: Type.String(),
+  slug: SlugSchema,
   collectibleTemplateIds: Type.Array(Type.String({ format: 'uuid' })),
+})
+
+export const TagBaseSchema = Type.Object({
+  slug: SlugSchema,
+  title: Type.String(),
 })
 
 export const CollectionRewardSchema = Type.Object({
   prompt: Type.String(),
   complete: Type.String(),
-  image: Type.String({ type: 'uri' }),
+  image: Type.Optional(Type.String({ type: 'uri' })),
 })
 
 export const CollectionBaseSchema = Type.Object({
@@ -26,8 +31,8 @@ export const CollectionBaseSchema = Type.Object({
     )
   ),
   reward: Type.Optional(CollectionRewardSchema),
-  image: Type.String({ format: 'uri' }),
-  slug: Type.String(),
+  image: Type.Optional(Type.String({ type: 'uri' })),
+  slug: SlugSchema,
   collectibleTemplateIds: Type.Array(Type.String({ format: 'uuid' })),
 })
 
@@ -46,6 +51,7 @@ export const CollectionWithSetsSchema = Type.Intersect([
 ])
 
 export type SetBase = Simplify<Static<typeof SetBaseSchema>>
+export type TagBase = Simplify<Static<typeof TagBaseSchema>>
 export type CollectionReward = Simplify<Static<typeof CollectionRewardSchema>>
 export type CollectionBase = Simplify<Static<typeof CollectionBaseSchema>>
 export type CollectionWithSets = Simplify<

@@ -1,12 +1,31 @@
-.selectWrapper {
-  @apply relative z-10 mb-12 transform -translate-y-1/2 border-b border-base-border;
+.collectiblesHeaderContainer {
+  @apply flex flex-col justify-between;
+  @apply md:flex-row;
 }
 
-.selectWrapper label {
-  @apply mx-auto transform translate-y-1/2 shadow-large;
-  max-width: 175px;
+.selectWrapper {
+  @apply relative z-10 flex justify-center mt-8 mb-8;
+  @apply md:mt-0;
+}
+
+.tabs a {
+  @apply sm:w-32 mdlg:w-40 !important;
+}
+
+.selectWrapper button {
+  min-width: 180px;
+}
+
+.gridColumnToggle {
+  @apply hidden;
+  @apply md:block;
 }
 
 .paginationWrapper {
   @apply mt-12;
+}
+
+.collectiblesGrid {
+  @apply -mx-2;
+  @apply sm:mx-0;
 }

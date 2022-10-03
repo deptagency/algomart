@@ -1,13 +1,13 @@
 .viewOnChainButton {
   /* Base */
-  @apply px-0 mb-1 text-sm underline text-base-gray-medium;
+  @apply px-0 mb-1 text-sm text-right underline;
   /* Tablet + */
   @apply md:mb-2;
 }
 
 .viewOnChainButton svg {
-  @apply inline-block ml-1;
-  margin-top: -2px;
+  @apply hidden ml-1;
+  @apply sm:inline-block;
 }
 
 .columns {

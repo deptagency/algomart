@@ -1,5 +1,5 @@
 .root {
-  @apply relative w-full text-center text-white;
+  @apply relative w-full text-center;
   top: -2rem;
 }
 
@@ -12,10 +12,9 @@
 }
 
 .inputWrapper input {
-  @apply font-bold text-center bg-black border-2 border-base-border;
-  color: #fff !important;
+  @apply font-bold text-center border-2 border-base-border;
 }
 
 .noCodeLink {
-  @apply block mt-12 text-sm text-base-gray-medium hover:text-base-textPrimary;
+  @apply block mt-12 text-sm hover:text-base-textPrimary;
 }

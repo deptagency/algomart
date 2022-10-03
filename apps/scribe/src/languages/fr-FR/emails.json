@@ -1,0 +1,144 @@
+{
+  "auctionComplete": {
+    "subject": "Vous êtes l'enchérisseur gagnant !",
+    "body": {
+      "0": "<strong>Vous êtes actuellement le meilleur enchérisseur pour \"{{packTitle}}\"!</strong>",
+      "1": "Vous avez remporté l'enchère de ${{amount}} ! Connectez-vous maintenant pour terminer votre achat et réclamer vos gains !",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>Complétez votre achat</strong></a>"
+    },
+    "expirationWarning": "<em>Note: Vous avez 72 heures avant que votre offre gagnante n'expire et ne soit transmise au prochain enchérisseur le plus élevé.</em>"
+  },
+  "bidExpired": {
+    "subject": "Votre offre pour \"{{packTitle}}\" a expiré.",
+    "body": {
+      "0": "Nous vous écrivons pour vous informer que votre offre pour \"{{packTitle}}\" a expiré car aucun paiement n'a été reçu."
+    }
+  },
+  "emailPasswordReset": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "newEmailVerification": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null
+    }
+  },
+  "reportComplete": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "workflowCompleteManualReview": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "workflowCompleteRejected": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "workflowComplete": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "packRevoked": {
+    "subject": "Pack révoqué ",
+    "body": "Votre pack \"{{packTitle}}\" a été révoqué. Veuillez contacter le service clientèle si vous pensez qu'il s'agit d'une erreur."
+  },
+  "paymentFailed": {
+    "subject": "Le paiement a échoué / Échec du paiement",
+    "body": "Votre paiement pour \"{{packTitle}}\" a échoué. Veuillez contacter le support client."
+  },
+  "paymentSuccess": {
+    "subject": "Vos objets de collection sont prêtes !",
+    "body": {
+      "0": "<strong>Félicitations!</strong>",
+      "1": "Votre nouveau pack {{packTitle}} est prêt à être transféré. Connectez-vous maintenant pour entrer votre code d'accès et transférer les actifs vers votre portefeuille Algorand. Si vous l'avez déjà fait, vous pouvez ignorer ce message.",
+      "2": "<a href=\"{{transferUrl}}\"><strong>Transférez votre actif</strong></a>"
+    }
+  },
+  "transferSuccess": {
+    "subject": "Vous avez de nouveaux objets de collection !",
+    "body": {
+      "0": "<strong>Félicitations!</strong>",
+      "1": "Vous êtes l'heureux nouveau propriétaire de \"{{packTitle}}\". Les actifs sont en train d'être transférés vers votre portefeuille Algorand et sont maintenant disponibles dans votre collection.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>Consultez votre collection</strong></a>"
+    }
+  },
+  "secondaryPurchaseSuccess": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "secondarySaleSuccess": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "userHighBid": {
+    "subject": "Vous êtes le meilleur enchérisseur !",
+    "body": {
+      "0": "<strong>Félicitations!</strong>",
+      "1": "Vous êtes actuellement le meilleur enchérisseur pour \"{{packTitle}}\". Gardez un œil sur l'annonce en utilisant le lien ci-dessous.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>Voir la liste</strong></a>"
+    }
+  },
+  "userOutbid": {
+    "subject": "Vous avez été surenchéris !",
+    "body": {
+      "0": "Vous n'êtes plus le meilleur enchérisseur pour \"{{packTitle}}\".",
+      "1": "Ne vous inquiétez pas, il vous reste encore du temps ! Si vous souhaitez soumettre une nouvelle offre élevée, veuillez le faire en utilisant le lien ci-dessous.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>Voir la liste</strong></a>"
+    }
+  },
+  "wirePayoutSubmitted": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "wirePayoutFailed": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "wirePayoutReturned": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  }
+}

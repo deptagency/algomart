@@ -1,4 +1,5 @@
 import algosdk from 'algosdk'
+
 import {
   calculateAppMinBalance,
   createDeployContractTransactions,
@@ -52,7 +53,7 @@ describe('createDeployContractTransactions', () => {
 describe('calculateAppMinBalance', () => {
   it('should work', () => {
     // Arrange
-    const expectedMinBalance = { create: 178500, optIn: 100000 }
+    const expectedMinBalance = { create: 178_500, optIn: 100_000 }
     const globalState = makeStateConfig(1, 1)
     const localState = makeStateConfig()
 

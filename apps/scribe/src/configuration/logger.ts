@@ -1,6 +1,6 @@
 import { createLogger } from '@algomart/shared/utils'
 
-import { Configuration } from './app-config'
+import { Configuration } from './'
 
 /**
  * Only use this logger if you do not have access to a Fastify request.

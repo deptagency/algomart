@@ -6,16 +6,13 @@ const ENCODING = 'base64'
 
 /**
  * Helper function to create a key and salt.
+ *
+ * secret -- the secret that would be configured on a per-app
+ * basis (ie. it comes from the env vars)
  */
-function createKey(
-  passphrase: string,
-  salt: string | undefined,
-  secret: string
-) {
+function createKey(salt: string | undefined, secret: string) {
   salt = salt || randomBytes(SALT_BYTES).toString(ENCODING)
-  const key = CryptoJS.SHA256(salt + passphrase + secret).toString(
-    CryptoJS.enc.Base64
-  )
+  const key = CryptoJS.SHA256(salt + secret).toString(CryptoJS.enc.Base64)
   return {
     key,
     salt,
@@ -23,13 +20,13 @@ function createKey(
 }
 
 /**
- * Encrypts a value using a passphrase.
+ * Encrypts a value
  *
  * Internally generates a new key and salt. The result is a byte array with the
  * salt and the encrypted value.
  */
-export function encrypt(value: string, passphrase: string, secret: string) {
-  const { key, salt } = createKey(passphrase, undefined, secret)
+export function encrypt(value: string, secret: string) {
+  const { key, salt } = createKey(undefined, secret)
   const encrypted = CryptoJS.AES.encrypt(value, key).toString()
   const bytes = Buffer.concat([
     Buffer.from(salt, ENCODING),
@@ -39,17 +36,13 @@ export function encrypt(value: string, passphrase: string, secret: string) {
 }
 
 /**
- * Decrypts a base64-encoded string using a passphrase.
+ * Decrypts a base64-encoded string.
  *
  * Internally extracts the salt from the base64-encoded string and uses it to recreate the key.
  *
  * May return a zero-length string if the decryption fails.
  */
-export function decrypt(
-  encryptedValue: string,
-  passphrase: string,
-  secret: string
-) {
+export function decrypt(encryptedValue: string, secret: string) {
   try {
     const encryptedBytes = Buffer.from(encryptedValue, ENCODING)
     const salt = Buffer.from(encryptedBytes.slice(0, SALT_BYTES)).toString(
@@ -58,7 +51,7 @@ export function decrypt(
     const encrypted = Buffer.from(encryptedBytes.slice(SALT_BYTES)).toString(
       ENCODING
     )
-    const { key } = createKey(passphrase, salt, secret)
+    const { key } = createKey(salt, secret)
     return CryptoJS.AES.decrypt(encrypted, key).toString(CryptoJS.enc.Utf8)
   } catch {
     return ''

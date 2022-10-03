@@ -1,0 +1,3 @@
+.upcomingPackCard {
+  @apply bg-white bg-opacity-10 rounded-[10px] p-[40px] sm:py-[20px] sm:px-[55px] hover:scale-105 transition-all;
+}

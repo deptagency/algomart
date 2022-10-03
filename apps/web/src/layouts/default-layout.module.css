@@ -1,0 +1,48 @@
+@keyframes bobbing40px {
+  0% {
+    transform: translateY(0px) rotate(-8.86deg);
+  }
+  50% {
+    transform: translateY(40px) rotate(-8.86deg);
+  }
+  100% {
+    transform: translateY(-0px) rotate(-8.86deg);
+  }
+}
+@keyframes bobbing80px {
+  0% {
+    transform: translateY(0px) rotate(25.72deg);
+  }
+  50% {
+    transform: translateY(80px) rotate(25.72deg);
+  }
+  100% {
+    transform: translateY(-0px) rotate(25.72deg);
+  }
+}
+@keyframes bobbing80px2 {
+  0% {
+    transform: translateY(0px) rotate(-23.47deg);
+  }
+  50% {
+    transform: translateY(80px) rotate(-23.47deg);
+  }
+  100% {
+    transform: translateY(-0px) rotate(-23.47deg);
+  }
+}
+
+.outerContentContainer {
+  @apply relative flex flex-col min-h-screen overflow-hidden;
+}
+
+.main {
+  @apply relative w-full px-5 mx-auto my-6 max-w-wrapper;
+  @apply md:my-8 min-h-[600px];
+  @apply lg:my-12;
+  @apply xl:px-0;
+}
+
+.footer {
+  @apply mt-auto;
+}

@@ -1,3 +1,8 @@
+.root {
+  @apply hidden;
+  @apply sm:block;
+}
+
 .stepLinks {
   @apply flex flex-wrap gap-2 mb-16;
 }

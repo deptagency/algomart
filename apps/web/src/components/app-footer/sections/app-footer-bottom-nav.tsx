@@ -1,62 +1,60 @@
+import Image from 'next/image'
 import useTranslation from 'next-translate/useTranslation'
-import React from 'react'
-
-import AppFooterCurrency from './app-footer-currency'
-import AppFooterLanguage from './app-footer-language'
 
 import css from './app-footer-bottom-nav.module.css'
 
-import ExternalLink from '@/components/external-link'
-import Logo from '@/components/logo/logo'
-import { getLegalNavItems, getSocialNavItems } from '@/utils/navigation'
+import AppLink from '@/components/app-link/app-link'
+import { AppConfig } from '@/config'
+import { getLegalNavItems } from '@/utils/navigation'
 
 export default function AppFooterBottomNav() {
   const { t } = useTranslation()
-  const socialNavItems = getSocialNavItems(t)
   const legalNavItems = getLegalNavItems(t)
+  const year = new Date().getFullYear()
 
   return (
     <section className={css.bottomNav}>
       <div className={css.bottomNavWrapper}>
         <div className={css.bottomNavLeft}>
-          <Logo className={css.bottomNavLeftImage} />
-          <nav
-            aria-label={t('common:nav.aria.Social Media')}
-            className={css.bottomNavSpace}
-          >
-            {socialNavItems.map(({ href, label }) => (
-              <ExternalLink
-                className={css.bottomNavLinks}
-                key={label}
-                href={href}
-                target="_blank"
-              >
-                {label}
-              </ExternalLink>
-            ))}
+          <nav aria-label={t('common:nav.aria.Legal')}>
+            {legalNavItems.map(({ href, label }, index) =>
+              href ? (
+                <AppLink
+                  key={`footer-bottom-nav-${index}`}
+                  href={href}
+                  className={css.bottomNavLinks}
+                >
+                  {label}
+                </AppLink>
+              ) : (
+                <span
+                  key={`footer-bottom-nav-${index}`}
+                  className={css.bottomNavLinks}
+                >
+                  {label}
+                </span>
+              )
+            )}
+            <div>{t('common:nav.legal.copyright', { year })}</div>
+
+            <div title={AppConfig.githubSHA}>
+              {t('common:nav.legal.Version')}{' '}
+              {AppConfig.githubRefName || AppConfig.githubSHA}
+            </div>
           </nav>
         </div>
-        <nav
-          aria-label={t('common:nav.aria.Legal')}
-          className={css.bottomNavSpace}
-        >
-          {legalNavItems.map(({ href, label }) =>
-            href ? (
-              <ExternalLink
-                className={css.bottomNavLinks}
-                key={label}
-                href={href}
-                target="_blank"
-              >
-                {label}
-              </ExternalLink>
-            ) : (
-              <span className={css.bottomNavLinks} key={label}>
-                {label}
-              </span>
-            )
-          )}
-        </nav>
+        <div className={css.bottomNavRight}>
+          <div>{t('common:nav.legal.Powered by')}</div>
+          <div>
+            <Image
+              alt="Algorand"
+              height={30}
+              layout="intrinsic"
+              src="/images/logos/algorand.svg"
+              width={88}
+            />
+          </div>
+        </div>
       </div>
     </section>
   )

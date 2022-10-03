@@ -1,21 +1,18 @@
-import {
-  REDEMPTION_CODE_CHARACTERS,
-  REDEMPTION_CODE_LENGTH,
-} from '@algomart/schemas'
+import { MINIMUM_COLLECTIBLE_LISTING_PRICE } from '@algomart/schemas'
 import { Translate } from 'next-translate'
 import {
   array,
   boolean,
-  exact,
   matches,
   max,
+  min,
   number,
   object,
   required,
   string,
 } from 'validator-fns'
 
-import { passphrase } from './auth-validation'
+import { formatCredits } from './currency'
 
 const file = (t: Translate) =>
   object({
@@ -61,16 +58,8 @@ const releaseSlug = (t: Translate, pattern = /^[\da-z-]{1,32}$/g) =>
 const packId = (t: Translate) =>
   string(required(t('forms:errors.required') as string))
 
-const packTemplateId = (t: Translate) =>
-  string(required(t('forms:errors.required') as string))
-
 const price = (t: Translate) =>
   number(required(t('forms:errors.required') as string))
-
-export const validateClaimAsset = (t: Translate) =>
-  object({
-    packTemplateId: packTemplateId(t),
-  })
 
 export const validateRevokeAsset = (t: Translate) =>
   object({
@@ -81,7 +70,6 @@ export const validateRevokeAsset = (t: Translate) =>
 export const validateExportAsset = (t: Translate) =>
   object({
     address: string(required(t('forms:errors.required') as string)),
-    passphrase: passphrase(t),
     assetIndex: number(required(t('forms:errors.required') as string)),
   })
 
@@ -94,7 +82,6 @@ export const validateInitializeTransferCollectible = (t: Translate) =>
 export const validateTransferCollectible = (t: Translate) =>
   object({
     address: string(required(t('forms:errors.required') as string)),
-    passphrase: passphrase(t),
     assetIndex: number(required(t('forms:errors.required') as string)),
     transactionId: string(required(t('forms:errors.required') as string)),
     signedTransaction: string(required(t('forms:errors.required') as string)),
@@ -114,22 +101,9 @@ export const validateCreateAsset = (t: Translate) =>
     releaseSlug: releaseSlug(t),
   })
 
-export const validateRedeemAsset = (t: Translate) =>
-  object({
-    redeemCode: string(
-      required(t('forms:errors.required') as string),
-      exact(REDEMPTION_CODE_LENGTH, t('forms:errors.exactCharacters')),
-      matches(
-        new RegExp(`[${REDEMPTION_CODE_CHARACTERS}]`, 'i'),
-        t('forms:errors.invalidRedemptionCode')
-      )
-    ),
-  })
-
 export const validateTransferAsset = (t: Translate) =>
   object({
     packId: packId(t),
-    passphrase: passphrase(t),
   })
 
 export const validateAddPublicAsset = (t: Translate) =>
@@ -140,4 +114,18 @@ export const validateAddPublicAsset = (t: Translate) =>
 export const validateShareProfile = (t: Translate) =>
   object({
     shareProfile: boolean(required(t('forms:errors.required') as string)),
+  })
+
+export const validateListAssetForSale = (t: Translate) =>
+  object({
+    id: string(required(t('forms:errors.required') as string)),
+    price: number(
+      required(t('forms:errors.required') as string),
+      min(
+        MINIMUM_COLLECTIBLE_LISTING_PRICE,
+        t('forms:errors.minListingPriceBalance', {
+          min: formatCredits(MINIMUM_COLLECTIBLE_LISTING_PRICE),
+        })
+      )
+    ),
   })

@@ -1,0 +1,114 @@
+@keyframes bgsway {
+  0% {
+    background-position: 50% 50%;
+  }
+  100% {
+    background-position: 100% 0%;
+  }
+}
+
+.button {
+  @apply relative text-xl font-normal leading-none tracking-wider text-center uppercase transition duration-300 rounded-full text-base-textPrimary;
+  @apply hover:scale-105 hover:shadow-lg;
+  --gradientAngle: 250deg;
+}
+
+.primary {
+  @apply overflow-hidden transition-all duration-300 text-action-primaryContrastText bg-action-primary;
+}
+.primary::before {
+  --gradientAngle: 220deg;
+  content: '';
+  @apply absolute inset-0 block transition-opacity duration-300 rounded-full opacity-0;
+  background-size: 600% 600%;
+  background-image: var(--gradient);
+  animation: bgsway 1.8s ease-in-out infinite alternate-reverse;
+  background-position: 50% 50%;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.2);
+}
+:global(.group):hover .primary,
+.primary:hover,
+.primary:focus-visible {
+  @apply text-base-textPrimary;
+}
+:global(.group):hover .primary::before,
+.primary:hover::before,
+.primary:focus-visible::before {
+  @apply opacity-100;
+}
+:global(.group):active .primary,
+.primary:active {
+  --gradientAngle: 220deg;
+  @apply duration-75;
+  background-size: 350% 350%;
+  background-position: 0% 100%;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.4);
+}
+:global(.group):active .primary::before,
+.primary:active::before {
+  @apply duration-75 opacity-0;
+}
+
+.secondary {
+  @apply transition bg-white text-midnight;
+  @apply hover:bg-opacity-75 hover:text-black;
+  @apply focus-visible:bg-opacity-75 focus-visible:text-black;
+}
+
+.outline {
+  @apply text-base-textPrimary border-1 border-base-textPrimary;
+  @apply hover:bg-action-primaryHover hover:text-base-textPrimary;
+  @apply focus-visible:bg-action-primaryHover focus-visible:text-base-textPrimary;
+}
+
+.ghost {
+  @apply bg-transparent;
+  @apply hover:bg-action-primaryHover hover:text-base-textPrimary;
+  @apply focus-visible:bg-action-primaryHover focus-visible:text-base-textPrimary;
+}
+
+.accent {
+  @apply bg-gradient-to-br from-pink to-pinkDark text-action-primaryContrastText;
+  @apply hover:from-[#E93CACDD] hover:to-[#9d136dDD] hover:text-base-textPrimary;
+  @apply focus-visible:from-[#E93CACDD] focus-visible:to-[#9d136dDD] focus-visible:text-base-textPrimary;
+  @apply active:from-[#9d136dAA] active:to-[#E93CACAA] active:text-base-textPrimary;
+}
+
+.fullWidth {
+  @apply block w-full;
+}
+
+.small {
+  @apply px-6 py-3 text-sm;
+}
+
+.large {
+  @apply px-8 py-4 text-lg;
+}
+
+.link {
+  padding: 0 !important;
+  background-color: transparent !important;
+  @apply text-action-link hover:text-action-linkHover;
+}
+
+.disabled,
+.button:disabled {
+  @apply border-none shadow-none cursor-not-allowed pointer-events-none bg-action-disabled text-action-disabledContrastText;
+  background-image: none;
+}
+
+.textWrapper {
+  @apply relative flex items-center justify-center transition-opacity;
+}
+
+.busy .textWrapper {
+  @apply opacity-0;
+}
+
+.loader {
+  @apply absolute top-0 bottom-0 left-0 right-0 mt-1.5 text-lg leading-none;
+}
+.large .loader {
+  @apply text-xl;
+}

@@ -1,17 +1,32 @@
 .root {
-  @apply relative w-full h-full p-0 duration-300 rounded-md opacity-100 text-base-textPrimary bg-base-bgCard shadow-medium dark:border-0;
+  @apply relative w-full overflow-hidden max-w-700;
+}
+
+.collectible {
+  @apply relative w-full h-full overflow-hidden rounded-lg max-w-700;
+  @apply scale-90 transition-transform duration-500;
+}
+.flipped .collectible {
+  @apply scale-100;
 }
 
 .column {
   @apply w-full;
 }
 
-.placeholder {
-  @apply inline-flex justify-center w-full m-auto;
+.mediaWrapper {
+  @apply p-2 rounded-lg border-1 relative aspect-1 overflow-hidden;
 }
 
 .image {
-  @apply object-contain;
+  @apply object-contain rounded-lg;
+}
+
+.noMedia {
+  @apply flex items-center justify-center w-full h-full;
+}
+.noMediaIcon {
+  @apply w-8 h-8;
 }
 
 .callout {
@@ -23,33 +38,36 @@
 }
 
 .informationWrapper {
-  @apply text-center rounded-b-sm text-base-textPrimary;
+  @apply text-center text-base-textPrimary;
 }
 
 .information {
-  /* Base + */
-  @apply flex flex-col items-center justify-center pb-5;
-}
-
-.titleWrapper {
-  @apply flex items-center justify-center w-full p-3;
+  @apply flex flex-col items-center justify-center pt-1 pb-6;
 }
 
 .title {
-  /* Base + */
-  @apply h-full pt-1 text-sm font-bold text-base-textPrimary line-clamp-2;
-  /* Tablet + */
-  @apply md:text-base md:pt-3;
+  @apply mt-2 text-lg text-white font-semibold;
 }
 
-.label {
-  @apply px-4 py-2 text-xs text-white uppercase rounded-full bg-base-border;
+.packTitle {
+  @apply mt-1 text-base text-[#747F8F];
 }
 
-.icon {
-  @apply w-8 h-8;
-}
+/* Placeholder styles */
 
-.defaultColor {
-  @apply bg-base-border;
+.placeholderWrapper {
+  @apply absolute top-0 w-full h-full overflow-hidden border-2 rounded-lg opacity-100 transition-opacity;
+}
+.fadeable {
+  @apply duration-500 delay-1000;
+}
+.clickable {
+  @apply duration-500;
+  transform-style: preserve-3d;
+}
+.flipped .clickable {
+  @apply pointer-events-none opacity-0;
+}
+.openButton {
+  @apply absolute z-10 mx-auto transform -translate-x-1/2 bottom-6 left-1/2;
 }

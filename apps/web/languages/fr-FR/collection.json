@@ -1,44 +1,49 @@
 {
   "sorting": {
-    "Brand": "FR Brand",
-    "Name": "FR Name",
-    "Newest": "FR Newest",
-    "Oldest": "FR Oldest"
+    "Brand": "Marque",
+    "Name": "Nom",
+    "Newest": "Nouveau / Le plus récent",
+    "Oldest": "Ancien / Le plus ancien",
+    "RarityAscending": null,
+    "RarityDescending": null
   },
   "tabs": {
-    "NFTs": "FR NFTs",
-    "Collections": "FR Collections",
-    "Showcase": "FR Showcase"
+    "NFTs": "NFTs",
+    "Collections": "Collections",
+    "Showcase": "Showcase / Vitrine"
   },
   "algoAddressPage": {
-    "Algorand Account": "FR Algorand Account",
-    "invalidAlgoAccount": "FR This address does not exist.",
-    "noCollectiblesInAccount": "FR This Algorand account does not have any collectibles."
+    "Algorand Account": "Algorand Compte",
+    "invalidAlgoAccount": "Cette adresse n'existe pas",
+    "noCollectiblesInAccount": "Ce compte Algorand n'a pas d'objet de collection"
   },
   "collectionPage": {
-    "A collection by": "FR <0>A collection by <1>{{brand}}</1></0>",
-    "Number of Total Collected": "FR {{number}} of {{total}} Collected",
-    "Other Collectibles": "FR Other Collectibles",
-    "Part of Collection": "<0>FR Part of <1>{{name}}</1></0>"
+    "A collection by": "<0>une collection de<1>{{brand}}</1></0>",
+    "Number of Total": "{{number}} de {{total}}",
+    "Other Collectibles": "Autre Pièces de collection",
+    "Part of Collection": "<0>Partie de<1>{{name}}</1></0>"
   },
   "viewer": {
-    "exclusiveText": "FR {{name}} Employee Exclusive",
-    "of": "FR of",
-    "ownedByText": "FR Owned by @{{name}} (that's you!)",
-    "ownedBy": "FR Owned by",
-    "thatsYou": "FR (that's you!)",
-    "Collectible_one": "FR Collectible",
-    "Collectible_0": "FR Collectibles",
-    "Collectible_other": "FR Collectibles",
-    "collected": "FR Collected",
-    "selectCollectibles": "FR Select the collectibles to include in your showcase",
-    "maxCollectibles": "FR You can only showcase up to 8 collectibles.",
-    "noCollectibles": "FR You haven't collected anything yet.",
-    "Your collection": "FR Your collection",
-    "Publish Showcase": "FR Publish Showcase",
-    "Find Something Cool": "FR Find Something Cool",
-    "startCollection": "FR Start your collection today.",
-    "emptyState": "FR Showcase is a publicly available gallery of your best collectibles. Add your favorites to share them with the world!",
-    "showcaseTitle": "FR @{{username}}'s showcase"
+    "exclusiveText": "{{name}} Employés Exclusivement",
+    "of": "de",
+    "ownedByText": "Posédé par @{{name}} (c'est toi!)",
+    "ownedBy": "Posédé par ",
+    "thatsYou": "(c'est toi!)",
+    "Collectible_one": "Objet de collection",
+    "Collectible_0": "Objets de collections",
+    "Collectible_other": "Objets de collections",
+    "collected": "Collectionné",
+    "selectCollectibles": "Sélectionnez les objets de collection à inclure dans votre vitrine",
+    "maxCollectibles": "Vous ne pouvez présenter que 8 Objets de collection au maximum",
+    "noCollectibles": "Vous n'avez encore rien collectionné",
+    "Your collection": "Votre collection",
+    "Publish Showcase": "Publier ",
+    "Find Something Cool": "Trouvez Quelque chose de Cool",
+    "startCollection": "Commencez-votre collection aujourd'hui",
+    "emptyState": "Cet utilisateur n'a pas encore partagé publiquement d'objets de collection",
+    "emptyStateCurrentUser": "Showcase est une galerie publique de vos meilleurs objets de collection. Ajoutez vos objets préférés pour les partager avec le monde entier !",
+    "showcaseTitle": "@{{username}} showcase",
+    "show video": "montrer la vidéo",
+    "show cover": "couverture du spectacle"
   }
 }

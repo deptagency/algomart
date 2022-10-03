@@ -1,0 +1,15 @@
+.root {
+  @apply flex justify-center p-5 bg-base-bg;
+  @apply md:mb-5;
+}
+.wrapper {
+  @apply relative flex items-center justify-center w-auto gap-5 p-5 rounded-lg bg-opacity-40 bg-action-secondary;
+}
+
+.priceLabel {
+  @apply text-action-accent;
+}
+
+.priceLabel > span {
+  @apply text-base-textSecondary;
+}

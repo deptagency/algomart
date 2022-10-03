@@ -1,54 +1,51 @@
 import { DEFAULT_LANG, Homepage } from '@algomart/schemas'
-import { GetStaticPropsContext, GetStaticPropsResult } from 'next'
-import { useRouter } from 'next/router'
-import { useCallback } from 'react'
+import { GetStaticProps } from 'next'
 
-import { ApiClient } from '@/clients/api-client'
+import { useAuth } from '@/contexts/auth-context'
 import DefaultLayout from '@/layouts/default-layout'
 import HomeTemplate from '@/templates/home-template'
+import { apiFetcher } from '@/utils/react-query'
 import { urls } from '@/utils/urls'
 
 interface HomeProps {
-  page: Homepage | null
+  page: Homepage
 }
 
 export default function Home({ page }: HomeProps) {
-  const { push } = useRouter()
-
-  const onClickFeatured = useCallback(() => {
-    if (page?.featuredPack) {
-      push(urls.release.replace(':packSlug', page.featuredPack.slug))
-    }
-  }, [page?.featuredPack, push])
+  const { user } = useAuth()
 
   return (
-    <DefaultLayout noPanel>
-      {page ? (
-        <HomeTemplate
-          onClickFeatured={onClickFeatured}
-          featuredPack={page.featuredPack}
-          upcomingPacks={page.upcomingPacks}
-          notableCollectibles={page.notableCollectibles}
-        />
-      ) : null}
+    <DefaultLayout fullBleed variant="colorful">
+      <HomeTemplate
+        authenticated={!!user}
+        featuredCollectiblesSubtitle={page?.featuredNftsSubtitle}
+        featuredCollectiblesTitle={page?.featuredNftsTitle}
+        featuredCollectibles={page?.featuredNfts}
+        featuredFaqs={page?.featuredFaqs}
+        featuredPacks={page?.featuredPacks}
+        featuredPacksSubtitle={page?.featuredPacksSubtitle}
+        featuredPacksTitle={page?.featuredPacksTitle}
+        featuredRarities={page?.featuredRarities}
+      />
     </DefaultLayout>
   )
 }
 
-export async function getStaticProps(
-  context: GetStaticPropsContext
-): Promise<GetStaticPropsResult<HomeProps>> {
-  let page: Homepage = null
-
-  try {
-    page = await ApiClient.instance.getHomepage(context.locale || DEFAULT_LANG)
-  } catch {
-    // ignore
-  }
+export const getStaticProps: GetStaticProps<HomeProps> = async (context) => {
+  const page: Homepage | null = await apiFetcher()
+    .get<Homepage>(urls.api.homepage, {
+      bearerToken: null,
+      searchParams: {
+        language: context.locale || DEFAULT_LANG,
+      },
+    })
+    .catch((error) => {
+      console.log('Error fetching homepage', error)
+      return null
+    })
 
   return {
-    // revalidate immediately if no page was loaded
-    revalidate: !page ? 1 : 300,
+    revalidate: 60,
     props: {
       page,
     },

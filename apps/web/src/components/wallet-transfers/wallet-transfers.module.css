@@ -6,12 +6,8 @@
   @apply w-full max-w-xs mx-auto text-center;
 }
 
-.stageTitle {
-  @apply pb-3;
-}
-
 .separator {
-  @apply pb-5 border-t-base-textTertiary;
+  @apply pt-3 pb-5 border-t-base-textTertiary;
 }
 
 .stageHelp {
@@ -23,7 +19,7 @@
 }
 
 .accountItem {
-  @apply flex flex-row items-center p-5 mb-5 border rounded shadow-md cursor-pointer bg-base-bgCard border-base-border hover:border-base-textPrimary;
+  @apply flex flex-row items-center p-5 mb-5 border rounded cursor-pointer bg-base-bgCard border-base-border hover:border-base-textPrimary;
 }
 
 .accountItemRadio {
@@ -50,8 +46,8 @@
   @apply flex flex-col items-center;
 }
 
-.terminalStageTitle {
-  @apply mt-5 mb-7;
+.terminalStageSubtitle {
+  @apply mb-7;
 }
 
 .error {

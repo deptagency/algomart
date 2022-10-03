@@ -3,7 +3,7 @@ import useTranslation from 'next-translate/useTranslation'
 
 import css from './wallet-transfers.module.css'
 
-import Heading from '@/components/heading'
+import { H1 } from '@/components/heading'
 import LinkButton from '@/components/link-button'
 
 export interface SuccessStageProps {
@@ -19,9 +19,7 @@ export default function SuccessStage(props: SuccessStageProps) {
         <span className={css.success}>
           <CheckCircleIcon width={48} />
         </span>
-        <Heading bold level={2} size={1} className={css.terminalStageTitle}>
-          {t('nft:walletConnect.sent')}
-        </Heading>
+        <H1 my={5}>{t('nft:walletConnect.sent')}</H1>
         <LinkButton fullWidth href={props.linkUrl}>
           {props.linkText}
         </LinkButton>

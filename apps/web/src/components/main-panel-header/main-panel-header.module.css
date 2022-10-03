@@ -1,0 +1,11 @@
+.mainPanelHeader {
+  @apply relative px-20 py-6 text-xl leading-8 text-center uppercase;
+}
+
+.headerSpacer {
+  width: 50px;
+}
+
+.closeIcon {
+  @apply absolute block right-4 top-3.5;
+}

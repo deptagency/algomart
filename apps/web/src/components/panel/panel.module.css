@@ -1,13 +1,17 @@
 .root {
-  @apply overflow-hidden shadow-lg bg-base-bgCard;
+  @apply bg-base-bg border-1 border-base-borderPrimary bg-opacity-80;
 }
 
 .header {
-  @apply flex px-5 pt-5 mb-5;
+  @apply flex p-5 border-b-1 border-base-borderPrimary;
 }
 
 .padContent {
-  @apply px-5 pb-5 mt-5;
+  @apply m-10;
+}
+
+.hScrollContent {
+  @apply relative overflow-x-scroll;
 }
 
 .description {
@@ -15,10 +19,16 @@
 }
 
 .contentLeft {
+  @apply self-center;
 }
 
 .contentRight {
   @apply flex justify-end flex-auto flex-grow flex-shrink;
+}
+
+.collapseButton {
+  @apply p-4 ml-4 -my-4 -mr-4 text-xl text-action-accent;
+  @apply hover:text-base-textPrimary;
 }
 
 .footer {

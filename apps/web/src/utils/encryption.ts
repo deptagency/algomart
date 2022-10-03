@@ -1,16 +1,5 @@
 import { PublicKey } from '@algomart/schemas'
-import CryptoJS from 'crypto-js'
 import { createMessage, encrypt as pgpEncrypt, readKey } from 'openpgp'
-
-export function encrypt(value: string, passphrase: string) {
-  return CryptoJS.AES.encrypt(value, passphrase).toString()
-}
-
-export function decrypt(encryptedValue: string, passphrase: string) {
-  return CryptoJS.AES.decrypt(encryptedValue, passphrase).toString(
-    CryptoJS.enc.Utf8
-  )
-}
 
 export async function encryptCardDetails(
   data: Record<string, string>,

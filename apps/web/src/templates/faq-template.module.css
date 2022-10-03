@@ -1,0 +1,15 @@
+.title {
+  @apply mb-8 text-center;
+}
+
+.faqBlock {
+  @apply mb-5;
+}
+
+.faqBlock p + p {
+  @apply mt-5;
+}
+
+.faqBlock a {
+  @apply underline transition duration-300;
+}

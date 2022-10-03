@@ -1,0 +1,16 @@
+.root {
+  @apply relative overflow-hidden text-black;
+}
+
+.imageWrapper {
+  @apply rounded-xl;
+  box-shadow: 0px 2px 2px 2px rgba(0, 0, 0, 0.1);
+}
+
+.image {
+  @apply rounded-xl;
+}
+
+.name {
+  @apply mt-4 mb-2;
+}

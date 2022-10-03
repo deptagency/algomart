@@ -1,5 +1,8 @@
-import { DEFAULT_LANG, LANG_COOKIE, RTL_LANGUAGES } from '@algomart/schemas'
-import { SUPPORTED_LANGUAGES } from '@algomart/schemas'
+import {
+  DEFAULT_LANG,
+  LANG_COOKIE,
+  SUPPORTED_LANGUAGES,
+} from '@algomart/schemas'
 import { useRouter } from 'next/router'
 import {
   createContext,
@@ -12,7 +15,7 @@ import {
 
 import { useAuth } from '@/contexts/auth-context'
 import { AuthService } from '@/services/auth-service'
-import { getCookie, setLanguageCookie } from '@/utils/cookies-web'
+import { safeGetCookie, setLanguageCookie } from '@/utils/cookies-web'
 
 interface ILanguageContext {
   language: string
@@ -31,9 +34,11 @@ function getSupportedLanguage(lang: string) {
   // otherwise check if your language without country is supported
   // otherwise default to english
 
-  if (SUPPORTED_LANGUAGES.includes(lang)) return lang
-  const [langPrefix] = lang.split('-')
-  return SUPPORTED_LANGUAGES.includes(langPrefix) ? langPrefix : DEFAULT_LANG
+  return SUPPORTED_LANGUAGES.includes(lang) ? lang : DEFAULT_LANG
+}
+
+function safeGetNavigatorLocale() {
+  return typeof navigator !== 'undefined' ? navigator.language : null
 }
 
 export const LanguageProvider = ({
@@ -43,11 +48,18 @@ export const LanguageProvider = ({
 }) => {
   const router = useRouter()
   const auth = useAuth(false)
+
+  // 1st cookie
+  // 2nd user config
+  // 3rd router locale
+  // 4th browser language
+  // 5th english
   const fallbackLanguage = useMemo(
     () =>
+      safeGetCookie(LANG_COOKIE) ||
       auth.user?.language ||
       router?.locale ||
-      (typeof navigator !== 'undefined' && navigator.language) ||
+      safeGetNavigatorLocale() ||
       DEFAULT_LANG,
     [auth.user?.language, router?.locale]
   )
@@ -67,36 +79,18 @@ export const LanguageProvider = ({
       }
       return true
     },
-    [setLanguage, setLanguageCookie, auth.user]
+    [auth]
   )
 
   useEffect(() => {
+    // Redirect to updated language as needed
+    if (router.locale === language) return
     router.push(
       { pathname: router.pathname, query: router.query },
       router.asPath,
       { locale: language }
     )
-  }, [language]) /* eslint-disable-line react-hooks/exhaustive-deps */
-
-  useEffect(() => {
-    document.documentElement.dir = RTL_LANGUAGES.includes(
-      language.split('-')[0]
-    )
-      ? 'rtl'
-      : 'ltr'
-  }, [language])
-
-  useEffect(() => {
-    const cookie = getCookie(LANG_COOKIE)
-    const parsedCookie = cookie && cookie !== 'null' ? cookie : null
-
-    // 1st cookie
-    // 2nd user config
-    // 3rd router locale
-    // 4th browser language
-    // 5th english
-    setLanguage(getSupportedLanguage(parsedCookie || fallbackLanguage))
-  }, [fallbackLanguage])
+  }, [language, router])
 
   const value = useMemo(
     () => ({

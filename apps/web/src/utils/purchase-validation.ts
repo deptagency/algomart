@@ -1,10 +1,18 @@
-import { PaymentStatus } from '@algomart/schemas'
+import {
+  CountryCodePattern,
+  MaxCurrencyAmountInCents,
+  MinCircleCreditPaymentAmountInCents,
+  PaymentItem,
+  PaymentStatus,
+  PostalCodePattern,
+} from '@algomart/schemas'
 import { Translate } from 'next-translate'
 import {
   boolean,
   date,
   exact,
   matches,
+  max,
   min,
   minDate,
   number,
@@ -39,14 +47,8 @@ const city = (t: Translate) =>
 const country = (t: Translate) =>
   string(
     required(t('forms:errors.required') as string),
-    matches(/^[ a-z]+$/i, t('forms:errors.onlyLetters')),
     exact(2, t('forms:errors.invalidCountry')),
-    matches(
-      new RegExp(
-        '/^A[^ABCHJKNPVY]|B[^CKPUX]|C[^BEJPQST]|D[EJKMOZ]|E[CEGHRST]|F[IJKMOR]|G[^CJKOVXZ]|H[KMNRTU]|I[DEL-OQ-T]|J[EMOP]|K[EGHIMNPRWYZ]|L[ABCIKR-VY]|M[^BIJ]|N[ACEFGILOPRUZ]|OM|P[AE-HK-NRSTWY]|QA|R[EOSUW]|S[^FPQUW]|T[^ABEIPQSUXY]|U[AGMSYZ]|V[ACEGINU]|WF|WS|YE|YT|Z[AMW]$/ix'
-      ),
-      t('forms:errors.invalidCountry')
-    )
+    matches(CountryCodePattern, t('forms:errors.invalidCountry'))
   )
 
 const accountNumber = (t: Translate) =>
@@ -87,18 +89,23 @@ const expYear = (t: Translate) =>
     matches(/^\d*$/i, t('forms:errors.onlyNumbers'))
   )
 
-const fullName = (t: Translate) =>
+const name = (t: Translate) =>
   string(required(t('forms:errors.required') as string))
 
-const state = (t: Translate) =>
-  string(
-    required(t('forms:errors.required') as string),
-    exact(2, t('forms:errors.invalidState')),
-    matches(/^[a-z]+$/i, t('forms:errors.onlyLetters'))
-  )
+const state = (t: Translate, country: string) =>
+  country === 'US' || country === 'CA'
+    ? string(
+        required(t('forms:errors.required') as string),
+        exact(2, t('forms:errors.invalidState')),
+        matches(/^[a-z]+$/i, t('forms:errors.onlyLetters'))
+      )
+    : string()
 
 const zipCode = (t: Translate) =>
-  string(required(t('forms:errors.required') as string))
+  string(
+    { default: '00000' },
+    matches(PostalCodePattern, t('forms:errors.invalidZipCode'))
+  )
 
 const keyId = (t: Translate) =>
   string(required(t('forms:errors.required') as string))
@@ -111,12 +118,6 @@ const description = (t: Translate) =>
 
 const identifier = (t: Translate) =>
   string(required(t('forms:errors.required') as string))
-
-const address = (t: Translate) =>
-  string(
-    required(t('forms:errors.required') as string),
-    matches(/[\da-z]+/, t('forms:errors.onlyLettersAndNumbers'))
-  )
 
 const bid = (t: Translate, highestBid: number) => {
   const minimum = highestBid + 1
@@ -136,7 +137,21 @@ const expirationDate = (t: Translate) => {
   return date(minDate(new Date(), t('forms:errors.cardExpiration') as string))
 }
 
-export const validateBidsForm = (t: Translate, highestBid: number) =>
+export const creditsPurchaseAmount = (t: Translate) =>
+  number(
+    required(t('forms:errors.required')),
+    min(
+      MinCircleCreditPaymentAmountInCents,
+      t('forms:errors.amountToWithdraw')
+    ),
+    max(MaxCurrencyAmountInCents, t('forms:errors.amountToWithdraw'))
+  )
+
+export const validateBidsForm = (
+  t: Translate,
+  highestBid: number,
+  selectedCountry: string
+) =>
   object({
     address1: address1(t),
     bid: bid(t, highestBid),
@@ -145,9 +160,10 @@ export const validateBidsForm = (t: Translate, highestBid: number) =>
     country: country(t),
     expMonth: expMonth(t),
     expYear: expYear(t),
-    fullName: fullName(t),
+    firstName: name(t),
+    lastName: name(t),
     securityCode: cvv(t),
-    state: state(t),
+    state: state(t, selectedCountry),
     zipCode: zipCode(t),
   })
 
@@ -169,35 +185,40 @@ export const validateBidsFormWithSavedCard = (
     securityCode: cvv(t),
   })
 
-export const validatePurchaseForm = (t: Translate) =>
+export const validateNewCard = (t: Translate, selectedCountry: string) =>
   object({
     address1: address1(t),
+    address2: address2(t),
     ccNumber: ccNumber(t),
     city: city(t),
     country: country(t),
     expMonth: expMonth(t),
     expYear: expYear(t),
-    fullName: fullName(t),
+    firstName: name(t),
+    lastName: name(t),
     securityCode: cvv(t),
-    state: state(t),
+    state: state(t, selectedCountry),
     zipCode: zipCode(t),
+    default: boolean(),
   })
 
-export const validatePurchaseFormWithSavedCard = (t: Translate) =>
+export const validateSavedCard = (t: Translate) =>
   object({
+    cardId: identifier(t),
     securityCode: cvv(t),
   })
 
-export const validateBankAccount = (t: Translate) =>
+export const validateBankAccount = (t: Translate, selectedCountry: string) =>
   object({
     accountNumber: accountNumber(t),
     routingNumber: routingNumber(t),
-    fullName: fullName(t),
+    firstName: name(t),
+    lastName: name(t),
     address1: address1(t),
     address2: address2(t),
     city: city(t),
     country: country(t),
-    state: state(t),
+    state: state(t, selectedCountry),
     zipCode: zipCode(t),
     bankName: string(),
     bankAddress1: string(),
@@ -209,43 +230,50 @@ export const validateBankAccount = (t: Translate) =>
     amount: number(),
   })
 
-export const validateCard = (t: Translate) =>
+export const validatePurchaseCollectibleWithCredits = (t: Translate) =>
   object({
-    keyId: keyId(t),
-    encryptedData: encryptedData(t),
-    fullName: fullName(t),
-    address1: address1(t),
-    address2: address2(t),
-    city: city(t),
-    country: country(t),
-    expMonth: expMonth(t),
-    expYear: expYear(t),
-    state: state(t),
-    zipCode: zipCode(t),
-    saveCard: boolean(),
-    default: boolean(),
+    listingId: identifier(t),
   })
 
-export const validateTransferPurchase = (t: Translate) =>
+export const validatePurchasePackWithCredits = (t: Translate) =>
   object({
     packTemplateId: identifier(t),
-    destinationAddress: address(t),
-    transferId: identifier(t),
   })
 
-export const validatePurchase = (t: Translate) =>
+export const validateCreditsPurchaseAmount = (t: Translate) =>
   object({
-    verificationKeyId: keyId(t),
+    amount: creditsPurchaseAmount(t),
+  })
+
+export const validateCcPayment = (t: Translate) =>
+  object({
+    amount: creditsPurchaseAmount(t),
+    cardId: identifier(t),
     description: description(t),
-    cardId: identifier(t),
+    itemId: identifier(t),
+    itemType: oneOf(
+      [null, ...Object.values(PaymentItem)],
+      t('forms:errors.invalidPaymentItemType')
+    ),
+    verificationKeyId: keyId(t),
     verificationEncryptedData: encryptedData(t),
-    packTemplateId: identifier(t),
   })
 
-export const validateUpdateCard = (t: Translate) =>
+export const validateUsdcPayment = (t: Translate) =>
   object({
-    cardId: identifier(t),
-    default: boolean(),
+    encodedSignedTransaction: string(
+      required(t('forms:errors.required') as string)
+    ),
+    itemId: identifier(t),
+    itemType: oneOf(
+      [null, ...Object.values(PaymentItem)],
+      t('forms:errors.invalidPaymentItemType')
+    ),
+  })
+
+export const validatePackCreditsPayment = (t: Translate) =>
+  object({
+    packTemplateId: identifier(t),
   })
 
 export const validateUpdatePayment = (t: Translate) =>

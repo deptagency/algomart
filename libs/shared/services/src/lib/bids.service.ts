@@ -1,19 +1,10 @@
-import pino from 'pino'
-import {
-  CreateBidRequest,
-  EventAction,
-  EventEntityType,
-  NotificationType,
-} from '@algomart/schemas'
-import {
-  BidModel,
-  EventModel,
-  PackModel,
-  UserAccountModel,
-} from '@algomart/shared/models'
+import { CreateBidRequest, NotificationType } from '@algomart/schemas'
+import { BidModel, PackModel, UserAccountModel } from '@algomart/shared/models'
 import { userInvariant } from '@algomart/shared/utils'
+import { Model } from 'objection'
+import pino from 'pino'
+
 import { NotificationsService, PacksService } from './'
-import { Transaction } from 'objection'
 
 export class BidsService {
   logger: pino.Logger<unknown>
@@ -26,9 +17,11 @@ export class BidsService {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  async createBid(bid: CreateBidRequest, trx?: Transaction): Promise<boolean> {
+  // TODO: is this safe in terms of race conditions?
+  // do we need to add a DB level constraint/trigger?
+  async createBid(bid: CreateBidRequest): Promise<boolean> {
     // Get and verify corresponding pack
-    const pack = await PackModel.query(trx)
+    const pack = await PackModel.query()
       .where('id', bid.packId)
       .withGraphFetched('activeBid')
       .first()
@@ -43,8 +36,8 @@ export class BidsService {
     }
 
     // Get user by externalId
-    const newHighBidder = await UserAccountModel.query(trx).findOne({
-      externalId: bid.externalId || null,
+    const newHighBidder = await UserAccountModel.query().findOne({
+      externalId: bid.userExternalId || null,
     })
 
     userInvariant(
@@ -53,30 +46,29 @@ export class BidsService {
       400
     )
 
-    // Create new bid
-    const { id: bidId } = await BidModel.query(trx).insert({
-      amount: bid.amount,
-      packId: bid.packId,
-      userAccountId: newHighBidder.id,
-    })
-    await EventModel.query(trx).insert({
-      action: EventAction.Create,
-      entityType: EventEntityType.Bid,
-      entityId: bidId,
-    })
+    const trx = await Model.startTransaction()
 
-    // Update pack with new activeBid
-    await PackModel.query(trx).where('id', bid.packId).patch({
-      activeBidId: bidId,
-    })
-    await EventModel.query(trx).insert({
-      action: EventAction.Update,
-      entityType: EventEntityType.Pack,
-      entityId: bid.packId,
-    })
+    try {
+      // Create new bid
+      const { id: bidId } = await BidModel.query(trx).insert({
+        amount: bid.amount,
+        packId: bid.packId,
+        userAccountId: newHighBidder.id,
+      })
+
+      // Update pack with new activeBid
+      await PackModel.query(trx).where('id', bid.packId).patch({
+        activeBidId: bidId,
+      })
+
+      await trx.commit()
+    } catch (error) {
+      await trx.rollback()
+      throw error
+    }
 
     // Get the previous highest bidder
-    const previousHighBidder = await UserAccountModel.query(trx).findOne({
+    const previousHighBidder = await UserAccountModel.query().findOne({
       id: pack.activeBid?.userAccountId || null,
     })
 
@@ -87,22 +79,18 @@ export class BidsService {
     if (previousHighBidder && !biddersAreTheSame) {
       const packWithBase = await this.packService.getPackById(
         bid.packId,
-        previousHighBidder.language,
-        trx
+        previousHighBidder.language
       )
 
       if (packWithBase) {
-        await this.notifications.createNotification(
-          {
-            type: NotificationType.UserOutbid,
-            userAccountId: previousHighBidder.id,
-            variables: {
-              packSlug: packWithBase.slug,
-              packTitle: packWithBase.title,
-            },
+        await this.notifications.createNotification({
+          type: NotificationType.UserOutbid,
+          userAccountId: previousHighBidder.id,
+          variables: {
+            packSlug: packWithBase.slug,
+            packTitle: packWithBase.title,
           },
-          trx
-        )
+        })
       }
     }
 
@@ -110,21 +98,17 @@ export class BidsService {
     if (!biddersAreTheSame) {
       const packWithBase = await this.packService.getPackById(
         bid.packId,
-        newHighBidder.language,
-        trx
+        newHighBidder.language
       )
       if (packWithBase) {
-        await this.notifications.createNotification(
-          {
-            type: NotificationType.UserHighBid,
-            userAccountId: newHighBidder.id,
-            variables: {
-              packSlug: packWithBase.slug,
-              packTitle: packWithBase.title,
-            },
+        await this.notifications.createNotification({
+          type: NotificationType.UserHighBid,
+          userAccountId: newHighBidder.id,
+          variables: {
+            packSlug: packWithBase.slug,
+            packTitle: packWithBase.title,
           },
-          trx
-        )
+        })
       }
     }
 

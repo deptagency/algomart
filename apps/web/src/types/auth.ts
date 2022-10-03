@@ -1,41 +1,21 @@
-import { FileWithPreview } from '@/types/file'
-export interface AuthState {
-  error: string | null
-  method: 'email' | 'google' | null
-  status: 'loading' | 'error' | 'authenticated' | 'anonymous'
-  user: Partial<Profile> | null
-}
+import { UserAccountProvider } from '@algomart/schemas'
 
-export interface AuthUtils extends AuthState {
-  authenticateWithEmailAndPassword: (
-    payload: SignInPayload
-  ) => Promise<{ isValid: boolean }>
-  authenticateWithGoogle: () => Promise<void>
-  getRedirectPath: () => string | null
-  registerWithEmailAndPassword: (
-    payload: SignUpPayload
-  ) => Promise<{ isValid: boolean }>
-  reloadProfile: () => Promise<void>
-  sendNewEmailVerification: () => Promise<void>
-  sendPasswordReset: (email: string) => Promise<{ isValid: boolean }>
-  setRedirectPath: (urlPath: string | null) => void
-  signOut: () => Promise<void>
-  updateAuthSession: (password: string) => Promise<{ isValid: boolean }>
-  updateEmailAddress: (newEmail: string) => Promise<{ isValid: boolean }>
-  updateProfilePic: (profilePic: FileWithPreview | null) => Promise<void>
-}
+import { FileWithPreview } from '@/types/file'
 
 export interface Profile {
+  address: string | null
+  age: number | null
+  balance: number | null
   currency: string | null
   email: string | null
   emailVerified: boolean
   language: string | null
   name: string | null
   photo: string | null
+  provider: UserAccountProvider | null
   token: string
   uid: string
   username: string | null
-  address: string | null
 }
 
 export interface SignInPayload {
@@ -48,7 +28,6 @@ export interface SignUpPayload {
   email: string
   language: string
   password: string
-  passphrase: string
   profilePic: FileWithPreview | null
   username: string
 }

@@ -1,0 +1,3 @@
+.statusContainer {
+  @apply flex flex-col justify-center px-24 mx-auto py-28;
+}

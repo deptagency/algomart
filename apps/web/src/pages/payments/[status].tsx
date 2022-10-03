@@ -1,17 +1,26 @@
-import { Payment, PaymentStatus } from '@algomart/schemas'
+import { Payment } from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
 
-import { ApiClient } from '@/clients/api-client'
+import css from './status.module.css'
+
+import Loading from '@/components/loading/loading'
+import MainPanelHeader from '@/components/main-panel-header'
+import { AppConfig } from '@/config'
+import { useAuth } from '@/contexts/auth-context'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
+  getTokenFromCookie,
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
 import PaymentStatusTemplate from '@/templates/payment-status-template'
-import { urls } from '@/utils/urls'
+import { apiFetcher } from '@/utils/react-query'
+import { urlFor, urls } from '@/utils/urls'
 
 export enum Status {
+  pending = 'pending',
+  pending_transfer = 'pending_transfer',
   success = 'success',
   failure = 'failure',
 }
@@ -23,16 +32,29 @@ export interface StatusPageProps {
 
 export default function ResolvedPayment({ payment, status }: StatusPageProps) {
   const { t } = useTranslation()
+  const { user } = useAuth()
+  const isLoading = !user?.uid
+
+  const title = {
+    [Status.success]: t('common:statuses.Success!'),
+    [Status.failure]: t('common:statuses.An Error has Occurred'),
+    [Status.pending]: t('common:statuses.Processing payment'),
+    [Status.pending_transfer]: t('common:statuses.Payment Transfer Pending'),
+  }[status]
+
   return (
-    <DefaultLayout
-      pageTitle={
-        status === Status.success
-          ? t('common:statuses.Success!')
-          : t('common:statuses.An Error has Occurred')
-      }
-      panelPadding
-    >
-      <PaymentStatusTemplate payment={payment} status={status} />
+    <DefaultLayout pageTitle={title}>
+      <MainPanelHeader
+        title={t('forms:purchaseCredits.Add Money')}
+        backLink={urls.myWallet}
+      />
+      <div className={css.statusContainer}>
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <PaymentStatusTemplate payment={payment} status={status} />
+        )}
+      </div>
     </DefaultLayout>
   )
 }
@@ -40,77 +62,59 @@ export default function ResolvedPayment({ payment, status }: StatusPageProps) {
 export const getServerSideProps: GetServerSideProps<StatusPageProps> = async (
   context
 ) => {
-  const { status } = context.params
-  // Status is required
-  if (
-    !status ||
-    typeof status !== 'string' ||
-    (status !== Status.success && status !== Status.failure)
-  ) {
+  // Non-prod fix to redirect 127.0.0.1 to localhost
+  // This happens due to Circle not allowing localhost in the 3DS callback URLs
+  const [host, port] = context.req.headers.host?.split(':') ?? []
+  if (!AppConfig.isProduction && host === '127.0.0.1') {
     return {
-      notFound: true,
+      redirect: {
+        permanent: true,
+        destination: `http://localhost:${port}${context.req.url}`,
+      },
     }
   }
 
-  const { paymentId: paymentExternalId } = context.query
-
-  // Payment ID is required
-  if (!paymentExternalId || typeof paymentExternalId !== 'string') {
-    return {
-      notFound: true,
-    }
-  }
-
-  // Verify authentication
+  // Ensure user is authenticated
   const user = await getAuthenticatedUser(context)
   if (!user) {
     return handleUnauthenticatedRedirect(context.resolvedUrl)
   }
 
-  // Get payment
-  const isExternalId = true
-  const payment = await ApiClient.instance.getPaymentById(
-    paymentExternalId,
-    isExternalId
-  )
-
-  // Check if payment is found
-  if (!payment) {
+  const { status } = context.params
+  // Status is required
+  if (
+    !status ||
+    typeof status !== 'string' ||
+    (status !== Status.success &&
+      status !== Status.failure &&
+      status !== Status.pending_transfer &&
+      status !== Status.pending)
+  ) {
     return {
       notFound: true,
     }
   }
 
-  // Confirm the payment is in the correct status
-  const acceptableSuccessStatuses = new Set([
-    PaymentStatus.Confirmed,
-    PaymentStatus.ActionRequired,
-    PaymentStatus.Paid,
-  ])
-  const acceptableFailedStatuses = new Set([
-    PaymentStatus.ActionRequired,
-    PaymentStatus.Failed,
-  ])
-  if (
-    (status === Status.success &&
-      !acceptableSuccessStatuses.has(payment.status)) ||
-    (status === Status.failure && !acceptableFailedStatuses.has(payment.status))
-  ) {
+  const { paymentId } = context.query
+
+  // Payment ID is required
+  if (!paymentId || typeof paymentId !== 'string') {
     return {
-      redirect: {
-        destination: urls.releases,
-        permanent: false,
-      },
+      notFound: true,
     }
   }
 
-  // Confirm logged-in user is owner of pack
-  if (payment?.payer?.externalId !== user.externalId) {
+  // Get payment
+  const payment = await apiFetcher()
+    .get<Payment>(urlFor(urls.api.payments.payment, { paymentId }), {
+      bearerToken: getTokenFromCookie(context.req, context.res),
+    })
+    .then((p) => p)
+    .catch(() => null)
+
+  if (!payment) {
     return {
-      redirect: {
-        destination: urls.releases,
-        permanent: false,
-      },
+      notFound: true,
     }
   }
 

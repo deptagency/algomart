@@ -1,41 +1,36 @@
 import {
   AlgorandTransactionStatus,
+  CollectibleActivity,
+  CollectibleActivityType,
   CollectibleBase,
-  CollectibleListQuerystring,
-  CollectibleListShowcase,
-  CollectibleListWithTotal,
-  CollectiblesByAlgoAddressQuerystring,
-  CollectibleShowcaseQuerystring,
+  CollectibleListingStatus,
+  CollectibleListingType,
+  CollectibleQuery,
+  CollectibleShowcaseQuery,
   CollectibleSortField,
+  CollectiblesQuery,
+  CollectiblesResponse,
+  CollectiblesShowcase,
+  CollectibleTemplateIdQuery,
+  CollectibleTemplateUniqueCodeQuery,
   CollectibleWithDetails,
   DEFAULT_LANG,
-  EventAction,
-  EventEntityType,
+  DirectusCollectibleTemplate,
+  DirectusCollection,
+  DirectusSet,
   InitializeTransferCollectible,
-  IPFSStatus,
-  SingleCollectibleQuerystring,
   SortDirection,
   TransferCollectible,
+  UserAccount,
 } from '@algomart/schemas'
-import {
-  AlgoExplorerAdapter,
-  AlgorandAdapter,
-  CMSCacheAdapter,
-  ItemFilters,
-  NFTStorageAdapter,
-} from '@algomart/shared/adapters'
-import {
-  decodeTransaction,
-  encodeRawSignedTransaction,
-  WalletTransaction,
-} from '@algomart/shared/algorand'
+import { AlgorandAdapter } from '@algomart/shared/adapters'
+import { decodeTransaction, WalletTransaction } from '@algomart/shared/algorand'
 import {
   AlgorandTransactionGroupModel,
   AlgorandTransactionModel,
+  CollectibleListingsModel,
   CollectibleModel,
-  CollectibleOwnershipModel,
   CollectibleShowcaseModel,
-  EventModel,
   UserAccountModel,
 } from '@algomart/shared/models'
 import {
@@ -45,136 +40,122 @@ import {
   isDefinedArray,
   userInvariant,
 } from '@algomart/shared/utils'
-import { Transaction } from 'objection'
+import { Model, QueryBuilder, raw } from 'objection'
 import pino from 'pino'
 
+import { AlgorandTransactionsService } from './algorand-transactions.service'
+import {
+  CMSCacheService,
+  toCollectibleBase,
+  toCollectionWithSets,
+  toSetBase,
+} from './cms-cache.service'
+
 const MAX_SHOWCASES = 8
+
+export interface CollectiblesServiceOptions {
+  minimumDaysBetweenTransfers: number
+}
 
 export class CollectiblesService {
   logger: pino.Logger<unknown>
 
   constructor(
-    private readonly cms: CMSCacheAdapter,
+    private readonly options: CollectiblesServiceOptions,
+    private readonly cms: CMSCacheService,
     private readonly algorand: AlgorandAdapter,
-    private readonly storage: NFTStorageAdapter,
-    private readonly algoExplorer: AlgoExplorerAdapter,
-    private readonly minimumDaysBeforeTransfer: number,
+    private readonly transactions: AlgorandTransactionsService,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  async generateCollectibles(limit = 5, trx?: Transaction) {
-    const existingTemplates = await CollectibleModel.query(trx)
-      .groupBy('templateId')
-      .select('templateId')
-
-    const filter: ItemFilters = {}
-    if (existingTemplates.length > 0) {
-      filter.id = {
-        _nin: existingTemplates.map((c) => c.templateId),
-      }
-    }
-    const { collectibles: templates } = await this.cms.findAllCollectibles(
-      DEFAULT_LANG,
-      filter,
-      limit
-    )
-    if (templates.length === 0) {
-      return 0
-    }
-
-    const collectibles = await CollectibleModel.query(trx).insert(
-      templates.flatMap((t) =>
-        Array.from({ length: t.totalEditions }, (_, index) => ({
-          edition: index + 1,
-          templateId: t.templateId,
-        }))
-      )
-    )
-
-    await EventModel.query(trx).insert(
-      collectibles.flatMap((c) => ({
-        action: EventAction.Create,
-        entityType: EventEntityType.Collectible,
-        entityId: c.id,
-      }))
-    )
-
-    return collectibles.length
-  }
-
   getTransferrableAt(collectible: CollectibleModel): Date {
-    invariant(collectible.pack, 'must load collectible with its pack')
+    // invariant(collectible.pack, 'must load collectible with its pack')
     invariant(
-      collectible.creationTransaction,
-      'must load collectible with its creation transaction'
+      collectible.latestTransferTransaction,
+      'must load collectible with its latest transfer transaction'
     )
 
-    const { payment } = collectible.pack
-
-    // If this collectible was purchased with a card, then it cannot be
-    // transferred until MINIMUM_DAYS_BEFORE_TRANSFER has passed since the
-    // ASA was minted.
-    const wasPaidWithCard =
-      payment && !payment.destinationAddress && !payment.paymentBankId
-
-    const transferrableAt = wasPaidWithCard
-      ? addDays(
-          new Date(collectible.creationTransaction.createdAt),
-          this.minimumDaysBeforeTransfer
-        )
-      : new Date(collectible.creationTransaction.createdAt)
-
-    return transferrableAt
+    return addDays(
+      new Date(collectible.latestTransferTransaction.updatedAt),
+      this.options.minimumDaysBetweenTransfers
+    )
   }
 
   async getCollectible(
-    query: SingleCollectibleQuerystring
+    query: CollectibleQuery
   ): Promise<CollectibleWithDetails> {
     const collectible = await CollectibleModel.query()
       .findOne({ address: query.assetId })
-      .withGraphFetched('[creationTransaction, pack.payment]')
+      .withGraphFetched(
+        '[creationTransaction, latestTransferTransaction, pack, template.[collection, set], listings]'
+      )
+      .modifyGraph('listings', (builder) =>
+        builder.where('status', CollectibleListingStatus.Active)
+      )
 
     userInvariant(collectible, 'Collectible not found', 404)
 
     const transferrableAt = this.getTransferrableAt(collectible)
 
-    const template = await this.cms.findCollectibleByTemplateId(
-      collectible.templateId,
-      query.language
-    )
-
-    invariant(template, `NFT Template ${collectible.templateId} not found`)
-
-    const currentOwner = await this.algoExplorer.getCurrentAssetOwner(
-      collectible.address
-    )
+    const currentOwner = await this.algorand.getAssetOwner(collectible.address)
     const owner = await UserAccountModel.query()
       .alias('u')
       .join('AlgorandAccount as a', 'u.algorandAccountId', 'a.id')
       .where('a.address', '=', currentOwner?.address || '-')
       .first()
 
-    const { collections } = await this.cms.findAllCollections(query.language)
-    const collection = collections.find(
-      (c) =>
-        c.id === template.collectionId ||
-        c.sets.some((s) => s.id === template.setId)
+    const listingData =
+      collectible.listings.length === 1
+        ? {
+            price: collectible.listings[0].price,
+            listingType: collectible.listings[0].type,
+            listingId: collectible.listings[0].id,
+          }
+        : undefined
+    const template = toCollectibleBase(
+      collectible.template.content as unknown as DirectusCollectibleTemplate,
+      this.cms.options,
+      query.language
     )
-    const set = collection?.sets.find((s) => s.id === template.setId)
+    const set = collectible.template.set
+      ? toSetBase(
+          collectible.template.set?.content as unknown as DirectusSet,
+          query.language
+        )
+      : undefined
+    const collection = collectible.template.collection
+      ? toCollectionWithSets(
+          collectible.template.collection
+            ?.content as unknown as DirectusCollection,
+          this.cms.options,
+          query.language
+        )
+      : undefined
+
+    const activeListing = collectible.listings?.find(
+      (l) => l.status === CollectibleListingStatus.Active
+    )
 
     return {
       ...template,
+      ...listingData,
+      activities: query.withActivities
+        ? await this.getActivities(collectible.address)
+        : undefined,
       set,
       collection,
-      currentOwner: owner?.username,
+      currentOwner: owner.username,
       currentOwnerAddress: currentOwner?.address,
       isFrozen: currentOwner?.assets.some(
         (asset) =>
           asset['asset-id'] === collectible.address && asset['is-frozen']
       ),
       transferrableAt: transferrableAt.toISOString(),
+      listingStatus: activeListing?.status as CollectibleListingStatus,
+      listingType: activeListing?.type as CollectibleListingType,
+      price: activeListing?.price,
       id: collectible.id,
       edition: collectible.edition,
       address: collectible.address,
@@ -186,378 +167,137 @@ export class CollectiblesService {
     }
   }
 
-  async storeCollectibles(limit = 10, trx?: Transaction) {
-    // Get unstored collectibles by their templateIds
-    const collectibles = await CollectibleModel.query(trx)
-      .whereNull('ipfsStatus')
-      .groupBy('templateId')
-      .havingRaw('count(*) > 0')
-      .limit(limit)
-      .select('templateId')
+  async getActivities(assetId: number): Promise<CollectibleActivity[]> {
+    // TODO: include transfers (as in: export/import)
+    const collectible = await CollectibleModel.query()
+      .findOne('address', assetId)
+      .withGraphFetched('[creationTransaction, pack]')
 
-    const templateIds = collectibles.map((c) => c.templateId)
-    if (templateIds.length === 0) {
-      return 0
-    }
+    userInvariant(collectible, 'Collectible not found', 404)
 
-    // Get corresponding templates from CMS
-    const templates = await this.cms.findCollectiblesByTemplateIds(
-      templateIds,
-      undefined,
-      trx
-    )
-    if (templates.length === 0) {
-      return 0
-    }
+    const activities: CollectibleActivity[] = []
 
-    // Grouping collectibles by template data prevents need to upload assets more than once
-    await Promise.all(
-      templates.map(async (t) => await this.storeCollectiblesByTemplate(t, trx))
-    )
+    const initialRecipient = await UserAccountModel.query()
+      .findById(collectible.pack.ownerId)
+      .withGraphFetched('[algorandAccount]')
 
-    return templates.length
-  }
-
-  async getCollectiblesByAlgoAddress(
-    algoAddress: string,
-    {
-      language = DEFAULT_LANG,
-      page = 1,
-      pageSize = 10,
-      sortBy = CollectibleSortField.Title,
-      sortDirection = SortDirection.Ascending,
-    }: CollectiblesByAlgoAddressQuerystring
-  ): Promise<CollectibleListWithTotal | null> {
-    // Validate query
-    userInvariant(page > 0, 'page must be greater than 0')
-    userInvariant(
-      pageSize > 0 || pageSize === -1,
-      'pageSize must be greater than 0'
-    )
-    userInvariant(
-      [CollectibleSortField.ClaimedAt, CollectibleSortField.Title].includes(
-        sortBy
-      ),
-      'sortBy must be one of claimedAt or title'
-    )
-    userInvariant(
-      [SortDirection.Ascending, SortDirection.Descending].includes(
-        sortDirection
-      ),
-      'sortDirection must be one of asc or desc'
-    )
-
-    // Get assets on the requested address
-    const { assets } = await this.algoExplorer.getAccount(algoAddress)
-
-    // Find corresponding assets in DB
-    const collectibles = await CollectibleModel.query().whereIn(
-      'address',
-      assets.map((a) => a['asset-id'])
-    )
-
-    if (collectibles.length === 0) {
-      return {
-        collectibles: [],
-        total: 0,
-      }
-    }
-
-    // Get corresponding templates from CMS
-    const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
-    const templates: CollectibleBase[] =
-      await this.cms.findCollectiblesByTemplateIds(templateIds, language)
-
-    // Map and sort collectibles
-    const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
-    const mappedCollectibles = collectibles
-      .map((c) => {
-        const template = templateLookup.get(c.templateId)
-        invariant(template !== undefined, `template ${c.templateId} not found`)
-
-        return {
-          ...template,
-          claimedAt:
-            c.claimedAt instanceof Date
-              ? c.claimedAt.toISOString()
-              : c.claimedAt,
-          id: c.id,
-          address: c.address,
-          edition: c.edition,
-        } as CollectibleWithDetails
+    if (initialRecipient) {
+      activities.push({
+        type: CollectibleActivityType.Mint,
+        date: collectible.creationTransaction?.createdAt,
+        recipient: initialRecipient
+          ? {
+              username: initialRecipient.username,
+              address: initialRecipient.algorandAccount?.address,
+            }
+          : undefined,
       })
-      .sort((a, b) => {
-        const direction = sortDirection === SortDirection.Ascending ? 1 : -1
-        return direction * (a[sortBy] || '').localeCompare(b[sortBy] || '')
-      })
-
-    // Slice for pagination
-    const collectiblesPage =
-      pageSize === -1
-        ? mappedCollectibles
-        : mappedCollectibles.slice((page - 1) * pageSize, page * pageSize)
-
-    return {
-      total: mappedCollectibles.length,
-      collectibles: collectiblesPage,
     }
-  }
 
-  async storeCollectiblesByTemplate(
-    template: CollectibleBase,
-    trx?: Transaction
-  ) {
-    // Set collectibles to be stored to a pending state
-    await CollectibleModel.query()
-      .where('templateId', template.templateId)
-      .patch({ ipfsStatus: IPFSStatus.Pending })
+    const listings = await CollectibleListingsModel.query()
+      .where('collectibleId', collectible.id)
+      .whereIn('status', [
+        CollectibleListingStatus.Active,
+        CollectibleListingStatus.Settled,
+      ])
+      .withGraphFetched('[seller.algorandAccount, buyer.algorandAccount]')
 
-    try {
-      // Store template's media assets
-      const imageData = await this.storage.storeFile(template.image)
-      const animationField: string | undefined =
-        template.assetFile || template.previewVideo || template.previewAudio
-      const animationData = animationField
-        ? await this.storage.storeFile(animationField)
-        : null
-
-      // Construct asset metadata
-      const metadata = this.storage.mapToMetadata({
-        ...(animationData && {
-          animation_integrity: animationData.integrityHash,
-          animation_url_mimetype: animationData.mimeType,
-          animation_url: animationData.uri,
-        }),
-        description: template.subtitle,
-        image_integrity: imageData.integrityHash,
-        image_mimetype: imageData.mimeType,
-        image: imageData.uri,
-        name: template.uniqueCode,
-        totalEditions: template.totalEditions,
-      })
-
-      // Store metadata as JSON on IPFS
-      const assetUrl = await this.storage.storeJSON(metadata)
-
-      // Construct JSON hash of metadata
-      const assetMetadataHash = this.storage.hashMetadata(metadata)
-
-      // Update records with new IPFS data
-      await CollectibleModel.query(trx)
-        .where('templateId', template.templateId)
-        .patch({
-          assetUrl,
-          assetMetadataHash,
-          ipfsStatus: IPFSStatus.Stored,
-        })
-
-      // Get updated collectibles and update event records
-      const updatedCollectibles = await CollectibleModel.query().where(
-        'templateId',
-        template.templateId
-      )
-      await EventModel.query(trx).insert(
-        updatedCollectibles.map((c) => ({
-          action: EventAction.Update,
-          entityType: EventEntityType.Collectible,
-          entityId: c.id,
-        }))
-      )
-    } catch (error) {
-      await CollectibleModel.query()
-        .where('templateId', template.templateId)
-        .patch({ ipfsStatus: null })
-      throw error
-    }
-  }
-
-  async getCollectiblesByPackId(packId: string, trx?: Transaction) {
-    return await CollectibleModel.query(trx).where('packId', packId)
-  }
-
-  async mintCollectibles(trx?: Transaction) {
-    const collectibles = await CollectibleModel.query(trx)
-      .whereNull('creationTransactionId')
-      .joinRelated('pack', { alias: 'p' })
-      .whereNotNull('p.ownerId')
-      .limit(16)
-
-    // No collectibles matched the IDs or they are all already minted
-    if (collectibles.length === 0) return 0
-
-    const templateIds = [...new Set(collectibles.map((c) => c.templateId))]
-
-    const templates = await this.cms.findCollectiblesByTemplateIds(templateIds)
-
-    invariant(templates.length > 0, 'templates not found')
-
-    const { signedTransactions, transactionIds } =
-      await this.algorand.generateCreateAssetTransactions(
-        collectibles,
-        templates
-      )
-
-    const group = await AlgorandTransactionGroupModel.query(trx).insert({})
-
-    await Promise.all(
-      collectibles.map((collectible, index) =>
-        CollectibleModel.query(trx).upsertGraph(
+    activities.push(
+      ...listings.flatMap((listing): CollectibleActivity[] => {
+        const listingActivities: CollectibleActivity[] = [
           {
-            id: collectible.id,
-            creationTransaction: {
-              address: transactionIds[index],
-              status: AlgorandTransactionStatus.Signed,
-              groupId: group.id,
-              order: index,
-              encodedSignedTransaction: encodeRawSignedTransaction(
-                signedTransactions[index]
-              ),
+            type: CollectibleActivityType.List,
+            date: listing.createdAt,
+            amount: listing.price,
+            sender: {
+              username: listing.seller.username,
+              address: listing.seller.algorandAccount.address,
             },
           },
-          { relate: true }
-        )
-      )
+        ]
+
+        if (listing.status === CollectibleListingStatus.Settled) {
+          listingActivities.push({
+            type: CollectibleActivityType.Purchase,
+            date: listing.purchasedAt,
+            amount: listing.price,
+            sender: {
+              username: listing.seller.username,
+              address: listing.seller.algorandAccount.address,
+            },
+            recipient: {
+              username: listing.buyer.username,
+              address: listing.buyer.algorandAccount.address,
+            },
+          })
+        }
+
+        return listingActivities
+      })
     )
 
-    const createdTransactions = await AlgorandTransactionModel.query(trx)
-      .whereIn('address', transactionIds)
-      .select('id')
+    // Newest activity first
+    activities.sort((a, b) => {
+      if (a.date < b.date) {
+        return 1
+      }
+      if (a.date > b.date) {
+        return -1
+      }
+      return 0
+    })
 
-    await EventModel.query(trx).insert([
-      ...collectibles.map((collectible) => ({
-        action: EventAction.Update,
-        entityType: EventEntityType.Collectible,
-        entityId: collectible.id,
-      })),
-      ...createdTransactions.map((t) => ({
-        action: EventAction.Create,
-        entityType: EventEntityType.AlgorandTransaction,
-        entityId: t.id,
-      })),
-      {
-        action: EventAction.Create,
-        entityType: EventEntityType.AlgorandTransactionGroup,
-        entityId: group.id,
-      },
-    ])
-
-    return collectibles.length
+    return activities
   }
 
-  async transferToUserFromCreator(
-    id: string,
-    userId: string,
-    passphrase: string,
-    trx?: Transaction
-  ) {
-    const collectible = await CollectibleModel.query(trx).findById(id)
-    const user = await UserAccountModel.query(trx)
-      .findById(userId)
-      .withGraphFetched('algorandAccount')
-
-    userInvariant(user, 'user account not found', 404)
-    userInvariant(collectible, 'collectible not found', 404)
-
-    const encryptedMnemonic = user.algorandAccount?.encryptedKey
-    const assetIndex = collectible.address
-
-    if (!encryptedMnemonic) {
-      throw new Error('User missing algorand account')
-    }
-
-    if (!assetIndex) {
-      throw new Error('Collectible not yet minted')
-    }
-
-    const info = await this.algorand.getAssetInfo(assetIndex)
-
-    if (!info) {
-      throw new Error(
-        `Collectible with asset index ${assetIndex} not found on blockchain`
-      )
-    }
-
-    const { signedTransactions, transactionIds } =
-      await this.algorand.generateClawbackTransactions({
-        assetIndex,
-        encryptedMnemonic,
-        passphrase,
-        // NOTE: Unless this is an older collectible, the creator account will
-        //       be the same as the funding account. Either way, we need to pass
-        //       the creator in here to ensure the clawback transaction is
-        //       transferring from the correct account.
-        fromAccountAddress: info.creator,
-      })
-
-    const group = await AlgorandTransactionGroupModel.query(trx).insert({})
-
-    // TODO: Why is this coming back singular instead of as an array?
-    const transactions = await AlgorandTransactionModel.query(trx).insert(
-      transactionIds.map((id, index) => ({
-        address: id,
-        status: AlgorandTransactionStatus.Signed,
-        encodedSignedTransaction: encodeRawSignedTransaction(
-          signedTransactions[index]
-        ),
-        order: index,
-        groupId: group.id,
-      }))
+  async getCollectibleTemplateById(
+    query: CollectibleTemplateIdQuery
+  ): Promise<CollectibleBase> {
+    const template = await this.cms.findCollectibleByTemplateId(
+      query.templateId,
+      query.language
     )
 
-    await CollectibleModel.query(trx).where('id', collectible.id).patch({
-      ownerId: userId,
-      latestTransferTransactionId: transactions[0].id,
-      claimedAt: new Date().toISOString(),
-    })
+    userInvariant(
+      template,
+      `NFT Template Id ${query.templateId} not found`,
+      404
+    )
 
-    const ownership = await CollectibleOwnershipModel.query(trx).insert({
-      collectibleId: collectible.id,
-      ownerId: userId,
-    })
+    return template
+  }
 
-    await EventModel.query(trx).insert([
-      ...transactions.map((t) => ({
-        action: EventAction.Create,
-        entityType: EventEntityType.AlgorandTransaction,
-        entityId: t.id,
-        userAccountId: userId,
-      })),
-      {
-        action: EventAction.Create,
-        entityType: EventEntityType.AlgorandTransactionGroup,
-        entityId: group.id,
-        userAccountId: userId,
-      },
-      {
-        action: EventAction.Update,
-        entityId: collectible.id,
-        entityType: EventEntityType.Collectible,
-        userAccountId: userId,
-      },
-      {
-        action: EventAction.Create,
-        entityId: ownership.id,
-        entityType: EventEntityType.CollectibleOwnership,
-        userAccountId: userId,
-      },
-    ])
+  async getCollectibleTemplateByUniqueCode(
+    query: CollectibleTemplateUniqueCodeQuery
+  ): Promise<CollectibleBase> {
+    const template = await this.cms.findCollectibleByUniqueCode(
+      query.uniqueCode,
+      query.language
+    )
+
+    userInvariant(
+      template,
+      `NFT Template Unique Code ${query.uniqueCode} not found`,
+      404
+    )
+
+    return template
   }
 
   async transferToCreatorFromUser(
     id: string,
     accountAddress?: string,
-    userId?: string,
-    trx?: Transaction
+    userId?: string
   ) {
     userInvariant(userId || accountAddress, 'identifier not provided', 400)
 
-    const collectible = await CollectibleModel.query(trx).findById(id)
+    const collectible = await CollectibleModel.query().findById(id)
     userInvariant(collectible, 'collectible not found', 404)
 
     // Find the user to get the address IF the user ID was provided
     let userAddress: string = accountAddress
     if (userId) {
-      const user = await UserAccountModel.query(trx)
+      const user = await UserAccountModel.query()
         .findById(userId)
         .withGraphFetched('algorandAccount')
       userInvariant(user, 'user account not found', 404)
@@ -570,9 +310,9 @@ export class CollectiblesService {
       throw new Error('Collectible not yet minted')
     }
 
-    const info = await this.algorand.getAssetInfo(assetIndex)
+    const { creator } = await this.algorand.getAssetInfo(assetIndex)
 
-    if (!info) {
+    if (!creator) {
       throw new Error(
         `Collectible with asset index ${assetIndex} not found on blockchain`
       )
@@ -582,166 +322,225 @@ export class CollectiblesService {
       await this.algorand.generateClawbackTransactionsFromUser({
         assetIndex,
         fromAccountAddress: userAddress,
-        toAccountAddress: info.creator,
+        toAccountAddress: creator,
       })
 
-    const group = await AlgorandTransactionGroupModel.query(trx).insert({})
+    const trx = await Model.startTransaction()
 
-    const transactions = await AlgorandTransactionModel.query(trx).insert(
-      transactionIds.map((id, index) => ({
-        address: id,
-        status: AlgorandTransactionStatus.Signed,
-        encodedSignedTransaction: encodeRawSignedTransaction(
-          signedTransactions[index]
-        ),
-        groupId: group.id,
-        order: index,
-      }))
-    )
+    try {
+      const { transactions } = await this.transactions.saveSignedTransactions(
+        signedTransactions,
+        transactionIds,
+        trx
+      )
 
-    // Remove ownership from collectible
-    await CollectibleModel.query(trx).where('id', collectible.id).patch({
-      ownerId: null,
-      latestTransferTransactionId: transactions[0].id,
-      claimedAt: new Date().toISOString(),
-    })
+      // Remove ownership from collectible
+      await CollectibleModel.query(trx).where('id', collectible.id).patch({
+        ownerId: null,
+        latestTransferTransactionId: transactions[0].id,
+        claimedAt: new Date().toISOString(),
+      })
 
-    await EventModel.query(trx).insert([
-      ...transactions.map((t) => ({
-        action: EventAction.Create,
-        entityType: EventEntityType.AlgorandTransaction,
-        entityId: t.id,
-        userAccountId: userId,
-      })),
-      {
-        action: EventAction.Update,
-        entityId: collectible.id,
-        entityType: EventEntityType.Collectible,
-        userAccountId: userId,
-      },
-      {
-        action: EventAction.Create,
-        entityId: group.id,
-        entityType: EventEntityType.AlgorandTransactionGroup,
-        userAccountId: userId,
-      },
-    ])
+      await trx.commit()
+    } catch (error) {
+      await trx.rollback()
+      throw error
+    }
   }
 
-  async getCollectibles({
+  /**
+   * Find a collectible by its listing ID and include any translations
+   * @param listingId Which listing to use when looking up the collectible
+   * @param overrideLanguage Optionally override the language, use the associated seller's language if not provided
+   * @returns The collectible associated with the listing
+   */
+  async getTemplateByListingId(
+    listingId: string,
+    transferLanguage: 'buyer' | 'seller' = 'seller',
+    overrideLanguage?: string
+  ) {
+    const listingWithParty = await CollectibleListingsModel.query()
+      .findById(listingId)
+      .withGraphFetched('[seller, buyer]')
+    invariant(listingWithParty, `listing ${listingId} not found`)
+
+    const collectible = await CollectibleModel.query().findById(
+      listingWithParty.collectibleId
+    )
+    invariant(
+      collectible,
+      `collectible ${listingWithParty.collectibleId} not found`
+    )
+
+    const template = await this.cms.findCollectibleByTemplateId(
+      collectible.templateId,
+      overrideLanguage ??
+        (transferLanguage === 'seller'
+          ? listingWithParty.seller.language
+          : listingWithParty.buyer.language)
+    )
+    invariant(`template ${collectible.templateId} not found`)
+
+    return template
+  }
+
+  async searchCollectibles({
+    algoAddress,
+    collectionIds,
+    joinTemplates = true,
+    joinListings = false,
+    joinCurrentOwner = false,
+    language = DEFAULT_LANG,
+    listingType = [
+      CollectibleListingType.Auction,
+      CollectibleListingType.FixedPrice,
+    ],
+    listingStatus,
+    userExternalId,
+    username,
     page = 1,
     pageSize = 10,
-    language = DEFAULT_LANG,
-    sortBy = CollectibleSortField.Title,
+    priceHigh,
+    priceLow,
+    setIds,
+    sortBy = CollectibleSortField.ClaimedAt,
     sortDirection = SortDirection.Ascending,
-    ownerExternalId,
-    ownerUsername,
     templateIds,
-    setId,
-    collectionId,
-  }: CollectibleListQuerystring): Promise<CollectibleListWithTotal | null> {
-    const ownerIdentifier = ownerExternalId || ownerUsername
-    userInvariant(ownerIdentifier, 'Must specify owner')
-    userInvariant(page > 0, 'page must be greater than 0')
-    userInvariant(
-      pageSize > 0 || pageSize === -1,
-      'pageSize must be greater than 0'
-    )
-    userInvariant(
-      [CollectibleSortField.ClaimedAt, CollectibleSortField.Title].includes(
-        sortBy
-      ),
-      'sortBy must be one of claimedAt or title'
-    )
-    userInvariant(
-      [SortDirection.Ascending, SortDirection.Descending].includes(
-        sortDirection
-      ),
-      'sortDirection must be one of asc or desc'
-    )
+  }: CollectiblesQuery): Promise<CollectiblesResponse | null> {
+    const queryBuild: QueryBuilder<CollectibleModel> = CollectibleModel.query()
 
-    const field = ownerUsername ? 'username' : 'externalId'
-    const account = await UserAccountModel.query()
-      .findOne(field, '=', ownerIdentifier)
-      .select('id')
-    userInvariant(account, 'user not found', 404)
+    const ownerIdentifier = userExternalId || username
 
-    const total = await CollectibleModel.query()
-      .where('ownerId', account.id)
-      .count('*', { as: 'count' })
-      .first()
-      .castTo<{ count: string }>()
+    if (ownerIdentifier) {
+      const field = username ? 'username' : 'externalId'
+      const account = await UserAccountModel.query()
+        .findOne({ [field]: ownerIdentifier })
+        .select('id')
 
-    const totalCount = Number.parseInt(total.count, 10)
+      userInvariant(account, 'no user found', 404)
 
-    if (totalCount === 0) {
-      return {
-        total: 0,
-        collectibles: [],
-      }
+      queryBuild.where('ownerId', account.id)
     }
 
-    const collectibles = await CollectibleModel.query().where({
-      ownerId: account.id,
-      ...(templateIds
-        ? {
-            id: {
-              _in: templateIds,
-            },
-          }
-        : {}),
-    })
+    if (algoAddress) {
+      // Get assets on the requested address
+      const { assets } = await this.algorand.getAccountInfo(algoAddress)
 
-    const foundTemplateIds = [...new Set(collectibles.map((c) => c.templateId))]
-    const templates = await this.cms.findCollectiblesByTemplateIds(
-      foundTemplateIds,
-      language
+      // Find corresponding assets in DB
+      queryBuild.whereIn(
+        'address',
+        assets.map((a) => a['asset-id'])
+      )
+    }
+
+    if (templateIds) queryBuild.whereIn('templateId', templateIds)
+
+    if (joinTemplates) {
+      queryBuild.withGraphFetched('template')
+      queryBuild.joinRelated('template')
+
+      if (setIds) queryBuild.whereIn('template.setId', setIds)
+      if (collectionIds)
+        queryBuild.whereIn('template.collectionId', collectionIds)
+    }
+
+    queryBuild.withGraphFetched('listings')
+
+    if (joinListings) {
+      const listingsQuery = CollectibleModel.relatedQuery('listings').where(
+        'status',
+        CollectibleListingStatus.Active
+      )
+
+      if (listingType) listingsQuery.whereIn('type', listingType)
+
+      if (listingStatus) listingsQuery.whereIn('status', listingType)
+      if (priceHigh) listingsQuery.where('price', '<=', Math.round(priceHigh))
+
+      if (priceLow) listingsQuery.where('price', '>=', Math.round(priceLow))
+
+      queryBuild.whereExists(listingsQuery)
+    }
+
+    const sortByRarity = sortBy === CollectibleSortField.Rarity
+
+    if (sortByRarity) {
+      queryBuild.joinRelated('template')
+      queryBuild.orderBy(
+        raw("COALESCE(template.content->'rarity'->'code', null)"),
+        sortDirection
+      )
+    } else {
+      queryBuild.orderBy(sortBy, sortDirection)
+    }
+
+    const { total, results } = await queryBuild.page(
+      page - 1,
+      pageSize != -1 ? pageSize : Number.MAX_SAFE_INTEGER
     )
-    const templateLookup = new Map(templates.map((t) => [t.templateId, t]))
-    const mappedCollectibles = collectibles
-      .map((c) => {
-        const template = templateLookup.get(c.templateId)
-        invariant(template !== undefined, `template ${c.templateId} not found`)
+
+    const mappedCollectibles = await Promise.all(
+      results.map(async (c: CollectibleModel) => {
+        // For each mapped collectible, we need to ask algorand indexer for the given owner
+        // There may be a better way to do this
+        const assetOwner = joinCurrentOwner
+          ? await this.algorand.getAssetOwner(c.address)
+          : undefined
+        const userAccountOwner = joinCurrentOwner
+          ? await UserAccountModel.query()
+              .alias('u')
+              .join('AlgorandAccount as a', 'u.algorandAccountId', 'a.id')
+              .where('a.address', '=', assetOwner?.address || '-')
+              .first()
+          : undefined
+
+        const currentOwner = assetOwner
+          ? {
+              currentOwner: userAccountOwner?.username,
+              currentOwnerAddress: assetOwner?.address,
+            }
+          : undefined
+
+        const template = c.template
+          ? toCollectibleBase(
+              c.template.content as unknown as DirectusCollectibleTemplate,
+              this.cms.options,
+              language
+            )
+          : undefined
+
+        const activeListing = c.listings?.find(
+          (l) => l.status === CollectibleListingStatus.Active
+        )
 
         return {
           ...template,
+          ...currentOwner,
+          ...c,
+          listingId: activeListing?.id,
+          listingStatus: activeListing?.status as CollectibleListingStatus,
+          listingType: activeListing?.type as CollectibleListingType,
+          price: activeListing?.price,
           claimedAt:
             c.claimedAt instanceof Date
               ? c.claimedAt.toISOString()
               : c.claimedAt,
-          id: c.id,
-          address: c.address,
-          edition: c.edition,
         } as CollectibleWithDetails
       })
-      .filter((collectible) => {
-        // need to filter them by set/collection here to avoid invariant error in the .map call above
-        if (setId) return collectible.setId === setId
-        if (collectionId) return collectible.collectionId === collectionId
-        return true
-      })
-      .sort((a, b) => {
-        const direction = sortDirection === SortDirection.Ascending ? 1 : -1
-        return direction * (a[sortBy] || '').localeCompare(b[sortBy] || '')
-      })
-
-    const collectiblesPage =
-      pageSize === -1
-        ? mappedCollectibles
-        : mappedCollectibles.slice((page - 1) * pageSize, page * pageSize)
+    )
 
     return {
-      total: mappedCollectibles.length,
-      collectibles: collectiblesPage,
+      total,
+      collectibles: mappedCollectibles,
     }
   }
 
   async getShowcaseCollectibles({
     language = DEFAULT_LANG,
     ownerUsername,
-  }: CollectibleShowcaseQuerystring) {
+  }: CollectibleShowcaseQuery) {
     const user = await UserAccountModel.query()
-      .findOne('username', ownerUsername)
+      .findOne({ username: ownerUsername })
       .select('id', 'showProfile')
     userInvariant(user, 'user not found', 404)
 
@@ -797,33 +596,25 @@ export class CollectiblesService {
     return {
       collectibles: mappedCollectibles,
       showProfile: user.showProfile,
-    } as CollectibleListShowcase
+    } as CollectiblesShowcase
   }
 
   async addShowcaseCollectible(
+    user: UserAccount,
     {
-      ownerUsername,
       collectibleId,
     }: {
-      ownerUsername: string
       collectibleId: string
-    },
-    trx?: Transaction
+    }
   ) {
-    const user = await UserAccountModel.query(trx)
-      .findOne('username', ownerUsername)
-      .select('id')
-
-    userInvariant(user, 'user not found', 404)
-
-    const collectible = await CollectibleModel.query(trx).findOne({
+    const collectible = await CollectibleModel.query().findOne({
       ownerId: user.id,
       id: collectibleId,
     })
 
     userInvariant(collectible, 'collectible not found', 404)
 
-    const showcases = await CollectibleShowcaseModel.query(trx)
+    const showcases = await CollectibleShowcaseModel.query()
       .where('ownerId', user.id)
       .orderBy('order', 'desc')
 
@@ -835,97 +626,86 @@ export class CollectiblesService {
       'collectible already in the showcase'
     )
 
-    const newShowcase = await CollectibleShowcaseModel.query(trx).insert({
-      collectibleId: collectible.id,
-      ownerId: user.id,
-      order: latestShowcase ? latestShowcase.order + 1 : 1,
-    })
+    const trx = await Model.startTransaction()
 
-    await EventModel.query(trx).insert({
-      action: EventAction.Create,
-      entityType: EventEntityType.CollectibleShowcase,
-      entityId: newShowcase.id,
-      userAccountId: user.id,
-    })
+    try {
+      await CollectibleShowcaseModel.query(trx).insert({
+        collectibleId: collectible.id,
+        ownerId: user.id,
+        order: latestShowcase ? latestShowcase.order + 1 : 1,
+      })
+
+      await trx.commit()
+    } catch (error) {
+      await trx.rollback()
+      throw error
+    }
   }
 
   async removeShowcaseCollectible(
+    user: UserAccount,
     {
-      ownerUsername,
       collectibleId,
     }: {
-      ownerUsername: string
       collectibleId: string
-    },
-    trx?: Transaction
+    }
   ) {
-    const user = await UserAccountModel.query(trx)
-      .findOne('username', ownerUsername)
-      .select('id')
-
-    userInvariant(user, 'user not found', 404)
-
-    const showcaseToBeRemoved = await CollectibleShowcaseModel.query(
-      trx
-    ).findOne({
+    const showcaseToBeRemoved = await CollectibleShowcaseModel.query().findOne({
       ownerId: user.id,
       collectibleId: collectibleId,
     })
 
     userInvariant(showcaseToBeRemoved, 'collectible not found', 404)
 
-    await CollectibleShowcaseModel.query(trx)
-      .where('id', showcaseToBeRemoved.id)
-      .delete()
+    const trx = await Model.startTransaction()
 
-    await EventModel.query(trx).insert({
-      action: EventAction.Delete,
-      entityType: EventEntityType.CollectibleShowcase,
-      entityId: showcaseToBeRemoved.id,
-      userAccountId: user.id,
-    })
+    try {
+      await CollectibleShowcaseModel.query(trx).deleteById(
+        showcaseToBeRemoved.id
+      )
 
-    // normalize the order of the remaining showcases, this way order will
-    // always stay in the range of 1..MAX_SHOWCASES (inclusive)
-    const showcases = await CollectibleShowcaseModel.query(trx)
-      .where('ownerId', user.id)
-      .orderBy('order', 'asc')
+      // normalize the order of the remaining showcases, this way order will
+      // always stay in the range of 1..MAX_SHOWCASES (inclusive)
+      const showcases = await CollectibleShowcaseModel.query(trx)
+        .where('ownerId', user.id)
+        .orderBy('order', 'asc')
 
-    await Promise.all(
-      showcases.map(async (showcase, index) => {
-        await CollectibleShowcaseModel.query(trx)
-          .where('id', showcase.id)
-          .patch({
-            order: index + 1,
-          })
-        await EventModel.query(trx).insert({
-          action: EventAction.Update,
-          entityType: EventEntityType.CollectibleShowcase,
-          entityId: showcase.id,
-          userAccountId: user.id,
+      await Promise.all(
+        showcases.map(async (showcase, index) => {
+          await CollectibleShowcaseModel.query(trx)
+            .where('id', showcase.id)
+            .patch({
+              order: index + 1,
+            })
         })
-      })
-    )
+      )
+
+      await trx.commit()
+    } catch (error) {
+      await trx.rollback()
+      throw error
+    }
   }
 
   async initializeExportCollectible(
-    request: InitializeTransferCollectible,
-    trx?: Transaction
+    request: InitializeTransferCollectible
   ): Promise<WalletTransaction[]> {
-    const user = await UserAccountModel.query(trx)
+    const user = await UserAccountModel.query()
       .findOne({
-        externalId: request.externalId,
+        externalId: request.userExternalId,
       })
       .withGraphFetched('algorandAccount')
 
     userInvariant(user, 'user not found', 404)
     invariant(user.algorandAccount, 'algorand account not loaded')
 
-    const collectible = await CollectibleModel.query(trx)
+    const collectible = await CollectibleModel.query()
       .findOne({
         address: request.assetIndex,
       })
-      .withGraphFetched('[creationTransaction, pack.payment]')
+      .withGraphFetched(
+        '[creationTransaction, latestTransferTransaction, pack]'
+      )
 
     userInvariant(collectible, 'collectible not found', 404)
     userInvariant(
@@ -953,7 +733,7 @@ export class CollectiblesService {
       toAccountAddress: request.address,
     })
 
-    await AlgorandTransactionGroupModel.query(trx).insertGraph({
+    await AlgorandTransactionGroupModel.query().insertGraph({
       transactions: await Promise.all(
         transactions.map(async (walletTxn) => {
           const txn = await decodeTransaction(walletTxn.txn)
@@ -971,24 +751,23 @@ export class CollectiblesService {
     return transactions
   }
 
-  async exportCollectible(
-    request: TransferCollectible,
-    trx?: Transaction
-  ): Promise<string> {
-    const user = await UserAccountModel.query(trx)
+  async exportCollectible(request: TransferCollectible): Promise<string> {
+    const user = await UserAccountModel.query()
       .findOne({
-        externalId: request.externalId,
+        externalId: request.userExternalId,
       })
       .withGraphFetched('algorandAccount')
 
     userInvariant(user, 'user not found', 404)
     invariant(user.algorandAccount, 'algorand account not loaded')
 
-    const collectible = await CollectibleModel.query(trx)
+    const collectible = await CollectibleModel.query()
       .findOne({
         address: request.assetIndex,
       })
-      .withGraphFetched('[creationTransaction, pack.payment]')
+      .withGraphFetched(
+        '[creationTransaction, latestTransferTransaction, pack]'
+      )
 
     userInvariant(collectible, 'collectible not found', 404)
     userInvariant(
@@ -1011,7 +790,7 @@ export class CollectiblesService {
     )
 
     // Load transaction, the group, and related transactions
-    const transaction = await AlgorandTransactionModel.query(trx)
+    const transaction = await AlgorandTransactionModel.query()
       .findOne({
         address: request.transactionId,
         status: AlgorandTransactionStatus.Unsigned,
@@ -1025,7 +804,6 @@ export class CollectiblesService {
     const { group } = transaction
 
     const result = await this.algorand.signTransferTransactions({
-      passphrase: request.passphrase,
       encryptedMnemonic: user.algorandAccount.encryptedKey,
       transactions: group.transactions.map(
         ({ signer, encodedTransaction, address }): WalletTransaction => {
@@ -1041,52 +819,46 @@ export class CollectiblesService {
       ),
     })
 
-    await Promise.all(
-      result.transactionIds.map((txID, index) => {
-        return AlgorandTransactionModel.query(trx)
-          .where('address', txID)
-          .patch({
-            status: AlgorandTransactionStatus.Signed,
-            encodedSignedTransaction: result.signedTransactions[index],
-          })
-      })
-    )
+    const trx = await Model.startTransaction()
 
-    await CollectibleModel.query(trx)
-      .findOne({ id: collectible.id })
-      .patch({ ownerId: null })
+    try {
+      await Promise.all(
+        result.transactionIds.map((txID, index) => {
+          return AlgorandTransactionModel.query(trx)
+            .where('address', txID)
+            .patch({
+              status: AlgorandTransactionStatus.Signed,
+              encodedSignedTransaction: result.signedTransactions[index],
+            })
+        })
+      )
 
-    await EventModel.query(trx).insert([
-      ...group.transactions.map((txn) => ({
-        action: EventAction.Update,
-        entityId: txn.id,
-        entityType: EventEntityType.AlgorandTransaction,
-      })),
-      {
-        action: EventAction.Update,
-        entityId: collectible.id,
-        entityType: EventEntityType.Collectible,
-      },
-    ])
+      await CollectibleModel.query(trx)
+        .findOne({ id: collectible.id })
+        .patch({ ownerId: null })
 
-    return result.transactionIds[0]
+      await trx.commit()
+      return result.transactionIds[0]
+    } catch (error) {
+      await trx.rollback()
+      throw error
+    }
   }
 
   async initializeImportCollectible(
-    request: InitializeTransferCollectible,
-    trx?: Transaction
+    request: InitializeTransferCollectible
   ): Promise<WalletTransaction[]> {
     // Find the user's custodial wallet
-    const user = await UserAccountModel.query(trx)
+    const user = await UserAccountModel.query()
       .findOne({
-        externalId: request.externalId,
+        externalId: request.userExternalId,
       })
       .withGraphFetched('algorandAccount')
     userInvariant(user, 'user not found', 404)
     invariant(user.algorandAccount, 'algorand account not loaded')
 
     // Find the collectible, it must be owned by the non-custodial wallet
-    const collectible = await CollectibleModel.query(trx).findOne({
+    const collectible = await CollectibleModel.query().findOne({
       address: request.assetIndex,
       ownerId: null,
     })
@@ -1112,7 +884,7 @@ export class CollectiblesService {
 
     // Store all of the unsigned transactions for later reference
 
-    await AlgorandTransactionGroupModel.query(trx).insertGraph({
+    await AlgorandTransactionGroupModel.query().insertGraph({
       transactions: await Promise.all(
         transactions.map(async (walletTxn) => {
           const txn = await decodeTransaction(walletTxn.txn)
@@ -1130,21 +902,18 @@ export class CollectiblesService {
     return transactions
   }
 
-  async importCollectible(
-    request: TransferCollectible,
-    trx?: Transaction
-  ): Promise<string> {
+  async importCollectible(request: TransferCollectible): Promise<string> {
     // Find the user's custodial wallet
-    const user = await UserAccountModel.query(trx)
+    const user = await UserAccountModel.query()
       .findOne({
-        externalId: request.externalId,
+        externalId: request.userExternalId,
       })
       .withGraphFetched('algorandAccount')
     userInvariant(user, 'user not found', 404)
     invariant(user.algorandAccount, 'algorand account not loaded')
 
     // Find the collectible, it must be owned by the non-custodial wallet
-    const collectible = await CollectibleModel.query(trx).findOne({
+    const collectible = await CollectibleModel.query().findOne({
       address: request.assetIndex,
       ownerId: null,
     })
@@ -1161,7 +930,7 @@ export class CollectiblesService {
     )
 
     // Load transaction, the group, and related transactions
-    const transaction = await AlgorandTransactionModel.query(trx)
+    const transaction = await AlgorandTransactionModel.query()
       .findOne({
         address: request.transactionId,
         status: AlgorandTransactionStatus.Unsigned,
@@ -1175,7 +944,6 @@ export class CollectiblesService {
     const { group } = transaction
 
     const result = await this.algorand.signTransferTransactions({
-      passphrase: request.passphrase,
       encryptedMnemonic: user.algorandAccount.encryptedKey,
       transactions: group.transactions.map(
         ({ signer, encodedTransaction, address }): WalletTransaction => {
@@ -1191,34 +959,29 @@ export class CollectiblesService {
       ),
     })
 
-    await Promise.all(
-      result.transactionIds.map((txID, index) => {
-        return AlgorandTransactionModel.query(trx)
-          .where('address', txID)
-          .patch({
-            status: AlgorandTransactionStatus.Signed,
-            encodedSignedTransaction: result.signedTransactions[index],
-          })
-      })
-    )
+    const trx = await Model.startTransaction()
 
-    await CollectibleModel.query(trx)
-      .findOne({ id: collectible.id })
-      .patch({ ownerId: user.id })
+    try {
+      await Promise.all(
+        result.transactionIds.map((txID, index) => {
+          return AlgorandTransactionModel.query(trx)
+            .where('address', txID)
+            .patch({
+              status: AlgorandTransactionStatus.Signed,
+              encodedSignedTransaction: result.signedTransactions[index],
+            })
+        })
+      )
 
-    await EventModel.query(trx).insert([
-      ...group.transactions.map((txn) => ({
-        action: EventAction.Update,
-        entityId: txn.id,
-        entityType: EventEntityType.AlgorandTransaction,
-      })),
-      {
-        action: EventAction.Update,
-        entityId: collectible.id,
-        entityType: EventEntityType.Collectible,
-      },
-    ])
+      await CollectibleModel.query(trx)
+        .findOne({ id: collectible.id })
+        .patch({ ownerId: user.id })
 
-    return result.transactionIds[0]
+      await trx.commit()
+      return result.transactionIds[0]
+    } catch (error) {
+      await trx.rollback()
+      throw error
+    }
   }
 }

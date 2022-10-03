@@ -1,35 +1,38 @@
-import { WalletTransaction } from '@algomart/shared/algorand'
+/* eslint-disable unicorn/numeric-separators-style */
+import {
+  AlgorandSendRawTransaction,
+  AlgorandSuggestedParams,
+  AlgorandTransformedAccountInfo,
+  AlgorandTransformedAssetInfo,
+} from '@algomart/schemas'
+import {
+  ChainType,
+  TransactionInfo,
+  UsdcAssetIdByChainType,
+  WalletTransaction,
+} from '@algomart/shared/algorand'
+import type algosdk from 'algosdk'
 import type {
-  Algodv2,
-  Indexer,
   makeAssetTransferTxnWithSuggestedParamsFromObject,
-  makePaymentTxnWithSuggestedParamsFromObject,
   Transaction,
 } from 'algosdk'
-import type algosdk from 'algosdk'
 
-import { EventEmitter } from './event-emitter'
-
+import { apiFetcher } from '@/utils/react-query'
 import { sleep } from '@/utils/sleep'
-
-export enum ChainType {
-  MainNet = 'mainnet',
-  TestNet = 'testnet',
-  BetaNet = 'betanet',
-}
+import { urlFor, urls } from '@/utils/urls'
 
 export interface IAssetData {
-  id: number
   amount: number
-  creator: string
-  frozen: boolean
+  assetIndex: number
+  creator?: string
   decimals: number
+  isFrozen: boolean
   name?: string
   unitName?: string
   url?: string
 }
 
-export interface IConnector extends EventEmitter {
+export interface IConnector extends EventTarget {
   signTransaction(
     unsignedTransactions: WalletTransaction[],
     skipSubmit?: boolean
@@ -38,21 +41,9 @@ export interface IConnector extends EventEmitter {
   disconnect(): Promise<void>
 }
 
-const ALGOD_URL = {
-  [ChainType.MainNet]: 'https://node.algoexplorerapi.io',
-  [ChainType.TestNet]: 'https://node.testnet.algoexplorerapi.io',
-}
-
-const INDEXER_URL = {
-  [ChainType.MainNet]: 'https://algoindexer.algoexplorerapi.io',
-  [ChainType.TestNet]: 'https://algoindexer.testnet.algoexplorerapi.io',
-}
-
 const TIME_BETWEEN_BLOCKS = 4500
 
 export class AlgorandAdapter {
-  private _algod: Algodv2 | null = null
-  private _indexer: Indexer | null = null
   private _algosdk: typeof algosdk
 
   constructor(public readonly chainType: ChainType) {}
@@ -64,65 +55,52 @@ export class AlgorandAdapter {
     return this._algosdk
   }
 
-  private async algod() {
-    if (this._algod === null) {
-      const algosdk = await this.algosdk()
-      this._algod = new algosdk.Algodv2('', ALGOD_URL[this.chainType], '')
-    }
-    return this._algod
-  }
-
-  private async indexer() {
-    if (this._indexer === null) {
-      const algosdk = await this.algosdk()
-      this._indexer = new algosdk.Indexer('', INDEXER_URL[this.chainType], '')
-    }
-    return this._indexer
-  }
-
-  public async getAssetData(address: string): Promise<IAssetData[]> {
-    const indexer = await this.indexer()
-    const { account: accountInfo } = await indexer
-      .lookupAccountByID(address)
-      .do()
-
+  public async getAssetData(
+    address: string,
+    loadDetails?: boolean
+  ): Promise<IAssetData[]> {
+    const accountInfo = await apiFetcher().get<AlgorandTransformedAccountInfo>(
+      urlFor(urls.api.algorand.lookupAccount, null, { address })
+    )
     const algoBalance = accountInfo.amount as number
     const assetsFromResponse: Array<{
-      'asset-id': number
+      assetIndex: number
       amount: number
-      creator: string
-      frozen: boolean
-    }> = accountInfo.assets
+      isFrozen: boolean
+    }> = accountInfo.assets ?? []
 
     const assets: IAssetData[] = assetsFromResponse.map(
-      ({ 'asset-id': id, amount, creator, frozen }) => ({
-        id: Number(id),
+      ({ assetIndex, amount, isFrozen }) => ({
+        assetIndex: Number(assetIndex),
         amount,
-        creator,
-        frozen,
+        isFrozen,
         decimals: 0,
       })
     )
 
-    assets.sort((a, b) => a.id - b.id)
+    assets.sort((a, b) => a.assetIndex - b.assetIndex)
 
-    await Promise.all(
-      assets.map(async (asset) => {
-        const {
-          asset: { params },
-        } = await indexer.lookupAssetByID(asset.id).do()
-        asset.name = params.name
-        asset.unitName = params['unit-name']
-        asset.url = params.url
-        asset.decimals = params.decimals
-      })
-    )
+    if (loadDetails) {
+      await Promise.all(
+        assets.map(async (asset) => {
+          const { assetIndex } = asset
+          const params = await apiFetcher().get<AlgorandTransformedAssetInfo>(
+            urlFor(urls.api.algorand.lookupAsset, null, { assetIndex })
+          )
+          asset.creator = params.creator
+          asset.unitName = params.unitName
+          asset.url = params.url
+          asset.name = params.name
+          asset.decimals = params.decimals
+        })
+      )
+    }
 
     assets.unshift({
-      id: 0,
+      assetIndex: 0,
       amount: algoBalance,
       creator: '',
-      frozen: false,
+      isFrozen: false,
       decimals: 6,
       name: 'Algo',
       unitName: 'ALGO',
@@ -131,24 +109,14 @@ export class AlgorandAdapter {
     return assets
   }
 
-  async makeAssetOptInTransaction(
-    assetIndex: number,
-    recipient: string
-  ): Promise<Transaction> {
-    const algosdk = await this.algosdk()
-    const client = await this.algod()
-    return algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      suggestedParams: await client.getTransactionParams().do(),
-      assetIndex,
-      from: recipient,
-      to: recipient,
-      amount: 0,
-    })
-  }
+  async sendRawTransaction(
+    transaction: AlgorandSendRawTransaction
+  ): Promise<string> {
+    const { txId } = await apiFetcher().post<{ txId: string }>(
+      urls.api.algorand.sendRawTransaction,
+      { json: { transaction } }
+    )
 
-  async sendRawTransaction(txn: Uint8Array | Uint8Array[]): Promise<string> {
-    const client = await this.algod()
-    const { txId } = await client.sendRawTransaction(txn).do()
     return txId
   }
 
@@ -175,41 +143,33 @@ export class AlgorandAdapter {
     >
   ): Promise<Transaction> {
     const algosdk = await this.algosdk()
-    const client = await this.algod()
+    const suggestedParams = await apiFetcher().get<AlgorandSuggestedParams>(
+      urls.api.algorand.getTransactionParams
+    )
     return algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      suggestedParams: await client.getTransactionParams().do(),
-      ...params,
-    })
-  }
-
-  async makePaymentTransaction(
-    params: Omit<
-      Parameters<typeof makePaymentTxnWithSuggestedParamsFromObject>[0],
-      'suggestedParams'
-    >
-  ): Promise<Transaction> {
-    const algosdk = await this.algosdk()
-    const client = await this.algod()
-    return algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-      suggestedParams: await client.getTransactionParams().do(),
+      suggestedParams,
       ...params,
     })
   }
 
   async hasOptedIn(address: string, assetIndex: number) {
     const assets = await this.getAssetData(address)
-    return assets.some((asset) => asset.id === assetIndex)
+    return assets.some((asset) => asset.assetIndex === assetIndex)
   }
 
-  async getTransactionStatus(transactionId: string) {
-    const indexer = await this.indexer()
-    const { transaction: info } = await indexer
-      .lookupTransactionByID(transactionId)
-      .do()
-      .catch(() => ({ transaction: {} }))
-    const confirmedRound: number = info['confirmed-round'] || 0
-    const poolError: string = info['pool-error'] || ''
-    const assetIndex: number = info['asset-index'] || 0
+  async hasOptedInToUSDC(address: string) {
+    return await this.hasOptedIn(
+      address,
+      UsdcAssetIdByChainType[this.chainType]
+    )
+  }
+
+  async getTransactionStatus(trxID: string) {
+    const { confirmedRound, poolError, assetIndex } =
+      await apiFetcher().get<TransactionInfo>(
+        urlFor(urls.api.algorand.lookupTransaction, null, { trxID })
+      )
+
     return { confirmedRound, poolError, assetIndex }
   }
 

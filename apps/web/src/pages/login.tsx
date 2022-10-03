@@ -6,43 +6,42 @@ import { useAuth } from '@/contexts/auth-context'
 import { useRedemption } from '@/contexts/redemption-context'
 import DefaultLayout from '@/layouts/default-layout'
 import LoginTemplate from '@/templates/login-template'
-import { urls } from '@/utils/urls'
+import { urlFor, urls } from '@/utils/urls'
 
 export default function LoginPage() {
   const auth = useAuth()
   const { redeemable } = useRedemption()
   const router = useRouter()
   const { t } = useTranslation()
-
-  const isAuthenticated = auth.status === 'authenticated'
-  const isRegistered = !!(auth.user?.username && auth.user?.address)
+  const loading =
+    auth.status === 'loading' || (auth.isAuthenticated && !auth.isRegistered)
 
   const handleRedeemEdition = useCallback(() => {
     if (redeemable) {
-      router.push(urls.release.replace(':packSlug', redeemable.pack.slug))
+      router.push(urlFor(urls.releasePack, { packSlug: redeemable.pack.slug }))
     }
   }, [redeemable, router])
 
   useEffect(() => {
-    // If the user authenticates through google but hasn't set up their profile, make them do so
-    if (
-      isAuthenticated &&
-      auth.user &&
-      !isRegistered &&
-      auth.method === 'google'
-    ) {
-      router.push(urls.myProfileSetup)
-    } else if (isAuthenticated) {
+    if (auth.isAuthenticated && !auth.isNeedsSetup) {
       // Once authenticated, check if the user needs to be redirected
       // If not, keep the user here if they have a redeemable
       // Otherwise, send the user to the homepage
-      const redirectPath = auth.getRedirectPath()
-      if (redirectPath) {
-        auth.setRedirectPath(null)
-        router.push(redirectPath)
-      } else if (!redeemable) router.push(urls.home)
+      if (auth.getRedirectPath()) {
+        auth.completeRedirect()
+      } else if (!redeemable) {
+        router.push(urls.home)
+      }
     }
-  }, [auth, isAuthenticated, isRegistered, redeemable, router])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    auth.user,
+    auth.status,
+    auth.isAuthenticated,
+    auth.isRegistered,
+    redeemable,
+    router,
+  ])
 
   useEffect(() => {
     if (router.query.redirect && typeof router.query.redirect === 'string') {
@@ -51,14 +50,18 @@ export default function LoginPage() {
   }, [auth, router])
 
   return (
-    <DefaultLayout pageTitle={t('common:pageTitles.Login')}>
+    <DefaultLayout
+      pageTitle={t('common:pageTitles.Login')}
+      variant="colorful"
+      noPanel
+    >
       <LoginTemplate
-        handleLoginEmail={() => router.push(urls.loginEmail)}
-        handleLoginGoogle={auth.authenticateWithGoogle}
         handleRedeemEdition={handleRedeemEdition}
-        isRegistered={isRegistered}
+        handleLoginGoogle={auth.authenticateWithGoogle}
+        isAuthenticated={auth.isAuthenticated}
+        loading={loading}
         redeemable={redeemable}
-        status={auth.status}
+        error={auth.error}
       />
     </DefaultLayout>
   )

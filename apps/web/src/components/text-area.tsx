@@ -19,10 +19,9 @@ export default function TextArea({
   return (
     <textarea
       className={clsx(
-        'border w-full block border-solid border-base-border p-3 shadow-medium rounded-md focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 font-light',
-
+        'border w-full block border-solid border-base-border p-3 rounded-md focus:outline-none focus:ring-2 font-normal',
         {
-          'bg-gray-200': readOnly || disabled,
+          'bg-base-textSecondary': readOnly || disabled,
         },
         className
       )}

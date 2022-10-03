@@ -1,9 +1,6 @@
-.svg {
-  width: 30px;
-  height: 40px;
-}
-.svg svg {
-  @apply max-w-full max-h-full;
+.svg:global(.footer-logo) {
+  @apply relative mx-auto;
+  @apply md:w-full md:mx-0;
 }
 
 .link {

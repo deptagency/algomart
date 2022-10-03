@@ -1,24 +1,183 @@
+.section {
+  @apply flex flex-col px-6 pt-12 pb-4 mx-auto max-w-wrapper;
+}
+
+.heroSection {
+  @apply px-0 pt-8;
+  @apply sm:px-6;
+}
+
+.heroContainer {
+  @apply border-transparent bg-clip-padding;
+  @apply sm:bg-rainbow sm:border-1 sm:p-[1px] sm:rounded-xl;
+}
+
 .sectionTitle {
-  /* Base */
-  @apply mt-8 mb-5 text-center underline;
-  /* Tablet */
-  @apply sm:mt-16 sm:mb-6;
+  @apply mb-4 text-[24px] uppercase;
+  @apply md:text-[30px];
 }
 
-.upcomingPacks {
-  /* Base */
-  @apply px-5;
-  /* Tablet */
-  @apply sm:px-0;
+.sectionSubtitle {
+  @apply mb-0 text-base-textTertiary;
 }
 
-.notableCollectibles {
-  /* Base */
-  @apply px-5;
-  /* Tablet */
-  @apply sm:px-0;
+.sectionButton {
+  @apply inline-block mx-auto mt-12;
 }
 
-.upcomingPacks a {
-  @apply no-underline;
+.heroInfoBar {
+  @apply bg-rainbow hidden font-bold py-2 text-center;
+  @apply sm:block;
+}
+
+.packContainer {
+  @apply flex flex-col border-b-2 border-rainbow bg-pack-listing-mobile-1x bg-center bg-cover;
+
+  /* Mobile sm */
+  @apply sm:rounded-b-xl sm:border-0 sm:border-rainbow sm:bg-pack-listing-mobile-2x;
+
+  /* Desktop md */
+  @apply md:bg-pack-listing-desktop-1x md:pt-0 md:p-0 md:mt-0 md:mx-0;
+
+  /* Desktop lg */
+  @apply lg:bg-cover lg:flex-row lg:bg-pack-listing-desktop-2x;
+  background-color: #2c6bf6;
+}
+
+.packImage {
+  @apply shrink-0 px-12 py-10 text-center;
+}
+
+.packInfo {
+  @apply bg-base-bg flex flex-col px-12 py-10;
+  @apply sm:rounded-b-xl sm:justify-center lg:bg-transparent;
+}
+
+.packInfo h1 {
+  @apply text-xl;
+  @apply md:text-2xl;
+}
+
+.packPrice {
+  @apply font-bold mb-4 text-[24px] pr-8;
+  @apply sm:mb-0;
+}
+
+.threeSteps,
+.theFuture {
+  @apply flex flex-col gap-6 mt-4 rounded-lg;
+  @apply md:flex-row md:items-stretch md:gap-8;
+  @apply lg:gap-12;
+}
+
+.step,
+.futureItem {
+  @apply mx-auto;
+  @apply relative flex-1;
+  text-shadow: 1px 1px rgb(0 0 0 / 33%);
+}
+.stepNum {
+  @apply absolute text-[24px];
+  @apply font-light leading-tight text-blue-500;
+  @apply md:static md:text-2xl;
+}
+.stepTitle {
+  @apply ml-10;
+  @apply text-[24px] uppercase leading-tight font-black;
+  @apply md:ml-0;
+}
+.stepSub {
+  @apply ml-10 uppercase;
+  @apply text-[20px] mb-3 leading-tight font-light;
+  @apply md:ml-0;
+}
+.stepMedia {
+  @apply md:h-[180px] md:max-h-[180px] flex items-center justify-center relative;
+}
+
+.signupBox {
+  --bg-gradient: linear-gradient(to top, #03122b 20.2%, #00287a 99.64%);
+  @apply relative max-w-[270px] p-4 mb-8 mr-3 text-sm text-center;
+}
+.signupBox::after {
+  /* Outlined blue gradient background for content */
+  content: '';
+  @apply absolute inset-0 z-0 block border-blue-500 rounded-md border-1;
+  background-image: var(--bg-gradient);
+}
+.signupBox::before {
+  /* Dark gradient shadow effect */
+  content: '';
+  @apply absolute z-0 block w-full h-full rotate-180 border-blue-500 rounded-md border-1 left-3 top-3;
+  background-image: var(--bg-gradient);
+}
+.signupBox > a {
+  @apply block w-[140px] mx-auto mt-3 font-semibold;
+  text-shadow: none;
+}
+.signupBox > * {
+  @apply relative z-10;
+}
+
+.packs {
+  @apply w-full;
+}
+.packs > span:first-child {
+  @apply md:scale-125 top-5;
+}
+
+/* FAQs */
+.faq {
+  text-shadow: 1px 1px rgb(0 0 0 / 33%);
+}
+.faq + .faq {
+  @apply -mt-px; /* make borders overlap */
+}
+
+.faqQuestion > button {
+  @apply w-full p-3 text-lg font-light text-left uppercase transition duration-300 border-y-1 border-rainbow;
+  @apply hover:bg-action-primary hover:bg-opacity-10;
+  @apply focus-visible:bg-action-primary focus-visible:bg-opacity-10;
+  text-shadow: 1px 1px rgb(0 0 0 / 33%);
+}
+
+.faqAnswer {
+  @apply px-6 pt-6 pb-8;
+}
+
+.faqAnswer p + p {
+  @apply mt-5;
+}
+
+.faqAnswer a {
+  @apply underline transition duration-300;
+}
+
+/* Rarities */
+.featuredRarities {
+  @apply px-8 pt-6 pb-6 bg-white shadow-xl rounded-xl;
+}
+
+.rarityItem {
+  @apply self-center justify-self-center;
+}
+
+/* Social media icons */
+.socialMediaIcons {
+  @apply flex items-center gap-6 mb-6;
+}
+
+/* Featured NFTs */
+
+.featuredPanel {
+  @apply p-3 rounded-xl;
+  @apply md:p-8;
+
+  background-image: radial-gradient(
+      114.62% 136.4% at 0.8% 0%,
+      rgba(77, 2, 251, 0.8) 0%,
+      rgba(124, 114, 249, 0.8) 46.57%,
+      rgba(90, 205, 236, 0.8) 94.72%
+    ),
+    linear-gradient(to bottom, #00e2f5 18%, #30d158 99.38%);
 }

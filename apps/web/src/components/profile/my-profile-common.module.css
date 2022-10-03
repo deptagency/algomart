@@ -1,4 +1,4 @@
-.section {
+.section:not(:last-child) {
   @apply mb-10;
 }
 
@@ -11,28 +11,25 @@
 }
 
 .sectionHeading {
-  /* Base */
-  @apply mb-1 text-lg font-bold text-base-textSecondary;
-  /* Tablet + */
-  @apply md:text-xl;
+  @apply mb-1 text-lg;
 }
 
 .confirmation {
-  @apply mb-2 text-sm font-light text-right text-action-secondary;
+  @apply mb-2 text-sm font-normal text-right text-base-textSecondary;
 }
 
 .error {
-  @apply mb-2 text-sm font-light text-right text-base-error;
+  @apply mb-2 text-sm font-normal text-right text-base-error;
 }
 
 .sectionContent {
-  @apply p-6 rounded-md border-1 border-base-border bg-base-bgCard dark:border-opacity-0;
+  @apply p-6 my-3 rounded-md border-1 border-gray-200;
 }
 
 .sectionContentLarge {
-  @apply p-12 rounded-md border-1 border-base-border;
+  @apply p-12 rounded-md border-base-border;
 }
 
 .sectionText {
-  @apply mb-4;
+  @apply mb-6;
 }

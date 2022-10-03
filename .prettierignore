@@ -10,6 +10,8 @@ next-env.d.ts
 
 # don't lint compiled directus extensions
 apps/cms/extensions/**/index.js
+apps/web/tailwind.config.js
+apps/web/src/pages/component-sandbox.tsx
 
 # don't lint nyc coverage output
 coverage

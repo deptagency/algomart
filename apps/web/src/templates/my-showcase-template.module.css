@@ -1,5 +1,5 @@
 .ownedCollectiblesWrapper {
-  @apply px-0 pb-4 md:px-24;
+  @apply px-4 pb-4 mx-auto max-w-wrapper;
 }
 
 .ownedCollectiblesHeading {
@@ -23,5 +23,5 @@
 }
 
 .bottomCtaWrapper {
-  @apply text-center bg-white;
+  @apply text-center bg-base-bgCard;
 }

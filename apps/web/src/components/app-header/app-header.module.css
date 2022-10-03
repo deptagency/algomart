@@ -1,109 +1,132 @@
 .root {
-  /* Base */
-  @apply sticky top-0 z-20 w-full bg-base-bgCard shadow-medium;
-  /* Tablet + */
-  @apply md:bg-transparent md:pt-4 md:relative md:shadow-none;
+  @apply relative z-20 w-full h-[73px] shadow-md;
+  @apply md:bg-transparent md:relative md:shadow-none;
 }
 
 .rootMobileVisible {
-  /* Base */
-  @apply h-full;
-  /* Tablet + */
-  @apply md:h-auto;
+  @apply fixed h-auto overflow-hidden bg-base-bgCard;
 }
 
-.wrapper {
-  /* Base */
-  @apply flex flex-row items-center justify-between p-4 mx-auto flex-nowrap max-w-wrapper;
+.languageSelect {
+  @apply hidden lg:block;
+}
+
+.header {
+  @apply w-full h-full px-4 py-1 border-b-1 border-gray-300 bg-base-bgCard;
+  @apply md:py-2;
+}
+
+.rootMobileVisible .header {
+  @apply border-action-secondary;
+}
+
+.headerWrapper {
+  @apply relative flex items-center justify-between m-auto max-w-wrapper;
 }
 
 .hamburgerWrapper {
-  /* Tablet */
-  @apply md:hidden;
-  width: 36px;
+  @apply flex p-1 align-middle bg-white rounded-full bg-opacity-10;
+  @apply lg:hidden;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
 }
 
-.hamburger {
-  /* Base */
-  @apply block text-base-gray-medium;
+.burger {
+  @apply transition duration-300 text-action-link hover:text-action-linkHover active:text-action-linkHover;
   width: 24px;
 }
 
-.logo {
-  /* Base */
-  @apply flex flex-row items-center self-center justify-center flex-1 w-8 h-8;
-  /* Tablet + */
-  @apply w-10 h-10 md:text-left md:flex-none md:justify-start;
+.mainNavWrapper {
+  @apply lg:flex h-14;
 }
 
-.logoLink {
-  /* Base */
-  @apply inline-block w-8 h-8;
-  /* Tablet + */
-  @apply md:w-10 md:h-10;
+.logo {
+  @apply absolute left-1/2 -ml-[84px] top-5;
+  @apply md:ml-[-112px] md:top-4;
+  @apply lg:flex lg:items-center lg:justify-start lg:static lg:ml-0;
+}
+.logo svg {
+  @apply md:h-10 md:w-[114px];
 }
 
 .mainNav {
-  /* Base */
-  @apply absolute left-0 w-full h-full px-10 pt-6 bg-base-bgCard border-base-bg border-t-1;
-  top: 68px;
-  /* Tablet + */
-  @apply md:bg-base-bgCard md:border-0 md:col-span-2 md:grid md:grid-cols-2 md:h-auto md:justify-center md:overflow-hidden md:p-0 md:relative md:rounded-md md:shadow-large md:text-center md:top-0 md:w-auto;
+  @apply relative self-stretch ml-12;
 }
 
-.mainNavHidden {
-  /* Base */
-  @apply hidden;
-  /* Tablet + */
-  @apply md:grid;
+.mobileNavBottom {
+  @apply grid grid-flow-row gap-7 py-7;
+  @apply lg:hidden;
+}
+
+.mainNavItems {
+  @apply items-center justify-center flex-1 hidden h-full gap-7;
+  @apply lg:flex;
 }
 
 .mainNavLink {
-  /* Base */
-  @apply block py-5 text-3xl font-bold transition duration-300 border-t focus:outline-none text-base-textPrimary hover:text-base-gray-dark;
-  /* Tablet + */
-  @apply md:border-b-6 md:border-action-secondary md:border-opacity-0 md:border-t-0 md:inline md:no-underline md:p-6 md:text-base md:focus:border-opacity-50 md:hover:border-opacity-50 md:hover:text-base-textPrimary;
+  /* must inherit font size since this is used on mobile nav menu as well */
+  @apply uppercase transition duration-300 focus:outline-none text-base-textPrimary;
 }
 
-.mainNavLink:first-child {
-  border-top: none;
+.mainNavLinkActive {
+  @apply text-action-accent;
+  @apply md:text-base-textPrimary md:pb-px md:border-b-1 md:border-b-[rgba(255,255,255,0.4)];
 }
 
-.mainNavLink.mainNavLinkActive {
-  /* Base */
-  @apply text-action-secondary;
-  /* Tablet + */
-  @apply md:border-opacity-100 md:text-base-textPrimary;
+.accountActions {
+  @apply grid items-center grid-flow-col gap-7 justify-self-end;
+  @apply lg:relative;
 }
 
-.utilityNav {
-  @apply self-center justify-self-end;
-  @apply md:flex md:flex-1 md:justify-end;
+.accountActionsLink {
+  @apply grid items-center grid-flow-col gap-2 text-sm no-underline;
 }
 
-.utilityNavLink {
-  /* Base */
-  @apply block overflow-hidden transition duration-300 rounded-full outline-none bg-base-bgCard text-base-textPrimary focus:ring-2 focus:ring-action-secondary focus:ring-offset-2 focus:ring-opacity-50 hover:bg-action-secondary hover:bg-opacity-50;
-  /* Tablet + */
-  @apply md:shadow-medium;
-  height: 36px;
-  width: 36px;
+.accountActionsLink img {
+  @apply block transition duration-300 rounded-full outline-none bg-base-bgCard text-base-textPrimary focus:ring-2 focus:ring-action-secondary focus:ring-offset-2 focus:ring-opacity-50 hover:bg-action-secondary hover:bg-opacity-50;
 }
 
-.utilityNavLink img {
-  @apply object-cover;
+.createAccountButton {
+  @apply hidden uppercase;
+  @apply lg:inline-block;
 }
 
 .avatarGeneric {
-  @apply w-full p-2;
+  @apply w-6 md:hidden;
 }
 
-/* To keep nav centered, set logo and utility nav link to be same width */
-@screen md {
-  .logo {
-    width: 106px;
-  }
-  .utilityNav {
-    max-width: 106px;
-  }
+/* Mobile burger menu stuff */
+.mobileNav {
+  @apply hidden;
+}
+
+.rootMobileVisible .mobileNav {
+  @apply flex flex-col gap-4 overflow-y-scroll;
+  @apply lg:hidden;
+  height: calc(100vh - 57px);
+}
+
+.creditsBox {
+  @apply p-6 mx-10 mt-10 leading-snug text-center rounded-lg bg-action-tertiary;
+}
+.creditsValue {
+  @apply text-2xl font-black;
+}
+.creditsValue > span {
+  @apply block mb-2 text-lg text-base-textSecondary;
+}
+
+.mobileNavItems {
+  @apply flex flex-col flex-1 mx-10 mt-3 text-xl;
+}
+.mobileNavItems .mainNavLink {
+  @apply block py-3 font-bold capitalize;
+}
+
+.mobileUtilityLinks {
+  @apply px-10 py-5 bg-action-tertiary;
+}
+.mobileUtilityLinks > * {
+  @apply block py-3 text-lg font-bold text-left text-opacity-25 transition duration-300 text-base-textPrimary;
+  text-transform: unset;
+  padding: 0.75rem 0 !important;
 }

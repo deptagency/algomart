@@ -1,18 +1,22 @@
 import {
   AlgorandAdapter,
   CircleAdapter,
-  DirectusAdapter,
   NFTStorageAdapter,
+  OnfidoAdapter,
 } from '@algomart/shared/adapters'
+import { configureTestResolver } from '@algomart/shared/services'
+import {
+  getTestDatabaseConfig,
+  setupAlgorandAdapterMockImplementations,
+  setupCircleAdapterMockImplementations,
+  setupOnfidoAdapterMockImplementations,
+} from '@algomart/shared/tests'
 import buildApp from '@api/api/build-app'
-import { configureResolver } from '@api/configuration/configure-resolver'
-
-import { getTestDatabaseConfig } from './setup-tests'
 
 export async function buildTestApp(database: string) {
-  jest
-    .spyOn(DirectusAdapter.prototype, 'testConnection')
-    .mockResolvedValue(Promise.resolve())
+  // jest
+  //   .spyOn(CMSCacheAdapter.prototype, 'testConnection')
+  //   .mockResolvedValue(Promise.resolve())
 
   jest
     .spyOn(AlgorandAdapter.prototype, 'testConnection')
@@ -26,8 +30,17 @@ export async function buildTestApp(database: string) {
     .spyOn(NFTStorageAdapter.prototype, 'testConnection')
     .mockResolvedValue(Promise.resolve())
 
+  jest
+    .spyOn(OnfidoAdapter.prototype, 'testConnection')
+    .mockResolvedValue(Promise.resolve())
+
+  // Setup the mocks here for all tests
+  setupAlgorandAdapterMockImplementations()
+  setupOnfidoAdapterMockImplementations()
+  setupCircleAdapterMockImplementations()
+
   return await buildApp({
-    container: configureResolver(),
+    container: configureTestResolver(),
     knex: getTestDatabaseConfig(database),
     fastify: {
       // uncomment to enable fastify logger

@@ -1,0 +1,368 @@
+{
+  "Submit": "Submit",
+  "errors": {
+    "accountCreationError": "There was a problem creating your account",
+    "accountAlreadyConfigured": "Account is already configured",
+    "addressNotFound": "Could not retrieve the blockchain address for sending funds. Apologies for any inconvenience.",
+    "cardExpiration": "Your card has expired.",
+    "cardNotFound": "Card not found",
+    "emailAlreadyInUse": "Email already in use",
+    "emailValid": "Must be a valid email address",
+    "emailsDoNotMatch": "Email addresses do not match",
+    "emailAlreadyInUseAfterSubmit": "Email in use. Do you already have an account with us?",
+    "invalidCVV": "Invalid CVV",
+    "exactCharacters": "Must be {exact} characters",
+    "invalidClaim": "Invalid Claim",
+    "invalidCredentials": "Invalid credentials",
+    "invalidCreditCard": "Invalid credit card number",
+    "invalidCountry": "Invalid country code",
+    "invalidCurrency": "Invalid currency",
+    "invalidDateOfBirth": "Invalid Date of Birth. It should use the format: YYYY-MM-DD.",
+    "invalidDetails": "Invalid details provided",
+    "invalidLanguage": "Invalid language option selected",
+    "invalidName": "Invalid first and last name",
+    "invalidPassword": "Invalid password",
+    "invalidPayment": "Invalid Payment",
+    "invalidProvider": "Invalid Provider",
+    "invalidState": "Invalid post code",
+    "invalidAge": "Invalid age option selected",
+    "integer": "Must be an integer",
+    "failedCardCreation": "Failed to verify card, please check your details and try again",
+    "failedPayment": "Invalid payment details. Check your credit card and/or billing address details.",
+    "failedPurchase": "Purchase failed, you were not charged. Please try again.",
+    "failedToLoadCountries": "There was a problem loading countries from the server. Please try again or contact support.",
+    "failedTransfer": "There was an unexpected error while adding money. Please contact support.",
+    "minimumBid": "Your bid must be at least {{amount}}",
+    "mustConfirmBid": "Bid must be confirmed",
+    "bidLessThanHighestBid": "Your bid was lower than the current high bid.",
+    "maxCharacters": "Must be less than {max} characters",
+    "minCharacters": "Must be at least {min} characters",
+    "minUSDC": "Found balance of {{balance}} {{currency}}, but the minimum needed is {{min}} {{currency}}",
+    "maxItems": "Must pick at most {max} items",
+    "minImageFileSize": "Image must be {{fileSize}} or smaller",
+    "minListingPriceBalance": "Price must be at least {{min}}",
+    "noUSDC": "No USDC found in wallet",
+    "onlyLetters": "Must contain only letters",
+    "onlyLettersAndNumbers": "Must contain only letters and numbers",
+    "onlyNumbers": "Must contain only numbers",
+    "onlyLowercaseLettersAndNumbers": "Only lowercase characters and numbers allowed",
+    "paymentNotCreated": "The payment could not be created. Please contact support.",
+    "required": "This field is required",
+    "transferDeclined": "Transaction was declined, or something went wrong during payment.",
+    "transferNotFound": "Transfer not found. If this was completed, keep checking the status.",
+    "usernameTaken": "Username already in use",
+    "invalidDuration": "Invalid Duration",
+    "invalidRedemptionCode": "Invalid Redemption Code",
+    "invalidStatus": "Invalid Status",
+    "invalidZipCode": "Invalid Post Code",
+    "acceptTerms": "Please acknowledge you have reviewed the privacy policy/TOS before creating an account",
+    "balanceLessThanCredits": "Account balance is less than needed for purchase",
+    "amountToWithdraw": "Please enter a valid amount to withdraw",
+    "verificationRequired": "Verification is required for purchase",
+    "walletAddress": "Please enter a valid wallet address"
+  },
+  "fields": {
+    "accountNumber": {
+      "label": "Account Number"
+    },
+    "address1": {
+      "label": "Street Address"
+    },
+    "bankAddress": {
+      "bankName": {
+        "label": "Bank Name"
+      },
+      "bankAddress1": {
+        "label": "Bank Address Line 1"
+      },
+      "bankAddress2": {
+        "label": "Bank Address Line 2"
+      }
+    },
+    "bid": {
+      "confirmation": "I understand that I need to complete payment within 72 hours or I will forfeit my winning bid.",
+      "description": "Your card will be charged immediately on auction close if you place the winning bid.",
+      "label": "Your Bid",
+      "helpTextCurrentBid": "Current bid is {{amount}}",
+      "success": "You're the current high bidder for {{title}}"
+    },
+    "ccNumber": {
+      "label": "Credit Card Number",
+      "logos": {
+        "mastercard": "Mastercard",
+        "visa": "Visa"
+      }
+    },
+    "city": {
+      "label": "City"
+    },
+    "country": {
+      "label": "Country",
+      "defaultText": "Select a country"
+    },
+    "currencies": {
+      "label": "Currency"
+    },
+    "customerVerification": {
+      "cta": "For more information on our verification process, visit our <0>Anti-Money Laundering policy</0>.",
+      "helpTextStart": {
+        "1": "Thanks for starting your customer verification journey!",
+        "2": "Before you begin, you will be asked to provide identifying information about yourself, including your name, date of birth, and address."
+      },
+      "helpText": {
+        "1": "Thanks for starting your customer verification journey!",
+        "2": "Below you'll find details on the status of your verification."
+      },
+      "accountStatus": {
+        "label": "Account Status",
+        "options": {
+          "clear": "Clear",
+          "approved": "Clear",
+          "needs-verification": "Unverified",
+          "manual-review": "Manual Review",
+          "restricted": "Restricted",
+          "banned": "Banned",
+          "unverified": "Unverified",
+          "limited": "Limited"
+        }
+      },
+      "required": {
+        "label": "Required",
+        "options": {
+          "required": "Verification is required",
+          "notRequired": "Verification is not required"
+        }
+      },
+      "lastAttempt": {
+        "status": {
+          "label": "Status",
+          "options": {
+            "in_progress": "In Progress",
+            "clear": "Cleared",
+            "fail": "Failed",
+            "manual_review": "In Manual Review",
+            "cancelled": "Cancelled"
+          }
+        },
+        "helpText": "Did your personal information change since last verifying? Submit a new verification attempt with your updated information, so that your verification stays up-to-date."
+      }
+    },
+    "defaultCard": {
+      "label": "Default",
+      "helpText": "Make card my default for purchases"
+    },
+    "differentCardLink": {
+      "label": "Use a different card"
+    },
+    "dob": {
+      "label": "Date of Birth",
+      "helpText": "Required format: YYYY-MM-DD"
+    },
+    "email": {
+      "label": "Email"
+    },
+    "newEmail": {
+      "label": "New email"
+    },
+    "expirationDate": {
+      "label": "Expiration Date"
+    },
+    "fullName": {
+      "label": "Full Name",
+      "helpText": "As it appears on your card"
+    },
+    "firstName": {
+      "label": "First Name"
+    },
+    "lastName": {
+      "label": "Last Name"
+    },
+    "languages": {
+      "label": "Language"
+    },
+    "password": {
+      "label": "Password",
+      "helpText": "Must be at least 8 characters"
+    },
+    "paymentMethods": {
+      "label": "Payment Method",
+      "helpText": "Select Payment Method",
+      "options": {
+        "card": {
+          "label": "Credit Card",
+          "helpText": "Accepted for winning bids up to $3,000"
+        },
+        "crypto": {
+          "label": "Crypto Wallet",
+          "helpText": "Accepted for all winning bids. Payment accepted in USDC from WalletConnect, MyAlgo, or Coinbase."
+        }
+      }
+    },
+    "payWithCrypto": {
+      "label": "Pay with Crypto",
+      "helpText": "We can only accept crypto payments in USDC-A.",
+      "tutorial": {
+        "prompt": "Don't have a Crypto Wallet yet?",
+        "text": "We'll walk you through",
+        "hyperlink": "what is needed"
+      },
+      "instructions": {
+        "1": "Click to connect and scan the QR code using your wallet's mobile app, OR copy the blockchain address to your clipboard.",
+        "2": "Initiate the purchase, either by clicking the Purchase button or manually transferring funds to the copied address.",
+        "3": "Submit your payment of {{price}} in {{usdcPrice}} USDC.",
+        "4": "Check for payment. Once we receive your payment, you will be the new owner of the NFT.",
+        "label": "If you already have a wallet"
+      },
+      "Connected account": "Connected account",
+      "walletInstructions": {
+        "label": "Wallet Instructions",
+        "createWallet": {
+          "1": "Install Algorand Wallet on your mobile device",
+          "2": "Create a new account with Algorand Wallet",
+          "3": "Add USDC by clicking Add new asset and searching for USDC",
+          "label": "Create a Wallet",
+          "link": "Tutorial on creating a new account"
+        },
+        "purchaseAlgos": {
+          "1": "Sign up for a Coinbase account",
+          "2": "Purchase ALGOs from Coinbase",
+          "3": "Transfer ALGOs to your Algorand wallet",
+          "label": "Purchase ALGOs",
+          "link": "Tutorial on transferring cryptocurrency using Coinbase",
+          "notice": "Note: Fees are added during the swap"
+        },
+        "swapAlgos": {
+          "1": "Go to Tinyman",
+          "2": "Select ALGOs as From and USDC as To",
+          "3": "Connect to your wallet",
+          "4": "Initiate the swap",
+          "label": "Swap ALGOs for USDC-A",
+          "link": "Visit Tinyman",
+          "notice": "Beware of extra fees and slippage! Wallet needs to have enough to cover the item cost + fees."
+        }
+      }
+    },
+    "payWithBalance": {
+      "price": "Price",
+      "balance": "Your Balance",
+      "buy": "Buy",
+      "buyPack": "Confirm Purchase",
+      "buyCollectible": "Buy Collectible",
+      "buyMoreMoney": "Buy More Money",
+      "information": {
+        "prompt": "You are authorising the purchase of <0></0> from AlgoMart."
+      }
+    },
+    "personalSettings": {
+      "label": "Personal Settings"
+    },
+    "price": {
+      "label": "Price",
+      "disclaimer": "Price is shown in {{currency}} but will settle in {{amount}} USDC"
+    },
+    "profileImage": {
+      "label": "Profile Image"
+    },
+    "redemptionCode": {
+      "label": "Redemption Code"
+    },
+    "routingNumber": {
+      "label": "Routing Number"
+    },
+    "saveCard": {
+      "label": "Save my card for future purchases"
+    },
+    "savedCard": {
+      "label": "Saved Cards",
+      "placeholder": "New Card"
+    },
+    "securityCode": {
+      "label": "CVV"
+    },
+    "state": {
+      "label": "County"
+    },
+    "status": {
+      "label": "Status"
+    },
+    "typeOfSale": {
+      "label": "Type of sale",
+      "options": {
+        "fixedPrice": {
+          "label": "Fixed Price"
+        },
+        "auction": {
+          "label": "Auctions coming soon!"
+        }
+      }
+    },
+    "username": {
+      "helpText": "How you'll appear to others",
+      "label": "Username"
+    },
+    "name": {
+      "helpText": "Optional",
+      "label": "Your Name"
+    },
+    "age": {
+      "label": "Age",
+      "options": {
+        "N/A": "N/A"
+      }
+    },
+    "zipCode": {
+      "label": "Postal Code"
+    },
+    "tos": {
+      "label": "I have read and accept the <0>terms of service</0>"
+    },
+    "privacyPolicy": {
+      "label": "I have read and accept the <0>privacy policy</0>"
+    }
+  },
+  "sections": {
+    "Bank Account": "Bank Account",
+    "Bank Address": "Bank Address",
+    "Billing Address": "Billing Address",
+    "Credit Card": "Credit Card",
+    "Current Verification": "Current Verification",
+    "Customer Verification": "Customer Verification",
+    "Summary": "Summary",
+    "Verification Details": "Verification Details"
+  },
+  "purchaseCredits": {
+    "Amount": "Amount",
+    "Add Money": "Add Money",
+    "Purchase with": "Purchase with",
+    "Visa / Mastercard": "Visa / Mastercard",
+    "Card Processing Fee": "Card Processing Fee",
+    "Taxes": "Taxes",
+    "Transaction Summary": "Transaction Summary",
+    "Subtotal": "Subtotal",
+    "Total to be charged": "Total to be charged",
+    "Total to be deposited": "Total to be deposited",
+    "Total": "Total",
+    "legalese": "You are authorising the purchase of <0></0> from AlgoMart.",
+    "pricingReadMore": "Read more about pricing and potential fees.",
+    "cryptoNext": "Next: Deposit USDC-A",
+    "Send exactly": "Send exactly",
+    "usdcaAlgorandOnly": "Send USDC-A via Algorand only."
+  },
+  "cashOut": {
+    "Cash Out": "Cash Out",
+    "Your balance": "Your balance",
+    "Available to cash out today": "Available to cash out today",
+    "Amount to withdraw": "Amount to withdraw",
+    "USDC-A wallet address": "USDC-A wallet address",
+    "invalidWalletAddress": "Invalid wallet address",
+    "legalese": "You are authorising the withdrawal of <0></0> from AlgoMart.",
+    "optInError": "This wallet must first opt-in to the USDC asset in order to receive funds.",
+    "pricingReadMore": "Read more about pricing and potential fees.",
+    "Amount": "Amount",
+    "Address": "Address",
+    "Total to be withdrawn": "Total to be withdrawn",
+    "Transaction Summary": "Transaction Summary",
+    "walletNotFound": "Wallet not found",
+    "withdrawMax": "Withdraw Max"
+  }
+}

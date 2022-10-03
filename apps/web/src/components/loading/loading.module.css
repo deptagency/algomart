@@ -3,34 +3,14 @@
 }
 
 .loadingWrapper {
-  @apply inline-block;
-}
-
-.svg {
-  @apply h-auto;
-  width: 100px;
-}
-
-.svgCorner:first-child,
-.svgCircle:first-child {
-  @apply stroke-current text-action-secondary;
-}
-
-.svgCorner:last-child,
-.svgCircle:last-child {
-  @apply stroke-current text-base-border;
-}
-
-.svgCircle {
+  @apply inline-block ease-in-out animate-spin;
+  animation-duration: 2s;
 }
 
 .loadingText {
-  @apply mt-4 text-base-gray-medium text-center;
+  @apply mt-4 text-center;
 }
 
-.primaryLoadingText {
-}
-
-.secondaryLoadingText {
-  @apply font-bold;
+.svg {
+  @apply w-20;
 }

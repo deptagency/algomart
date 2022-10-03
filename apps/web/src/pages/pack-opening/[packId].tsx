@@ -3,10 +3,12 @@ import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
 
 import { ApiClient } from '@/clients/api-client'
+import { AppConfig } from '@/config'
 import { PackOpeningProvider } from '@/contexts/pack-opening-context'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
+  getTokenFromCookie,
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
 import PackOpeningTemplate from '@/templates/pack-opening-template'
@@ -20,8 +22,8 @@ export default function PackOpeningPage({ pack }: PackOpeningPageProps) {
   const { t } = useTranslation()
   return (
     <DefaultLayout
+      fullBleed
       pageTitle={t('common:pageTitles.Pack Opening', { name: pack.title })}
-      noPanel
     >
       <PackOpeningProvider pack={pack}>
         <PackOpeningTemplate />
@@ -47,7 +49,11 @@ export const getServerSideProps: GetServerSideProps<
       },
     }
 
-  const pack = await ApiClient.instance.packWithCollectibles({
+  const client = new ApiClient(
+    AppConfig.apiURL,
+    getTokenFromCookie(context.req, context.res)
+  )
+  const pack = await client.packWithCollectibles({
     packId,
     language: context?.locale,
   })

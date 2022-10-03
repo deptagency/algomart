@@ -1,0 +1,49 @@
+{
+  "sorting": {
+    "Brand": "Marca",
+    "Name": "Nombre",
+    "Newest": "Nuevo / Más reciente",
+    "Oldest": "Antiguo / Más antiguo",
+    "RarityAscending": null,
+    "RarityDescending": null
+  },
+  "tabs": {
+    "NFTs": "NFTs",
+    "Collections": "Colecciones",
+    "Showcase": "Escaparate"
+  },
+  "algoAddressPage": {
+    "Algorand Account": "Cuenta Algorand",
+    "invalidAlgoAccount": "Esta dirección no existe",
+    "noCollectiblesInAccount": "Esta cuenta de Algorand no tiene objetos de colección."
+  },
+  "collectionPage": {
+    "A collection by": "<0>Una colección de <1>{{brand}}</1></0>",
+    "Number of Total": "{{number}} de {{total}}",
+    "Other Collectibles": "Otros objetos de colección",
+    "Part of Collection": "<0>Forma parte de <1>{{name}}</1></0>"
+  },
+  "viewer": {
+    "exclusiveText": "{{name}} Exclusivamente empleados",
+    "of": "de",
+    "ownedByText": "Pertenencia de @{{name}} (¡es usted!)",
+    "ownedBy": "Pertenece a",
+    "thatsYou": "(¡ese es usted!)",
+    "Collectible_one": "Objeto de colección",
+    "Collectible_0": "Objetos de colección",
+    "Collectible_other": "Objetos de colección",
+    "collected": "Coleccionado",
+    "selectCollectibles": "Seleccione los objetos de colección que quiere incluir en su escaparate",
+    "maxCollectibles": "Solo puede mostrar hasta 8 objetos de colección.",
+    "noCollectibles": "Aún no ha coleccionado nada",
+    "Your collection": "Su colección",
+    "Publish Showcase": "Publicar escaparate",
+    "Find Something Cool": "Encuentre algo estupendo",
+    "startCollection": "Empieze hoy su colección",
+    "emptyState": "Este usuario aún no ha compartido ningún objeto de colección públicamente.",
+    "emptyStateCurrentUser": "Showcase es una galería pública de sus mejores objetos de colección. ¡Agregue sus objetos favoritos para compartirlos con el mundo!",
+    "showcaseTitle": "@{{username}} escaparate",
+    "show video": "mostrar vídeo",
+    "show cover": "mostrar portada"
+  }
+}

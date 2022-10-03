@@ -1,0 +1,11 @@
+.container {
+  @apply mx-auto mt-12 max-w-960;
+}
+
+.collectionLink {
+  @apply block p-6 overflow-hidden duration-300 bg-base-bgCard shadow-xl rounded-xl hover:scale-105;
+}
+
+.textTitle {
+  @apply mt-5 text-xl font-bold uppercase;
+}

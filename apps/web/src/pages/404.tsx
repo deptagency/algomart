@@ -6,7 +6,7 @@ import Custom404Template from '@/templates/404-template'
 export default function Custom404Page() {
   const { t } = useTranslation()
   return (
-    <DefaultLayout pageTitle={t('common:pageTitles.404')}>
+    <DefaultLayout pageTitle={t('common:pageTitles.404')} noPanel>
       <Custom404Template />
     </DefaultLayout>
   )

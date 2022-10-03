@@ -13,18 +13,19 @@ export type AppLinkProps = NextLinkProps &
       HTMLAnchorElement
     >,
     'href'
-  >
+  > & { underline?: boolean }
 
 export default function AppLink({
   href,
   as,
-  passHref,
-  prefetch,
   replace,
-  scroll,
   shallow,
   children,
   className,
+  underline,
+  prefetch,
+  passHref = true,
+  scroll = true,
   ...rest
 }: AppLinkProps) {
   const { language } = useLanguage()
@@ -39,7 +40,14 @@ export default function AppLink({
       scroll={scroll}
       shallow={shallow}
     >
-      <a className={clsx(css.root, className)} {...rest}>
+      <a
+        className={clsx(
+          css.root,
+          { [css.textUnderline]: underline },
+          className
+        )}
+        {...rest}
+      >
         {children}
       </a>
     </Link>

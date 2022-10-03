@@ -46,7 +46,7 @@ export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
       }
       return true
     },
-    [setCurrencyCookie, setCookieCopy, auth.user]
+    [auth]
   )
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
       currency: auth.user?.currency || parsedCookie || DEFAULT_CURRENCY,
       updateCurrency,
     }),
-    [auth.user?.currency, parsedCookie, DEFAULT_CURRENCY, updateCurrency]
+    [auth.user?.currency, parsedCookie, updateCurrency]
   )
 
   return (

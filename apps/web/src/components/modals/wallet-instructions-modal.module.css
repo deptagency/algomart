@@ -3,18 +3,11 @@
 }
 
 .dialog {
-  @apply relative w-full max-w-lg my-8 overflow-visible text-black bg-white sm:w-full;
+  @apply relative w-full max-w-lg my-8 overflow-visible sm:w-full;
 }
 
 .root {
   @apply flex flex-col justify-start h-full px-8 sm:px-16;
-}
-
-.heading {
-  @apply mb-5 text-gray-700;
-}
-.title {
-  @apply font-semibold text-gray-800;
 }
 
 .notice {
@@ -22,7 +15,7 @@
 }
 
 .closeButton {
-  @apply absolute top-0 right-0 z-50 text-sm border-none rounded-sm bg-none;
+  @apply absolute top-0 right-0 z-50;
 }
 
 .list {

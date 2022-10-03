@@ -1,24 +1,42 @@
 .root {
-  @apply my-12 text-center;
+  @apply p-6 mt-12 border-1 border-gray-400 rounded-t-xl bg-white;
+  @apply sm:flex sm:gap-8;
 }
 
-.heading {
-  @apply font-normal mb-2 text-3xl;
+.collectionImage {
+  @apply mb-5;
+  min-width: 300px;
 }
 
-.subHeading {
-  @apply text-base-gray-medium;
+.collectionImage img {
+  @apply block;
 }
 
-.subHeading a {
-  @apply underline;
+.rewardImage {
+  @apply block;
+  max-width: 30px;
 }
 
-.imageContainer {
-  @apply mx-auto my-8 overflow-hidden rounded-xl shadow-large;
-  max-width: 240px;
+.content {
+  @apply mb-5 text-base leading-normal;
 }
 
-.description {
-  @apply text-base-textPrimary text-lg;
+.totalCollected {
+  @apply flex justify-between mb-1;
+}
+
+.totalCollected strong:first-child {
+  @apply uppercase;
+}
+
+.progressOuter {
+  @apply relative h-3 mb-3 overflow-hidden rounded-full border-1 border-action-primary bg-white;
+}
+
+.progressInner {
+  @apply absolute w-0 h-full transition-all duration-1000 ease-in-out rounded-full bg-action-primary;
+}
+
+.button {
+  @apply mt-4;
 }

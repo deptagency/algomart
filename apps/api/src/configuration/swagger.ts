@@ -20,15 +20,23 @@ const swaggerOptions: SwaggerOptions = {
       { name: 'bids', description: 'Bid and auction endpoints' },
       { name: 'collectibles', description: 'Collectible endpoints' },
       { name: 'collections', description: 'Collection endpoints' },
+      { name: 'faqs', description: 'Faqs endpoints' },
       { name: 'homepage', description: 'Homepage endpoints' },
+      { name: 'i18n', description: 'I18n endpoints' },
       { name: 'packs', description: 'Pack endpoints' },
+      { name: 'page', description: 'Page endpoint' },
       { name: 'payments', description: 'Payment endpoints' },
       { name: 'sets', description: 'Set endpoints' },
     ],
     components: {
       securitySchemes: {
         'API Key': {
-          description: 'API key bearer token',
+          description: 'Use a static API key as the bearer token',
+          type: 'http',
+          scheme: 'bearer',
+        },
+        'Firebase Token': {
+          description: 'Use a Firebase JWT as the bearer token',
           type: 'http',
           scheme: 'bearer',
         },

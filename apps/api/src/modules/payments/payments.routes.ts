@@ -1,20 +1,17 @@
 import {
-  BankAccountId,
   CardId,
-  CreateBankAccount,
   CreateCard,
-  CreatePayment,
-  CreateTransferPayment,
-  FindTransferByAddress,
-  OwnerExternalId,
+  CreateCcPayment,
+  CreateUsdcPayment,
   PaymentId,
-  PaymentQuerystring,
   PaymentsQuerystring,
-  SendBankAccountInstructions,
-  UpdatePayment,
+  PaymentStatus,
+  PurchasePackWithCredits,
   UpdatePaymentCard,
 } from '@algomart/schemas'
-import { PaymentsService } from '@algomart/shared/services'
+import { generateCacheKey } from '@algomart/shared/plugins'
+import { PaymentCardService, PaymentsService } from '@algomart/shared/services'
+import { getIPAddress } from '@algomart/shared/utils'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function getPublicKey(
@@ -25,11 +22,8 @@ export async function getPublicKey(
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
   const publicKey = await paymentService.getPublicKey()
-  if (publicKey) {
-    reply.send(publicKey)
-  } else {
-    reply.notFound()
-  }
+  const cacheKey = generateCacheKey('encryption-public-key')
+  return reply.cache(cacheKey).send(publicKey)
 }
 
 export async function getCardStatus(
@@ -38,122 +32,19 @@ export async function getCardStatus(
   }>,
   reply: FastifyReply
 ) {
-  const paymentService = request
+  const service = request
     .getContainer()
-    .get<PaymentsService>(PaymentsService.name)
-  const card = await paymentService.getCardStatus(request.params.cardId)
-  if (card) {
-    reply.send(card)
-  } else {
-    reply.notFound()
-  }
+    .get<PaymentCardService>(PaymentCardService.name)
+  const card = await service.getCardStatus(request.user, request.params.cardId)
+  return card ? reply.send(card) : reply.notFound()
 }
 
-export async function getWireTransferInstructions(
-  request: FastifyRequest<{
-    Params: BankAccountId
-  }>,
-  reply: FastifyReply
-) {
-  const paymentService = request
+export async function getCards(request: FastifyRequest, reply: FastifyReply) {
+  const service = request
     .getContainer()
-    .get<PaymentsService>(PaymentsService.name)
-  const bankAccount = await paymentService.getWireTransferInstructions(
-    request.params.bankAccountId
-  )
-  if (bankAccount) {
-    reply.send(bankAccount)
-  } else {
-    reply.notFound()
-  }
-}
-
-export async function findWirePaymentsByBankId(
-  request: FastifyRequest<{
-    Params: BankAccountId
-  }>,
-  reply: FastifyReply
-) {
-  const paymentService = request
-    .getContainer()
-    .get<PaymentsService>(PaymentsService.name)
-  const payments = await paymentService.searchAllWirePaymentsByBankId(
-    request.params.bankAccountId
-  )
-  reply.send(payments)
-}
-
-export async function sendWireTransferInstructions(
-  request: FastifyRequest<{
-    Querystring: SendBankAccountInstructions
-  }>,
-  reply: FastifyReply
-) {
-  const paymentService = request
-    .getContainer()
-    .get<PaymentsService>(PaymentsService.name)
-  await paymentService.sendWireInstructions(request.query)
-  reply.status(204).send()
-}
-
-export async function getBankAccountStatus(
-  request: FastifyRequest<{
-    Params: BankAccountId
-  }>,
-  reply: FastifyReply
-) {
-  const paymentService = request
-    .getContainer()
-    .get<PaymentsService>(PaymentsService.name)
-  const bankAccount = await paymentService.getBankAccountStatus(
-    request.params.bankAccountId
-  )
-  if (bankAccount) {
-    reply.send(bankAccount)
-  } else {
-    reply.notFound()
-  }
-}
-
-export async function getCards(
-  request: FastifyRequest<{
-    Querystring: OwnerExternalId
-  }>,
-  reply: FastifyReply
-) {
-  const paymentService = request
-    .getContainer()
-    .get<PaymentsService>(PaymentsService.name)
-  if (!request.query.ownerExternalId) {
-    reply.badRequest('ownerExternalId must be set')
-    return
-  }
-  const cards = await paymentService.getCards(request.query)
-  if (cards) {
-    reply.send(cards)
-  } else {
-    reply.notFound()
-  }
-}
-
-export async function createBankAccount(
-  request: FastifyRequest<{
-    Body: CreateBankAccount
-  }>,
-  reply: FastifyReply
-) {
-  const paymentService = request
-    .getContainer()
-    .get<PaymentsService>(PaymentsService.name)
-  const bankAccount = await paymentService.createBankAccount(
-    request.body,
-    request.transaction
-  )
-  if (bankAccount) {
-    reply.status(201).send(bankAccount)
-  } else {
-    reply.badRequest('Unable to create bank account')
-  }
+    .get<PaymentCardService>(PaymentCardService.name)
+  const cards = await service.getActivePaymentCards(request.user.id)
+  return cards ? reply.send(cards) : reply.notFound()
 }
 
 export async function createCard(
@@ -162,29 +53,15 @@ export async function createCard(
   }>,
   reply: FastifyReply
 ) {
-  const paymentService = request
+  const service = request
     .getContainer()
-    .get<PaymentsService>(PaymentsService.name)
-  const card = await paymentService.createCard(
+    .get<PaymentCardService>(PaymentCardService.name)
+  const card = await service.savePaymentCard(
+    request.user,
     request.body,
-    request.transaction
+    getIPAddress(request)
   )
-  reply.status(201).send(card)
-}
-
-export async function createWalletAddress(
-  request: FastifyRequest,
-  reply: FastifyReply
-) {
-  const paymentService = request
-    .getContainer()
-    .get<PaymentsService>(PaymentsService.name)
-  const address = await paymentService.generateAddress()
-  if (address) {
-    reply.status(201).send(address)
-  } else {
-    reply.badRequest('Unable to create wallet address')
-  }
+  return reply.status(201).send(card)
 }
 
 export async function updateCard(
@@ -194,11 +71,15 @@ export async function updateCard(
   }>,
   reply: FastifyReply
 ) {
-  const paymentService = request
+  const service = request
     .getContainer()
-    .get<PaymentsService>(PaymentsService.name)
-  await paymentService.updateCard(request.params.cardId, request.body)
-  reply.status(204).send()
+    .get<PaymentCardService>(PaymentCardService.name)
+  await service.updatePaymentCard(
+    request.user,
+    request.params.cardId,
+    request.body
+  )
+  return reply.status(204).send()
 }
 
 export async function removeCard(
@@ -207,74 +88,84 @@ export async function removeCard(
   }>,
   reply: FastifyReply
 ) {
-  const paymentService = request
+  const service = request
     .getContainer()
-    .get<PaymentsService>(PaymentsService.name)
-  await paymentService.removeCardById(request.params.cardId)
-  reply.status(204).send()
+    .get<PaymentCardService>(PaymentCardService.name)
+  await service.removePaymentCard(request.user, request.params.cardId)
+  return reply.status(204).send()
 }
 
-export async function createPayment(
-  request: FastifyRequest<{
-    Body: CreatePayment
-  }>,
+export async function createWalletAddress(
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const payment = await paymentService.createPayment(
-    request.body,
-    request.transaction
+
+  const address = await paymentService.generateBlockchainAddressForUsdcDeposit(
+    request.user
   )
-  reply.send(payment)
+
+  return reply.status(201).send(address)
 }
 
-export async function updatePayment(
+export async function createCcPayment(
   request: FastifyRequest<{
-    Params: PaymentId
-    Body: UpdatePayment
+    Body: CreateCcPayment
   }>,
   reply: FastifyReply
 ) {
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const payment = await paymentService.updatePayment(
-    request.params.paymentId,
+  const payment = await paymentService.createCcPayment(request.user, {
+    ...request.body,
+    metadata: {
+      ...request.body.metadata,
+      ipAddress: getIPAddress(request),
+    },
+  })
+  return reply.send(payment)
+}
+
+export async function createUsdcPayment(
+  request: FastifyRequest<{
+    Body: CreateUsdcPayment
+  }>,
+  reply: FastifyReply
+) {
+  const paymentService = request
+    .getContainer()
+    .get<PaymentsService>(PaymentsService.name)
+  const payment = await paymentService.createUsdcPayment(
+    request.user,
     request.body
   )
-  if (payment) {
-    reply.status(201).send(payment)
-  } else {
-    reply.badRequest('Unable to update payment')
-  }
+  return payment
+    ? reply.status(201).send(payment)
+    : reply.badRequest('Unable to create transfer payment')
 }
 
-export async function createTransferPayment(
+export async function purchasePackWithCredits(
   request: FastifyRequest<{
-    Body: CreateTransferPayment
+    Body: PurchasePackWithCredits
   }>,
   reply: FastifyReply
 ) {
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const payment = await paymentService.createTransferPayment(
+  const transfer = await paymentService.purchasePackWithCredits(
     request.body,
-    request.transaction
+    request.user
   )
-  if (payment) {
-    reply.status(201).send(payment)
-  } else {
-    reply.badRequest('Unable to create transfer payment')
-  }
+  return reply.status(201).send(transfer)
 }
 
 export async function getPaymentById(
   request: FastifyRequest<{
     Params: PaymentId
-    Querystring: PaymentQuerystring
   }>,
   reply: FastifyReply
 ) {
@@ -282,14 +173,10 @@ export async function getPaymentById(
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
   const payment = await paymentService.getPaymentById(
-    request.params.paymentId,
-    request.query
+    request.user.id,
+    request.params.paymentId
   )
-  if (payment) {
-    reply.status(200).send(payment)
-  } else {
-    reply.notFound()
-  }
+  return payment ? reply.status(200).send(payment) : reply.notFound()
 }
 
 export async function getPayments(
@@ -301,35 +188,57 @@ export async function getPayments(
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const payments = await paymentService.getPayments(request.query)
-  reply.status(200).send(payments)
+  const payments = await paymentService.getPayments(request.user, request.query)
+  return reply.status(200).send(payments)
 }
 
-export async function getCurrency(
+export async function getPaymentsMissingTransfers(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  const paymentService = request
+  const paymentsService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  reply.send(await paymentService.getCurrency())
+  const payments = await paymentsService.getPaymentsMissingTransfersForUser(
+    request.user.id
+  )
+  return reply.status(200).send(payments)
 }
 
-export async function findTransferByAddress(
+export async function findTransferByPaymentId(
   request: FastifyRequest<{
-    Querystring: FindTransferByAddress
+    Params: PaymentId
   }>,
   reply: FastifyReply
 ) {
   const paymentService = request
     .getContainer()
     .get<PaymentsService>(PaymentsService.name)
-  const transfer = await paymentService.findTransferByAddress(
-    request.query.destinationAddress
-  )
+
+  const [transfer, payment] = await Promise.all([
+    paymentService.findTransferByPaymentId(
+      request.user,
+      request.params.paymentId
+    ),
+    paymentService.getPaymentById(request.user.id, request.params.paymentId),
+  ])
+
   if (transfer) {
-    reply.status(200).send(transfer)
+    return reply.status(200).send(transfer)
+  } else if (
+    !payment ||
+    ![
+      PaymentStatus.Pending,
+      PaymentStatus.ActionRequired,
+      PaymentStatus.Confirmed,
+      PaymentStatus.Paid,
+    ].includes(payment.status)
+  ) {
+    // return a conflict error to indicate that we can expect this endpoint to never return a
+    // transfer if retried for the same payment ID.
+    return reply.conflict()
   } else {
-    reply.notFound()
+    // otherwise return not found so the client knows to retry later.
+    return reply.notFound()
   }
 }

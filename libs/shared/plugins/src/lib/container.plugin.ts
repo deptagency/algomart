@@ -16,7 +16,7 @@ export interface FastifyContainerOptions extends FastifyPluginOptions {
   container: DependencyResolver
 }
 
-export default fp(async function fastifyContainer(
+export const fastifyContainerPlugin = fp(async function fastifyContainer(
   fastify: FastifyInstance,
   options: FastifyContainerOptions
 ) {

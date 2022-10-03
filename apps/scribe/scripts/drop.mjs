@@ -8,7 +8,7 @@ const dbUrl = new URL(process.env.DATABASE_URL)
 
 const knex = Knex({
   client: 'pg',
-  connection: `${dbUrl.origin}/postgres`,
+  connection: `${dbUrl.href?.split('/').slice(0, -1).join('/')}/postgres`, // ugly function to swap db name for postgres, needed to drop
   searchPath: process.env.DB_SEARCH_PATH,
 })
 

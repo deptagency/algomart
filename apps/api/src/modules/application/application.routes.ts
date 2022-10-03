@@ -11,5 +11,5 @@ export async function getCountries(
     .get<ApplicationService>(ApplicationService.name)
     .getCountries(request.query.language)
 
-  reply.status(200).send(countries)
+  return reply.status(200).send(countries)
 }

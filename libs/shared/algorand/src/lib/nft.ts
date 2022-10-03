@@ -1,6 +1,7 @@
 import { invariant } from '@algomart/shared/utils'
-import type { Account, Algodv2, Transaction } from 'algosdk'
-import { accountInformation } from './account'
+import type { Account, Algodv2, Indexer, Transaction } from 'algosdk'
+
+import { lookupAccount } from './account'
 import {
   DEFAULT_ADDITIONAL_ROUNDS,
   DEFAULT_DAPP_NAME,
@@ -26,11 +27,15 @@ export type NewNFT = {
  * Options for creating NFTs
  */
 export type NFTOptions = {
+  additionalRounds?: number
   algod: Algodv2
   creatorAccount: Account
   dappName?: string
-  additionalRounds?: number
   enforcerAppID?: number
+  overrideManager?: string
+  overrideClawback?: string
+  overrideFreeze?: string
+  overrideReserve?: string
   nfts: NewNFT[]
   reference?: string
 }
@@ -52,8 +57,12 @@ export type NFTOptions = {
 export async function createNewNFTsTransactions({
   algod,
   creatorAccount,
-  nfts,
   enforcerAppID,
+  nfts,
+  overrideClawback,
+  overrideFreeze,
+  overrideManager,
+  overrideReserve,
   reference,
   additionalRounds = DEFAULT_ADDITIONAL_ROUNDS,
   dappName = DEFAULT_DAPP_NAME,
@@ -86,21 +95,21 @@ export async function createNewNFTsTransactions({
         assetMetadataHash: nft.assetMetadataHash,
         assetName: nft.assetName,
         assetURL: nft.assetURL,
-        clawback: targetAddress,
+        clawback: overrideClawback ?? targetAddress,
         decimals: 0,
         defaultFrozen: true,
-        freeze: targetAddress,
+        freeze: overrideFreeze ?? targetAddress,
         from: creatorAccount.addr,
-        manager: targetAddress,
+        manager: overrideManager ?? targetAddress,
         note: encodeNote(dappName, {
           t: NoteTypes.NonFungibleTokenCreate,
           e: nft.edition,
           n: nft.totalEditions,
           r: reference,
-          s: ['arc2', 'arc3'].concat(enforcerAppID ? ['arc18'] : []),
+          s: ['arc2', 'arc3', ...(enforcerAppID ? ['arc18', 'arc20'] : [])],
         }),
         // TODO: should this be used for something else?
-        reserve: targetAddress,
+        reserve: overrideReserve ?? targetAddress,
         suggestedParams,
         total: 1,
         unitName: nft.unitName,
@@ -598,6 +607,7 @@ export type ImportNFTOptions = {
   dappName?: string
   fromAddress: string
   fundingAddress: string
+  indexer: Indexer
   reference?: string
   toAddress: string
 }
@@ -622,12 +632,13 @@ export async function createImportNFTTransactions({
   clawbackAddress,
   fromAddress,
   fundingAddress,
+  indexer,
   toAddress,
   additionalRounds = DEFAULT_ADDITIONAL_ROUNDS,
   dappName = DEFAULT_DAPP_NAME,
   reference,
 }: ImportNFTOptions) {
-  const accountInfo = await accountInformation(algod, toAddress)
+  const accountInfo = await lookupAccount(indexer, toAddress)
   const transactions: Transaction[] = []
 
   const {
@@ -724,4 +735,225 @@ export async function createImportNFTTransactions({
       return encodeTransaction(txn, [signers[index]])
     })
   )
+}
+
+/**
+ * Typed result of asset balances result.
+ */
+export interface MiniAssetBalance {
+  address: string
+  amount: number
+  deleted?: boolean
+  isFrozen: boolean
+  optedInAtRound: number
+  optedOutAtRound: number
+}
+
+/**
+ * Get a list of asset balances.
+ * @param indexer Initialized Indexer client
+ * @param assetIndex Asset index to lookup
+ * @param params
+ * @returns A list of balances for the given asset index
+ */
+export async function getAssetBalances(
+  indexer: Indexer,
+  assetIndex: number,
+  params: {
+    minBalance?: number
+    maxBalance?: number
+    includeAll?: boolean
+    limit?: number
+  } = {}
+): Promise<MiniAssetBalance[]> {
+  const query = indexer.lookupAssetBalances(assetIndex)
+
+  if (typeof params.minBalance === 'number') {
+    query.currencyGreaterThan(params.minBalance)
+  }
+
+  if (typeof params.maxBalance === 'number') {
+    query.currencyLessThan(params.maxBalance)
+  }
+
+  if (typeof params.limit === 'number') {
+    query.limit(params.limit)
+  }
+
+  if (typeof params.includeAll === 'boolean') {
+    query.includeAll(params.includeAll)
+  }
+
+  const { balances } = await query.do()
+
+  return balances.map((balance: Record<string, unknown>) => ({
+    address: balance.address,
+    amount: balance.amount,
+    deleted: balance.deleted,
+    isFrozen: balance['is-frozen'],
+    optedInAtRound: balance['opted-in-at-round'],
+    optedOutAtRound: balance['opted-out-at-round'],
+  }))
+}
+
+export interface TradeOptions {
+  algod: Algodv2
+  assetIndex: number
+  fundingAccount: Account
+  sellerAccount: Account
+  buyerAccount: Account
+  clawbackAccount: Account
+  additionalRounds?: number
+  dappName?: string
+  reference?: string
+}
+
+/**
+ * Trades an NFT (ASA) between two accounts using a clawback transfer.
+ * @param options Options for the trade
+ * @param options.algod Algod client
+ * @param options.assetIndex Index of the asset to trade
+ * @param options.fundingAccount Account to fund the transaction
+ * @param options.sellerAccount Account to sell the asset
+ * @param options.buyerAccount Account to buy the asset
+ * @param options.clawbackAccount Account to clawback the asset
+ * @param options.additionalRounds Additional rounds to wait for
+ * @param options.dappName Dapp name to encode in the note
+ * @param options.reference Reference to encode in the note
+ * @returns Signed transactions to be submitted to the network
+ */
+export async function createTradeTransactions({
+  algod,
+  assetIndex,
+  fundingAccount,
+  sellerAccount,
+  buyerAccount,
+  clawbackAccount,
+  additionalRounds = DEFAULT_ADDITIONAL_ROUNDS,
+  dappName = DEFAULT_DAPP_NAME,
+  reference,
+}: TradeOptions): Promise<TransactionList> {
+  const {
+    makePaymentTxnWithSuggestedParamsFromObject,
+    makeAssetTransferTxnWithSuggestedParamsFromObject,
+    AtomicTransactionComposer,
+    makeBasicAccountTransactionSigner,
+  } = await loadSDK()
+
+  const fundingSigner = makeBasicAccountTransactionSigner(fundingAccount)
+  const sellerSigner = makeBasicAccountTransactionSigner(sellerAccount)
+  const buyerSigner = makeBasicAccountTransactionSigner(buyerAccount)
+  const clawbackSigner = makeBasicAccountTransactionSigner(clawbackAccount)
+
+  const atc = new AtomicTransactionComposer()
+
+  const suggestedParams = await algod.getTransactionParams().do()
+  suggestedParams.lastRound += additionalRounds
+
+  const payFunds = makePaymentTxnWithSuggestedParamsFromObject({
+    suggestedParams,
+    amount: 100_000,
+    from: fundingAccount.addr,
+    to: buyerAccount.addr,
+    note: encodeNote(dappName, {
+      t: NoteTypes.TradeTransferPayFunds,
+      r: reference,
+      s: ['arc2'],
+    }),
+  })
+  payFunds.fee = 5000
+  payFunds.flatFee = true
+  atc.addTransaction({
+    signer: fundingSigner,
+    txn: payFunds,
+  })
+
+  const optIn = makeAssetTransferTxnWithSuggestedParamsFromObject({
+    suggestedParams,
+    assetIndex,
+    from: buyerAccount.addr,
+    to: buyerAccount.addr,
+    amount: 0,
+    note: encodeNote(dappName, {
+      t: NoteTypes.TradeTransferOptIn,
+      r: reference,
+      s: ['arc2'],
+    }),
+  })
+  optIn.fee = 0
+  optIn.flatFee = true
+  atc.addTransaction({
+    signer: buyerSigner,
+    txn: optIn,
+  })
+
+  const transfer = makeAssetTransferTxnWithSuggestedParamsFromObject({
+    suggestedParams,
+    assetIndex,
+    from: clawbackAccount.addr,
+    to: buyerAccount.addr,
+    amount: 1,
+    revocationTarget: sellerAccount.addr,
+    note: encodeNote(dappName, {
+      t: NoteTypes.TradeTransferAsset,
+      r: reference,
+      s: ['arc2'],
+    }),
+  })
+  transfer.fee = 0
+  transfer.flatFee = true
+  atc.addTransaction({
+    signer: clawbackSigner,
+    txn: transfer,
+  })
+
+  const optOut = makeAssetTransferTxnWithSuggestedParamsFromObject({
+    suggestedParams,
+    assetIndex,
+    from: sellerAccount.addr,
+    to: buyerAccount.addr,
+    closeRemainderTo: buyerAccount.addr,
+    amount: 0,
+    note: encodeNote(dappName, {
+      t: NoteTypes.TradeTransferOptOut,
+      r: reference,
+      s: ['arc2'],
+    }),
+  })
+  optOut.fee = 0
+  optOut.flatFee = true
+  atc.addTransaction({
+    signer: sellerSigner,
+    txn: optOut,
+  })
+
+  const returnFunds = makePaymentTxnWithSuggestedParamsFromObject({
+    suggestedParams,
+    amount: 100_000,
+    from: sellerAccount.addr,
+    to: fundingAccount.addr,
+    note: encodeNote(dappName, {
+      t: NoteTypes.TradeTransferReturnFunds,
+      r: reference,
+      s: ['arc2'],
+    }),
+  })
+  returnFunds.fee = 0
+  returnFunds.flatFee = true
+  atc.addTransaction({
+    signer: sellerSigner,
+    txn: returnFunds,
+  })
+
+  // Build transactions
+  const group = atc.buildGroup()
+  // Sign transactions
+  const signedTxns = await atc.gatherSignatures()
+
+  return {
+    groupID: group[0].txn.group?.toString('base64'),
+    signedTxns,
+    txns: group.map((g) => g.txn),
+    txIDs: group.map((g) => g.txn.txID()),
+  }
 }

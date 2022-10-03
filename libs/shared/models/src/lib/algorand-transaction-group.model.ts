@@ -1,11 +1,11 @@
-import { AlgorandTransactionGroupSchema } from '@algomart/schemas'
+import { AlgorandTransactionGroupSchema, EntityType } from '@algomart/schemas'
 import { Model } from 'objection'
 
 import { AlgorandTransactionModel } from './algorand-transaction.model'
 import { BaseModel } from './base.model'
 
 export class AlgorandTransactionGroupModel extends BaseModel {
-  static tableName = 'AlgorandTransactionGroup'
+  static tableName = EntityType.AlgorandTransactionGroup
   static jsonSchema = AlgorandTransactionGroupSchema
 
   transactions?: AlgorandTransactionModel[]

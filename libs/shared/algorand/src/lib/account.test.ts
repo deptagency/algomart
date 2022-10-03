@@ -1,25 +1,29 @@
 import algosdk from 'algosdk'
+
 import {
-  accountInformation,
   createConfigureCustodialAccountTransactions,
   decryptAccount,
   encryptAccount,
   generateAccount,
+  lookupAccount,
 } from './account'
 import {
-  createAccountInformationMock,
+  configureAlgod,
+  configureIndexer,
   createGetTransactionParamsMock,
+  createLookupAccountByIDMock,
 } from './test-utils'
-import { configureAlgod } from './test-utils'
 
 let algod: algosdk.Algodv2
+let indexer: algosdk.Indexer
 jest.fn
 beforeEach(() => {
   algod = configureAlgod()
+  indexer = configureIndexer()
 })
 
 describe('createConfigureCustodialAccountTransactions', () => {
-  it('should generate pay and keyreg transactions', async () => {
+  test('should generate pay and keyreg transactions', async () => {
     // Arrange
     algod.getTransactionParams = createGetTransactionParamsMock()
     const custodialAccount = await generateAccount()
@@ -44,15 +48,14 @@ describe('createConfigureCustodialAccountTransactions', () => {
 })
 
 describe('encryptAccount + decryptAccount', () => {
-  it('should work', async () => {
+  test('should work', async () => {
     // Arrange
     const account = await generateAccount()
-    const passphrase = '000000'
     const appSecret = 'appSecret'
 
     // Act
-    const encrypted = await encryptAccount(account, passphrase, appSecret)
-    const decrypted = await decryptAccount(encrypted, passphrase, appSecret)
+    const encrypted = await encryptAccount(account, appSecret)
+    const decrypted = await decryptAccount(encrypted, appSecret)
 
     // Assert
     expect(decrypted).toBeDefined()
@@ -60,11 +63,11 @@ describe('encryptAccount + decryptAccount', () => {
   })
 })
 
-describe('accountInformation', () => {
-  it('should work', async () => {
+describe('lookupAccount', () => {
+  test('should work', async () => {
     // Arrange
     const account = await generateAccount()
-    algod.accountInformation = createAccountInformationMock({
+    indexer.lookupAccountByID = createLookupAccountByIDMock({
       address: account.addr,
       assets: [
         {
@@ -76,7 +79,7 @@ describe('accountInformation', () => {
     })
 
     // Act
-    const result = await accountInformation(algod, account.addr)
+    const result = await lookupAccount(indexer, account.addr)
 
     // Assert
     expect(result.address).toBe(account.addr)

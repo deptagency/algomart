@@ -1,7 +1,6 @@
 {
   "displayName": "Test User",
-  "email": "test@rocketinsights.com",
-  "passphrase": "111111",
+  "email": "webe2etest@deptagency.com",
   "password": "Testing123!",
-  "username": "web-e2e-test-user"
+  "username": "webe2etest"
 }

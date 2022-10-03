@@ -2,11 +2,10 @@ import {
   REDEMPTION_CODE_CHARACTERS,
   REDEMPTION_CODE_LENGTH,
 } from '@algomart/schemas'
+import { randomInt } from 'node:crypto'
 
 export function randomInteger(min: number, max: number) {
-  const minCeil = Math.ceil(min)
-  const maxFloor = Math.floor(max)
-  return Math.floor(Math.random() * (maxFloor - minCeil) + minCeil)
+  return randomInt(min, max)
 }
 
 export function shuffleArray<T>(array: T[]): T[] {

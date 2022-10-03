@@ -2,7 +2,7 @@ import Trans from 'next-translate/Trans'
 import useTranslation from 'next-translate/useTranslation'
 
 import AppLink from '@/components/app-link/app-link'
-import Heading from '@/components/heading'
+import { H1 } from '@/components/heading'
 import { urls } from '@/utils/urls'
 
 export default function Custom404Template() {
@@ -10,14 +10,14 @@ export default function Custom404Template() {
 
   return (
     <>
-      <Heading className="px-4 mb-4 text-center">
+      <H1 center mb={4} className="px-4">
         {t('common:global.404.title')}
-      </Heading>
+      </H1>
       <Trans
         components={[
           <p className="px-4 mb-12 text-center" key={0} />,
           <AppLink key={1} href={urls.home} />,
-          <AppLink key={2} href={urls.releases} />,
+          <AppLink key={2} href={urls.drops} />,
         ]}
         i18nKey="common:global.404.body"
       />

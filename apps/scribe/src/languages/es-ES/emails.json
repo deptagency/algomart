@@ -1,0 +1,144 @@
+{
+  "auctionComplete": {
+    "subject": "¡Usted es el postor ganador!",
+    "body": {
+      "0": "<strong>¡Actualmente eres el mejor postor de \"{{packTitle}}\"!</strong>",
+      "1": "¡Ha tenido la oferta ganadora de ${{amount}}! ¡Regístrese ahora para completar su compra y reclamar sus ganancias!",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>Complete su compra</strong></a>"
+    },
+    "expirationWarning": "<em>Nota: Tiene 72 horas antes de que su oferta ganadora caduque y pase al siguiente postor.</em>"
+  },
+  "bidExpired": {
+    "subject": "Su oferta para \"{{packTitle}}\" ha caducado.",
+    "body": {
+      "0": "Le escribimos para informarle que su oferta por \"{{packTitle}}\" ha caducado porque no se ha recibido ningún pago."
+    }
+  },
+  "emailPasswordReset": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "newEmailVerification": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null
+    }
+  },
+  "reportComplete": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "workflowCompleteManualReview": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "workflowCompleteRejected": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "workflowComplete": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "packRevoked": {
+    "subject": "Paquete revocado",
+    "body": "Su paquete \"{{packTitle}}\" ha sido revocado. Póngase en contacto con el servicio de atención al cliente si cree que se trata de un error."
+  },
+  "paymentFailed": {
+    "subject": "Pago fallido",
+    "body": "Su pago por \"{{packTitle}}\" ha fallado. Póngase en contacto con el servicio de atención al cliente."
+  },
+  "paymentSuccess": {
+    "subject": "¡Sus objetos de colección están listos!",
+    "body": {
+      "0": "<strong>¡Felicitaciones!</strong>",
+      "1": "Su nuevo paquete {{packTitle}} está listo para transferirse. Inicie sesión ahora para ingresar su contraseña y transferir los activos a su  Algorand Wallet. Si ya lo ha hecho, puede ignorar este mensaje.",
+      "2": "<a href=\"{{transferUrl}}\"><strong>Transferir su activo</strong></a>"
+    }
+  },
+  "transferSuccess": {
+    "subject": "¡Tiene nuevos objetos colección!",
+    "body": {
+      "0": "<strong>¡Enhorabuena!</strong>",
+      "1": "Es el orgulloso nuevo propietario de \"{{packTitle}}\". Los activos se están transfiriendo a su billetera Algorand y ahora están disponibles para verlos en su colección.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>Ver su colección</strong></a>"
+    }
+  },
+  "secondaryPurchaseSuccess": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "secondarySaleSuccess": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "userHighBid": {
+    "subject": "¡Es el mejor postor!",
+    "body": {
+      "0": "<strong>¡Enhorabuena!</strong>",
+      "1": "Actualmente es el mejor postor de \"{{packTitle}}\". Esté atento a la lista usando el enlace a continuación.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>Ver listado</strong></a>"
+    }
+  },
+  "userOutbid": {
+    "subject": "¡Le han superado!",
+    "body": {
+      "0": "Ya no es el mejor postor de \"{{packTitle}}\"",
+      "1": "¡No se preocupe, aún hay tiempo! Si desea enviar una nueva oferta alta, hágalo a través del siguiente enlace.",
+      "2": "<a href=\"{{ctaUrl}}\"><strong>Ver listado</strong></a>"
+    }
+  },
+  "wirePayoutSubmitted": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "wirePayoutFailed": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  },
+  "wirePayoutReturned": {
+    "subject": null,
+    "body": {
+      "0": null,
+      "1": null,
+      "2": null
+    }
+  }
+}

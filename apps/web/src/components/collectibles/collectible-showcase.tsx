@@ -10,7 +10,8 @@ import css from './collectible-showcase.module.css'
 
 import AppLink from '@/components/app-link/app-link'
 import Toggle from '@/components/toggle/toggle'
-import { urls } from '@/utils/urls'
+import { useAuth } from '@/contexts/auth-context'
+import { urlFor, urls } from '@/utils/urls'
 
 export interface CollectibleShowcaseProps {
   collectibles: CollectibleWithDetails[]
@@ -18,7 +19,7 @@ export interface CollectibleShowcaseProps {
   onTogglePublish?: (publish: boolean) => void
   displayCount?: number
   initialPublish?: boolean
-  username?: string | null
+  username: string | null
   mode: 'editing' | 'viewing'
   transparent?: boolean
 }
@@ -33,31 +34,37 @@ export default function CollectibleShowcase({
   mode,
   transparent,
 }: CollectibleShowcaseProps) {
+  const auth = useAuth()
+  const isCurrentUser = auth.user?.username === username
   const { t } = useTranslation()
   const url = useMemo(() => {
     if (!username) return ''
-    const path = urls.profileShowcase.replace(':username', username)
+    const path = urlFor(urls.profileShowcase, { username })
     if (typeof window === 'undefined') return path
     return new URL(path, window.location.origin).href
   }, [username])
 
+  // Determine how big to make the grid
   let columnCount = 1
-
   if ([4, 7, 8].includes(displayCount) || displayCount > 8) {
     columnCount = 4
   } else if ([3, 5, 6].includes(displayCount)) {
     columnCount = 3
   } else if (displayCount === 2) {
     columnCount = 2
+  } else if (displayCount === 0) {
+    columnCount = 4
   }
 
+  // Determine how many placeholder tiles to render when editing
   const fillCount = Math.max(displayCount - collectibles.length, 0)
   const fill = Array.from({ length: fillCount }).map((_, index) => (
-    <CollectiblePlaceholder
-      noBorder
-      key={index}
-      label={index + 1 + collectibles.length}
-    />
+    <div key={index} className={css.gridCell}>
+      <CollectiblePlaceholder
+        noBorder
+        label={index + 1 + collectibles.length}
+      />
+    </div>
   ))
 
   return (
@@ -67,33 +74,36 @@ export default function CollectibleShowcase({
         [css.rootTransparent]: transparent,
       })}
     >
-      {collectibles.length > 0 ? (
-        <>
-          <div
-            className={clsx(css.container, {
-              [css.maxWidth1]: columnCount === 1,
-              [css.maxWidth2]: columnCount === 2,
-              [css.maxWidth3]: columnCount === 3,
-              [css.maxWidth4]: columnCount === 4,
-            })}
-          >
-            {collectibles.map((collectible, index) => (
+      <>
+        <div
+          className={clsx(css.container, {
+            [css.maxWidth1]: columnCount === 1,
+            [css.maxWidth2]: columnCount === 2,
+            [css.maxWidth3]: columnCount === 3,
+            [css.maxWidth4]: columnCount === 4,
+            [css.isViewing]: mode === 'viewing',
+            [css.isEmpty]: collectibles.length === 0,
+          })}
+        >
+          {collectibles.map((collectible, index) => (
+            <div className={css.gridCell} key={collectible.id}>
               <CollectibleItem
-                key={collectible.id}
-                imageUrl={collectible.image}
-                alt={collectible.title}
+                collectible={collectible}
                 mode={mode === 'editing' ? 'remove' : undefined}
                 onClick={() => onClickCollectible(collectible.id, index)}
               />
-            ))}
-            {fill}
-          </div>
-        </>
-      ) : (
-        <div className={css.emptyState}>
-          {t('collection:viewer.emptyState')}
+            </div>
+          ))}
+          {fill}
+          {collectibles.length === 0 && (
+            <div className={css.emptyState}>
+              {isCurrentUser
+                ? t('collection:viewer.emptyStateCurrentUser')
+                : t('collection:viewer.emptyState')}
+            </div>
+          )}
         </div>
-      )}
+      </>
 
       {mode === 'editing' && username && (
         <div className={css.toolbar}>
@@ -102,17 +112,18 @@ export default function CollectibleShowcase({
               {t('collection:viewer.Your collection')}
               {': '}
             </span>
-            <AppLink href={urls.profileShowcase.replace(':username', username)}>
+            <AppLink
+              className={css.link}
+              href={urlFor(urls.profileShowcase, { username })}
+            >
               {url}
             </AppLink>
           </div>
-          <div className={css.toggleWrapper}>
-            <Toggle
-              checked={initialPublish}
-              label={t('collection:viewer.Publish Showcase')}
-              onChange={onTogglePublish}
-            />
-          </div>
+          <Toggle
+            checked={initialPublish}
+            label={t('collection:viewer.Publish Showcase')}
+            onChange={onTogglePublish}
+          />
         </div>
       )}
     </div>
