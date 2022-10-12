@@ -18,7 +18,7 @@ env:
   CMS_ACCESS_TOKEN: fake-cms-access-token
   DATABASE_URL: postgres://localhost:5432/postgres
   TEST_DATABASE_URL_PREFIX: postgres://postgres:postgres@localhost:6543/
-  FIREBASE_SERVICE_ACCOUNT: fake-firebase-service-account
+  FIREBASE_SERVICE_ACCOUNT: ${{ secrets.WEB_FIREBASE_SERVICE_ACCOUNT }}
   TEST_REDIS_URL: redis://localhost:7379
   EMAIL_TRANSPORT: smtp
   PINATA_API_KEY: fake-pinata-api-key
