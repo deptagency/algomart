@@ -10,6 +10,7 @@ import {
 import { IBaseQueue, queues } from '@algomart/shared/queues'
 import { DependencyResolver } from '@algomart/shared/utils'
 import { Configuration } from '@api/configuration'
+import { logger } from '@api/configuration/logger'
 import swaggerOptions from '@api/configuration/swagger'
 import { accountsRoutes } from '@api/modules/accounts'
 import { adminRoutes } from '@api/modules/admin'
@@ -74,6 +75,7 @@ const baseOptions: FastifyServerOptions = {
 
 function configureFirebaseApp() {
   if (admin.apps.length > 0) return admin.apps[0]
+  logger.log(Configuration.firebaseServiceAccount)
   return admin.initializeApp({
     credential: admin.credential.cert(Configuration.firebaseServiceAccount),
   })
