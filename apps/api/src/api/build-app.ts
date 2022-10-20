@@ -74,7 +74,6 @@ const baseOptions: FastifyServerOptions = {
 
 function configureFirebaseApp() {
   if (admin.apps.length > 0) return admin.apps[0]
-  console.log(Configuration.firebaseServiceAccount)
   return admin.initializeApp({
     credential: admin.credential.cert(Configuration.firebaseServiceAccount),
   })
