@@ -38,7 +38,6 @@ export interface IConnector extends EventTarget {
     skipSubmit?: boolean
   ): Promise<(Uint8Array | null)[]>
   connect(): Promise<void>
-  reconnect(): Promise<string[]>
   disconnect(): Promise<void>
 }
 

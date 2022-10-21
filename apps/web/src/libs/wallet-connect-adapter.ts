@@ -72,12 +72,6 @@ export class WalletConnectAdapter extends EventTarget implements IConnector {
     this.dispatchEvent(new CustomEvent('disconnect'))
   }
 
-  public async reconnect() {
-    await this.setupPeraWallet()
-
-    return await this._peraWallet.reconnectSession()
-  }
-
   public async connect() {
     if (!this._peraWallet) await this.initialize()
     if (!this._peraWallet) throw new Error('WalletConnect failed to initialize')
