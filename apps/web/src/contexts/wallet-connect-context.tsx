@@ -4,6 +4,7 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -39,6 +40,28 @@ export const WalletConnectProvider = ({
   const [connected, setConnected] = useState(false)
   const [account, setAccount] = useState('')
   const connector = useRef<IConnector>()
+
+  useEffect(() => {
+    if (connector.current) return
+    ;(async () => {
+      const algorand = new AlgorandAdapter(AppConfig.chainType)
+      connector.current = new WalletConnectAdapter(algorand)
+
+      try {
+        const accounts = await connector.current.reconnect()
+
+        if (accounts.length > 0) {
+          setConnected(true)
+          setAccount(accounts[0])
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    })()
+
+    // Set event listener for unload to gracefully handle disconnect when exiting context
+    window.addEventListener('beforeunload', handleDisconnect)
+  }, [])
 
   const handleConnect = useCallback(async () => {
     setConnected(false)

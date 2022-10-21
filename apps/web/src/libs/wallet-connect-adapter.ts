@@ -3,7 +3,7 @@ import type { PeraWalletConnect } from '@perawallet/connect'
 
 import { AlgorandAdapter, IConnector } from './algorand-adapter'
 
-const BRIDGE_URL = 'https://wallet-connect-a.perawallet.app'
+const BRIDGE_URL = 'https://a.bridge.walletconnect.org/'
 const SIGNING_METHOD = 'algo_signTxn'
 
 export class WalletConnectAdapter extends EventTarget implements IConnector {
@@ -14,13 +14,19 @@ export class WalletConnectAdapter extends EventTarget implements IConnector {
     super()
   }
 
-  private async initialize() {
-    const { PeraWalletConnect } = await import('@perawallet/connect')
+  private async setupPeraWallet() {
+    if (!this._peraWallet) {
+      const { PeraWalletConnect } = await import('@perawallet/connect')
+      this._peraWallet = new PeraWalletConnect({
+        bridge: BRIDGE_URL,
+      })
+    }
+  }
 
-    this._peraWallet = new PeraWalletConnect({
-      bridge: BRIDGE_URL,
-    })
-    await this._peraWallet.reconnectSession()
+  private async initialize() {
+    await this.setupPeraWallet()
+    await this._peraWallet.connect()
+
     this.subscribeToEvents()
   }
 
@@ -64,6 +70,12 @@ export class WalletConnectAdapter extends EventTarget implements IConnector {
   private onDisconnect() {
     this.connected = false
     this.dispatchEvent(new CustomEvent('disconnect'))
+  }
+
+  public async reconnect() {
+    await this.setupPeraWallet()
+
+    return await this._peraWallet.reconnectSession()
   }
 
   public async connect() {
