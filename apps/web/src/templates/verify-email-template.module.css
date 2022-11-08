@@ -1,0 +1,11 @@
+.successRoot {
+  @apply flex flex-col items-center justify-center w-full;
+}
+
+.success {
+  @apply max-w-xs text-center;
+}
+
+.icon {
+  @apply w-24 h-24 mx-auto mb-5 text-base-price;
+}

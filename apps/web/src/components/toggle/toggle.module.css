@@ -1,5 +1,5 @@
 .innerInput {
-  @apply inline-block w-4 h-4 transform bg-white rounded-full shadow-lg;
+  @apply inline-block w-4 h-4 transition-all transform bg-white rounded-full;
 }
 
 .innerInputEnabled {
@@ -11,52 +11,53 @@
 }
 
 .input {
-  @apply relative inline-flex items-center h-6 rounded-full w-11;
+  @apply relative inline-flex items-center flex-shrink-0 h-6 transition-all rounded-full w-11;
+}
+
+.input:active:not(:focus-visible) .innerInputEnabled {
+  @apply translate-x-5;
+}
+.input:active:not(:focus-visible) .innerInputNotEnabled {
+  @apply translate-x-2;
+}
+
+.input:active:not(:focus-visible) {
+  @apply bg-opacity-70;
 }
 
 .labelContainer {
-  /* Base */
-  @apply relative flex flex-wrap items-center content-between justify-center w-full;
-  /* Tablet + */
-  @apply md:justify-end;
+  @apply relative flex items-center content-between;
 }
 
 .label {
-  @apply flex-initial ml-3 text-sm font-light;
+  @apply flex-initial ml-3 text-base font-normal;
+}
+
+.small.label {
+  @apply text-sm;
 }
 
 .helpText {
-  @apply w-1/2 mt-1 text-sm font-light text-right text-base-textTertiary;
+  @apply flex-1 mt-1 ml-4 text-sm font-normal text-right text-base-textTertiary;
 }
 
 .errorText {
-  @apply w-1/2 mt-1 text-sm font-light text-right text-base-error;
+  @apply flex-1 mt-1 ml-4 text-sm font-normal text-right text-base-error;
 }
 
 .toggleNotEnabled {
-  @apply bg-gray-300 dark:bg-gray-400;
+  @apply bg-opacity-40 bg-action-primary;
 }
 
-/* Primary */
-.toggleEnabled.primary {
-  @apply bg-action-primary;
+.toggleEnabled {
+  @apply bg-blue-gradient-vert;
 }
 
-/* Secondary */
-.toggleEnabled.secondary {
-  @apply bg-action-secondary;
-}
-
-/* Tertiary / default */
-.toggleEnabled.tertiary {
-  @apply bg-gray-500;
-}
-
-.inputDisabled {
-  @apply opacity-50 dark:bg-opacity-40;
+.disabled {
+  @apply bg-base-textDisabled;
   pointer-events: none;
 }
 
-.inputDisabled + input + .label {
-  @apply text-base-gray-light;
+.disabled + input + .label {
+  @apply text-base-textDisabled;
 }

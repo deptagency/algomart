@@ -4,60 +4,15 @@ The API provides REST endpoints for the Web frontend. These endpoints include: u
 
 ## Get started
 
-Duplicate `.env.sample` > `.env` in the `api` folder and enter the required environment variables. Make sure you've created a Postgres databases that matches what's set in the `DATABASE_URL` key in your `api/.env` file.
-
-_NOTE_: The `api/.env` and the `scribe/.env` are almost identical and will share most values, the notable exception being the `PORT` value in the API Configuration section. These must run on separate ports.
-
-Per the `.env`, you'll also need to be connected to an Algorand node, whether in development or production.
-
-Note for existing users: migrations have been moved to the Scribe app.
-
-### Creating a local Algorand Sandbox account
-
-For local development, the [Algorand Sandbox](https://github.com/algorand/sandbox) is handy docker instance that makes interfacing with the blockchain simple from your local machine. It will also create an account that can be funded with fake Algos using the [Testnet Dispenser](https://dispenser.testnet.aws.algodev.network/).
-
-To create an account:
-
-- Download the [Algorand Sandbox](https://github.com/algorand/sandbox) and start up the docker instance:
-
-```bash
-./sandbox up
-```
-
-- Then create an account:
-
-```bash
-./sandbox goal account new
-```
-
-- This will output `Created new account with address <ADDRESS>`
-- Take that `<ADDRESS>` and input
-
-```bash
-./sandbox goal account export -a <ADDRESS>
-```
-
-- Use the outputted mnemonic as the value for the `FUNDING_MNEMONIC` variable in the `api/.env` and `scribe/.env` files in this project.
-
-Optionally, you can also fund your wallet from here to be able to perform transactions in the app:
-
-- List the accounts that currently exist in your sandbox
-
-```bash
-./sandbox goal account list
-```
-
-- You should see several accounts, some with _microAlgos_, and the account with the address you created above likely having 0. You can run the following command to fund the account you just created with microAlgos
-
-```bash
-./sandbox goal clerk send -a <AMOUNT> -f <FROM_ADDRESS> -t <TO_ADDRESS>
-
-# Note: Something like 1000000 microAlgos as the amount should be more than plenty to cover transactions
-```
+The `api` and `scribe` apps share a database.
+Commands (e.g. migrations) to manage the DB live in [Scribe](../scribe/README.md).
 
 ### Connect to the CMS
 
-In order for the API to connect to the CMS, the Directus key needs to be inputted into the CMS:
+In order for the API to connect to the CMS, the Directus key needs to be inputted into the CMS.
+The seed scrip `nx seed cms` handles this automatically. See the [CMS readme](/apps/cms/README.md) for details.
+
+To manually add the CMS token:
 
 1. Go to your profile (the icon at the very bottom left)
 2. Scroll all the way down to Token, under Admin Options
@@ -83,9 +38,7 @@ nx build api
 src/ # Main source code
   api/ # Root setup for the api server
   configuration/ # Environment configurations
-  contracts/ # Compiled TEAL contracts
   modules/ # API service layer (routes, handlers, db interactions)
-  seeds/ # Database seeding scripts
 test/ # Test environment configurations
 ... # various dot files and configuration for the project
 ```
@@ -115,3 +68,78 @@ Moved to [Scribe](../scribe/README.md).
 ## Migrations
 
 Moved to [Scribe](../scribe/README.md).
+
+## Circle
+
+### Circle webhooks
+
+Notes for setting up Circle webhooks. If you have questions on this, ping @smonn before attempting it!
+
+> ⚠️ **Failure to complete a step may require you to bug the Circle team to manually remove notification subscriptions.**
+
+1. Make sure you've applied the latest DB migrations and run `npm install`
+2. Make sure you have your own [Circle sandbox account](https://my-sandbox.circle.com/signup)!
+3. Make sure you have [ngrok](https://ngrok.com/docs/getting-started) running a tunnel for your API (or use [localtunnel](https://www.npmjs.com/package/localtunnel)), ideally with a custom `--subdomain` set (see below for example)
+4. Go to the API Swagger docs (e.g. http://localhost:3001/docs)
+5. Set the API key as the authorization bearer token via the "Authorize" button
+6. Scroll down to and expand the "Admin" section
+7. Expand the `POST /admin/webhooks/circle/configure` section
+8. Enter the ngrok domain + webhook endpoint as the payload, see below for example
+9. Keep an eye on the logs and the DB table `Webhook`. If something does not work, let me know!
+
+Example of running ngrok:
+
+```sh
+# ngrok example with subdomain (assuming API runs on port 3001)
+ngrok http 3001 --subdomain=your-subdomain
+
+# localtunnel example with subdomain
+lt -p 3001 -s your-subdomain
+```
+
+Request to API for setting up Circle webhook:
+
+```http
+POST /admin/webhooks/circle/configure
+Content-Type: application/json
+Authorization: Bearer API_KEY
+
+{ "endpoint": "https://your-subdomain.ngrok.io/webhooks/circle" }
+```
+
+Run `ngrok config edit` to, surprise, edit your ngrok config:
+
+```yaml
+# It's recommended to add this to your ngrok config
+# This way you can run `ngrok start api`
+tunnels:
+  api:
+    proto: http
+    addr: 3001
+    subdomain: your-subdomain
+```
+
+### Funding the Circle merchant wallet
+
+TL;DR: You need to add money to circle merchant wallet for card payments to work smoothly
+
+[Card Payments Settlement](https://developers.circle.com/docs/post-payments-processing#card-payments-settlement)
+on the sandbox environment take between 5 and 10 minutes.
+In the live environment, it can take 3 or 4 business days.
+Once settled, USDC is credited to our merchant wallet
+and can be transferred to a user's wallet where it can be used to make purchase.
+Except, we don't want users to have to wait for settlement to make purchases,
+so once a payment is confirmed (in seconds, not minutes or days)
+we transfer "house money" to their wallet while we wait for settlement.
+
+If there is no house money, credit card payments still work
+but the user will see an error when we try to move house money into their wallet.
+Their payment will show as pending until settlement.
+Once settled, their payment amount no longer shows as pending,
+and they can proceed with their purchase
+
+#### Add house money circle merchant wallet
+
+Log in to the circle sandbox dashboard.
+Use the "Transfer from a blockchain wallet" function to generate an Algorand address
+Send testnet USDC-A to the address using a [testnet dispenser](https://dispenser.testnet.aws.algodev.network)

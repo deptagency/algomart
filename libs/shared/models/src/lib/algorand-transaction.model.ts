@@ -1,6 +1,7 @@
 import {
-  AlgorandTransactionGroupSchema,
+  AlgorandTransactionSchema,
   AlgorandTransactionStatus,
+  EntityType,
 } from '@algomart/schemas'
 import { Model } from 'objection'
 
@@ -8,8 +9,14 @@ import { AlgorandTransactionGroupModel } from './algorand-transaction-group.mode
 import { BaseModel } from './base.model'
 
 export class AlgorandTransactionModel extends BaseModel {
-  static tableName = 'AlgorandTransaction'
-  static jsonSchema = AlgorandTransactionGroupSchema
+  static tableName = EntityType.AlgorandTransaction
+  static jsonSchema = AlgorandTransactionSchema
+
+  static modifiers = {
+    orderAscByOrderField: (qb) => {
+      qb.orderBy('order', 'asc')
+    },
+  }
 
   address!: string
   status!: AlgorandTransactionStatus

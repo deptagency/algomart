@@ -1,0 +1,24 @@
+.pill {
+  @apply bg-[#000000] relative inline-block px-4 py-1 text-xs font-base font-normal uppercase drop-shadow-md rounded-full text-center whitespace-nowrap  min-w-[119px] text-white;
+}
+
+.small {
+  @apply px-3 py-0.5 min-w-0;
+  font-size: 10px;
+}
+
+.pill.removable {
+  @apply pr-6;
+}
+
+.remove {
+  @apply absolute top-0 bottom-0 right-0 flex items-center px-2 text-sm transition rounded-full;
+  @apply hover:text-action-accent;
+  @apply focus-visible:text-action-accent;
+  @apply active:text-white;
+}
+
+.small .remove {
+  @apply mt-px;
+  line-height: 1;
+}

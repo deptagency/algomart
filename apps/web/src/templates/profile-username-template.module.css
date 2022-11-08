@@ -1,8 +1,7 @@
 .avatarWrapper {
-  margin-top: 86px;
-  @apply flex items-center justify-center md:mt-5;
+  @apply flex items-center justify-center mt-12;
 }
 
-.title {
-  @apply my-4 text-center text-white;
+.buttonContainer {
+  @apply mt-6 text-center;
 }

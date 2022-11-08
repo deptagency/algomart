@@ -2,8 +2,9 @@
   @apply fixed inset-0;
 }
 
-.content {
-  @apply w-full text-white bg-black max-w-none max-h-screen overflow-auto;
+/* Specificity war with dialog content class :\ */
+.content.content {
+  @apply w-full max-h-screen overflow-auto text-base-textPrimary bg-[#0A111D] max-w-none;
 }
 
 .overlay {
@@ -11,16 +12,14 @@
 }
 
 .closeButton {
-  @apply w-8 h-auto p-0 right-8 text-black bg-white rounded-full hover:bg-action-accent focus:bg-action-accent;
+  @apply right-0 w-8 h-auto p-0 rounded-full transition;
+  @apply hover:text-action-accent focus:text-action-accent;
 }
 
 .root {
-  /* Base */
-  @apply absolute top-0 left-8 right-8 flex items-center justify-between;
-  /* Tablet + */
-  @apply md:top-5;
+  @apply absolute flex items-center justify-between top-5 left-8 right-8;
 }
 
 .browserWrapper {
-  @apply mt-8;
+  @apply mt-16;
 }

@@ -1,0 +1,11 @@
+.root {
+  @apply flex flex-col items-center justify-start h-full px-8;
+}
+
+.status {
+  @apply flex items-center py-12;
+}
+
+.status:empty {
+  @apply py-0;
+}

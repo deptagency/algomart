@@ -21,10 +21,20 @@ export class BaseModel extends Model {
 
   $beforeInsert() {
     this.id = v4()
-    this.createdAt = this.updatedAt = new Date().toISOString()
+    // Only set createdAt and updatedAt unless explicitly set
+    const now = new Date().toISOString()
+    if (!this.createdAt) {
+      this.createdAt = now
+    }
+    if (!this.updatedAt) {
+      this.updatedAt = now
+    }
   }
 
   $beforeUpdate() {
-    this.updatedAt = new Date().toISOString()
+    // Only set updatedAt unless explicitly set
+    if (!this.updatedAt) {
+      this.updatedAt = new Date().toISOString()
+    }
   }
 }

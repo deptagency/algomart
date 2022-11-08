@@ -1,19 +1,12 @@
 import {
-  BankAccountIdSchema,
   CardIdSchema,
   CircleBlockchainAddressSchema,
-  CreateBankAccountResponseSchema,
-  CreateBankAccountSchema,
   CreateCardSchema,
-  CreatePaymentCardSchema,
-  CreatePaymentSchema,
-  CreateTransferPaymentSchema,
-  CurrencySchema,
-  FindTransferByAddressSchema,
-  GetPaymentBankAccountStatusSchema,
+  CreateCcPaymentSchema,
+  CreateUsdcPaymentSchema,
   GetPaymentCardStatusSchema,
-  OwnerExternalIdSchema,
-  PaymentBankAccountInstructionsSchema,
+  GetPaymentsMissingTransfersResponseSchema,
+  PaymentCardSchema,
   PaymentCardsSchema,
   PaymentIdSchema,
   PaymentQuerystringSchema,
@@ -21,38 +14,28 @@ import {
   PaymentsQuerystringSchema,
   PaymentsSchema,
   PublicKeySchema,
-  SendBankAccountInstructionsSchema,
-  ToPaymentBaseSchema,
+  PurchasePackWithCreditsSchema,
   UpdatePaymentCardSchema,
-  UpdatePaymentSchema,
-  WirePaymentSchema,
+  UserAccountTransferSchema,
 } from '@algomart/schemas'
-import { appErrorHandler } from '@algomart/shared/utils'
-import bearerAuthOptions from '@api/configuration/bearer-auth'
-import fastifyBearerAuth from '@fastify/bearer-auth'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
 
 import {
-  createBankAccount,
   createCard,
-  createPayment,
-  createTransferPayment,
+  createCcPayment,
+  createUsdcPayment,
   createWalletAddress,
-  findTransferByAddress,
-  findWirePaymentsByBankId,
-  getBankAccountStatus,
+  findTransferByPaymentId,
   getCards,
   getCardStatus,
-  getCurrency,
   getPaymentById,
   getPayments,
+  getPaymentsMissingTransfers,
   getPublicKey,
-  getWireTransferInstructions,
+  purchasePackWithCredits,
   removeCard,
-  sendWireTransferInstructions,
   updateCard,
-  updatePayment,
 } from './payments.routes'
 
 export async function paymentRoutes(app: FastifyInstance) {
@@ -60,15 +43,12 @@ export async function paymentRoutes(app: FastifyInstance) {
   const tags = ['payments']
   const security = [
     {
-      'API Key': [],
+      'Firebase Token': [],
     },
   ]
 
-  // Errors
-  app.setErrorHandler(appErrorHandler(app))
-
-  // Plugins
-  await app.register(fastifyBearerAuth, bearerAuthOptions)
+  // Hooks
+  app.addHook('preHandler', app.requireAuth())
 
   // Services/Routes
   app
@@ -102,6 +82,19 @@ export async function paymentRoutes(app: FastifyInstance) {
       getPaymentById
     )
     .get(
+      '/missing-transfers',
+      {
+        schema: {
+          tags,
+          security,
+          response: {
+            200: GetPaymentsMissingTransfersResponseSchema,
+          },
+        },
+      },
+      getPaymentsMissingTransfers
+    )
+    .get(
       '/encryption-public-key',
       {
         schema: {
@@ -129,145 +122,79 @@ export async function paymentRoutes(app: FastifyInstance) {
       getCardStatus
     )
     .get(
-      '/bank-accounts/:bankAccountId/status',
-      {
-        schema: {
-          tags,
-          security,
-          params: BankAccountIdSchema,
-          response: {
-            200: GetPaymentBankAccountStatusSchema,
-          },
-        },
-      },
-      getBankAccountStatus
-    )
-    .get(
-      '/bank-accounts/send',
-      {
-        schema: {
-          tags,
-          security,
-          querystring: SendBankAccountInstructionsSchema,
-          response: {
-            204: Type.Null(),
-          },
-        },
-      },
-      sendWireTransferInstructions
-    )
-    .get(
-      '/bank-accounts/:bankAccountId/instructions',
-      {
-        schema: {
-          tags,
-          security,
-          params: BankAccountIdSchema,
-          response: {
-            200: PaymentBankAccountInstructionsSchema,
-          },
-        },
-      },
-      getWireTransferInstructions
-    )
-    .get(
-      '/bank-accounts/:bankAccountId/payments',
-      {
-        schema: {
-          tags,
-          security,
-          params: BankAccountIdSchema,
-          response: {
-            200: Type.Array(WirePaymentSchema),
-          },
-        },
-      },
-      findWirePaymentsByBankId
-    )
-    .post(
-      '/',
-      {
-        transact: true,
-        schema: {
-          tags,
-          security,
-          body: CreatePaymentSchema,
-          response: {
-            201: PaymentSchema,
-          },
-        },
-      },
-      createPayment
-    )
-    .patch(
-      '/:paymentId',
+      '/:paymentId/transfer',
       {
         schema: {
           tags,
           security,
           params: PaymentIdSchema,
-          body: UpdatePaymentSchema,
+          response: {
+            200: UserAccountTransferSchema,
+          },
+        },
+      },
+      findTransferByPaymentId
+    )
+    .post(
+      '/cc-payment',
+      {
+        config: {
+          rateLimit: {},
+        },
+        schema: {
+          tags,
+          security,
+          body: CreateCcPaymentSchema,
           response: {
             201: PaymentSchema,
           },
         },
       },
-      updatePayment
+      createCcPayment
     )
     .post(
-      '/transfers',
+      '/usdc-payment',
       {
-        transact: true,
         schema: {
           tags,
           security,
-          body: CreateTransferPaymentSchema,
+          body: CreateUsdcPaymentSchema,
           response: {
             201: PaymentSchema,
           },
         },
       },
-      createTransferPayment
-    )
-    .get(
-      '/transfers',
-      {
-        schema: {
-          tags,
-          security,
-          querystring: FindTransferByAddressSchema,
-          response: {
-            200: ToPaymentBaseSchema,
-          },
-        },
-      },
-      findTransferByAddress
+      createUsdcPayment
     )
     .post(
-      '/bank-accounts',
+      '/purchase-pack-with-credits',
       {
-        transact: true,
+        config: {
+          rateLimit: {},
+        },
         schema: {
           tags,
           security,
-          body: CreateBankAccountSchema,
+          body: PurchasePackWithCreditsSchema,
           response: {
-            201: CreateBankAccountResponseSchema,
+            201: UserAccountTransferSchema,
           },
         },
       },
-      createBankAccount
+      purchasePackWithCredits
     )
     .post(
       '/cards',
       {
-        transact: true,
+        config: {
+          rateLimit: {},
+        },
         schema: {
           tags,
           security,
           body: CreateCardSchema,
           response: {
-            201: CreatePaymentCardSchema,
+            201: PaymentCardSchema,
           },
         },
       },
@@ -276,7 +203,6 @@ export async function paymentRoutes(app: FastifyInstance) {
     .post(
       '/wallets',
       {
-        transact: true,
         schema: {
           tags,
           security,
@@ -308,26 +234,12 @@ export async function paymentRoutes(app: FastifyInstance) {
         schema: {
           tags,
           security,
-          querystring: OwnerExternalIdSchema,
           response: {
             200: PaymentCardsSchema,
           },
         },
       },
       getCards
-    )
-    .get(
-      '/currency',
-      {
-        schema: {
-          tags,
-          security,
-          response: {
-            200: CurrencySchema,
-          },
-        },
-      },
-      getCurrency
     )
     .delete(
       '/cards/:cardId',

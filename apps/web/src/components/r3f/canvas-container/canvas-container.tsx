@@ -7,5 +7,9 @@ interface CanvasContainerProps {
 }
 
 export default function CanvasContainer({ children }: CanvasContainerProps) {
-  return <section className={css.canvasContainer}>{children}</section>
+  return (
+    <section className={css.canvasContainer}>
+      <div className={css.canvas}>{children}</div>
+    </section>
+  )
 }

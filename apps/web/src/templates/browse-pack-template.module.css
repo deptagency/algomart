@@ -1,0 +1,89 @@
+.root {
+  @apply max-w-[64rem] my-0 mx-auto;
+}
+
+.packCard {
+  @apply bg-white my-12 shadow-lg;
+}
+
+.container {
+  @apply mx-auto mb-5;
+}
+
+.title {
+  @apply w-full py-2 text-xl leading-normal text-center;
+}
+
+.actions {
+  @apply box-border flex justify-around items-center w-full my-5 border-t-1 border-b-1 border-gray-300;
+}
+
+.actionItem {
+  @apply flex w-1/4 justify-center items-center p-3;
+}
+
+.middleAction {
+  @apply flex w-1/2 justify-center items-center py-3 border-l-1 border-r-1 border-gray-300 text-action-primary;
+}
+
+.body {
+  @apply mt-1 text-sm md:text-base;
+}
+
+.packImage {
+  @apply relative mx-auto;
+}
+
+.contentsHeader {
+  @apply flex items-center justify-center bg-[#0A111D] py-5 my-10 text-white;
+}
+
+.packDetails {
+  @apply flex flex-col items-center justify-center;
+}
+
+.titleAndDescription {
+  @apply flex flex-col items-center;
+}
+
+.placeholder {
+  @apply bg-[#03102a] relative max-h-[90px] w-[90px] flex items-center justify-center rounded-sm aspect-1 bg-center bg-cover;
+  background-image: url('/images/textures/nft-placeholder.png');
+}
+
+.tags {
+  @apply mt-5;
+}
+
+.tag {
+  @apply mr-2;
+}
+
+.price {
+  @apply flex flex-col items-center text-base font-bold leading-normal;
+}
+
+.items {
+  @apply relative flex flex-wrap items-center justify-center gap-3 py-6 m-auto;
+}
+
+.item {
+  @apply relative overflow-hidden rounded-xl border-1 aspect-1;
+  width: 30%;
+}
+
+.cta {
+  @apply my-2;
+}
+
+.progressBar {
+  @apply bg-white bg-opacity-10 rounded-full h-[10px] mt-5 relative;
+}
+
+.progress {
+  @apply bg-pink rounded-full h-[10px] absolute top-0 left-0;
+}
+
+.collectibleCard {
+  @apply bg-white bg-opacity-10 rounded-[10px] sm:p-[15px] hover:scale-105 transition-all;
+}

@@ -16,18 +16,10 @@
     "isolatedModules": true,
     "incremental": true,
     "paths": {
-      "@/*": [
-        "apps/web/src/*"
-      ],
-      "@algomart/schemas": [
-        "libs/schemas/src/index.ts"
-      ],
-      "@algomart/shared/algorand": [
-        "libs/shared/algorand/src/index.ts"
-      ],
-      "@algomart/shared/utils": [
-        "libs/shared/utils/src/index.ts"
-      ]
+      "@/*": ["apps/web/src/*"],
+      "@algomart/schemas": ["libs/schemas/src/index.ts"],
+      "@algomart/shared/algorand": ["libs/shared/algorand/src/index.ts"],
+      "@algomart/shared/utils": ["libs/shared/utils/src/index.ts"]
     }
   },
   "include": [
@@ -35,7 +27,8 @@
     "**/*.tsx",
     "**/*.js",
     "**/*.jsx",
-    "next-env.d.ts"
+    "next-env.d.ts",
+    "custom-env.d.ts"
   ],
   "exclude": [
     "node_modules"

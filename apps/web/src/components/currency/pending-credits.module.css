@@ -1,0 +1,8 @@
+.background {
+  @apply bg-base-warn px-2 py-2 text-center text-base-textWarn;
+}
+
+.refreshIcon {
+  @apply inline-block ml-2 cursor-pointer;
+  width: 21px;
+}

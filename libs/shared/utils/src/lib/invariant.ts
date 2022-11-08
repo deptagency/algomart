@@ -19,14 +19,16 @@ const prefix = 'Invariant failed'
  *
  * @param condition some condition that evaluates to true or false
  * @param message an optional message for developers only
+ * @param ErrorClass an optional class to use to construct the error
  */
-export function invariant(
+export function invariant<ErrorType extends Error = Error>(
   condition: unknown,
-  message?: string
+  message?: string,
+  error?: new (message: string) => ErrorType
 ): asserts condition {
   if (condition) return
-
-  throw new Error(`${prefix}: ${message || ''}`)
+  const ErrorClass = error ?? Error
+  throw new ErrorClass(`${prefix}: ${message ?? ''}`)
 }
 
 export function userInvariant(

@@ -11,6 +11,7 @@ export default function Button({
   children,
   onClick,
   visible,
+  ...rest
 }: ButtonProps &
   DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement> &
   DetailedHTMLProps<
@@ -24,6 +25,7 @@ export default function Button({
       })}
       onClick={onClick}
       type="button"
+      {...rest}
     >
       {children}
     </button>

@@ -1,0 +1,41 @@
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.root {
+  @apply relative w-full h-full overflow-hidden aspect-1;
+}
+
+.videoContainer {
+  @apply absolute -top-1/2 -left-1/2 w-[200%] h-[200%];
+}
+
+.video {
+  @apply absolute top-0 bottom-0 left-0 right-0 m-auto min-h-[50%] min-w-[50%];
+}
+
+.curtain {
+  @apply relative w-full h-full flex items-center justify-center;
+}
+.playButton {
+  @apply cursor-pointer bg-base-bg rounded-full w-16 h-16 bg-opacity-80 text-action-accent text-center select-none;
+  @apply hover:scale-110 active:scale-110 active:bg-opacity-100;
+  @apply opacity-100 transition-all duration-500;
+}
+
+.icon {
+  @apply inline-block ml-1 w-6;
+}
+
+/* Fade pause button out after clicking play.  */
+.root:not(:hover) .playButton.playing {
+  animation: fadeOut 1s normal forwards linear;
+}
+.root:hover .playButton.playing {
+  @apply opacity-100;
+}

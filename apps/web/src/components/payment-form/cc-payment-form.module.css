@@ -1,0 +1,55 @@
+.content {
+  @apply max-w-[26em] mx-auto pt-8 px-8;
+}
+
+.form {
+  @apply pb-8;
+}
+
+.form h2 {
+  @apply pb-2 mb-4 border-b border-rainbow;
+}
+
+.formSection {
+  @apply mt-8 mb-16;
+}
+
+.formSectionNoMargin {
+  @apply mb-0;
+}
+
+.formMultiRow {
+  @apply flex items-end gap-4;
+}
+
+.formMultiRow > * {
+  @apply w-full;
+}
+
+.ccNetworks {
+  @apply flex;
+}
+
+.defaultCardRow {
+  @apply mt-5;
+}
+
+.differentCardLink {
+  @apply underline;
+}
+
+.hiddenField {
+  @apply hidden;
+}
+
+.notification {
+  @apply mb-5;
+}
+
+.verificationNotice {
+  @apply my-10;
+}
+
+.verificationNotice a {
+  @apply transition duration-300;
+}

@@ -1,7 +1,10 @@
-import { CollectibleBase } from '@algomart/schemas'
 import {
-  AccountInfo,
-  accountInformation,
+  AlgorandSendRawTransaction,
+  AlgorandTransformedAccountInfo,
+  AlgorandTransformedTransactionInfo,
+  CollectibleBase,
+} from '@algomart/schemas'
+import {
   calculateAppMinBalance,
   configureSignTxns,
   createClawbackNFTTransactions,
@@ -10,18 +13,23 @@ import {
   createExportNFTTransactions,
   createImportNFTTransactions,
   createNewNFTsTransactions,
+  createTradeTransactions,
   decodeTransaction,
   decryptAccount,
   encryptAccount,
   generateAccount,
+  getAssetBalances,
+  getTransactionParams,
+  lookupAccount,
+  lookupTransaction,
   makeStateConfig,
   NewNFT,
-  pendingTransactionInformation,
+  sendRawTransaction,
   waitForConfirmation,
   WalletTransaction,
 } from '@algomart/shared/algorand'
 import { CollectibleModel } from '@algomart/shared/models'
-import algosdk from 'algosdk'
+import algosdk, { SuggestedParams } from 'algosdk'
 import pino from 'pino'
 
 // 100_000 microAlgos = 0.1 ALGO
@@ -34,28 +42,46 @@ export interface PublicAccount {
   signedTransactions: Uint8Array[]
 }
 
-export interface AlgorandAdapterOptions {
+interface BaseAlgorandAdapterOptions {
   algodToken: string
   algodServer: string
   algodPort: number
+  indexerToken: string
+  indexerServer: string
+  indexerPort: number
   fundingMnemonic: string
+  enforcerAppID: number
   appSecret: string
+  coldKeyAddress: string
 }
+
+interface CustomEncryptionAlgorandAdapterOptions
+  extends BaseAlgorandAdapterOptions {
+  encryptionFunction: (custodialMnemonic) => Promise<string>
+  decryptionFunction: (encryptedCustodialMnemonic) => Promise<string>
+}
+
+export type AlgorandAdapterOptions =
+  | BaseAlgorandAdapterOptions
+  | CustomEncryptionAlgorandAdapterOptions
 
 export class AlgorandAdapter {
   logger: pino.Logger<unknown>
   fundingAccount: algosdk.Account
   algod: algosdk.Algodv2
+  indexer: algosdk.Indexer
 
-  constructor(
-    private options: AlgorandAdapterOptions,
-    logger: pino.Logger<unknown>
-  ) {
+  constructor(private options: AlgorandAdapterOptions, logger: pino.Logger) {
     this.logger = logger.child({ context: this.constructor.name })
     this.algod = new algosdk.Algodv2(
-      { 'X-Algo-API-Token': options.algodToken },
+      options.algodToken,
       options.algodServer,
       options.algodPort
+    )
+    this.indexer = new algosdk.Indexer(
+      options.indexerToken,
+      options.indexerServer,
+      options.indexerPort
     )
 
     this.fundingAccount = algosdk.mnemonicToSecretKey(options.fundingMnemonic)
@@ -71,15 +97,35 @@ export class AlgorandAdapter {
     } catch (error) {
       this.logger.error(error, 'Failed to connect to Algod')
     }
+
+    try {
+      const status = await this.indexer.makeHealthCheck().do()
+      this.logger.info({ status }, 'Successfully connected to Indexer')
+    } catch (error) {
+      this.logger.error(error, 'Failed to connect to Indexer')
+    }
   }
 
-  async generateAccount(passphrase: string): Promise<PublicAccount> {
-    const account = await generateAccount()
-    const encryptedMnemonic = await encryptAccount(
+  async encryptAccount(account: algosdk.Account) {
+    return await encryptAccount(
       account,
-      passphrase,
-      this.options.appSecret
+      (this.options as CustomEncryptionAlgorandAdapterOptions)
+        .encryptionFunction ?? this.options.appSecret
     )
+  }
+
+  async decryptAccount(encryptedMnemonic: string) {
+    return await decryptAccount(
+      encryptedMnemonic,
+      this.options.appSecret,
+      (this.options as CustomEncryptionAlgorandAdapterOptions)
+        .decryptionFunction
+    )
+  }
+
+  async generateAccount(): Promise<PublicAccount> {
+    const account = await generateAccount()
+    const encryptedMnemonic = await this.encryptAccount(account)
     return {
       address: account.addr,
       encryptedMnemonic,
@@ -90,14 +136,9 @@ export class AlgorandAdapter {
 
   async initialFundTransactions(
     encryptedMnemonic: string,
-    passphrase: string,
     initialBalance = DEFAULT_INITIAL_BALANCE
   ) {
-    const custodialAccount = await decryptAccount(
-      encryptedMnemonic,
-      passphrase,
-      this.options.appSecret
-    )
+    const custodialAccount = await this.decryptAccount(encryptedMnemonic)
 
     const result = await createConfigureCustodialAccountTransactions({
       algod: this.algod,
@@ -127,8 +168,8 @@ export class AlgorandAdapter {
   }
 
   async getAssetInfo(assetIndex: number) {
-    const info = await this.algod
-      .getAssetByID(assetIndex)
+    const info = await this.indexer
+      .lookupAssetByID(assetIndex)
       .do()
       .catch(() => null)
 
@@ -136,46 +177,65 @@ export class AlgorandAdapter {
       return null
     }
 
-    return {
-      address: info.index as number,
-      creator: info.params.creator as string,
-      unitName: info.params['unit-name'] as string,
-      isFrozen: info['is-frozen'] as boolean,
-      defaultFrozen: info.params['default-frozen'] as boolean,
-      url: info.params.url as string,
-    }
-  }
+    const { asset } = info
 
-  async getTransactionStatus(transactionId: string) {
-    return pendingTransactionInformation(this.algod, transactionId)
+    return {
+      address: asset.index as number,
+      creator: asset.params.creator as string,
+      decimals: asset.params.decimals as number,
+      defaultFrozen: asset.params['default-frozen'] as boolean,
+      isFrozen: asset['is-frozen'] as boolean,
+      name: asset.name as string,
+      unitName: asset.params['unit-name'] as string,
+      url: asset.params.url as string,
+    }
   }
 
   async waitForConfirmation(transactionId: string, maxRounds = 5) {
     return waitForConfirmation(this.algod, transactionId, maxRounds)
   }
 
-  async isValidPassphrase(
-    encryptedMnemonic: string,
-    passphrase: string
-  ): Promise<boolean> {
-    try {
-      await decryptAccount(
-        encryptedMnemonic,
-        passphrase,
-        this.options.appSecret
-      )
-      // If we get here, the passphrase is valid
-      return true
-    } catch {
-      // ignore error, passphrase is invalid
-      return false
-    }
+  async waitForAllConfirmations(transactionIds: string[], maxRounds = 5) {
+    return await Promise.all(
+      transactionIds.map(async (id) => {
+        return await this.waitForConfirmation(id, maxRounds)
+      })
+    )
   }
 
-  async getAccountInfo(account: string): Promise<AccountInfo> {
-    return accountInformation(this.algod, account)
+  async getAccountInfo(
+    account: string
+  ): Promise<AlgorandTransformedAccountInfo> {
+    return lookupAccount(this.indexer, account)
   }
 
+  async getTransactionInfo(
+    txID: string
+  ): Promise<AlgorandTransformedTransactionInfo> {
+    return lookupTransaction(this.indexer, txID)
+  }
+
+  async getTransactionParams(): Promise<SuggestedParams> {
+    return await getTransactionParams(this.algod)
+  }
+
+  async getAssetOwner(assetIndex: number) {
+    const balances = await getAssetBalances(this.indexer, assetIndex)
+    const owner = balances.find((balance) => balance.amount > 0)
+    return owner ? await this.getAccountInfo(owner.address) : null
+  }
+
+  async sendRawTransaction(transaction: AlgorandSendRawTransaction) {
+    return sendRawTransaction(this.algod, transaction)
+  }
+
+  /**
+   * Creates minting transactions for a list of collectibles. Should only be
+   * used by Scribe as the `COLD_KEY_ADDRESS` is not available in the API.
+   * @param collectibles The collectibles to be minted
+   * @param templates Collectible templates to be used for minting
+   * @returns ASA creation transactions
+   */
   async generateCreateAssetTransactions(
     collectibles: CollectibleModel[],
     templates: CollectibleBase[]
@@ -188,7 +248,7 @@ export class AlgorandAdapter {
       }
 
       return {
-        assetName: `${template.uniqueCode} ${collectible.edition}/${template.totalEditions}`,
+        assetName: `${template.uniqueCode} #${collectible.edition}`,
         assetURL: `${collectible.assetUrl}#arc3`,
         assetMetadataHash: new Uint8Array(
           Buffer.from(collectible.assetMetadataHash, 'hex')
@@ -203,6 +263,15 @@ export class AlgorandAdapter {
       algod: this.algod,
       creatorAccount: this.fundingAccount,
       nfts,
+      enforcerAppID: this.options.enforcerAppID,
+
+      // TODO: these four should be removed once we rely on the enforcer contract
+      // https://docs.google.com/document/d/1PBLS2Ouw359IkMryy2wkwXKtr5e1K9quZKiAgwVXkRg/edit
+      // https://docs.google.com/document/d/1z0gNpM4d-qY9-9Td_az-pAUBEOZyZD_2npsb5-HeCaE/edit
+      overrideManager: this.options.coldKeyAddress || this.fundingAccount.addr,
+      overrideFreeze: this.options.coldKeyAddress || this.fundingAccount.addr,
+      overrideClawback: this.fundingAccount.addr,
+      overrideReserve: this.fundingAccount.addr,
     })
 
     return {
@@ -214,14 +283,9 @@ export class AlgorandAdapter {
   async generateClawbackTransactions(options: {
     assetIndex: number
     encryptedMnemonic: string
-    passphrase: string
     fromAccountAddress?: string
   }) {
-    const toAccount = await decryptAccount(
-      options.encryptedMnemonic,
-      options.passphrase,
-      this.options.appSecret
-    )
+    const toAccount = await this.decryptAccount(options.encryptedMnemonic)
 
     const result = await createClawbackNFTTransactions({
       algod: this.algod,
@@ -252,6 +316,34 @@ export class AlgorandAdapter {
       currentOwnerAddress: options.fromAccountAddress,
       recipientAddress: options.toAccountAddress,
       skipOptIn: true,
+    })
+
+    return {
+      transactionIds: result.txIDs,
+      signedTransactions: result.signedTxns,
+    }
+  }
+
+  async generateTradeTransactions(options: {
+    assetIndex: number
+    buyerEncryptedMnemonic: string
+    sellerEncryptedMnemonic: string
+  }) {
+    const buyerAccount = await this.decryptAccount(
+      options.buyerEncryptedMnemonic
+    )
+
+    const sellerAccount = await this.decryptAccount(
+      options.sellerEncryptedMnemonic
+    )
+
+    const result = await createTradeTransactions({
+      algod: this.algod,
+      assetIndex: options.assetIndex,
+      buyerAccount,
+      sellerAccount,
+      clawbackAccount: this.fundingAccount,
+      fundingAccount: this.fundingAccount,
     })
 
     return {
@@ -332,15 +424,10 @@ export class AlgorandAdapter {
   }
 
   async signTransferTransactions(options: {
-    passphrase: string
     encryptedMnemonic: string
     transactions: WalletTransaction[]
   }) {
-    const fromAccount = await decryptAccount(
-      options.encryptedMnemonic,
-      options.passphrase,
-      this.options.appSecret
-    )
+    const fromAccount = await this.decryptAccount(options.encryptedMnemonic)
 
     const signTxns = await configureSignTxns([fromAccount, this.fundingAccount])
 
@@ -348,9 +435,10 @@ export class AlgorandAdapter {
 
     return {
       transactionIds: await Promise.all(
-        options.transactions.map(async (transaction) =>
-          (await decodeTransaction(transaction.txn)).txID()
-        )
+        options.transactions.map(async (transaction) => {
+          const txn = await decodeTransaction(transaction.txn)
+          return txn.txID()
+        })
       ),
       signedTransactions,
     }
@@ -365,6 +453,7 @@ export class AlgorandAdapter {
       algod: this.algod,
       assetIndex: options.assetIndex,
       fromAddress: options.fromAccountAddress,
+      indexer: this.indexer,
       toAddress: options.toAccountAddress,
       fundingAddress: this.fundingAccount.addr,
       clawbackAddress: this.fundingAccount.addr,

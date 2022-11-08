@@ -1,11 +1,11 @@
+import { DirectusLanguageTemplate, EntityType } from '@algomart/schemas'
 import { Model } from 'objection'
-import { DirectusLanguageTemplate } from '@algomart/schemas'
 
 export class CMSCacheLanguageModel extends Model {
-  static tableName = 'CmsCacheLanguages'
+  static tableName = EntityType.CmsCacheLanguages
 
   code!: string
-  name!: string
+  label!: string
   sort!: number
   createdAt!: string
   updatedAt!: string
@@ -18,7 +18,7 @@ export class CMSCacheLanguageModel extends Model {
     await CMSCacheLanguageModel.query()
       .insert({
         code: languageTemplate.code,
-        name: languageTemplate.name,
+        label: languageTemplate.label,
         sort: languageTemplate.sort,
       })
       .returning('code')
@@ -30,7 +30,7 @@ export class CMSCacheLanguageModel extends Model {
     await CMSCacheLanguageModel.query()
       .where({ code: languageTemplate.code })
       .update({
-        name: languageTemplate.name,
+        label: languageTemplate.label,
         sort: languageTemplate.sort,
       })
       .returning('code')
@@ -40,11 +40,9 @@ export class CMSCacheLanguageModel extends Model {
 
   static async upsert(languageTemplate: DirectusLanguageTemplate) {
     const record = await this.getById(languageTemplate.code)
-    if (record) {
-      this.update(languageTemplate)
-    } else {
-      this.insert(languageTemplate)
-    }
+    await (record
+      ? this.update(languageTemplate)
+      : this.insert(languageTemplate))
 
     return languageTemplate
   }

@@ -1,0 +1,3 @@
+UNIQUE_CODE,FIELD_NAME,FIELD_DATA
+asset41,unique_code,this_field_name_should_not_be_permitted
+asset9999999,preview_image,this_nft_should_not_be_found

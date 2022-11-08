@@ -1,19 +1,18 @@
 import {
-  AlgoAddressSchema,
+  AssetIdObjectSchema,
+  CollectibleBaseSchema,
   CollectibleIdSchema,
-  CollectibleListQuerystringSchema,
-  CollectibleListShowcaseSchema,
-  CollectibleListWithTotalSchema,
-  CollectiblesByAlgoAddressQuerystringSchema,
-  CollectibleShowcaseQuerystringSchema,
+  CollectibleQuerySchema,
+  CollectibleShowcaseQuerySchema,
+  CollectiblesQuerySchema,
+  CollectiblesResponseSchema,
+  CollectiblesShowcaseSchema,
+  CollectibleUniqueCodeSchema,
   InitializeTransferCollectibleSchema,
-  SingleCollectibleQuerystringSchema,
+  LanguageObjectSchema,
   TransferCollectibleSchema,
   WalletTransactionSchema,
 } from '@algomart/schemas'
-import { appErrorHandler } from '@algomart/shared/utils'
-import bearerAuthOptions from '@api/configuration/bearer-auth'
-import fastifyBearerAuth from '@fastify/bearer-auth'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
 
@@ -21,182 +20,194 @@ import {
   addCollectibleShowcase,
   exportCollectible,
   getCollectible,
-  getCollectibles,
-  getCollectiblesByAlgoAddress,
+  getCollectibleActivities,
+  getCollectibleTemplateByUniqueCode,
   getShowcaseCollectibles,
   importCollectible,
   initializeExportCollectible,
   initializeImportCollectible,
   removeCollectibleShowcase,
+  searchCollectibles,
 } from './collectibles.routes'
 
 export async function collectiblesRoutes(app: FastifyInstance) {
   const tags = ['collectibles']
   const security = [
     {
-      'API Key': [],
+      'Firebase Token': [],
     },
   ]
 
-  // Errors
-  app.setErrorHandler(appErrorHandler(app))
-
-  // Plugins
-  await app.register(fastifyBearerAuth, bearerAuthOptions)
+  // Hooks
+  app.addHook('preHandler', app.requireAuth())
 
   // Services/Routes
-  app
-    .get(
-      '/',
-      {
-        schema: {
-          tags,
-          security,
-          querystring: CollectibleListQuerystringSchema,
-          description:
-            'Loads collectibles for a single user. One of `ownerUsername` and `ownerExternalId` must be specified.',
-          response: {
-            200: CollectibleListWithTotalSchema,
-          },
+
+  app.get(
+    '/find-one',
+    {
+      config: {
+        auth: { anonymous: true },
+      },
+      schema: {
+        tags,
+        querystring: CollectibleQuerySchema,
+        description: 'Fetch a single collectible and its current owner.',
+      },
+    },
+    getCollectible
+  )
+  app.get(
+    '/activities',
+    {
+      config: {
+        auth: { anonymous: true },
+      },
+      schema: {
+        tags,
+        querystring: AssetIdObjectSchema,
+        description: 'Fetch activity history for a single collectible',
+      },
+    },
+    getCollectibleActivities
+  )
+  app.get(
+    '/search',
+    {
+      config: {
+        auth: { anonymous: true },
+      },
+      schema: {
+        tags,
+        querystring: CollectiblesQuerySchema,
+        description: 'Searches collectibles',
+        response: {
+          200: CollectiblesResponseSchema,
         },
       },
-      getCollectibles
-    )
-    .get(
-      '/find-one',
-      {
-        schema: {
-          tags,
-          security,
-          querystring: SingleCollectibleQuerystringSchema,
-          description: 'Fetch a single collectible and its current owner.',
+    },
+    searchCollectibles
+  )
+  app.get(
+    '/template/by-unique-code/:uniqueCode',
+    {
+      config: {
+        auth: { anonymous: true },
+      },
+      schema: {
+        tags,
+        querystring: LanguageObjectSchema,
+        params: CollectibleUniqueCodeSchema,
+        response: {
+          200: CollectibleBaseSchema,
         },
       },
-      getCollectible
-    )
-    .get(
-      '/address/:algoAddress',
-      {
-        schema: {
-          tags,
-          security,
-          params: AlgoAddressSchema,
-          querystring: CollectiblesByAlgoAddressQuerystringSchema,
-          response: {
-            200: CollectibleListWithTotalSchema,
-          },
+    },
+    getCollectibleTemplateByUniqueCode
+  )
+  app.get(
+    '/showcase',
+    {
+      config: {
+        auth: { anonymous: true },
+      },
+      schema: {
+        tags,
+        querystring: CollectibleShowcaseQuerySchema,
+        response: {
+          200: CollectiblesShowcaseSchema,
         },
       },
-      getCollectiblesByAlgoAddress
-    )
-    .get(
-      '/showcase',
-      {
-        schema: {
-          tags,
-          security,
-          querystring: CollectibleShowcaseQuerystringSchema,
-          response: {
-            200: CollectibleListShowcaseSchema,
-          },
+    },
+    getShowcaseCollectibles
+  )
+
+  app.post(
+    '/showcase',
+    {
+      schema: {
+        tags,
+        security,
+        body: CollectibleIdSchema,
+        response: {
+          204: Type.Null(),
         },
       },
-      getShowcaseCollectibles
-    )
-    .post(
-      '/showcase',
-      {
-        transact: true,
-        schema: {
-          tags,
-          security,
-          querystring: CollectibleShowcaseQuerystringSchema,
-          body: CollectibleIdSchema,
-          response: {
-            204: Type.Null(),
-          },
+    },
+    addCollectibleShowcase
+  )
+  app.delete(
+    '/showcase',
+    {
+      schema: {
+        tags,
+        security,
+        body: CollectibleIdSchema,
+        response: {
+          204: Type.Null(),
         },
       },
-      addCollectibleShowcase
-    )
-    .delete(
-      '/showcase',
-      {
-        transact: true,
-        schema: {
-          tags,
-          security,
-          querystring: CollectibleShowcaseQuerystringSchema,
-          body: CollectibleIdSchema,
-          response: {
-            204: Type.Null(),
-          },
+    },
+    removeCollectibleShowcase
+  )
+  app.post(
+    '/export',
+    {
+      schema: {
+        tags,
+        security,
+        body: InitializeTransferCollectibleSchema,
+        response: {
+          200: Type.Array(WalletTransactionSchema),
         },
       },
-      removeCollectibleShowcase
-    )
-    .post(
-      '/export',
-      {
-        transact: true,
-        schema: {
-          tags,
-          security,
-          body: InitializeTransferCollectibleSchema,
-          response: {
-            200: Type.Array(WalletTransactionSchema),
-          },
+    },
+    initializeExportCollectible
+  )
+  app.post(
+    '/export/sign',
+    {
+      schema: {
+        tags,
+        security,
+        body: TransferCollectibleSchema,
+        response: {
+          200: Type.Object({
+            txId: Type.String(),
+          }),
         },
       },
-      initializeExportCollectible
-    )
-    .post(
-      '/export/sign',
-      {
-        transact: true,
-        schema: {
-          tags,
-          security,
-          body: TransferCollectibleSchema,
-          response: {
-            200: Type.Object({
-              txId: Type.String(),
-            }),
-          },
+    },
+    exportCollectible
+  )
+  app.post(
+    '/import',
+    {
+      schema: {
+        tags,
+        security,
+        body: InitializeTransferCollectibleSchema,
+        response: {
+          200: Type.Array(WalletTransactionSchema),
         },
       },
-      exportCollectible
-    )
-    .post(
-      '/import',
-      {
-        transact: true,
-        schema: {
-          tags,
-          security,
-          body: InitializeTransferCollectibleSchema,
-          response: {
-            200: Type.Array(WalletTransactionSchema),
-          },
+    },
+    initializeImportCollectible
+  )
+  app.post(
+    '/import/sign',
+    {
+      schema: {
+        tags,
+        security,
+        body: TransferCollectibleSchema,
+        response: {
+          200: Type.Object({
+            txId: Type.String(),
+          }),
         },
       },
-      initializeImportCollectible
-    )
-    .post(
-      '/import/sign',
-      {
-        transact: true,
-        schema: {
-          tags,
-          security,
-          body: TransferCollectibleSchema,
-          response: {
-            200: Type.Object({
-              txId: Type.String(),
-            }),
-          },
-        },
-      },
-      importCollectible
-    )
+    },
+    importCollectible
+  )
 }

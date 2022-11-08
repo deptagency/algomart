@@ -1,14 +1,16 @@
-import { CollectibleSchema, IPFSStatus } from '@algomart/schemas'
+import { CollectibleSchema, EntityType, IPFSStatus } from '@algomart/schemas'
 import { Model } from 'objection'
 
 import { AlgorandTransactionModel } from './algorand-transaction.model'
 import { BaseModel } from './base.model'
+import { CMSCacheCollectibleTemplateModel } from './cms-cache-collectible-template.model'
+import { CollectibleListingsModel } from './collectible-listings.model'
 import { CollectibleOwnershipModel } from './collectible-ownership.model'
 import { PackModel } from './pack.model'
 import { UserAccountModel } from './user-account.model'
 
 export class CollectibleModel extends BaseModel {
-  static tableName = 'Collectible'
+  static tableName = EntityType.Collectible
   static jsonSchema = CollectibleSchema
 
   templateId!: string
@@ -28,6 +30,8 @@ export class CollectibleModel extends BaseModel {
   latestTransferTransaction?: AlgorandTransactionModel
   ownership?: CollectibleOwnershipModel[]
   pack?: PackModel
+  listings?: CollectibleListingsModel[]
+  template?: CMSCacheCollectibleTemplateModel
 
   static relationMappings = () => ({
     owner: {
@@ -54,6 +58,14 @@ export class CollectibleModel extends BaseModel {
         to: 'AlgorandTransaction.id',
       },
     },
+    listings: {
+      relation: Model.HasManyRelation,
+      modelClass: CollectibleListingsModel,
+      join: {
+        from: 'Collectible.id',
+        to: 'CollectibleListings.collectibleId',
+      },
+    },
     ownership: {
       relation: Model.HasManyRelation,
       modelClass: CollectibleOwnershipModel,
@@ -68,6 +80,14 @@ export class CollectibleModel extends BaseModel {
       join: {
         from: 'Collectible.packId',
         to: 'Pack.id',
+      },
+    },
+    template: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: CMSCacheCollectibleTemplateModel,
+      join: {
+        from: 'Collectible.templateId',
+        to: 'CmsCacheCollectibleTemplates.id',
       },
     },
   })

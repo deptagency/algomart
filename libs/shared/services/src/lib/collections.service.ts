@@ -1,21 +1,23 @@
+import { DEFAULT_LANG } from '@algomart/schemas'
 import pino from 'pino'
-import { DEFAULT_LOCALE } from '@algomart/schemas'
-import { CMSCacheAdapter } from '@algomart/shared/adapters'
+
+import { CMSCacheService } from './cms-cache.service'
 
 export class CollectionsService {
   logger: pino.Logger<unknown>
+
   constructor(
-    private readonly cms: CMSCacheAdapter,
+    private readonly cms: CMSCacheService,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  async getAllCollections(locale = DEFAULT_LOCALE) {
-    return await this.cms.findAllCollections(locale)
+  async getAllCollections(language = DEFAULT_LANG) {
+    return await this.cms.findAllCollections(language)
   }
 
-  async getCollectionBySlug(slug: string, locale = DEFAULT_LOCALE) {
-    return await this.cms.findCollectionBySlug(slug, locale)
+  async getCollectionBySlug(slug: string, language = DEFAULT_LANG) {
+    return await this.cms.findCollectionBySlug(slug, language)
   }
 }

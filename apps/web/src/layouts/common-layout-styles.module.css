@@ -1,7 +1,3 @@
-.backgroundGradient {
-  @apply flex flex-col flex-grow bg-gradient-to-b from-base-bg;
-}
-
 .pageTitle {
   @apply mb-6 text-center;
 }

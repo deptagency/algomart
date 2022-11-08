@@ -1,0 +1,88 @@
+name: Pull Request Checks
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+env:
+  ALGOD_PORT: 4001
+  ALGOD_SERVER: http://localhost
+  ALGOD_TOKEN: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  INDEXER_PORT: 8980
+  INDEXER_SERVER: http://localhost
+  INDEXER_TOKEN: ''
+  API_KEY: fake-api-key
+  CIRCLE_API_KEY: fake-circle-api-key
+  CMS_ACCESS_TOKEN: fake-cms-access-token
+  DATABASE_URL: postgres://localhost:5432/postgres
+  TEST_DATABASE_URL_PREFIX: postgres://postgres:postgres@localhost:6543/
+  FIREBASE_SERVICE_ACCOUNT: ${{ secrets.WEB_FIREBASE_SERVICE_ACCOUNT }}
+  TEST_REDIS_URL: redis://localhost:7379
+  EMAIL_TRANSPORT: smtp
+  PINATA_API_KEY: fake-pinata-api-key
+  PINATA_API_SECRET: fake-pinata-api-secret
+  SECRET: fake-secret
+  # Throw-away account, do not use anywhere else
+  FUNDING_MNEMONIC: unveil wrist wreck stool drop lamp modify slot magnet purse naive glow public author panther mercy derive script shuffle lend equal start quiz above vague
+
+jobs:
+  pre-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.10.1
+        with:
+          access_token: ${{ github.token }}
+
+  main:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout [main]
+        with:
+          fetch-depth: 0
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - uses: actions/cache@v3.0.9
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - run: npm ci
+      - run: npx nx affected --target=lint --parallel --max-parallel=3
+      - run: npx nx affected --target=build --parallel --max-parallel=3
+      - run: docker-compose --project-name algorand-test --file docker-compose.test.yml up --detach
+      - run: npx nx affected --target=test --parallel --max-parallel=2
+      - run: docker-compose --project-name algorand-test --file docker-compose.test.yml down
+  pr:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - uses: actions/cache@v3.0.9
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - run: npm ci
+      - run: npx nx affected --target=lint --parallel --max-parallel=3
+      - run: npx nx affected --target=build --parallel --max-parallel=3
+      - run: docker-compose --project-name algorand-test --file docker-compose.test.yml up --detach
+      - run: npx nx affected --target=test --parallel --max-parallel=2
+      - run: docker-compose --project-name algorand-test --file docker-compose.test.yml down

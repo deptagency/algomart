@@ -5,7 +5,7 @@ import css from './wallet-instructions-modal.module.css'
 
 import Button from '@/components/button'
 import Dialog, { DialogProps } from '@/components/dialog/dialog'
-import Heading from '@/components/heading'
+import { H1, H2 } from '@/components/heading'
 
 export default function WalletInstructionsModal({
   dialogProps,
@@ -35,21 +35,21 @@ export default function WalletInstructionsModal({
             aria-label={t('common:actions.Close')}
             className={css.closeButton}
             onClick={() => handleClose(false)}
-            variant="tertiary"
+            variant="ghost"
           >
             {'\u2717'}
           </Button>
         </header>
-        <Heading level={1} className={css.heading}>
+        <H1 mb={5}>
           {t('forms:fields.payWithCrypto.walletInstructions.label')}
-        </Heading>
+        </H1>
         <hr />
         <section className={css.section}>
-          <Heading level={2} className={css.title}>
+          <H2>
             {t(
               'forms:fields.payWithCrypto.walletInstructions.createWallet.label'
             )}
-          </Heading>
+          </H2>
           <ol className={css.list}>
             <li>
               {t(
@@ -80,11 +80,11 @@ export default function WalletInstructionsModal({
         </section>
         <hr />
         <section className={css.section}>
-          <Heading level={2} className={css.title}>
+          <H2>
             {t(
               'forms:fields.payWithCrypto.walletInstructions.purchaseAlgos.label'
             )}
-          </Heading>
+          </H2>
           <p className={css.notice}>
             {t(
               'forms:fields.payWithCrypto.walletInstructions.purchaseAlgos.notice'
@@ -120,9 +120,9 @@ export default function WalletInstructionsModal({
         </section>
         <hr />
         <section className={css.section}>
-          <Heading level={2} className={css.title}>
+          <H2>
             {t('forms:fields.payWithCrypto.walletInstructions.swapAlgos.label')}
-          </Heading>
+          </H2>
           <p className={css.notice}>
             {t(
               'forms:fields.payWithCrypto.walletInstructions.swapAlgos.notice'

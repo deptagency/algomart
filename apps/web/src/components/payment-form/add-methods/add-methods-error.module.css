@@ -1,0 +1,16 @@
+.root {
+  @apply w-full text-center;
+}
+
+.icon {
+  @apply relative mx-auto mb-5 text-base-error;
+  width: 48px;
+}
+
+.message {
+  @apply mb-8 text-sm text-base-textTertiary;
+}
+
+.button {
+  @apply w-full max-w-xs;
+}

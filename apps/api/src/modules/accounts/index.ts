@@ -1,28 +1,36 @@
 import {
+  ApplicantCreateSchema,
+  ApplicantTokenSchema,
   CreateUserAccountRequestSchema,
-  ExternalIdSchema,
-  PassphraseSchema,
   PublicUserAccountSchema,
+  SendPasswordResetSchema,
+  ToApplicantBaseExtendedSchema,
   UpdateUserAccountSchema,
-  UserAccountsSchema,
-  UsernameSchema,
-  UsersQuerystringSchema,
+  UserAvatarObjectSchema,
+  UserEmailObjectSchema,
+  UsernameObjectSchema,
+  UserStatusReportSchema,
+  WorkflowDetailsSchema,
 } from '@algomart/schemas'
-import { appErrorHandler } from '@algomart/shared/utils'
-import bearerAuthOptions from '@api/configuration/bearer-auth'
-import fastifyBearerAuth from '@fastify/bearer-auth'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
 
 import {
   createAccount,
-  getByExternalId,
+  createApplicant,
+  deleteTestAccount,
+  generateNewWorkflow,
+  getApplicant,
+  getApplicantToken,
+  getAvatarByUsername,
+  getByEmail,
   getByUsername,
-  getUsers,
-  removeUser,
+  getProfile,
+  getUserStatusReport,
+  requestManualReview,
+  sendNewEmailVerification,
+  sendPasswordReset,
   updateAccount,
-  verifyPassphrase,
-  verifyUsername,
 } from './accounts.routes'
 
 export async function accountsRoutes(app: FastifyInstance) {
@@ -30,132 +38,248 @@ export async function accountsRoutes(app: FastifyInstance) {
   const tags = ['accounts']
   const security = [
     {
-      'API Key': [],
+      'Firebase Token': [],
     },
   ]
 
-  // Errors
-  app.setErrorHandler(appErrorHandler(app))
-
-  // Plugins
-  await app.register(fastifyBearerAuth, bearerAuthOptions)
+  // Hooks
+  app.addHook('preHandler', app.requireAuth())
 
   // Services/Routes
-  app
-    .post(
-      '/',
-      {
-        transact: true,
-        schema: {
-          tags,
-          security,
-          body: CreateUserAccountRequestSchema,
-          response: {
-            201: PublicUserAccountSchema,
-          },
+
+  app.post(
+    '/',
+    {
+      config: {
+        auth: {
+          tokenOnly: true,
         },
       },
-      createAccount
-    )
-    .get(
-      '/',
-      {
-        schema: {
-          tags,
-          security,
-          querystring: UsernameSchema,
-          response: {
-            200: PublicUserAccountSchema,
+      schema: {
+        tags,
+        security: [
+          {
+            'Firebase Token': [],
           },
+        ],
+        body: CreateUserAccountRequestSchema,
+        response: {
+          201: PublicUserAccountSchema,
         },
       },
-      getByUsername
-    )
-    .get(
-      '/all',
-      {
-        schema: {
-          tags,
-          security,
-          querystring: UsersQuerystringSchema,
-          response: {
-            200: UserAccountsSchema,
+    },
+    createAccount
+  )
+
+  app.get(
+    '/',
+    {
+      schema: {
+        tags,
+        security: [
+          {
+            'Firebase Token': [],
           },
+        ],
+        response: {
+          200: PublicUserAccountSchema,
         },
       },
-      getUsers
-    )
-    .get(
-      '/:externalId',
-      {
-        schema: {
-          tags,
-          security,
-          params: ExternalIdSchema,
-          response: {
-            200: PublicUserAccountSchema,
-          },
+    },
+    getProfile
+  )
+
+  app.get(
+    '/:username',
+    {
+      config: {
+        auth: { anonymous: true },
+      },
+      schema: {
+        tags,
+        params: UsernameObjectSchema,
+        response: {
+          200: PublicUserAccountSchema,
         },
       },
-      getByExternalId
-    )
-    .patch(
-      '/:externalId',
+    },
+    getByUsername
+  )
+
+  app.get(
+    '/avatar/:username',
+    {
+      config: {
+        auth: { anonymous: true },
+      },
+      schema: {
+        tags,
+        params: UsernameObjectSchema,
+        response: {
+          200: UserAvatarObjectSchema,
+        },
+      },
+    },
+    getAvatarByUsername
+  )
+
+  app.get(
+    '/email/:email',
+    {
+      config: {
+        auth: { anonymous: true },
+      },
+      schema: {
+        tags,
+        params: UserEmailObjectSchema,
+        response: {
+          200: PublicUserAccountSchema,
+        },
+      },
+    },
+    getByEmail
+  )
+
+  app.post(
+    '/send-password-reset',
+    {
+      config: {
+        auth: { anonymous: true },
+      },
+      schema: {
+        tags,
+        body: SendPasswordResetSchema,
+        response: {
+          204: Type.String(),
+        },
+      },
+    },
+    sendPasswordReset
+  )
+
+  // Only add the delete endpoint if we're in a test environment
+  if (['test', 'development'].includes(process.env.NODE_ENV)) {
+    app.delete(
+      '/delete-test-account',
       {
-        transact: true,
+        config: {
+          auth: { anonymous: true },
+        },
         schema: {
           tags,
-          security,
-          params: ExternalIdSchema,
-          body: UpdateUserAccountSchema,
           response: {
             204: Type.Null(),
           },
         },
       },
-      updateAccount
+      deleteTestAccount
     )
-    .post(
-      '/:externalId/verify-passphrase',
-      {
-        schema: {
-          tags,
-          security,
-          params: ExternalIdSchema,
-          body: PassphraseSchema,
-          response: {
-            204: Type.Null(),
-          },
+  }
+
+  app.patch(
+    '/',
+    {
+      schema: {
+        tags,
+        security,
+        body: UpdateUserAccountSchema,
+        response: {
+          204: Type.Null(),
         },
       },
-      verifyPassphrase
-    )
-    .post(
-      '/verify-username',
-      {
-        schema: {
-          tags,
-          security,
-          body: UsernameSchema,
-          response: {
-            200: Type.Object({ isAvailable: Type.Boolean() }),
-          },
+    },
+    updateAccount
+  )
+  app.post(
+    '/send-new-email-verification',
+    {
+      schema: {
+        tags,
+        security,
+        response: {
+          204: Type.String(),
         },
       },
-      verifyUsername
-    )
-    .delete(
-      '/:externalId',
-      {
-        schema: {
-          tags,
-          security,
-          params: ExternalIdSchema,
-          response: {
-            204: Type.Null(),
-          },
+    },
+    sendNewEmailVerification
+  )
+  app.post(
+    '/applicant',
+    {
+      schema: {
+        tags,
+        security,
+        body: ApplicantCreateSchema,
+        response: {
+          201: ToApplicantBaseExtendedSchema,
         },
       },
-      removeUser
-    )
+    },
+    createApplicant
+  )
+  app.get(
+    '/applicant/token',
+    {
+      schema: {
+        tags,
+        security,
+        response: {
+          200: ApplicantTokenSchema,
+        },
+      },
+    },
+    getApplicantToken
+  )
+  app.post(
+    '/applicant/manual-review',
+    {
+      schema: {
+        tags,
+        security,
+        response: {
+          204: Type.Null(),
+        },
+      },
+    },
+    requestManualReview
+  )
+  app.get(
+    '/applicant',
+    {
+      schema: {
+        tags,
+        security,
+        response: {
+          200: ToApplicantBaseExtendedSchema,
+        },
+      },
+    },
+    getApplicant
+  )
+  app.get(
+    '/status',
+    {
+      schema: {
+        tags,
+        security,
+        response: {
+          200: UserStatusReportSchema,
+        },
+      },
+    },
+    getUserStatusReport
+  )
+  app.post(
+    '/applicant/workflow',
+    {
+      schema: {
+        tags,
+        security,
+        response: {
+          200: WorkflowDetailsSchema,
+        },
+      },
+    },
+    generateNewWorkflow
+  )
 }

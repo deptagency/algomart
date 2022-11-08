@@ -1,45 +1,109 @@
 {
   "walletConnect": {
-    "title": "FR Algorand WalletConnect",
-    "connect": "FR Open WalletConnect",
-    "description": "FR Use WalletConnect to link your Algorand wallet to AlgoMart.",
-    "helpText": "FR Need a wallet? Get one here:",
-    "destinationWallet": "FR Destination wallet:",
-    "selectAccount": "FR Select Account",
-    "nfts": "FR NFTs",
-    "selectNFT": "FR Select NFT",
-    "transfer": "FR Transfer",
-    "orCancel": "FR or cancel and disconnect from wallet",
-    "transferring": "FR Transferring NFT...",
-    "sent": "FR Sent!",
-    "backToMyCollection": "FR Back to My Collection"
+    "title": "Algorithme WalletConnect",
+    "connect": "Ouvrir WalletConnect",
+    "description": "Utilisez WalletConnect pour relier votre portefeuille Algorand à AlgoMart.",
+    "helpText": "Besoin d'un portefeuille ? Achetez-en un ici :",
+    "destinationWallet": "Destination portefeuille :",
+    "selectAccount": "Sélectionnez un compte",
+    "nfts": "NFTs",
+    "selectNFT": "Sélectionnez NFT",
+    "transfer": "Transférer",
+    "orCancel": "ou annuler et se déconnecter du portefeuille",
+    "transferring": "Transférer NFT...",
+    "sent": "Envoyé !",
+    "backToMyCollection": "Retour à Ma Collection"
   },
-  "actions": {
-    "sellNFT": "FR Sell NFT",
-    "transferNFT": "FR Transfer NFT"
-  },
-  "labels": {
-    "Owner": "FR Owner",
-    "Edition": "FR Edition",
-    "Rarity": "FR Rarity",
-    "Collection": "FR Collection",
-    "Set": "FR Set",
-    "Address": "FR Address",
-    "editionX": "FR #{{edition}} of {{totalEditions}}",
-    "uniqueId": "FR Unique ID",
-    "cannotTransfer": {
-      "frozen": "FR This NFT is frozen and cannot be transferred.",
-      "mintedRecently": "FR Cannot be transferred until {{date}}."
+  "activity": {
+    "title": "Activité",
+    "table": {
+      "Event": "Événement",
+      "Price": "Prix",
+      "From": "À partir de",
+      "To": "À",
+      "Date": "Date"
+    },
+    "events": {
+      "purchase": "Acheté ",
+      "list": "Répertorié",
+      "mint": "Conçu",
+      "transfer": "Transféré"
     }
   },
+  "details": {
+    "title": "Détails"
+  },
+  "transfer": {
+    "title": "Transfert vers le portefeuille",
+    "body": "Transférez votre NFT vers un portefeuille Algorand externe. Les NFTs transférés vers un porte-monnaie externe n'apparaîtront plus dans votre collection.",
+    "learnMore": "En savoir plus sur le transfert des NFT",
+    "transferMyNFT": "Transférer mon NFT"
+  },
+  "labels": {
+    "Owner": "Propriétaire",
+    "ownedBy": "Propriété de",
+    "Edition": "Édition ",
+    "Rarity": "Rareté",
+    "Collection": "Collection",
+    "Set": "Set / Ensemble ",
+    "Address": "Adresse ",
+    "editionXWrappers": null,
+    "editionX": "#{{edition}} de {{totalEditions}}",
+    "mintedAt": null,
+    "uniqueId": "Identifiant unique / Unique ID",
+    "cannotTransfer": {
+      "frozen": "Ce NFT est bloqué et ne peut être transféré.",
+      "transactedRecently": "Ne peut être transféré avant {{date}}."
+    },
+    "Price": "Prix",
+    "Starting at": null
+  },
+  "sell": {
+    "title": "Liste des produits à vendre",
+    "body": "Mettez votre NFT en vente sur notre marché secondaire. Les annonces peuvent être retirées à tout moment.",
+    "royaltyFee": "Redevance",
+    "learnMore": "En savoir plus sur la vente de NFT",
+    "listed": null,
+    "listedTitle": null,
+    "listForSale": "Liste des produits à vendre",
+    "listForSaleComingSoon": "Vendre Mon NFT est bientôt disponible",
+    "removeListing": null,
+    "serviceFee": "Frais de service",
+    "noUser": null,
+    "notOwner": null,
+    "transactedRecently": null,
+    "isListed": null
+  },
+  "purchase": {
+    "title": null,
+    "body": null,
+    "purchaseComingSoon": null,
+    "notListed": null,
+    "isOwner": null,
+    "noUser": null
+  },
+  "listForSaleStatus": {
+    "success": "Bravo ! Votre NFT est mis en vente."
+  },
+  "delistStatus": {
+    "success": null
+  },
   "exportStatus": {
-    "idle": "FR Loading...",
-    "optingIn": "FR Please confirm the transactions in your wallet to opt-in to the NFT.",
-    "optIn": "FR Verifying opt-in transaction...",
-    "pending": "FR Transferring NFT...",
-    "success": "FR NFT transferred!",
-    "error": "FR Error transferring NFT.",
-    "generatingTransactions": "FR Generating transactions for import...",
-    "signTransaction": "FR Please confirm the transactions in your wallet to transfer the NFT."
+    "idle": "Chargement...",
+    "optingIn": "Veuillez confirmer les transactions dans votre portefeuille pour vous inscrire au NFT.",
+    "optIn": "Vérification de la transaction opt-in...",
+    "pending": "Transférer NFT...",
+    "success": "NFT transféré !",
+    "error": {
+      "404": {
+        "title": "Erreur de transfert de NFT : Compte non trouvé",
+        "subtitle": "Cela peut se produire si vous n'avez pas encore utilisé votre compte pour effectuer des transactions."
+      },
+      "generic": {
+        "title": "Erreur de transfert de NFT"
+      }
+    },
+    "generatingTransactions": "Générer des transactions pour l'importation...",
+    "signTransaction": "Veuillez confirmer les transactions dans votre portefeuille pour transférer le NFT."
   }
 }

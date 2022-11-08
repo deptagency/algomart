@@ -1,0 +1,36 @@
+.labelContainer {
+  @apply relative block mb-6 text-base-textPrimary rounded-sm;
+}
+
+.contentTop {
+  @apply flex items-end justify-between gap-2 mb-1.5;
+}
+
+.compact {
+  @apply mb-5 text-sm;
+}
+
+.noMargin {
+  @apply mb-0;
+}
+
+.labelText {
+  @apply font-semibold shrink-0;
+}
+
+.helpText {
+  @apply text-sm text-right text-base-textSecondary;
+}
+
+.errorText {
+  @apply text-sm text-right text-base-error;
+}
+
+.fullWidthError {
+  @apply mb-1.5 text-sm text-base-error leading-tight;
+}
+
+/* Small variant */
+.compact .labelText {
+  @apply text-sm;
+}

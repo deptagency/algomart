@@ -1,0 +1,31 @@
+.container {
+  @apply p-8 mx-auto max-w-520;
+}
+
+.sendAmount {
+  @apply p-6 mt-2 mb-6 text-center rounded-md bg-action-tertiary border-1;
+}
+
+.amount {
+  @apply text-xl font-bold;
+}
+
+.checkForTransfer {
+  @apply gap-2 mt-12 text-white border-t-1 bg-base-price;
+}
+
+.connectedAccountContainer {
+  @apply my-6;
+}
+
+.connectedAccount {
+  @apply flex items-center justify-between gap-4 mt-1 font-mono;
+}
+
+.disconnectButton {
+  @apply text-sm underline font-base;
+}
+
+.error {
+  @apply mb-4;
+}

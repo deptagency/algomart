@@ -1,4 +1,19 @@
 'use strict'
+var __assign =
+  (this && this.__assign) ||
+  function () {
+    __assign =
+      Object.assign ||
+      function (t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+          s = arguments[i]
+          for (var p in s)
+            if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p]
+        }
+        return t
+      }
+    return __assign.apply(this, arguments)
+  }
 var __awaiter =
   (this && this.__awaiter) ||
   function (thisArg, _arguments, P, generator) {
@@ -153,15 +168,14 @@ function runAction(options, context) {
       return [
         2 /*return*/,
         new Promise(function (resolve, reject) {
+          var projectConfig = context.workspace.projects[context.projectName]
           var directus = (0, node_child_process_1.spawn)(
             'npx',
             __spreadArray(['directus', options.action], options.args, true),
             {
-              cwd: (0, node_path_1.join)(
-                context.cwd,
-                context.workspace.projects[context.projectName].root
-              ),
+              cwd: (0, node_path_1.join)(context.cwd, projectConfig.root),
               stdio: 'inherit',
+              env: __assign(__assign({}, process.env), { LOG_LEVEL: 'warn' }),
             }
           )
           process.on('SIGTERM', function () {

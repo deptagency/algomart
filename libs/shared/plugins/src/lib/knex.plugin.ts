@@ -13,7 +13,7 @@ export interface FastifyKnexOptions extends FastifyPluginOptions {
   knex: Knex.Config
 }
 
-export default fp(async function fastifyKnex(
+export const fastifyKnexPlugin = fp(async function fastifyKnex(
   fastify: FastifyInstance,
   options: FastifyKnexOptions
 ) {

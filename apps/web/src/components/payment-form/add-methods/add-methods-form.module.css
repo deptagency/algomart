@@ -1,0 +1,15 @@
+.form h2 {
+  @apply pb-4 mb-8 font-bold border-b border-base-border;
+}
+
+.form label {
+  @apply text-sm;
+}
+
+.buttonWrapper {
+  @apply flex justify-end m-auto;
+}
+
+.notification {
+  @apply mb-5;
+}

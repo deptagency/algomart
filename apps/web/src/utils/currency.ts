@@ -1,7 +1,6 @@
 import { DEFAULT_CURRENCY, DEFAULT_LOCALE } from '@algomart/schemas'
 import * as Currencies from '@dinero.js/currencies'
 import {
-  add,
   Currency,
   dinero,
   greaterThan,
@@ -12,6 +11,12 @@ import {
 
 export function dineroCurrency(code = DEFAULT_CURRENCY) {
   return Currencies[code as keyof typeof Currencies]
+}
+
+export function formatCredits(creditsInCents: number) {
+  const credits = creditsInCents / 100
+  if (Number.isNaN(credits)) return 0
+  return formatCurrency(credits.toFixed(2))
 }
 
 export function formatCurrency(
@@ -40,6 +45,9 @@ export function formatCurrency(
     return amount.toLocaleString(locale, {
       style: 'currency',
       currency: currency.code,
+      // Enforces $1.00 over US$1.00 in some locales
+      // TODO: is this what we want?
+      currencyDisplay: 'narrowSymbol',
     })
   }
 

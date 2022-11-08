@@ -1,18 +1,18 @@
 import clsx from 'clsx'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import css from './my-profile-payment-methods-template.module.css'
 import common from '@/components/profile/my-profile-common.module.css'
 
 import Button from '@/components/button'
+import CreditCardNetworkLogo from '@/components/credit-card-network-logo/credit-card-network-logo'
 import Dialog from '@/components/dialog/dialog'
-import Heading from '@/components/heading'
+import { H1 } from '@/components/heading'
 import Toggle from '@/components/toggle/toggle'
 import { CardsList } from '@/pages/my/profile/payment-methods'
 import { urls } from '@/utils/urls'
-
 export interface MyProfilePaymentMethodsTemplateProps {
   cards: CardsList[]
   removeCard: (cardId: string) => void
@@ -26,8 +26,16 @@ export default function MyProfilePaymentMethodsTemplate({
 }: MyProfilePaymentMethodsTemplateProps) {
   const router = useRouter()
   const { t } = useTranslation()
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
-  const [activeMethod, setActiveMethod] = useState<CardsList | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [activeCard, setActiveCard] = useState<CardsList | null>(null)
+
+  const handleRemoveCard = useCallback(() => {
+    if (activeCard?.id) {
+      removeCard(activeCard.id)
+    }
+    setIsModalOpen(false)
+    setActiveCard(null)
+  }, [activeCard, removeCard])
 
   return (
     <>
@@ -36,7 +44,13 @@ export default function MyProfilePaymentMethodsTemplate({
           <>
             <ul className={css.listWrapper}>
               {cards.map((card) => {
-                const { id, label, default: defaultCard, isExpired } = card
+                const {
+                  id,
+                  label,
+                  default: defaultCard,
+                  isExpired,
+                  network,
+                } = card
                 return (
                   <li
                     className={clsx(css.listItem, {
@@ -44,7 +58,10 @@ export default function MyProfilePaymentMethodsTemplate({
                     })}
                     key={id}
                   >
-                    <span className={css.itemLabel}>{label}</span>
+                    <div className={css.itemLabel}>
+                      <CreditCardNetworkLogo network={network} />
+                      {label}
+                    </div>
                     <div className={css.itemActions}>
                       <Toggle
                         checked={defaultCard}
@@ -58,10 +75,9 @@ export default function MyProfilePaymentMethodsTemplate({
                         className={css.removeButton}
                         onClick={() => {
                           setIsModalOpen(true)
-                          setActiveMethod(card)
+                          setActiveCard(card)
                         }}
                         variant="link"
-                        size="small"
                       >
                         {t('common:actions.Remove')}
                       </Button>
@@ -71,10 +87,7 @@ export default function MyProfilePaymentMethodsTemplate({
               })}
             </ul>
             <Button
-              aria-label={t('common:actions.Add Card')}
               onClick={() => router.push(urls.myProfilePaymentMethodsAdd)}
-              size="small"
-              variant="primary"
             >
               {t('common:actions.Add Card')}
             </Button>
@@ -85,10 +98,7 @@ export default function MyProfilePaymentMethodsTemplate({
               {t('common:statuses.noMethodsAvailable')}
             </p>
             <Button
-              aria-label={t('common:actions.Add Card')}
               onClick={() => router.push(urls.myProfilePaymentMethodsAdd)}
-              size="small"
-              variant="primary"
             >
               {t('common:actions.Add Card')}
             </Button>
@@ -102,39 +112,28 @@ export default function MyProfilePaymentMethodsTemplate({
         contentClassName={css.dialog}
         onClose={() => {
           setIsModalOpen(!isModalOpen)
-          setActiveMethod(null)
+          setActiveCard(null)
         }}
         open={isModalOpen}
       >
         <div className={css.dialogRoot}>
           <header>
-            <Heading level={2} className={css.dialogHeader}>
+            <H1 bold mb={12}>
               {t('common:actions.Remove Payment Method?')}
-            </Heading>
+            </H1>
             <Button
               aria-label={t('common:actions.Close')}
               className={css.closeButton}
               onClick={() => {
                 setIsModalOpen(!isModalOpen)
-                setActiveMethod(null)
+                setActiveCard(null)
               }}
-              variant="tertiary"
+              variant="ghost"
             >
               {'\u2717'}
             </Button>
           </header>
-          <Button
-            onClick={() => {
-              if (activeMethod?.id) {
-                removeCard(activeMethod.id)
-              }
-              setIsModalOpen(false)
-              setActiveMethod(null)
-            }}
-            variant="primary"
-            size="small"
-            type="submit"
-          >
+          <Button onClick={handleRemoveCard} type="submit">
             {t('common:actions.Remove Method')}
           </Button>
         </div>

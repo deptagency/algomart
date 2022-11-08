@@ -1,0 +1,19 @@
+{
+  "name": "directus-extension-kyc-management",
+  "version": "1.0.0",
+  "private": true,
+  "keywords": [
+    "directus",
+    "directus-extension",
+    "directus-custom-hook"
+  ],
+  "directus:extension": {
+    "type": "hook",
+    "path": "index.js",
+    "source": "src/index.js",
+    "host": "9.16.1"
+  },
+  "scripts": {
+    "build": "directus-extension build"
+  }
+}

@@ -10,6 +10,17 @@ export type TransactionList = {
   signedTxns: Uint8Array[]
 }
 
+export enum ChainType {
+  MainNet = 'mainnet',
+  TestNet = 'testnet',
+  BetaNet = 'betanet',
+}
+
+export const UsdcAssetIdByChainType = {
+  [ChainType.TestNet]: 10_458_941,
+  [ChainType.MainNet]: 31_566_704,
+}
+
 /**
  * Lazy-loading the algosdk library
  * @returns The algosdk

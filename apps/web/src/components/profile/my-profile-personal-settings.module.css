@@ -1,0 +1,18 @@
+.inputWrapper {
+  @apply flex flex-col-reverse items-stretch gap-2 mb-5;
+  @apply sm:flex-row sm:gap-5 sm:items-center;
+}
+.inputWrapper > * {
+  @apply flex-grow;
+}
+.inputWrapper > *:first-child {
+  @apply sm:basis-2/3 grow-0;
+}
+
+.inputWrapper:last-child {
+  @apply mb-0;
+}
+
+.inputWrapper select {
+  @apply w-full;
+}

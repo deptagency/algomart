@@ -1,0 +1,7 @@
+.socialMediaIconsWrapper {
+  @apply flex flex-col items-center content-between;
+}
+
+.socialMediaIcons {
+  @apply flex gap-6;
+}

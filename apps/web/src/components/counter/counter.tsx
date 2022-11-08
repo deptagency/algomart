@@ -1,7 +1,12 @@
 import useTranslation from 'next-translate/useTranslation'
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
+
+import Grid from '../grid/grid'
 
 import CounterDigit from './counter-digit'
+
+import { useInterval } from '@/hooks/use-interval'
+import { getTimeDiff } from '@/utils/date-time'
 
 interface CounterProps {
   includeDaysInPlainString?: boolean
@@ -17,23 +22,18 @@ export default function Counter({
   const [now, setNow] = useState(new Date())
   const { t } = useTranslation()
 
-  const diffInMilliseconds = Math.max(target.getTime() - now.getTime(), 0)
+  const { days, hours, minutes, seconds, diffInMilliseconds } = useMemo(
+    () => getTimeDiff(target, now),
+    [now, target]
+  )
   const pause = diffInMilliseconds === 0
-  const days = Math.floor(diffInMilliseconds / 1000 / 60 / 60 / 24)
-  const hours = Math.floor((diffInMilliseconds / 1000 / 60 / 60) % 24)
-  const minutes = Math.floor((diffInMilliseconds / 1000 / 60) % 60)
-  const seconds = Math.floor((diffInMilliseconds / 1000) % 60)
 
-  useEffect(() => {
-    if (pause) {
-      return
-    }
-
-    const timer = setInterval(() => {
+  useInterval(
+    () => {
       setNow(new Date())
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [pause])
+    },
+    pause ? null : 1000
+  )
 
   if (plainString) {
     return days > 0 && !includeDaysInPlainString ? (
@@ -51,7 +51,7 @@ export default function Counter({
   }
 
   return (
-    <div className="flex justify-between space-x-3 md:space-x-5 md:justify-start">
+    <Grid base={4} gapBase={5} className={'mx-2'}>
       <CounterDigit
         digit={days}
         label={t('common:dateTime.Days', { count: days })}
@@ -68,6 +68,6 @@ export default function Counter({
         digit={seconds}
         label={t('common:dateTime.Seconds', { count: seconds })}
       />
-    </div>
+    </Grid>
   )
 }

@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  api_db:
+    image: postgres:13-alpine
+    restart: unless-stopped
+    volumes:
+      - api-db-data:/var/lib/postgresql/data
+    ports:
+      - 5435:5432
+    environment:
+      POSTGRES_DB: algomart_api
+      POSTGRES_USER: api_user
+      POSTGRES_PASSWORD: api_pass
+
+  cms_db:
+    image: postgres:13-alpine
+    restart: unless-stopped
+    volumes:
+      - cms-db-data:/var/lib/postgresql/data
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_DB: algomart_cms
+      POSTGRES_USER: cms_user
+      POSTGRES_PASSWORD: cms_pass
+
+  test_db:
+    image: postgres:13-alpine
+    restart: unless-stopped
+    volumes:
+      - test-db-data:/var/lib/postgresql/data
+    ports:
+      - 6543:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: algomart-api-test
+
+  redis:
+    image: bitnami/redis:6.2
+    restart: unless-stopped
+    volumes:
+      - redis-data:/bitnami/redis/data
+    ports:
+      - 7001:7001
+    environment:
+      REDIS_PASSWORD: redis_pass
+      REDIS_PORT_NUMBER: 7001
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Update 'VARIANT' to pick an LTS version of Node.js: 16, 14, 12.
+        # Append -bullseye or -buster to pin to an OS version.
+        # Use -bullseye variants on local arm64/Apple Silicon.
+        VARIANT: 16-bullseye
+    ports:
+      - 3000:3000
+      - 3001:3001
+      - 8055:8055
+    depends_on:
+      - api_db
+      - cms_db
+      - test_db
+      - redis
+    volumes:
+      - ..:/workspace:cached
+      - /var/run/docker.sock:/var/run/docker-host.sock
+      - algomart_node_modules:/workspace/node_modules
+      - cms_uploads:/workspace/apps/cms/uploads
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+    # Uncomment the next line to use a non-root user for all processes.
+    # user: node
+
+volumes:
+  api-db-data:
+  cms-db-data:
+  test-db-data:
+  redis-data:
+  algomart_node_modules:
+  cms_uploads:

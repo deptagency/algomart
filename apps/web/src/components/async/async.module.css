@@ -1,0 +1,22 @@
+.root {
+  @apply relative;
+}
+
+.loaderContainer {
+  @apply absolute;
+}
+.isLoading {
+  /* Room for 80px loader plus some padding */
+  @apply min-h-[140px];
+}
+.isLoading .loaderContainer {
+  @apply z-10 flex items-center w-full h-full justify-items-center;
+}
+
+.childrenContainer {
+  @apply transition-opacity opacity-100;
+}
+
+.isLoading .childrenContainer {
+  @apply pointer-events-none opacity-20;
+}

@@ -8,27 +8,35 @@ export interface HttpResponse<T = unknown> {
 
 export interface RequestOptions {
   headers?: Record<string, string | number | boolean>
-  params?: Record<string, string | number | boolean>
+  params?: Record<string, string | number | boolean> | URLSearchParams
 }
 
 export const DEFAULT_TIMEOUT = 10_000
 
 export const validateStatus = (status: number) => status >= 200 && status < 400
 
+export interface HttpTransportOptions {
+  baseURL?: string
+  timeout?: number
+  defaultHeaders?: Record<string, string>
+  throwOnHttpError?: boolean
+}
+
 export class HttpTransport {
   client: AxiosInstance
 
-  constructor(
-    baseURL?: string,
+  constructor({
+    baseURL,
+    defaultHeaders = {},
     timeout = DEFAULT_TIMEOUT,
-    defaultHeaders: Record<string, string> = {}
-  ) {
+    throwOnHttpError = true,
+  }: HttpTransportOptions = {}) {
     this.client = axios.create({
       baseURL,
       responseType: 'json',
       timeout,
       headers: defaultHeaders,
-      validateStatus,
+      validateStatus: throwOnHttpError ? validateStatus : undefined,
     })
   }
 
@@ -71,7 +79,10 @@ export class HttpTransport {
     body?: R,
     options?: RequestOptions
   ): Promise<HttpResponse<T>> {
-    const { data, headers, status } = await this.client.delete<T>(url, options)
+    const { data, headers, status } = await this.client.delete<T>(url, {
+      ...options,
+      data: body,
+    })
     return { data, headers, status }
   }
 

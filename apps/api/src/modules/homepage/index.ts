@@ -1,24 +1,10 @@
-import { HomepageSchema, LanguageSchema } from '@algomart/schemas'
-import { appErrorHandler } from '@algomart/shared/utils'
-import bearerAuthOptions from '@api/configuration/bearer-auth'
-import fastifyBearerAuth from '@fastify/bearer-auth'
+import { HomepageSchema, LanguageObjectSchema } from '@algomart/schemas'
 import { FastifyInstance } from 'fastify'
 
 import { getHomepage } from './homepage.routes'
 
 export async function homepageRoutes(app: FastifyInstance) {
   const tags = ['homepage']
-  const security = [
-    {
-      'API Key': [],
-    },
-  ]
-
-  // Errors
-  app.setErrorHandler(appErrorHandler(app))
-
-  // Plugins
-  await app.register(fastifyBearerAuth, bearerAuthOptions)
 
   // Services/Routes
   app.get(
@@ -26,8 +12,7 @@ export async function homepageRoutes(app: FastifyInstance) {
     {
       schema: {
         tags,
-        security,
-        querystring: LanguageSchema,
+        querystring: LanguageObjectSchema,
         response: {
           200: HomepageSchema,
         },

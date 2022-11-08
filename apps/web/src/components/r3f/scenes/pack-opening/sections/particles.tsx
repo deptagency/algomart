@@ -17,7 +17,7 @@ export default function Particles({
   count,
   mouse,
   mouseIntensity = 0.002,
-  size = 1,
+  size = 3,
   spread = 100,
 }: ParticlesProps) {
   const mesh = useRef<InstancedMesh>()
@@ -62,6 +62,7 @@ export default function Particles({
       my += (mouse.current[1] * -1 - my) * mouseIntensity
 
       // Update the dummy instance
+      dummy.rotateX(Math.cos(1))
       dummy.position.set(
         (mx / 10) * offset +
           spreadX +
@@ -97,7 +98,7 @@ export default function Particles({
         ref={mesh}
         args={[new BufferGeometry(), new Material(), count]}
       >
-        <sphereBufferGeometry attach="geometry" />
+        <planeBufferGeometry attach="geometry" />
         {/* @ts-ignore ignore "Type instantiation is excessively deep and possibly infinite." */}
         <animated.meshStandardMaterial
           attach="material"

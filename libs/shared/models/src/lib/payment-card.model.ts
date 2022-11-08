@@ -1,13 +1,20 @@
-import { PaymentCardSchema, PaymentCardStatus } from '@algomart/schemas'
+import {
+  CircleCardErrorCode,
+  CircleCreateCard,
+  EntityType,
+  PaymentCardSchema,
+  PaymentCardStatus,
+} from '@algomart/schemas'
 import { Model } from 'objection'
 
 import { BaseModel } from './base.model'
 import { UserAccountModel } from './user-account.model'
 
 export class PaymentCardModel extends BaseModel {
-  static tableName = 'PaymentCard'
+  static tableName = EntityType.PaymentCard
   static jsonSchema = PaymentCardSchema
 
+  countryCode!: string
   ownerId!: string
   network!: string
   lastFour!: string
@@ -15,8 +22,12 @@ export class PaymentCardModel extends BaseModel {
   expirationYear!: string
   externalId!: string
   status!: PaymentCardStatus | null
-  error!: string | null
+  error!: CircleCardErrorCode | null
+  errorDetails!: string | null
   default!: boolean
+  isSaved!: boolean
+  payload!: CircleCreateCard | null
+  idempotencyKey!: string | null
 
   owner?: UserAccountModel
 

@@ -1,18 +1,29 @@
 import { Static, Type } from '@sinclair/typebox'
 
 import { BidPublicSchema } from './bids'
-import { CollectibleListSchema } from './collectibles'
 import {
+  CollectibleBaseSchema,
+  CollectibleWithDetailsSchema,
+} from './collectibles'
+import {
+  AlgorandAccountAddressSchema,
   BaseSchema,
-  ExternalIdSchema,
+  CurrencyAmountSchema,
   IdSchema,
+  LanguageObjectSchema,
+  LanguageSchema,
   Nullable,
+  PageSchema,
+  PageSizeSchema,
   PaginationSchema,
+  RedeemCodeSchema,
   Simplify,
+  SlugSchema,
   SortDirection,
+  UserExternalIdSchema,
 } from './shared'
+import { TagSchema } from './tags'
 import { AlgorandTransactionStatus } from './transactions'
-import { CollectibleSchema } from '.'
 
 export enum PackType {
   Auction = 'auction',
@@ -51,28 +62,17 @@ export enum MintPackStatus {
   Pending = 'pending',
 }
 
-// Base32 https://www.crockford.com/base32.html
-// This gives us 12^32 possibilities
-export const REDEMPTION_CODE_CHARACTERS = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'
-export const REDEMPTION_CODE_LENGTH = 12
-
 export const PackTemplateIdSchema = Type.Object({
   templateId: IdSchema,
 })
 
-export const ClaimFreePackSchema = Type.Intersect([
-  ExternalIdSchema,
-  Type.Object({
-    templateId: IdSchema,
-  }),
-])
+export const ClaimFreePackSchema = Type.Object({
+  templateId: IdSchema,
+})
 
-export const ClaimRedeemPackSchema = Type.Intersect([
-  ExternalIdSchema,
-  Type.Object({
-    redeemCode: Type.String(),
-  }),
-])
+export const ClaimRedeemPackSchema = Type.Object({
+  redeemCode: RedeemCodeSchema,
+})
 
 export const ClaimPackSchema = Type.Object({
   packId: IdSchema,
@@ -83,92 +83,97 @@ export const ClaimPackSchema = Type.Object({
 export const RevokePackSchema = Type.Object({
   packId: IdSchema,
   ownerId: Type.Optional(Nullable(IdSchema)),
-  fromAddress: Type.Optional(Nullable(Type.String())),
+  fromAddress: Type.Optional(Nullable(AlgorandAccountAddressSchema)),
 })
 
 export const PackConfigSchema = Type.Object({
   collectibleDistribution: Type.Enum(PackCollectibleDistribution),
   collectibleOrder: Type.Enum(PackCollectibleOrder),
-  collectiblesPerPack: Type.Integer(),
+  collectiblesPerPack: Type.Integer({ minimum: 1, maximum: 16 }),
 })
 
 export const PackBaseSchema = Type.Object({
-  activeBid: Type.Optional(Type.Number()),
+  activeBid: Type.Optional(CurrencyAmountSchema),
   additionalImages: Type.Array(Type.String({ format: 'uri' })),
   allowBidExpiration: Type.Boolean(),
   auctionUntil: Type.Optional(Type.String({ format: 'date-time' })),
+  banner: Type.Optional(Type.String({ format: 'uri' })),
   body: Type.Optional(Type.String()),
-  collectibleTemplates: Type.Array(CollectibleSchema),
-  collectibleTemplateIds: Type.Array(IdSchema),
+  collectibleTemplates: Type.Optional(
+    Nullable(Type.Array(CollectibleBaseSchema))
+  ),
+  collectibleTemplateIds: Type.Optional(Nullable(Type.Array(IdSchema))),
   config: PackConfigSchema,
   image: Type.String({ format: 'uri' }),
-  nftCategory: Type.Optional(Type.String()),
-  nftsPerPack: Type.Integer(),
+  // TODO: is nftCategory still in use?
+  nftCategory: Type.Optional(Type.String({ pattern: '^[a-zA-Z0-9-_]+$' })),
+  nftsPerPack: Type.Integer({ minimum: 1, maximum: 16 }),
   onePackPerCustomer: Type.Boolean(),
-  price: Type.Number(),
+  price: CurrencyAmountSchema,
   releasedAt: Type.Optional(Type.String({ format: 'date-time' })),
-  slug: Type.String(),
+  showNfts: Type.Optional(Type.Boolean()),
+  slug: SlugSchema,
   status: Type.Enum(PackStatus),
   subtitle: Type.Optional(Type.String()),
   templateId: IdSchema,
   title: Type.String(),
   type: Type.Enum(PackType),
+  tags: Type.Optional(Type.Array(TagSchema)),
 })
 
 export const PublishedPackSchema = Type.Intersect([
   PackBaseSchema,
   Type.Object({
-    available: Type.Number(),
-    total: Type.Number(),
-    activeBid: Type.Optional(Type.Number()),
+    available: Type.Integer({ minimum: 0 }),
+    total: Type.Integer({ minimum: 0 }),
+    activeBid: Type.Optional(CurrencyAmountSchema),
   }),
 ])
 
 export const PublishedPacksSchema = Type.Object({
   packs: Type.Array(PublishedPackSchema),
-  total: Type.Number(),
+  total: Type.Integer({ minimum: 0 }),
 })
 
 export const PackByOwnerSchema = Type.Intersect([
   PackBaseSchema,
   Type.Object({
     id: IdSchema,
-    activeBid: Type.Optional(Type.Number()),
+    activeBid: Type.Optional(CurrencyAmountSchema),
     claimedAt: Type.String({ format: 'date-time' }),
   }),
 ])
 
 export const PacksByOwnerSchema = Type.Object({
   packs: Type.Array(PackByOwnerSchema),
-  total: Type.Number(),
+  total: Type.Integer({ minimum: 0 }),
 })
 
-export const PublishedPacksQuerySchema = Type.Intersect([
-  PaginationSchema,
-  Type.Object({
-    language: Type.Optional(Type.String()),
-    slug: Type.Optional(Type.String()),
-    templates: Type.Optional(Type.Array(PackBaseSchema)),
-    templateIds: Type.Optional(Type.Array(IdSchema)),
-    priceLow: Type.Optional(Type.Number()),
-    priceHigh: Type.Optional(Type.Number()),
-    type: Type.Optional(Type.Array(Type.Enum(PackType))),
-    status: Type.Optional(Type.Array(Type.Enum(PackStatus))),
-    reserveMet: Type.Optional(Type.Boolean()),
-    sortBy: Type.Optional(
-      Type.Enum(PackSortField, { default: PackSortField.ReleasedAt })
-    ),
-    sortDirection: Type.Optional(
-      Type.Enum(SortDirection, { default: SortDirection.Ascending })
-    ),
-  }),
-])
+export const PublishedPacksQuerySchema = Type.Object({
+  page: Type.Optional(PageSchema),
+  pageSize: Type.Optional(PageSizeSchema),
+  language: Type.Optional(LanguageSchema),
+  slug: Type.Optional(SlugSchema),
+  templateIds: Type.Optional(Type.Array(IdSchema)),
+  priceLow: Type.Optional(CurrencyAmountSchema),
+  priceHigh: Type.Optional(CurrencyAmountSchema),
+  type: Type.Optional(Type.Array(Type.Enum(PackType))),
+  status: Type.Optional(Type.Array(Type.Enum(PackStatus))),
+  reserveMet: Type.Optional(Type.Boolean()),
+  tags: Type.Optional(Type.Array(Type.String())),
+  sortBy: Type.Optional(
+    Type.Enum(PackSortField, { default: PackSortField.ReleasedAt })
+  ),
+  sortDirection: Type.Optional(
+    Type.Enum(SortDirection, { default: SortDirection.Ascending })
+  ),
+})
 
 export const PacksByOwnerQuerySchema = Type.Intersect([
   PaginationSchema,
+  LanguageObjectSchema,
   Type.Object({
-    language: Type.Optional(Type.String()),
-    slug: Type.Optional(Type.String()),
+    slug: Type.Optional(SlugSchema),
     templateIds: Type.Optional(Type.Array(IdSchema)),
     type: Type.Optional(Type.Array(Type.Enum(PackType))),
     sortBy: Type.Optional(
@@ -196,7 +201,7 @@ export const PackIdSchema = Type.Object({
 })
 
 export const PackSlugSchema = Type.Object({
-  packSlug: Type.String(),
+  packSlug: SlugSchema,
 })
 
 export const PackAuctionSchema = Type.Intersect([
@@ -204,7 +209,7 @@ export const PackAuctionSchema = Type.Intersect([
   Type.Object({
     activeBid: Type.Optional(BidPublicSchema),
     bids: Type.Array(BidPublicSchema),
-    ownerExternalId: Type.Optional(IdSchema),
+    userExternalId: Type.Optional(UserExternalIdSchema),
   }),
 ])
 
@@ -215,7 +220,7 @@ export const PackSchema = Type.Intersect([
     claimedAt: Type.Optional(Nullable(Type.String({ format: 'date-time' }))),
     expiresAt: Type.Optional(Nullable(Type.String({ format: 'date-time' }))),
     ownerId: Type.Optional(Nullable(IdSchema)),
-    redeemCode: Type.Optional(Nullable(Type.String())),
+    redeemCode: Type.Optional(Nullable(RedeemCodeSchema)),
     templateId: IdSchema,
   }),
 ])
@@ -224,34 +229,13 @@ export const PackByTemplateIdSchema = Type.Object({
   templateId: IdSchema,
 })
 
-export const PackForPaymentSchema = Type.Intersect([
-  PackSchema,
-  Type.Object({
-    template: Type.Optional(Nullable(PackBaseSchema)),
-  }),
-])
-
-export const RedeemCodeSchema = Type.Object({
-  redeemCode: Type.String({
-    minLength: REDEMPTION_CODE_LENGTH,
-    maxLength: REDEMPTION_CODE_LENGTH,
-    pattern: `^[A-Z0-9]{${REDEMPTION_CODE_LENGTH}}$`,
-  }),
-})
-
-export const MintPackSchema = Type.Object({
-  externalId: Type.String(),
-  packId: IdSchema,
-})
-
-export const MintPackStatusResponseSchema = Type.Object({
-  status: Type.Enum(MintPackStatus),
+export const RedeemObjectCodeSchema = Type.Object({
+  redeemCode: RedeemCodeSchema,
 })
 
 export const TransferPackSchema = Type.Object({
-  externalId: Type.String(),
+  userExternalId: UserExternalIdSchema,
   packId: IdSchema,
-  passphrase: Type.String(),
 })
 
 export const TransferPackStatusSchema = Type.Object({
@@ -266,7 +250,7 @@ export const TransferPackStatusListSchema = Type.Object({
 export const PackWithCollectiblesSchema = Type.Intersect([
   PackWithIdSchema,
   Type.Object({
-    collectibles: CollectibleListSchema,
+    collectibles: Type.Array(CollectibleWithDetailsSchema),
   }),
 ])
 
@@ -292,13 +276,9 @@ export type PublishedPacksQuery = Simplify<
 >
 export type PublishedPack = Simplify<Static<typeof PublishedPackSchema>>
 export type PublishedPacks = Simplify<Static<typeof PublishedPacksSchema>>
-export type RedeemCode = Simplify<Static<typeof RedeemCodeSchema>>
+export type RedeemCode = Simplify<Static<typeof RedeemObjectCodeSchema>>
 export type RevokePack = Simplify<Static<typeof RevokePackSchema>>
 export type TransferPack = Simplify<Static<typeof TransferPackSchema>>
-export type MintPack = Simplify<Static<typeof MintPackSchema>>
-export type MintPackStatusResponse = Simplify<
-  Static<typeof MintPackStatusResponseSchema>
->
 export type TransferPackStatus = Simplify<
   Static<typeof TransferPackStatusSchema>
 >

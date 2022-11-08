@@ -13,17 +13,11 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
     interface Chainable {
-      createUser(
-        email: string,
-        passphrase: string,
-        password: string,
-        username: string
-      ): void
-      cleanupUser(email: string): void
+      createUsers(email: string, password: string, username: string): void
+      cleanupUsers(email: string, username: string): void
       verifyEmail(email: string): void
     }
   }
 }
 
 import './commands'
-import './cookies'

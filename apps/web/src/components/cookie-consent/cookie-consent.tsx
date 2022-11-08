@@ -44,9 +44,7 @@ export default function CookieConsent() {
           />
         </div>
         <div className={css.acceptButton}>
-          <Button onClick={handleAccept} size="small" variant="primary">
-            {t('common:actions.Accept')}
-          </Button>
+          <Button onClick={handleAccept}>{t('common:actions.Accept')}</Button>
         </div>
       </div>
     </div>

@@ -7,11 +7,11 @@ export async function getSet(
   reply: FastifyReply
 ) {
   const setsService = request.getContainer().get<SetsService>(SetsService.name)
+
   const set = await setsService.getBySlug(
     request.params.slug,
     request.query.language
   )
 
-  if (set) reply.send(set)
-  else reply.notFound()
+  return set ? reply.send(set) : reply.notFound()
 }

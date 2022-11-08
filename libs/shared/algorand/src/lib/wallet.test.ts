@@ -1,4 +1,5 @@
 import algosdk from 'algosdk'
+
 import { configureAlgod, createGetTransactionParamsMock } from './test-utils'
 import {
   configureSignTxns,
@@ -36,7 +37,7 @@ describe('configureSignTxns', () => {
     const signTxns = await configureSignTxns([account])
 
     // Assert
-    expect(() => signTxns([])).rejects.toBeInstanceOf(WalletError)
+    await expect(() => signTxns([])).rejects.toBeInstanceOf(WalletError)
   })
 
   it('should not require group for single txn', async () => {
@@ -84,7 +85,7 @@ describe('configureSignTxns', () => {
     const signTxns = await configureSignTxns([account])
 
     // Assert
-    expect(() => signTxns(txns)).rejects.toBeInstanceOf(WalletError)
+    await expect(() => signTxns(txns)).rejects.toBeInstanceOf(WalletError)
   })
 
   it('should work with multiple txns when group is set', async () => {
@@ -260,7 +261,7 @@ describe('configureSignTxns', () => {
     const signTxns = await configureSignTxns([account1, account2])
 
     // Assert
-    expect(() => signTxns(txns)).rejects.toBeInstanceOf(WalletError)
+    await expect(() => signTxns(txns)).rejects.toBeInstanceOf(WalletError)
   })
 })
 

@@ -3,22 +3,26 @@ import { GetServerSideProps } from 'next'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useState } from 'react'
 
-import { ApiClient } from '@/clients/api-client'
+import Async from '@/components/async/async'
 import MyProfileLayout from '@/layouts/my-profile-layout'
 import {
   getAuthenticatedUser,
+  getTokenFromCookie,
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
 import { CheckoutService } from '@/services/checkout-service'
 import MyProfilePaymentMethodsTemplate from '@/templates/my-profile-payment-methods-template'
 import { getExpirationDate, isAfterNow } from '@/utils/date-time'
+import { apiFetcher } from '@/utils/react-query'
 import { sortByDefault, sortByExpirationDate } from '@/utils/sort'
+import { urls } from '@/utils/urls'
 
 export interface CardsList {
   id: string
   label: string
   default: boolean
   isExpired: boolean
+  network: string
 }
 
 export interface MyProfilePaymentMethodsPageProps {
@@ -27,16 +31,13 @@ export interface MyProfilePaymentMethodsPageProps {
 
 const toCardsList = (cards: PaymentCards) =>
   cards.map((card) => {
-    const expDate = getExpirationDate(
-      card.expirationMonth as string,
-      card.expirationYear as string
-    )
-    const isExpired = !isAfterNow(expDate)
+    const expDate = getExpirationDate(card.expirationMonth, card.expirationYear)
     return {
-      id: card.id as string,
-      label: `${card.network} *${card.lastFour}, ${card.expirationMonth}/${card.expirationYear}`,
+      id: card.id,
+      label: `*${card.lastFour}, ${card.expirationMonth}/${card.expirationYear}`,
       default: card.default,
-      isExpired,
+      network: card.network,
+      isExpired: !isAfterNow(expDate),
     }
   })
 
@@ -46,8 +47,9 @@ export default function MyProfilePaymentMethodsPage({
   const { t } = useTranslation()
   const cardsList = toCardsList(cards)
   const [options, setOptions] = useState<CardsList[]>(cardsList)
+  const [busy, setBusy] = useState(false)
 
-  const handleRetrieveCards = useCallback(async () => {
+  const fetchCards = useCallback(async () => {
     const cards = await CheckoutService.instance.getCards()
     const sortedCardsByExpDate = sortByExpirationDate(cards)
     const sortedCardsByDefault = sortByDefault(sortedCardsByExpDate)
@@ -57,27 +59,33 @@ export default function MyProfilePaymentMethodsPage({
 
   const updateCard = useCallback(
     async (cardId: string, defaultCard: boolean) => {
+      setBusy(true)
       await CheckoutService.instance.updateCard(cardId, defaultCard)
-      handleRetrieveCards()
+      fetchCards()
+      setBusy(false)
     },
-    [handleRetrieveCards]
+    [fetchCards]
   )
 
   const removeCard = useCallback(
     async (cardId: string) => {
+      setBusy(true)
       await CheckoutService.instance.removeCard(cardId)
-      handleRetrieveCards()
+      fetchCards()
+      setBusy(false)
     },
-    [handleRetrieveCards]
+    [fetchCards]
   )
 
   return (
     <MyProfileLayout pageTitle={t('common:pageTitles.Payment Methods')}>
-      <MyProfilePaymentMethodsTemplate
-        cards={options}
-        removeCard={removeCard}
-        updateCard={updateCard}
-      />
+      <Async isLoading={busy}>
+        <MyProfilePaymentMethodsTemplate
+          cards={options}
+          removeCard={removeCard}
+          updateCard={updateCard}
+        />
+      </Async>
     </MyProfileLayout>
   )
 }
@@ -91,8 +99,8 @@ export const getServerSideProps: GetServerSideProps<
     return handleUnauthenticatedRedirect(context.resolvedUrl)
 
   // Find cards by owner
-  const cards = await ApiClient.instance.getCards({
-    ownerExternalId: user.externalId,
+  const cards = await apiFetcher().get<PaymentCards>(urls.api.payments.cards, {
+    bearerToken: getTokenFromCookie(context.req, context.res),
   })
   const sortedCardsByExpDate = sortByExpirationDate(cards)
   const sortedCardsByDefault = sortByDefault(sortedCardsByExpDate)

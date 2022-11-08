@@ -6,32 +6,30 @@ import css from './main-panel.module.css'
 export interface MainPanelProps {
   className?: string
   children?: ReactNode
-  noPanel?: boolean
   panelPadding?: boolean
-  width?: 'auto' | 'large' | 'full'
+  width?: 'auto' | 'large'
 }
 
 export default function MainPanel({
   className,
   children,
-  noPanel,
   panelPadding,
   width = 'auto',
 }: MainPanelProps) {
   return (
-    <main
-      className={clsx(
-        {
-          [css.rootNoPanel]: noPanel,
-          [css.rootPanel]: !noPanel,
-          [css.withPadding]: panelPadding,
-          [css.largeWidth]: width === 'large',
-          [css.fullWidth]: width === 'full',
-        },
-        className
-      )}
-    >
-      {children}
-    </main>
+    <div className={css.viewportPadding}>
+      <main
+        className={clsx(
+          css.panelContainer,
+          {
+            [css.withPadding]: panelPadding,
+            [css.largeWidth]: width === 'large',
+          },
+          className
+        )}
+      >
+        <div className={css.panel}>{children}</div>
+      </main>
+    </div>
   )
 }

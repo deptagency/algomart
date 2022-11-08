@@ -1,6 +1,7 @@
 import {
   CollectibleAuctionSchema,
   CollectibleAuctionStatus,
+  EntityType,
 } from '@algomart/schemas'
 import { Model } from 'objection'
 
@@ -11,7 +12,7 @@ import { CollectibleAuctionBidModel } from './collectible-auction-bid.model'
 import { UserAccountModel } from './user-account.model'
 
 export class CollectibleAuctionModel extends BaseModel {
-  static tableName = 'CollectibleAuction'
+  static tableName = EntityType.CollectibleAuction
   static jsonSchema = CollectibleAuctionSchema
 
   appId!: number

@@ -1,56 +1,54 @@
-import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
-import { useCallback, useEffect, useState } from 'react'
+import { parse } from 'query-string'
+import { useEffect, useRef, useState } from 'react'
 
 import { PackAndRedeemCode, useRedemption } from '@/contexts/redemption-context'
 import InterstitialLayout from '@/layouts/interstitial-layout'
 import RedeemTemplate from '@/templates/redeem-template'
-import { urls } from '@/utils/urls'
+import { useAPI } from '@/utils/react-query'
+import { urlFor, urls } from '@/utils/urls'
 
-interface RedeemPageProps {
-  prefilledRedeemCode: string
-}
-
-export default function RedeemPage({ prefilledRedeemCode }: RedeemPageProps) {
+export default function RedeemPage() {
+  const mounted = useRef(false)
   const { setRedeemable } = useRedemption()
   const { push } = useRouter()
   const [error, setError] = useState<string>('')
-  const [redeemCode, setRedeemCode] = useState<string>(prefilledRedeemCode)
+  const [redeemCode, setRedeemCode] = useState<string>('')
   const { t } = useTranslation()
-
-  const handleChange = (value: string) => {
-    setRedeemCode(value)
-    if (value.length === 12) {
-      submitRedeemCode(value)
+  const { data, isError } = useAPI<PackAndRedeemCode>(
+    ['redeem', redeemCode],
+    redeemCode.length === 12
+      ? urlFor(urls.api.packs.redeemable, { redeemCode })
+      : undefined,
+    {
+      refetchOnWindowFocus: false,
+      retry: false,
     }
-  }
-
-  const submitRedeemCode = useCallback(
-    async (redeemCode: string) => {
-      setError('')
-      const redeemable = await fetch(urls.api.v1.getRedeemable, {
-        body: JSON.stringify({ redeemCode }),
-        headers: { 'content-type': 'application/json' },
-        method: 'POST',
-      })
-      if (!redeemable.ok) {
-        const error = await redeemable.json()
-        setError(error.message)
-      } else {
-        const result = await redeemable.json()
-        setRedeemable(result as PackAndRedeemCode)
-        push(urls.login)
-      }
-    },
-    [setRedeemable, push]
   )
 
+  const handleChange = (value: string) => {
+    setRedeemCode(value.toUpperCase())
+  }
+
   useEffect(() => {
-    if (redeemCode.length === 12) {
-      submitRedeemCode(redeemCode)
+    if (mounted.current) return
+    mounted.current = true
+
+    const initialQuery = parse(window.location.search)
+    if (typeof initialQuery.redeemCode === 'string') {
+      setRedeemCode(initialQuery.redeemCode)
     }
-  }, []) /* eslint-disable-line react-hooks/exhaustive-deps */
+  }, [])
+
+  useEffect(() => {
+    if (data) {
+      setRedeemable(data)
+      push(urls.loginEmail)
+    } else if (isError) {
+      setError(t('common:statuses.An Error has Occurred'))
+    }
+  }, [data, isError, push, setRedeemable, t])
 
   return (
     <InterstitialLayout pageTitle={t('common:pageTitles.Redeem')}>
@@ -63,12 +61,9 @@ export default function RedeemPage({ prefilledRedeemCode }: RedeemPageProps) {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<RedeemPageProps> = async (
-  context
-) => {
-  let prefilledRedeemCode = ''
-  if (typeof context.query.redeemCode === 'string') {
-    prefilledRedeemCode = context.query.redeemCode
+export const getServerSideProps = async () => {
+  // Hiding this page since redemption isn't supported
+  return {
+    notFound: false,
   }
-  return { props: { prefilledRedeemCode } }
 }

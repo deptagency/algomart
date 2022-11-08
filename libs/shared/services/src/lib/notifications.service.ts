@@ -1,21 +1,24 @@
-import pino from 'pino'
 import {
   CreateNotification,
   Email,
-  EventAction,
-  EventEntityType,
   NotificationStatus,
   NotificationType,
 } from '@algomart/schemas'
 import { I18nAdapter, MailerAdapter } from '@algomart/shared/adapters'
-import { EventModel, NotificationModel } from '@algomart/shared/models'
+import { NotificationModel } from '@algomart/shared/models'
+import { SendNotificationQueue } from '@algomart/shared/queues'
 import { invariant } from '@algomart/shared/utils'
 import { ResponseError } from '@sendgrid/mail'
+import { UnrecoverableError } from 'bullmq'
 import { TFunction } from 'i18next'
-import { Transaction } from 'objection'
+import pino from 'pino'
 
-const isResponseError = (error: unknown): error is ResponseError => {
-  return typeof (error as ResponseError).response?.body === 'string'
+function isResponseError(error: unknown): error is ResponseError {
+  return !!(error as ResponseError).response
+}
+
+function isUnrecoverableError(error: unknown): error is UnrecoverableError {
+  return error instanceof UnrecoverableError
 }
 
 /** Freak out if the notification is missing any variables.
@@ -47,6 +50,11 @@ const expectVariables = (
   }
 }
 
+export interface NotificationsServiceOptions {
+  webUrl: string
+  customerServiceEmail: string
+}
+
 export class NotificationsService {
   logger: pino.Logger<unknown>
   dispatchStore: {
@@ -58,91 +66,122 @@ export class NotificationsService {
     [NotificationType.PaymentFailed]:
       this.getPaymentFailedNotification.bind(this),
     [NotificationType.BidExpired]: this.getBidExpiredNotification.bind(this),
+    [NotificationType.ReportComplete]:
+      this.getReportCompleteNotification.bind(this),
+    [NotificationType.WorkflowCompleteManual]:
+      this.getWorkflowCompleteManualReviewNotification.bind(this),
+    [NotificationType.WorkflowCompleteRejected]:
+      this.getWorkflowCompleteRejectedNotification.bind(this),
+    [NotificationType.WorkflowComplete]:
+      this.getWorkflowCompleteNotification.bind(this),
     [NotificationType.PaymentSuccess]:
       this.getPaymentSuccessNotification.bind(this),
     [NotificationType.TransferSuccess]:
       this.getTransferSuccessNotification.bind(this),
     [NotificationType.UserHighBid]: this.getUserHighBidNotification.bind(this),
     [NotificationType.UserOutbid]: this.getUserOutbidNotification.bind(this),
-    [NotificationType.WireInstructions]:
-      this.getWireInstructionsNotification.bind(this),
-    // Customer Service Notifications
-    [NotificationType.CSWirePaymentFailed]:
-      this.getCSWirePaymentFailedNotification.bind(this),
-    [NotificationType.CSWirePaymentSuccess]:
-      this.getCSWirePaymentSuccessNotification.bind(this),
-    [NotificationType.CSAwaitingWirePayment]:
-      this.getCSAwaitingWirePaymentNotification.bind(this),
+    [NotificationType.SecondarySaleSuccess]:
+      this.getSecondarySaleSuccessNotification.bind(this),
+    [NotificationType.SecondaryPurchaseSuccess]:
+      this.getSecondaryPurchaseSuccessNotification.bind(this),
+    [NotificationType.EmailPasswordReset]:
+      this.getEmailPasswordResetNotification.bind(this),
+    [NotificationType.NewEmailVerification]:
+      this.getNewEmailVerificationNotification.bind(this),
+    [NotificationType.WirePayoutSubmitted]:
+      this.getWirePayoutSubmittedNotification.bind(this),
+    [NotificationType.WirePayoutFailed]:
+      this.getWirePayoutFailedNotification.bind(this),
+    [NotificationType.WirePayoutReturned]:
+      this.getWirePayoutReturnedNotification.bind(this),
   }
 
   constructor(
+    private readonly options: NotificationsServiceOptions,
     private readonly mailer: MailerAdapter,
     private readonly i18n: I18nAdapter,
-    private readonly webUrl: string,
-    private readonly customerServiceEmail: string,
+    private readonly sendNotificationQueue: SendNotificationQueue,
     logger: pino.Logger<unknown>
   ) {
     this.logger = logger.child({ context: this.constructor.name })
   }
 
-  async createNotification(
-    notification: CreateNotification,
-    trx?: Transaction
-  ) {
-    const n = await NotificationModel.query(trx).insert({
-      ...notification,
-      status: NotificationStatus.Pending,
-    })
+  async createNotification(notification: CreateNotification) {
+    const trx = await NotificationModel.startTransaction()
+    try {
+      const n = await NotificationModel.query(trx).insert({
+        ...notification,
+        status: NotificationStatus.Pending,
+      })
 
-    await EventModel.query(trx).insert({
-      action: EventAction.Create,
-      entityType: EventEntityType.Notification,
-      entityId: n.id,
-    })
+      await trx.commit()
+
+      await this.sendNotificationQueue.enqueue({
+        notificationId: n.id,
+      })
+    } catch (error) {
+      await trx.rollback()
+      throw error
+    }
   }
 
-  async dispatchNotifications(trx?: Transaction) {
-    // Get pending notifications
-    const pendingNotifications = await NotificationModel.query(trx)
+  /**
+   * Dispatch a single unsent notification. Should only be called from a worker.
+   * @param notificationId ID of the notification to send
+   */
+  async dispatchNotificationById(notificationId: string) {
+    const affectedRows = await NotificationModel.query()
+      .findById(notificationId)
       .where('status', NotificationStatus.Pending)
-      .withGraphJoined('userAccount')
-
-    // Dispatch pending notifications
-    let successfullyDispatchedNotifications = 0
-    await Promise.all(
-      pendingNotifications.map(async (notification) => {
-        // Note: For customer service notifications this is not the recipient
-        // but the customer who the notification pertains to.
-        invariant(
-          notification?.userAccount?.email,
-          `Notification "${notification.id}" has no associated user account`
-        )
-
-        const {
-          type,
-          id,
-          userAccountId,
-          userAccount: { language: language },
-        } = notification
-        // Get user's language
-        const t = this.i18n.getFixedT(language, 'emails')
-
-        // Attempt to send notification
-        try {
-          const message = this.dispatchStore[type](notification, t)
-          await this.sendNotification(id, userAccountId, message, trx)
-          successfullyDispatchedNotifications++
-          this.logger.info('done processing notification %s', id)
-        } catch (error) {
-          this.logger.error(error as Error)
-          throw error
-        }
+      .patch({
+        status: NotificationStatus.Complete,
       })
-    )
-    this.logger.info(
-      'dispatched %d pending notifications',
-      successfullyDispatchedNotifications
-    )
+
+    if (affectedRows === 0) {
+      // Notification already sent or failed to send
+      return
+    }
+
+    try {
+      const notification = await NotificationModel.query()
+        .findById(notificationId)
+        .withGraphFetched('userAccount')
+
+      invariant(
+        notification.userAccount?.email,
+        'Notification has no user account and/or email',
+        UnrecoverableError
+      )
+
+      const {
+        type,
+        userAccount: { language },
+      } = notification
+
+      // Get user's language
+      const t = await this.i18n.getFixedT(language, 'emails')
+
+      const message = this.dispatchStore[type](notification, t)
+
+      await this.mailer.sendEmail({ ...message })
+    } catch (error) {
+      this.logger.error(error as Error)
+      // Reset status or set to failed if we cannot recover from it
+      const errorMessage = isResponseError(error)
+        ? error.response.body
+        : error instanceof Error
+        ? error.message
+        : error
+      await NotificationModel.query()
+        .findById(notificationId)
+        .patch({
+          error: errorMessage,
+          status: isUnrecoverableError(error)
+            ? NotificationStatus.Failed
+            : NotificationStatus.Pending,
+        })
+      throw error
+    }
   }
 
   getAuctionCompleteNotification(n: NotificationModel, t: TFunction): Email {
@@ -153,15 +192,22 @@ export class NotificationsService {
       this.logger
     )
 
-    // Build notification
-    const body = (
-      t('auctionComplete.body', {
-        returnObjects: true,
-        ctaUrl: `${this.webUrl}checkout/${variables.packSlug}`,
-        ...variables,
-      }) as string[]
-    ).reduce((body: string, p: string) => body + `<p>${p}</p>`, '')
+    const translateParams = {
+      returnObjects: true,
+      ctaUrl: `${this.options.webUrl}.checkout/${variables.packSlug}`,
+      ...variables,
+    }
+    const content = <string[]>[
+      t('auctionComplete.body.0', translateParams),
+      t('auctionComplete.body.1', translateParams),
+      t('auctionComplete.body.2', translateParams),
+    ]
 
+    // Build notification
+    const body = content.reduce(
+      (body: string, p: string) => body + `<p>${p}</p>`,
+      ''
+    )
     const html = variables.canExpire
       ? body + `<p>${t('auctionComplete.expirationWarning')}</p>`
       : body
@@ -180,10 +226,115 @@ export class NotificationsService {
     return {
       to: userAccount?.email as string,
       subject: t('bidExpired.subject', { ...variables }),
-      html: t<string[]>('bidExpired.body', {
-        returnObjects: true,
-        ...variables,
-      }).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
+      html: t('bidExpired.body', variables),
+    }
+  }
+
+  getReportCompleteNotification(n: NotificationModel, t: TFunction): Email {
+    const { variables } = n
+    expectVariables(
+      variables,
+      ['applicantId', 'userEmail', 'verificationStatus', 'url'],
+      this.logger
+    )
+
+    const translateParams = {
+      returnObjects: true,
+      ...variables,
+    }
+    const content = <string[]>[
+      t('reportComplete.body.0', translateParams),
+      t('reportComplete.body.1', translateParams),
+      t('reportComplete.body.2', translateParams),
+    ]
+
+    return {
+      to: this.options.customerServiceEmail,
+      subject: t('reportComplete.subject'),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
+    }
+  }
+
+  getWorkflowCompleteManualReviewNotification(
+    n: NotificationModel,
+    t: TFunction
+  ): Email {
+    const { userAccount, variables } = n
+    expectVariables(variables, ['status', 'url'], this.logger)
+
+    const translateParams = {
+      returnObjects: true,
+      ...variables,
+    }
+    const content = <string[]>[
+      t('workflowCompleteManualReview.body.0', translateParams),
+      t('workflowCompleteManualReview.body.1', translateParams),
+      t('workflowCompleteManualReview.body.2', translateParams),
+    ]
+
+    return {
+      to: this.options.customerServiceEmail,
+      subject: t('workflowCompleteManualReview.subject'),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
+    }
+  }
+
+  getWorkflowCompleteRejectedNotification(
+    n: NotificationModel,
+    t: TFunction
+  ): Email {
+    const { userAccount, variables } = n
+    expectVariables(variables, ['url', 'status'], this.logger)
+
+    const translateParams = {
+      returnObjects: true,
+      applicantId: userAccount?.applicantId,
+      userEmail: userAccount?.email,
+      ...variables,
+    }
+    const content = <string[]>[
+      t('workflowCompleteRejected.body.0', translateParams),
+      t('workflowCompleteRejected.body.1', translateParams),
+      t('workflowCompleteRejected.body.2', translateParams),
+    ]
+
+    return {
+      to: this.options.customerServiceEmail,
+      subject: t('workflowCompleteRejected.subject'),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
+    }
+  }
+
+  getWorkflowCompleteNotification(n: NotificationModel, t: TFunction): Email {
+    const { userAccount, variables } = n
+    expectVariables(variables, ['status', 'url'], this.logger)
+
+    const translateParams = {
+      returnObjects: true,
+      ...variables,
+    }
+    const content = <string[]>[
+      t('workflowComplete.body.0', translateParams),
+      t('workflowComplete.body.1', translateParams),
+      t('workflowComplete.body.2', translateParams),
+    ]
+
+    return {
+      to: userAccount?.email as string,
+      subject: t('workflowComplete.subject'),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
     }
   }
 
@@ -191,16 +342,24 @@ export class NotificationsService {
     const { userAccount, variables } = n
     expectVariables(variables, ['packTitle'], this.logger)
 
-    const html = t<string[]>('paymentSuccess.body', {
+    const translateParams = {
       returnObjects: true,
-      transferUrl: `${this.webUrl}`,
+      transferUrl: `${this.options.webUrl}`,
       ...variables,
-    })
+    }
+    const content = <string[]>[
+      t('paymentSuccess.body.0', translateParams),
+      t('paymentSuccess.body.1', translateParams),
+      t('paymentSuccess.body.2', translateParams),
+    ]
 
     return {
       to: userAccount?.email as string,
       subject: t('paymentSuccess.subject'),
-      html: html.reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
     }
   }
 
@@ -208,16 +367,24 @@ export class NotificationsService {
     const { userAccount, variables } = n
     expectVariables(variables, ['packTitle'], this.logger)
 
-    const html = t<string[]>('transferSuccess.body', {
+    const translateParams = {
       returnObjects: true,
-      ctaUrl: `${this.webUrl}my/collectibles`,
+      ctaUrl: `${this.options.webUrl}/my/collectibles`,
       ...variables,
-    })
+    }
+    const content = <string[]>[
+      t('transferSuccess.body.0', translateParams),
+      t('transferSuccess.body.1', translateParams),
+      t('transferSuccess.body.2', translateParams),
+    ]
 
     return {
       to: userAccount?.email as string,
       subject: t('transferSuccess.subject'),
-      html: html.reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
     }
   }
 
@@ -225,16 +392,24 @@ export class NotificationsService {
     const { userAccount, variables } = n
     expectVariables(variables, ['packTitle', 'packSlug'], this.logger)
 
+    const translateParams = {
+      returnObjects: true,
+      ctaUrl: `${this.options.webUrl}/releases/${variables.packSlug}`,
+      ...variables,
+    }
+    const content = <string[]>[
+      t('userHighBid.body.0', translateParams),
+      t('userHighBid.body.1', translateParams),
+      t('userHighBid.body.2', translateParams),
+    ]
+
     return {
       to: userAccount?.email as string,
       subject: t('userHighBid.subject'),
-      html: (
-        t('userHighBid.body', {
-          returnObjects: true,
-          ctaUrl: `${this.webUrl}releases/${variables.packSlug}`,
-          ...variables,
-        }) as string[]
-      ).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
     }
   }
 
@@ -242,60 +417,123 @@ export class NotificationsService {
     const { userAccount, variables } = n
     expectVariables(variables, ['packTitle', 'packSlug'], this.logger)
 
+    const translateParams = {
+      returnObjects: true,
+      ctaUrl: `${this.options.webUrl}/releases/${variables.packSlug}`,
+      ...variables,
+    }
+    const content = <string[]>[
+      t('userOutbid.body.0', translateParams),
+      t('userOutbid.body.1', translateParams),
+      t('userOutbid.body.2', translateParams),
+    ]
+
     return {
       to: userAccount?.email as string,
       subject: t('userOutbid.subject'),
-      html: (
-        t('userOutbid.body', {
-          returnObjects: true,
-          ctaUrl: `${this.webUrl}releases/${variables.packSlug}`,
-          ...variables,
-        }) as string[]
-      ).reduce((body: string, p: string) => body + `<p>${p}</p>`, ''),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
     }
   }
 
-  getWireInstructionsNotification(n: NotificationModel, t: TFunction) {
+  getSecondaryPurchaseSuccessNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    expectVariables(
-      variables,
-      [
-        'packTitle',
-        'packSlug',
-        'amount',
-        'beneficiaryName',
-        'beneficiaryAddress1',
-        'beneficiaryAddress2',
-        'beneficiaryBankName',
-        'beneficiaryBankSwiftCode',
-        'beneficiaryBankRoutingNumber',
-        'beneficiaryBankAccountingNumber',
-        'beneficiaryBankAddress',
-        'beneficiaryBankCity',
-        'beneficiaryBankPostalCode',
-        'beneficiaryBankCountry',
-        'trackingRef',
-      ],
-      this.logger
-    )
+    expectVariables(variables, ['collectibleTitle'], this.logger)
 
-    // Build notification
-    const body = (
-      t('wireTransfer.body', {
-        returnObjects: true,
-        ctaUrl: `${this.webUrl}checkout/${variables.packSlug}`,
-        ...variables,
-      }) as string[]
-    ).reduce((body: string, p: string) => body + `<p>${p}</p>`, '')
-
-    const html = variables.canExpire
-      ? body + `<p>${t('wireTransfer.expirationWarning')}</p>`
-      : body
+    const translateParams = {
+      returnObjects: true,
+      ctaUrl: `${this.options.webUrl}/my/collectibles`,
+      ...variables,
+    }
+    const content = <string[]>[
+      t('secondaryPurchaseSuccess.body.0', translateParams),
+      t('secondaryPurchaseSuccess.body.1', translateParams),
+      t('secondaryPurchaseSuccess.body.2', translateParams),
+    ]
 
     return {
       to: userAccount?.email as string,
-      subject: t('wireTransfer.subject'),
-      html,
+      subject: t('secondaryPurchaseSuccess.subject'),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
+    }
+  }
+
+  getSecondarySaleSuccessNotification(n: NotificationModel, t: TFunction) {
+    const { userAccount, variables } = n
+    expectVariables(variables, ['collectibleTitle', 'amount'], this.logger)
+
+    const translateParams = {
+      returnObjects: true,
+      ctaUrl: `${this.options.webUrl}/my/wallet`,
+      ...variables,
+    }
+    const content = <string[]>[
+      t('secondarySaleSuccess.body.0', translateParams),
+      t('secondarySaleSuccess.body.1', translateParams),
+      t('secondarySaleSuccess.body.2', translateParams),
+    ]
+
+    return {
+      to: userAccount?.email as string,
+      subject: t('secondarySaleSuccess.subject'),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
+    }
+  }
+
+  getEmailPasswordResetNotification(n: NotificationModel, t: TFunction) {
+    const { userAccount, variables } = n
+    expectVariables(variables, ['resetLink'], this.logger)
+
+    const translateParams = {
+      returnObjects: true,
+      ctaUrl: `${this.options.webUrl}${variables.resetLink}`,
+      ...variables,
+    }
+    const content = <string[]>[
+      t('emailPasswordReset.body.0', translateParams),
+      t('emailPasswordReset.body.1', translateParams),
+      t('emailPasswordReset.body.2', translateParams),
+    ]
+
+    return {
+      to: userAccount?.email as string,
+      subject: t('emailPasswordReset.subject'),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
+    }
+  }
+
+  getNewEmailVerificationNotification(n: NotificationModel, t: TFunction) {
+    const { userAccount, variables } = n
+    expectVariables(variables, ['verificationLink'], this.logger)
+
+    const translateParams = {
+      returnObjects: true,
+      ctaUrl: `${this.options.webUrl}${variables.verificationLink}`,
+      ...variables,
+    }
+    const content = <string[]>[
+      t('newEmailVerification.body.0', translateParams),
+      t('newEmailVerification.body.1', translateParams),
+    ]
+
+    return {
+      to: userAccount?.email as string,
+      subject: t('newEmailVerification.subject'),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
     }
   }
 
@@ -319,101 +557,78 @@ export class NotificationsService {
     }
   }
 
-  // Automated Emails to Customer Service
-
-  getCSWirePaymentFailedNotification(n: NotificationModel, t: TFunction) {
+  getWirePayoutSubmittedNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
-    expectVariables(
-      variables,
-      ['packTitle', 'paymentId', 'amount'],
-      this.logger
-    )
-    const fields = {
+    expectVariables(variables, ['amount', 'externalRef'], this.logger)
+
+    const translateParams = {
+      ctaUrl: `${this.options.webUrl}/my/wallet`,
       ...variables,
-      userEmail: userAccount?.email,
-      ctaUrl: `${this.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
     }
+    const content = <string[]>[
+      t('wirePayoutSubmitted.body.0', translateParams),
+      t('wirePayoutSubmitted.body.1', translateParams),
+      t('wirePayoutSubmitted.body.2', translateParams),
+    ]
+
     return {
-      to: this.customerServiceEmail,
-      subject: t('csWirePaymentFailed.subject', fields),
-      html: t('csWirePaymentFailed.body', fields),
+      to: userAccount?.email as string,
+      subject: t('wirePayoutSubmitted.subject'),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
     }
   }
 
-  getCSWirePaymentSuccessNotification(n: NotificationModel, t: TFunction) {
+  getWirePayoutFailedNotification(n: NotificationModel, t: TFunction) {
+    const { userAccount, variables } = n
+    expectVariables(variables, ['amount'], this.logger)
+
+    const translateParams = {
+      ctaUrl: `${this.options.webUrl}/my/wallet`,
+      ...variables,
+    }
+    const content = <string[]>[
+      t('wirePayoutFailed.body.0', translateParams),
+      t('wirePayoutFailed.body.1', translateParams),
+      t('wirePayoutFailed.body.2', translateParams),
+    ]
+
+    return {
+      to: userAccount?.email as string,
+      subject: t('wirePayoutFailed.subject'),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
+    }
+  }
+  getWirePayoutReturnedNotification(n: NotificationModel, t: TFunction) {
     const { userAccount, variables } = n
     expectVariables(
       variables,
-      ['packTitle', 'paymentId', 'amount'],
+      ['amount', 'externalRef', 'returnedAmount'],
       this.logger
     )
-    const fields = {
+
+    const translateParams = {
+      ctaUrl: `${this.options.webUrl}/my/wallet`,
       ...variables,
-      userEmail: userAccount?.email,
-      ctaUrl: `${this.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
     }
+    const content = <string[]>[
+      t('wirePayoutReturned.body.0', translateParams),
+      t('wirePayoutReturned.body.1', translateParams),
+      t('wirePayoutReturned.body.2', translateParams),
+    ]
+
     return {
-      to: this.customerServiceEmail,
-      subject: t('csWirePaymentSuccess.subject', fields),
-      html: t('csWirePaymentSuccess.body', fields),
+      to: userAccount?.email as string,
+      subject: t('wirePayoutReturned.subject'),
+      html: content.reduce(
+        (body: string, p: string) => body + `<p>${p}</p>`,
+        ''
+      ),
     }
-  }
-
-  getCSAwaitingWirePaymentNotification(n: NotificationModel, t: TFunction) {
-    const { userAccount, variables } = n
-    expectVariables(
-      variables,
-      ['packTitle', 'paymentId', 'amount'],
-      this.logger
-    )
-    const fields = {
-      ...variables,
-      userEmail: userAccount?.email,
-      ctaUrl: `${this.webUrl}login?redirect=/admin/transactions/${variables.paymentId}`,
-    }
-    return {
-      to: this.customerServiceEmail,
-      subject: t('csAwaitingWirePayment.subject', fields),
-      html: t('csAwaitingWirePayment.body', fields),
-    }
-  }
-
-  async sendNotification(
-    notificationId: string,
-    userAccountId: string,
-    message: Email,
-    trx?: Transaction
-  ) {
-    // Send notification
-    let errorMessage: string | undefined
-    try {
-      await this.mailer.sendEmail({ ...message })
-    } catch (error) {
-      this.logger.error(error)
-      if (isResponseError(error)) {
-        errorMessage = error.response.body
-      } else if (error instanceof Error) {
-        errorMessage = error.message
-      } else {
-        errorMessage = `Unknown error when sending notification ${notificationId}`
-      }
-    }
-
-    // Update notification with with status (and error if applicable)
-    await NotificationModel.query(trx)
-      .where('id', notificationId)
-      .patch({
-        error: errorMessage ?? null,
-        status: errorMessage
-          ? NotificationStatus.Failed
-          : NotificationStatus.Complete,
-      })
-
-    await EventModel.query(trx).insert({
-      action: EventAction.Update,
-      entityType: EventEntityType.Notification,
-      entityId: notificationId,
-      userAccountId,
-    })
   }
 }

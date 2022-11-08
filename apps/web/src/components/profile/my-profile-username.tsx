@@ -6,8 +6,8 @@ import common from './my-profile-common.module.css'
 import css from './my-profile-username.module.css'
 
 import Button from '@/components/button'
-import Heading from '@/components/heading'
-import TextInput from '@/components/text-input/text-input'
+import { H2 } from '@/components/heading'
+import Input from '@/components/input'
 import { useAuth } from '@/contexts/auth-context'
 import { AuthService } from '@/services/auth-service'
 import { validateUsername } from '@/utils/auth-validation'
@@ -15,11 +15,11 @@ import { validateUsername } from '@/utils/auth-validation'
 export default function MyProfileUsername() {
   const { user, reloadProfile } = useAuth()
   const [formErrors, setFormErrors] = useState<ExtractError<typeof validate>>()
-  const [isEditing, setIsEditing] = useState<boolean>(false)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [username, setUsername] = useState<string>(user?.username || '')
-  const [updateError, setUpdateError] = useState<string>('')
-  const [updateSuccess, setUpdateSuccess] = useState<boolean>(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [username, setUsername] = useState(user?.username || '')
+  const [updateError, setUpdateError] = useState('')
+  const [updateSuccess, setUpdateSuccess] = useState(false)
   const { t } = useTranslation()
 
   const validate = useMemo(() => validateUsername(t), [t])
@@ -27,51 +27,40 @@ export default function MyProfileUsername() {
   const handleUpdateUsername = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
-      setLoading(true)
+      setSubmitting(true)
       setUpdateError('')
       setUpdateSuccess(false)
 
-      // Validate form body
-      const formData = new FormData(event.currentTarget)
-      const body = {
-        username: formData.get('username') as string,
-      }
+      const body = { username }
       const bodyValidation = await validate(body)
       if (bodyValidation.state === 'invalid') {
         setFormErrors(bodyValidation.errors)
-        setLoading(false)
+        setSubmitting(false)
         return
-      }
-
-      // Check if username exists
-      const isUsernameAvailable =
-        await AuthService.instance.isUsernameAvailable(body.username)
-      if (!isUsernameAvailable) {
-        setLoading(false)
-        return setFormErrors((errors) => ({
-          ...errors,
-          username: t('forms:errors.usernameTaken'),
-        }))
       }
 
       // Update username
-      const updateUsername = await AuthService.instance.updateUsername(
-        body.username
-      )
-      if (!updateUsername) {
-        setUpdateError(t('common:statuses.An Error has Occurred'))
-        setLoading(false)
+      try {
+        await AuthService.instance.updateUsername(body.username)
+      } catch (error) {
+        if (error?.response?.status === 409) {
+          setUpdateError(t('forms:errors.usernameTaken'))
+        } else {
+          setUpdateError(t('common:statuses.An Error has Occurred'))
+        }
+        setSubmitting(false)
         return
       }
+
       await reloadProfile()
-      setLoading(false)
+      setSubmitting(false)
       setIsEditing(false)
       setFormErrors({})
       setUpdateError('')
       setUpdateSuccess(true)
       return
     },
-    [reloadProfile, t, validate]
+    [reloadProfile, t, validate, username]
   )
 
   const handleBeginEdit = useCallback(() => {
@@ -85,50 +74,43 @@ export default function MyProfileUsername() {
     setUpdateError('')
     setUpdateSuccess(false)
     setIsEditing(false)
-  }, [])
+    setUsername(user.username)
+  }, [user.username])
+
+  const errorMessage = (formErrors?.username as string) || updateError
 
   return (
     <section className={common.section}>
       <div className={common.sectionHeader}>
-        <Heading className={common.sectionHeading} level={2}>
+        <H2 className={common.sectionHeading}>
           {t('forms:fields.username.label')}
-        </Heading>
+        </H2>
         {updateSuccess && (
           <div className={common.confirmation}>
             {t('profile:resetUsernameConfirmation')}
           </div>
         )}
-        {(formErrors?.username || updateError) && (
-          <div className={common.error}>
-            {(formErrors?.username as string) || updateError}
-          </div>
-        )}
+        {errorMessage && <div className={common.error}>{errorMessage}</div>}
       </div>
       <div className={common.sectionContent}>
         <form className={common.form} onSubmit={handleUpdateUsername}>
           <div className={css.inputWrapper}>
-            <TextInput
+            <Input
+              // Poppins "@" sits low on baseline and needs a little help
+              startAdornment={<div className="-mt-px">@</div>}
+              hasError={!!errorMessage}
               disabled={!isEditing}
-              error={(formErrors?.username as string) || updateError}
-              id="username"
-              name="username"
-              onChange={({ target }) => setUsername(target.value)}
-              value={isEditing ? username : `@${user?.username as string}`}
+              onChange={setUsername}
+              value={username}
             />
             {isEditing ? (
               <>
-                <Button
-                  className={css.saveButton}
-                  disabled={loading || !username}
-                  size="small"
-                  type="submit"
-                >
+                <Button disabled={!username} busy={submitting} type="submit">
                   {t('common:actions.Save')}
                 </Button>
                 <Button
                   className={css.cancelButton}
                   onClick={handleCancelEdit}
-                  size="small"
                   variant="link"
                 >
                   {t('common:actions.Cancel')}
@@ -138,7 +120,6 @@ export default function MyProfileUsername() {
               <Button
                 className={css.editButton}
                 onClick={handleBeginEdit}
-                size="small"
                 variant="link"
               >
                 {t('common:actions.Edit')}

@@ -1,4 +1,5 @@
 import {
+  EntityType,
   NotificationSchema,
   NotificationStatus,
   NotificationType,
@@ -9,7 +10,7 @@ import { BaseModel } from './base.model'
 import { UserAccountModel } from './user-account.model'
 
 export class NotificationModel extends BaseModel {
-  static tableName = 'Notification'
+  static tableName = EntityType.Notification
   static jsonSchema = NotificationSchema
 
   error!: string | null

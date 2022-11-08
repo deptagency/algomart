@@ -1,0 +1,42 @@
+.section:not(:last-of-type) {
+  @apply border-b-1 border-rainbow;
+}
+
+.section:first-of-type {
+  @apply bg-base-bgCard;
+}
+
+.container {
+  @apply max-w-5xl mx-auto;
+}
+
+.collectibleMedia {
+  @apply relative mx-auto;
+  @apply md:py-8 md:max-w-700;
+  @apply lg:max-w-960;
+  @apply xl:max-w-none;
+}
+
+.collectibleDetails {
+  @apply flex flex-col items-center justify-center mx-4 text-center;
+  @apply pt-10 pb-12;
+}
+
+.nftMetaContent {
+  @apply mx-4 my-6;
+}
+
+.table td:not([colspan]):last-child {
+  @apply text-right;
+}
+
+.paginationWrapper {
+  @apply my-4;
+}
+
+.ctaButton:hover:not(:disabled) {
+  @apply bg-action-accent;
+}
+.collectibleTemplateItem {
+  @apply flex justify-between py-1 my-3;
+}

@@ -11,8 +11,8 @@ export interface BannerProps {
 
 export default function Banner({ inline, children, className }: BannerProps) {
   return (
-    <section className={clsx(css.root, { [css.isInline]: inline })}>
-      <div className={clsx(css.wrapper, className)}>{children}</div>
+    <section className={clsx(css.root, { [css.isInline]: inline }, className)}>
+      <div className={css.wrapper}>{children}</div>
     </section>
   )
 }

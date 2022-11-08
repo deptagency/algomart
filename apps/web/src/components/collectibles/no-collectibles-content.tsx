@@ -2,17 +2,12 @@ import useTranslation from 'next-translate/useTranslation'
 
 import css from './no-collectibles-content.module.css'
 
-import Button from '@/components/button'
 import CollectiblePlaceholder from '@/components/collectibles/collectible-placeholder'
-import Heading from '@/components/heading'
+import { H3 } from '@/components/heading'
+import LinkButton from '@/components/link-button'
+import { urls } from '@/utils/urls'
 
-export interface NoCollectiblesContentProps {
-  onRedirect(): void
-}
-
-export default function NoCollectiblesContent({
-  onRedirect,
-}: NoCollectiblesContentProps) {
+export default function NoCollectiblesContent() {
   const { t } = useTranslation()
   return (
     <div className={css.root}>
@@ -24,13 +19,13 @@ export default function NoCollectiblesContent({
           ))}
       </div>
 
-      <Heading className={css.heading} level={3}>
+      <H3 center my={8} uppercase>
         {t('collection:viewer.startCollection')}
-      </Heading>
+      </H3>
 
-      <Button onClick={onRedirect}>
+      <LinkButton href={urls.drops}>
         {t('collection:viewer.Find Something Cool')}
-      </Button>
+      </LinkButton>
     </div>
   )
 }

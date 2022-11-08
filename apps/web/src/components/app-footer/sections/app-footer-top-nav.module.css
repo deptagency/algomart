@@ -1,47 +1,65 @@
 .topNav {
-  @apply md:bg-base-bgCard;
+  /* Base */
+  @apply border-t-1 border-gray-300;
 }
 
 .topNavWrapper {
   /* Base */
-  @apply mx-auto max-w-wrapper;
+  @apply flex flex-col items-center px-4 py-12 mx-auto max-w-wrapper;
   /* Tablet + */
-  @apply md:space-x-20 md:px-4 md:py-12;
+  @apply md:flex md:flex-row md:justify-between md:items-start;
 }
 
-.topNavFlexWrapper {
-  @apply flex flex-col-reverse items-center justify-between gap-8;
-  @apply md:flex-row;
+.topNavLeftWrapper {
+  /* Base */
+  @apply grid grid-cols-1 gap-1 mt-10;
+  /*  Tablet + */
+  @apply md:auto-cols-max md:grid-cols-2 md:grid-flow-col md:max-w-700 md:mt-5;
+}
+
+.topNavLeftNav {
+  /* Base */
+  @apply grid grid-flow-row gap-1 text-center mb-9 auto-rows-min;
+  /* Tablet + */
+  @apply md:text-left md:mt-6;
+}
+
+.topNavLeftNav:last-child {
+  @apply md:ml-6;
+}
+
+.topNavLeftNav h3 {
+  @apply mb-2 text-sm;
 }
 
 .topNavLink {
   /* Base */
-  @apply block py-5 text-lg font-bold text-center no-underline transition duration-300 border-t focus:outline-none text-base-textPrimary focus:text-action-secondary hover:text-action-secondary;
+  @apply mb-2 text-sm text-center underline transition-colors focus:outline-none text-base-textPrimary focus:text-action-secondary hover:text-base-textSecondary;
   /* Tablet + */
-  @apply md:border-t-0 md:inline md:text-left md:py-0 md:text-base;
+  @apply md:inline md:text-left md:text-sm md:no-underline;
 }
 
-.topNavLink {
-  @apply md:ml-10;
+.userPreferences {
+  /* Base */
+  @apply flex flex-col justify-end gap-6;
+  /* Tablet + */
+  @apply md:flex-row;
 }
 
-.topNavLink:first-child {
-  @apply md:ml-0;
-  border-top: none;
+.topNavSocialMediaSpace {
+  /* Base */
+  @apply flex justify-center gap-4 mt-6 auto-cols-max;
+  /* Tablet + */
+  @apply md:justify-end;
+}
+.topNavSocialMediaLink {
+  @apply transition-opacity opacity-40 hover:opacity-100;
 }
 
-.topNavLinkActive {
-  @apply text-action-secondary;
-}
+.footerLogo svg {
+  /* Base */
+  @apply mx-auto;
 
-.topNavI18nWrapper {
-  @apply flex items-center;
-}
-
-.topNavI18nWrapper > div {
-  @apply mb-0;
-}
-
-.topNavI18nWrapper > div:first-child {
-  @apply mr-5;
+  /* Tablet + */
+  @apply md:mx-0;
 }

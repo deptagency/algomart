@@ -1,8 +1,8 @@
-import pino from 'pino'
 import { Email } from '@algomart/schemas'
 import { invariant } from '@algomart/shared/utils'
 import SendGridMail from '@sendgrid/mail'
 import NodeMailer from 'nodemailer'
+import pino from 'pino'
 
 export type MailerAdapterOptions =
   | {

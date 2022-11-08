@@ -6,8 +6,9 @@ Key technologies used:
 
 - [Next.js](https://nextjs.org/) - SSR React framework
 - [Next Translate](https://github.com/vinissimus/next-translate) - For internationalization and localization
-- [KY](https://github.com/sindresorhus/ky) - For interacting with the `api` package
-- [SWR](https://swr.vercel.app/) - For lazy data fetching
+- [Ky](https://github.com/sindresorhus/ky) - For HTTP requests in the browser
+- [Axios](https://axios-http.com) - For interacting with the `api` service
+- [React Query](https://tanstack.com/query/v4/docs/overview) - Data fetching, cache management, syncing server state
 - [TailwindCSS](https://tailwindcss.com/) - For styling
 - [Dinero.js](https://dinerojs.com/) - For working with currencies
 - [Firebase](https://firebase.google.com/) - For authentication
@@ -39,25 +40,26 @@ npm run build
 ## Folder structure
 
 ```bash
-cypress/ # Cypress (visual) test files
-locales/ # Interpolated i18n translation files
-  [locale]/ # e.g. en-us
+languages/ # Interpolated i18n translation files
+  [language]/ # e.g. en-us
     [namespace].json # Grouping of translatable JSON
 public/ # Client-side assets
-scripts/ # Client-side assets
 src/ # Main source code
+  api-middlewares/ # API route middlewares
   clients/ # Third-party API clients
   components/ # Basic building blocks
-  config/ # Third-party configuration (e.g Firebase)
   contexts/ # React Context components and hooks
+  guards/ # React url guards
+  hooks/ # Custom React hooks
   layouts/ # Components for various page layouts
-  middleware/ # API route middlewares
+  libs/ # Reusable client-side code. Not React specific
   pages/ # Next.js page components, combines layouts and templates
   services/ # Services and helpers to interact with APIs
+  styles/ # Css
+  svgs/ # vector images, used via import
   templates/ # Page templates, uses components
   types/ # TypeScript interfaces and enums specific to web package
   utils/ # Small utility functions and helpers
-  environment.ts # Environment variable management utility
 ... # various dot files and configuration for the project
 ```
 
@@ -67,7 +69,7 @@ src/ # Main source code
 
 We use [jest](https://jestjs.io/) with [@testing-library/react](https://testing-library.com/).
 
-Test files should be colocated with the file they test and end in .test.ts
+Test files should be co-located with the file they test and end in .test.ts
 
 While writing tests you'll want to run in watch mode.
 
@@ -77,7 +79,7 @@ nx test web --watch
 
 ### End-to-end (e2e) / integration tests
 
-These live in apps/web-e2e since they test across the stack. We use [Cypress](https://www.cypress.io/.
+These live in apps/web-e2e since they test across the stack. We use [Cypress](https://www.cypress.io/).
 
 ```
 npm run e2e
@@ -101,11 +103,11 @@ The Firebase footprint within the `web` package is small and isolated, so it can
 
 Firebase provides a unique identifier (the `uid`) when a user is registered for the first time. We refer to this identifier as the `externalId` within the database. In the interest of maintaining a separation of concerns between the `api` package and the frontend's authentication solution, this `externalId` is the only Firebase-related piece of information stored in the database. It can be used to match a user session with their actual account in the `api`.
 
-For security/[KYC](https://en.wikipedia.org/wiki/Know_your_customer) purposes, the front end requires a user has either authenticated via Google, or in the case of a user who has registered via email, that the the email address is verified. For email users, this verification email is automatically sent upon registration and can be dispatched again at a user's request from their profile page.
+For security/[KYC](https://en.wikipedia.org/wiki/Know_your_customer) purposes, the front end requires that the user's email address is verified. For email users, this verification email is automatically sent upon registration and can be dispatched again at a user's request from their profile page.
 
 ### TailwindCSS conventions
 
-[TailwindCSS](https://tailwindcss.com/) allows for convenient style decoration within JSX in a `classname` prop, but the use of CSS modules using the `@apply` pattern for more comprehensively styled components and templates is recommended for organizational purposes. See existing implementations for inspiration.
+[TailwindCSS](https://tailwindcss.com/) allows for convenient style decoration within JSX in a `className` prop, but the use of CSS modules using the `@apply` pattern for more comprehensively styled components and templates is recommended for organizational purposes. See existing implementations for inspiration.
 
 Recommended VS Code extensions:
 
@@ -116,7 +118,7 @@ Recommended VS Code extensions:
 
 ### i18n conventions
 
-Locale-based translations are handled with `next-translate`, a handy Next.js utility package that is configured in `./i18n.js`. When the app is bootstrapped, Next will load load the translations from `./locales/[locale]/[...namespaces].json` based on that configuration. Until more languages are introduced (and there are mechanisms to support this), `en-us` will be the default locale.
+Locale-based translations are handled with `next-translate`, a handy Next.js utility package that is configured in `./i18n.js`. When the app is bootstrapped, Next will load the translations from `./languages/[locale]/[...namespaces].json` based on that configuration. Until more languages are introduced (and there are mechanisms to support this), `en-us` will be the default locale.
 
 Namespaces are simply JSON files, but rather than have all translations live in one file, the concept of a namespace allows us to methodically organize our translations. For example, common items used on every page (e.g. button text, statuses, etc.) can live in a `common.json` namespace while more page-specific stuff can live in its own namespace.
 

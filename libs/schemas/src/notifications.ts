@@ -17,16 +17,23 @@ export enum NotificationStatus {
 export enum NotificationType {
   AuctionComplete = 'auction-complete',
   BidExpired = 'bid-expired',
+  EmailPasswordReset = 'email-password-reset',
+  NewEmailVerification = 'new-email-verification',
   PackRevoked = 'pack-revoked',
   PaymentFailed = 'payment-failed',
   PaymentSuccess = 'payment-success',
-  TransferSuccess = 'tranfer-success',
+  ReportComplete = 'onfido-report-complete',
+  SecondaryPurchaseSuccess = 'secondary-purchase-success',
+  SecondarySaleSuccess = 'secondary-sale-success',
+  TransferSuccess = 'transfer-success',
   UserHighBid = 'user-high-bid',
   UserOutbid = 'user-outbid',
-  WireInstructions = 'wire-instructions',
-  CSWirePaymentFailed = 'cs-wire-payment-failed',
-  CSWirePaymentSuccess = 'cs-wire-payment-success',
-  CSAwaitingWirePayment = 'cs-awaiting-wire-payment',
+  WorkflowComplete = 'onfido-workflow-complete',
+  WorkflowCompleteManual = 'onfido-workflow-complete-manual',
+  WorkflowCompleteRejected = 'onfido-workflow-complete-rejected',
+  WirePayoutSubmitted = 'wire-payout-submitted',
+  WirePayoutFailed = 'wire-payout-failed',
+  WirePayoutReturned = 'wire-payout-returned',
 }
 
 export const CreateNotificationSchema = Type.Intersect([

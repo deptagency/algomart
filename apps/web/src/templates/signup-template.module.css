@@ -1,0 +1,23 @@
+.buttonContainer {
+  @apply flex flex-col max-w-md m-12 mx-auto space-y-8;
+}
+
+.button div {
+  @apply relative flex items-center w-16 h-5;
+}
+
+.button span {
+  @apply mr-2;
+}
+
+.buttonImageText {
+  @apply ml-2;
+}
+
+.buttonGoogle {
+  @apply flex items-center justify-center max-h-[50px] mt-6 w-full;
+}
+
+.loginPrompt {
+  @apply pt-6 text-center border-t border-action-primary;
+}

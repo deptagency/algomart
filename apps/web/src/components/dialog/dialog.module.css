@@ -3,7 +3,7 @@
 }
 
 .container {
-  @apply flex items-end justify-center min-h-screen text-center sm:block;
+  @apply flex items-center justify-center min-h-screen text-center sm:block;
 }
 
 .overlay {
@@ -16,7 +16,7 @@
 
 .content {
   /* Base */
-  @apply inline-block w-full h-full px-4 pt-5 pb-4 text-left align-middle transition-all transform rounded-lg shadow-xl;
+  @apply inline-block w-full h-full px-4 pt-5 pb-4 text-left align-middle transition-all transform rounded-lg bg-base-bgCard;
   /* Tablet + */
   @apply md:my-0;
 }

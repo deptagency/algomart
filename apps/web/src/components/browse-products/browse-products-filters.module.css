@@ -1,0 +1,29 @@
+.root {
+  @apply bg-base-bgCard px-5 rounded-lg shadow-xl;
+}
+
+.root + .root {
+  @apply mt-4;
+}
+
+.tagList {
+  @apply flex flex-wrap gap-1 mt-2;
+}
+
+.filterRow {
+  @apply p-5 border-t border-gray-200;
+  @apply md:px-0;
+}
+
+.filterRow:first-child {
+  @apply pt-0;
+}
+
+.filterHeader {
+  @apply flex items-center justify-between p-5 font-bold border-b border-gray-200;
+  @apply md:px-0;
+}
+
+.filterHeader .badge {
+  @apply p-1 text-xs rounded-sm bg-action-secondary;
+}

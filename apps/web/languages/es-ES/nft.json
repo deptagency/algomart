@@ -1,0 +1,109 @@
+{
+  "walletConnect": {
+    "title": "Algoritmo WalletConnect",
+    "connect": "Abrir WalletConnect",
+    "description": "Use WalletConnect para vincular su cartera Algorand a AlgoMart.",
+    "helpText": "¿Necesita una cartera? Consigue una aquí:",
+    "destinationWallet": "Cartera de destino:",
+    "selectAccount": "Seleccione una Cuenta",
+    "nfts": "NFTs",
+    "selectNFT": "Seleccione NFT",
+    "transfer": "Transferir",
+    "orCancel": "o cancelar y cerrar sesión en la cartera",
+    "transferring": "Transfiriendo NFT...",
+    "sent": "¡Enviado!",
+    "backToMyCollection": "Volver a mi colección"
+  },
+  "activity": {
+    "title": "Actividad",
+    "table": {
+      "Event": "Evento",
+      "Price": "Precio",
+      "From": "De",
+      "To": "Para",
+      "Date": "Fecha"
+    },
+    "events": {
+      "purchase": "Comprado",
+      "list": "Listado",
+      "mint": "Diseñado",
+      "transfer": "Transferido"
+    }
+  },
+  "details": {
+    "title": "Detalles"
+  },
+  "transfer": {
+    "title": "Transferir a la cartera",
+    "body": "Transfiera su NFT a una cartera Algorand externa. Los NFT transferidos a una cartera externa ya no aparecerán en su colección.",
+    "learnMore": "Obtenga más información sobre cómo transferir NFT",
+    "transferMyNFT": "Transferir mi NFT"
+  },
+  "labels": {
+    "Owner": "Propietario",
+    "ownedBy": "Pertenece a ",
+    "Edition": "Edición",
+    "Rarity": "Rareza",
+    "Collection": "Colección",
+    "Set": "Conjunto",
+    "Address": "Dirección",
+    "editionXWrappers": null,
+    "editionX": "#{{edition}} de {{totalEditions}}",
+    "mintedAt": null,
+    "uniqueId": "Identificación única",
+    "cannotTransfer": {
+      "frozen": "Este NFT está congelado y no se puede transferir.",
+      "transactedRecently": "No se puede transferir hasta el {{date}}."
+    },
+    "Price": "Precio",
+    "Starting at": null
+  },
+  "sell": {
+    "title": "Lista en venta",
+    "body": "Incluya su NFT a la venta en nuestro mercado secundario. Los listados se pueden eliminar en cualquier momento.",
+    "royaltyFee": null,
+    "learnMore": "Obtenga más información sobre cómo vender NFT",
+    "listed": null,
+    "listedTitle": null,
+    "listForSale": "Lista para la venta",
+    "listForSaleComingSoon": "Vender Mi NFT estará disponible pronto",
+    "removeListing": null,
+    "serviceFee": "Libre de servicios",
+    "noUser": null,
+    "notOwner": null,
+    "transactedRecently": null,
+    "isListed": null
+  },
+  "purchase": {
+    "title": null,
+    "body": null,
+    "purchaseComingSoon": null,
+    "notListed": null,
+    "isOwner": null,
+    "noUser": null
+  },
+  "listForSaleStatus": {
+    "success": "¡Éxito! Su NFT está a la venta."
+  },
+  "delistStatus": {
+    "success": null
+  },
+  "exportStatus": {
+    "idle": "Cargando...",
+    "optingIn": "Confirme las transacciones en su cartera para optar por el NFT.",
+    "optIn": "Verificando transacción opt-in...",
+    "pending": "Transfiriendo NFT...",
+    "success": "NFT transferido!",
+    "error": {
+      "404": {
+        "title": "Error al transferir NFT: cuenta no encontrada",
+        "subtitle": "Esto podría ocurrir si todavía no ha utilizado su cuenta para realizar transacciones."
+      },
+      "generic": {
+        "title": "Error al transferir NFT"
+      }
+    },
+    "generatingTransactions": "Generando transacciones para importación...",
+    "signTransaction": "Por favor, confirme las transacciones en su cartera para transferir el NFT."
+  }
+}

@@ -1,0 +1,11 @@
+.packLink {
+  @apply no-underline rounded-md shadow-lg bg-base-bgCard pb-4;
+}
+
+.packTitle {
+  @apply mt-2 text-base font-bold text-center;
+}
+
+.packDropTime {
+  @apply text-center;
+}

@@ -1,4 +1,4 @@
-import { CollectibleShowcaseSchema } from '@algomart/schemas'
+import { CollectibleShowcaseSchema, EntityType } from '@algomart/schemas'
 import { Model } from 'objection'
 
 import { BaseModel } from './base.model'
@@ -6,7 +6,7 @@ import { CollectibleModel } from './collectible.model'
 import { UserAccountModel } from './user-account.model'
 
 export class CollectibleShowcaseModel extends BaseModel {
-  static tableName = 'CollectibleShowcase'
+  static tableName = EntityType.CollectibleShowcase
   static jsonSchema = CollectibleShowcaseSchema
 
   ownerId!: string

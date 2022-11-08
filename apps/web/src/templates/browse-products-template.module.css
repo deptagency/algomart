@@ -1,0 +1,6 @@
+.header {
+  /* Base */
+  @apply flex flex-col justify-between mb-6;
+  /* Tablet + */
+  @apply md:items-center md:flex-row md:gap-4;
+}

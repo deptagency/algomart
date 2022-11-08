@@ -17,26 +17,26 @@
 }
 
 .mobileWrapper {
-  @apply relative z-10 mx-5 transform -translate-y-1/2 border-b;
+  @apply relative z-10 mt-5 mx-5;
 }
 
 .mobileWrapper label {
-  @apply mx-auto transform translate-y-1/2 shadow-large;
+  @apply mx-auto;
   max-width: 200px;
 }
 
 .listWrapper {
-  @apply mb-5 rounded-sm bg-base-bgCard shadow-large;
+  @apply mb-5;
 }
 
-.listItem + .listItem {
-  @apply border-t;
+.listItem {
+  @apply border-b border-b-gray-200;
 }
 
 .listItem a {
-  @apply block p-5 text-base no-underline hover:underline;
+  @apply block px-5 py-7 font-semibold no-underline uppercase hover:underline text-action-primary;
 }
 
 .listItemActive a {
-  @apply text-base font-bold text-action-secondary;
+  @apply text-base font-bold text-action-accent;
 }

@@ -10,5 +10,5 @@
     },
     "types": ["cypress", "@testing-library/cypress", "node"]
   },
-  "include": ["src/**/*.ts", "src/**/*.js"]
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.mjs"]
 }

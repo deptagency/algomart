@@ -1,0 +1,368 @@
+{
+  "Submit": "Enviar",
+  "errors": {
+    "accountCreationError": null,
+    "accountAlreadyConfigured": "La cuenta ha sido ya configurada",
+    "addressNotFound": "No se pudo recuperar la dirección de blockchain para enviar fondos. Nos disculpamos por cualquier inconveniente",
+    "cardExpiration": "Su tarjeta ha caducado.",
+    "cardNotFound": "Tarjeta no encontrada",
+    "emailAlreadyInUse": "El correo electrónico ya está en uso.",
+    "emailValid": "Debe ser una dirección de correo electrónico válida",
+    "emailsDoNotMatch": "Las direcciones de correo electrónico no coinciden",
+    "emailAlreadyInUseAfterSubmit": null,
+    "invalidCVV": "CVV no válido",
+    "exactCharacters": "Deben ser {exact} caracteres",
+    "invalidClaim": "Solicitud no válida",
+    "invalidCredentials": "Credenciales no válidas",
+    "invalidCreditCard": "Número de tarjeta de crédito no válido",
+    "invalidCountry": "Código de país no válido",
+    "invalidCurrency": "Moneda no válida",
+    "invalidDateOfBirth": null,
+    "invalidDetails": "Datos proporcionados no válidos",
+    "invalidLanguage": null,
+    "invalidName": "Nombre y apellido inválidos",
+    "invalidPassword": "Contraseña invalida",
+    "invalidPayment": "Pago no válido",
+    "invalidProvider": "Proveedor invalido",
+    "invalidState": "Código de provincia/estado no válido",
+    "invalidAge": "Se ha seleccionado una opción de edad no válida",
+    "integer": "Debe ser un número entero",
+    "failedCardCreation": "No se pudo verificar la tarjeta, verifique sus datos y vuelva a intentarlo",
+    "failedPayment": "Detalles de pago no válidos. Compruebe los datos de su tarjeta de crédito y/o dirección de facturación.",
+    "failedPurchase": "Compra fallida, no se le cobró. Inténtelo de nuevo.",
+    "failedToLoadCountries": "Se ha producido un problema al cargar países desde el servidor. Vuelva a intentarlo o póngase en contacto con el soporte.",
+    "failedTransfer": "Se produjo un error inesperado al agregar dinero. Póngase en contacto con el soporte.",
+    "minimumBid": "Su oferta debe ser de al menos {{amount}}",
+    "mustConfirmBid": "La oferta debe ser confirmada",
+    "bidLessThanHighestBid": "Su oferta fue inferior a la oferta alta actual.",
+    "maxCharacters": "Debe tener menos de {max} caracteres",
+    "minCharacters": "Debe tener al menos {min} caracteres",
+    "minUSDC": "Se encontró un saldo de {{balance}} {{currency}}, pero el mínimo necesario es de {{min}} {{currency}}",
+    "maxItems": "Debe seleccionar como máximo {max} elementos",
+    "minImageFileSize": "La imagen debe ser {{fileSize}} o más pequeña",
+    "minListingPriceBalance": null,
+    "noUSDC": null,
+    "onlyLetters": "Debe contener sólo letras.",
+    "onlyLettersAndNumbers": "Debe contener sólo letras y números.",
+    "onlyNumbers": "Debe contener solo números",
+    "onlyLowercaseLettersAndNumbers": "Sólo se permiten caracteres en minúsculas y números",
+    "paymentNotCreated": "No se pudo crear el pago. Póngase en contacto con el soporte.",
+    "required": "Este campo es obligatorio",
+    "transferDeclined": "La transacción fue rechazada o algo salió mal durante el pago.",
+    "transferNotFound": "Transferencia no encontrada. Si ya se completó, siga verificando el estado.",
+    "usernameTaken": "El nombre de usuario ya está en uso.",
+    "invalidDuration": "Duración no válida",
+    "invalidRedemptionCode": "Código de rembolso no válido",
+    "invalidStatus": "Estado no válido",
+    "invalidZipCode": "Código postal no válido",
+    "acceptTerms": "Por favor, confirme que ha revisado la política de privacidad/TOS antes de crear una cuenta",
+    "balanceLessThanCredits": "El saldo de la cuenta es inferior al necesario para la compra",
+    "amountToWithdraw": "Por favor, introduzca una cantidad válida para retirar",
+    "verificationRequired": null,
+    "walletAddress": "Por favor, introduzca una dirección de billetera válida"
+  },
+  "fields": {
+    "accountNumber": {
+      "label": "Número de cuenta"
+    },
+    "address1": {
+      "label": "Dirección postal"
+    },
+    "bankAddress": {
+      "bankName": {
+        "label": "Nombre del banco"
+      },
+      "bankAddress1": {
+        "label": "Línea de dirección del banco 1"
+      },
+      "bankAddress2": {
+        "label": "Línea de dirección del banco 2"
+      }
+    },
+    "bid": {
+      "confirmation": "Entiendo que debo completar el pago dentro de las 72 horas o perderé mi oferta ganadora.",
+      "description": "Su tarjeta se cargará inmediatamente al cierre de la subasta si realiza la oferta ganadora.",
+      "label": "Su oferta",
+      "helpTextCurrentBid": "La oferta actual es de {{amount}}",
+      "success": "Es el mejor postor actual para {{title}}"
+    },
+    "ccNumber": {
+      "label": "Número de la tarjeta de crédito",
+      "logos": {
+        "mastercard": "Mastercard",
+        "visa": "Visa"
+      }
+    },
+    "city": {
+      "label": "Ciudad"
+    },
+    "country": {
+      "label": "País",
+      "defaultText": null
+    },
+    "currencies": {
+      "label": "Moneda "
+    },
+    "customerVerification": {
+      "cta": null,
+      "helpTextStart": {
+        "1": null,
+        "2": null
+      },
+      "helpText": {
+        "1": null,
+        "2": null
+      },
+      "accountStatus": {
+        "label": null,
+        "options": {
+          "clear": null,
+          "approved": null,
+          "needs-verification": null,
+          "manual-review": null,
+          "restricted": null,
+          "banned": null,
+          "unverified": null,
+          "limited": null
+        }
+      },
+      "required": {
+        "label": null,
+        "options": {
+          "required": null,
+          "notRequired": null
+        }
+      },
+      "lastAttempt": {
+        "status": {
+          "label": null,
+          "options": {
+            "in_progress": null,
+            "clear": null,
+            "fail": null,
+            "manual_review": null,
+            "cancelled": null
+          }
+        },
+        "helpText": null
+      }
+    },
+    "defaultCard": {
+      "label": "Defecto",
+      "helpText": "Hacer que la tarjeta sea mi tarjeta predeterminada para compras"
+    },
+    "differentCardLink": {
+      "label": "Usar una tarjeta diferente"
+    },
+    "dob": {
+      "label": null,
+      "helpText": null
+    },
+    "email": {
+      "label": "Correo electrónico"
+    },
+    "newEmail": {
+      "label": "Nuevo correo electrónico"
+    },
+    "expirationDate": {
+      "label": "Fecha de caducidad"
+    },
+    "fullName": {
+      "label": "Nombre completo",
+      "helpText": "Tal como aparece en su tarjeta"
+    },
+    "firstName": {
+      "label": null
+    },
+    "lastName": {
+      "label": null
+    },
+    "languages": {
+      "label": "Idioma"
+    },
+    "password": {
+      "label": "Contraseña",
+      "helpText": null
+    },
+    "paymentMethods": {
+      "label": "Método de pago",
+      "helpText": "Seleccione método de pago",
+      "options": {
+        "card": {
+          "label": "Tarjeta de crédito",
+          "helpText": "Aceptado para ofertas ganadoras de hasta $3,000"
+        },
+        "crypto": {
+          "label": "Cartera Crypto/ Cartera de moneda electrónica",
+          "helpText": "Aceptado para todas las ofertas ganadoras. Pago aceptado en USDC desde WalletConnect, MyAlgo o Coinbase."
+        }
+      }
+    },
+    "payWithCrypto": {
+      "label": "Pagar con Crypto",
+      "helpText": "Solo podemos aceptar pagos con criptomonedas en USDC-A.",
+      "tutorial": {
+        "prompt": "¿Aún no tienes una Crypto Wallet?",
+        "text": "Te guiaremos a través",
+        "hyperlink": "lo que es necesario"
+      },
+      "instructions": {
+        "1": "Haga clic para conectarse y escanee el código QR con la aplicación móvil de su cartera, o copie la dirección de blockchain en su portapapeles.",
+        "2": "Inicie la compra, ya sea haciendo clic en el botón Comprar o transfiriendo fondos manualmente a la dirección copiada.",
+        "3": "Envíe su pago de {{price}} en {{usdcPrice}} USDC.",
+        "4": "Verifique el pago. Una vez que recibamos su pago, será el nuevo propietario del NFT.",
+        "label": "Si ya tiene una cartera"
+      },
+      "Connected account": "Cuenta conectada",
+      "walletInstructions": {
+        "label": "Instrucciones para la cartera",
+        "createWallet": {
+          "1": "Instale Algorand Wallet en su dispositivo móvil",
+          "2": "Crear una nueva cuenta con Algorand Wallet",
+          "3": "Agregue USDC haciendo clic en Agregar nuevo activo y buscando USDC",
+          "label": "Crear una cartera",
+          "link": "Tutorial sobre cómo crear una cuenta nueva "
+        },
+        "purchaseAlgos": {
+          "1": "Regístrese para obtener una cuenta de Coinbase",
+          "2": "Compre ALGOs de Coinbase",
+          "3": "Transfiera ALGOs a su cartera Algorand",
+          "label": "Comprar ALGOs",
+          "link": "Tutorial sobre cómo transferir criptomonedas usando Coinbase",
+          "notice": "Nota: las tarifas se agregan durante el intercambio"
+        },
+        "swapAlgos": {
+          "1": "Ir a Tinyman",
+          "2": "Seleccione ALGO como Desde y USDC como Hasta",
+          "3": "Conéctese a su cartera",
+          "4": "Iniciar el intercambio",
+          "label": "Cambia ALGO por USDC-A",
+          "link": "Visite Tinyman",
+          "notice": "¡Cuidado con las tarifas adicionales y el deslizamiento! La cartera debe tener suficiente para cubrir el costo del artículo + las tarifas."
+        }
+      }
+    },
+    "payWithBalance": {
+      "price": "Precio",
+      "balance": "Su saldo",
+      "buy": "Comprar",
+      "buyPack": null,
+      "buyCollectible": "Comprar objetos de colección",
+      "buyMoreMoney": null,
+      "information": {
+        "prompt": "Lenguaje legal sobre la compra. Todos los productos tienen un precio en USDC. Las estimaciones en moneda local se proporcionan solo por conveniencia. Los proveedores de tarjetas pueden cobrar tarifas adicionales por compras de productos digitales, consulte con su banco. Obtenga más información sobre los precios y las posibles tarifas."
+      }
+    },
+    "personalSettings": {
+      "label": "Ajustes personales"
+    },
+    "price": {
+      "label": "Precio",
+      "disclaimer": "El precio se muestra en {{currency}} pero se establecerá en {{amount}} USDC"
+    },
+    "profileImage": {
+      "label": "Imagen de perfil"
+    },
+    "redemptionCode": {
+      "label": "Código de rembolso"
+    },
+    "routingNumber": {
+      "label": "Número de identificación"
+    },
+    "saveCard": {
+      "label": "Guardar mi tarjeta para futuras compras"
+    },
+    "savedCard": {
+      "label": "Tarjetas guardadas",
+      "placeholder": "Nueva tarjeta"
+    },
+    "securityCode": {
+      "label": "CVV"
+    },
+    "state": {
+      "label": "Estado/Provincia"
+    },
+    "status": {
+      "label": null
+    },
+    "typeOfSale": {
+      "label": "Tipo de Venta",
+      "options": {
+        "fixedPrice": {
+          "label": "Precio fijo"
+        },
+        "auction": {
+          "label": "¡Próximamente subastas!"
+        }
+      }
+    },
+    "username": {
+      "helpText": "Cómo aparecerá a los demás",
+      "label": "Nombre de usuario"
+    },
+    "name": {
+      "helpText": "Opcional",
+      "label": "Su nombre"
+    },
+    "age": {
+      "label": null,
+      "options": {
+        "N/A": "N/A"
+      }
+    },
+    "zipCode": {
+      "label": "Código postal"
+    },
+    "tos": {
+      "label": "He leído y acepto los <0>términos de servicio</0>"
+    },
+    "privacyPolicy": {
+      "label": "He leído y acepto la <0>política de privacidad</0>"
+    }
+  },
+  "sections": {
+    "Bank Account": "Cuenta bancaria",
+    "Bank Address": "Dirección del banco",
+    "Billing Address": "Dirección de facturación",
+    "Credit Card": "Tarjeta de crédito",
+    "Current Verification": null,
+    "Customer Verification": null,
+    "Summary": "Resumen ",
+    "Verification Details": null
+  },
+  "purchaseCredits": {
+    "Amount": "Cantidad",
+    "Add Money": "Añadir dinero",
+    "Purchase with": "Comprar con",
+    "Visa / Mastercard": "Visa / Mastercard",
+    "Card Processing Fee": "Cargo por procesamiento de tarjeta",
+    "Taxes": "Impuestos",
+    "Transaction Summary": "Resumen de la transacción",
+    "Subtotal": "Subtotal",
+    "Total to be charged": "Total a cobrar",
+    "Total to be deposited": "Total a depositar",
+    "Total": "Total",
+    "legalese": "Marcador de posición legal para el momento de la compra. Todos los productos tienen un precio en USDC. Las estimaciones en moneda local se proporcionan solo por conveniencia. Los proveedores de tarjetas pueden cobrar tarifas adicionales por compras de productos digitales, consulte con su banco.",
+    "pricingReadMore": "Obtenga más información sobre los precios y las posibles tarifas.",
+    "cryptoNext": "Siguiente: depositar USDC-A",
+    "Send exactly": "Enviar exactamente",
+    "usdcaAlgorandOnly": "Envíe USDC-A solo a través de Algorand."
+  },
+  "cashOut": {
+    "Cash Out": "Retiro",
+    "Your balance": "Su saldo",
+    "Available to cash out today": "Disponible para retirar dinero hoy",
+    "Amount to withdraw": "Cantidad a retirar",
+    "USDC-A wallet address": "Dirección de cartera USDC-A",
+    "invalidWalletAddress": null,
+    "legalese": "Marcador de posición legal para el momento de la compra. Todos los productos tienen un precio en USDC. Las estimaciones en moneda local se proporcionan solo por conveniencia. Los proveedores de tarjetas pueden cobrar tarifas adicionales por compras de productos digitales, consulte con su banco.",
+    "optInError": null,
+    "pricingReadMore": "Obtenga más información sobre los precios y las posibles tarifas.",
+    "Amount": "Cantidad",
+    "Address": "Dirección",
+    "Total to be withdrawn": null,
+    "Transaction Summary": "Resumen de la transacción",
+    "walletNotFound": null,
+    "withdrawMax": "Retirar máximo"
+  }
+}

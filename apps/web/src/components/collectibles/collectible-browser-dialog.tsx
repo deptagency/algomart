@@ -1,4 +1,4 @@
-import { XCircleIcon } from '@heroicons/react/solid'
+import { XCircleIcon } from '@heroicons/react/outline'
 import useTranslation from 'next-translate/useTranslation'
 import { useEffect } from 'react'
 
@@ -9,7 +9,6 @@ import CollectibleBrowser, {
 import css from './collectible-browser-dialog.module.css'
 
 import Avatar from '@/components/avatar/avatar'
-import Button from '@/components/button'
 import Dialog from '@/components/dialog/dialog'
 
 export interface CollectibleBrowserDialogProps extends CollectibleBrowserProps {
@@ -68,14 +67,13 @@ export default function CollectibleBrowserDialog({
             />
           )}
         </div>
-        <Button
+        <button
           aria-label={t('common:actions.Close')}
           onClick={onClose}
           className={css.closeButton}
-          variant="tertiary"
         >
           <XCircleIcon />
-        </Button>
+        </button>
       </div>
 
       <div className={css.browserWrapper}>

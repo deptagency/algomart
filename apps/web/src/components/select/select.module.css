@@ -1,42 +1,23 @@
 .root {
-  @apply relative block text-black;
-}
-
-.labelContainer {
-  @apply relative flex flex-wrap justify-between w-full font-bold text-base-textPrimary;
-}
-
-.label {
-  @apply w-1/2 mb-1;
-}
-
-.helpText {
-  @apply w-1/2 mt-1 text-xs font-light text-right text-base-gray-medium;
-}
-
-.errorText {
-  @apply text-xs font-light text-right text-base-error;
+  @apply relative block rounded-sm;
 }
 
 .selectContainer {
   @apply relative;
 }
 
+/* Select Button */
 .selectButton {
-  @apply relative w-full text-left bg-white border rounded-sm cursor-default text-base-gray-dark;
-  padding: 10px 50px 10px 10px;
+  @apply relative w-full px-4 py-3 pr-12 text-base text-left rounded-sm cursor-default;
+  @apply focus:border-action-primary focus:outline-none;
 }
 
-.selectButtonDisabled {
-  @apply text-opacity-50 bg-base-bg border-base-bg dark:bg-white dark:bg-opacity-80;
-}
-
-.selectButtonError {
-  @apply border-base-error;
+.disabled {
+  @apply text-base-textDisabled;
 }
 
 .selectButtonText {
-  @apply grid justify-start grid-flow-col grid-rows-1 gap-4 text-base truncate;
+  @apply grid justify-start grid-flow-col grid-rows-1 gap-4 truncate;
 }
 
 .selectButtonText svg {
@@ -44,30 +25,122 @@
   width: 22px;
 }
 
-.selectButtonIconContainer {
+.iconContainer {
   @apply absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none;
 }
 
-.selectButtonIcon {
-  @apply w-5 h-5 text-gray-400;
+.icon {
+  @apply w-5 h-5 text-base-textSecondary;
+}
+.disabled .icon {
+  @apply text-base-textDisabled;
 }
 
+/* Select Options */
 .selectOptions {
-  @apply absolute z-10 w-full py-1 mt-1 overflow-auto text-sm bg-white border rounded-sm shadow-md max-h-60;
+  @apply absolute z-10 w-full mt-1 overflow-auto text-sm rounded-sm bg-base-bgCard max-h-60 shadow-md focus:outline-none;
 }
 
 .selectOption {
-  @apply relative p-3 font-light cursor-default select-none;
-}
-
-.selectOptionActive {
-  @apply bg-action-secondary;
-}
-
-.selectOptionSelected {
-  @apply font-semibold bg-gray-200;
+  @apply relative px-4 py-3 font-normal transition duration-300 cursor-pointer select-none;
 }
 
 .selectOptionDisabled {
   @apply text-base-textDisabled;
+}
+
+/* compact */
+.compact {
+  @apply text-sm;
+}
+.compact .selectButton {
+  @apply text-sm;
+  padding: 10px 50px 10px 10px;
+}
+
+/* Solid variant */
+.solid .selectButton {
+  /* Border preserves height between variations */
+  @apply border-transparent bg-base-bgCard border-1 drop-shadow-lg;
+}
+.solid .selectButton:not(.disabled) {
+  @apply cursor-pointer;
+  @apply hover:bg-action-tertiaryHover;
+  @apply focus:bg-action-tertiaryHover;
+}
+.solid .selectOptions {
+  @apply border border-gray-400;
+}
+.solid .selectOption {
+  @apply border-b border-gray-400;
+}
+.solid .selectOption:last-child {
+  @apply border-none;
+}
+.solid .selectOptionActive {
+  @apply text-action-linkHover;
+}
+.solid .selectOptionSelected {
+  @apply text-action-linkHover;
+}
+
+/* Outline variant */
+.outline {
+  @apply bg-base-bgCard shadow-lg;
+}
+
+.outline .selectButton {
+  @apply bg-opacity-50 border border-base-borderInput bg-base-bgCard;
+}
+.outline .selectButton:not(.disabled) {
+  @apply cursor-pointer;
+  @apply hover:border-opacity-50 hover:border-action-primary;
+  @apply focus:border-opacity-100 focus:border-action-primary;
+}
+.outline .selectOptions {
+  @apply border border-action-primary;
+}
+.outline .selectOption {
+  @apply border-none;
+}
+.outline .selectOptionActive {
+  @apply bg-action-secondary text-base-textPrimary;
+}
+.outline .selectOptionSelected {
+  @apply font-semibold bg-action-secondary;
+}
+
+/* light variant */
+.light {
+  @apply bg-base-bgCard shadow-lg;
+}
+
+.light .selectButton {
+  /* Border preserves height between variations */
+  @apply border-gray-200 bg-opacity-10 border-1;
+}
+.light .selectButton.disabled {
+  @apply border-opacity-10;
+}
+.light .selectButton:not(.disabled) {
+  @apply cursor-pointer;
+  @apply hover:border-opacity-40;
+  @apply focus:border-opacity-80;
+}
+.light .selectOptions {
+  @apply border border-white border-opacity-40;
+}
+.light .selectOption {
+  @apply border-none;
+}
+.light .selectOptionActive {
+  @apply bg-action-secondary text-base-textPrimary;
+}
+.light .selectOptionSelected {
+  @apply font-semibold bg-action-secondary;
+}
+
+/* Error */
+.error .selectButton {
+  @apply border-base-error;
 }

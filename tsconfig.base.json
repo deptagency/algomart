@@ -9,15 +9,31 @@
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "importHelpers": true,
-    "target": "es2015",
+    "target": "es2020",
     "module": "esnext",
+    "allowJs": true,
     "lib": [
-      "ES2017",
+      "ES2020",
       "DOM",
       "DOM.Iterable"
     ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    // TODO: enable stricter type checking to reduce risk for runtime errors
+    // "strict": true,
+    // "forceConsistentCasingInFileNames": true,
+    // "allowUnusedLabels": false,
+    // "allowUnreachableCode": false,
+    // "exactOptionalPropertyTypes": true,
+    // "noFallthroughCasesInSwitch": true,
+    // "noImplicitOverride": true,
+    // "noImplicitReturns": true,
+    // "noPropertyAccessFromIndexSignature": true,
+    // "noUncheckedIndexedAccess": true,
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "importsNotUsedAsValues": "error",
+    // "checkJs": true,
     "baseUrl": ".",
     "paths": {
       "@algomart/schemas": [
@@ -41,11 +57,20 @@
       "@algomart/shared/plugins": [
         "libs/shared/plugins/src/index.ts"
       ],
+      "@algomart/shared/queues": [
+        "libs/shared/queues/src/index.ts"
+      ],
       "@algomart/shared/services": [
         "libs/shared/services/src/index.ts"
       ],
+      "@algomart/shared/tests": [
+        "libs/shared/tests/src/index.ts"
+      ],
       "@algomart/shared/utils": [
         "libs/shared/utils/src/index.ts"
+      ],
+      "@algomart/shared/workers": [
+        "libs/shared/workers/src/index.ts"
       ],
       "@api-tests/*": [
         "apps/api/test/*"

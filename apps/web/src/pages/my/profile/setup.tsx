@@ -5,10 +5,10 @@ import { ExtractError } from 'validator-fns'
 
 import { useAuth } from '@/contexts/auth-context'
 import { useRedemption } from '@/contexts/redemption-context'
+import { useFinishProfileSetup } from '@/hooks/api/use-finish-profile-setup'
 import DefaultLayout from '@/layouts/default-layout'
-import { AuthService } from '@/services/auth-service'
 import MyProfileSetupTemplate from '@/templates/my-profile-setup-template'
-import { validateUserRegistration } from '@/utils/auth-validation'
+import { validateNonEmailSetup } from '@/utils/auth-validation'
 import { urls } from '@/utils/urls'
 
 export default function MyProfileSetupPage() {
@@ -16,8 +16,9 @@ export default function MyProfileSetupPage() {
   const { redeemable } = useRedemption()
   const router = useRouter()
   const { t } = useTranslation()
+  const { mutate: finishProfileSetup } = useFinishProfileSetup()
 
-  const validate = useMemo(() => validateUserRegistration(t), [t])
+  const validate = useMemo(() => validateNonEmailSetup(t), [t])
   const [formErrors, setFormErrors] = useState<ExtractError<typeof validate>>(
     {}
   )
@@ -26,8 +27,9 @@ export default function MyProfileSetupPage() {
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
       const formData = new FormData(event.currentTarget)
+
       const body = {
-        passphrase: formData.get('passphrase') as string,
+        language: formData.get('language') as string,
         username: formData.get('username') as string,
         currency: formData.get('currency') as string,
         email: auth.user?.email,
@@ -39,44 +41,33 @@ export default function MyProfileSetupPage() {
         return setFormErrors(validation.errors)
       }
 
-      const isUsernameAvailable =
-        await AuthService.instance.isUsernameAvailable(body.username)
-      if (!isUsernameAvailable) {
-        return setFormErrors((errors) => ({
-          ...errors,
-          username: t('forms:errors.usernameTaken'),
-        }))
-      }
-
-      const result = await fetch(urls.api.v1.profile, {
-        method: 'POST',
-        headers: {
-          authorization: `bearer ${auth.user?.token}`,
-          'content-type': 'application/json',
+      finishProfileSetup(body, {
+        onSuccess: async () => {
+          await auth.reloadProfile()
+          auth.completeRedirect(redeemable ? urls.login : urls.home)
         },
-        body: JSON.stringify(body),
+        onError: (error) => {
+          error.response.status === 409
+            ? setFormErrors((errors) => {
+                return {
+                  ...errors,
+                  username: t('forms:errors.usernameTaken'),
+                }
+              })
+            : setFormErrors((errors) => {
+                return {
+                  ...errors,
+                  username: t('forms:errors.accountAlreadyConfigured'),
+                }
+              })
+        },
       })
-      if (!result.ok) {
-        return setFormErrors((errors) => {
-          return {
-            ...errors,
-            username: t('forms:errors.accountAlreadyConfigured'),
-          }
-        })
-      }
-      await auth.reloadProfile()
-      router.push(redeemable ? urls.login : urls.home)
     },
-    [auth, redeemable, router, t, validate]
+    [auth, finishProfileSetup, redeemable, t, validate]
   )
 
   useEffect(() => {
-    if (
-      auth.status === 'authenticated' &&
-      auth.user !== null &&
-      auth.user?.username &&
-      auth.user?.address
-    ) {
+    if (!auth.isNeedsSetup) {
       // prevent existing users from creating new profiles
       router.push(urls.home)
     }

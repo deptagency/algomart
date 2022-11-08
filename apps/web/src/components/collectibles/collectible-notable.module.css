@@ -1,15 +1,27 @@
 .root {
-  @apply relative flex flex-col h-full overflow-hidden text-center rounded-md bg-base-bgCard shadow-large;
+  @apply relative flex flex-col h-full overflow-hidden text-center bg-base-bgCard rounded-lg shadow-lg;
 }
 
 .imageWrapper {
-  @apply relative overflow-hidden bg-black hover:border-action-accent focus:border-action-accent;
+  @apply relative overflow-hidden bg-base-bg hover:border-action-accent focus:border-action-accent rounded-bl-[40px] drop-shadow-md;
 }
 
 .content {
-  @apply p-4;
+  @apply px-3 py-1;
+  @apply md:px-5 md:py-3;
 }
 
 .title {
-  @apply px-4 text-lg font-bold;
+  @apply text-sm font-bold uppercase;
+  @apply md:text-base;
+}
+
+.playIconWrapper {
+  @apply rounded-full w-[40px] h-[40px] absolute bottom-4 left-4 text-white bg-skyBlue z-10 flex items-center justify-center bg-blue-gradient-horz;
+  @apply md:w-[50px] md:h-[50px] md:bottom-5 md:left-5;
+}
+
+.playIcon {
+  @apply w-[12px] h-[12px] ml-[3px];
+  @apply md:w-[18px] md:h-[18px] md:ml-[3px];
 }

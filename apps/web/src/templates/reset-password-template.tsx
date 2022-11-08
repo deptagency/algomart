@@ -1,65 +1,98 @@
+import { CheckCircleIcon } from '@heroicons/react/outline'
 import Trans from 'next-translate/Trans'
 import useTranslation from 'next-translate/useTranslation'
 import { FormEvent } from 'react'
 
+import css from './reset-password-template.module.css'
+
 import AlertMessage from '@/components/alert-message/alert-message'
 import AppLink from '@/components/app-link/app-link'
-import { Email, Submit } from '@/components/auth-inputs/auth-inputs'
-import Heading from '@/components/heading'
-import { AuthState } from '@/types/auth'
+import { Password, Submit } from '@/components/auth-inputs/auth-inputs'
+import { H1, H2 } from '@/components/heading'
+import { AuthState } from '@/contexts/auth-context'
 import { urls } from '@/utils/urls'
 
 export interface ResetPasswordTemplateProps {
   formErrors:
     | Partial<{
-        email?: unknown
+        password?: unknown
       }>
     | undefined
   handleResetPassword(event: FormEvent<HTMLFormElement>): Promise<void>
-  resetSent: boolean
   status: AuthState['status']
+  invalidReset: boolean
+  resetComplete: boolean
 }
 
-export default function ResetPasswordTemplate({
+export default function SendResetPasswordTemplate({
   formErrors,
   handleResetPassword,
-  resetSent,
   status,
+  invalidReset,
+  resetComplete,
 }: ResetPasswordTemplateProps) {
   const { t } = useTranslation()
+
+  if (resetComplete) {
+    return (
+      <div className={css.successRoot}>
+        <div className={css.success}>
+          <CheckCircleIcon className={css.icon} />
+
+          <H2 mb={16}>{t('common:statuses.Success!')}</H2>
+
+          <p>{t('common:statuses:Please wait while we log you in')}</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <>
-      <Heading className="mb-8 text-center">{t('auth:Reset Password')}</Heading>
+      <H1 mb={8}>{t('auth:Reset Password')}</H1>
 
-      <form
-        className="relative max-w-sm mx-auto"
-        onSubmit={handleResetPassword}
-      >
-        {resetSent && (
-          <AlertMessage
-            className="mb-6"
-            content={
-              <Trans
-                components={[
-                  <p className="mb-4" key={0} />,
-                  <p key={1} />,
-                  <AppLink key={2} href={urls.loginEmail} />,
-                ]}
-                i18nKey="auth:resetPasswordBody"
-              />
-            }
-            variant="green"
+      {resetComplete ? (
+        <div className={css.successRoot}>
+          <div className={css.success}>
+            <CheckCircleIcon className={css.icon} />
+
+            <H2 mb={16}>{t('common:statuses.Success!')}</H2>
+
+            <p>{t('common:statuses:Please wait while we log you in')}</p>
+          </div>
+        </div>
+      ) : (
+        <form
+          className="relative w-full max-w-sm mx-auto"
+          onSubmit={handleResetPassword}
+        >
+          {invalidReset && (
+            <AlertMessage
+              className="mb-6"
+              content={
+                <Trans
+                  components={[
+                    <p className="mb-4" key={0} />,
+                    <p key={1} />,
+                    <AppLink
+                      key={2}
+                      href={urls.sendResetPassword}
+                      className="underline"
+                    />,
+                  ]}
+                  i18nKey="auth:resetPasswordInvalid"
+                />
+              }
+              variant="red"
+            />
+          )}
+          <Password error={formErrors?.password} disabled={invalidReset} />
+          <Submit
+            disabled={status === 'loading' || invalidReset}
+            translationKey="common:actions.Save"
           />
-        )}
-        <Email error={formErrors?.email} />
-        <Submit disabled={status === 'loading'} />
-
-        <p className="mt-4 text-center">
-          <AppLink href={urls.signUp}>
-            <u>{t('auth:Need an account? Create one now')}</u>
-          </AppLink>
-        </p>
-      </form>
+        </form>
+      )}
     </>
   )
 }

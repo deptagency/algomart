@@ -9,7 +9,6 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-
 # Rebuild the source code only when needed
 FROM node:16-bullseye AS builder
 WORKDIR /app
@@ -24,13 +23,7 @@ COPY ./apps/web ./apps/web
 ENV NEXT_TELEMETRY_DISABLED 1
 RUN npx nx run web:build:production
 
-
-# Production image, copy all the files and run next
-FROM node:16-bullseye-slim AS runner
-WORKDIR /app
-
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+FROM node:16-bullseye AS runner
 
 RUN addgroup --system --gid 1001 nodejs && \
   adduser --system --uid 1001 algomart && \
@@ -44,6 +37,8 @@ RUN npm install --no-package-lock --production && \
   npm install --no-package-lock --verbose --unsafe-perm sharp
 
 COPY ./docker/deploy/web/run.sh .
+COPY ./GITHUB_SHA.txt .
+COPY ./GITHUB_REF_NAME.txt .
 
 USER algomart
 

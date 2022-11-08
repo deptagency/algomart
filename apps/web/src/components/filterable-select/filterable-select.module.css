@@ -1,0 +1,171 @@
+.root {
+  @apply relative block rounded-sm;
+}
+
+.contentTop {
+  @apply flex items-end justify-between gap-2 mb-1.5 font-bold text-base-textPrimary;
+}
+
+.label {
+  @apply font-semibold shrink-0;
+}
+
+.helpText {
+  @apply text-sm font-normal text-right text-base-textTertiary;
+}
+
+.errorText {
+  @apply text-sm font-normal text-right text-base-error;
+}
+
+.selectContainer {
+  @apply relative flex py-3 pl-4 text-base text-left rounded-sm shadow-lg cursor-default;
+  @apply focus:border-action-primary focus:outline-none;
+  @apply focus-within:border-action-primary focus-within:outline-none;
+}
+
+.selectDropdown {
+  @apply relative px-4 py-3;
+}
+
+.selectInput {
+  @apply relative w-full bg-transparent;
+  @apply focus:border-action-primary focus:outline-none;
+  margin-bottom: 0;
+}
+.selectInput:autofill {
+  background: transparent; /* Doesn't work in webkit */
+}
+.selectInput:-webkit-autofill {
+  /* Webkit hack: These can't be overridden once they're set on webkit browsers
+  The long transition prevents it from getting showing up in the first place.*/
+  transition: background-color 0s 600000s, color 0s 600000s;
+}
+
+.disabled {
+  @apply text-base-textDisabled;
+}
+
+.iconContainer {
+  @apply absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none;
+}
+
+.icon {
+  @apply w-5 h-5 text-base-textSecondary;
+}
+.disabled .icon {
+  @apply text-base-textDisabled;
+}
+
+.selectOptions {
+  @apply absolute z-10 top-[110%] mt-1 left-0 right-0 overflow-auto text-sm rounded-sm bg-base-bgCard max-h-60 focus:outline-none;
+}
+
+.selectOption {
+  @apply relative px-4 py-3 font-normal transition duration-300 cursor-pointer select-none;
+}
+
+.selectOptionDisabled {
+  @apply text-base-textDisabled;
+}
+.selectOption[aria-disabled] {
+  @apply cursor-not-allowed;
+}
+
+/* Small size */
+.small {
+  @apply text-sm;
+}
+.small .selectContainer {
+  @apply text-sm;
+  padding: 10px 0 10px 10px;
+}
+
+/* Solid variant */
+.solid .selectContainer {
+  /* Border preserves height between variations */
+  @apply border-transparent bg-base-bgCard border-1;
+}
+.solid .selectContainer:not(.disabled) {
+  @apply cursor-pointer;
+  @apply hover:bg-action-tertiaryHover;
+  @apply focus:bg-action-tertiaryHover;
+  @apply focus-within:bg-action-tertiaryHover;
+}
+.solid .selectOptions {
+  @apply border border-action-secondary;
+}
+.solid .selectOption {
+  @apply border-b border-action-secondary;
+}
+.solid .selectOption:last-child {
+  @apply border-none;
+}
+.solid .selectOptionActive {
+  @apply text-action-linkHover;
+}
+.solid .selectOptionSelected {
+  @apply text-action-linkHover;
+}
+
+/* Outline variant */
+.outline {
+  @apply bg-base-bgCard;
+}
+
+.outline .selectContainer {
+  @apply bg-opacity-50 border border-base-borderInput;
+}
+.outline .selectContainer:not(.disabled) {
+  @apply cursor-pointer;
+  @apply hover:border-opacity-50 hover:border-action-primary;
+  @apply focus-within:border-opacity-100 focus-within:border-action-primary;
+}
+.outline .selectOptions {
+  @apply border border-action-primary;
+}
+.outline .selectOption {
+  @apply border-none;
+}
+.outline .selectOptionActive {
+  @apply bg-action-secondary text-base-textPrimary;
+}
+.outline .selectOptionSelected {
+  @apply font-semibold bg-action-secondary;
+}
+
+/* light variant */
+.light .selectContainer {
+  /* Border preserves height between variations */
+  @apply bg-white border-gray-200 border-1;
+}
+.light .selectContainer.disabled {
+  @apply border-opacity-10;
+}
+.light .selectContainer:not(.disabled) {
+  @apply cursor-pointer;
+  @apply hover:border-opacity-40;
+  @apply focus-within:border-opacity-80;
+}
+.light .selectOptions {
+  @apply border border-white border-opacity-40;
+}
+.light .selectOption {
+  @apply border-none;
+}
+.light .selectOptionActive {
+  @apply bg-action-secondary text-base-textPrimary;
+}
+.light .selectOptionSelected {
+  @apply font-semibold bg-action-secondary;
+}
+
+/* Error */
+.error .selectContainer {
+  @apply border-base-error;
+}
+
+/* Error */
+.error .selectContainer {
+  @apply border-base-error;
+}

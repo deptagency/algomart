@@ -17,9 +17,10 @@ const PinoLevelToSeverityLookup = {
  * Creates a general purpose logger.  (note: if you are logging in a fastify request
  * handler then you should use the logger attached to the request)
  */
-export const createLogger = (logLevel: Level) => {
+export const createLogger = (logLevel: Level, enabled = true): pino.Logger => {
   return pino({
-    level: logLevel,
+    enabled,
+    level: enabled ? logLevel : undefined,
     messageKey: 'message',
     formatters: {
       level(label, number) {

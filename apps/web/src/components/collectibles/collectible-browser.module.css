@@ -1,23 +1,31 @@
 .root {
   @apply px-4 mx-auto max-w-520;
   @apply md:max-w-700 md:px-0;
+  @apply xl:max-w-960;
 }
 
 .title {
-  @apply text-center text-white;
+  @apply text-center text-xl;
+  @apply md:text-2xl;
 }
 
 .navButton {
-  @apply absolute top-1/2 hover:text-action-accent focus:text-action-accent;
-  transform: translateY(-50%);
+  @apply opacity-0 transition;
+  @apply absolute top-1/2 text-base-textTertiary -mt-8;
+  @apply hover:text-action-accent focus:text-action-accent hover:scale-110 focus:scale-110;
+  @apply sm:opacity-100;
 }
 
 .navButtonLeft {
   @apply -left-8;
+  @apply lg:-left-16;
+  @apply xl:-left-24;
 }
 
 .navButtonRight {
   @apply -right-8;
+  @apply lg:-right-16;
+  @apply xl:-right-24;
 }
 
 .imageWrapper {
@@ -25,15 +33,16 @@
 }
 
 .detail {
-  @apply my-5 text-sm text-center;
+  @apply my-5 text-sm text-center text-base-textSecondary;
   @apply md:text-left md:grid md:grid-cols-3 md:flex-row;
 }
 
 .detailCenter {
-  @apply uppercase;
+  @apply uppercase text-base-textSecondary;
   @apply md:text-center;
 }
-
+.detailLeft {
+}
 .detailRight {
   @apply md:text-right;
 }
@@ -51,13 +60,13 @@
   @apply opacity-50 hover:opacity-100;
 }
 
-.bold {
-  @apply font-bold;
+.emphasize {
+  @apply font-semibold text-base-textPrimary;
 }
 
 .flipButton {
-  @apply block mx-auto;
-  @apply text-sm underline text-gray-400 hover:text-action-accent;
+  @apply block mx-auto text-base-textSecondary mt-2;
+  @apply text-sm hover:text-action-accent;
 }
 
 .flipBox {

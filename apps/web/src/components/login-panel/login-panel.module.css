@@ -5,22 +5,31 @@
 }
 
 .buttonContainer {
-  @apply flex flex-col px-8 py-12 mx-auto space-y-8;
-  /* Mobile + */
-  @apply sm:p-16;
-  @apply md:max-w-520;
+  @apply flex flex-col max-w-md m-12 mx-auto space-y-8;
 }
 
-.button img {
-  @apply w-5 h-5;
+.buttonGoogle {
+  @apply flex items-center justify-center max-h-[50px];
+}
+
+.button div {
+  @apply relative flex items-center w-16 h-5;
+}
+
+.button span {
+  @apply mr-2;
 }
 
 .buttonImageText {
-  @apply ml-4;
+  @apply ml-2;
+}
+
+.signupPrompt {
+  @apply pt-6 text-center border-t border-action-primary;
 }
 
 .featuredWrapper {
-  @apply flex flex-col bg-black;
+  @apply flex flex-col bg-base-bgCard;
 }
 
 .featuredBottom {

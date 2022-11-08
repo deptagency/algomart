@@ -1,35 +1,37 @@
-.containerBlue {
-  @apply p-4 bg-blue-100 rounded-md;
-}
+@layer component {
+  .containerBlue {
+    @apply p-4 bg-blue-100 rounded-md;
+  }
 
-.containerGreen {
-  @apply p-4 rounded-md bg-base-price bg-opacity-10;
-}
+  .containerGreen {
+    @apply p-4 rounded-md bg-base-price bg-opacity-10;
+  }
 
-.containerRed {
-  @apply p-4 rounded-md bg-base-error bg-opacity-10;
-}
+  .containerRed {
+    @apply p-4 rounded-md bg-base-error bg-opacity-80;
+  }
 
-.blueBorder {
-  @apply border-blue-900 border-1;
-}
+  .blueBorder {
+    @apply border-blue-900 border-1;
+  }
 
-.greenBorder {
-  @apply border-1 border-base-price;
-}
+  .greenBorder {
+    @apply border-1 border-base-price;
+  }
 
-.redBorder {
-  @apply border-1 border-base-error;
-}
+  .redBorder {
+    @apply border-1 border-base-error;
+  }
 
-.contentBlue {
-  @apply text-center text-blue-900;
-}
+  .contentBlue {
+    @apply text-center text-blue-900;
+  }
 
-.contentRed {
-  @apply text-center;
-}
+  .contentRed {
+    @apply text-center;
+  }
 
-.contentGreen {
-  @apply text-center text-base-price;
+  .contentGreen {
+    @apply text-center text-base-price;
+  }
 }

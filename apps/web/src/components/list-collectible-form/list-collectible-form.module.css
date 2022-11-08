@@ -1,0 +1,23 @@
+.listCollectibleForSaleForm {
+  @apply text-left;
+}
+
+.listCollectibleForSaleForm .feeSummary {
+  @apply px-5 my-8 border rounded-md;
+}
+
+.listCollectibleForSaleForm .feeSummary .lineItem {
+  @apply flex items-center py-4;
+}
+
+.listCollectibleForSaleForm .feeSummary .lineItem:not(:last-child) {
+  @apply border-b-1;
+}
+
+.listCollectibleForSaleForm .feeSummary .lineItem > dt {
+  @apply flex-1 text-base;
+}
+
+.listCollectibleForSaleForm .feeSummary .lineItem > dd {
+  @apply font-bold;
+}

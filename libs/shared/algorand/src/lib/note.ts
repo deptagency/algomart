@@ -1,4 +1,5 @@
 import { invariant } from '@algomart/shared/utils'
+
 import { ARC2_DAPP_NAME_PATTERN } from './constants'
 
 /**
@@ -26,6 +27,12 @@ export enum NoteTypes {
   ImportTransferOptIn = 'itoi',
   ImportTransferAsset = 'itax',
   ImportTransferOptOut = 'itoo',
+
+  TradeTransferPayFunds = 'ttpf',
+  TradeTransferOptIn = 'ttoi',
+  TradeTransferAsset = 'ttax',
+  TradeTransferOptOut = 'ttoo',
+  TradeTransferReturnFunds = 'ttrf',
 }
 
 /**

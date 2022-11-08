@@ -1,34 +1,37 @@
 .bottomNav {
-  @apply py-8 bg-base-bgCard;
+  /* Base */
+  @apply py-4 text-xs;
+  /* Tablet + */
+  @apply pb-8 md:pt-0;
 }
 
 .bottomNavWrapper {
   /* Base */
-  @apply px-4 mx-auto text-center max-w-wrapper;
+  @apply flex flex-col gap-10 mx-auto max-w-wrapper;
   /* Tablet + */
-  @apply md:flex md:items-center md:justify-between md:text-center;
+  @apply md:justify-between md:flex-row md:px-4 md:items-end;
 }
 
 .bottomNavLeft {
-  /* Tablet + */
-  @apply md:flex md:items-center md:space-x-14;
-}
-
-.bottomNavLeftImage {
   /* Base */
-  @apply relative inline-block mx-auto mb-8 text-base-textTertiary;
+  @apply grid grid-flow-row gap-3 text-center;
   /* Tablet + */
-  @apply md:m-0 md:relative;
+  @apply md:gap-4 md:text-left;
 }
 
-.bottomNavSpace {
-  /* Tablet + */
-  @apply md:space-x-4;
-}
-
-.bottomNavLinks {
+.bottomNavLeft > nav {
   /* Base */
-  @apply block mb-4 text-sm transition duration-300 outline-none text-base-gray-medium focus:text-black hover:text-base-textPrimary;
+  @apply grid justify-center grid-flow-row gap-3 mb-5 text-center;
+
   /* Tablet + */
-  @apply md:inline md:mb-0;
+  @apply md:gap-8 md:grid-flow-col md:mb-0;
+}
+
+.bottomNavLeft > nav a {
+  @apply transition-colors text-base-textPrimary hover:text-base-textSecondary;
+}
+
+.bottomNavRight {
+  @apply relative flex flex-col justify-center mx-auto text-xs text-center text-opacity-40 text-base-textPrimary;
+  @apply md:justify-start md:mx-0 md:text-left;
 }

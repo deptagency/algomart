@@ -1,10 +1,18 @@
-.toggleButton {
-  @apply relative mx-auto my-8 text-center;
+.packHeader {
+  @apply mt-6 text-center;
+}
+
+.packTitle {
+  @apply text-white;
+}
+
+.packSubtitle {
+  @apply mb-2 text-sm text-center uppercase text-action-primary;
 }
 
 .gridWrapper {
   /* Base */
-  @apply grid justify-center grid-cols-1 gap-6 px-8 mt-8 justify-items-center;
+  @apply grid justify-center grid-cols-1 gap-6 px-5 mt-8 justify-items-center;
   /* Mobile + */
   @apply sm:grid-cols-2;
   /* Tablet + */
@@ -25,38 +33,64 @@
   @apply md:grid-cols-1 md:gap-0;
 }
 
-.gridItem {
-  @apply relative w-full max-w-700;
-}
-
-.gridItemEmpty {
-  /* Base */
-  @apply hidden;
-  /* Tablet + */
-  @apply md:block;
-}
-
-/* The fadeable action happens using react spring */
-.fadeable {
-  opacity: 1;
-  transition: opacity 500ms ease-in-out 1000ms;
-}
-
-/* The clickable action happens with state upon interaction */
-.clickable {
-  cursor: pointer;
-  opacity: 1;
-  transition: opacity 300ms ease-in-out;
-  transform-style: preserve-3d;
-}
-.clickable.fadedOut {
-  opacity: 0;
-}
-
-.placeholderWrapper {
-  @apply absolute top-0 w-full h-full opacity-100;
+.mintStatus {
+  @apply mt-12 text-center text-white;
 }
 
 .viewCollectionButton {
-  @apply relative block mx-auto my-12;
+  @apply relative block mx-auto mt-6;
+}
+.viewCollectionButton[disabled] {
+  @apply opacity-100;
+}
+
+.viewCollectionButton[disabled] span + div {
+  @apply text-white;
+}
+
+/* Transfer Status */
+.transferContainer {
+  @apply self-center w-full max-w-lg px-4 pt-4 m-auto text-center sm:w-full;
+}
+
+.imageWrapper {
+  @apply relative flex self-center p-2 -mb-4 rounded-md -top-8 bg-action-secondary;
+}
+
+.image {
+  @apply w-full h-full;
+}
+
+.instructionText {
+  @apply pt-5 pb-10 text-sm text-white;
+}
+
+.loadingWrapper {
+  @apply block my-6;
+}
+
+.statusWrapper {
+  @apply my-6;
+}
+
+.statusHeading {
+  @apply my-2 text-lg font-bold text-white;
+}
+
+.statusMessage {
+  @apply text-sm text-white;
+}
+
+.errorIcon {
+  @apply relative mx-auto text-base-error;
+  width: 48px;
+}
+
+.successIcon {
+  @apply mx-auto text-base-price;
+  width: 48px;
+}
+
+.button {
+  @apply w-full mt-8;
 }

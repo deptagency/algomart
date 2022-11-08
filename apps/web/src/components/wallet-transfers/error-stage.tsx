@@ -2,13 +2,14 @@ import { ExclamationCircleIcon } from '@heroicons/react/outline'
 
 import css from './wallet-transfers.module.css'
 
-import Heading from '@/components/heading'
+import { H2 } from '@/components/heading'
 import LinkButton from '@/components/link-button'
 
 export interface ErrorStageProps {
   linkText: string
   linkUrl: string
-  error: string
+  errorTitle: string
+  errorSubtitle?: string
 }
 
 export default function ErrorStage(props: ErrorStageProps) {
@@ -18,9 +19,12 @@ export default function ErrorStage(props: ErrorStageProps) {
         <span className={css.error}>
           <ExclamationCircleIcon width={48} />
         </span>
-        <Heading bold level={2} size={1} className={css.terminalStageTitle}>
-          {props.error}
-        </Heading>
+        <H2 size={1} my={5}>
+          {props.errorTitle}
+        </H2>
+        {props.errorSubtitle ? (
+          <div className={css.terminalStageSubtitle}>{props.errorSubtitle}</div>
+        ) : null}
         <LinkButton fullWidth href={props.linkUrl}>
           {props.linkText}
         </LinkButton>

@@ -8,7 +8,7 @@ import useTranslation from 'next-translate/useTranslation'
 import css from './wallet-transfers.module.css'
 
 import Button from '@/components/button'
-import Heading from '@/components/heading'
+import { H3 } from '@/components/heading'
 
 export interface SelectAssetStageProps {
   assetId: number
@@ -23,9 +23,7 @@ export default function SelectAssetStage(props: SelectAssetStageProps) {
 
   return (
     <div className={css.stage}>
-      <Heading level={3} bold className={css.stageTitle}>
-        {t('nft:walletConnect.nfts')}
-      </Heading>
+      <H3>{t('nft:walletConnect.nfts')}</H3>
       <hr className={css.separator} />
       <RadioGroup value={props.assetId} onChange={props.setAssetId}>
         <RadioGroup.Label>{t('nft:walletConnect.selectNFT')}</RadioGroup.Label>
@@ -39,7 +37,7 @@ export default function SelectAssetStage(props: SelectAssetStageProps) {
                 clsx(
                   checked ? 'border-transparent' : 'border-base-border',
                   active ? 'ring-2 ring-action-secondary' : '',
-                  'relative bg-base-bgCard text-base-textPrimary border shadow-sm cursor-pointer focus:outline-none'
+                  'relative bg-base-bgCard text-base-textPrimary border cursor-pointer focus:outline-none'
                 )
               }
             >
@@ -58,7 +56,7 @@ export default function SelectAssetStage(props: SelectAssetStageProps) {
                     <div className="flex flex-col">
                       <RadioGroup.Label
                         as="span"
-                        className="block overflow-hidden text-sm font-medium text-base-textPrimary text-ellipsis whitespace-nowrap"
+                        className="block overflow-hidden text-sm font-semibold text-base-textPrimary text-ellipsis whitespace-nowrap"
                       >
                         {collectible.title}
                       </RadioGroup.Label>
@@ -108,7 +106,6 @@ export default function SelectAssetStage(props: SelectAssetStageProps) {
       <div className={css.spacing}>
         <Button
           onClick={props.onCancel}
-          size="small"
           variant="link"
           fullWidth
           className={css.buttonLink}

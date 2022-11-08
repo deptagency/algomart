@@ -1,12 +1,12 @@
+import { DirectusCollection, EntityType } from '@algomart/schemas'
 import { Model } from 'objection'
-import { DirectusCollection } from '@algomart/schemas'
 
 export class CMSCacheCollectionModel extends Model {
-  static tableName = 'CmsCacheCollections'
+  static tableName = EntityType.CmsCacheCollections
 
   id!: string
   slug!: string
-  content!: string
+  content!: DirectusCollection
   createdAt!: string
   updatedAt!: string
 
@@ -18,7 +18,7 @@ export class CMSCacheCollectionModel extends Model {
     await CMSCacheCollectionModel.query().insert({
       id: collection.id,
       slug: collection.slug,
-      content: JSON.stringify(collection),
+      content: collection,
     })
 
     return collection
@@ -27,19 +27,14 @@ export class CMSCacheCollectionModel extends Model {
   static async update(collection: DirectusCollection) {
     await CMSCacheCollectionModel.query()
       .where({ id: collection.id })
-      .update({ content: JSON.stringify(collection) })
+      .update({ content: collection })
 
     return collection
   }
 
   static async upsert(collection: DirectusCollection) {
     const record = await this.getById(collection.id)
-
-    if (record) {
-      this.update(collection)
-    } else {
-      this.insert(collection)
-    }
+    await (record ? this.update(collection) : this.insert(collection))
 
     return collection
   }

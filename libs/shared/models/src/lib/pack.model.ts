@@ -1,14 +1,14 @@
-import { PackSchema } from '@algomart/schemas'
+import { EntityType, PackSchema } from '@algomart/schemas'
 import { Model } from 'objection'
 
 import { BaseModel } from './base.model'
 import { BidModel } from './bid.model'
+import { CMSCachePackTemplateModel } from './cms-cache-pack-template.model'
 import { CollectibleModel } from './collectible.model'
-import { PaymentModel } from './payment.model'
 import { UserAccountModel } from './user-account.model'
 
 export class PackModel extends BaseModel {
-  static tableName = 'Pack'
+  static tableName = EntityType.Pack
   static jsonSchema = PackSchema
 
   templateId!: string
@@ -22,7 +22,7 @@ export class PackModel extends BaseModel {
   collectibles?: CollectibleModel[]
   bids?: BidModel[]
   activeBid?: BidModel
-  payment?: PaymentModel
+  template?: CMSCachePackTemplateModel
 
   static relationMappings = () => ({
     owner: {
@@ -57,12 +57,12 @@ export class PackModel extends BaseModel {
         to: 'Bid.id',
       },
     },
-    payment: {
-      relation: Model.HasOneRelation,
-      modelClass: PaymentModel,
+    template: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: CMSCachePackTemplateModel,
       join: {
-        from: 'Pack.id',
-        to: 'Payment.packId',
+        from: 'Pack.templateId',
+        to: 'CmsCachePackTemplates.id',
       },
     },
   })

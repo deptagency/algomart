@@ -13,3 +13,4 @@ fi
 echo 'starting api...'
 cd /app/dist/apps/api
 node main.js
+#

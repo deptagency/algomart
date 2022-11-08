@@ -1,0 +1,7 @@
+.contentPadding {
+  @apply px-8 py-12 max-w-lg mx-auto text-center;
+}
+
+.contentPadding a {
+  @apply mt-12;
+}

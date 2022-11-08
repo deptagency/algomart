@@ -2,7 +2,7 @@
  * ARC-2 pattern for dApp name
  * @see https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0002.md
  */
-export const ARC2_DAPP_NAME_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9_/@.-]{4,31}$/
+export const ARC2_DAPP_NAME_PATTERN = /^[\dA-Za-z][\w./@-]{4,31}$/
 
 /**
  * Default dApp name to use for notes etc

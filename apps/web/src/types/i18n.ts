@@ -1,8 +1,4 @@
-import {
-  CurrencyConversionDict,
-  DropdownLanguageList,
-  I18nInfo,
-} from '@algomart/schemas'
+import { CurrencyConversionDict, DropdownLanguageList } from '@algomart/schemas'
 
 export interface I18nState {
   conversionRate: number
@@ -10,10 +6,4 @@ export interface I18nState {
   error: string | null
   languages: DropdownLanguageList
   status: 'not-loaded' | 'loading' | 'error' | 'loaded'
-}
-
-export interface I18nUtils extends I18nState {
-  getCurrencyConversions: () => Promise<CurrencyConversionDict>
-  getI18nInfo: () => Promise<I18nInfo>
-  getLanguages: () => Promise<DropdownLanguageList>
 }

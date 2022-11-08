@@ -1,22 +1,24 @@
-import { AlgorandTransactionStatus } from '@algomart/schemas'
-import { AlgorandAdapter } from '@algomart/shared/adapters'
+import { AlgorandTransactionStatus, UserAccountStatus } from '@algomart/schemas'
 import {
-  algorandAccountFactory,
-  algorandTransactionFactory,
-  userAccountFactory,
-} from '@api/seeds/seed-test-data'
-import { buildTestApp } from '@api-tests/build-test-app'
+  AlgorandAdapter,
+  IpGeolocationAdapter,
+} from '@algomart/shared/adapters'
 import {
   fakeAddressFor,
   setupTestDatabase,
   teardownTestDatabase,
-} from '@api-tests/setup-tests'
+} from '@algomart/shared/tests'
+import {
+  algorandAccountFactory,
+  algorandTransactionFactory,
+  userAccountFactory,
+} from '@algomart/shared/tests'
+import { buildTestApp } from '@api-tests/build-test-app'
 import { FastifyInstance } from 'fastify'
 
 let app: FastifyInstance
-
 beforeEach(async () => {
-  await setupTestDatabase('accounts_test_db')
+  await setupTestDatabase('accounts_test_db', { returnKnex: false })
   app = await buildTestApp('accounts_test_db')
 })
 
@@ -28,7 +30,6 @@ afterEach(async () => {
 test('POST /accounts OK', async () => {
   // Arrange
   const address = fakeAddressFor('account')
-  const passphrase = '000000'
   const username = 'account'
   const encryptedMnemonic = 'encryptedMnemonic'
 
@@ -43,41 +44,54 @@ test('POST /accounts OK', async () => {
     transactionIds: [],
   })
 
+  jest
+    .spyOn(IpGeolocationAdapter.prototype, 'getCountryCodeByIpAddress')
+    .mockResolvedValue('USA')
+
   // Act
   const { body, statusCode, headers } = await app.inject({
     method: 'POST',
     url: '/accounts',
     headers: {
-      authorization: 'Bearer test-api-key',
+      authorization: `Bearer test-api-key:${username}:${userAccount.externalId}`,
     },
     payload: {
-      username,
+      balance: userAccount.balance,
       currency: userAccount.currency,
-      externalId: userAccount.externalId,
       email: userAccount.email,
+      externalId: userAccount.externalId,
       language: userAccount.language,
-      passphrase,
+      verificationStatus: userAccount.verificationStatus,
+      provider: userAccount.provider,
+      username,
     },
   })
 
   // Assert
   expect(statusCode).toBe(201)
   expect(headers['content-type']).toMatch(/application\/json/)
-  const json = JSON.parse(body)
+  const { id, ...json } = JSON.parse(body) // eslint-disable-line @typescript-eslint/no-unused-vars
   expect(json).toEqual({
     address,
+    applicantId: null,
+    age: null,
+    balance: userAccount.balance,
     currency: userAccount.currency,
-    username,
-    externalId: userAccount.externalId,
-    showProfile: false,
     email: userAccount.email,
+    externalId: userAccount.externalId,
+    lastWorkflowRunId: null,
+    verificationStatus: UserAccountStatus.Unverified,
     language: userAccount.language,
+    provider: userAccount.provider,
+    showProfile: false,
+    username,
+    watchlistMonitorId: null,
   })
 })
 
-test('GET /accounts/:externalId OK', async () => {
+test('GET /accounts OK', async () => {
   // Arrange
-  const username = 'external_id'
+  const username = 'externalId'
 
   const creationTransaction = algorandTransactionFactory.build({
     status: AlgorandTransactionStatus.Confirmed,
@@ -103,9 +117,9 @@ test('GET /accounts/:externalId OK', async () => {
   // Act
   const { body, statusCode, headers } = await app.inject({
     method: 'GET',
-    url: `/accounts/${userAccount.externalId}`,
+    url: '/accounts',
     headers: {
-      authorization: 'Bearer test-api-key',
+      authorization: `Bearer test-api-key:${username}:${userAccount.externalId}`,
     },
   })
 
@@ -115,154 +129,23 @@ test('GET /accounts/:externalId OK', async () => {
   const json = JSON.parse(body)
   expect(json).toEqual({
     address: algorandAccount.address,
+    age: null,
+    balance: 0,
     currency: userAccount.currency,
-    username,
-    externalId: userAccount.externalId,
-    showProfile: false,
     email: userAccount.email,
+    externalId: userAccount.externalId,
+    applicantId: null,
+    lastWorkflowRunId: null,
+    verificationStatus: UserAccountStatus.Unverified,
+    lastVerified: userAccount.lastVerified,
+    id: userAccount.id,
     language: userAccount.language,
+    provider: userAccount.provider,
+    showProfile: false,
     status: AlgorandTransactionStatus.Confirmed,
+    username,
+    watchlistMonitorId: null,
   })
-})
-
-test('POST /accounts/:externalId/verify-passphrase (Valid passphrase)', async () => {
-  // Arrange
-  const username = 'valid_pass'
-  const passphrase = '000000'
-
-  const creationTransaction = algorandTransactionFactory.build({
-    status: AlgorandTransactionStatus.Confirmed,
-  })
-  await app.knex('AlgorandTransaction').insert(creationTransaction)
-  const algorandAccount = algorandAccountFactory.build(
-    {},
-    { passphrase, creationTransaction }
-  )
-  await app.knex('AlgorandAccount').insert(algorandAccount)
-  const userAccount = userAccountFactory.build(
-    { username },
-    { algorandAccount }
-  )
-  await app.knex('UserAccount').insert(userAccount)
-
-  jest
-    .spyOn(AlgorandAdapter.prototype, 'isValidPassphrase')
-    .mockResolvedValue(true)
-
-  // Act
-  const { body, statusCode } = await app.inject({
-    method: 'POST',
-    url: `/accounts/${userAccount.externalId}/verify-passphrase`,
-    headers: { authorization: 'Bearer test-api-key' },
-    payload: { passphrase },
-  })
-
-  // Assert
-  expect(statusCode).toBe(200)
-  expect(JSON.parse(body)).toEqual({ isValid: true })
-})
-
-test('POST /accounts/:externalId/verify-passphrase (Invalid passphrase)', async () => {
-  // Arrange
-  const username = 'invalid_pass'
-  const passphrase = '000000'
-
-  const creationTransaction = algorandTransactionFactory.build({
-    status: AlgorandTransactionStatus.Confirmed,
-  })
-  await app.knex('AlgorandTransaction').insert(creationTransaction)
-  const algorandAccount = algorandAccountFactory.build(
-    {},
-    { passphrase, creationTransaction }
-  )
-  await app.knex('AlgorandAccount').insert(algorandAccount)
-  const userAccount = userAccountFactory.build(
-    { username },
-    { algorandAccount }
-  )
-  await app.knex('UserAccount').insert(userAccount)
-
-  jest
-    .spyOn(AlgorandAdapter.prototype, 'isValidPassphrase')
-    .mockResolvedValue(false)
-
-  // Act
-  const { body, statusCode } = await app.inject({
-    method: 'POST',
-    url: `/accounts/${userAccount.externalId}/verify-passphrase`,
-    headers: { authorization: 'Bearer test-api-key' },
-    payload: { passphrase },
-  })
-
-  // Assert
-  expect(statusCode).toBe(200)
-  expect(JSON.parse(body)).toEqual({ isValid: false })
-})
-
-test('POST /accounts/verify-username (Available username)', async () => {
-  // Arrange
-  const externalId = 'available'
-  const passphrase = '000000'
-
-  const creationTransaction = algorandTransactionFactory.build({
-    status: AlgorandTransactionStatus.Confirmed,
-  })
-  await app.knex('AlgorandTransaction').insert(creationTransaction)
-  const algorandAccount = algorandAccountFactory.build(
-    {},
-    { passphrase, creationTransaction }
-  )
-  await app.knex('AlgorandAccount').insert(algorandAccount)
-  const userAccount = userAccountFactory.build(
-    { username: externalId, externalId },
-    { algorandAccount }
-  )
-  await app.knex('UserAccount').insert(userAccount)
-
-  // Act
-  const { body, statusCode } = await app.inject({
-    method: 'POST',
-    url: '/accounts/verify-username',
-    headers: { authorization: 'Bearer test-api-key' },
-    payload: { username: 'another_username' },
-  })
-
-  // Assert
-  expect(statusCode).toBe(200)
-  expect(JSON.parse(body)).toEqual({ isAvailable: true })
-})
-
-test('POST /accounts/verify-username (Unavailable username)', async () => {
-  // Arrange
-  const externalId = 'unavailable'
-  const passphrase = '000000'
-
-  const creationTransaction = algorandTransactionFactory.build({
-    status: AlgorandTransactionStatus.Confirmed,
-  })
-  await app.knex('AlgorandTransaction').insert(creationTransaction)
-  const algorandAccount = algorandAccountFactory.build(
-    {},
-    { passphrase, creationTransaction }
-  )
-  await app.knex('AlgorandAccount').insert(algorandAccount)
-  const userAccount = userAccountFactory.build(
-    { username: externalId, externalId },
-    { algorandAccount }
-  )
-  await app.knex('UserAccount').insert(userAccount)
-
-  // Act
-  const { body, statusCode } = await app.inject({
-    method: 'POST',
-    url: '/accounts/verify-username',
-    headers: { authorization: 'Bearer test-api-key' },
-    payload: { username: userAccount.username },
-  })
-
-  // Assert
-  expect(statusCode).toBe(200)
-  expect(JSON.parse(body)).toEqual({ isAvailable: false })
 })
 
 // TODO: add test cases for various errors...

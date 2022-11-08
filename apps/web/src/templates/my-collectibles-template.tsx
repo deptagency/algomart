@@ -1,25 +1,28 @@
 import { CollectibleWithDetails } from '@algomart/schemas'
-import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
+import { useState } from 'react'
 
+import common from './common-template-styles.module.css'
 import css from './my-collectibles-template.module.css'
 
 import CollectibleItem from '@/components/collectibles/collectible-item'
 import NoCollectiblesContent from '@/components/collectibles/no-collectibles-content'
 import Grid from '@/components/grid/grid'
+import { H1 } from '@/components/heading'
 import Pagination, { PAGE_SIZE } from '@/components/pagination/pagination'
 import Select, { SelectOption } from '@/components/select/select'
 import Tabs from '@/components/tabs/tabs'
+import { ReactComponent as ThreeByThree } from '@/svgs/3x3.svg'
+import { ReactComponent as FourByFour } from '@/svgs/4x4.svg'
 import {
   collectibleIsNumberOfDaysOld,
   getCollectionTabs,
 } from '@/utils/collections'
-import { urls } from '@/utils/urls'
+import { urlFor, urls } from '@/utils/urls'
 
 export interface MyCollectiblesTemplateProps {
   assets: CollectibleWithDetails[]
   currentPage: number
-  onRedirectBrands: () => void
   onPageChange: (pageNumber: number) => void
   onSortChange: (option: string) => void
   sortMode: string
@@ -30,7 +33,6 @@ export interface MyCollectiblesTemplateProps {
 export default function MyCollectiblesTemplate({
   assets,
   currentPage,
-  onRedirectBrands,
   onPageChange,
   onSortChange,
   sortMode,
@@ -38,45 +40,68 @@ export default function MyCollectiblesTemplate({
   totalCollectibles,
 }: MyCollectiblesTemplateProps) {
   const { t } = useTranslation()
-  const router = useRouter()
+
+  const gridColumnOptions = [3, 4]
+  const [gridColumns, setGridColumns] = useState(4)
+
+  const gridColumnTabs = [
+    {
+      onClick: () => setGridColumns(3),
+      component: <ThreeByThree width="22" />,
+    },
+    {
+      onClick: () => setGridColumns(4),
+      component: <FourByFour width="22" />,
+    },
+  ]
 
   return (
     <>
-      {/* Tabs */}
-      <Tabs activeTab={0} tabs={getCollectionTabs(t)} className="-mx-8 -mt-8" />
+      <H1 className={common.pageHeading}>
+        {t('common:pageTitles.My Collectibles')}
+      </H1>
+
+      <div className={css.collectiblesHeaderContainer}>
+        <div className={css.gridColumnToggle}>
+          <Tabs
+            activeTab={gridColumnOptions.indexOf(gridColumns)}
+            tabs={gridColumnTabs}
+          />
+        </div>
+        <Tabs activeTab={0} className={css.tabs} tabs={getCollectionTabs(t)} />
+        {/* Sorting filter */}
+        <div className={css.selectWrapper}>
+          <Select
+            id="sortOption"
+            onChange={onSortChange}
+            options={sortOptions}
+            density="compact"
+            value={sortMode}
+            variant="solid"
+          />
+        </div>
+      </div>
 
       {/* Collectibles */}
       {assets.length > 0 ? (
         <>
-          {/* Sorting filter */}
-          <div className={css.selectWrapper}>
-            <Select
-              id="sortOption"
-              options={sortOptions}
-              value={sortMode}
-              onChange={onSortChange}
-            />
-          </div>
-          <Grid>
-            {assets.map((asset) => (
-              <CollectibleItem
-                alt={asset.title}
-                imageUrl={asset.image}
-                isNew={
-                  asset.claimedAt
-                    ? collectibleIsNumberOfDaysOld(asset.claimedAt)
-                    : undefined
-                }
-                key={asset.id}
-                onClick={() => {
-                  router.push(
-                    urls.nft.replace(':assetId', String(asset.address))
-                  )
-                }}
-                title={asset.title}
-              />
-            ))}
-          </Grid>
+          <section className={css.collectiblesGrid}>
+            <Grid gapBase={3} base={2} sm={3} md={gridColumns}>
+              {assets.map((asset) => (
+                <CollectibleItem
+                  collectible={asset}
+                  isNew={
+                    asset.claimedAt
+                      ? collectibleIsNumberOfDaysOld(asset.claimedAt)
+                      : undefined
+                  }
+                  key={asset.id}
+                  listingStatus={asset.listingStatus}
+                  href={urlFor(urls.nft, { assetId: asset.address })}
+                />
+              ))}
+            </Grid>
+          </section>
 
           <div className={css.paginationWrapper}>
             <Pagination
@@ -88,7 +113,7 @@ export default function MyCollectiblesTemplate({
           </div>
         </>
       ) : (
-        <NoCollectiblesContent onRedirect={onRedirectBrands} />
+        <NoCollectiblesContent />
       )}
     </>
   )

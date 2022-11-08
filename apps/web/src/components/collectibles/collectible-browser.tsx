@@ -8,7 +8,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import css from './collectible-browser.module.css'
 
-import Heading from '@/components/heading'
+import { H1 } from '@/components/heading'
+import Video from '@/components/video'
 
 export interface CollectibleBrowserProps {
   collectibles: CollectibleWithDetails[]
@@ -78,10 +79,12 @@ export default function CollectibleBrowser({
 
   return (
     <div className={css.root}>
-      <Heading className={css.title}>{collectible.title}</Heading>
+      <H1 className={css.title}>{collectible.title}</H1>
       {collectible.previewVideo && (
         <button onClick={handleFlip} className={css.flipButton}>
-          {showVideoCoverImage ? 'show video' : 'show cover'}
+          {showVideoCoverImage
+            ? t('collection:viewer.show video')
+            : t('collection:viewer.show cover')}
         </button>
       )}
       <div className={css.imageWrapper}>
@@ -103,21 +106,13 @@ export default function CollectibleBrowser({
           >
             <div className={css.flipBoxInner}>
               <div className={css.flipBoxFront}>
-                {/* Yes, this video tag does need a key attribute
-                https://stackoverflow.com/questions/29291688/video-displayed-in-reactjs-component-not-updating
-                */}
-                <video
+                <Video
                   ref={videoReference}
-                  width="100%"
                   controls
-                  muted
                   autoPlay
                   loop
-                  key={collectible.previewVideo}
-                >
-                  <source src={collectible.previewVideo} type="video/mp4" />
-                  {t('common:statuses.noVideoSupport')}
-                </video>
+                  src={collectible.previewVideo}
+                />
               </div>
               <div className={css.flipBoxBack}>
                 <Image
@@ -146,16 +141,16 @@ export default function CollectibleBrowser({
         </button>
       </div>
       <div className={css.detail}>
-        <div>
-          <span className={css.bold}>#{collectible.edition}</span>
+        <div className={css.detailLeft}>
+          <span className={css.emphasize}>#{collectible.edition}</span>
           <span> {t('collection:viewer.of')} </span>
-          <span className={css.bold}>{collectible.totalEditions}</span>
+          <span className={css.emphasize}>{collectible.totalEditions}</span>
         </div>
         <div className={css.detailCenter}>{collectible.subtitle}</div>
         {collectible.claimedAt && (
           <div className={css.detailRight}>
             <span>{t('collection:viewer.collected')} </span>
-            <span className={css.bold}>
+            <span className={css.emphasize}>
               {new Date(collectible.claimedAt).toLocaleDateString(
                 router.locale,
                 {

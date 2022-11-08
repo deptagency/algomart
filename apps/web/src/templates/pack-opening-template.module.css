@@ -1,0 +1,7 @@
+.packOpeningBackground {
+  @apply relative overflow-hidden;
+}
+
+.contentWrapper {
+  @apply relative z-10 py-16 mx-auto max-w-wrapper bg-midnight;
+}

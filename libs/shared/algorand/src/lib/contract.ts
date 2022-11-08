@@ -1,4 +1,5 @@
 import type { Account, Algodv2, OnApplicationComplete } from 'algosdk'
+
 import { DEFAULT_ADDITIONAL_ROUNDS, DEFAULT_DAPP_NAME } from './constants'
 import { encodeNote, NoteTypes } from './note'
 import { loadSDK, TransactionList } from './utils'
@@ -14,8 +15,11 @@ export type StateConfig = {
  * @param numByteSlices Number of byte slices
  * @returns State config object
  */
-export function makeStateConfig(numInts = 0, numByteSlices = 0): StateConfig {
-  return { numInts, numByteSlices }
+export function makeStateConfig(
+  numberInts = 0,
+  numberByteSlices = 0
+): StateConfig {
+  return { numInts: numberInts, numByteSlices: numberByteSlices }
 }
 
 /**

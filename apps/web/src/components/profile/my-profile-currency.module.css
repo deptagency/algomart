@@ -3,7 +3,7 @@
 }
 
 .inputWrapper > div {
-  @apply h-full py-3 ml-0 mb-0 flex-grow pt-0 pb-0;
+  @apply flex-grow h-full py-3 pt-0 pb-0 mb-0 ml-0;
 }
 
 .inputWrapper button {
@@ -15,7 +15,7 @@
 }
 
 .inputWrapper input[disabled] {
-  @apply text-opacity-50 bg-white shadow-none;
+  @apply text-opacity-50 bg-white;
 }
 
 .editButton {

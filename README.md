@@ -1,17 +1,28 @@
+<br />
 <p align="center"><img alt="AlgoMart Logo" src="./AlgoMart-Logo.png" width="400" height="140"></p>
+<br />
 
-# AlgoMart
+# AlgoMart Marketplace
+
+## 🚧 2.0 Work In Progress 🚧
+
+### Please note that the current version of this project should be considered _*unstable*_ for the time being as we finalize the upgrade to version 2.0
+
+---
 
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)][code of conduct]
+
+### Migration
 
 This project is developed to be a foundational starter for creating your own NFT storefront on the Algorand blockchain. It is a monorepo that includes:
 
 - A [headless CMS](./apps/cms) (Directus)
 - A [back-end API](./apps/api) (Fastify)
+- A [job server](./apps/scribe) (BullMQ)
 - A [front-end](./apps/web) sample implementation (NextJS)
-- Shared Typescript [interfaces and enums](./libs/schemas)
-- [Terraform templates](./terraform) for setting up infrastructure on Google Cloud Platform
-- [Github Workflows](./.github/workflows) for linting, type-checking, building, dockerizing, and deploying
+- Shared [libs](#libs)
+- [Terraform templates](./terraform/envs/dev) for setting up infrastructure on Google Cloud Platform
+- [GitHub Workflows](./.github/workflows) for linting, type-checking, building, dockerizing, and deploying
 
 ## 📚 General Project Overview
 
@@ -47,45 +58,143 @@ This software is in a pre-release state. This means while we strive to keep it s
 
 - Node.js v16.10 or greater (lts is v16.13.1 as of Jan 2022 and works well), npm v7 or greater (manage version via [nvm][nvm])
 - PostgreSQL ([Postgres.app][postgres app] is recommended on macOS, or run via `docker-compose up db`)
-- Algod (Algorand node, use [algorand/sandbox][algorand sandbox] to start)
+- [Redis][redis] for jobs
+- algod (Algorand node)
+  - Consider using a [third party api][third party api] for initial setup and experimentation.
+  - A [sandbox][sandbox] is [recommended][recommended] for continued learning about Algorand and its smart signatures/smart contracts
 - [Circle][circle] account for taking payments
-- [SendGrid][sendgrid] for sending email notifications
 - [Firebase][firebase] account for authentication
 - [Pinata][pinata] account for storing NFTs
-- (optional) [Google Cloud Platform][gcp] account for hosting
-- (optional) Install the [Nx CLI][nx cli] for ease of development: `npm i -g nx`
+- [Chainalysis][chainalysis] for blockchain address verification
+
+## 🤷 Optional
+
+- [SendGrid][sendgrid] for sending email notifications
+- [Google Cloud Platform][gcp] account for hosting
+- Install the [Nx CLI][nx cli] for ease of development: `npm i -g nx`
+- [Docker][docker] for a local dev environment using VSCode Dev Containers or docker compose
 
 ## 🚀 Get Started
 
 You can either build and run each application manually or you can use `docker-compose`.
 
-### Manual Setup
+### Development Environment Setup
 
-1. Install all dependencies (may take a while the first time):
+1. Create .env files
 
    ```bash
-   npm install
+      cp ./.env.exmaple ./.env
+      cp ./apps/cms/.env.example ./apps/cms/.env
+      cp ./apps/scribe/.env.example ./apps/scribe/.env
+      cp ./apps/api/.env.example ./apps/api/.env
+      cp ./apps/web/.env.example ./apps/web/.env
    ```
 
-   1. **For M1 Mac Users:** You might need to manually install additional system dependencies using [Homebrew](https://brew.sh/) before running `npm install`. Once Homebrew is installed, run
+2. Address ` SETUP:` comments in env files
 
-      ```bash
-      brew install pkg-config cairo pango libpng jpeg giflib librsvg
-      ```
+3. Initialize the databases with `npm run drop-tables && npm run initialize`
 
-2. [Set up the CMS](apps/cms/README.md#Get-started)
+4. Start the CMS `nx serve cms`
 
-3. [Set up the API](apps/api/README.md#Get-started)
+   1. If database is empty, it will automatically seed itself with test data
+   2. Checkpoint: you should be able to log in the CMS and see some sample pack templates (http://localhost:8055/admin/content/pack_templates)
 
-4. [Set up Scribe](apps/scribe/README.md#Get-started)
+5. Start the job server `nx serve scribe`
 
-5. [Set up the web app](apps/web/README.md#Get-started)
+   1. Checkpoint: you should be able to see the jobs dashboard (http://localhost:3002/bullboard)
+   2. Run the `sync-cms-cache` job manually, twice, by promoting the delayed job in the dashboard
+   3. Checkpoint: you should see rows in the Pack table in the API database (`algomart_api.public.Pack`)
 
-### Running
+6. Start the API `nx serve api`
+
+   1. Checkpoint: you should be able to see swagger docs (http://localhost:3001/docs/static/index.html)
+
+7. Start the web server `nx serve web`
+
+   1. Checkpoint: You should be able to register an AlgoMart account, sign in and see some drops available (http://localhost:3000/drops)
+
+8. Configure [Circle webhooks](apps/api#circle-webhooks)
+
+   1. Add Money to your merchant wallet to cover/float [pending end user credit card transactions](https://developers.circle.com/docs/post-payments-processing#card-payments-settlement)
+      1. Get your merchant wallet's address using your Circle my-sandbox account's "Transfer from a blockchain wallet" functionality
+      2. Send testnet USDC to your merchant wallet from [Algorand Testnet Dispenser](https://dispenser.testnet.aws.algodev.network/)
+   2. Checkpoint: you can add money to your wallet using one of Circle's [test card numbers](https://developers.circle.com/docs/test-card-numbers)
+
+9. Purchase a pack using credits
+
+   1. Using credits from the previous step
+   2. Checkpoint: you have collectibles in your collection
+
+10. Configure an Algorand sandbox (optional)
+
+    ### Local Algorand Setup
+
+    This is an alternative to using a 3rd party Algorand node API.
+    For local development, the [Algorand Sandbox](https://github.com/algorand/sandbox) is handy docker instance that makes interfacing with the blockchain simple from your local machine.
+    More information on Sandbox vs Third-party API services [here](https://developer.algorand.org/docs/get-started/devenv/)
+
+    - Download the [Algorand Sandbox](https://github.com/algorand/sandbox) and start up the docker instance:
+
+    ```bash
+    ./sandbox up
+    ```
+
+    - By default this will create a private network, as well as fund a few accounts with Algos. You'll need to generate a passphrase mnemonic for one of these accounts. To see the list of the created accounts:
+
+    ```bash
+    ./sandbox goal account list
+    ```
+
+    - Take the `<ADDRESS>` from the first account and input here
+
+    ```bash
+    ./sandbox goal account export -a <ADDRESS>
+    ```
+
+    Use this outputted mnemonic as the FUNDING_MNEMONIC variable within the `.env` file within the `api` and `scribe` projects.
+
+    _Disclaimer:_ If you use a private network as described above, you will not be able to test features that require a public network, including the [Pera Wallet](https://perawallet.app/) (the mobile non-custodial wallet app for Algorand). For running a public network node, see below.
+
+    ### Testnet Algorand Setup
+
+    Alternatively you may choose to run the algorand sandbox on a public network such as testnet. In that case you'll need a few additional steps, such as creating and funding an account.
+
+    - To run sandbox on testnet:
+
+    ```bash
+    ./sandbox up testnet
+    ```
+
+    - Then create an account:
+
+    ```bash
+    ./sandbox goal account new
+    ```
+
+    This will create a new, unfunded account. Testnet accounts can be funded with fake Algos using the [Testnet Dispenser](https://dispenser.testnet.aws.algodev.network/). You can then follow the account export steps above to get your mnemonic passphrase.
+
+    _Disclaimer:_ The sandbox testnet configuration will not provide an indexer. There are public indexer's available (e.g. https://algoindexer.testnet.algoexplorerapi.io/), and the Indexer Configuration will need to be updated in both `app` and `scribe` .env files.
+
+    To learn more about available `goal` CLI commands for e.g. creating a new account, see [the Alogrand docs](https://developer.algorand.org/docs/clis/goal/goal/).
+
+## 💾 DB initialization
+
+To initialize the databases:
+
+```bash
+npm run drop-tables  # drop existing CMS and API databases
+npm run initialize   # initialize the CMS and API databases
+```
+
+## 🏃 Run
+
+Run all 4 projects (api, cms, web, & scribe) simultaneously with combined output.
 
 ```bash
 npm start
 ```
+
+## 📦 Build
 
 To build _everything_:
 
@@ -93,11 +202,38 @@ To build _everything_:
 npm run build
 ```
 
+## ⚙️ Unit Tests
+
 To run all tests:
 
 ```
 npm test
 ```
+
+To run tests/lint only a specific library:
+
+```bash
+# assuming shared-utils is an nx library
+# (ie. an alias for libs/shared/utils defined in workspace.json)...
+nx run shared-utils:test
+nx run shared-utils:lint
+```
+
+## ⚙️ E2E Tests
+
+To run End-to-end integration tests with Cypress:
+
+Be sure to follow steps outlined in the [web-e2e README](apps/web-e2e/README.md) first.
+
+```bash
+# To open the Cypress UI and watch the tests run:
+npm run test:cypress:open
+
+# To run the test in the terminal
+npm run test:cypress:run
+```
+
+## 🧹 Linting
 
 To run eslint for all projects:
 
@@ -105,17 +241,7 @@ To run eslint for all projects:
 npm run lint
 ```
 
-To initialize the databases:
-
-```bash
-nx drop api &&\
-nx run api:migrate:latest &&\
-nx drop cms &&\
-nx bootstrap cms &&\
-nx import cms
-```
-
-### Running with docker-compose
+## 🐳 Running with docker-compose
 
 Alternative to running the services manually, they can also be run via Docker. After creating the relevant `.env` files above, add a file called `.babelrc` to the root of the web project (`apps/web/`) and populate it with:
 
@@ -125,46 +251,46 @@ Alternative to running the services manually, they can also be run via Docker. A
 
 Then run all services:,
 
-```bash
-$ docker-compose up
-```
+## 🆚 Running with VSCode Dev Containers.
 
-Note that page loads in the web app will be slower and tests will fail while this `.babelrc` is present (it is `.gitignore`'d by default). This known issue is an unfortunate incompatibility between Docker and Next's SWC integration at the time of this writing.
+This codebase leverages VSCode Dev Containers.
 
-## ⚙️ Project dependencies
+1. Install VSCode Remote Containers plugin.
+
+1. Open the project in VSCode. When prompted, click the "Reopen in Container" button
+
+## 🪆 Project dependencies
 
 When updating dependencies, there are a few things that must be kept in mind.
 
 ### Directus
 
-If doing any updates to the Directus version, the version numbers must match across the application and the snapshot.yml file must be created with the updated version
+If doing any updates to the Directus version, the version numbers must match across the application and the snapshot.yml file must be created with the updated version. You can use `apps/cms/scripts/directus-update.sh` to perform these steps. Update the version number at the top of the script.
 
 1. Update versions
-   1. Pin `directus` and `@directus/sdk` versions in `package.json`
+   1. Pin `directus`, `@directus/sdk`, and `@directus/extensions-sdk` versions in `package.json`
    1. Pin `host` version in `/apps/cms/extensions/displays/pack-price/package.json`
    1. Pin `host` version in `/apps/cms/extensions/interfaces/price-conversion/package.json`
+   1. Pin `host` version in `/apps/cms/extensions/hooks/import-data/package.json`
+   1. Pin `host` version in `/apps/cms/extensions/hooks/kyc-management/package.json`
+   1. Pin `host` version in `/apps/cms/extensions/hooks/set-verification-status/package.json`
    1. Set npm install step of `/docker/deploy/cms/Dockerfile` to version
 1. Run `npm install` from root to generate latest `package-lock.json`
 1. Run `nx export cms` to generate latest `snapshot.yml`
-1. Rebuild cms extensions
+1. Rebuild cms extensions, either via `nx build cms` or all of these:
    1. Run `nx build-price-display cms` to generate latest js file
    1. Run `nx build-price-interface cms` to generate latest js file
+   1. Run `nx build-import-data cms` to generate latest js file
+   1. Run `nx build-kyc-management cms` to generate latest js file
+   1. Run `nx build-set-verification-status cms` to generate latest js file
 
-## 📦 Project packages
+## Libs
 
-When creating a new package, first determine which kind of package you are creating. If it doesn't fit any of the listed ones, discuss with your development team first to decide where it belongs or if a new one is warranted.
+`libs/*`
 
-### `apps/*`
+Shared Typescript [interfaces and enums](./libs/schemas)
 
-Each app has it's own configuration
-
-- [`cms`][cms] - Self-hosted [Directus][directus] headless CMS
-- [`web`][web] - Next.js customer-facing website
-- [`api`][api] - API abstracting communications with Algod etc
-
-### `libs/*`
-
-For performance and code organization reasons, the [https://nx.dev/structure/applications-and-libraries](Nx docs) recommend
+For performance and code organization reasons, the [Nx docs](https://nx.dev/structure/applications-and-libraries) recommend
 putting as much functionality as possible into libs, even if the code is only used in a single app. In Nx, a lib is more than just a directory under the `libs/` directory. Each lib must have an entry in the workspace.json file for the lib to build and import correctly.
 
 Linting will fail for any lib code that tries to import code from an app. This means that lib code should never access things like
@@ -174,23 +300,12 @@ arguments that are passed in.
 If you wanted to create a new library at the path `libs/shared/utils`, you'd use the nx generator...
 `nx generate @nrwl/node:lib utils --directory shared`
 
-- [`shared`][shared] - code and typings
-- `api` - Shared code and typings
-- `scribe` - Shared code and typings
-- [`schemas`][schemas] - object schemas (todo: should this be moved into `libs/shared`?)
+## 🚢 Deployment
 
-## 📖 Quick Workspace Guide
-
-```bash
-# example: add typescript as a dev dependency to the web package
-npm install --workspace @algomart/web typescript --save-exact
-
-# do a clean install of all dependencies
-npm run clean && npm install
-
-# run test script in api package and pass --watch
-npm run test:api -- --watch
-```
+Please see the detailed [step-by-step guide](./docs/deploy/README.md)
+for instructions on how to use the included Terraform templates
+and Github Workflow to create a complete storefront environment
+on Google Cloud Platform.
 
 [algorand sandbox]: https://github.com/algorand/sandbox
 [api]: apps/api
@@ -208,11 +323,10 @@ npm run test:api -- --watch
 [web]: apps/web
 [nx cli]: https://nx.dev/using-nx/nx-cli#nx-cli
 [pinata]: https://www.pinata.cloud/
-
-## 🚢 Deployment
-
-Please see the detailed
-[step-by-step guide](./docs/deploy/README.md)
-for instructions on how to use the included Terraform templates
-and Github Workflow to create a complete storefront environment
-on Google Cloud Platform.
+[scribe]: apps/scribe
+[redis]: https://redis.io
+[docker]: https://www.docker.com
+[third party api]: https://developer.algorand.org/docs/get-started/devenv/#2-third-party-api-services
+[sandbox]: https://developer.algorand.org/docs/get-started/devenv/#1-sandbox
+[recommended]: https://developer.algorand.org/docs/get-started/devenv/#recommendation
+[chainalysis]: https://www.chainalysis.com/

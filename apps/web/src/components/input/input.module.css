@@ -1,0 +1,74 @@
+.container {
+  @apply relative flex w-full text-base font-normal transition-all rounded-md outline-none border-1 bg-base-bgCard caret-base-textPrimary;
+  @apply focus-within:border-opacity-50 focus-within:border-action-primary;
+}
+
+.container:not(.disabled):not(.readOnly) {
+  @apply hover:border-opacity-50 hover:border-action-primary;
+  @apply focus-within:border-opacity-100 focus-within:border-action-primary;
+}
+
+.container.light {
+  @apply bg-white border-gray-200 bg-opacity-10;
+  @apply focus-within:border-opacity-40 focus-within:border-action-primary;
+}
+
+.container.light:not(.disabled):not(.readOnly) {
+  @apply hover:border-opacity-40 hover:border-action-primary;
+  @apply focus-within:border-opacity-70 focus-within:border-action-primary;
+}
+
+.compact {
+  @apply text-sm;
+}
+.compact .input {
+  @apply text-sm p-2.5;
+}
+
+.input {
+  @apply flex-grow w-full px-4 py-3 bg-base-bgCard rounded-md outline-none caret-base-textPrimary font-base placeholder-gray-300;
+}
+
+.input:autofill {
+  background: transparent; /* Doesn't work in webkit */
+}
+.input:-webkit-autofill {
+  /* Webkit hack: These can't be overridden once they're set on webkit browsers
+  The long transition prevents it from getting showing up in the first place.*/
+  transition: background-color 0s 600000s, color 0s 600000s;
+}
+
+.adornment {
+  @apply px-4 py-3 transition text-base-textSecondary bg-base-bgCard rounded-md whitespace-nowrap;
+}
+
+.adornment:first-child,
+.compact .adornment:first-child {
+  @apply pr-0;
+}
+.adornment:last-child,
+.compact .adornment:last-child {
+  @apply pl-0;
+}
+.compact .adornment {
+  padding: 10px;
+}
+.disabled .adornment {
+  @apply text-base-textDisabled;
+}
+
+.disabled {
+  @apply text-base-textDisabled;
+}
+
+.readOnly {
+  @apply bg-base-bgCard border-action-primary;
+}
+
+.inputError {
+  @apply border-base-error;
+}
+
+.inputValid {
+  @apply border-gray-200;
+}

@@ -1,0 +1,22 @@
+.alert {
+  @apply py-10 rounded-none;
+}
+.form {
+  @apply max-w-[26rem] mx-auto p-8 transition-opacity opacity-100;
+}
+
+.dimmed {
+  @apply pointer-events-none opacity-20;
+}
+
+.withdrawMax {
+  @apply text-[#525B71] font-light underline cursor-pointer;
+}
+
+.checkIcon {
+  @apply inline-block h-6 ml-2 text-green;
+}
+
+.optInError {
+  @apply mb-8 -mt-6 text-sm;
+}

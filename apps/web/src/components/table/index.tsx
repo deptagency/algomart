@@ -2,6 +2,7 @@ import { SortDirection } from '@algomart/schemas'
 import { ArrowUpIcon } from '@heroicons/react/outline'
 import clsx from 'clsx'
 import get from 'lodash/get'
+import useTranslation from 'next-translate/useTranslation'
 
 import {
   Table as TableElement,
@@ -23,27 +24,40 @@ export type ColumnDefinitionType<T> = {
   // stickLeft?: boolean
   // stickRight?: boolean
   // width?: number
-  renderer?: ({ value: any, item: T, colKey: string }) => React.ReactNode
+  renderer?: (params: {
+    value: string | number | boolean
+    item: T
+    colKey: string
+  }) => React.ReactNode
 }
 
 export type TableProps<T> = {
   columns: Array<ColumnDefinitionType<T>>
   data: Array<T>
+  noOuterBorder?: boolean
   onHeaderClick?: (col: ColumnDefinitionType<T>) => void
+  onRowClick?: (row: T) => void
   sortDirection?: SortDirection
   sortBy?: string
 }
 
 function Table<T>({
+  className,
   columns,
   data,
+  noOuterBorder,
   sortDirection,
   sortBy,
   onHeaderClick,
+  onRowClick,
   ...props
 }: TableElementProps & TableProps<T>) {
+  const { t } = useTranslation()
   const getHeaderClickHandler = (col: ColumnDefinitionType<T>) =>
     col.sortable && onHeaderClick ? () => onHeaderClick(col) : undefined
+
+  const getRowClickHandler = (row: T) =>
+    onRowClick ? () => onRowClick(row) : undefined
 
   const renderCell = (row: T, colKey: string) => {
     const value = get(row, colKey)
@@ -58,7 +72,12 @@ function Table<T>({
   }
 
   return (
-    <TableElement {...props}>
+    <TableElement
+      {...props}
+      className={clsx(className, {
+        [css.noOuterBorder]: noOuterBorder,
+      })}
+    >
       <Thead>
         <Tr>
           {columns.map((col) => (
@@ -78,7 +97,7 @@ function Table<T>({
       <Tbody>
         {data && data.length > 0 ? (
           data.map((row, index) => (
-            <Tr key={`tr ${index}`}>
+            <Tr key={`tr ${index}`} onClick={getRowClickHandler(row)}>
               {columns.map(({ key }) => (
                 <Td key={`td ${key}`}>{renderCell(row, key)}</Td>
               ))}
@@ -86,7 +105,9 @@ function Table<T>({
           ))
         ) : (
           <Tr key="noResults">
-            <Td colSpan={columns.length}>No results found.</Td>
+            <Td className={css.noResults} colSpan={columns.length}>
+              {t('common:statuses.No results')}
+            </Td>
           </Tr>
         )}
       </Tbody>

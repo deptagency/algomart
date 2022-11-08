@@ -8,13 +8,13 @@
 }
 
 .loaderContainer {
-  @apply bg-transparent border border-action-secondary overflow-hidden rounded-full relative;
+  @apply relative overflow-hidden bg-transparent border rounded-full border-action-primary;
   height: 8px;
   width: 300px;
 }
 
 .loaderProgress {
-  @apply absolute bg-action-secondary h-full left-0;
+  @apply absolute left-0 h-full bg-action-primary;
   width: 0;
 }
 

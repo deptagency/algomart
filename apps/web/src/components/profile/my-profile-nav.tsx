@@ -7,10 +7,9 @@ import css from './my-profile-nav.module.css'
 
 import AppLink from '@/components/app-link/app-link'
 import Button from '@/components/button'
-import Select, { SelectOption } from '@/components/select/select'
+import Select, { SelectOption } from '@/components/select'
 import { useAuth } from '@/contexts/auth-context'
 import { useRedemption } from '@/contexts/redemption-context'
-import useAdmin from '@/hooks/use-admin'
 import { urls } from '@/utils/urls'
 
 const LOG_OUT = 'LOG_OUT'
@@ -21,7 +20,6 @@ interface ProfileNavProps {
 
 export default function ProfileNav({ screen }: ProfileNavProps) {
   const auth = useAuth()
-  const { isAdmin } = useAdmin()
   const { pathname, push } = useRouter()
   const { setRedeemable } = useRedemption()
   const { t } = useTranslation()
@@ -51,21 +49,15 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
       label: t('common:pageTitles.Payment Methods'),
     },
     {
-      value: urls.myProfileTransactions,
-      label: t('common:pageTitles.Transactions'),
+      value: urls.myVerification,
+      label: t('common:pageTitles.My Verification'),
     },
-    {
-      value: urls.myProfileImportNFT,
-      label: t('common:pageTitles.Import NFT'),
-    },
+    // Might be useful later
+    // {
+    //   value: urls.myProfileImportNFT,
+    //   label: t('common:pageTitles.Import NFT'),
+    // },
   ] as SelectOption[]
-
-  if (isAdmin) {
-    navItems.push({
-      value: urls.admin.index,
-      label: t('common:pageTitles.Admin'),
-    })
-  }
 
   return (
     <nav
@@ -101,9 +93,11 @@ export default function ProfileNav({ screen }: ProfileNavProps) {
             </li>
           ))}
         </ul>
-        <Button fullWidth onClick={signOut} size="small">
-          {t('common:actions.Sign Out')}
-        </Button>
+        <div className="px-5 pt-3">
+          <Button fullWidth variant="outline" onClick={signOut}>
+            {t('common:actions.Sign Out')}
+          </Button>
+        </div>
       </div>
     </nav>
   )

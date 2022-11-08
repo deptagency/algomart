@@ -1,0 +1,23 @@
+.root {
+  @apply relative flex flex-col h-full mb-2;
+}
+
+.imageWrapper {
+  @apply relative overflow-hidden bg-black rounded-md hover:border-action-accent focus:border-action-accent;
+  @apply transition duration-300;
+  @apply hover:scale-105 hover:shadow-md;
+}
+.unrevealed {
+  @apply overflow-hidden rounded-lg border-action-primary border-1 border-opacity-80;
+}
+
+.title {
+  @apply flex items-center justify-center h-12 mt-2 overflow-hidden text-sm font-bold leading-snug text-center;
+}
+.title > div {
+  @apply line-clamp-2;
+}
+
+.pills {
+  @apply flex flex-wrap justify-center gap-2 mt-1.5;
+}

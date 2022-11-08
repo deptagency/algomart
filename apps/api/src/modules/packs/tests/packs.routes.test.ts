@@ -1,15 +1,19 @@
 import { PackStatus, PackType } from '@algomart/schemas'
-import { CMSCacheAdapter, toPackBase } from '@algomart/shared/adapters'
+import { CMSCacheService, toPackBase } from '@algomart/shared/services'
+import {
+  packFactory,
+  packTemplateFactory,
+  setupTestDatabase,
+  teardownTestDatabase,
+} from '@algomart/shared/tests'
 import { randomRedemptionCode } from '@algomart/shared/utils'
-import { packFactory, packTemplateFactory } from '@api/seeds/seed-test-data'
 import { buildTestApp } from '@api-tests/build-test-app'
-import { setupTestDatabase, teardownTestDatabase } from '@api-tests/setup-tests'
 import { FastifyInstance } from 'fastify'
 
 let app: FastifyInstance
 
 beforeEach(async () => {
-  await setupTestDatabase('packs_test_db')
+  await setupTestDatabase('packs_test_db', { returnKnex: false })
   app = await buildTestApp('packs_test_db')
 })
 
@@ -18,19 +22,13 @@ afterEach(async () => {
   await teardownTestDatabase('packs_test_db')
 })
 
-test('GET /packs OK', async () => {
+test('GET /packs/search OK', async () => {
   // Arrange
   const packTemplate = packTemplateFactory.build()
   const translation =
     typeof packTemplate.translations[0] !== 'number'
       ? packTemplate.translations[0]
       : null
-
-  jest.spyOn(CMSCacheAdapter.prototype, 'findAllPacks').mockResolvedValue({
-    packs: [toPackBase(packTemplate, () => 'http://localhost/image.jpg')],
-    total: 1,
-  })
-
   const packs = packFactory.buildList(
     5,
     {},
@@ -38,7 +36,15 @@ test('GET /packs OK', async () => {
       template: packTemplate,
     }
   )
-
+  await app.knex('CmsCachePackTemplates').insert({
+    id: packTemplate.id,
+    content: packTemplate,
+    price: packTemplate.price,
+    slug: packTemplate.slug,
+    type: packTemplate.type,
+    releasedAt: packTemplate.released_at,
+    auctionUntil: packTemplate.auction_until,
+  })
   await app.knex('Pack').insert(packs)
 
   // Act
@@ -61,19 +67,17 @@ test('GET /packs OK', async () => {
         allowBidExpiration: false,
         available: 5,
         body: translation?.body,
-        collectibleTemplateIds: [],
-        collectibleTemplates: [],
         config: {
           collectibleDistribution: packTemplate.nft_distribution,
           collectibleOrder: packTemplate.nft_order,
           collectiblesPerPack: packTemplate.nfts_per_pack,
         },
-        // Image: packTemplate.pack_image,
         onePackPerCustomer: false,
         price: packTemplate.price,
-        image: 'http://localhost/image.jpg',
+        image: `http://localhost/assets/${packTemplate.pack_image.id}`,
         nftsPerPack: 1,
         releasedAt: packTemplate.released_at,
+        showNfts: false,
         slug: packTemplate.slug,
         subtitle: translation?.subtitle,
         status: PackStatus.Active,
@@ -99,9 +103,12 @@ test('GET /packs/redeemable/:redeemCode', async () => {
       : null
 
   jest
-    .spyOn(CMSCacheAdapter.prototype, 'findPackByTemplateId')
+    .spyOn(CMSCacheService.prototype, 'findPackByTemplateId')
     .mockResolvedValue(
-      toPackBase(packTemplate, () => 'http://localhost/image.jpg')
+      toPackBase(packTemplate, {
+        cmsUrl: 'http://localhost',
+        gcpCdnUrl: undefined,
+      })
     )
 
   const pack = packFactory.build(
@@ -133,8 +140,6 @@ test('GET /packs/redeemable/:redeemCode', async () => {
       additionalImages: [],
       allowBidExpiration: false,
       body: translation?.body,
-      collectibleTemplateIds: [],
-      collectibleTemplates: [],
       config: {
         collectibleDistribution: packTemplate.nft_distribution,
         collectibleOrder: packTemplate.nft_order,
@@ -143,10 +148,11 @@ test('GET /packs/redeemable/:redeemCode', async () => {
       // Image: packTemplate.pack_image,
       onePackPerCustomer: false,
       price: packTemplate.price,
-      image: 'http://localhost/image.jpg',
+      image: `http://localhost/assets/${packTemplate.pack_image.id}`,
       nftsPerPack: 1,
       id: pack.id,
       releasedAt: packTemplate.released_at,
+      showNfts: false,
       slug: packTemplate.slug,
       subtitle: translation?.subtitle,
       status: PackStatus.Active,

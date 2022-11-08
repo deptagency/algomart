@@ -15,11 +15,11 @@
 }
 
 .inputWrapper input[disabled] {
-  @apply text-opacity-50 shadow-none bg-base-bgCard;
+  @apply text-opacity-50 bg-white;
 }
 
 .editButton {
-  @apply right-0 ml-4 underline text-base-textPrimary;
+  @apply right-0 text-black underline;
 }
 
 .cancelButton {

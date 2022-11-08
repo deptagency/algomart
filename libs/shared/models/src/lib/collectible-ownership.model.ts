@@ -1,4 +1,4 @@
-import { CollectibleOwnershipSchema } from '@algomart/schemas'
+import { CollectibleOwnershipSchema, EntityType } from '@algomart/schemas'
 import { Model } from 'objection'
 
 import { BaseModel } from './base.model'
@@ -6,7 +6,7 @@ import { CollectibleModel } from './collectible.model'
 import { UserAccountModel } from './user-account.model'
 
 export class CollectibleOwnershipModel extends BaseModel {
-  static tableName = 'CollectibleOwnership'
+  static tableName = EntityType.CollectibleOwnership
   static jsonSchema = CollectibleOwnershipSchema
 
   ownerId!: string

@@ -4,6 +4,7 @@ const defaultRules = {
   'unicorn/filename-case': 'off',
   'unicorn/prefer-module': 'off',
   'unicorn/no-array-reduce': 'off',
+  'unicorn/prefer-top-level-await': 'off',
 
   // Allow some common abbreviations
   'unicorn/prevent-abbreviations': [
@@ -23,6 +24,17 @@ const defaultRules = {
     },
   ],
 
+  // Disable video track requirement
+  'jsx-a11y/media-has-caption': 'off',
+
+  // Require AppLink and LinkButton to be valid links
+  'jsx-a11y/anchor-is-valid': [
+    'error',
+    {
+      components: ['AppLink', 'LinkButton'],
+    },
+  ],
+
   // Allow @ts-* with descriptions
   '@typescript-eslint/ban-ts-comment': [
     'error',
@@ -35,7 +47,10 @@ const defaultRules = {
   ],
 
   // Allow using any for rest arguments (i.e. `...any[]`)
-  '@typescript-eslint/no-explicit-any': ['warn', { ignoreRestArgs: true }],
+  '@typescript-eslint/no-explicit-any': [
+    'error',
+    { ignoreRestArgs: true, fixToUnknown: true },
+  ],
 
   '@nrwl/nx/enforce-module-boundaries': [
     2,
@@ -67,6 +82,7 @@ const defaultRules = {
 const defaultExtends = [
   'eslint:recommended',
   'plugin:@typescript-eslint/recommended',
+  'plugin:jsx-a11y/recommended',
   'plugin:unicorn/recommended',
   'prettier',
 ]

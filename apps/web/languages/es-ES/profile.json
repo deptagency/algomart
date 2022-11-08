@@ -1,0 +1,21 @@
+{
+  "Age": "Edad",
+  "Algorand Wallet Address": "Dirección de la cartera de Algorand",
+  "Confirm new email": "Confirmar la nueva dirección de correo electrónico",
+  "Email Address": "Dirección de correo electrónico",
+  "googleSecurity": "<0>Su perfil se autentifica a través de <1>su cuenta de Google</1>.</0>",
+  "Local Currency": "Moneda local",
+  "My Profile": "Mi perfil",
+  "Payment Methods": "Métodos de pago",
+  "resetAgeConfirmation": "Su edad ha sido guardada",
+  "resetCurrencyConfirmation": "Su moneda ha sido actualizada.",
+  "resetEmailConfirmation": "Su correo electrónico ha sido actualizado.",
+  "resetEmailPrompt": "<0>Si desea cambiar la dirección de correo electrónico asociada con su cuenta, confirme su nueva dirección de correo electrónico a continuación. <1>Nota: esta acción no se puede deshacer.</1></0>",
+  "resetLanguageConfirmation": "Su idioma ha sido actualizado.",
+  "resetPasswordConfirmation": "Revise su correo electrónico.",
+  "resetPasswordPrompt": "Si desea restablecer su contraseña, haga clic en el botón a continuación y verifique la dirección de correo electrónico asociada con su cuenta.",
+  "resetProfilePicConfirmation": "Su imagen de perfil ha sido actualizada.",
+  "resetUsernameConfirmation": "Su nombre de usuario ha sido actualizado.",
+  "Security": "Seguridad",
+  "Site Language": "Idioma del sitio"
+}

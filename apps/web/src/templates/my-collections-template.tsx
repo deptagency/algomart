@@ -1,11 +1,15 @@
 import { CollectibleWithDetails, CollectionWithSets } from '@algomart/schemas'
+import Image from 'next/image'
 import useTranslation from 'next-translate/useTranslation'
 import { useMemo } from 'react'
 
+import common from './common-template-styles.module.css'
+import css from './my-collections-template.module.css'
+
 import AppLink from '@/components/app-link/app-link'
-import CollectionGroup from '@/components/collectibles/collection-group'
 import NoCollectiblesContent from '@/components/collectibles/no-collectibles-content'
 import Grid from '@/components/grid/grid'
+import { H1 } from '@/components/heading'
 import Tabs from '@/components/tabs/tabs'
 import { getCollectionTabs, groupAssetsByCollection } from '@/utils/collections'
 import { urlFor, urls } from '@/utils/urls'
@@ -13,13 +17,11 @@ import { urlFor, urls } from '@/utils/urls'
 export interface MyCollectionsTemplateProps {
   assets: CollectibleWithDetails[]
   collections: CollectionWithSets[]
-  onRedirectBrands: () => void
 }
 
 export default function MyCollectionsTemplate({
   assets,
   collections,
-  onRedirectBrands,
 }: MyCollectionsTemplateProps) {
   const { t } = useTranslation()
 
@@ -30,29 +32,41 @@ export default function MyCollectionsTemplate({
 
   return (
     <>
-      {/* Tabs */}
-      <Tabs activeTab={1} tabs={getCollectionTabs(t)} className="-mx-8 -mt-8" />
+      <H1 className={common.pageHeading}>
+        {t('common:pageTitles.My Collections')}
+      </H1>
 
-      {/* Collections */}
-      <section className="mt-12">
+      <Tabs activeTab={1} tabs={getCollectionTabs(t)} />
+
+      <section className={css.container}>
         {collectionGroups.length > 0 ? (
-          <Grid columns={2}>
-            {collectionGroups.map(({ collection }) => {
-              return (
-                <AppLink
-                  className="no-underline"
-                  href={urlFor(urls.myCollection, {
-                    collectionSlug: collection.slug,
-                  })}
-                  key={collection.id}
-                >
-                  <CollectionGroup collection={collection} />
-                </AppLink>
-              )
-            })}
+          <Grid base={2}>
+            {collectionGroups.map(({ collection }) => (
+              <AppLink
+                className={css.collectionLink}
+                href={urlFor(urls.myCollection, {
+                  collectionSlug: collection.slug,
+                })}
+                key={collection.id}
+              >
+                <div className={css.imageWrapper}>
+                  <div className={css.image}>
+                    <Image
+                      alt={collection.name}
+                      layout="responsive"
+                      objectFit="cover"
+                      src={collection.image}
+                      height={320}
+                      width={320}
+                    />
+                  </div>
+                </div>
+                <div className={css.textTitle}>{collection.name}</div>
+              </AppLink>
+            ))}
           </Grid>
         ) : (
-          <NoCollectiblesContent onRedirect={onRedirectBrands} />
+          <NoCollectiblesContent />
         )}
       </section>
     </>

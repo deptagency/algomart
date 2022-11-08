@@ -1,0 +1,33 @@
+{
+  "filters": {
+    "Auction is live": "Auction is live",
+    "Auction Status": "Auction Status",
+    "Auction": "Auction",
+    "Has ended": "Has ended",
+    "High": "High",
+    "Low": "Low",
+    "noProducts": "There are no products that match this filter criteria.",
+    "Price Range": "Price Range",
+    "Purchase": "Purchase",
+    "Reserve met": "Reserve met",
+    "Starting soon": "Starting soon",
+    "Type of Sale": "Type of Sale"
+  },
+  "packs": {
+    "tab": "Packs",
+    "heading": "NFT Releases",
+    "sorting": {
+      "Newest": "Newest",
+      "Oldest": "Oldest"
+    }
+  },
+  "collectibles": {
+    "tab": "Collectibles",
+    "heading": "Collectible Listings",
+    "sorting": {
+      "Newest": "Newest",
+      "Oldest": "Oldest"
+    },
+    "listings": "Collectibles for Sale"
+  }
+}

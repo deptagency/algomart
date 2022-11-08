@@ -5,14 +5,15 @@
     "cms": "apps/cms",
     "schemas": "libs/schemas",
     "scribe": "apps/scribe",
-    "scribe-tasks": "libs/scribe/tasks",
     "shared-adapters": "libs/shared/adapters",
     "shared-algorand": "libs/shared/algorand",
     "shared-models": "libs/shared/models",
-    "shared-modules": "libs/shared/modules",
     "shared-plugins": "libs/shared/plugins",
+    "shared-queues": "libs/shared/queues",
     "shared-services": "libs/shared/services",
+    "shared-tests": "libs/shared/tests",
     "shared-utils": "libs/shared/utils",
+    "shared-workers": "libs/shared/workers",
     "web": "apps/web",
     "web-e2e": "apps/web-e2e"
   }

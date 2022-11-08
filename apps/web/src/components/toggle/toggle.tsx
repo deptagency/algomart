@@ -14,7 +14,6 @@ export interface ToggleProps
   helpText?: string
   onChange?: (checked: boolean) => void
   label: string
-  variant?: 'primary' | 'secondary' | 'tertiary'
 }
 
 export default function Toggle({
@@ -25,7 +24,6 @@ export default function Toggle({
   id,
   label,
   onChange,
-  variant = 'secondary',
 }: ToggleProps) {
   const [enabled, setEnabled] = useState(checked || false)
   const handleChange = useCallback(
@@ -49,10 +47,10 @@ export default function Toggle({
       <Switch
         checked={enabled}
         onChange={handleChange}
-        className={clsx(css.input, css[variant], {
+        className={clsx(css.input, {
           [css.toggleEnabled]: enabled,
           [css.toggleNotEnabled]: !enabled,
-          [css.inputDisabled]: disabled,
+          [css.disabled]: disabled,
         })}
         disabled={disabled}
       >
@@ -66,6 +64,7 @@ export default function Toggle({
       </Switch>
       {/* Used to capture value of checkbox */}
       <input
+        tabIndex={-1}
         className="sr-only"
         id={id}
         name={id}

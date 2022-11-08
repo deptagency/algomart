@@ -2,11 +2,14 @@ import { ExternalLinkIcon } from '@heroicons/react/outline'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useMemo } from 'react'
 
+import ExternalLink from '../external-link'
+
 import common from './my-profile-common.module.css'
 import css from './my-profile-wallet.module.css'
 
 import Button from '@/components/button'
-import Heading from '@/components/heading'
+import { H2 } from '@/components/heading'
+import { AppConfig } from '@/config'
 import { useAuth } from '@/contexts/auth-context'
 import { formatAlgoAddress } from '@/utils/format-string'
 
@@ -24,34 +27,26 @@ export default function MyWallet() {
     }
   }, [user?.address])
 
-  const handleView = useCallback(() => {
-    if (window) {
-      window.open(`https://algoexplorer.io/address/${user?.address as string}`)
-    }
-  }, [user?.address])
-
   return (
     <section className={common.section}>
       <div className={common.sectionHeader}>
-        <Heading className={common.sectionHeading} level={2}>
+        <H2 className={common.sectionHeading}>
           {t('profile:Algorand Wallet Address')}
-        </Heading>
-        <Button
+        </H2>
+        <ExternalLink
           className={css.viewOnChainButton}
-          onClick={handleView}
-          variant="link"
-          size="small"
+          href={`${AppConfig.algoExplorerBaseURL}/address/${
+            user?.address as string
+          }`}
         >
           {t('common:actions.View On AlgoExplorer')}
           <ExternalLinkIcon height="16px" />
-        </Button>
+        </ExternalLink>
       </div>
       <div className={common.sectionContent}>
         <div className={css.columns}>
           <div>{formattedAddress}</div>
-          <Button onClick={handleCopy} size="small">
-            {t('common:actions.Copy')}
-          </Button>
+          <Button onClick={handleCopy}>{t('common:actions.Copy')}</Button>
         </div>
       </div>
     </section>

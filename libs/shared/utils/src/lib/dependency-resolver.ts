@@ -2,6 +2,10 @@ export interface Factory<T> {
   (resolver: DependencyResolver): T
 }
 
+export interface FactoryMethod<T> {
+  create: Factory<T>
+}
+
 export interface ResolverItem<T> {
   singleton: boolean
   create: Factory<T>
@@ -61,5 +65,13 @@ export class DependencyResolver {
     }
 
     return instance
+  }
+
+  /**
+   * Removes all cached instances and configured factories. Mostly used for testing.
+   */
+  clear() {
+    this.cache.clear()
+    this.store.clear()
   }
 }

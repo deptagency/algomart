@@ -1,100 +1,70 @@
-import {
-  CollectibleListShowcase,
-  CollectibleListWithTotal,
-} from '@algomart/schemas'
 import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
 import useTranslation from 'next-translate/useTranslation'
 import { useCallback, useState } from 'react'
 
 import Loading from '@/components/loading/loading'
 import { PAGE_SIZE } from '@/components/pagination/pagination'
 import { useAuth } from '@/contexts/auth-context'
+import { useLanguage } from '@/contexts/language-context'
+import { useAddToShowcase } from '@/hooks/api/use-add-to-showcase'
+import { useNFTs } from '@/hooks/api/use-nfts'
+import { useRemoveFromCollectibleShowcase } from '@/hooks/api/use-remove-from-showcase'
+import { useShareProfile } from '@/hooks/api/use-share-profile'
+import { useShowcaseByUser } from '@/hooks/api/use-showcase-by-user'
 import DefaultLayout from '@/layouts/default-layout'
 import {
   getAuthenticatedUser,
   handleUnauthenticatedRedirect,
 } from '@/services/api/auth-service'
-import { CollectibleService } from '@/services/collectible-service'
 import MyShowcaseTemplate from '@/templates/my-showcase-template'
-import { useApi, useAuthApi } from '@/utils/swr'
-import { urls } from '@/utils/urls'
 
 export default function MyShowcasePage() {
+  const { language } = useLanguage()
   const { user } = useAuth()
-  const router = useRouter()
   const [activePage, setActivePage] = useState<number>(1)
   const { t } = useTranslation()
 
-  // Fetch asset data
-  const { data: { collectibles, total } = {} } =
-    useApi<CollectibleListWithTotal>(
-      user?.username
-        ? `${urls.api.v1.getAssetsByOwner}?ownerUsername=${user.username}&page=${activePage}&pageSize=${PAGE_SIZE}`
-        : null
-    )
+  const { data: { collectibles, total } = {}, isLoading: collectiblesLoading } =
+    useNFTs({
+      page: activePage,
+      pageSize: PAGE_SIZE,
+      username: user?.username,
+      language,
+    })
 
   const {
     data: { collectibles: showcaseCollectibles, showProfile } = {},
-    mutate,
-  } = useAuthApi<CollectibleListShowcase>(
-    user?.username
-      ? `${urls.api.v1.showcaseCollectible}?ownerUsername=${user.username}`
-      : null
-  )
+    isLoading: showcaseLoading,
+  } = useShowcaseByUser(user?.username)
 
-  const isLoading =
-    collectibles === undefined ||
-    total === undefined ||
-    showcaseCollectibles === undefined ||
-    showProfile === undefined
+  const { mutate: addCollectibleToShowcase } = useAddToShowcase(user?.username)
+  const { mutate: removeCollectibleFromShowcase } =
+    useRemoveFromCollectibleShowcase(user?.username)
+  const { mutate: setProfilePublished } = useShareProfile(user?.username)
 
   const addCollectible = useCallback(
-    async (collectibleId: string) => {
-      // Add asset/collectible to publicCollectibles list for customer
-      await CollectibleService.instance.addCollectibleShowcase(collectibleId)
-      if (collectibles) {
-        const collectible = collectibles.find((c) => c.id === collectibleId)
-        if (collectible) {
-          mutate({
-            collectibles: [...(showcaseCollectibles || []), collectible],
-            showProfile: !!showProfile,
-          })
-        }
-      }
-    },
-    [collectibles, mutate, showProfile, showcaseCollectibles]
+    async (collectibleId: string) => addCollectibleToShowcase(collectibleId),
+    [addCollectibleToShowcase]
   )
 
   const removeCollectible = useCallback(
     async (collectibleId: string) => {
-      // Remove asset/collectible to publicCollectibles list for customer
-      await CollectibleService.instance.removeCollectibleShowcase(collectibleId)
-      if (collectibles) {
-        mutate({
-          collectibles: (showcaseCollectibles || []).filter(
-            (c) => c.id !== collectibleId
-          ),
-          showProfile: !!showProfile,
-        })
-      }
+      removeCollectibleFromShowcase(collectibleId)
     },
-    [collectibles, mutate, showProfile, showcaseCollectibles]
+    [removeCollectibleFromShowcase]
   )
 
   const shareProfile = useCallback(
     async (shared: boolean) => {
-      await CollectibleService.instance.shareProfile(shared)
-      mutate({
-        collectibles: showcaseCollectibles || [],
-        showProfile: shared,
-      })
+      setProfilePublished(shared)
     },
-    [mutate, showcaseCollectibles]
+    [setProfilePublished]
   )
 
+  const isLoading = collectiblesLoading || showcaseLoading
+
   return (
-    <DefaultLayout pageTitle={t('common:pageTitles.My Showcase')} width="large">
+    <DefaultLayout noPanel pageTitle={t('common:pageTitles.My Showcase')}>
       {isLoading ? (
         <Loading />
       ) : (
@@ -102,7 +72,6 @@ export default function MyShowcasePage() {
           addCollectible={addCollectible}
           collectibles={collectibles}
           collectiblesTotal={total}
-          handleRedirectBrands={() => router.push(urls.releases)}
           page={activePage}
           pageSize={PAGE_SIZE}
           showcaseCollectibles={showcaseCollectibles}

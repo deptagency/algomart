@@ -1,0 +1,21 @@
+.wrapper.isInline {
+  border: 0 !important;
+}
+
+.wrapper.isInline p:first-child {
+  @apply mb-5 mr-0;
+}
+
+.wrapper p {
+  @apply text-sm;
+}
+
+.wrapper p:first-child {
+  @apply mb-2;
+  @apply md:mb-0 md:mr-5;
+}
+
+.emailVerificationControls {
+  @apply flex flex-row items-center justify-center gap-2 mt-4;
+  @apply md:mt-0;
+}

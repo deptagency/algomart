@@ -1,4 +1,5 @@
 import Knex from 'knex'
+
 import config from './configuration/knex-config'
 
 type KnexMigrationCommand =
@@ -47,8 +48,6 @@ async function main(argv: string[]) {
     }
 
     console.log(result)
-  } catch (error) {
-    console.error(error)
   } finally {
     await knex.destroy()
   }

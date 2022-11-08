@@ -1,6 +1,6 @@
+import { FastifyError } from '@fastify/error'
 import axios from 'axios'
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import { FastifyError } from '@fastify/error'
 import { HttpError } from 'http-errors'
 
 export class UserError extends Error {
@@ -12,18 +12,30 @@ export class UserError extends Error {
   }
 }
 
+export class FailedPostgresWriteAssertionError extends Error {
+  constructor(message = '') {
+    super(message)
+    this.name = this.constructor.name
+    Object.setPrototypeOf(this, FailedPostgresWriteAssertionError.prototype)
+  }
+}
+
 export function appErrorHandler(app: FastifyInstance) {
   return async function (
     error: FastifyError,
     _request: FastifyRequest,
     reply: FastifyReply
   ) {
-    let statusCode = 500
+    let statusCode = error.validation ? 400 : 500
+    const message = error.message
+    let payload: unknown = error.validation
 
     if (axios.isAxiosError(error) && error.response) {
       statusCode = error.response.status
+      // TODO: may need to filter out sensitive data
+      payload = error.response?.data
     } else if (error instanceof HttpError) {
-      statusCode = error.response.statusCode
+      statusCode = error.statusCode
     } else if (error instanceof UserError) {
       statusCode = error.statusCode
     }
@@ -36,6 +48,10 @@ export function appErrorHandler(app: FastifyInstance) {
 
     reply.status(statusCode)
 
-    throw error
+    return reply.send({
+      error: statusCode,
+      message,
+      payload,
+    })
   }
 }

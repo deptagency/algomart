@@ -1,4 +1,4 @@
-import { BidSchema } from '@algomart/schemas'
+import { BidSchema, EntityType } from '@algomart/schemas'
 import { Model } from 'objection'
 
 import { BaseModel } from './base.model'
@@ -6,7 +6,7 @@ import { PackModel } from './pack.model'
 import { UserAccountModel } from './user-account.model'
 
 export class BidModel extends BaseModel {
-  static tableName = 'Bid'
+  static tableName = EntityType.Bid
   static jsonSchema = BidSchema
 
   amount!: number

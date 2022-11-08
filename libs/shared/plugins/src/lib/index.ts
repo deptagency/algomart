@@ -1,5 +1,6 @@
-import fastifyContainerPlugin from './container.plugin'
-import fastifyTransactionPlugin from './transaction.plugin'
-import fastifyKnexPlugin from './knex.plugin'
-
-export { fastifyContainerPlugin, fastifyTransactionPlugin, fastifyKnexPlugin }
+export * from './auth.plugin'
+export * from './cache.plugin'
+export * from './container.plugin'
+export * from './knex.plugin'
+export * from './queue.plugin'
+export * from './traps.plugin'

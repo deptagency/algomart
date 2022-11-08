@@ -1,0 +1,30 @@
+.columns {
+  /* Base */
+  @apply block;
+  /* Tablet + */
+  @apply md:flex md:gap-8;
+}
+
+.filterColumn {
+  /* Base */
+  @apply hidden w-full mb-5;
+  /* Tablet + */
+  @apply md:w-[250px] md:block md:flex-shrink-0;
+}
+
+.resultsColumn {
+  @apply flex-grow;
+}
+
+.paginationWrapper {
+  @apply mt-8;
+}
+
+.packColumns {
+  @apply grid grid-cols-2 gap-2.5 -mx-2;
+  @apply sm:mx-0;
+  /* Note: Don't use "md" breakpoint here because the filter sidebar
+  makes the space too narrow to accommodate 3 columns at this point. */
+  @apply lg:gap-3 lg:grid-cols-3;
+  @apply xl:gap-5;
+}

@@ -5,9 +5,10 @@ import { useCallback, useState } from 'react'
 import css from './profile-username-template.module.css'
 
 import Avatar from '@/components/avatar/avatar'
+import Button from '@/components/button/button'
 import CollectibleBrowserDialog from '@/components/collectibles/collectible-browser-dialog'
 import CollectibleShowcase from '@/components/collectibles/collectible-showcase'
-import Heading from '@/components/heading'
+import { H1 } from '@/components/heading'
 
 export interface ProfileUsernameTemplateProps {
   username: string
@@ -16,7 +17,7 @@ export interface ProfileUsernameTemplateProps {
 
 export default function ProfileUsernameTemplate({
   username,
-  collectibles,
+  collectibles = [],
 }: ProfileUsernameTemplateProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -34,11 +35,18 @@ export default function ProfileUsernameTemplate({
   return (
     <>
       <div className={css.avatarWrapper}>
-        <Avatar username={username} imageOnly />
+        <Avatar username={username} imageOnly size={60} />
       </div>
-      <Heading className={css.title}>
+      <H1 center my={4} size={2}>
         {t('collection:viewer.showcaseTitle', { username })}
-      </Heading>
+      </H1>
+      {collectibles.length > 0 && (
+        <div className={css.buttonContainer}>
+          <Button onClick={() => selectCollectible('', 0)}>
+            {t('common:actions.Play All')}
+          </Button>
+        </div>
+      )}
       <CollectibleBrowserDialog
         username={username}
         collectibles={collectibles}
@@ -46,13 +54,13 @@ export default function ProfileUsernameTemplate({
         onClose={clearCollectible}
         initialCollectible={showIndex}
       />
-      <div>
+      <div className="mb-8">
         <CollectibleShowcase
-          transparent
           collectibles={collectibles}
+          displayCount={collectibles.length}
           mode="viewing"
           onClickCollectible={selectCollectible}
-          displayCount={collectibles.length}
+          username={username}
         />
       </div>
     </>

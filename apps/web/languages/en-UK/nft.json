@@ -1,0 +1,109 @@
+{
+  "walletConnect": {
+    "title": "Algorand WalletConnect",
+    "connect": "Open WalletConnect",
+    "description": "Use WalletConnect to link your Algorand wallet to AlgoMart.",
+    "helpText": "Need a wallet? Get one here:",
+    "destinationWallet": "Destination wallet:",
+    "selectAccount": "Select Account",
+    "nfts": "NFTs",
+    "selectNFT": "Select NFT",
+    "transfer": "Transfer",
+    "orCancel": "or cancel and disconnect from wallet",
+    "transferring": "Transferring NFT...",
+    "sent": "Sent!",
+    "backToMyCollection": "Back to My Collection"
+  },
+  "activity": {
+    "title": "Activity",
+    "table": {
+      "Event": "Event",
+      "Price": "Price",
+      "From": "From",
+      "To": "To",
+      "Date": "Date"
+    },
+    "events": {
+      "purchase": "Purchased",
+      "list": "Listed",
+      "mint": "Minted",
+      "transfer": "Transferred"
+    }
+  },
+  "details": {
+    "title": "Details"
+  },
+  "transfer": {
+    "title": "Transfer to wallet",
+    "body": "Transfer your NFT to an external Algorand wallet. NFTs transferred to an external wallet will no longer appear in your collection.",
+    "learnMore": "Learn more about transferring NFTs",
+    "transferMyNFT": "Transfer My NFT"
+  },
+  "labels": {
+    "Owner": "Owner",
+    "ownedBy": "Owned by",
+    "Edition": "Edition",
+    "Rarity": "Rarity",
+    "Collection": "Collection",
+    "Set": "Set",
+    "Address": "Address",
+    "editionXWrappers": "<0>#{{edition}}</0> of <1>{{totalEditions}}</1>",
+    "editionX": "#{{edition}} of {{totalEditions}}",
+    "mintedAt": "Collected <0>{{date}}</0>",
+    "uniqueId": "Unique ID",
+    "cannotTransfer": {
+      "frozen": "This NFT is frozen and cannot be transferred.",
+      "transactedRecently": "Cannot be transferred until {{date}}."
+    },
+    "Price": "Price",
+    "Starting at": "Starting at"
+  },
+  "sell": {
+    "title": "List for sale",
+    "body": "List your NFT for sale on our secondary market. Listings can be removed at any time.",
+    "royaltyFee": "Creator Royalty",
+    "learnMore": "Learn more about selling NFTs",
+    "listed": "<0>This NFT is listed for sale at a price of <1>{{price}}</1>. You can remove the listing to set a new price.</0>",
+    "listedTitle": "Listed for Sale",
+    "listForSale": "List For Sale",
+    "listForSaleComingSoon": "Sell My NFT is coming soon",
+    "removeListing": "Remove Listing",
+    "serviceFee": "Service Fee",
+    "noUser": "The current owner of this NFT is not known, it cannot be purchased",
+    "notOwner": "You are not the owner of this NFT, you cannot list it for sale",
+    "transactedRecently": "This NFT was part of a recent transaction, it cannot be listed until {{date}}",
+    "isListed": "This NFT is already listed, it cannot be listed again"
+  },
+  "purchase": {
+    "title": "Purchase",
+    "body": "Purchase NFT from {{seller}} for {{price}}",
+    "purchaseComingSoon": "Purchasing NFTs is coming soon",
+    "notListed": "NFT isn't listed, cannot purchase",
+    "isOwner": "You are the owner of this NFT, you cannot purchase it from yourself",
+    "noUser": "The current owner of this NFT is not known, it cannot be purchased"
+  },
+  "listForSaleStatus": {
+    "success": "Success! Your NFT is listed for sale."
+  },
+  "delistStatus": {
+    "success": "Success! Your NFT has been delisted."
+  },
+  "exportStatus": {
+    "idle": "Loading...",
+    "optingIn": "Please confirm the transactions in your wallet to opt-in to the NFT.",
+    "optIn": "Verifying opt-in transaction...",
+    "pending": "Transferring NFT...",
+    "success": "NFT transferred!",
+    "error": {
+      "404": {
+        "title": "Error transferring NFT: Account not found",
+        "subtitle": "This could occur if you have yet to use your account to do any transactions"
+      },
+      "generic": {
+        "title": "Error transferring NFT"
+      }
+    },
+    "generatingTransactions": "Generating transactions for import...",
+    "signTransaction": "Please confirm the transactions in your wallet to transfer the NFT."
+  }
+}

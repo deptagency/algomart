@@ -4,10 +4,10 @@
 
 <script lang="ts">
 import * as Currencies from '@dinero.js/currencies'
-import { useApi } from '@directus/extensions-sdk'
 import { defineComponent, ref } from 'vue'
 import { Currency, dinero, toFormat } from 'dinero.js'
 
+//All values are USDC
 const currency = ref(Currencies.USD)
 const language = ref('en-US')
 
@@ -45,29 +45,6 @@ export default defineComponent({
       ),
     }
   },
-
-  setup() {
-    const api = useApi()
-    // used to trigger re-renders via the key-prop
-    const trigger = ref(0)
-
-    api.get('/items/application').then((app) => {
-      if (app.data.data.currency) {
-        currency.value = Currencies[app.data.data.currency]
-        trigger.value += 1
-      }
-    })
-
-    api.get('/users/me').then((user) => {
-      if (user.data.data.language) {
-        language.value = user.data.data.language
-        trigger.value += 1
-      }
-    })
-
-    return { trigger }
-  },
-
   updated() {
     this.formattedValue = format(
       parse(this.$props.value),

@@ -1,0 +1,81 @@
+.creditsContainer {
+  @apply mx-auto bg-base-bgCard bg-opacity-80 rounded-xl max-w-700 md:mt-16;
+}
+
+/* Credits Header */
+.creditsHeader {
+  @apply px-6 py-8 text-center bg-action-primary border-b-1 border-gray-400 md:rounded-t-2xl;
+}
+.creditBalanceValue {
+  @apply text-2xl font-semibold leading-tight text-white;
+}
+.creditBalanceValue > span {
+  @apply block mb-2 text-lg font-normal;
+}
+.creditBalanceLabel {
+  @apply text-sm uppercase;
+}
+
+/* Credits Actions */
+.creditsActions {
+  @apply relative px-6 text-center py-7 border-b-1 border-gray-400 shadow-lg;
+}
+.creditActionButton {
+  @apply max-w-[250px] w-full;
+}
+
+/* Transfers List */
+.transferItem {
+  @apply border-t-1 border-gray-400 flex justify-between w-full p-6;
+}
+.transferItem:first-child {
+  @apply border-none;
+}
+.transferItem:last-child {
+  @apply md:rounded-b-2xl;
+}
+.transferContent {
+  @apply flex items-center;
+}
+.transferIcon {
+  @apply block w-10 p-2 mr-5 rounded-full bg-action-accent;
+}
+.clockIcon {
+  @apply bg-base-textDisabled;
+}
+.exclamationIcon {
+  @apply bg-base-error;
+}
+.transferDate {
+  @apply mt-1 text-sm text-base-textPrimary;
+}
+.transferTitle {
+  @apply text-lg;
+}
+.transferAmount > span {
+  @apply text-base-textTertiary;
+}
+.transferItemRight {
+  @apply flex items-center ml-4 text-right;
+}
+/* Zero State */
+.zeroStateContainer {
+  box-shadow: inset 0px 15px 30px -15px rgba(var(--bg));
+}
+
+.zeroStateWrapper {
+  @apply w-full max-w-xs py-10 mx-auto text-center;
+}
+.zeroStateIcon {
+  @apply p-5 mx-auto my-8 rounded-full w-28 h-28 border-6 text-action-accent border-action-accent;
+}
+
+/* Pagination */
+.paginationWrapper {
+  @apply mt-12;
+}
+
+/* Image */
+.transferImage {
+  @apply flex mr-8;
+}

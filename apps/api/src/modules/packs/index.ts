@@ -1,12 +1,7 @@
 import {
   ClaimFreePackSchema,
-  ClaimPackSchema,
   ClaimRedeemPackSchema,
-  LanguageAndExternalIdSchema,
-  LanguageSchema,
-  MintPackSchema,
-  MintPackStatusResponseSchema,
-  OwnerExternalIdSchema,
+  LanguageObjectSchema,
   PackAuctionSchema,
   PackIdSchema,
   PacksByOwnerQuerySchema,
@@ -18,19 +13,13 @@ import {
   PublishedPackSchema,
   PublishedPacksQuerySchema,
   PublishedPacksSchema,
-  RedeemCodeSchema,
-  RevokePackSchema,
-  TransferPackSchema,
+  RedeemCodeObjectSchema,
   TransferPackStatusListSchema,
 } from '@algomart/schemas'
-import { appErrorHandler } from '@algomart/shared/utils'
-import bearerAuthOptions from '@api/configuration/bearer-auth'
-import fastifyBearerAuth from '@fastify/bearer-auth'
 import { Type } from '@sinclair/typebox'
 import { FastifyInstance } from 'fastify'
 
 import {
-  claimPack,
   claimRandomFreePack,
   claimRedeemPack,
   getAuctionPackByTemplateId,
@@ -38,87 +27,33 @@ import {
   getPackWithCollectiblesById,
   getPublishedPackBySlug,
   getRedeemablePack,
-  mintPackStatus,
-  revokePack,
   searchPublishedPacks,
-  transferPack,
   transferPackStatus,
-  untransferredPacks,
 } from './packs.routes'
 
 export async function packsRoutes(app: FastifyInstance) {
   const tags = ['packs']
   const security = [
     {
-      'API Key': [],
+      'Firebase Token': [],
     },
   ]
 
-  // Errors
-  app.setErrorHandler(appErrorHandler(app))
-
-  // Plugins
-  await app.register(fastifyBearerAuth, bearerAuthOptions)
+  // Hooks
+  app.addHook('preHandler', app.requireAuth())
 
   // Services/Routes
-  app.get(
-    '/search',
-    {
-      schema: {
-        tags,
-        security,
-        description: 'Search all published packs with pagination.',
-        querystring: PublishedPacksQuerySchema,
-        response: {
-          200: PublishedPacksSchema,
-        },
-      },
-    },
-    searchPublishedPacks
-  )
-
-  app.get(
-    '/by-slug/:packSlug',
-    {
-      schema: {
-        tags,
-        security,
-        description: 'Get a pack by slug with its collectibles.',
-        querystring: LanguageSchema,
-        params: PackSlugSchema,
-        response: {
-          200: PublishedPackSchema,
-        },
-      },
-    },
-    getPublishedPackBySlug
-  )
-
-  app.get(
-    '/by-owner/:ownerExternalId',
-    {
-      schema: {
-        tags,
-        security,
-        description: 'Get published packs for the owner with pagination.',
-        querystring: PacksByOwnerQuerySchema,
-        params: OwnerExternalIdSchema,
-        response: {
-          200: PacksByOwnerSchema,
-        },
-      },
-    },
-    getPacksByOwner
-  )
 
   app.get(
     '/:packId',
     {
+      config: {
+        auth: { anonymous: true },
+      },
       schema: {
         tags,
-        security,
         description: 'Get a pack by id with its collectibles.',
-        querystring: LanguageSchema,
+        querystring: LanguageObjectSchema,
         params: PackIdSchema,
         response: {
           200: PackWithCollectiblesSchema,
@@ -131,9 +66,11 @@ export async function packsRoutes(app: FastifyInstance) {
   app.get(
     '/auction/:templateId',
     {
+      config: {
+        auth: { anonymous: true },
+      },
       schema: {
         tags,
-        security,
         description: 'Get the auction information of a pack.',
         params: PackTemplateIdSchema,
         response: {
@@ -147,12 +84,15 @@ export async function packsRoutes(app: FastifyInstance) {
   app.get(
     '/redeemable/:redeemCode',
     {
+      config: {
+        auth: { anonymous: true },
+        rateLimit: {},
+      },
       schema: {
         tags,
-        security,
         description:
           'Get details about a redeemable pack using its redemption code.',
-        params: RedeemCodeSchema,
+        params: RedeemCodeObjectSchema,
         response: {
           200: Type.Object({ pack: PackWithIdSchema }),
         },
@@ -161,27 +101,65 @@ export async function packsRoutes(app: FastifyInstance) {
     getRedeemablePack
   )
 
-  app.post(
-    '/claim',
+  app.get(
+    '/search',
     {
-      transact: true,
+      config: {
+        auth: { anonymous: true },
+      },
       schema: {
         tags,
-        security,
-        body: ClaimPackSchema,
-        description: 'Used to claim purchasable and auction packs.',
+        description: 'Search all published packs with pagination.',
+        querystring: PublishedPacksQuerySchema,
         response: {
-          200: Type.Object({ pack: PackWithIdSchema }),
+          200: PublishedPacksSchema,
         },
       },
     },
-    claimPack
+    searchPublishedPacks
+  )
+
+  app.get(
+    '/by-slug/:packSlug',
+    {
+      config: {
+        auth: { anonymous: true },
+      },
+      schema: {
+        tags,
+        description: 'Get a pack by slug with its collectibles.',
+        querystring: LanguageObjectSchema,
+        params: PackSlugSchema,
+        response: {
+          200: PublishedPackSchema,
+        },
+      },
+    },
+    getPublishedPackBySlug
+  )
+
+  app.get(
+    '/by-owner',
+    {
+      schema: {
+        tags,
+        security,
+        description: 'Get published packs for the owner with pagination.',
+        querystring: PacksByOwnerQuerySchema,
+        response: {
+          200: PacksByOwnerSchema,
+        },
+      },
+    },
+    getPacksByOwner
   )
 
   app.post(
     '/claim/free',
     {
-      transact: true,
+      config: {
+        rateLimit: {},
+      },
       schema: {
         tags,
         security,
@@ -198,12 +176,14 @@ export async function packsRoutes(app: FastifyInstance) {
   app.post(
     '/claim/redeem',
     {
-      transact: true,
+      config: {
+        rateLimit: {},
+      },
       schema: {
         tags,
         security,
         body: ClaimRedeemPackSchema,
-        querystring: LanguageSchema,
+        querystring: LanguageObjectSchema,
         description: 'Used to claim a redeemable pack.',
         response: {
           200: Type.Object({ pack: PackWithIdSchema }),
@@ -211,57 +191,6 @@ export async function packsRoutes(app: FastifyInstance) {
       },
     },
     claimRedeemPack
-  )
-
-  app.get(
-    '/mint',
-    {
-      schema: {
-        tags,
-        security,
-        description: 'Get the minting status of a pack.',
-        querystring: MintPackSchema,
-        response: {
-          200: MintPackStatusResponseSchema,
-        },
-      },
-    },
-    mintPackStatus
-  )
-
-  app.post(
-    '/revoke',
-    {
-      schema: {
-        tags,
-        security,
-        body: RevokePackSchema,
-        description:
-          'Used to revoke a pack and collectibles from a user back to the creator.',
-        response: {
-          204: Type.Null(),
-        },
-      },
-    },
-    revokePack
-  )
-
-  app.post(
-    '/transfer',
-    {
-      transact: true,
-      schema: {
-        tags,
-        security,
-        description:
-          'Used to initiate the transfer of a previously claimed pack.',
-        body: TransferPackSchema,
-        response: {
-          204: Type.Null(),
-        },
-      },
-    },
-    transferPack
   )
 
   app.get(
@@ -278,21 +207,5 @@ export async function packsRoutes(app: FastifyInstance) {
       },
     },
     transferPackStatus
-  )
-
-  app.get(
-    '/untransferred',
-    {
-      schema: {
-        tags,
-        security,
-        description: 'Get all packs that have not been transferred.',
-        querystring: LanguageAndExternalIdSchema,
-        response: {
-          200: PacksByOwnerSchema,
-        },
-      },
-    },
-    untransferredPacks
   )
 }

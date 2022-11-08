@@ -1,0 +1,33 @@
+{
+  "filters": {
+    "Auction is live": "La subasta está en curso",
+    "Auction Status": "Estado de la subasta",
+    "Auction": "Subasta",
+    "Has ended": "Ha terminado",
+    "High": "Alto",
+    "Low": "Bajo",
+    "noProducts": "No existen versiones que coincidan con este criterio de filtro.",
+    "Price Range": "Rango de precio",
+    "Purchase": "Compra",
+    "Reserve met": "Reserva realizada",
+    "Starting soon": "Comienza pronto",
+    "Type of Sale": "Tipo de venta"
+  },
+  "packs": {
+    "tab": "Packs",
+    "heading": "Lanzamientos de NFT",
+    "sorting": {
+      "Newest": "Nuevo/ Más reciente",
+      "Oldest": "Antiguo/ Más antiguo"
+    }
+  },
+  "collectibles": {
+    "tab": "Objetos de colección",
+    "heading": "Lista de objetos de colección",
+    "sorting": {
+      "Newest": "Nuevo/ Más reciente",
+      "Oldest": "Antiguo/ Más antiguo"
+    },
+    "listings": "Objetos de colección a la venta"
+  }
+}

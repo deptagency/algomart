@@ -1,5 +1,5 @@
 .bidActivity {
-  @apply mt-6 shadow-large bg-base-bgCard;
+  @apply mt-6 bg-base-bgCard;
 }
 
 .title {

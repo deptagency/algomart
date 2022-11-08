@@ -30,3 +30,13 @@ export function chunkArray<T>(array: T[], chunkSize: number): T[][] {
   }
   return chunks
 }
+
+/**
+ * Sorts an array without modifying the original array.
+ * @param array Array to be sorted
+ * @param compare Comparison function to compare two elements
+ * @returns The sorted array
+ */
+export function sortArray<T>(array: T[], compare: (a: T, b: T) => number) {
+  return [...array].sort(compare)
+}

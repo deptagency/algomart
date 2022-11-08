@@ -1,47 +1,29 @@
 .root {
+  /* Base */
   @apply flex items-center justify-center mb-5;
-}
-.responsive {
-  @apply mb-8;
-  @apply md:mb-12 md:mx-auto;
+  /* Tablet + */
+  @apply md:mb-8;
 }
 
 .tabsContainer {
-  @apply relative flex w-full overflow-hidden shadow-lg bg-base-bgCard;
-  @apply border-y-1;
-}
-.responsive .tabsContainer {
-  @apply md:w-auto md:rounded-lg md:mx-5 shadow-large;
-  @apply md:border-y-0;
+  /* Base */
+  @apply relative flex w-full overflow-hidden rounded-sm bg-white shadow-lg;
+  /* Tablet + */
+  @apply md:w-auto;
 }
 
 .tab {
-  @apply flex-1 px-4 py-4 text-center no-underline transition duration-300 text-base-textPrimary;
-  /* @apply focus:outline-none focus:bg-action-secondary focus:bg-opacity-20 focus:text-base-textPrimary;
-  @apply hover:bg-action-secondary hover:bg-opacity-20 hover:text-base-textPrimary; */
+  /* Base */
+  @apply flex items-center justify-center flex-grow px-4 text-base text-center no-underline transition-colors cursor-pointer h-11 text-base-textPrimary;
+  /* Base: Focus and Hover */
+  @apply focus:outline-none hover:text-action-linkHover focus:text-action-linkHover;
+  /* Tablet + */
+  @apply md:px-6;
 }
-.tab:hover,
-.tab:focus {
-  @apply outline-none;
-  box-shadow: inset 0 -4px 0 0 rgb(var(--actionSecondary));
-}
-
-.responsive .tab {
-  @apply md:px-0 md:w-40;
-}
-
-.responsive .tab:first-of-type {
-  @apply md:rounded-l-lg;
-}
-
-.responsive .tab:last-of-type {
-  @apply md:rounded-r-lg;
-}
-
-.tab + .tab {
-  @apply border-l-1;
+.tabWide {
+  @apply md:w-40;
 }
 
 .tabActive {
-  @apply font-bold bg-action-secondary text-action-secondaryContrastText;
+  @apply transition-all duration-300 bg-teal text-action-secondaryContrastText hover:text-base-textPrimary focus:text-base-textPrimary;
 }

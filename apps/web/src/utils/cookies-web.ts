@@ -4,7 +4,7 @@ import Cookies from 'js-cookie'
 export function setCookie(name: string, value: string, expiresInDays: number) {
   const expires = new Date()
   expires.setDate(expires.getDate() + expiresInDays)
-  Cookies.set(name, value, { expires, sameSite: 'Strict' })
+  Cookies.set(name, value, { expires, sameSite: 'Lax' })
 }
 
 export function getCookie(name: string): string | undefined {
@@ -12,7 +12,7 @@ export function getCookie(name: string): string | undefined {
 }
 
 export function removeCookie(name: string) {
-  Cookies.remove(name)
+  Cookies.remove(name, { expires: 0, sameSite: 'Lax' })
 }
 
 export function setCurrencyCookie(currency: string) {
@@ -21,4 +21,14 @@ export function setCurrencyCookie(currency: string) {
 
 export function setLanguageCookie(language: string) {
   setCookie(LANG_COOKIE, language, 365)
+}
+
+const IGNORE_VALUES = new Set(['null', 'undefined'])
+
+export function safeGetCookie(name: string) {
+  const value = getCookie(name)
+  if (value && !IGNORE_VALUES.has(value)) {
+    return value
+  }
+  return null
 }

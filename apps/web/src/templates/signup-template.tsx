@@ -1,93 +1,58 @@
+import Image from 'next/image'
 import useTranslation from 'next-translate/useTranslation'
-import React, { FormEvent } from 'react'
 
-import AlertMessage from '@/components/alert-message/alert-message'
-import {
-  Currency,
-  Email,
-  Language,
-  Passphrase,
-  Password,
-  ProfileImage,
-  Submit,
-  Username,
-} from '@/components/auth-inputs/auth-inputs'
-import Heading from '@/components/heading'
-import { AuthState } from '@/types/auth'
-import { FileWithPreview } from '@/types/file'
+import css from './signup-template.module.css'
 
-export interface SignupTemplateProps {
-  dropdownCurrency: string
-  dropdownLanguage: string
-  error: string | null
-  formErrors: Partial<{
-    currency?: unknown
-    email?: unknown
-    language?: unknown
-    username?: unknown
-    password?: unknown
-    passphrase?: unknown
-  }>
-  handleCreateProfile: (event: FormEvent<HTMLFormElement>) => Promise<void>
-  handleCurrencyChange: (value: string) => void
-  handleLanguageChange: (value: string) => void
-  handleProfilePicAccept: (files: File[]) => void
-  handleProfilePicClear: () => void
-  profilePic: FileWithPreview | null
-  status: AuthState['status']
-}
+import AppLink from '@/components/app-link/app-link'
+import Button from '@/components/button'
+import { H1 } from '@/components/heading'
+import LinkButton from '@/components/link-button'
+import { urls } from '@/utils/urls'
+
+const googleIcon = '/images/logos/google.svg'
 
 export default function SignupTemplate({
-  dropdownCurrency,
-  dropdownLanguage,
-  error,
-  formErrors,
-  handleCreateProfile,
-  handleCurrencyChange,
-  handleLanguageChange,
-  handleProfilePicAccept,
-  handleProfilePicClear,
-  profilePic,
-  status,
-}: SignupTemplateProps) {
+  handleLoginGoogle,
+}: {
+  handleLoginGoogle: () => void
+}) {
   const { t } = useTranslation()
+
   return (
-    <>
-      <Heading className="mb-8 text-center">
-        {t('auth:Setup your account')}
-      </Heading>
-      <form
-        className="relative max-w-sm mx-auto"
-        onSubmit={handleCreateProfile}
-      >
-        {status === 'error' && error && (
-          <AlertMessage
-            className="mb-6"
-            content={t('forms:errors.emailAlreadyInUse')}
-            variant="red"
+    <div className="mb-24">
+      <H1 center mt={12} uppercase>
+        {t('common:actions.Sign Up')}
+      </H1>
+      <div className={css.buttonContainer}>
+        <LinkButton
+          data-e2e="sign-up-with-email"
+          className={css.button}
+          href={urls.signUpEmail}
+          size="large"
+          variant="secondary"
+        >
+          {t('auth:Sign Up with Email')}
+        </LinkButton>
+        <Button
+          className={css.buttonGoogle}
+          onClick={handleLoginGoogle}
+          variant="secondary"
+          size="large"
+        >
+          <Image
+            width={36}
+            height={36}
+            alt={t('auth:Google logo')}
+            src={googleIcon}
           />
-        )}
-        <Email error={formErrors.email} />
-        <Username error={formErrors.username} />
-        <Password error={formErrors.password} />
-        <ProfileImage
-          handleProfilePicAccept={handleProfilePicAccept}
-          handleProfilePicClear={handleProfilePicClear}
-          profilePic={profilePic}
-        />
-        <Language
-          error={formErrors.language}
-          value={dropdownLanguage}
-          onChange={handleLanguageChange}
-        />
-        <Currency
-          error={formErrors.currency}
-          value={dropdownCurrency}
-          onChange={handleCurrencyChange}
-        />
-        <Passphrase error={formErrors.passphrase} />
-        <Submit disabled={status === 'loading'} />
-      </form>
-    </>
+          <p className={css.buttonImageText}>{t('auth:Sign Up with Google')}</p>
+        </Button>
+        <div className={css.loginPrompt}>
+          <AppLink href={urls.login} underline>
+            {t('auth:Already have an account? Sign in')}
+          </AppLink>
+        </div>
+      </div>
+    </div>
   )
 }

@@ -3,7 +3,8 @@
 }
 
 .listItem {
-  @apply flex items-center justify-between px-6 py-3 mb-6 border rounded-sm border-base-border;
+  @apply relative flex items-center justify-between gap-2 px-6 py-3 mb-6 border rounded-sm border-gray-200;
+  @apply sm:flex-row;
 }
 
 .isExpired {
@@ -11,15 +12,16 @@
 }
 
 .itemActions {
-  @apply flex items-center justify-between;
+  @apply flex items-center justify-between gap-4;
 }
 
 .itemLabel {
-  @apply self-center font-light;
+  @apply flex items-center self-center gap-2 -ml-4 font-semibold;
+  @apply sm:ml-0;
 }
 
 .removeButton {
-  @apply pr-0 mb-0 text-sm underline text-base-gray-light;
+  @apply px-0 mb-0 text-sm underline;
 }
 
 .dialogContainer {
@@ -27,15 +29,11 @@
 }
 
 .dialog {
-  @apply relative w-full max-w-lg my-8 overflow-visible bg-white sm:w-full;
+  @apply relative w-full max-w-lg my-8 overflow-visible sm:w-full;
 }
 
 .dialogRoot {
   @apply flex flex-col items-center justify-start h-full pt-4 pb-8 text-center sm:px-16;
-}
-
-.dialogHeader {
-  @apply mb-12 text-2xl font-bold text-base-textPrimary;
 }
 
 .closeButton {

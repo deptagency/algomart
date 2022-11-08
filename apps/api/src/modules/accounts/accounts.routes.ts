@@ -1,12 +1,15 @@
 import {
+  ApplicantCreate,
   CreateUserAccountRequest,
-  ExternalId,
-  Passphrase,
+  DeleteTestAccount,
+  SendPasswordReset,
+  UpdateUserAccount,
+  UserEmail,
   Username,
-  UsersQuerystring,
 } from '@algomart/schemas'
-import { UpdateUserAccount } from '@algomart/schemas'
+import { generateCacheKey } from '@algomart/shared/plugins'
 import { AccountsService } from '@algomart/shared/services'
+import { getIPAddress } from '@algomart/shared/utils'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function createAccount(
@@ -16,96 +19,179 @@ export async function createAccount(
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
-  const account = await accounts.create(request.body, request.transaction)
-  if (account) {
-    reply.status(201).send(account)
-  } else {
-    reply.badRequest('username and/or externalId already in use')
-  }
-}
-
-export async function updateAccount(
-  request: FastifyRequest<{ Body: UpdateUserAccount; Params: ExternalId }>,
-  reply: FastifyReply
-) {
-  const accounts = request
-    .getContainer()
-    .get<AccountsService>(AccountsService.name)
-  await accounts.updateAccount(
-    {
-      ...request.body,
-      ...request.params,
-    },
-    request.transaction
+  const account = await accounts.create(
+    request.token.uid,
+    request.body,
+    getIPAddress(request)
   )
-  reply.status(204).send()
+
+  return reply.status(201).send(account)
 }
 
-export async function getByExternalId(
-  request: FastifyRequest<{ Params: ExternalId }>,
-  reply: FastifyReply
-) {
+export async function getProfile(request: FastifyRequest, reply: FastifyReply) {
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
-  const account = await accounts.getByExternalId(request.params)
-  reply.send(account)
+  const token = request.token
+  const account = await accounts.getByExternalId({
+    userExternalId: token.uid,
+  })
+  return reply.send(account)
 }
 
 export async function getByUsername(
-  request: FastifyRequest<{ Querystring: Username }>,
+  request: FastifyRequest<{ Params: Username }>,
   reply: FastifyReply
 ) {
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
-  const account = await accounts.getByUsername(request.query)
-  reply.send(account)
+  const account = await accounts.getByUsername(request.params)
+  return reply.send(account)
 }
 
-export async function getUsers(
-  request: FastifyRequest<{ Querystring: UsersQuerystring }>,
-  reply: FastifyReply
-) {
-  const accountService = request
-    .getContainer()
-    .get<AccountsService>(AccountsService.name)
-  const users = await accountService.getUsers(request.query)
-  reply.send(users)
-}
-
-export async function verifyPassphrase(
-  request: FastifyRequest<{ Params: ExternalId; Body: Passphrase }>,
+export async function getByEmail(
+  request: FastifyRequest<{ Params: UserEmail }>,
   reply: FastifyReply
 ) {
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
-  const isValid = await accounts.verifyPassphraseFor(
-    request.params.externalId,
-    request.body.passphrase
-  )
-  reply.status(200).send({ isValid })
+  const account = await accounts.getByEmail(request.params)
+
+  return reply.send(account)
 }
 
-export async function verifyUsername(
-  request: FastifyRequest<{ Body: Username }>,
+export async function getAvatarByUsername(
+  request: FastifyRequest<{ Params: Username }>,
   reply: FastifyReply
 ) {
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
-  const userExists = await accounts.verifyUsername(request.body.username)
-  reply.status(200).send({ isAvailable: !userExists })
+
+  const avatar = await accounts.getAvatarByUsername(request.params)
+  const cacheKey = generateCacheKey('avatar', [request.params.username])
+
+  return reply.cache(cacheKey).send(avatar)
 }
 
-export async function removeUser(
-  request: FastifyRequest<{ Params: ExternalId }>,
+export async function sendPasswordReset(
+  request: FastifyRequest<{ Body: SendPasswordReset }>,
   reply: FastifyReply
 ) {
   const accounts = request
     .getContainer()
     .get<AccountsService>(AccountsService.name)
-  await accounts.removeUser(request.params)
-  reply.status(204).send()
+
+  await accounts.sendPasswordReset(request.body.email)
+
+  return reply.status(204).send()
+}
+
+export async function deleteTestAccount(
+  request: FastifyRequest<{ Body: DeleteTestAccount }>,
+  reply: FastifyReply
+) {
+  const accounts = request
+    .getContainer()
+    .get<AccountsService>(AccountsService.name)
+
+  await accounts.deleteTestAccount(request.body.usernames)
+  return reply.status(204).send()
+}
+
+export async function updateAccount(
+  request: FastifyRequest<{
+    Body: UpdateUserAccount
+  }>,
+  reply: FastifyReply
+) {
+  const accounts = request
+    .getContainer()
+    .get<AccountsService>(AccountsService.name)
+
+  await accounts.updateAccount(request.user.id, {
+    ...request.body,
+  })
+  return reply.status(204).send()
+}
+
+export async function sendNewEmailVerification(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const accounts = request
+    .getContainer()
+    .get<AccountsService>(AccountsService.name)
+
+  await accounts.sendNewEmailVerification(request.user)
+
+  return reply.status(204).send()
+}
+
+export async function createApplicant(
+  request: FastifyRequest<{ Body: ApplicantCreate }>,
+  reply: FastifyReply
+) {
+  const accounts = request
+    .getContainer()
+    .get<AccountsService>(AccountsService.name)
+  const applicant = await accounts.createApplicant(request.user, request.body)
+  return reply.status(201).send(applicant)
+}
+
+export async function getApplicantToken(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const accounts = request
+    .getContainer()
+    .get<AccountsService>(AccountsService.name)
+  const applicant = await accounts.getApplicantToken(request.user)
+  return reply.status(200).send(applicant)
+}
+
+export async function requestManualReview(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const accounts = request
+    .getContainer()
+    .get<AccountsService>(AccountsService.name)
+  await accounts.getApplicantToken(request.user)
+  return reply.status(204).send()
+}
+
+export async function getApplicant(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const accounts = request
+    .getContainer()
+    .get<AccountsService>(AccountsService.name)
+  const applicantDetails = await accounts.getApplicant(request.user)
+  return reply.status(200).send(applicantDetails)
+}
+
+export async function getUserStatusReport(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const accounts = request
+    .getContainer()
+    .get<AccountsService>(AccountsService.name)
+  const user = await accounts.getUserStatus(request.user)
+  return reply.status(200).send(user)
+}
+
+export async function generateNewWorkflow(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const accounts = request
+    .getContainer()
+    .get<AccountsService>(AccountsService.name)
+  const workflow = await accounts.generateNewWorkflow(request.user)
+  return reply.status(200).send(workflow)
 }

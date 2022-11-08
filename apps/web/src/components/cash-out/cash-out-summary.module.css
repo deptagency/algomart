@@ -1,0 +1,37 @@
+.transactionSummary {
+  @apply p-5 mt-8 bg-base-bg rounded-md;
+}
+
+.summaryHeader {
+  @apply font-bold text-lg mb-4 text-center;
+}
+
+.title {
+  @apply pt-4 pb-6 text-base font-bold;
+}
+
+.lineItem {
+  @apply flex flex-col px-4 py-4 border-t-1;
+}
+
+.lineItem:last-child {
+  @apply border-b-1;
+}
+
+.lineItem > dt {
+  @apply flex-1;
+}
+
+.lineItem dd span {
+  @apply text-base-textSecondary;
+}
+
+.legalese {
+  @apply px-4 mx-auto text-sm text-center text-base-textTertiary;
+}
+.legalese p {
+  @apply my-4;
+}
+.legalese a {
+  @apply underline;
+}

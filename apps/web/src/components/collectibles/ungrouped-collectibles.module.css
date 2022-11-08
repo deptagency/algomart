@@ -1,0 +1,7 @@
+.root {
+  @apply px-5 py-10 mb-12 border-x-1 border-b-1 border-action-primary;
+}
+
+.numberCollected {
+  @apply block mt-1 mb-5 text-sm uppercase text-action-primary;
+}

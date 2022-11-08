@@ -3,7 +3,9 @@
     "Brand": "Brand",
     "Name": "Name",
     "Newest": "Newest",
-    "Oldest": "Oldest"
+    "Oldest": "Oldest",
+    "RarityAscending": "Rarity Ascending",
+    "RarityDescending": "Rarity Descending"
   },
   "tabs": {
     "NFTs": "NFTs",
@@ -17,7 +19,7 @@
   },
   "collectionPage": {
     "A collection by": "<0>A collection by <1>{{brand}}</1></0>",
-    "Number of Total Collected": "{{number}} of {{total}} Collected",
+    "Number of Total": "{{number}} of {{total}}",
     "Other Collectibles": "Other Collectibles",
     "Part of Collection": "<0>Part of <1>{{name}}</1></0>"
   },
@@ -38,7 +40,10 @@
     "Publish Showcase": "Publish Showcase",
     "Find Something Cool": "Find Something Cool",
     "startCollection": "Start your collection today.",
-    "emptyState": "Showcase is a publicly available gallery of your best collectibles. Add your favorites to share them with the world!",
-    "showcaseTitle": "@{{username}}'s showcase"
+    "emptyState": "This user hasn't publicly shared any collectibles yet.",
+    "emptyStateCurrentUser": "Showcase is a publicly available gallery of your best collectibles. Add your favorites to share them with the world!",
+    "showcaseTitle": "@{{username}}'s showcase",
+    "show video": "show video",
+    "show cover": "show cover"
   }
 }

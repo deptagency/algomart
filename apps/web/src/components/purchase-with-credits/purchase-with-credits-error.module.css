@@ -1,0 +1,11 @@
+.root {
+  @apply max-w-xs text-center;
+}
+
+.icon {
+  @apply relative w-16 h-16 mx-auto text-base-error;
+}
+
+.message {
+  @apply mb-8 text-base-textSecondary;
+}
