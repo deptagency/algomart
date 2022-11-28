@@ -144,7 +144,7 @@
     "@types/sns-validator": "0.3.1",
     "@types/three": "0.143.2",
     "@types/uuid": "8.3.4",
-    "@typescript-eslint/eslint-plugin": "5.36.1",
+    "@typescript-eslint/eslint-plugin": "5.44.0",
     "@typescript-eslint/parser": "5.36.1",
     "autoprefixer": "10.4.8",
     "babel-jest": "29.0.1",
