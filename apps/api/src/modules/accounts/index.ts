@@ -7,7 +7,6 @@ import {
   ToApplicantBaseExtendedSchema,
   UpdateUserAccountSchema,
   UserAvatarObjectSchema,
-  UserEmailObjectSchema,
   UsernameObjectSchema,
   UserStatusReportSchema,
   WorkflowDetailsSchema,
@@ -23,8 +22,6 @@ import {
   getApplicant,
   getApplicantToken,
   getAvatarByUsername,
-  getByEmail,
-  getByUsername,
   getProfile,
   getUserStatusReport,
   requestManualReview,
@@ -90,23 +87,6 @@ export async function accountsRoutes(app: FastifyInstance) {
   )
 
   app.get(
-    '/:username',
-    {
-      config: {
-        auth: { anonymous: true },
-      },
-      schema: {
-        tags,
-        params: UsernameObjectSchema,
-        response: {
-          200: PublicUserAccountSchema,
-        },
-      },
-    },
-    getByUsername
-  )
-
-  app.get(
     '/avatar/:username',
     {
       config: {
@@ -121,23 +101,6 @@ export async function accountsRoutes(app: FastifyInstance) {
       },
     },
     getAvatarByUsername
-  )
-
-  app.get(
-    '/email/:email',
-    {
-      config: {
-        auth: { anonymous: true },
-      },
-      schema: {
-        tags,
-        params: UserEmailObjectSchema,
-        response: {
-          200: PublicUserAccountSchema,
-        },
-      },
-    },
-    getByEmail
   )
 
   app.post(

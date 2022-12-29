@@ -11,7 +11,6 @@ import {
   UserAccount,
   UserAccounts,
   UserAccountStatus,
-  UserEmail,
   UserExternalIdObject,
   Username,
   UserSortField,
@@ -393,26 +392,6 @@ export class AccountsService {
     const userAccount = await UserAccountModel.query()
       .findOne({
         externalId: request.userExternalId,
-      })
-      .withGraphJoined('algorandAccount.creationTransaction')
-
-    return this.mapPublicAccount(userAccount)
-  }
-
-  async getByUsername(request: Username) {
-    const userAccount = await UserAccountModel.query()
-      .findOne({
-        username: request.username,
-      })
-      .withGraphJoined('algorandAccount.creationTransaction')
-
-    return this.mapPublicAccount(userAccount)
-  }
-
-  async getByEmail(request: UserEmail) {
-    const userAccount = await UserAccountModel.query()
-      .findOne({
-        email: request.email,
       })
       .withGraphJoined('algorandAccount.creationTransaction')
 

@@ -4,7 +4,6 @@ import {
   DeleteTestAccount,
   SendPasswordReset,
   UpdateUserAccount,
-  UserEmail,
   Username,
 } from '@algomart/schemas'
 import { generateCacheKey } from '@algomart/shared/plugins'
@@ -36,29 +35,6 @@ export async function getProfile(request: FastifyRequest, reply: FastifyReply) {
   const account = await accounts.getByExternalId({
     userExternalId: token.uid,
   })
-  return reply.send(account)
-}
-
-export async function getByUsername(
-  request: FastifyRequest<{ Params: Username }>,
-  reply: FastifyReply
-) {
-  const accounts = request
-    .getContainer()
-    .get<AccountsService>(AccountsService.name)
-  const account = await accounts.getByUsername(request.params)
-  return reply.send(account)
-}
-
-export async function getByEmail(
-  request: FastifyRequest<{ Params: UserEmail }>,
-  reply: FastifyReply
-) {
-  const accounts = request
-    .getContainer()
-    .get<AccountsService>(AccountsService.name)
-  const account = await accounts.getByEmail(request.params)
-
   return reply.send(account)
 }
 
