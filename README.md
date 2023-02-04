@@ -83,7 +83,7 @@ You can either build and run each application manually or you can use `docker-co
 1. Create .env files
 
    ```bash
-      cp ./.env.exmaple ./.env
+      cp ./.env.example ./.env
       cp ./apps/cms/.env.example ./apps/cms/.env
       cp ./apps/scribe/.env.example ./apps/scribe/.env
       cp ./apps/api/.env.example ./apps/api/.env
