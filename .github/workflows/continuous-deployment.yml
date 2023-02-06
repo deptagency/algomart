@@ -55,7 +55,7 @@ jobs:
         run: echo "image_name=${{ secrets.GCP_DOCKER_REGISTRY }}/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_DOCKER_REPOSITORY }}/${{ matrix.app }}" >> $GITHUB_ENV
 
       - name: Build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: .
           file: ./docker/deploy/${{ matrix.app }}/Dockerfile
