@@ -64,7 +64,7 @@
     "dinero.js": "2.0.0-alpha.8",
     "directus": "9.16.1",
     "env-var": "7.1.1",
-    "fastify": "4.5.3",
+    "fastify": "4.13.0",
     "fastify-plugin": "4.2.1",
     "firebase": "9.9.3",
     "firebase-admin": "11.0.1",
