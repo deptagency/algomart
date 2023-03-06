@@ -137,7 +137,7 @@
     "@types/js-cookie": "3.0.2",
     "@types/jsonwebtoken": "8.5.9",
     "@types/lodash": "4.14.184",
-    "@types/node": "18.7.14",
+    "@types/node": "18.14.6",
     "@types/react": "18.0.18",
     "@types/react-dom": "18.0.6",
     "@types/rosie": "0.0.40",
