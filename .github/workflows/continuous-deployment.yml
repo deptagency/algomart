@@ -19,7 +19,7 @@ jobs:
     outputs:
       value: ${{ steps.docker-image-tag.outputs.value }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - id: docker-image-tag
         run: echo "::set-output name=value::$( git rev-parse --short HEAD )"
@@ -34,7 +34,7 @@ jobs:
       matrix:
         app: [api, cms, web, scribe]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v1
@@ -78,7 +78,7 @@ jobs:
       GOOGLE_CREDENTIALS: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Set up terraform
         uses: hashicorp/setup-terraform@v2
